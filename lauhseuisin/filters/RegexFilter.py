@@ -35,12 +35,6 @@ class RegexFilter(ABC):
                     for downstream_pipe in downstream_pipes:
                         downstream_pipe.send(infile)
 
-    def __repr__(self) -> str:
-        return f"<{self.__class__.__name__}>"
-
-    def __str__(self) -> str:
-        return self.__repr__()
-
     def filter_file(self, infile: str) -> bool:
         if self.regex.match(basename(dirname(infile))):
             print(f"{infile} TRUE")

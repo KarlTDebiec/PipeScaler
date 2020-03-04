@@ -45,3 +45,4 @@ class Filter(ABC):
         pass
 
 from lauhseuisin.filters.RegexFilter import RegexFilter
+from lauhseuisin.filters.TextImageFilter import TextImageFilter
