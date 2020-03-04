@@ -37,10 +37,8 @@ class RegexFilter(ABC):
 
     def filter_file(self, infile: str) -> bool:
         if self.regex.match(basename(dirname(infile))):
-            print(f"{infile} TRUE")
             return True
         else:
-            print(f"{infile} FALSE")
             return False
 
     @classmethod

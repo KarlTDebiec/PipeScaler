@@ -14,7 +14,9 @@ from os.path import expandvars, isfile
 from pathlib import Path
 from shutil import copyfile
 from subprocess import Popen
-from typing import Any, List
+from typing import Any, List, Union
+
+from IPython import embed
 
 from lauhseuisin.processors import Processor
 
@@ -45,11 +47,10 @@ class AutomatorProcessor(Processor):
                 str(kwargs.pop("workflow_directory")))
         else:
             workflow_directory = f"{Path(__file__).parent.absolute()}/" \
-                                 f"workflows"
+                                 f"../data/workflows"
         workflows: Union[List[str], str] = kwargs.pop("workflow")
         if not isinstance(workflows, list):
             workflows = [workflows]
-
         processors: List[Processor] = []
         for workflow in workflows:
             processors.append(cls(
