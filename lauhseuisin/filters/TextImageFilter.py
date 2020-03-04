@@ -10,14 +10,10 @@
 ################################### MODULES ###################################
 from __future__ import annotations
 
-import re
-from abc import ABC
-from os.path import basename, dirname
 from typing import Any, Generator, List, Optional
 
 import numpy as np
-from PIL import UnidentifiedImageError
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 
 from lauhseuisin.filters import Filter
 
