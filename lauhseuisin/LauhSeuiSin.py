@@ -26,7 +26,13 @@ from lauhseuisin.processors import *
 class LauhSeuiSin:
     """
     TODO:
-        - Class Filter
+        - Blacklist Filter
+        - Test xbrz -> Pixelmator vs. Pixelmator -> Pixelmator
+        - Test waifu -> Pixelmator vs. Pixelmator -> Pixelmator
+        - Fork
+        - pngquant
+        - Match LOD texture to full-resolution
+        - Look into esrgan
     """
     # region Class Variables
 
