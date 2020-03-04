@@ -38,6 +38,7 @@ class RegexFilter(Filter):
 
     def filter_file(self, infile: str) -> bool:
         if self.regex.match(infile):
+            print(f"{self}{infile}")
             return True
         else:
             return False

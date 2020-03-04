@@ -49,9 +49,8 @@ class TextImageFilter(Filter):
         except UnidentifiedImageError:
             return False
 
-        if data.shape != (256, 256, 4):
-            return False
         if data[:, :, :3].sum() != 0:
+            print(f"{self}{infile}")
             return True
 
         return False

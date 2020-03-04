@@ -151,7 +151,6 @@ class LauhSeuiSin:
             if infile == ".DS_Store":
                 continue
             infile = join(str(self.input_directory), infile)
-            print(f"Nay '{infile}'")
             for processor in downstream_pipes:
                 processor.send(infile)
             # break
