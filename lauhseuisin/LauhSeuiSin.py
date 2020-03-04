@@ -54,7 +54,10 @@ class LauhSeuiSin:
         self.verbosity = conf.get("verbosity", 1)
 
         # Input configuration
-        self.input_directory = conf.get("input", getcwd())
+        self.input_directory = conf.get("input_directory", getcwd())
+
+        # Work in process configuration
+        self.wip_directory = conf.get("wip_directory", getcwd())
 
         # Preprocessor configuration
         self.pipeline: OrderedDict[str, List[Processor]] = OrderedDict()
@@ -68,12 +71,11 @@ class LauhSeuiSin:
                 else:
                     pipe_name = pipe
                     pipe_args = {}
+                pipe_args["wip_directory"] = self.wip_directory
                 pipe_cls = getattr(modules[__name__], pipe_name)
+                print(pipe_cls, pipe_args)
                 pipes.extend(pipe_cls.get_pipes(**pipe_args))
             self.pipeline[stage_name] = pipes
-
-        # Output configuration
-        self.output_directory = conf.get("output", getcwd())
 
     def __call__(self) -> None:
         """
@@ -111,20 +113,20 @@ class LauhSeuiSin:
         self._input_directory = value
 
     @property
-    def output_directory(self) -> Optional[str]:
+    def wip_directory(self) -> Optional[str]:
         """Optional[str]: Directory to which to save hi-res image files"""
-        if not hasattr(self, "_output_directory"):
-            self._output_directory: Optional[str] = None
-        return self._output_directory
+        if not hasattr(self, "_wip_directory"):
+            self._wip_directory: Optional[str] = None
+        return self._wip_directory
 
-    @output_directory.setter
-    def output_directory(self, value: Optional[str]) -> None:
+    @wip_directory.setter
+    def wip_directory(self, value: Optional[str]) -> None:
         if value is not None:
             value = expandvars(value)
             # TODO: Create if possible
             if not (isdir(value) and access(value, W_OK)):
                 raise ValueError()
-        self._output_directory = value
+        self._wip_directory = value
 
     @property
     def verbosity(self) -> int:
@@ -143,24 +145,15 @@ class LauhSeuiSin:
 
     # region Methods
 
-    def scan_input_directory(self, downstream_processors: Any) -> None:
+    def scan_input_directory(self, downstream_pipes: Any) -> None:
         print(f"Scanning infiles in '{self.input_directory}'")
         for infile in listdir(self.input_directory):
             if infile == ".DS_Store":
                 continue
             infile = join(str(self.input_directory), infile)
-            print(f"Processing '{infile}'")
-            file_directory = f"{self.output_directory}/" \
-                             f"{splitext(basename(infile))[0]}"
-            if not isdir(file_directory):
-                print(f"Creating directory '{file_directory}'")
-                makedirs(file_directory)
-            outfile = f"{file_directory}/original.png"
-            if not isfile(outfile):
-                copyfile(infile, outfile)
-                print(f"Copying to '{outfile}'")
-            for processor in downstream_processors:
-                processor.send(outfile)
+            print(f"Nay '{infile}'")
+            for processor in downstream_pipes:
+                processor.send(infile)
             # break
 
     # endregion

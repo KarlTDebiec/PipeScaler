@@ -19,9 +19,10 @@ from lauhseuisin.filters import Filter
 
 
 ################################### CLASSES ###################################
-class RegexFilter(ABC):
+class RegexFilter(Filter):
 
     def __init__(self, regex: str, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
         self.regex = re.compile(str(regex))
 
     def __call__(self,
@@ -36,7 +37,7 @@ class RegexFilter(ABC):
                         downstream_pipe.send(infile)
 
     def filter_file(self, infile: str) -> bool:
-        if self.regex.match(basename(dirname(infile))):
+        if self.regex.match(infile):
             return True
         else:
             return False

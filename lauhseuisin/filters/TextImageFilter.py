@@ -23,7 +23,7 @@ from lauhseuisin.filters import Filter
 
 
 ################################### CLASSES ###################################
-class TextImageFilter(ABC):
+class TextImageFilter(Filter):
 
     def __call__(self,
                  downstream_pipes: Optional[

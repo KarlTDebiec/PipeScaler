@@ -30,7 +30,7 @@ class ResizeProcessor(Processor):
         if isfile(outfile):
             return
         print(f"Processeing to '{outfile}'")
-        input_image = Image.open(infile).convert("L")
+        input_image = Image.open(infile)
         output_image = input_image.resize((
             int(np.round(input_image.size[0] * self.scale)),
             int(np.round(input_image.size[1] * self.scale))))

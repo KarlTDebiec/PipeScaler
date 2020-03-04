@@ -11,30 +11,34 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from os.path import basename, dirname, expandvars, splitext
-from shutil import which
+from os import makedirs
+from os.path import basename, dirname, expandvars, splitext, isdir
+from shutil import which, copyfile
 from typing import Any, Generator, List, Optional
 
-
 ################################### CLASSES ###################################
+from IPython import embed
+
+
 class Processor(ABC):
     executable_name: Optional[str] = None
     extension: str = "png"
 
-    def __init__(self, **kwargs: Any) -> None:
+    def __init__(self, wip_directory: str, **kwargs: Any) -> None:
         self.paramstring = kwargs.get("paramstring", None)
         if self.executable_name is not None:
             self.executable = expandvars(
                 str(kwargs.get("executable", which(self.executable_name))))
+        self.wip_directory = wip_directory
 
-    def __call__(self, downstream_processors: Optional[List[
+    def __call__(self, downstream_pipes: Optional[List[
         Generator[None, str, None]]] = None) -> Generator[None, str, None]:
         while True:
             infile = (yield)
             outfile = self.get_outfile(infile)
             self.process_file(infile, outfile)
-            if downstream_processors is not None:
-                for downstream_processor in downstream_processors:
+            if downstream_pipes is not None:
+                for downstream_processor in downstream_pipes:
                     downstream_processor.send(outfile)
 
     def __repr__(self) -> str:
@@ -44,12 +48,21 @@ class Processor(ABC):
         return self.__repr__()
 
     def get_outfile(self, infile: str) -> str:
-        outfile = splitext(basename(infile))[0].lstrip("original")
-        if self.paramstring != "":
-            outfile += f"_{self.paramstring}"
-        outfile = outfile.lstrip("_")
-        outfile += f".{self.extension}"
-        return f"{dirname(infile)}/{outfile}"
+        if self.wip_directory in infile:  # Mid-pipe:
+            original_name = basename(dirname(infile))
+            paramstrings_so_far = splitext(basename(infile))[0].lstrip("original")
+            outfile = f"{paramstrings_so_far}_{self.paramstring}.{self.extension}"
+            outfile = f"{self.wip_directory}/{original_name}/{outfile}"
+        else: # Start of pipe
+            name = splitext(basename(infile))[0]
+            ext = splitext(infile)[1]
+            if not isdir(f"{self.wip_directory}/{name}"):
+                makedirs(f"{self.wip_directory}/{name}")
+            copyfile(infile, f"{self.wip_directory}/{name}/original{ext}")
+            outfile = f"{self.wip_directory}/{name}/{self.paramstring}.{self.extension}"
+        print(infile)
+        print(outfile)
+        return outfile
 
     @abstractmethod
     def process_file(self, infile: str, outfile: str) -> None:

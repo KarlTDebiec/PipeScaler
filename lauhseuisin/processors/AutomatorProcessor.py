@@ -55,7 +55,6 @@ class AutomatorProcessor(Processor):
         for workflow in workflows:
             processors.append(cls(
                 workflow=f"{workflow_directory}/{workflow}.workflow",
-                paramstring=f"pixelmator-"
-                            f"{workflow}",
+                paramstring=f"{workflow}",
                 **kwargs))
         return processors
