@@ -12,14 +12,17 @@ from __future__ import annotations
 
 from collections import OrderedDict
 from os import R_OK, W_OK, access, getcwd, listdir, makedirs
-from os.path import basename, expandvars, isdir, isfile, join, \
-    splitext
+from os.path import (basename, expandvars, isdir, isfile, join,
+                     splitext)
 from pathlib import Path
 from shutil import copyfile
 from sys import modules
 from typing import Any, List, Optional
 
 import yaml
+from IPython import embed
+from lauhseuisin.processors import *
+from lauhseuisin.filters import *
 
 
 ################################### CLASSES ###################################
@@ -32,7 +35,7 @@ class LauhSeuiSin:
 
     # region Builtins
 
-    def __init__(self, conf_file: str = "conf_upscaler.yaml") -> None:
+    def __init__(self, conf_file: str = "conf2.yaml") -> None:
         """
         Initializes
 
@@ -57,18 +60,17 @@ class LauhSeuiSin:
         self.pipeline: OrderedDict[str, List[Processor]] = OrderedDict()
         for stage in conf["pipeline"]:
             stage_name = list(stage.keys())[0]
-            processors: List[Processor] = []
-            for processor in list(stage.values())[0]:
-                if isinstance(processor, dict):
-                    processor_name = list(processor.keys())[0]
-                    processor_args = list(processor.values())[0]
+            pipes: List[Processor] = []
+            for pipe in list(stage.values())[0]:
+                if isinstance(pipe, dict):
+                    pipe_name = list(pipe.keys())[0]
+                    pipe_args = list(pipe.values())[0]
                 else:
-                    processor_name = processor
-                    processor_args = {}
-                processor_cls = getattr(modules[__name__], processor_name)
-                processors.extend(
-                    processor_cls.get_processors(**processor_args))
-            self.pipeline[stage_name] = processors
+                    pipe_name = pipe
+                    pipe_args = {}
+                pipe_cls = getattr(modules[__name__], pipe_name)
+                pipes.extend(pipe_cls.get_pipes(**pipe_args))
+            self.pipeline[stage_name] = pipes
 
         # Output configuration
         self.output_directory = conf.get("output", getcwd())

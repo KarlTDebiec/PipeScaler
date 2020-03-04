@@ -1,3 +1,24 @@
+#!python
+# -*- coding: utf-8 -*-
+#   LauhSeuiSin.py
+#
+#   Copyright (C) 2020 Karl T Debiec
+#   All rights reserved.
+#
+#   This software may be modified and distributed under the terms of the
+#   BSD license.
+################################### MODULES ###################################
+from __future__ import annotations
+
+from os import remove
+from os.path import isfile
+from subprocess import Popen
+from typing import Any, List
+
+from lauhseuisin.processors import Processor
+
+
+################################### CLASSES ###################################
 class PotraceProcessor(Processor):
     executable_name = "potrace"
 
@@ -45,7 +66,7 @@ class PotraceProcessor(Processor):
         remove(svgfile)
 
     @classmethod
-    def get_processors(cls, **kwargs: Any) -> List[Processor]:
+    def get_pipes(cls, **kwargs: Any) -> List[Processor]:
         blacklevels = kwargs.pop("blacklevel")
         if not isinstance(blacklevels, list):
             blacklevels = [blacklevels]

@@ -1,4 +1,26 @@
+#!python
+# -*- coding: utf-8 -*-
+#   LauhSeuiSin.py
+#
+#   Copyright (C) 2020 Karl T Debiec
+#   All rights reserved.
+#
+#   This software may be modified and distributed under the terms of the
+#   BSD license.
+################################### MODULES ###################################
+from __future__ import annotations
 
+from os.path import isfile
+from typing import Any, List, no_type_check
+
+import numba as nb
+import numpy as np
+from PIL import Image
+
+from lauhseuisin.processors import Processor
+
+
+################################### CLASSES ###################################
 class ThresholdProcessor(Processor):
 
     def __init__(self, threshold: int = 128, denoise: bool = False,
@@ -20,7 +42,7 @@ class ThresholdProcessor(Processor):
         processed_image.save(outfile)
 
     @classmethod
-    def get_processors(cls, **kwargs: Any) -> List[Processor]:
+    def get_pipes(cls, **kwargs: Any) -> List[Processor]:
         thresholds = kwargs.pop("threshold")
         if not isinstance(thresholds, list):
             thresholds = [thresholds]

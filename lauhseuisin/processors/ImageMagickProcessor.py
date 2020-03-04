@@ -1,3 +1,24 @@
+#!python
+# -*- coding: utf-8 -*-
+#   LauhSeuiSin.py
+#
+#   Copyright (C) 2020 Karl T Debiec
+#   All rights reserved.
+#
+#   This software may be modified and distributed under the terms of the
+#   BSD license.
+################################### MODULES ###################################
+from __future__ import annotations
+
+from os import remove
+from os.path import isfile
+from subprocess import Popen
+from typing import Any, List
+
+from lauhseuisin.processors import Processor
+
+
+################################### CLASSES ###################################
 class ImageMagickProcessor(Processor):
     executable_name = "convert"
 
@@ -27,7 +48,7 @@ class ImageMagickProcessor(Processor):
             remove(infile)
 
     @classmethod
-    def get_processors(cls, **kwargs: Any) -> List[Processor]:
+    def get_pipes(cls, **kwargs: Any) -> List[Processor]:
         return [cls(extension=kwargs.pop("extension", "bmp"),
                     remove_infile=kwargs.pop("remove_infile", False),
                     resize=kwargs.pop("resize", False),

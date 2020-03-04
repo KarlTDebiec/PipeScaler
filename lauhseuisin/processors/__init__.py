@@ -8,6 +8,8 @@
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
 ################################### MODULES ###################################
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from os.path import basename, dirname, expandvars, splitext
 from shutil import which
@@ -39,7 +41,7 @@ class Processor(ABC):
         return f"<{self.__class__.__name__} {self.paramstring}>"
 
     def __str__(self) -> str:
-        return f"<{self.__class__.__name__} {self.paramstring}>"
+        return self.__repr__()
 
     def get_outfile(self, infile: str) -> str:
         outfile = splitext(basename(infile))[0].lstrip("original")
@@ -55,5 +57,15 @@ class Processor(ABC):
 
     @classmethod
     @abstractmethod
-    def get_processors(cls, **kwargs: Any) -> List[Processor]:
+    def get_pipes(cls, **kwargs: Any) -> List[Processor]:
         pass
+
+
+from lauhseuisin.processors.AutomatorProcessor import AutomatorProcessor
+from lauhseuisin.processors.CopyProcessor import CopyProcessor
+from lauhseuisin.processors.FlattenProcessor import FlattenProcessor
+from lauhseuisin.processors.ImageMagickProcessor import ImageMagickProcessor
+from lauhseuisin.processors.ResizeProcessor import ResizeProcessor
+from lauhseuisin.processors.ThresholdProcessor import ThresholdProcessor
+from lauhseuisin.processors.WaifuProcessor import WaifuProcessor
+from lauhseuisin.processors.XbrzProcessor import XbrzProcessor

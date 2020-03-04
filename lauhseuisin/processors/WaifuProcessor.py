@@ -1,3 +1,23 @@
+#!python
+# -*- coding: utf-8 -*-
+#   LauhSeuiSin.py
+#
+#   Copyright (C) 2020 Karl T Debiec
+#   All rights reserved.
+#
+#   This software may be modified and distributed under the terms of the
+#   BSD license.
+################################### MODULES ###################################
+from __future__ import annotations
+
+from os.path import isfile
+from subprocess import Popen
+from typing import Any, List
+
+from lauhseuisin.processors import Processor
+
+
+################################### CLASSES ###################################
 class WaifuProcessor(Processor):
     executable_name = "waifu2x"
 
@@ -22,7 +42,7 @@ class WaifuProcessor(Processor):
         Popen(command, shell=True, close_fds=True).wait()
 
     @classmethod
-    def get_processors(cls, **kwargs: Any) -> List[Processor]:
+    def get_pipes(cls, **kwargs: Any) -> List[Processor]:
         processors: List[Processor] = []
         imagetypes = kwargs.pop("imagetype")
         scales = kwargs.pop("scale")
