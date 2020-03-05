@@ -1,6 +1,6 @@
 #!python
 # -*- coding: utf-8 -*-
-#   LauhSeuiSin.py
+#   lauhseuisin/processors/WaifuProcessor.py
 #
 #   Copyright (C) 2020 Karl T Debiec
 #   All rights reserved.
@@ -45,8 +45,14 @@ class WaifuProcessor(Processor):
     def get_pipes(cls, **kwargs: Any) -> List[Processor]:
         processors: List[Processor] = []
         imagetypes = kwargs.pop("imagetype")
+        if not isinstance(imagetypes, list):
+            imagetypes = [imagetypes]
         scales = kwargs.pop("scale")
+        if not isinstance(scales, list):
+            scales = [scales]
         noises = kwargs.pop("noise")
+        if not isinstance(noises, list):
+            noises = [noises]
         for imagetype in imagetypes:
             for scale in scales:
                 for noise in noises:
