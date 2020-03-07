@@ -36,14 +36,13 @@ class LauhSeuiSin:
     """
     # region Class Variables
 
-
     package_root: str = str(Path(__file__).parent.absolute())
 
     # endregion
 
     # region Builtins
 
-    def __init__(self, conf_file: str = "conf_esrgan.yaml") -> None:
+    def __init__(self, conf_file: str = "conf_pixelmator.yaml") -> None:
         """
         Initializes
 
@@ -57,6 +56,7 @@ class LauhSeuiSin:
                              f"read")
         with open(conf_file, "r") as f:
             conf = yaml.load(f, Loader=yaml.SafeLoader)
+        print(conf)
 
         # General configuration
         self.verbosity = conf.get("verbosity", 1)
@@ -79,6 +79,7 @@ class LauhSeuiSin:
                 else:
                     pipe_name = pipe
                     pipe_args = {}
+                print(pipe_name)
                 pipe_args["wip_directory"] = self.wip_directory
                 pipe_cls = getattr(modules[__name__], pipe_name)
                 print(pipe_cls, pipe_args)

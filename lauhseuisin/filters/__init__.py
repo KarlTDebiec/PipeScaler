@@ -17,8 +17,8 @@ from typing import Any, Generator, List, Optional
 ################################### CLASSES ###################################
 class Filter(ABC):
 
-    def __init__(self, **kwargs: Any) -> None:
-        pass
+    def __init__(self, wip_directory: str, **kwargs: Any) -> None:
+        self.wip_directory = wip_directory
 
     def __call__(self, downstream_pipes: Optional[List[
         Generator[None, str, None]]] = None) -> Generator[None, str, None]:
@@ -44,5 +44,7 @@ class Filter(ABC):
     def get_pipes(cls, **kwargs: Any) -> List[Filter]:
         pass
 
+
+from lauhseuisin.filters.ListFilter import ListFilter
 from lauhseuisin.filters.RegexFilter import RegexFilter
 from lauhseuisin.filters.TextImageFilter import TextImageFilter

@@ -48,12 +48,13 @@ class Processor(ABC):
         return self.__repr__()
 
     def get_outfile(self, infile: str) -> str:
-        if self.wip_directory in infile:  # Mid-pipe:
+        if self.wip_directory in infile:  # Mid-pipe
             original_name = basename(dirname(infile))
-            paramstrings_so_far = splitext(basename(infile))[0].lstrip("original")
+            paramstrings_so_far = splitext(basename(infile))[0].lstrip(
+                "original")
             outfile = f"{paramstrings_so_far}_{self.paramstring}.{self.extension}"
             outfile = f"{self.wip_directory}/{original_name}/{outfile}"
-        else: # Start of pipe
+        else:  # Start of pipe
             name = splitext(basename(infile))[0]
             ext = splitext(infile)[1]
             if not isdir(f"{self.wip_directory}/{name}"):

@@ -41,6 +41,7 @@ class ESRGANProcessor(Processor):
             self.arch = arch
 
     def process_file(self, infile: str, outfile: str) -> None:
+        print(outfile)
         if isfile(outfile):
             return
 
