@@ -43,7 +43,7 @@ class LauhSeuiSin:
 
     # region Builtins
 
-    def __init__(self, conf_file: str = "conf2.yaml") -> None:
+    def __init__(self, conf_file: str = "conf_esrgan.yaml") -> None:
         """
         Initializes
 

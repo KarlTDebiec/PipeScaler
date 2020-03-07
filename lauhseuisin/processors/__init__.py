@@ -60,8 +60,6 @@ class Processor(ABC):
                 makedirs(f"{self.wip_directory}/{name}")
             copyfile(infile, f"{self.wip_directory}/{name}/original{ext}")
             outfile = f"{self.wip_directory}/{name}/{self.paramstring}.{self.extension}"
-        print(infile)
-        print(outfile)
         return outfile
 
     @abstractmethod
@@ -76,6 +74,7 @@ class Processor(ABC):
 
 from lauhseuisin.processors.AutomatorProcessor import AutomatorProcessor
 from lauhseuisin.processors.CopyProcessor import CopyProcessor
+from lauhseuisin.processors.ESRGANProcessor import ESRGANProcessor
 from lauhseuisin.processors.FlattenProcessor import FlattenProcessor
 from lauhseuisin.processors.ImageMagickProcessor import ImageMagickProcessor
 from lauhseuisin.processors.ResizeProcessor import ResizeProcessor

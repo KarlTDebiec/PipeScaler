@@ -11,8 +11,6 @@
 from __future__ import annotations
 
 import re
-from abc import ABC
-from os.path import basename, dirname
 from typing import Any, Generator, List, Optional
 
 from lauhseuisin.filters import Filter
@@ -26,8 +24,8 @@ class RegexFilter(Filter):
         self.regex = re.compile(str(regex))
 
     def __call__(self,
-                 downstream_pipes: Optional[
-                     List[Generator[None, str, None]]] = None) \
+                 downstream_pipes: \
+                         Optional[List[Generator[None, str, None]]] = None) \
             -> Generator[None, str, None]:
         while True:
             infile = (yield)

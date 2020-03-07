@@ -1,0 +1,13 @@
+input_directory: $HOME/.local/share/citra-emu/dump/textures/000400000008F900
+wip_directory: $HOME/Documents/Zelda/4x_kdebiec_wip
+pipeline:
+  - stage_filename_filter:
+      - RegexFilter:
+          regex: ".*256x256.*"
+  - stage_text_filter:
+      - TextImageFilter
+  - stage_scale1:
+      - ESRGANProcessor:
+          module_path: $HOME/OneDrive/code/external/ESRGAN
+          model: $HOME/OneDrive/code/external/ESRGAN/models/RRDB_ESRGAN_x4.pth
+
