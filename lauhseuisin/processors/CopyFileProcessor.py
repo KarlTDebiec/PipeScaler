@@ -1,6 +1,5 @@
 #!python
-# -*- coding: utf-8 -*-
-#   LauhSeuiSin.py
+#   lauhseuisin/processors/CopyFileProcessor.py
 #
 #   Copyright (C) 2020 Karl T Debiec
 #   All rights reserved.
@@ -14,11 +13,11 @@ from os.path import basename, dirname, expandvars, isfile
 from shutil import copyfile
 from typing import Any, List
 
-from lauhseuisin.processors import Processor
+from lauhseuisin.processors.Processor import Processor
 
 
 ################################### CLASSES ###################################
-class CopyProcessor(Processor):
+class CopyFileProcessor(Processor):
     def __init__(self, output_directory: str, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self.output_directory = expandvars(output_directory)

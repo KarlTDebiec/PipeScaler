@@ -1,6 +1,5 @@
 #!python
-# -*- coding: utf-8 -*-
-#   LauhSeuiSin.py
+#   lauhseuisin/processors/FlattenProcessor.py
 #
 #   Copyright (C) 2020 Karl T Debiec
 #   All rights reserved.
@@ -16,7 +15,7 @@ from typing import Any, List
 import numpy as np
 from PIL import Image
 
-from lauhseuisin.processors import Processor
+from lauhseuisin.processors.Processor import Processor
 
 
 ################################### CLASSES ###################################

@@ -18,7 +18,7 @@ from typing import Any, List, Optional, IO
 
 from PIL import Image
 
-from lauhseuisin.processors import Processor
+from lauhseuisin.processors.Processor import Processor
 
 
 ################################### CLASSES ###################################

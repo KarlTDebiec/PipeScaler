@@ -3,7 +3,7 @@ wip_directory: $HOME/Documents/Zelda/4x_kdebiec_wip
 pipeline:
   - stage_filename_filter:
       - RegexFilter:
-          regex: ".*256x256.*"
+          regex: ".*(128x256|256x128|256x256).*"
   - stage_text_filter:
       - TextImageFilter
   - stage_list_filter:
@@ -35,17 +35,19 @@ pipeline:
             - tex1_128x256_516F0458D523E444_4
             - tex1_128x256_D564F02805CB2235_4
   - stage_scale1:
+      - WaifuProcessor:
+          executable: /Users/kdebiec/OneDrive/code/external/waifu2x/waifu2x
+          imagetype: a
+          scale: 2
+          noise: 2
+  - stage_scale2:
       - AutomatorProcessor:
           workflow_directory: "$HOME/OneDrive/code/LauhSeuiSin/lauhseuisin/data/workflows"
           workflow:
             - "3x"
-  - stage_scale2:
-      - ESRGANProcessor:
-          module_path: $HOME/OneDrive/code/external/ESRGAN
-          model: $HOME/OneDrive/code/external/ESRGAN/models/RRDB_ESRGAN_x4.pth
   - stage_resize:
       - ResizeProcessor:
-          scale: 0.3333333
+          scale: 0.6666667
   - stage_noise:
       - AutomatorProcessor:
           workflow_directory: "$HOME/OneDrive/code/LauhSeuiSin/lauhseuisin/data/workflows"

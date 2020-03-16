@@ -1,6 +1,5 @@
 #!python
-# -*- coding: utf-8 -*-
-#   LauhSeuiSin.py
+#   lauseuisin/LauhSeuiSin.py
 #
 #   Copyright (C) 2020 Karl T Debiec
 #   All rights reserved.
@@ -10,29 +9,23 @@
 ################################### MODULES ###################################
 from __future__ import annotations
 
-from collections import OrderedDict
-from os import R_OK, W_OK, access, getcwd, listdir
-from os.path import isfile, join
+from argparse import ArgumentError, ArgumentParser, RawDescriptionHelpFormatter
+from os import R_OK, access
+from os.path import expandvars, isfile
 from pathlib import Path
-from sys import modules
 
 import yaml
 
-from lauhseuisin.filters import *
-from lauhseuisin.processors import *
+from lauhseuisin.Pipeline import Pipeline
 
 
 ################################### CLASSES ###################################
 class LauhSeuiSin:
     """
     TODO:
-        - Blacklist Filter
-        - Test xbrz -> Pixelmator vs. Pixelmator -> Pixelmator
-        - Test waifu -> Pixelmator vs. Pixelmator -> Pixelmator
-        - Fork
+        - Reorganize into sorters and processors
         - pngquant
         - Match LOD texture to full-resolution
-        - Look into esrgan
     """
     # region Class Variables
 
@@ -42,7 +35,7 @@ class LauhSeuiSin:
 
     # region Builtins
 
-    def __init__(self, conf_file: str = "conf_pixelmator.yaml") -> None:
+    def __init__(self, conf_file: str, verbosity: int = 1) -> None:
         """
         Initializes
 
@@ -50,123 +43,74 @@ class LauhSeuiSin:
             conf_file (str): file from which to load configuration
         """
         # Read configuration file
-        conf_file = expandvars(conf_file)
-        if not (isfile(conf_file) and access(conf_file, R_OK)):
-            raise ValueError(f"Configuration file '{conf_file}' could not be "
-                             f"read")
         with open(conf_file, "r") as f:
             conf = yaml.load(f, Loader=yaml.SafeLoader)
-        print(conf)
 
-        # General configuration
-        self.verbosity = conf.get("verbosity", 1)
+        # Build pipeline
+        self.pipeline = Pipeline(conf, verbosity=verbosity)
 
-        # Input configuration
-        self.input_directory = conf.get("input_directory", getcwd())
-
-        # Work in process configuration
-        self.wip_directory = conf.get("wip_directory", getcwd())
-
-        # Preprocessor configuration
-        self.pipeline: OrderedDict[str, List[Processor]] = OrderedDict()
-        for stage in conf["pipeline"]:
-            stage_name = list(stage.keys())[0]
-            pipes: List[Processor] = []
-            for pipe in list(stage.values())[0]:
-                if isinstance(pipe, dict):
-                    pipe_name = list(pipe.keys())[0]
-                    pipe_args = list(pipe.values())[0]
-                else:
-                    pipe_name = pipe
-                    pipe_args = {}
-                print(pipe_name)
-                pipe_args["wip_directory"] = self.wip_directory
-                pipe_cls = getattr(modules[__name__], pipe_name)
-                print(pipe_cls, pipe_args)
-                pipes.extend(pipe_cls.get_pipes(**pipe_args))
-            self.pipeline[stage_name] = pipes
-
-    def __call__(self) -> None:
-        """
-        Performs operations
-        """
-        downstream_processors = None
-        for stage in reversed(self.pipeline.keys()):
-            print(stage)
-            processors = []
-            for processor_object in self.pipeline[stage]:
-                processor_generator = processor_object(downstream_processors)
-                next(processor_generator)
-                processors.append(processor_generator)
-            downstream_processors = processors
-
-        self.scan_input_directory(downstream_processors)
+    def __call__(self):
+        self.pipeline()
 
     # endregion
 
-    # region Properties
+    # region Public Class Methods
 
-    @property
-    def input_directory(self) -> Optional[str]:
-        """Optional[str]: Directory from which to load lo-res image files"""
-        if not hasattr(self, "_input_directory"):
-            self._input_directory: Optional[str] = None
-        return self._input_directory
+    @classmethod
+    def construct_argparser(cls) -> ArgumentParser:
+        """
+        Constructs argument parser
 
-    @input_directory.setter
-    def input_directory(self, value: Optional[str]) -> None:
-        if value is not None:
+        Returns:
+            parser (ArgumentParser): Argument parser
+        """
+
+        def infile_argument(value: str) -> str:
+            if not isinstance(value, str):
+                raise ArgumentError()
+
             value = expandvars(value)
-            if not (isdir(value) and access(value, W_OK)):
-                raise ValueError()
-        self._input_directory = value
+            if not isfile(value):
+                raise ArgumentError(f"infile '{value}' does not exist")
+            elif not access(value, R_OK):
+                raise ArgumentError(f"infile '{value}' cannot be read")
 
-    @property
-    def wip_directory(self) -> Optional[str]:
-        """Optional[str]: Directory to which to save hi-res image files"""
-        if not hasattr(self, "_wip_directory"):
-            self._wip_directory: Optional[str] = None
-        return self._wip_directory
+            return value
 
-    @wip_directory.setter
-    def wip_directory(self, value: Optional[str]) -> None:
-        if value is not None:
-            value = expandvars(value)
-            # TODO: Create if possible
-            if not (isdir(value) and access(value, W_OK)):
-                raise ValueError()
-        self._wip_directory = value
+        parser = ArgumentParser(
+            description=__doc__,
+            formatter_class=RawDescriptionHelpFormatter)
+        verbosity = parser.add_mutually_exclusive_group()
+        verbosity.add_argument(
+            "-v", "--verbose",
+            action="count",
+            default=1,
+            dest="verbosity",
+            help="enable verbose output, may be specified more than once")
+        verbosity.add_argument(
+            "-q", "--quiet",
+            action="store_const",
+            const=0,
+            dest="verbosity",
+            help="disable verbose output")
+        parser.add_argument(
+            "conf_file",
+            type=infile_argument,
+            help="configuration file")
 
-    @property
-    def verbosity(self) -> int:
-        """int: Level of output to provide"""
-        if not hasattr(self, "_verbosity"):
-            self._verbosity = 1
-        return self._verbosity
+        return parser
 
-    @verbosity.setter
-    def verbosity(self, value: int) -> None:
-        if not isinstance(value, int) and value >= 0:
-            raise ValueError()
-        self._verbosity = value
+    @classmethod
+    def main(cls) -> None:
+        """Parses and validates arguments, constructs and calls object"""
 
-    # endregion
-
-    # region Methods
-
-    def scan_input_directory(self, downstream_pipes: Any) -> None:
-        print(f"Scanning infiles in '{self.input_directory}'")
-        for infile in listdir(self.input_directory):
-            if infile == ".DS_Store":
-                continue
-            infile = join(str(self.input_directory), infile)
-            for processor in downstream_pipes:
-                processor.send(infile)
-            # break
+        parser = cls.construct_argparser()
+        kwargs = vars(parser.parse_args())
+        cls(**kwargs)()
 
     # endregion
 
 
 #################################### MAIN #####################################
 if __name__ == "__main__":
-    LauhSeuiSin()()
+    LauhSeuiSin.main()

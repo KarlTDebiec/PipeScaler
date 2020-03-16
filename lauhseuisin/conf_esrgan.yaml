@@ -3,7 +3,7 @@ wip_directory: $HOME/Documents/Zelda/4x_kdebiec_wip
 pipeline:
   - stage_filename_filter:
       - RegexFilter:
-          regex: ".*256x256.*"
+          regex: ".*(128x256|256x128|256x256).*"
   - stage_text_filter:
       - TextImageFilter
   - stage_list_filter:
@@ -39,7 +39,7 @@ pipeline:
           executable: /Users/kdebiec/OneDrive/code/external/waifu2x/waifu2x
           imagetype: a
           scale: 2
-          noise: 0
+          noise: 1
   - stage_scale2:
       - ESRGANProcessor:
           module_path: $HOME/OneDrive/code/external/ESRGAN

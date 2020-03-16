@@ -1,6 +1,6 @@
 #!python
 # -*- coding: utf-8 -*-
-#   LauhSeuiSin.py
+#   lauhseuisin/processors/XbrzProcessor.py
 #
 #   Copyright (C) 2020 Karl T Debiec
 #   All rights reserved.
@@ -14,7 +14,7 @@ from os.path import isfile
 from subprocess import Popen
 from typing import Any, List
 
-from lauhseuisin.processors import Processor
+from lauhseuisin.processors.Processor import Processor
 
 
 ################################### CLASSES ###################################

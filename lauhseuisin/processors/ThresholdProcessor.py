@@ -1,6 +1,6 @@
 #!python
 # -*- coding: utf-8 -*-
-#   LauhSeuiSin.py
+#   lauhseuisin/processors/ThresholdProcessor.py
 #
 #   Copyright (C) 2020 Karl T Debiec
 #   All rights reserved.
@@ -17,7 +17,7 @@ import numba as nb
 import numpy as np
 from PIL import Image
 
-from lauhseuisin.processors import Processor
+from lauhseuisin.processors.Processor import Processor
 
 
 ################################### CLASSES ###################################

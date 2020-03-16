@@ -1,6 +1,6 @@
 #!python
 # -*- coding: utf-8 -*-
-#   LauhSeuiSin.py
+#   lauhseuisin/processors/PotraceProcessor.py
 #
 #   Copyright (C) 2020 Karl T Debiec
 #   All rights reserved.
@@ -11,11 +11,11 @@
 from __future__ import annotations
 
 from os import remove
-from os.path import isfile
+from os.path import isfile, splitext
 from subprocess import Popen
 from typing import Any, List
 
-from lauhseuisin.processors import Processor
+from lauhseuisin.processors.Processor import Processor
 
 
 ################################### CLASSES ###################################

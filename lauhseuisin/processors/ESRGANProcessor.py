@@ -10,19 +10,14 @@
 ################################### MODULES ###################################
 from __future__ import annotations
 
-from os import remove
-from os.path import isfile, expandvars
-from subprocess import Popen
-from tempfile import NamedTemporaryFile
-from typing import Any, List, Optional, IO
-import numpy as np
+from os.path import expandvars, isfile
+from typing import Any, List, Optional
 
-from PIL import Image
 import cv2
-
+import numpy as np
 import torch
 
-from lauhseuisin.processors import Processor
+from lauhseuisin.processors.Processor import Processor
 
 
 ################################### CLASSES ###################################
