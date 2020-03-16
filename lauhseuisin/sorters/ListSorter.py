@@ -9,8 +9,7 @@
 ################################### MODULES ###################################
 from __future__ import annotations
 
-from os.path import splitext, basename
-from typing import Any, Generator, List, Optional, Tuple, Union, Iterator
+from typing import Any, Iterator
 
 from IPython import embed
 
@@ -28,6 +27,8 @@ class ListSorter(Sorter):
         for downstream_pipe_conf in downstream_pipes_for_filenames:
             filenames = downstream_pipe_conf.get("filenames")
             downstream_pipes = downstream_pipe_conf.get("downstream_pipes")
+            if isinstance(downstream_pipes, str):
+                downstream_pipes = [downstream_pipes]
             if filenames is None:
                 self.default_downstream_pipes = downstream_pipes
             else:
@@ -39,7 +40,7 @@ class ListSorter(Sorter):
         while True:
             infile = (yield)
             pipes = self.downstream_pipes_by_filename.get(
-                infile, self.default_downstream_pipes)
+                self.get_original_name(infile), self.default_downstream_pipes)
             if self.pipeline.verbosity >= 2:
                 print(f"{self}: {infile}")
             if pipes is not None:

@@ -1,0 +1,101 @@
+wip_directory: $HOME/Documents/Zelda/4x_kdebiec_wip
+pipes:
+  source:
+    ScanDirectorySource:
+      input_directory: $HOME/.local/share/citra-emu/dump/textures/000400000008F900
+      downstream_pipes: filename_filter
+  filename_filter:
+    RegexSorter:
+      regex: ".*(128x256|256x128|256x256).*"
+      downstream_pipes_for_matched: text_filter
+      downstream_pipes_for_unmatched:
+  text_filter:
+    TextImageSorter:
+      downstream_pipes_for_text:
+      downstream_pipes_for_nontext: list_sorter
+  list_sorter:
+    ListSorter:
+      downstream_pipes_for_filenames:
+        - filenames: # Interface; handle manually
+            - tex1_256x256_0474804D7A45501F_13
+            - tex1_256x256_66631C07DE3D1D97_12
+            - tex1_256x256_BC957FBF010B0748_0
+            - tex1_256x256_D7ED817635D55140_13
+            - tex1_256x256_361C4DDAF7AD98B9_13
+            - tex1_256x256_09DCF0165E2A2B94_4
+            - tex1_256x256_5EE85148B4024CE0_13
+            - tex1_256x256_1CD75ED9762087F7_13
+            - tex1_256x128_FABD759BB95C1C6A_4
+            - tex1_256x128_E49CB134DACBDA7A_4
+            - tex1_256x128_D352C1053F32C83C_4
+            - tex1_256x128_AF8D999D193791B5_4
+            - tex1_256x128_75668990271DAE49_4
+            - tex1_256x128_42403AE78136F215_4
+            - tex1_256x128_3237BAF311E02AF3_4
+            - tex1_256x128_73D5E3FA57F02260_4
+            - tex1_256x128_49E21FD6F0864A09_4
+            - tex1_256x128_34E909933E0827DF_4
+            - tex1_256x128_8FC952F0FA490BC5_4
+            - tex1_256x128_7FBF07BA25080561_4
+            - tex1_256x128_4EAF461D4BEC25E6_4
+            - tex1_128x256_1E794C1C7C157E96_4
+            - tex1_128x256_6CAEDE289B79596A_4
+            - tex1_128x256_516F0458D523E444_4
+            - tex1_128x256_D564F02805CB2235_4
+          downstream_pipes:
+        - filenames: # Maps
+            - tex1_256x128_59A347C6D412C47C_4
+            - tex1_128x128_0B64548B27D33EA8_13
+            - tex1_128x128_0EDA792798160D0C_13
+            - tex1_128x128_14A6A7B85E950EF9_4
+            - tex1_128x128_1DBDB310F03EFEB1_13
+            - tex1_128x128_1F36A0FC95F1D027_13
+            - tex1_128x128_2A0DD889EBA08C31_13
+            - tex1_128x128_2BAB5E4C73AB9BB9_4
+            - tex1_128x128_43FFDA790F244CC0_13
+            - tex1_128x128_4A7C46DFF23BFF68_4
+            - tex1_128x128_4C68A360F9B52BC1_13
+            - tex1_128x128_4E1935F202F5890A_13
+            - tex1_128x128_5DDCB41BD0D1A675_4
+            - tex1_128x128_64BF889A5F496A8B_4
+            - tex1_128x128_82082F8DCCD11599_4
+            - tex1_128x128_83822781D6E41C7F_4
+            - tex1_128x128_9A904442B3D94736_4
+            - tex1_128x128_A0E49A3DFB46328B_13
+            - tex1_128x128_A87D1283C2883489_13
+            - tex1_128x128_B2C27E265115A44F_4
+            - tex1_128x128_B84A6C85C06AEF4A_13
+            - tex1_128x128_C8929452D581922E_4
+            - tex1_128x128_C9311B47948AEE2D_4
+            - tex1_128x128_DCA128837C4FEEA9_4
+            - tex1_128x128_F88E88A9EB9C4CFC_4
+            - tex1_128x128_FBBA94FAF9F4A8FC_4
+            - tex1_256x128_3237BAF311E02AF3_4
+            - tex1_256x128_49E21FD6F0864A09_4
+            - tex1_256x128_73D5E3FA57F02260_4
+            - tex1_256x128_8FC952F0FA490BC5_4
+            - tex1_256x128_AF8D999D193791B5_4
+            - tex1_64x128_1426C14AEA2D648F_4
+            - tex1_64x128_8655A2DBC15EBE67_4
+            - tex1_64x128_9EA0C70E643984EB_4
+            - tex1_64x256_623C2F80BE5FB721_4
+          downstream_pipes:
+        - downstream_pipes: waifu-a-2-1 # Default
+  waifu-a-2-1:
+    WaifuProcessor:
+      executable: /Users/kdebiec/OneDrive/code/external/waifu2x/waifu2x
+      imagetype: a
+      scale: 2
+      denoise: 1
+#    - stage_scale2:
+#        - ESRGANProcessor:
+#            module_path: $HOME/OneDrive/code/external/ESRGAN
+#            model: $HOME/OneDrive/code/external/ESRGAN/models/RRDB_ESRGAN_x4.pth
+#    - stage_resize:
+#        - ResizeProcessor:
+#            scale: 0.5
+#    - stage_noise:
+#        - AutomatorProcessor:
+#            workflow_directory: "$HOME/OneDrive/code/LauhSeuiSin/lauhseuisin/data/workflows"
+#            workflow:
+#              - "25.25"

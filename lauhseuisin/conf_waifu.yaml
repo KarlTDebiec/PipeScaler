@@ -1,0 +1,28 @@
+input_directory: $HOME/.local/share/citra-emu/dump/textures/000400000008F900
+wip_directory: $HOME/Documents/Zelda/4x_kdebiec_wip
+pipeline:
+  - stage_filename_filter:
+      - RegexFilter:
+          regex: ".*256x128.*"
+  - stage_text_filter:
+      - TextImageFilter
+  - stage_scale1:
+      - WaifuProcessor:
+          executable: /Users/kdebiec/OneDrive/code/external/waifu2x/waifu2x
+          imagetype: a
+          scale: 2
+          noise: 0
+  - stage_scale2:
+      - WaifuProcessor:
+          executable: /Users/kdebiec/OneDrive/code/external/waifu2x/waifu2x
+          imagetype: a
+          scale: 2
+          noise: 4
+  - stage_noise:
+      - AutomatorProcessor:
+          workflow_directory: "$HOME/OneDrive/code/LauhSeuiSin/lauhseuisin/data/workflows"
+          workflow:
+            - "25.25"
+  - stage_copy:
+      - CopyProcessor:
+          output_directory: $HOME/Documents/Zelda/4x_kdebiec

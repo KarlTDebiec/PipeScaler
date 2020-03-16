@@ -10,6 +10,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from os.path import basename, dirname, splitext
 from typing import Any, Iterator
 
 from lauhseuisin.Pipeline import Pipeline
@@ -31,3 +32,9 @@ class Sorter(ABC):
 
     def __str__(self) -> str:
         return self.__repr__()
+
+    def get_original_name(self, infile: str):
+        if self.pipeline.wip_directory in infile:
+            return basename(dirname(infile))
+        else:
+            return splitext(basename(infile))[0]

@@ -14,7 +14,7 @@ from os import remove
 from os.path import isfile
 from subprocess import Popen
 from tempfile import NamedTemporaryFile
-from typing import Any, List, Optional, IO
+from typing import Any, IO, Optional
 
 from PIL import Image
 
@@ -23,14 +23,16 @@ from lauhseuisin.processors.Processor import Processor
 
 ################################### CLASSES ###################################
 class WaifuProcessor(Processor):
-    executable_name = "waifu2x"
 
-    def __init__(self, imagetype: str, scale: str, noise: str,
-                 **kwargs: Any) -> None:
+    def __init__(self, imagetype: str, scale: str, denoise: str,
+                 executable: str = "waifu", **kwargs: Any) -> None:
         super().__init__(**kwargs)
+
         self.imagetype = imagetype
         self.scale = scale
-        self.noise = noise
+        self.denoise = denoise
+        self.executable = executable
+        self.desc = f"waifu-{self.imagetype}-{self.scale}-{self.denoise}"
 
     def process_file(self, infile: str, outfile: str) -> None:
         if isfile(outfile):
@@ -54,7 +56,7 @@ class WaifuProcessor(Processor):
         command = f"{self.executable} " \
                   f"-t {self.imagetype} " \
                   f"-s {self.scale} " \
-                  f"-n {self.noise} " \
+                  f"-n {self.denoise} " \
                   f"-i {intermediate_infile} " \
                   f"-o {outfile}"
         print(command)
@@ -64,29 +66,3 @@ class WaifuProcessor(Processor):
                 (0, 0, original_size[0] * self.scale,
                  original_size[1] * self.scale)).save(outfile)
             remove(tempfile.name)
-
-    @classmethod
-    def get_pipes(cls, **kwargs: Any) -> List[Processor]:
-        processors: List[Processor] = []
-        imagetypes = kwargs.pop("imagetype")
-        if not isinstance(imagetypes, list):
-            imagetypes = [imagetypes]
-        scales = kwargs.pop("scale")
-        if not isinstance(scales, list):
-            scales = [scales]
-        noises = kwargs.pop("noise")
-        if not isinstance(noises, list):
-            noises = [noises]
-        for imagetype in imagetypes:
-            for scale in scales:
-                for noise in noises:
-                    processors.append(cls(
-                        imagetype=imagetype,
-                        scale=scale,
-                        noise=noise,
-                        paramstring=f"waifu-"
-                                    f"{imagetype}-"
-                                    f"{scale}-"
-                                    f"{noise}",
-                        **kwargs))
-        return processors

@@ -40,7 +40,7 @@ class RegexSorter(Sorter):
     def __call__(self) -> Iterator[str]:
         while True:
             infile = (yield)
-            if self.regex.match(infile):
+            if self.regex.match(self.get_original_name(infile)):
                 if self.pipeline.verbosity >= 2:
                     print(f"{self}: match {infile}")
                 if self.downstream_pipes_for_matched is not None:
