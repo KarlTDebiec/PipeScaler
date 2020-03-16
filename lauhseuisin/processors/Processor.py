@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from os import makedirs
-from os.path import basename, dirname, isdir, splitext
+from os.path import basename, dirname, isdir, isfile, splitext
 from shutil import copyfile
 from typing import Any, Iterator, List, Optional, Union
 
@@ -20,7 +20,6 @@ from lauhseuisin.Pipeline import Pipeline
 
 ################################### CLASSES ###################################
 class Processor(ABC):
-    extension: str = "png"
     desc: str = ""
 
     def __init__(self, pipeline: Pipeline,
@@ -39,7 +38,8 @@ class Processor(ABC):
             if self.pipeline.verbosity >= 2:
                 print(f"{self}: {infile}")
             outfile = self.get_outfile(infile)
-            self.process_file(infile, outfile)
+            if not isfile(outfile):
+                self.process_file(infile, outfile)
             if self.downstream_pipes is not None:
                 for pipe in self.downstream_pipes:
                     self.pipeline.pipes[pipe].send(outfile)
@@ -67,7 +67,7 @@ class Processor(ABC):
         original_name = basename(dirname(infile))
         desc_so_far = splitext(basename(infile))[0].lstrip(
             "original")
-        outfile = f"{desc_so_far}_{self.desc}.{self.extension}".lstrip("_")
+        outfile = f"{desc_so_far}_{self.desc}.png".lstrip("_")
         outfile = f"{self.pipeline.wip_directory}/{original_name}/{outfile}"
 
         return outfile

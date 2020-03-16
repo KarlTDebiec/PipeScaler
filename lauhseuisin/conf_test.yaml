@@ -43,7 +43,7 @@ pipes:
             - tex1_128x256_516F0458D523E444_4
             - tex1_128x256_D564F02805CB2235_4
           downstream_pipes:
-        - filenames: # Maps
+        - filenames: # Maps; xbrz
             - tex1_256x128_59A347C6D412C47C_4
             - tex1_128x128_0B64548B27D33EA8_13
             - tex1_128x128_0EDA792798160D0C_13
@@ -87,15 +87,15 @@ pipes:
       imagetype: a
       scale: 2
       denoise: 1
-#    - stage_scale2:
-#        - ESRGANProcessor:
-#            module_path: $HOME/OneDrive/code/external/ESRGAN
-#            model: $HOME/OneDrive/code/external/ESRGAN/models/RRDB_ESRGAN_x4.pth
-#    - stage_resize:
-#        - ResizeProcessor:
-#            scale: 0.5
-#    - stage_noise:
-#        - AutomatorProcessor:
-#            workflow_directory: "$HOME/OneDrive/code/LauhSeuiSin/lauhseuisin/data/workflows"
-#            workflow:
-#              - "25.25"
+      downstream_pipes: 3x
+  3x:
+    AutomatorProcessor:
+      workflow: $HOME/OneDrive/code/LauhSeuiSin/lauhseuisin/data/workflows/3x.workflow
+      downstream_pipes: resize
+  resize:
+    ResizeProcessor:
+      scale: 0.66667
+      downstream_pipes: noise
+  noise:
+    AutomatorProcessor:
+      workflow: $HOME/OneDrive/code/LauhSeuiSin/lauhseuisin/data/workflows/25.25.workflow

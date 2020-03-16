@@ -23,10 +23,10 @@ from lauhseuisin.Pipeline import Pipeline
 class LauhSeuiSin:
     """
     TODO:
-        - Reorganize into sorters and processors
         - Sorter for date text
         - Sorter for transparency
-        - pngquant
+        - Sorter for large text
+        - pngquant Processor
         - Match LOD texture to full-resolution
     """
     # region Class Variables
