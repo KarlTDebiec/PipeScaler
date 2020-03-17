@@ -38,7 +38,7 @@ pipes:
             - tex1_128x256_516F0458D523E444_4
             - tex1_128x256_D564F02805CB2235_4
           downstream_pipes:
-        - filenames: # Maps; xbrz
+        - filenames: # Maps; look best with xbrz
             - tex1_256x128_E49CB134DACBDA7A_4
             - tex1_256x128_59A347C6D412C47C_4
             - tex1_128x128_0B64548B27D33EA8_13
@@ -79,8 +79,9 @@ pipes:
         - downstream_pipes: transparency_sorter
   transparency_sorter:
     TransparencySorter:
-      downstream_pipes_for_transparent: transparent_3x_1
-      downstream_pipes_for_opaque: opaque_waifu-a-2-2
+      #      downstream_pipes_for_transparent: transparent_3x_1
+      downstream_pipes_for_transparent: transparent_waifupixelmator2x-a-2-1-3x
+      downstream_pipes_for_opaque: opaque_waifu-a-2-1
 
   # Maps pipeline
   maps_xbrz-4:
@@ -88,12 +89,15 @@ pipes:
       executable: $HOME/OneDrive/code/external/xbrzscale/xbrzscale
       scale: 4
 
-  # Transparent pipeline
-  transparent_3x_1:
-    AutomatorProcessor:
+  # Transparent pipeline test
+  transparent_waifupixelmator2x-a-2-1-3x:
+    WaifuPixelmator2xTransparentProcessor:
+      waifu_executable: $HOME/OneDrive/code/external/waifu2x/waifu2x
+      imagetype: a
+      denoise: 1
       workflow: $HOME/OneDrive/code/LauhSeuiSin/lauhseuisin/data/workflows/3x.workflow
-      downstream_pipes: transparent_3x_2
-  transparent_3x_2:
+      downstream_pipes: transparent_3x
+  transparent_3x:
     AutomatorProcessor:
       workflow: $HOME/OneDrive/code/LauhSeuiSin/lauhseuisin/data/workflows/3x.workflow
       downstream_pipes: transparent_resize
@@ -103,12 +107,12 @@ pipes:
       downstream_pipes: noise
 
   # Opaque pipeline
-  opaque_waifu-a-2-2:
+  opaque_waifu-a-2-1:
     WaifuProcessor:
       executable: $HOME/OneDrive/code/external/waifu2x/waifu2x
       imagetype: a
       scale: 2
-      denoise: 2
+      denoise: 1
       downstream_pipes: opaque_3x
   opaque_3x:
     AutomatorProcessor:
@@ -119,7 +123,7 @@ pipes:
       scale: 0.66667
       downstream_pipes: noise
 
-  # Transparent and Opaque merge
+  # Transparent and opaque pipelines merge
   noise:
     AutomatorProcessor:
       workflow: $HOME/OneDrive/code/LauhSeuiSin/lauhseuisin/data/workflows/25.25.workflow

@@ -20,6 +20,8 @@ from lauhseuisin.processors.ResizeProcessor import ResizeProcessor
 from lauhseuisin.processors.ThresholdProcessor import ThresholdProcessor
 from lauhseuisin.processors.WaifuProcessor import WaifuProcessor
 from lauhseuisin.processors.XbrzProcessor import XbrzProcessor
+from lauhseuisin.processors.WaifuPixelmator2xTransparentProcessor import \
+    WaifuPixelmator2xTransparentProcessor
 
 ##################################### ALL #####################################
 __all__: List[str] = [

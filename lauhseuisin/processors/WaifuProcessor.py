@@ -23,7 +23,7 @@ from lauhseuisin.processors.Processor import Processor
 ################################### CLASSES ###################################
 class WaifuProcessor(Processor):
 
-    def __init__(self, imagetype: str, scale: str, denoise: str,
+    def __init__(self, imagetype: str, scale: int, denoise: int,
                  executable: str = "waifu", **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
@@ -48,14 +48,14 @@ class WaifuProcessor(Processor):
                 image, (0, 0, original_size[0], original_size[1]))
             expanded_image.save(tempfile)
             tempfile.close()
-            intermediate_infile = tempfile.name
+            waifu_infile = tempfile.name
         else:
-            intermediate_infile = infile
+            waifu_infile = infile
         command = f"{self.executable} " \
                   f"-t {self.imagetype} " \
                   f"-s {self.scale} " \
                   f"-n {self.denoise} " \
-                  f"-i {intermediate_infile} " \
+                  f"-i {waifu_infile} " \
                   f"-o {outfile}"
         if self.pipeline.verbosity >= 1:
             print(command)
