@@ -25,7 +25,7 @@ class AutomatorProcessor(Processor):
         super().__init__(**kwargs)
 
         self.workflow = expandvars(workflow)
-        self.executable = executable
+        self.executable = expandvars(executable)
         self.desc = f"{basename(self.workflow).rstrip('.workflow')}"
 
     def process_file(self, infile: str, outfile: str) -> None:

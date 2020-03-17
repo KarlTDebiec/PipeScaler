@@ -24,7 +24,6 @@ class LauhSeuiSin:
     """
     TODO:
         - Sorter for date text
-        - Sorter for transparency
         - Sorter for large text
         - pngquant Processor
         - Match LOD texture to full-resolution

@@ -10,6 +10,7 @@
 from __future__ import annotations
 
 from os import remove
+from os.path import expandvars
 from subprocess import Popen
 from tempfile import NamedTemporaryFile
 from typing import Any, IO, Optional
@@ -29,7 +30,7 @@ class WaifuProcessor(Processor):
         self.imagetype = imagetype
         self.scale = scale
         self.denoise = denoise
-        self.executable = executable
+        self.executable = expandvars(executable)
         self.desc = f"waifu-{self.imagetype}-{self.scale}-{self.denoise}"
 
     def process_file(self, infile: str, outfile: str) -> None:
