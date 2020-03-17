@@ -75,34 +75,55 @@ pipes:
             - tex1_64x128_8655A2DBC15EBE67_4
             - tex1_64x128_9EA0C70E643984EB_4
             - tex1_64x256_623C2F80BE5FB721_4
-          downstream_pipes: xbrz-4
-        - downstream_pipes: transparent_sorter # Default; waifu -> 3X
-  transparent_sorter:
+          downstream_pipes: maps_xbrz-4
+        - downstream_pipes: transparency_sorter
+  transparency_sorter:
     TransparencySorter:
-      downstream_pipes_for_transparent:
-      downstream_pipes_for_opaque: waifu-a-2-2
-  xbrz-4:
+      downstream_pipes_for_transparent: transparent_3x_1
+      downstream_pipes_for_opaque: opaque_waifu-a-2-2
+
+  # Maps pipeline
+  maps_xbrz-4:
     XbrzProcessor:
       executable: $HOME/OneDrive/code/external/xbrzscale/xbrzscale
       scale: 4
-  waifu-a-2-2:
+
+  # Transparent pipeline
+  transparent_3x_1:
+    AutomatorProcessor:
+      workflow: $HOME/OneDrive/code/LauhSeuiSin/lauhseuisin/data/workflows/3x.workflow
+      downstream_pipes: transparent_3x_2
+  transparent_3x_2:
+    AutomatorProcessor:
+      workflow: $HOME/OneDrive/code/LauhSeuiSin/lauhseuisin/data/workflows/3x.workflow
+      downstream_pipes: transparent_resize
+  transparent_resize:
+    ResizeProcessor:
+      scale: 0.44444
+      downstream_pipes: noise
+
+  # Opaque pipeline
+  opaque_waifu-a-2-2:
     WaifuProcessor:
       executable: $HOME/OneDrive/code/external/waifu2x/waifu2x
       imagetype: a
       scale: 2
       denoise: 2
-      downstream_pipes: 3x
-  3x:
+      downstream_pipes: opaque_3x
+  opaque_3x:
     AutomatorProcessor:
       workflow: $HOME/OneDrive/code/LauhSeuiSin/lauhseuisin/data/workflows/3x.workflow
-      downstream_pipes: resize
-  resize:
+      downstream_pipes: opaque_resize
+  opaque_resize:
     ResizeProcessor:
       scale: 0.66667
       downstream_pipes: noise
+
+  # Transparent and Opaque merge
   noise:
     AutomatorProcessor:
       workflow: $HOME/OneDrive/code/LauhSeuiSin/lauhseuisin/data/workflows/25.25.workflow
+
 # May need to be handled manually:
 # - tex1_128x256_4346B7EF18EDBC3F_13
 # - tex1_256x128_69603F1AA28CD025_13
