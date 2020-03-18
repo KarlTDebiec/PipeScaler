@@ -327,7 +327,7 @@ pipes:
             - tex1_64x128_9EA0C70E643984EB_4
             - tex1_64x256_623C2F80BE5FB721_4
           downstream_pipes: maps_xbrz-4
-        # Lods
+        # Lods: skip
         - filenames:
             - tex1_128x128_00A577F8EA54F361_12
             - tex1_128x128_01F5DA5EB567DDE5_12
@@ -1634,7 +1634,7 @@ pipes:
   # Default pipline
   default_filename_sorter:
     RegexSorter:
-      regex: ".*(128x256|256x128|256x256|256x512).*"
+      regex: ".*(128x128|128x256|256x128|256x256|256x512).*"
       downstream_pipes_for_matched: default_text_sorter
       downstream_pipes_for_unmatched:
   default_text_sorter:
