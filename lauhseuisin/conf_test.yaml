@@ -352,9 +352,9 @@ pipes:
     WaifuPixelmator2xTransparentProcessor:
       waifu_executable: $HOME/OneDrive/code/external/waifu2x/waifu2x
       imagetype: a
-      denoise: 1
+      denoise: 0
       workflow: $HOME/OneDrive/code/LauhSeuiSin/lauhseuisin/data/workflows/3x.workflow
-      downstream_pipes:
+      downstream_pipes: copyfile
 
   # Actors opaque pipeline
   actors_opaque_waifu-a-2-1:
@@ -370,14 +370,14 @@ pipes:
       imagetype: a
       scale: 2
       denoise: 0
-      downstream_pipes:
+      downstream_pipes: copyfile
 
   # Maps pipeline
   maps_xbrz-4:
     XbrzProcessor:
       executable: $HOME/OneDrive/code/external/xbrzscale/xbrzscale
       scale: 4
-      downstream_pipes:
+      downstream_pipes: copyfile
 
   # Default pipline
   default_filename_sorter:
@@ -424,3 +424,9 @@ pipes:
   default_noise:
     AutomatorProcessor:
       workflow: $HOME/OneDrive/code/LauhSeuiSin/lauhseuisin/data/workflows/25.25.workflow
+      downstream_pipes: copyfile
+
+  # Final output
+  copyfile:
+    CopyFileProcessor:
+      output_directory: $HOME/Documents/Zelda/4x_kdebiec

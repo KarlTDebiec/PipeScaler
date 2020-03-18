@@ -2515,11 +2515,15 @@ if __name__ == "__main__":
             [a.values() for a in known_manually_managed_matches.values()
              if a is not None]))
 
-    for filename in sorted(list(known_lodless_filenames)):
-        Image.open(f"{join(input_directory, filename)}.png").show()
-        print(f"- {filename}")
-        input()
+    # Validate lists
+    # for filename in sorted(list(known_lodless_filenames)):
+    #     Image.open(f"{join(input_directory, filename)}.png").show()
+    #     print(f"- {filename}")
+    #     input()
 
+    # Validate lods
+    for full_filename, lods in known_high_confidence_matches.items():
+        print(full_filename)
     exit()
 
     # Prepare sizes and regular expressions
