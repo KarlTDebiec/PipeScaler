@@ -33,7 +33,7 @@ class Sorter(ABC):
     def __str__(self) -> str:
         return self.__repr__()
 
-    def get_original_name(self, infile: str):
+    def get_original_name(self, infile: str) -> str:
         if self.pipeline.wip_directory in infile:
             return basename(dirname(infile))
         else:

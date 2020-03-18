@@ -15,11 +15,17 @@ from lauhseuisin.sorters.Sorter import Sorter
 
 
 ################################### CLASSES ###################################
-class ListSorter(Sorter):
+class ResizeSorter(Sorter):
 
     def __init__(self, downstream_pipes_for_filenames: Any,
                  **kwargs: Any) -> None:
         super().__init__(**kwargs)
+
+        # Take in input directory, or just pull from pipeline.source
+        # Take in data in the form:
+        # {"tex1_256x256_F6284420E16496AB_12":
+        #   {0.5: "tex1_128x128_DCAFF7FBF08354C7_12",
+        #    0.25: ""}
 
         self.downstream_pipes_by_filename = {}
         for downstream_pipe_conf in downstream_pipes_for_filenames:

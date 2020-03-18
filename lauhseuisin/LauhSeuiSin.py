@@ -23,10 +23,12 @@ from lauhseuisin.Pipeline import Pipeline
 class LauhSeuiSin:
     """
     TODO:
-        - Sorter for date text
-        - Sorter for large text
-        - pngquant Processor
-        - Match LOD texture to full-resolution
+        - Implement ResizeSorter
+        - Add support for date text in TextImageSorter
+        - Add support for large text into TextImageSorter
+        - Update FlattenProcessor, ThresholdProcesssor, and PotraceProcessor
+        - Remove ImageMagickProcessor and ESRGANProcessor
+        - Write PngquantProcessor
     """
     # region Class Variables
 

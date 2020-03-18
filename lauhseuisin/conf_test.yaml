@@ -3,131 +3,424 @@ pipes:
   source:
     ScanDirectorySource:
       input_directory: $HOME/.local/share/citra-emu/dump/textures/000400000008F900
-      downstream_pipes: filename_filter
-  filename_filter:
-    RegexSorter:
-      regex: ".*(128x256|256x128|256x256).*"
-      downstream_pipes_for_matched: text_sorter
-      downstream_pipes_for_unmatched:
-  text_sorter:
-    TextImageSorter:
-      downstream_pipes_for_text:
-      downstream_pipes_for_nontext: list_sorter
+      downstream_pipes: list_sorter
   list_sorter:
     ListSorter:
       downstream_pipes_for_filenames:
-        - filenames: # Interface; handle manually
+        # Actors: waifu -> waifu
+        - filenames:
+          - tex1_128x128_5D5B3B64030B3CD2_13
+          - tex1_128x128_05F961FE69DF3AC6_12
+          - tex1_128x128_0F07D98D1C9DF440_12
+          - tex1_128x128_0F580BD6564CC451_13
+          - tex1_128x128_1A846A4C424E4BEE_12
+          - tex1_128x128_216800987C878B47_12
+          - tex1_128x128_2609AEB9BD59DF5F_12
+          - tex1_128x128_294151AF61D166C8_12
+          - tex1_128x128_2CC5F982F142343E_13
+          - tex1_128x128_2D78069B8BC0E14E_12
+          - tex1_128x128_2DA823C45164ACC6_12
+          - tex1_128x128_2F296E09E614F602_13
+          - tex1_128x128_31383CBB3DED8733_12
+          - tex1_128x128_3637374FF1881716_12
+          - tex1_128x128_3833CB0C4DD1B252_12
+          - tex1_128x128_49D93083D04958FB_13
+          - tex1_128x128_4D54D4E31404EB0D_12
+          - tex1_128x128_56C21BD06BB9A3C6_12
+          - tex1_128x128_58F38EE4F2334A92_12
+          - tex1_128x128_6506E66E94CF624D_12
+          - tex1_128x128_652D02CEB966CAA8_12
+          - tex1_128x128_6A472C6B36FA6F77_12
+          - tex1_128x128_76C359E5724FE4E5_13
+          - tex1_128x128_76FE1DA2B5807D5E_12
+          - tex1_128x128_770CAE58D5D6A3D1_12
+          - tex1_128x128_805EAB2B383220C9_12
+          - tex1_128x128_80F98DDD23D9A6C3_12
+          - tex1_128x128_8AF7889ADE06D8A7_12
+          - tex1_128x128_96AADE01484D7F5B_12
+          - tex1_128x128_997B8DB774CD1C69_13
+          - tex1_128x128_A5267ADEAAE8059C_13
+          - tex1_128x128_A9CB72EB145CA3ED_13
+          - tex1_128x128_AB04EB82E83B6738_12
+          - tex1_128x128_AB282903EA4B1EA7_12
+          - tex1_128x128_AD7F1506B51B948F_12
+          - tex1_128x128_BA1C2AF74302E775_12
+          - tex1_128x128_BAD144D0EF19ABF6_12
+          - tex1_128x128_C81285D0EF9976A9_12
+          - tex1_128x128_D01D4F90D0CB72D5_12
+          - tex1_128x128_D42A07960224A27A_12
+          - tex1_128x128_DE2F15E06D778A51_12
+          - tex1_128x128_DE5252CEE5BB8D40_12
+          - tex1_128x128_E63118C6950B9DB6_12
+          - tex1_128x128_E6CEC51C2592C856_13
+          - tex1_128x128_E98E48F535528BA8_13
+          - tex1_128x128_EBC21D56897CFC02_13
+          - tex1_128x128_EC5ED0B0670566E3_13
+          - tex1_128x128_F69F85B3A8B5B8E9_13
+          - tex1_128x128_FF08AFBCAB1E81AA_13
+          - tex1_128x256_4346B7EF18EDBC3F_13
+          - tex1_128x256_98F87EDD9E8FF90B_13
+          - tex1_128x256_BB8BA4FE42BC740C_13
+          - tex1_256x128_03659D661EE7B2CE_13
+          - tex1_256x128_3899F4BEB0864410_12
+          - tex1_256x128_3EF41352603BDB9D_13
+          - tex1_256x128_D65D993A43932CF0_12
+          downstream_pipes: actors_transparency_sorter
+        # Interface: handle manually; skip here
+        - filenames:
+            - tex1_128x128_1F7A3FF848DF62D0_7
+            - tex1_128x128_48D02A87589F37FA_4
+            - tex1_256x128_D352C1053F32C83C_4
+            - tex1_256x128_FABD759BB95C1C6A_4
             - tex1_256x256_0474804D7A45501F_13
+            - tex1_256x256_09DCF0165E2A2B94_4
+            - tex1_256x256_1CD75ED9762087F7_13
+            - tex1_256x256_361C4DDAF7AD98B9_13
+            - tex1_256x256_5EE85148B4024CE0_13
             - tex1_256x256_66631C07DE3D1D97_12
             - tex1_256x256_BC957FBF010B0748_0
             - tex1_256x256_D7ED817635D55140_13
-            - tex1_256x256_361C4DDAF7AD98B9_13
-            - tex1_256x256_09DCF0165E2A2B94_4
-            - tex1_256x256_5EE85148B4024CE0_13
-            - tex1_256x256_1CD75ED9762087F7_13
-            - tex1_256x128_FABD759BB95C1C6A_4
-            - tex1_256x128_E49CB134DACBDA7A_4
-            - tex1_256x128_D352C1053F32C83C_4
-            - tex1_256x128_75668990271DAE49_4
-            - tex1_256x128_42403AE78136F215_4
-            - tex1_256x128_34E909933E0827DF_4
-            - tex1_256x128_7FBF07BA25080561_4
-            - tex1_256x128_4EAF461D4BEC25E6_4
-            - tex1_128x256_1E794C1C7C157E96_4
-            - tex1_128x256_6CAEDE289B79596A_4
-            - tex1_128x256_516F0458D523E444_4
-            - tex1_128x256_D564F02805CB2235_4
+            - tex1_512x128_7245F6B55921F4E1_0
+            - tex1_512x256_26AE9ADB44056907_13
+            - tex1_512x256_5BAC3840E77989E7_4
+            - tex1_512x256_5DDBC8C3545ADB9D_13
+            - tex1_512x256_AD5F7211C7C80651_4
+            - tex1_512x256_DBD0A793F2756679_12
+            - tex1_512x256_E65552497DAD3F3B_13
+            - tex1_512x256_EC7146D26618C2BC_13
+            - tex1_512x256_EFFA8DA1D9E56528_4
+            - tex1_512x256_F5E51E8F31D533A3_13
+            - tex1_512x512_1ED68625729D0603_13
+            - tex1_512x512_7E641B1B67EA8445_4
           downstream_pipes:
-        - filenames: # Maps; look best with xbrz
-            - tex1_256x128_E49CB134DACBDA7A_4
-            - tex1_256x128_59A347C6D412C47C_4
+        # Maps: xbrz
+        - filenames:
+            - tex1_128x128_0155CDEE9AE70586_4
+            - tex1_128x128_03D7950DC7DCBB47_4
+            - tex1_128x128_05D79710C35BDA28_4
+            - tex1_128x128_07C33542397978A8_4
+            - tex1_128x128_07F8CFFF969E9AB9_4
             - tex1_128x128_0B64548B27D33EA8_13
+            - tex1_128x128_0C1BA5A6CA4FE3B8_4
+            - tex1_128x128_0E9280D32C1099E0_4
             - tex1_128x128_0EDA792798160D0C_13
+            - tex1_128x128_10328F1094C2FF1F_4
+            - tex1_128x128_131DB801592FDBD7_4
+            - tex1_128x128_1366AA5B970A1D1E_4
+            - tex1_128x128_13C16F9EE3583679_4
+            - tex1_128x128_148102FC24529FD7_4
             - tex1_128x128_14A6A7B85E950EF9_4
+            - tex1_128x128_14FF89D1340803DB_4
+            - tex1_128x128_157174C93F1DA8BD_4
+            - tex1_128x128_1867811212FC537B_4
+            - tex1_128x128_19352C1BB1CF7867_4
+            - tex1_128x128_19AE888D9E1436B5_4
+            - tex1_128x128_1AE0F7A9DFA9D0BC_4
+            - tex1_128x128_1CEEB4D1C7732E5B_4
             - tex1_128x128_1DBDB310F03EFEB1_13
+            - tex1_128x128_1E0C1AE18C8BB571_4
+            - tex1_128x128_1E8B52C84F6E0900_4
             - tex1_128x128_1F36A0FC95F1D027_13
+            - tex1_128x128_1F6DF8915CB8D570_4
+            - tex1_128x128_1F962C842BE3220D_4
+            - tex1_128x128_2033B69AB41894CF_4
+            - tex1_128x128_209EE902F782650A_4
+            - tex1_128x128_228359A3F29FEF4C_4
+            - tex1_128x128_251A5BAC69213CF6_13
+            - tex1_128x128_2670F2BDB37F47B6_4
+            - tex1_128x128_28D5FAAD86D67300_4
             - tex1_128x128_2A0DD889EBA08C31_13
+            - tex1_128x128_2A3333D1C2CDCAF5_4
+            - tex1_128x128_2B36D549F7D072C3_13
             - tex1_128x128_2BAB5E4C73AB9BB9_4
+            - tex1_128x128_2CC57215AD4F2525_4
+            - tex1_128x128_2D28A28A5C4C7139_4
+            - tex1_128x128_2DC7B897C19A812A_4
+            - tex1_128x128_2E4943488B5C5A14_4
+            - tex1_128x128_2FE9EB688B241635_4
+            - tex1_128x128_30EEE65E2B551DD1_4
+            - tex1_128x128_3294836C1559B76A_4
+            - tex1_128x128_32BD73F8D300083A_4
+            - tex1_128x128_3395F2330CAE6048_4
+            - tex1_128x128_339B90ACFAB7F16B_4
+            - tex1_128x128_3546A33A4528E15B_13
+            - tex1_128x128_38987E14B6C3B848_4
+            - tex1_128x128_391FFD90B2EC9ED8_13
+            - tex1_128x128_3D46B66E5E458A55_4
+            - tex1_128x128_3FB5952A66E05329_4
+            - tex1_128x128_3FF4492DC4C77B1F_4
+            - tex1_128x128_41F26C1D356F23C5_4
+            - tex1_128x128_430C650A2A6BDC68_4
+            - tex1_128x128_433181BAF67355A1_4
+            - tex1_128x128_4361DF8C816DF847_4
             - tex1_128x128_43FFDA790F244CC0_13
+            - tex1_128x128_441297BDA72CB8BF_4
+            - tex1_128x128_4592B7CD15035CD7_4
+            - tex1_128x128_46547B763F998EF8_4
+            - tex1_128x128_4806C83239AAF9AB_4
+            - tex1_128x128_488D40F5283139EE_4
             - tex1_128x128_4A7C46DFF23BFF68_4
+            - tex1_128x128_4A7DB4C581B568FA_4
+            - tex1_128x128_4ADBD287FC26DD8A_4
+            - tex1_128x128_4B2981D84BEDA826_4
+            - tex1_128x128_4B485FFCB37F371D_4
             - tex1_128x128_4C68A360F9B52BC1_13
+            - tex1_128x128_4C9B9D87BB100FFA_4
             - tex1_128x128_4E1935F202F5890A_13
+            - tex1_128x128_4E2A9C9449A00C76_4
+            - tex1_128x128_4E350F2947F6F919_4
+            - tex1_128x128_4FCC0FFBD8B06260_4
+            - tex1_128x128_51463A339AF24626_13
+            - tex1_128x128_53F0DAE9AB6AD181_4
+            - tex1_128x128_5420B6C6462B988C_4
+            - tex1_128x128_54D19A560DB618FE_4
+            - tex1_128x128_5B2F112ED0CBCEC0_4
             - tex1_128x128_5DDCB41BD0D1A675_4
+            - tex1_128x128_5E7321228BBF72A2_4
+            - tex1_128x128_60A24ED9E12AF250_4
+            - tex1_128x128_62FAAA473BC0FFDB_4
+            - tex1_128x128_637330388BB5B9E7_4
+            - tex1_128x128_6407B99AF13983F6_4
+            - tex1_128x128_645F18CC39364BE2_4
             - tex1_128x128_64BF889A5F496A8B_4
+            - tex1_128x128_64CF5515F2C6BD73_4
+            - tex1_128x128_66C169A78D80E0F8_4
+            - tex1_128x128_68F2D8AF14074DCD_4
+            - tex1_128x128_699FC7FDF48966F4_4
+            - tex1_128x128_69C0E05D337D3090_4
+            - tex1_128x128_6D667D48B306791E_4
+            - tex1_128x128_6EF4378D7DB52E4A_4
+            - tex1_128x128_70AADFCEF883C63F_4
+            - tex1_128x128_7157D1D2B688CB30_4
+            - tex1_128x128_7169337D3349CC60_4
+            - tex1_128x128_71AD05F44EAB9D0F_4
+            - tex1_128x128_73F7A4176B05F3D2_4
+            - tex1_128x128_74B795A0F3F228DC_13
+            - tex1_128x128_74C63E5D7A4AF800_4
+            - tex1_128x128_74D4BF3B62884431_4
+            - tex1_128x128_75AC27F1AFA7D140_4
+            - tex1_128x128_77E292D2D16DB65C_4
+            - tex1_128x128_8011933D3FF11CD5_4
             - tex1_128x128_82082F8DCCD11599_4
             - tex1_128x128_83822781D6E41C7F_4
+            - tex1_128x128_83A43D48A35598C9_4
+            - tex1_128x128_844A8810CB13DB77_4
+            - tex1_128x128_86189B26776E16BC_4
+            - tex1_128x128_871F1EC12A5675D4_4
+            - tex1_128x128_890624F27CA2018B_4
+            - tex1_128x128_895BF472BD8465B0_4
+            - tex1_128x128_8BEC66360E19D79C_4
+            - tex1_128x128_8CB79A7F3996EE91_4
+            - tex1_128x128_8CFE7E19C4A36178_4
+            - tex1_128x128_8D77B75F27E17527_13
+            - tex1_128x128_8DF6B33FA4B3796B_4
+            - tex1_128x128_8ECDCDB85F204F34_4
+            - tex1_128x128_8FD4A20C09F5F429_4
+            - tex1_128x128_9150BBA4774B63B3_4
+            - tex1_128x128_91E364EE6E14A709_4
+            - tex1_128x128_92B5DC1CD141F11C_4
+            - tex1_128x128_94DDDB6E8C9CFF27_4
+            - tex1_128x128_955542180A3E209D_4
+            - tex1_128x128_97FD659C9055D26C_4
             - tex1_128x128_9A904442B3D94736_4
+            - tex1_128x128_9B0C06ED4A1698A0_4
+            - tex1_128x128_9C62A832EB58269E_4
+            - tex1_128x128_9DDB96CDE929924F_4
+            - tex1_128x128_9ECC36E99FC346F1_4
+            - tex1_128x128_9F90CCDDFA9527A7_4
             - tex1_128x128_A0E49A3DFB46328B_13
+            - tex1_128x128_A352C17EC850BC33_4
+            - tex1_128x128_A6E6CFFEE1F0DACA_4
+            - tex1_128x128_A7A9E3A65FF7A1A7_4
             - tex1_128x128_A87D1283C2883489_13
+            - tex1_128x128_A91FD8B700573548_4
+            - tex1_128x128_AA4DD58ADD7BD935_4
+            - tex1_128x128_AD2B656BD635896B_4
+            - tex1_128x128_AD4A07C35B6AC996_4
+            - tex1_128x128_AE468107CB0D88F2_4
+            - tex1_128x128_AFA0EDB10350BECA_4
             - tex1_128x128_B2C27E265115A44F_4
+            - tex1_128x128_B2E51179570AF2F1_4
+            - tex1_128x128_B329A4D3F893EEEA_4
+            - tex1_128x128_B3CFBA10D3523A79_4
+            - tex1_128x128_B44A7D2AC07EFA38_13
+            - tex1_128x128_B524EA81D3713D89_4
+            - tex1_128x128_B6BABC25A826529A_4
+            - tex1_128x128_B7D06DA84A069643_4
             - tex1_128x128_B84A6C85C06AEF4A_13
+            - tex1_128x128_B8BF393E62CD57B8_4
+            - tex1_128x128_BBAC08384B3B3DE9_4
+            - tex1_128x128_BE8A6AB695EF9590_4
+            - tex1_128x128_BFE9EE05CDFE1118_4
+            - tex1_128x128_C279C8C2AB75F916_4
+            - tex1_128x128_C38AE60FB8314AFC_4
+            - tex1_128x128_C50D839E9FBF4204_4
+            - tex1_128x128_C56C7CD0136CF209_4
+            - tex1_128x128_C6239DFBEDE4F71F_4
             - tex1_128x128_C8929452D581922E_4
             - tex1_128x128_C9311B47948AEE2D_4
+            - tex1_128x128_C94971EB170C7251_4
+            - tex1_128x128_CAB55EFAEE3F6032_4
+            - tex1_128x128_CB3025318BD03B87_4
+            - tex1_128x128_CC82B6038C86679A_4
+            - tex1_128x128_CCC669BA43BB81CB_4
+            - tex1_128x128_CE687A0CC312318B_4
+            - tex1_128x128_D0FCD81751D32AA5_4
+            - tex1_128x128_D1AAFD97E0FD54E3_13
+            - tex1_128x128_D243F1FC48110B1B_4
+            - tex1_128x128_D26E74E481BEC805_13
+            - tex1_128x128_D2C1EBC2DD744961_4
+            - tex1_128x128_D338C090F8317E1F_4
+            - tex1_128x128_D33B979629E36151_13
+            - tex1_128x128_D4AC810FDC8982BC_4
+            - tex1_128x128_D62FF22A595D1570_4
+            - tex1_128x128_D7F3CA3E220BEDFA_4
+            - tex1_128x128_D8D8F56BE8F127A5_4
+            - tex1_128x128_DA01C14D443CC284_4
+            - tex1_128x128_DC112ADF0E43C171_4
             - tex1_128x128_DCA128837C4FEEA9_4
+            - tex1_128x128_DCA8155D7F770FF9_4
+            - tex1_128x128_DEDC098A5961D87A_4
+            - tex1_128x128_DF7C4D5426D28780_4
+            - tex1_128x128_E0B585243D51E3B2_4
+            - tex1_128x128_E1A1B395EADCF5BF_4
+            - tex1_128x128_E492B103C9FFEA69_4
+            - tex1_128x128_E7371480F2EA49BE_4
+            - tex1_128x128_E7DC3A0F8A4A563C_4
+            - tex1_128x128_EC4809AEA1A72100_4
+            - tex1_128x128_EDBE2761576240E3_4
+            - tex1_128x128_EDECDBB7022DA6D3_4
+            - tex1_128x128_EFE505A1734C9F37_4
+            - tex1_128x128_F15D674DA9BA736B_4
+            - tex1_128x128_F3EE15BF006F20F2_4
+            - tex1_128x128_F3F37CE9538261D5_4
+            - tex1_128x128_F50D4ABE931C797F_4
+            - tex1_128x128_F5AE3155336A73EB_4
+            - tex1_128x128_F7CC6A436B022F66_4
+            - tex1_128x128_F8867F4B429B30B1_4
             - tex1_128x128_F88E88A9EB9C4CFC_4
+            - tex1_128x128_F9C8436331911021_4
             - tex1_128x128_FBBA94FAF9F4A8FC_4
+            - tex1_128x128_FD59F8FE1DE430E9_4
+            - tex1_128x128_FD97DB4DE6AB1643_13
+            - tex1_128x128_FD9DAAC699E06F49_4
+            - tex1_128x128_FE9912FF9228538D_4
+            - tex1_128x128_FEB2BA1166B864F7_4
+            - tex1_128x256_1E794C1C7C157E96_4
+            - tex1_128x256_516F0458D523E444_4
+            - tex1_128x256_6CAEDE289B79596A_4
+            - tex1_128x256_D564F02805CB2235_4
             - tex1_256x128_3237BAF311E02AF3_4
+            - tex1_256x128_34E909933E0827DF_4
+            - tex1_256x128_42403AE78136F215_4
             - tex1_256x128_49E21FD6F0864A09_4
+            - tex1_256x128_4EAF461D4BEC25E6_4
+            - tex1_256x128_59A347C6D412C47C_4
             - tex1_256x128_73D5E3FA57F02260_4
+            - tex1_256x128_75668990271DAE49_4
+            - tex1_256x128_7FBF07BA25080561_4
             - tex1_256x128_8FC952F0FA490BC5_4
             - tex1_256x128_AF8D999D193791B5_4
+            - tex1_256x128_E49CB134DACBDA7A_4
             - tex1_64x128_1426C14AEA2D648F_4
             - tex1_64x128_8655A2DBC15EBE67_4
             - tex1_64x128_9EA0C70E643984EB_4
             - tex1_64x256_623C2F80BE5FB721_4
           downstream_pipes: maps_xbrz-4
-        - downstream_pipes: transparency_sorter
-  transparency_sorter:
+        # Skip
+        - filenames:
+            - tex1_128x128_35275B727E239721_4
+          downstream_pipes:
+        # Default: waifu -> 3x -> noise
+        - downstream_pipes: default_filename_sorter
+
+  # Actors pipeline
+  actors_transparency_sorter:
     TransparencySorter:
-      #      downstream_pipes_for_transparent: transparent_3x_1
-      downstream_pipes_for_transparent: transparent_waifupixelmator2x-a-2-1-3x
-      downstream_pipes_for_opaque: opaque_waifu-a-2-1
+      downstream_pipes_for_transparent: actors_transparent_waifupixelmator2x-a-2-1-3x
+      downstream_pipes_for_opaque: actors_opaque_waifu-a-2-1
+
+  # Actors transparent pipeline
+  actors_transparent_waifupixelmator2x-a-2-1-3x:
+    WaifuPixelmator2xTransparentProcessor:
+      waifu_executable: $HOME/OneDrive/code/external/waifu2x/waifu2x
+      imagetype: a
+      denoise: 1
+      workflow: $HOME/OneDrive/code/LauhSeuiSin/lauhseuisin/data/workflows/3x.workflow
+      downstream_pipes: actors_transparent_waifupixelmator2x-a-2-0-3x
+  actors_transparent_waifupixelmator2x-a-2-0-3x:
+    WaifuPixelmator2xTransparentProcessor:
+      waifu_executable: $HOME/OneDrive/code/external/waifu2x/waifu2x
+      imagetype: a
+      denoise: 1
+      workflow: $HOME/OneDrive/code/LauhSeuiSin/lauhseuisin/data/workflows/3x.workflow
+      downstream_pipes:
+
+  # Actors opaque pipeline
+  actors_opaque_waifu-a-2-1:
+    WaifuProcessor:
+      executable: $HOME/OneDrive/code/external/waifu2x/waifu2x
+      imagetype: a
+      scale: 2
+      denoise: 1
+      downstream_pipes: actors_opaque_waifu-a-2-0
+  actors_opaque_waifu-a-2-0:
+    WaifuProcessor:
+      executable: $HOME/OneDrive/code/external/waifu2x/waifu2x
+      imagetype: a
+      scale: 2
+      denoise: 0
+      downstream_pipes:
 
   # Maps pipeline
   maps_xbrz-4:
     XbrzProcessor:
       executable: $HOME/OneDrive/code/external/xbrzscale/xbrzscale
       scale: 4
+      downstream_pipes:
 
-  # Transparent pipeline test
-  transparent_waifupixelmator2x-a-2-1-3x:
+  # Default pipline
+  default_filename_sorter:
+    RegexSorter:
+      regex: ".*(128x256|256x128|256x256).*"
+      downstream_pipes_for_matched: default_text_sorter
+      downstream_pipes_for_unmatched:
+  default_text_sorter:
+    TextImageSorter:
+      downstream_pipes_for_text:
+      downstream_pipes_for_nontext: default_transparency_sorter
+  default_transparency_sorter:
+    TransparencySorter:
+      downstream_pipes_for_transparent: default_transparent_waifupixelmator2x-a-2-1-3x
+      downstream_pipes_for_opaque: default_opaque_waifu-a-2-1
+
+  # Default_transparent pipeline
+  default_transparent_waifupixelmator2x-a-2-1-3x:
     WaifuPixelmator2xTransparentProcessor:
       waifu_executable: $HOME/OneDrive/code/external/waifu2x/waifu2x
       imagetype: a
       denoise: 1
       workflow: $HOME/OneDrive/code/LauhSeuiSin/lauhseuisin/data/workflows/3x.workflow
-      downstream_pipes: transparent_3x
-  transparent_3x:
-    AutomatorProcessor:
-      workflow: $HOME/OneDrive/code/LauhSeuiSin/lauhseuisin/data/workflows/3x.workflow
-      downstream_pipes: transparent_resize
-  transparent_resize:
-    ResizeProcessor:
-      scale: 0.44444
-      downstream_pipes: noise
+      downstream_pipes: default_pixelmator-3x
 
-  # Opaque pipeline
-  opaque_waifu-a-2-1:
+  # Default opaque pipeline
+  default_opaque_waifu-a-2-1:
     WaifuProcessor:
       executable: $HOME/OneDrive/code/external/waifu2x/waifu2x
       imagetype: a
       scale: 2
       denoise: 1
-      downstream_pipes: opaque_3x
-  opaque_3x:
-    AutomatorProcessor:
-      workflow: $HOME/OneDrive/code/LauhSeuiSin/lauhseuisin/data/workflows/3x.workflow
-      downstream_pipes: opaque_resize
-  opaque_resize:
-    ResizeProcessor:
-      scale: 0.66667
-      downstream_pipes: noise
+      downstream_pipes: default_pixelmator-3x
 
   # Transparent and opaque pipelines merge
-  noise:
+  default_pixelmator-3x:
+    AutomatorProcessor:
+      workflow: $HOME/OneDrive/code/LauhSeuiSin/lauhseuisin/data/workflows/3x.workflow
+      downstream_pipes: default_resize
+  default_resize:
+    ResizeProcessor:
+      scale: 0.66667
+      downstream_pipes: default_noise
+  default_noise:
     AutomatorProcessor:
       workflow: $HOME/OneDrive/code/LauhSeuiSin/lauhseuisin/data/workflows/25.25.workflow
-
-# May need to be handled manually:
-# - tex1_128x256_4346B7EF18EDBC3F_13
-# - tex1_256x128_69603F1AA28CD025_13

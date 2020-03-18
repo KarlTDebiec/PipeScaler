@@ -17,7 +17,6 @@ from tempfile import NamedTemporaryFile
 from typing import Any, IO, Optional
 
 import numpy as np
-from IPython import embed
 from PIL import Image
 
 from lauhseuisin.processors.Processor import Processor
