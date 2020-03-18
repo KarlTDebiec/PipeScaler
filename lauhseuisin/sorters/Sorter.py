@@ -10,7 +10,9 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from os.path import basename, dirname, splitext
+from os import makedirs
+from os.path import basename, dirname, splitext, isdir
+from shutil import copyfile
 from typing import Any, Iterator
 
 from lauhseuisin.Pipeline import Pipeline
@@ -32,6 +34,19 @@ class Sorter(ABC):
 
     def __str__(self) -> str:
         return self.__repr__()
+
+    def backup_infile(self, infile: str) -> str:
+        if self.pipeline.wip_directory not in infile:
+            name = splitext(basename(infile))[0]
+            ext = splitext(infile)[1]
+            if not isdir(f"{self.pipeline.wip_directory}/{name}"):
+                makedirs(f"{self.pipeline.wip_directory}/{name}")
+            new_infile = f"{self.pipeline.wip_directory}/{name}/original{ext}"
+            copyfile(infile, new_infile)
+
+            return new_infile
+        else:
+            return infile
 
     def get_original_name(self, infile: str) -> str:
         if self.pipeline.wip_directory in infile:

@@ -343,6 +343,15 @@ map_yaml = """
 - tex1_128x128_BFE9EE05CDFE1118_4
 """
 lodless_yaml = """
+- tex1_128x128_A3CCF8BDA6528981_12
+- tex1_256x256_8F309EF34DBC6416_13
+- tex1_128x128_9B03157D3C9E24C2_5
+- tex1_128x128_87773DEA6C5C0874_5
+- tex1_128x128_18343B14D9AB5B27_13
+- tex1_128x128_073611CFC594A026_5
+- tex1_128x128_EEF278E719905D75_5
+- tex1_128x128_A5E43974AF03BC9A_5
+- tex1_128x128_65B69FAA962C3A41_13
 - tex1_128x128_CCA6756436D255F6_12
 - tex1_128x128_4A88173C6E9A9E43_12
 - tex1_128x128_457CDB808D3C4DAD_13
@@ -489,7 +498,6 @@ lodless_yaml = """
 - tex1_256x256_E04C9CEBC700A3AC_13
 - tex1_256x256_7B24A89B991DA277_12
 - tex1_128x256_47971D04B3A68C76_12
-- tex1_256x256_8F309EF34DBC6416_13
 - tex1_256x256_B9A698B8865E8A66_13
 - tex1_256x128_5A406D0165D3AE53_12
 - tex1_256x256_821A088D9D62F35F_12
@@ -1163,9 +1171,6 @@ tex1_128x128_5F4187464EAD32CD_13:
 tex1_128x128_607BA3848E35E647_3:
   0.5: tex1_64x64_2BDD49952676B65D_3
   0.25: tex1_32x32_E2F544F4E152BF84_3
-tex1_128x128_65B69FAA962C3A41_13:
-  0.5: tex1_64x64_4573A97ACDA91299_5
-  0.25: tex1_32x32_9A8BCC323040BE4B_13
 tex1_128x128_74472C661BCEDA88_13:
   0.5: tex1_64x64_B89F44BCA08E1948_13
   0.25: tex1_32x32_2AE25BF8EE18DDBE_13
@@ -1181,9 +1186,6 @@ tex1_128x128_92BFB288C58898CF_13:
 tex1_128x128_A07A92F414F60F99_13:
   0.5: tex1_64x64_E72003A9960FB5F9_13
   0.25: tex1_32x32_133531D2A0E5D393_13
-tex1_128x128_A5E43974AF03BC9A_5:
-  0.5: tex1_64x64_4573A97ACDA91299_5
-  0.25: tex1_32x32_9A8BCC323040BE4B_13
 tex1_128x128_A8495B16AD787BF2_13:
   0.5: tex1_64x64_4045282C6A32AA4E_13
   0.25: tex1_32x32_565CA3E3E9D7EC09_13
@@ -1211,21 +1213,12 @@ tex1_128x128_E1FB987C7693E6CA_13:
 tex1_128x128_E57802D1DC21DB25_13:
   0.5: tex1_64x64_BFED57D76228C130_13
   0.25: tex1_32x32_BCFEBEF9756259AC_13
-tex1_128x128_EEF278E719905D75_5:
-  0.5: tex1_64x64_4573A97ACDA91299_5
-  0.25: tex1_32x32_9A8BCC323040BE4B_13
-tex1_128x128_073611CFC594A026_5:
-  0.5: tex1_64x64_4573A97ACDA91299_5
-  0.25: tex1_32x32_9A8BCC323040BE4B_13
 tex1_128x128_0FFC9BD179A3D54E_13:
   0.5: tex1_64x64_D18D9A22D0E3F6A9_13
   0.25: tex1_32x32_4C2575E144753682_13
 tex1_128x128_111AB35D7EAFDCF0_13:
   0.5: tex1_64x64_637DDC95CDB4E1C8_13
   0.25: tex1_32x32_5AED634F6D086C9D_13
-tex1_128x128_18343B14D9AB5B27_13:
-  0.5: tex1_64x64_4573A97ACDA91299_5
-  0.25: tex1_32x32_9A8BCC323040BE4B_13
 tex1_128x128_18A80B6D1D3F57D4_13:
   0.5: tex1_64x64_38284BD658134B32_13
   0.25: tex1_32x32_C1147EEFD82E8BF6_13
@@ -1253,9 +1246,6 @@ tex1_128x128_762C54E3C5EB6E1E_13:
 tex1_128x128_85786FDA5857BAAC_13:
   0.5: tex1_64x64_1EF6FDB13BEAADF5_13
   0.25: tex1_32x32_4CB690D2ACE798D2_13
-tex1_128x128_87773DEA6C5C0874_5:
-  0.5: tex1_64x64_4573A97ACDA91299_5
-  0.25: tex1_32x32_9A8BCC323040BE4B_13
 tex1_128x128_8F1C58608B23D544_13:
   0.5: tex1_64x64_21E8920511B1DD24_13
   0.25: tex1_32x32_1554A4A70116A8C4_13
@@ -1265,9 +1255,6 @@ tex1_128x128_94CCB1E56DF065C6_13:
 tex1_128x128_9869E4ADCA10318C_13:
   0.5: tex1_64x64_F8CB1914965CC420_13
   0.25: tex1_32x32_5580B29DAF1E7F54_13
-tex1_128x128_9B03157D3C9E24C2_5:
-  0.5: tex1_64x64_4573A97ACDA91299_5
-  0.25: tex1_32x32_9A8BCC323040BE4B_13
 tex1_128x128_9BE495B90D85FF04_13:
   0.5: tex1_64x64_911477038E965AD3_13
   0.25: tex1_32x32_FCF08245CE46FF34_13
@@ -1973,9 +1960,6 @@ tex1_256x256_8E4F700352A1421F_12:
 tex1_256x256_8EB148524DDCCE8A_12:
   0.5: tex1_128x128_7A0BF1E7CF2926DD_12
   0.25: tex1_64x64_C98562FE2CE1F789_12
-tex1_256x256_8F309EF34DBC6416_13:
-  0.5: tex1_128x128_5E289A2DBF405874_5
-  0.25: tex1_64x64_4573A97ACDA91299_5
 tex1_256x256_8F939D92B9378388_12:
   0.5: tex1_128x128_253A50C580EB93C9_12
   0.25: tex1_64x64_FC3F64E3167174ED_12
@@ -2318,8 +2302,6 @@ tex1_128x128_EF464FC523094381_12:
 tex1_128x128_762C165881C74D97_12:
   0.5: tex1_64x64_52F6EF3FBDE8F1A8_12 # 0.84
   0.25: tex1_32x32_C02AD42827EB9938_12 # 0.85
-tex1_128x128_A3CCF8BDA6528981_12:
-  0.25: tex1_32x32_93A56EE10034E859_12 # 0.64
 tex1_128x128_EE22896758B22AB0_12:
   0.5: tex1_64x64_98931CE6D23CBAC8_12 # 0.84
   0.25: tex1_32x32_5CA0097424539DA3_12 # 0.85
@@ -2522,8 +2504,30 @@ if __name__ == "__main__":
     #     input()
 
     # Validate lods
-    for full_filename, lods in known_high_confidence_matches.items():
-        print(full_filename)
+    # for full_filename, lods in known_manually_managed_matches.items():
+    #     full_image = Image.open(
+    #         f"{join(input_directory, full_filename)}.png")
+    #     merged_image = Image.new(
+    #         "RGBA", (full_image.size[0] * 3, full_image.size[1]))
+    #     merged_image.paste(full_image, (0, 0))
+    #     if 0.5 in lods:
+    #         half_image = Image.open(
+    #             f"{join(input_directory, lods[0.5])}.png")
+    #         half_image = half_image.resize(
+    #             full_image.size, resample=Image.LANCZOS)
+    #         merged_image.paste(half_image, (full_image.size[0], 0))
+    #     if 0.25 in lods:
+    #         quarter_image = Image.open(
+    #             f"{join(input_directory, lods[0.25])}.png")
+    #         quarter_image = quarter_image.resize(
+    #             full_image.size, resample=Image.LANCZOS)
+    #         merged_image.paste(quarter_image, (full_image.size[0] * 2, 0))
+    #     merged_image.show()
+    #     print(full_filename)
+    #     input()
+    # print lods
+    for filename in sorted(known_high_confidence_lod_filenames.union(known_manually_managed_lod_filenames)):
+        print(f"- {filename}")
     exit()
 
     # Prepare sizes and regular expressions

@@ -1,0 +1,72 @@
+#!python
+#   lauhseuisin/sorters/ListSorter.py
+#
+#   Copyright (C) 2020 Karl T Debiec
+#   All rights reserved.
+#
+#   This software may be modified and distributed under the terms of the
+#   BSD license.
+################################### MODULES ###################################
+from __future__ import annotations
+
+from os import makedirs
+from os.path import isdir, basename, splitext, isfile
+from typing import Any, Iterator, Dict, Optional, Union, List
+
+from IPython import embed
+from PIL import Image
+
+import numpy as np
+
+from lauhseuisin.sorters.Sorter import Sorter
+
+
+################################### CLASSES ###################################
+class LODSorter(Sorter):
+
+    def __init__(self, lods: Dict[str, Dict[float, str]],
+                 downstream_pipes: Optional[Union[str, List[str]]] = None,
+                 **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+
+        self.lods = lods
+        if isinstance(downstream_pipes, str):
+            downstream_pipes = [downstream_pipes]
+        self.downstream_pipes = downstream_pipes
+
+    def __call__(self) -> Iterator[str]:
+        while True:
+            infile = (yield)
+            infile = self.backup_infile(infile)
+            if self.pipeline.verbosity >= 2:
+                print(f"{self}: {infile}")
+
+            # Pass infile along pipeline
+            if self.downstream_pipes is not None:
+                for pipe in self.downstream_pipes:
+                    self.pipeline.pipes[pipe].send(infile)
+
+            # Split off LODs, scale them, and pass them along pipeline
+            if self.get_original_name(infile) in self.lods:
+                lods = self.lods[self.get_original_name(infile)]
+                for scale, name in lods.items():
+                    if not isdir(f"{self.pipeline.wip_directory}/{name}"):
+                        makedirs(f"{self.pipeline.wip_directory}/{name}")
+                    desc_so_far = splitext(basename(infile))[0].lstrip(
+                        "original")
+                    outfile = f"{desc_so_far}_" \
+                              f"lod-{scale:4.2f}.png".lstrip("_")
+                    outfile = f"{self.pipeline.wip_directory}/{name}/{outfile}"
+                    if self.pipeline.verbosity >= 2:
+                        print(f"{self}: {outfile}")
+
+                    if not isfile(outfile):
+                        input_image = Image.open(infile)
+                        output_image = input_image.resize((
+                            int(np.round(input_image.size[0] * scale)),
+                            int(np.round(input_image.size[1] * scale))),
+                            resample=Image.LANCZOS)
+                        output_image.save(outfile)
+                    if self.downstream_pipes is not None:
+                        for pipe in self.downstream_pipes:
+                            self.pipeline.pipes[pipe].send(outfile)
