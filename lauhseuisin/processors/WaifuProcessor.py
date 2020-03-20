@@ -36,6 +36,8 @@ class WaifuProcessor(Processor):
     def process_file(self, infile: str, outfile: str) -> None:
         image = Image.open(infile)
         original_size = image.size
+
+        # waifu needs images to be a minimum size; expand canvas if necessary
         tempfile: Optional[IO[bytes]] = None
         if original_size[0] < 200 or original_size[1] < 200:
             if self.pipeline.verbosity >= 1:
@@ -51,6 +53,8 @@ class WaifuProcessor(Processor):
             waifu_infile = tempfile.name
         else:
             waifu_infile = infile
+
+        # Upscale
         command = f"{self.executable} " \
                   f"-t {self.imagetype} " \
                   f"-s {self.scale} " \
@@ -60,6 +64,8 @@ class WaifuProcessor(Processor):
         if self.pipeline.verbosity >= 1:
             print(command)
         Popen(command, shell=True, close_fds=True).wait()
+
+        # If canvas was expanded, crop image
         if tempfile is not None:
             Image.open(outfile).crop(
                 (0, 0, original_size[0] * self.scale,

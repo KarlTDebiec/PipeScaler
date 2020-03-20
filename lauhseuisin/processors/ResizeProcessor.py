@@ -29,8 +29,10 @@ class ResizeProcessor(Processor):
 
     def process_file(self, infile: str, outfile: str) -> None:
         input_image = Image.open(infile)
+
         output_image = input_image.resize((
             int(np.round(input_image.size[0] * self.scale)),
             int(np.round(input_image.size[1] * self.scale))),
             resample=Image.LANCZOS)
+
         output_image.save(outfile)

@@ -15,7 +15,7 @@ from lauhseuisin.processors.AutomatorProcessor import AutomatorProcessor
 from lauhseuisin.processors.CopyFileProcessor import CopyFileProcessor
 from lauhseuisin.processors.ESRGANProcessor import ESRGANProcessor
 from lauhseuisin.processors.FlattenProcessor import FlattenProcessor
-from lauhseuisin.processors.ImageMagickProcessor import ImageMagickProcessor
+from lauhseuisin.processors.PotraceProcessor import PotraceProcessor
 from lauhseuisin.processors.ResizeProcessor import ResizeProcessor
 from lauhseuisin.processors.ThresholdProcessor import ThresholdProcessor
 from lauhseuisin.processors.WaifuProcessor import WaifuProcessor

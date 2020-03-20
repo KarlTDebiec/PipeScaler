@@ -10,8 +10,8 @@
 ################################### MODULES ###################################
 from __future__ import annotations
 
-from os.path import expandvars, isfile
-from typing import Any, List, Optional
+from os.path import expandvars
+from typing import Any, Optional
 
 import cv2
 import numpy as np
@@ -24,27 +24,25 @@ from lauhseuisin.processors.Processor import Processor
 class ESRGANProcessor(Processor):
     executable_name = "waifu2x"
 
-    def __init__(self, model: str, module_path: Optional[str] = None,
-                 **kwargs: Any) -> None:
+    def __init__(self, model: str, device: str = "cpu",
+                 module_path: Optional[str] = None, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
         self.model = expandvars(model)
+        self.device = device
         if module_path is not None:
             import sys
             sys.path.append(expandvars(module_path))
-            import RRDBNet_arch as arch
-            self.arch = arch
+        import RRDBNet_arch as arch  # type:ignore
+        self.arch = arch
 
     def process_file(self, infile: str, outfile: str) -> None:
-        print(outfile)
-        if isfile(outfile):
-            return
-
-        device = torch.device("cpu")
+        device = torch.device(self.device)
         model = self.arch.RRDBNet(3, 3, 64, 23, gc=32)
         model.load_state_dict(torch.load(self.model), strict=True)
         model.eval()
         model = model.to(device)
+
         image = cv2.imread(infile, cv2.IMREAD_COLOR)
         image = image * 1.0 / 255
         image = torch.from_numpy(
@@ -57,11 +55,5 @@ class ESRGANProcessor(Processor):
                 image2).data.squeeze().float().cpu().clamp_(0, 1).numpy()
         output = np.transpose(output[[2, 1, 0], :, :], (1, 2, 0))
         output = (output * 255.0).round()
-        cv2.imwrite(outfile, output)
 
-    @classmethod
-    def get_pipes(cls, **kwargs: Any) -> List[Processor]:
-        module_path = kwargs.pop("module_path")
-        model = kwargs.pop("model")
-        return [cls(model=model, module_path=module_path,
-                    paramstring="esrgan", **kwargs)]
+        cv2.imwrite(outfile, output)

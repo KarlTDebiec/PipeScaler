@@ -26,43 +26,24 @@ class ThresholdProcessor(Processor):
     def __init__(self, threshold: int = 128, denoise: bool = False,
                  **kwargs: Any) -> None:
         super().__init__(**kwargs)
+
         self.threshold = threshold
         self.denoise = denoise
+        self.desc = f"threshold-{self.threshold}"
+        if self.denoise:
+            self.desc = f"{self.desc}-{self.denoise}"
 
     def process_file(self, infile: str, outfile: str) -> None:
-        if isfile(outfile):
-            return
-        print(f"Processeing to '{outfile}'")
-        input_image = Image.open(infile).convert("L").point(
+        input_image = Image.open(infile)
+
+        output_image = input_image.convert("L").point(
             lambda p: p > self.threshold and 255)
-        data = np.array(input_image)
         if self.denoise:
-            self.denoise_data(data)
-        processed_image = Image.fromarray(data)
-        processed_image.save(outfile)
+            output_data = np.array(output_image)
+            self.denoise_data(output_data)
+            output_image = Image.fromarray(output_data)
 
-    @classmethod
-    def get_pipes(cls, **kwargs: Any) -> List[Processor]:
-        thresholds = kwargs.pop("threshold")
-        if not isinstance(thresholds, list):
-            thresholds = [thresholds]
-        denoises = kwargs.pop("denoise")
-        if not isinstance(denoises, list):
-            denoises = [denoises]
-
-        processors: List[Processor] = []
-        for threshold in thresholds:
-            for denoise in denoises:
-                if denoise:
-                    paramstring = f"threshold-{threshold}-denoise"
-                else:
-                    paramstring = f"threshold-{threshold}"
-                processors.append(cls(
-                    threshold=threshold,
-                    denoise=denoise,
-                    paramstring=paramstring,
-                    **kwargs))
-        return processors
+        output_image.save(outfile)
 
     @no_type_check
     @staticmethod

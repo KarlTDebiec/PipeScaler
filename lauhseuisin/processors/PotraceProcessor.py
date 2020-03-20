@@ -11,83 +11,60 @@
 from __future__ import annotations
 
 from os import remove
-from os.path import isfile, splitext
+from os.path import expandvars, splitext
 from subprocess import Popen
-from typing import Any, List
+from typing import Any
 
 from lauhseuisin.processors.Processor import Processor
 
 
 ################################### CLASSES ###################################
 class PotraceProcessor(Processor):
-    executable_name = "potrace"
 
     def __init__(self, blacklevel: float, alphamax: float, opttolerance: float,
-                 **kwargs: Any) -> None:
+                 convert_executable: str = "convert",
+                 potrace_executable: str = "potrace", **kwargs: Any) -> None:
         super().__init__(**kwargs)
+
         self.blacklevel = blacklevel
         self.alphamax = alphamax
         self.opttolerance = opttolerance
+        self.convert_executable = expandvars(convert_executable)
+        self.potrace_executable = expandvars(potrace_executable)
+        self.desc = f"potrace-{self.blacklevel:4.2f}-" \
+                    f"{self.alphamax:4.2f}-{self.opttolerance:3.1f}"
 
     def process_file(self, infile: str, outfile: str) -> None:
-        if isfile(outfile):
-            return
-        print(f"Tracing to '{outfile}'")
-
         # Convert to bmp; potrace does not accept png
         bmpfile = f"{splitext(infile)[0]}.bmp"
-        command = f"convert " \
+        command = f"{self.convert_executable} " \
                   f"{infile} " \
                   f"{bmpfile}"
-        print(command)
+        if self.pipeline.verbosity >= 1:
+            print(command)
         Popen(command, shell=True, close_fds=True).wait()
 
         # trace
         svgfile = f"{splitext(outfile)[0]}.svg"
-        command = f"{self.executable} " \
+        command = f"{self.potrace_executable} " \
                   f"{bmpfile} " \
                   f"-b svg " \
                   f"-k {self.blacklevel} " \
                   f"-a {self.alphamax} " \
                   f"-O {self.opttolerance} " \
                   f"-o {svgfile}"
-        print(command)
+        if self.pipeline.verbosity >= 1:
+            print(command)
         Popen(command, shell=True, close_fds=True).wait()
 
         # Rasterize svg to png
-        pngfile = f"{splitext(outfile)[0]}.png"
-        command = f"convert " \
+        command = f"{self.convert_executable} " \
                   f"{svgfile} " \
-                  f"{pngfile}"
-        print(command)
+                  f"{outfile}"
+        if self.pipeline.verbosity >= 1:
+            print(command)
         Popen(command, shell=True, close_fds=True).wait()
 
+        # Clean up
         remove(bmpfile)
         remove(svgfile)
-
-    @classmethod
-    def get_pipes(cls, **kwargs: Any) -> List[Processor]:
-        blacklevels = kwargs.pop("blacklevel")
-        if not isinstance(blacklevels, list):
-            blacklevels = [blacklevels]
-        alphamaxes = kwargs.pop("alphamax")
-        if not isinstance(alphamaxes, list):
-            alphamaxes = [alphamaxes]
-        opttolerances = kwargs.pop("opttolerance")
-        if not isinstance(opttolerances, list):
-            opttolerances = [opttolerances]
-
-        processors: List[Processor] = []
-        for blacklevel in blacklevels:
-            for alphamax in alphamaxes:
-                for opttolerance in opttolerances:
-                    processors.append(cls(
-                        blacklevel=blacklevel,
-                        alphamax=alphamax,
-                        opttolerance=opttolerance,
-                        paramstring=f"potrace-"
-                                    f"{float(blacklevel):3.2f}-"
-                                    f"{alphamax}-"
-                                    f"{float(opttolerance):3.1f}",
-                        **kwargs))
-        return processors
