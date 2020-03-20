@@ -61,7 +61,6 @@ class TextImageSorter(Sorter):
                     for pipe in self.downstream_pipes_for_text:
                         self.pipeline.pipes[pipe].send(infile)
             elif image_type == "time_text":
-                print(f"TIME TEXT: {infile}")
                 if self.pipeline.verbosity >= 2:
                     print(f"{self}: text {infile}")
                 if self.downstream_pipes_for_time_text is not None:
