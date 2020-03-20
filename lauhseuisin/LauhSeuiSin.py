@@ -23,12 +23,12 @@ from lauhseuisin.Pipeline import Pipeline
 class LauhSeuiSin:
     """
     TODO:
-        - Add support for date text in TextImageSorter
-        - Add support for large text into TextImageSorter
+        - Implement PeriodicProcessor
+            - expand/contract flag to do/undo
+            - cubic/radial flag
         - Update FlattenProcessor, ThresholdProcesssor, and PotraceProcessor
-        - Remove ImageMagickProcessor and ESRGANProcessor
+        - Update ESRGANProcessor, even though it will not be used
         - Write PngquantProcessor
-        - Add support for wrapping
     """
     # region Class Variables
 

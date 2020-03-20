@@ -62,6 +62,6 @@ class TransparencySorter(Sorter):
 
         if data.shape[2] != 4:
             return False
-        if (np.array(data)[:, :, 3] != 255).sum() == 0:
+        if (data[:, :, 3] != 255).sum() == 0:
             return False
         return True

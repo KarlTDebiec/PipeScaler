@@ -1634,7 +1634,7 @@ pipes:
   # Default pipline
   default_filename_sorter:
     RegexSorter:
-      regex: ".*(128x128|128x256|256x128|256x256|256x512).*"
+      regex: ".*(128x128|128x256|256x32|256x64|256x128|256x256|256x512).*"
       downstream_pipes_for_matched: default_text_sorter
       downstream_pipes_for_unmatched:
   default_text_sorter:
