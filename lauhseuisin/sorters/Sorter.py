@@ -53,3 +53,10 @@ class Sorter(ABC):
             return basename(dirname(infile))
         else:
             return splitext(basename(infile))[0]
+
+    def log_outfile(self, outfile: str) -> None:
+        name = self.get_original_name(outfile)
+        if name not in self.pipeline.log:
+            self.pipeline.log[name] = [basename(outfile)]
+        else:
+            self.pipeline.log[name].append(basename(outfile))

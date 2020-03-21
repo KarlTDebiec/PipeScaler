@@ -26,10 +26,7 @@ class LauhSeuiSin:
     TODO:
         - CLI for WaifuPixelmator2xTransparentProcessor
         - Identify actors
-        - Log file history
-        - Remove files not produced by current conf
-        - Identify maps automatically
-        - Clean up compressed maps
+        - Validate original LODs alongside scaled LODs
         - Split Zelda files into separate repository
         - Implement PeriodicProcessor
             - expand/contract flag to do/undo

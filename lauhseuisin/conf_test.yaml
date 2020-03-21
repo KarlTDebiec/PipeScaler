@@ -76,6 +76,8 @@ pipes:
           downstream_pipes: actors_transparency_sorter
         interface: # handle manually; skip here
           filenames:
+            - tex1_128x64_110C74C9F44174CF_4
+            - tex1_64x64_050376B252900A11_4
             - tex1_128x128_1F7A3FF848DF62D0_7
             - tex1_128x128_48D02A87589F37FA_4
             - tex1_256x128_D352C1053F32C83C_4
@@ -103,6 +105,17 @@ pipes:
           downstream_pipes:
         maps: # xbrz
           filenames:
+            - tex1_64x64_91C4532DD23AAF93_4
+            - tex1_64x128_58183FE011163D78_4
+            - tex1_64x128_8CA5CF8E9529100A_4
+            - tex1_128x64_EF5137982941C542_4
+            - tex1_256x128_D5ABC19C4DE360E4_4
+            - tex1_64x128_6A71750AF51E6940_4
+            - tex1_64x64_5AC05F6E9E1A6470_4
+            - tex1_64x128_E6D4E2BB026A3A02_4
+            - tex1_64x64_7E1ADAAF27DF6C7D_4
+            - tex1_64x64_D4A13D278921D5BE_4
+            - tex1_64x64_91C4532DD23AAF93_4
             - tex1_128x128_9C682C341A161679_4
             - tex1_128x128_8AA5D223DC6243DE_4
             - tex1_128x128_5F518A536A1E276B_4

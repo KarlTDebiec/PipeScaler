@@ -10,10 +10,14 @@
 from __future__ import annotations
 
 from importlib import import_module
-from os import W_OK, access, getcwd
+from os import W_OK, access, getcwd, listdir
 from os.path import expandvars, isdir
 from pathlib import Path
-from typing import Any, Dict
+from subprocess import Popen
+from typing import Any, Dict, List
+from os import remove
+
+from IPython import embed
 
 
 ################################### CLASSES ###################################
@@ -68,10 +72,30 @@ class Pipeline:
             next(pipes[pipe_name])
         self.pipes = pipes
 
+        # Prepare log
+        self.log: Dict[str, List[str]] = {}
+
     def __call__(self) -> None:
         """
         Performs operations
         """
         self.source()
+        self.clean()
+
+    def clean(self):
+        for name, outfiles in self.log.items():
+            for f in listdir(f"{self.wip_directory}/{name}"):
+                if f == "original.png":
+                    continue
+                if f not in outfiles:
+                    print(f"Removing '{self.wip_directory}/{name}/{f}'")
+                    remove(f"{self.wip_directory}/{name}/{f}")
+        for d in listdir(self.wip_directory):
+            if isdir(d) and d not in self.log:
+                command = f"open " \
+                          f"{self.wip_directory}/{d}"
+                if self.verbosity >= 1:
+                    print(command)
+                Popen(command, shell=True, close_fds=True).wait()
 
     # endregion

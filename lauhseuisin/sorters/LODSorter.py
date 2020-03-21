@@ -67,6 +67,7 @@ class LODSorter(Sorter):
                             int(np.round(input_image.size[1] * scale))),
                             resample=Image.LANCZOS)
                         output_image.save(outfile)
+                    self.log_outfile(outfile)
                     if self.downstream_pipes is not None:
                         for pipe in self.downstream_pipes:
                             self.pipeline.pipes[pipe].send(outfile)
