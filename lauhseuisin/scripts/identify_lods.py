@@ -135,7 +135,7 @@ def load_data():
             image = Image.open(get_filename(name))
             datum = np.array(image)
             if datum.shape == (256, 256, 4):
-                if full_data[:, :, :3].sum() == 0:
+                if datum[:, :, :3].sum() == 0:
                     continue
                 y, x, _ = np.where(datum == 255)
                 if (x.size > 0 and y.size > 0
@@ -186,7 +186,7 @@ def print_lodsets(lodsets):
 
             # Load and score lods
             lods = lodsets[full_name]
-            if 0.5 in lods:
+            if 0.5 in lods and 0.25 in lods:
                 half_name = lods[0.5]
                 half_image = Image.open(get_filename(half_name))
                 half_datum = np.array(half_image.convert("RGB"))
@@ -203,7 +203,6 @@ def print_lodsets(lodsets):
                     f"  0.5: {lods[0.5]} # {half_score:4.2f}\n")
                 lods_outfile.write(f"- {lods[0.5]}\n")
 
-            if 0.25 in lods:
                 quarter_name = lods[0.25]
                 quarter_image = Image.open(get_filename(quarter_name))
                 quarter_datum = np.array(quarter_image.convert("RGB"))
@@ -231,17 +230,8 @@ def print_lodsets(lodsets):
 if __name__ == "__main__":
     input_directory = expandvars(
         "$HOME/.local/share/citra-emu/dump/textures/000400000008F900")
-    full_size = (4, 4)
-
-    # nay = "/Users/kdebiec/Documents/Zelda/4x_kdebiec_map_review"
-    # for name in known_map:
-    #     if name.endswith("_13"):
-    #         if not isdir(f"{nay}/{name}"):
-    #             makedirs(f"{nay}/{name}")
-    #         if not isfile(f"{nay}/{name}/original.png"):
-    #             copyfile(f"{input_directory}/{name}.png",
-    #                      f"{nay}/{name}/original.png")
-    # exit()
+    full_size = (32, 32)
+    threshold = 0.65
 
     # Prepare sizes and regular expressions
     half_size = (full_size[0] // 2, full_size[1] // 2)
@@ -291,7 +281,7 @@ if __name__ == "__main__":
         # Display results
         if half_best_score > 0.99 or quarter_best_score > 0.99:
             continue
-        elif half_best_score > 0.90 and quarter_best_score > 0.90:
+        elif half_best_score > threshold and quarter_best_score > threshold:
             print(f"{full_name}:")
             print(f"  0.5: {half_best_name} # {half_best_score:4.2f}")
             print(f"  0.25: {quarter_best_name} # {quarter_best_score:4.2f}")
