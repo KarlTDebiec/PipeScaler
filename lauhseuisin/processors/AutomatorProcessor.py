@@ -34,5 +34,5 @@ class AutomatorProcessor(Processor):
                   f"-i {outfile} " \
                   f"{self.workflow}"
         if self.pipeline.verbosity >= 1:
-            print(command)
+            print(self.get_indented_text(command))
         Popen(command, shell=True, close_fds=True).wait()

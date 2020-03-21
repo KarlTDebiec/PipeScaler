@@ -9,19 +9,152 @@ pipes:
       downstream_pipes_for_filenames:
         actors: # waifu -> waifu
           filenames:
+            - tex1_128x128_B1ECC074B13D2E8C_12
+            - tex1_64x64_430B469062FDF21D_12
+            - tex1_64x128_882997A2C430B84A_12
+            - tex1_64x64_B3DCFD150087F38F_3
+            - tex1_64x64_A73B7DCB767D10A9_3
+            - tex1_64x128_84296BEFC659648D_3
+            - tex1_64x128_47B031686B8E635F_13
+            - tex1_64x128_EA66CB96A44F2F89_12
+            - tex1_64x64_1349E6685A9EE055_3
+            - tex1_64x64_09A91857DC485C7C_12
+            - tex1_64x64_6D2A53A19F70AECC_12
+            - tex1_64x64_3F9FFBA927903F60_12
+            - tex1_64x64_3C793BADF4D987B5_3
+            - tex1_32x64_A47D09FE35307995_12
+            - tex1_32x64_A06135571F8899FE_3
+            - tex1_64x64_A9FE90AB19CADC4C_2
+            - tex1_32x32_FF1200D535B0CA1B_3
+            - tex1_32x32_FDE5146FDBFEEF53_3
+            - tex1_32x32_FD4950F8409ED4B7_3
+            - tex1_32x64_459C95A546AC33B0_13
+            - tex1_32x64_3A34CB8571AF203E_3
+            - tex1_32x64_83F6FE248BC6742E_12
+            - tex1_32x64_66F624905A7ABD2B_3
+            - tex1_64x64_2AE36B4529A3D8D6_12
+            - tex1_32x64_44966E3DD7DA5F07_3
+            - tex1_32x64_974BE0813C246028_13
+            - tex1_32x64_2634CE0AB9E38979_12
+            - tex1_64x64_3ADA7C8E10B57F03_13
+            - tex1_64x64_2D8F518CDF107A4B_2
+            - tex1_64x32_CDA5726AF712084C_12
+            - tex1_64x32_19CBCEC10A45E928_12
+            - tex1_64x32_0EFAD9AC2D455D09_3
+            - tex1_32x128_B602D272F2FF64BF_12
+            - tex1_32x64_EA1ACC02AD3052B7_13
+            - tex1_32x64_E4626A5EB842F56B_12
+            - tex1_64x64_2EDED16D20BC8504_12
+            - tex1_64x64_427088962D761804_12
+            - tex1_64x64_494485FAB8AC316E_12
+            - tex1_64x64_64C01080A3ED93AB_3
+            - tex1_64x64_60D2C56607BD8E24_3
+            - tex1_64x64_400E36D72F178C17_12
+            - tex1_64x64_73610C0D90338325_12
+            - tex1_64x64_851CC57E6C139540_3
+            - tex1_64x64_47735E34477DAC2B_3
+            - tex1_64x64_86FCE5A1702CA0A5_3
+            - tex1_64x64_22121FCEAF0165D8_12
+            - tex1_64x64_243AC371841B9631_3
+            - tex1_64x64_14844E978A40D9F9_3
+            - tex1_64x64_280DE959DE564D3A_12
+            - tex1_64x64_9373FB138F8B2B51_12
+            - tex1_64x64_9263DF0A0CE2E3E5_12
+            - tex1_64x64_7768F08C8A824C9C_12
+            - tex1_64x64_9503A0E7D06C757C_12
+            - tex1_128x128_89DE11C71BD3E05E_12
+            - tex1_128x64_E6EA4462FBF57C2F_12
+            - tex1_128x64_C6AC787255DE069F_13
+            - tex1_128x64_B814F9714F0C67AA_3
+            - tex1_32x32_3FE32E8D390787E0_3
+            - tex1_128x64_AC5333BB6BF3DE70_13
+            - tex1_64x128_9C4A4CBDB802342A_13
+            - tex1_64x64_E97820E40A061710_12
+            - tex1_64x64_E8318C903761E6FF_3
+            - tex1_64x64_E85E556551B9CBAD_12
+            - tex1_64x64_D5EE57203BD53A2F_13
+            - tex1_64x64_D0A5DD3B57364E70_13
+            - tex1_128x64_426618AA5BC9D463_13
+            - tex1_128x64_3841E69ECB864EBE_12
+            - tex1_128x64_93CE50A7F5922B2D_13
+            - tex1_32x32_8E7C66D9D55E3218_3
+            - tex1_32x16_1D8BBEDBF5B75951_3
+            - tex1_32x32_F4356349F0344311_3
+            - tex1_32x32_D6EEA6D5B6122365_3
+            - tex1_64x32_19CBCEC10A45E928_12
+            - tex1_128x64_FD77E6FF24C625BC_12
+            - tex1_32x32_85A5D425E72DF7B4_3
+            - tex1_32x32_9CB7A2A0B3F5E4DF_3
+            - tex1_32x32_C01BF171D50036F3_3
+            - tex1_32x32_E375FEF7EA1B6C02_3
+            - tex1_64x64_4CC4992D19377EB1_3
+            - tex1_32x32_70E0936518534C88_3
+            - tex1_128x64_E5C284A1120183C0_3
+            - tex1_32x32_B43663F9F74F289A_3
+            - tex1_32x32_147D6E13D01BE854_3
+            - tex1_64x64_AF787649B69D9E8C_3
+            - tex1_32x32_079CAEAB0ABE22EE_3
+            - tex1_32x32_75063B965EC2A72A_3
+            - tex1_128x64_8441883F3A98A881_12
+            - tex1_128x64_198F6DCB02F33630_3
+            - tex1_32x32_AED3D8A4FBCAB09E_3
+            - tex1_32x32_914151D22627A131_3
+            - tex1_32x32_8551C146483934DE_3
+            - tex1_32x32_D0FFF44A1ACE1680_3
+            - tex1_128x64_FAF7DD22653BA2D4_13
+            - tex1_64x64_DFFD286014B1E17D_3
+            - tex1_64x64_E85E556551B9CBAD_12
+            - tex1_32x32_CC2FB3D8A378A651_3
+            - tex1_32x32_35508BC1E82A641A_3
+            - tex1_128x64_8D568F4248DCE223_3
+            - tex1_64x64_80B6B16E8B410076_3
+            - tex1_32x16_505BDFB4153C8545_3
+            - tex1_32x32_D46DEDDDBA796314_3
+            - tex1_32x32_A3C8AFDCD2EEB06C_3
+            - tex1_32x32_F938FDCD38E1D859_3
+            - tex1_32x64_1F746D51A67BFADD_12
+            - tex1_32x64_02A76E5DCD418F63_3
+            - tex1_64x64_9373FB138F8B2B51_12
+            - tex1_32x32_AF8C31790A9A9E57_3
+            - tex1_32x32_019F5F525BB0E665_3
+            - tex1_64x64_90275A327F1CA5DB_3
+            - tex1_64x64_8EC0E98F52C2BA6A_12
+            - tex1_64x128_D281AB7396B23DEE_12
+            - tex1_32x32_A198DA71BD41CF97_3
+            - tex1_32x16_95090D06E3D68EB1_3
+            - tex1_32x32_D6D44D2D144F1DC4_3
+            - tex1_32x16_C9C72C925D546322_3
             - tex1_128x64_F4A1128F1DBE8D96_12
+            - tex1_64x64_C4DE6554AC879C22_3
             - tex1_64x64_851CC57E6C139540_3
             - tex1_128x64_2CD2016E6804CDB4_3
-            - tex1_128x128_066853751393D6D3_12
+            - tex1_64x64_80B6B16E8B410076_3
+            - tex1_32x16_E93722D041FCCF93_3
+            - tex1_32x64_CCABAF0C6941F39E_2
             - tex1_128x128_A9F7F8D64F6A2CFE_13
+            - tex1_32x16_D38765589B339095_3
+            - tex1_32x16_DB4A88DA7338B9C4_3
+            - tex1_32x32_99ABAE9906A82B5A_3
+            - tex1_32x32_805EC39966802372_3
+            - tex1_32x32_1737C5F9D0E06479_3
+            - tex1_32x32_55CBEF7C31F44E74_3
+            - tex1_32x32_2912DA94E718761E_3
             - tex1_256x256_1631E19C380FD274_12
             - tex1_128x128_2E90377EB368A3AD_12
             - tex1_128x128_AE6E1E67E76ECDF5_13
+            - tex1_32x32_0B55606ED98D47DA_3
             - tex1_128x128_5D5B3B64030B3CD2_13
             - tex1_128x128_05F961FE69DF3AC6_12
             - tex1_128x128_0F07D98D1C9DF440_12
             - tex1_128x128_0F580BD6564CC451_13
             - tex1_128x128_1A846A4C424E4BEE_12
+            - tex1_32x32_4A129A5D88E2818B_3
+            - tex1_32x32_1DA39890CFFC29D8_3
+            - tex1_32x32_7E4554ED23DCF72E_3
+            - tex1_32x32_8D30B11986652D39_3
+            - tex1_32x32_8EE20BA56DC5780E_3
+            - tex1_32x32_6E13F71CD261E0F3_3
+            - tex1_32x32_5E7C088586F0DC05_3
             - tex1_128x128_216800987C878B47_12
             - tex1_128x128_2609AEB9BD59DF5F_12
             - tex1_128x128_294151AF61D166C8_12
@@ -43,7 +176,9 @@ pipes:
             - tex1_128x128_76FE1DA2B5807D5E_12
             - tex1_128x128_770CAE58D5D6A3D1_12
             - tex1_128x128_805EAB2B383220C9_12
+            - tex1_128x128_4E29CB8B100BC13A_13
             - tex1_128x128_80F98DDD23D9A6C3_12
+            - tex1_128x128_4E4378B42930A4B5_13
             - tex1_128x128_8AF7889ADE06D8A7_12
             - tex1_128x128_96AADE01484D7F5B_12
             - tex1_128x128_997B8DB774CD1C69_13
@@ -76,6 +211,7 @@ pipes:
           downstream_pipes: actors_transparency_sorter
         interface: # handle manually; skip here
           filenames:
+            - tex1_128x32_EE00E3E7733996CE_13
             - tex1_128x64_110C74C9F44174CF_4
             - tex1_64x64_050376B252900A11_4
             - tex1_128x128_1F7A3FF848DF62D0_7
@@ -105,6 +241,7 @@ pipes:
           downstream_pipes:
         maps: # xbrz
           filenames:
+            - tex1_128x128_FB5050158CDABBCB_13
             - tex1_64x64_91C4532DD23AAF93_4
             - tex1_64x128_58183FE011163D78_4
             - tex1_64x128_8CA5CF8E9529100A_4
@@ -2991,16 +3128,30 @@ pipes:
             - tex1_64x64_3635C5E9253E97D8_12
             - tex1_128x128_69BEE4EC01112407_12
             - tex1_64x64_4186340A2F14E5EF_12
+            - tex1_128x128_F0FFCDA977319044_13
+            - tex1_64x64_497709EE98113F9F_13
+            - tex1_128x128_65B69FAA962C3A41_13
+            - tex1_64x64_AC21F6D73F59C6FE_13
+            - tex1_64x128_C8682FEFFF983AD0_13
+            - tex1_32x64_A10D8109E5B90334_13
           downstream_pipes:
         skip: # skip
           filenames:
+            - tex1_180x400_7A8B68E24589605E_0
             - tex1_128x128_35275B727E239721_4
+            - tex1_240x320_8A2A8623C2B2E100_0
+            - tex1_64x64_628E9456CAB11F5B_12
+            - tex1_240x400_7A8B68E24589605E_1
             - tex1_64x128_E166114928B19254_13
             - tex1_16x16_76D09D9A6CB49BA4_12
             - tex1_16x16_31EE3831FF98630D_13
             - tex1_16x16_EE7064226F817F82_13
             - tex1_16x16_EE7064226F817F82_12
             - tex1_16x16_5E390BCB89F394C6_12
+            - tex1_240x320_8A2A8623C2B2E100_17
+            - tex1_240x320_AC270530B133B539_1
+            - tex1_480x400_D29B2B3780E51929_0
+            - tex1_480x400_D29B2B3780E51929_17
           downstream_pipes:
         default: # waifu -> 3x -> noise
           downstream_pipes: default_filename_sorter
@@ -3044,7 +3195,8 @@ pipes:
   # Default pipeline
   default_filename_sorter:
     RegexSorter:
-      regex: ".*(64x64|64x128|128x64|128x128|128x256|256x32|256x64|256x128|256x256|256x512).*"
+      #      regex: ".*(64x64|64x128|128x64|128x128|128x256|256x32|256x64|256x128|256x256|256x512).*"
+      regex: ".*"
       downstream_pipes_for_matched: default_text_sorter
       downstream_pipes_for_unmatched:
   default_text_sorter:
@@ -3106,7 +3258,7 @@ pipes:
       executable: $HOME/OneDrive/code/external/waifu2x/waifu2x
       downstream_pipes: default_pixelmator-3x
 
-  # Transparent and opaque pipelines merge
+  # Default transparent and opaque pipelines merge
   default_pixelmator-3x:
     AutomatorProcessor:
       workflow: $HOME/OneDrive/code/LauhSeuiSin/lauhseuisin/data/workflows/3x.workflow
@@ -3114,7 +3266,14 @@ pipes:
   default_resize:
     ResizeProcessor:
       scale: 0.66667
-      downstream_pipes: default_noise
+      downstream_pipes: default_size_sorter
+  default_size_sorter:
+    RegexSorter:
+      regex: ".*(8x8|8x16|8x32|16x8|16x16|16x32|32x8|32x16).*"
+      downstream_pipes_for_matched: pngquant
+      downstream_pipes_for_unmatched: default_noise
+
+  # Default large pipeline
   default_noise:
     AutomatorProcessor:
       workflow: $HOME/OneDrive/code/LauhSeuiSin/lauhseuisin/data/workflows/15.15.workflow
@@ -7059,6 +7218,18 @@ pipes:
         tex1_256x256_FC4A9C74E9C361A6_12:
           0.5: tex1_128x128_69BEE4EC01112407_12 # 0.94
           0.25: tex1_64x64_4186340A2F14E5EF_12 # 0.95
+        tex1_256x256_091021D696E380AB_13:
+          0.5: tex1_128x128_E45584CD82F6FBEE_13
+          0.25: tex1_64x64_4248ABAE7BE0047D_13
+        tex1_256x256_5A0328A076428E01_13:
+          0.5: tex1_128x128_F0FFCDA977319044_13
+          0.25: tex1_64x64_497709EE98113F9F_13
+        tex1_256x256_8F309EF34DBC6416_13:
+          0.5: tex1_128x128_65B69FAA962C3A41_13
+          0.25: tex1_64x64_AC21F6D73F59C6FE_13
+        tex1_128x256_CBFBCBEC72C17062_13:
+          0.5: tex1_64x128_C8682FEFFF983AD0_13
+          0.25: tex1_32x64_A10D8109E5B90334_13
       downstream_pipes: pngquant
 
   # Final output

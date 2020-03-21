@@ -12,7 +12,8 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from os import makedirs
 from os.path import basename, dirname, isdir, isfile, splitext
-from shutil import copyfile
+from shutil import copyfile, get_terminal_size
+from textwrap import TextWrapper
 from typing import Any, Iterator, List, Optional, Union
 
 from lauhseuisin.Pipeline import Pipeline
@@ -78,12 +79,18 @@ class Processor(ABC):
 
         return outfile
 
-    def log_outfile(self, outfile:str) -> None:
+    def log_outfile(self, outfile: str) -> None:
         name = self.get_original_name(outfile)
         if name not in self.pipeline.log:
             self.pipeline.log[name] = [basename(outfile)]
         else:
             self.pipeline.log[name].append(basename(outfile))
+
+    def get_indented_text(self, text):
+        columns = get_terminal_size((80, 20)).columns
+        wrapper = TextWrapper(initial_indent="    ", width=columns - 4,
+                              subsequent_indent="    ")
+        return wrapper.fill(text)
 
     @abstractmethod
     def process_file(self, infile: str, outfile: str) -> None:

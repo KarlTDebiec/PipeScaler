@@ -67,7 +67,7 @@ class WaifuPixelmator2xTransparentProcessor(Processor):
                   f"-i {waifu_infile} " \
                   f"-o {waifu_outfile.name}"
         if self.pipeline.verbosity >= 1:
-            print(command)
+            print(self.get_indented_text(command))
         Popen(command, shell=True, close_fds=True).wait()
         if tempfile is not None:
             Image.open(waifu_outfile.name).crop(
@@ -84,7 +84,7 @@ class WaifuPixelmator2xTransparentProcessor(Processor):
                   f"-i {pixelmator_tempfile.name} " \
                   f"{self.workflow}"
         if self.pipeline.verbosity >= 1:
-            print(command)
+            print(self.get_indented_text(command))
         Popen(command, shell=True, close_fds=True).wait()
         pixelmator_3x_image = Image.open(pixelmator_tempfile.name)
         remove(pixelmator_tempfile.name)
@@ -105,3 +105,8 @@ class WaifuPixelmator2xTransparentProcessor(Processor):
 
         # Save final image
         final_image.save(outfile)
+
+
+#################################### MAIN #####################################
+if __name__ == "__main__":
+    LauhSeuiSin.main()

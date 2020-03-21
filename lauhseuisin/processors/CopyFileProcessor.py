@@ -32,5 +32,5 @@ class CopyFileProcessor(Processor):
         if isfile(outfile):
             return
         if self.pipeline.verbosity >= 1:
-            print(outfile)
+            print(self.get_indented_text(f"cp {infile} {outfile}"))
         copyfile(infile, outfile)

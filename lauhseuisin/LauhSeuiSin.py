@@ -25,12 +25,43 @@ class LauhSeuiSin:
     """
     TODO:
         - CLI for WaifuPixelmator2xTransparentProcessor
+        - Improve processing of very small images
         - Identify actors
         - Validate original LODs alongside scaled LODs
         - Split Zelda files into separate repository
         - Implement PeriodicProcessor
             - expand/contract flag to do/undo
             - cubic/radial flag
+        - Water LODs:
+            - tex1_64x64_C7BE133416AAC3CA_3.png
+            - tex1_64x64_C8B91BCEB792B997_3.png
+            - tex1_64x64_BD9806D0C00B08F7_12.png
+            - tex1_64x64_BC039CA0695F021E_12.png
+            - tex1_64x64_B18AB678D8BC5A9F_12.png
+            - tex1_64x64_B24DE3E7113C3609_12.png
+            - tex1_64x64_87040B6688EEF258_12.png
+            - tex1_64x64_77377A9C56318449_12.png
+            - tex1_64x64_6912F54E1173447A_12.png
+            - tex1_64x64_636DAEEE24A17728_12.png
+            - tex1_64x64_613F9A577B091D7E_12.png
+            - tex1_64x64_503E3B07E0BC7DDA_12.png
+            - tex1_64x64_76AF5635E42EBD9B_12.png
+            - tex1_64x64_75DFB6378057B73A_12.png
+            - tex1_64x64_66D51E8571B49E0F_12.png
+            - tex1_64x64_59B09F068F3312B0_12.png
+            - tex1_64x64_56DEA397DF612000_12.png
+            - tex1_64x64_52AA260920F36315_12.png
+            - tex1_64x64_030D5B706014F2EA_12.png
+            - tex1_64x64_13E2EFE009408956_3.png
+            - tex1_64x64_11BE0BD9FEAE32A8_12.png
+            - tex1_64x64_8EB9669659A00DCD_12.png
+            - tex1_64x64_8B6C90CCD54B2FF9_12.png
+            - tex1_64x64_5FA6237A5B39DF51_12.png
+            - tex1_64x64_5A6F17899691B74F_3.png
+            - tex1_64x64_4BA1C6A8FA4BFED9_12.png
+            - tex1_64x64_3C11751C3EDDAB35_12.png
+            - tex1_64x64_2DB1C08C894FA060_12.png
+            - tex1_64x64_2A8C4F28CA5A3FED_12.png
     """
     # region Class Variables
 

@@ -40,8 +40,6 @@ class WaifuProcessor(Processor):
         # waifu needs images to be a minimum size; expand canvas if necessary
         tempfile: Optional[IO[bytes]] = None
         if original_size[0] < 200 or original_size[1] < 200:
-            if self.pipeline.verbosity >= 1:
-                print("creating temporary file")
             tempfile = NamedTemporaryFile(delete=False, suffix=".png")
             expanded_image = Image.new(
                 image.mode, (max(200, original_size[0]),
@@ -62,7 +60,7 @@ class WaifuProcessor(Processor):
                   f"-i {waifu_infile} " \
                   f"-o {outfile}"
         if self.pipeline.verbosity >= 1:
-            print(command)
+            print(self.get_indented_text(command))
         Popen(command, shell=True, close_fds=True).wait()
 
         # If canvas was expanded, crop image
@@ -70,6 +68,4 @@ class WaifuProcessor(Processor):
             Image.open(outfile).crop(
                 (0, 0, original_size[0] * self.scale,
                  original_size[1] * self.scale)).save(outfile)
-            if self.pipeline.verbosity >= 1:
-                print("removing temporary file")
             remove(tempfile.name)

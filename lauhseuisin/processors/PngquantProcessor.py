@@ -43,7 +43,7 @@ class PngquantProcessor(Processor):
         command = f"{command} --output {outfile} {infile} "
 
         if self.pipeline.verbosity >= 1:
-            print(command)
+            print(self.get_indented_text(command))
         Popen(command, shell=True, close_fds=True).wait()
 
         # pngquant may not save outfile if it is too large or low quality
