@@ -11,6 +11,10 @@ from __future__ import annotations
 
 from typing import Any, Iterator
 
+from IPython import embed
+from PIL import Image
+import numpy as np
+
 from lauhseuisin.sorters.Sorter import Sorter
 
 
@@ -22,12 +26,12 @@ class ListSorter(Sorter):
         super().__init__(**kwargs)
 
         self.downstream_pipes_by_filename = {}
-        for downstream_pipe_conf in downstream_pipes_for_filenames:
-            filenames = downstream_pipe_conf.get("filenames")
-            downstream_pipes = downstream_pipe_conf.get("downstream_pipes")
+        for name, conf  in downstream_pipes_for_filenames.items():
+            filenames = conf.get("filenames")
+            downstream_pipes = conf.get("downstream_pipes")
             if isinstance(downstream_pipes, str):
                 downstream_pipes = [downstream_pipes]
-            if filenames is None:
+            if name == "default":
                 self.default_downstream_pipes = downstream_pipes
             else:
                 for filename in filenames:

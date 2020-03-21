@@ -21,7 +21,8 @@ from lauhseuisin.processors.Processor import Processor
 ################################### CLASSES ###################################
 class PotraceProcessor(Processor):
 
-    def __init__(self, blacklevel: float, alphamax: float, opttolerance: float,
+    def __init__(self, blacklevel: float = 0.3, alphamax: float = 1.34,
+                 opttolerance: float = 0.2,
                  convert_executable: str = "convert",
                  potrace_executable: str = "potrace", **kwargs: Any) -> None:
         super().__init__(**kwargs)

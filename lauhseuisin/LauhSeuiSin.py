@@ -15,6 +15,7 @@ from os.path import expandvars, isfile
 from pathlib import Path
 
 import yaml
+from IPython import embed
 
 from lauhseuisin.Pipeline import Pipeline
 
@@ -23,12 +24,12 @@ from lauhseuisin.Pipeline import Pipeline
 class LauhSeuiSin:
     """
     TODO:
+        - Read LODs, etc. from conf file
+        - Identify maps automatically
+        - Split Zelda files into separate repository
         - Implement PeriodicProcessor
             - expand/contract flag to do/undo
             - cubic/radial flag
-        - Update FlattenProcessor, ThresholdProcesssor, and PotraceProcessor
-        - Update ESRGANProcessor, even though it will not be used
-        - Write PngquantProcessor
     """
     # region Class Variables
 

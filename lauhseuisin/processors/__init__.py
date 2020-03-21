@@ -16,12 +16,13 @@ from lauhseuisin.processors.CopyFileProcessor import CopyFileProcessor
 from lauhseuisin.processors.ESRGANProcessor import ESRGANProcessor
 from lauhseuisin.processors.FlattenProcessor import FlattenProcessor
 from lauhseuisin.processors.PotraceProcessor import PotraceProcessor
+from lauhseuisin.processors.PngquantProcessor import PngquantProcessor
 from lauhseuisin.processors.ResizeProcessor import ResizeProcessor
 from lauhseuisin.processors.ThresholdProcessor import ThresholdProcessor
 from lauhseuisin.processors.WaifuProcessor import WaifuProcessor
 from lauhseuisin.processors.XbrzProcessor import XbrzProcessor
-from lauhseuisin.processors.WaifuPixelmator2xTransparentProcessor import \
-    WaifuPixelmator2xTransparentProcessor
+from lauhseuisin.processors.WaifuPixelmator2xTransparentProcessor import (
+    WaifuPixelmator2xTransparentProcessor)
 
 ##################################### ALL #####################################
 __all__: List[str] = [
@@ -29,9 +30,11 @@ __all__: List[str] = [
     "CopyFileProcessor",
     "ESRGANProcessor",
     "FlattenProcessor",
-    "ImageMagickProcessor",
+    "PotraceProcessor",
+    "PngquantProcessor",
     "ResizeProcessor",
     "ThresholdProcessor",
     "WaifuProcessor",
-    "XbrzProcessor"
+    "XbrzProcessor",
+    "WaifuPixelmator2xTransparentProcessor"
 ]

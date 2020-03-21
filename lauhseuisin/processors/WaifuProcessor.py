@@ -23,7 +23,7 @@ from lauhseuisin.processors.Processor import Processor
 ################################### CLASSES ###################################
 class WaifuProcessor(Processor):
 
-    def __init__(self, imagetype: str, scale: int, denoise: int,
+    def __init__(self, imagetype: str = "a", scale: int = 2, denoise: int = 1,
                  executable: str = "waifu", **kwargs: Any) -> None:
         super().__init__(**kwargs)
 

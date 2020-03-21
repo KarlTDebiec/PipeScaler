@@ -20,7 +20,7 @@ from lauhseuisin.processors.Processor import Processor
 ################################### CLASSES ###################################
 class XbrzProcessor(Processor):
 
-    def __init__(self, scale: int, executable="xbrzscale",
+    def __init__(self, scale: int = 4, executable="xbrzscale",
                  **kwargs: Any) -> None:
         super().__init__(**kwargs)
 

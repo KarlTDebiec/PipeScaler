@@ -25,7 +25,7 @@ from lauhseuisin.processors.Processor import Processor
 ################################### CLASSES ###################################
 class WaifuPixelmator2xTransparentProcessor(Processor):
 
-    def __init__(self, imagetype: str, denoise: str, workflow: str,
+    def __init__(self, workflow: str, imagetype: str = "a", denoise: str = 1,
                  waifu_executable: str = "waifu",
                  automator_executable: str = "automator",
                  **kwargs: Any) -> None:
