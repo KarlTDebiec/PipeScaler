@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from os import makedirs
 from os.path import isdir, basename, splitext, isfile
+from shutil import copyfile
 from typing import Any, Iterator, Dict, Optional, Union, List
 
 from IPython import embed
@@ -50,8 +51,7 @@ class LODSorter(Sorter):
             if self.get_original_name(infile) in self.lods:
                 lods = self.lods[self.get_original_name(infile)]
                 for scale, name in lods.items():
-                    if not isdir(f"{self.pipeline.wip_directory}/{name}"):
-                        makedirs(f"{self.pipeline.wip_directory}/{name}")
+                    self.backup_lod(name)
                     desc_so_far = splitext(basename(infile))[0].lstrip(
                         "original")
                     outfile = f"{desc_so_far}_" \
@@ -70,3 +70,11 @@ class LODSorter(Sorter):
                     if self.downstream_pipes is not None:
                         for pipe in self.downstream_pipes:
                             self.pipeline.pipes[pipe].send(outfile)
+
+    def backup_lod(self, name: str) -> None:
+        if not isdir(f"{self.pipeline.wip_directory}/{name}"):
+            makedirs(f"{self.pipeline.wip_directory}/{name}")
+        backup = f"{self.pipeline.wip_directory}/{name}/original.png"
+        if not isfile(backup):
+            original = f"{self.pipeline.source.input_directory}/{name}.png"
+            copyfile(original, backup)

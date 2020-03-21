@@ -24,8 +24,12 @@ from lauhseuisin.Pipeline import Pipeline
 class LauhSeuiSin:
     """
     TODO:
-        - Read LODs, etc. from conf file
+        - CLI for WaifuPixelmator2xTransparentProcessor
+        - Identify actors
+        - Log file history
+        - Remove files not produced by current conf
         - Identify maps automatically
+        - Clean up compressed maps
         - Split Zelda files into separate repository
         - Implement PeriodicProcessor
             - expand/contract flag to do/undo

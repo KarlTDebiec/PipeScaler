@@ -10,8 +10,9 @@
 from __future__ import annotations
 
 import re
-from os import listdir
-from os.path import basename, expandvars, splitext, join
+from os import listdir, makedirs
+from os.path import basename, expandvars, splitext, join, isdir, isfile
+from shutil import copyfile
 from typing import Optional
 from os import remove
 from IPython import embed
@@ -111,7 +112,8 @@ def concatenate_images(full_name: str, half_name: Optional[str] = None,
     return concatenated_image
 
 
-def load_half_and_quarter_data():
+def load_data():
+    full_data = {}
     half_data = {}
     quarter_data = {}
     for name in [get_name(f) for f in listdir(input_directory)]:
@@ -129,14 +131,36 @@ def load_half_and_quarter_data():
             continue
         elif name in known_lores:
             continue
-        if half_re.match(name):
-            half_image = Image.open(get_filename(name))
-            half_data[name] = np.array(half_image.convert("RGB"))
+        if full_re.match(name):
+            image = Image.open(get_filename(name))
+            datum = np.array(image)
+            if datum.shape == (256, 256, 4):
+                if full_data[:, :, :3].sum() == 0:
+                    continue
+                y, x, _ = np.where(datum == 255)
+                if (x.size > 0 and y.size > 0
+                        and y.max() == 15 and x.max() < 128):
+                    image.show()
+                    try:
+                        ok = input("Delete time image (y/n)?:")
+                    except KeyboardInterrupt:
+                        print()
+                        print("Quitting interactive validation")
+                        break
+                    if ok.lower().startswith("y"):
+                        print("removing")
+                        remove(f"{join(input_directory, full_name)}.png")
+                    continue
+            full_data[name] = np.array(image.convert("RGB"))
+        elif half_re.match(name):
+            image = Image.open(get_filename(name))
+            half_data[name] = np.array(image.convert("RGB"))
         elif quarter_re.match(name):
-            quarter_image = Image.open(get_filename(name))
-            quarter_data[name] = np.array(quarter_image.convert("RGB"))
-    print(len(half_data), len(quarter_data))
-    return half_data, quarter_data
+            image = Image.open(get_filename(name))
+            quarter_data[name] = np.array(image.convert("RGB"))
+
+    print(len(full_data), len(half_data), len(quarter_data))
+    return full_data, half_data, quarter_data
 
 
 def name_sort(filename):
@@ -207,73 +231,32 @@ def print_lodsets(lodsets):
 if __name__ == "__main__":
     input_directory = expandvars(
         "$HOME/.local/share/citra-emu/dump/textures/000400000008F900")
-    full_size = (128, 256)
+    full_size = (4, 4)
+
+    # nay = "/Users/kdebiec/Documents/Zelda/4x_kdebiec_map_review"
+    # for name in known_map:
+    #     if name.endswith("_13"):
+    #         if not isdir(f"{nay}/{name}"):
+    #             makedirs(f"{nay}/{name}")
+    #         if not isfile(f"{nay}/{name}/original.png"):
+    #             copyfile(f"{input_directory}/{name}.png",
+    #                      f"{nay}/{name}/original.png")
+    # exit()
 
     # Prepare sizes and regular expressions
     half_size = (full_size[0] // 2, full_size[1] // 2)
     quarter_size = (full_size[0] // 4, full_size[1] // 4)
-    full_re = re.compile(f".*{full_size[0]}x{full_size[1]}.*_1[23]")
-    half_re = re.compile(f".*{half_size[0]}x{half_size[1]}.*_1[23]")
-    quarter_re = re.compile(f".*{quarter_size[0]}x{quarter_size[1]}.*_1[23]")
+    full_re = re.compile(f".*_{full_size[0]}x{full_size[1]}_.*_1[23]")
+    half_re = re.compile(f".*_{half_size[0]}x{half_size[1]}_.*_1[23]")
+    quarter_re = re.compile(f".*_{quarter_size[0]}x{quarter_size[1]}_.*_1[23]")
 
     # Load in all data for half and quarter sizes
-    half_data, quarter_data = load_half_and_quarter_data()
+    full_data, half_data, quarter_data = load_data()
 
     # Loop over full-size filenames and identify new lodsets
     new_lodsets = {}
-    full_filenames = [f for f in listdir(input_directory) if full_re.match(f)]
-    full_filenames.sort(key=name_sort)
-    full_names = [get_name(f) for f in full_filenames]
-    print(len(full_names))
-    for full_name in full_names:
-
-        # Skip known
-        if full_name in known_actor:
-            continue
-        elif full_name in known_interface:
-            continue
-        elif full_name in known_map:
-            continue
-        elif full_name in known_skip:
-            continue
-        elif full_name in known_nolod:
-            continue
-        elif full_name in known_hires:
-            continue
-        elif full_name in known_lores:
-            continue
-
-        # Load image
-        full_image = Image.open(get_filename(full_name))
-        full_data = np.array(full_image)
-
-        # Skip text images
-        if full_data.shape == (256, 256, 4):
-            if full_data[:, :, :3].sum() == 0:
-                continue
-
-            # Also prompt to delete datetime text
-            y, x, _ = np.where(full_data == 255)
-            if (x.size > 0 and y.size > 0 and y.max() == 15 and x.max() < 128):
-                full_image.show()
-                try:
-                    ok = input("Delete time image (y/n)?:")
-                except KeyboardInterrupt:
-                    print()
-                    print("Quitting interactive validation")
-                    break
-                if ok.lower().startswith("y"):
-                    print("removing")
-                    remove(f"{join(input_directory, full_name)}.png")
-                continue
-
-        # Load image data
-        full_image = full_image.convert("RGB")
-        full_data = np.array(full_image)
-
-        # print(i)
-        # i += 1
-        # continue
+    for full_name, full_datum in full_data.items():
+        full_image = Image.fromarray(full_datum)
 
         # Shrink to half size
         half_shrunk_image = full_image.resize(
@@ -304,23 +287,29 @@ if __name__ == "__main__":
             if score > quarter_best_score:
                 quarter_best_name = quarter_name
                 quarter_best_score = score
-        quarter_best_image = Image.fromarray(
-            quarter_data[quarter_best_name])
 
         # Display results
-        print(f"{full_name}:")
-        print(f"  0.5: {half_best_name} # {half_best_score:4.2f}")
-        print(f"  0.25: {quarter_best_name} # {quarter_best_score:4.2f}")
-        concatenated_image = concatenate_images(
-            full_name, half_best_name, quarter_best_name)
-
-        if half_best_score > 0.99 and quarter_best_score > 0.99:
+        if half_best_score > 0.99 or quarter_best_score > 0.99:
             continue
-        elif half_best_score > 0.94 and quarter_best_score > 0.94:
-            new_lodsets[full_name] = {
-                0.5: half_best_name,
-                0.25: quarter_best_name}
+        elif half_best_score > 0.90 and quarter_best_score > 0.90:
+            print(f"{full_name}:")
+            print(f"  0.5: {half_best_name} # {half_best_score:4.2f}")
+            print(f"  0.25: {quarter_best_name} # {quarter_best_score:4.2f}")
+            concatenated_image = concatenate_images(
+                full_name, half_best_name, quarter_best_name)
             concatenated_image.show()
+            # new_lodsets[full_name] = {
+            #     0.5: half_best_name,
+            #     0.25: quarter_best_name}
+            # try:
+            #     result = input("Is this LOD set assigned correctly (y/n):")
+            #     if result.lower().startswith("y"):
+            #         new_lodsets[full_name] = {
+            #             0.5: half_best_name,
+            #             0.25: quarter_best_name}
+            # except KeyboardInterrupt:
+            #     print("\n\n")
+            #     break
         else:
             continue
 
