@@ -527,8 +527,6 @@ pipes:
             - tex1_16x16_325C8324C7680F7D_12
             - tex1_32x32_74AB3EC42E587A99_12
             - tex1_16x16_35824AD78303123F_12
-            - tex1_32x32_3001A605B40C11D1_12
-            - tex1_16x16_06C2E33287C6C54A_12
             - tex1_32x32_D59F6C61206FECB3_12
             - tex1_16x16_A37C26BC53CC5894_12
             - tex1_32x32_2FAAFA640CBB5F45_12
@@ -539,10 +537,6 @@ pipes:
             - tex1_16x16_128D8513CC1EC414_13
             - tex1_32x32_A22279C3D82989ED_13
             - tex1_16x16_4DA3D6C4008846F2_13
-            - tex1_32x32_749F8EEA2207AB76_12
-            - tex1_16x16_CB06971A86B4BE19_12
-            - tex1_32x32_C11DCF7C20B33FB2_12
-            - tex1_16x16_66E1EAA10B9377FE_12
             - tex1_32x32_0CBEC822AD05E762_13
             - tex1_16x16_9A6E9709CF9B583A_13
             - tex1_32x32_B58D6F68FE2628CA_13
@@ -591,8 +585,6 @@ pipes:
             - tex1_16x16_0468A6F88EAFB52D_12
             - tex1_32x32_8245BFBA5D000E48_13
             - tex1_16x16_656798FA80BB19F9_13
-            - tex1_32x32_3F6BD7AE7CBDF171_12
-            - tex1_16x16_226592799685B741_12
             - tex1_32x32_F2742AFD1FFC23BF_12
             - tex1_16x16_2D9C802DCE94F556_12
             - tex1_32x32_6A9A744F5274144B_12
@@ -613,8 +605,6 @@ pipes:
             - tex1_16x16_BCAB22F3EC270392_12
             - tex1_32x32_704292F927A380F7_13
             - tex1_16x16_496BFA1CF38C604A_13
-            - tex1_32x32_7179BA8F5013E990_12
-            - tex1_16x16_9AC8FBC074406146_12
             - tex1_32x32_4224C81D58991F77_12
             - tex1_16x16_7C25C28A0A49B97F_12
             - tex1_32x32_51B6324665DF5D59_12
@@ -635,8 +625,6 @@ pipes:
             - tex1_16x16_80FB14E88050AA37_12
             - tex1_32x32_0E2284263EEC5EA6_12
             - tex1_16x16_BD29BBFCB3711777_12
-            - tex1_32x32_520C4DBDF9F6D86A_12
-            - tex1_16x16_49A44DD21DDA2417_12
             - tex1_32x32_951708539A2BF673_13
             - tex1_16x16_9BB1AE9361F74105_13
             - tex1_32x32_5C1FA5A56994C775_13
@@ -651,10 +639,6 @@ pipes:
             - tex1_16x16_9CC4B411D9E1F94C_12
             - tex1_32x32_EF76EBA1CE3A7EDD_12
             - tex1_16x16_D24E7E152EA449DD_12
-            - tex1_32x32_54F653328E88C9D7_12
-            - tex1_16x16_8D5AA6539C2863E9_12
-            - tex1_32x32_A7C4CFBC1D0DC88F_12
-            - tex1_16x16_E4F55C92A997F6E4_12
             - tex1_32x32_0DDC0834A9DF28B9_13
             - tex1_16x16_2AC3B3BEEA23B8C0_13
             - tex1_32x32_13E61967E9104C7B_13
@@ -675,8 +659,6 @@ pipes:
             - tex1_16x16_AB2F6864DD5A34DC_12
             - tex1_32x32_7E9F336D6106EF4B_13
             - tex1_16x16_EE36D1FF563ADF01_13
-            - tex1_32x32_CAF3F2DAEA9147CD_12
-            - tex1_16x16_FAF207387A95DFD7_12
             - tex1_32x32_6C3F3C97BCDC704C_13
             - tex1_16x16_ACC76F31AB66C2E5_13
             - tex1_32x32_EDF8A26F1E25451D_12
@@ -767,8 +749,6 @@ pipes:
             - tex1_16x16_F58327B1A96F6019_12
             - tex1_32x32_4341FE011AE23526_13
             - tex1_16x16_436951D3D67E9D5A_13
-            - tex1_32x32_121738182ED1C30F_12
-            - tex1_16x16_0DADF51BB6F85630_12
             - tex1_32x32_684177FFD5637D1C_12
             - tex1_16x16_7A51C2BE8DE6435C_12
             - tex1_32x32_B77AF5A1FB6AC501_12
@@ -777,8 +757,6 @@ pipes:
             - tex1_16x16_5ED2EFAB8FC46098_13
             - tex1_32x32_28E459C482998985_12
             - tex1_16x16_8FF5BD6C3CDB5719_12
-            - tex1_32x32_2487E0A3E7D566F6_12
-            - tex1_16x16_1D771B9DBFAA934D_12
             - tex1_32x32_4D0F1B8C37739DB5_12
             - tex1_16x16_8BE2BF604E42AAE9_12
             - tex1_32x32_BB5602376EF0BE9C_12
@@ -797,12 +775,8 @@ pipes:
             - tex1_16x16_93AEEF52D8587811_13
             - tex1_32x32_42835E1B24F5D9F2_12
             - tex1_16x16_F714BF2156A4AB95_12
-            - tex1_32x32_100508DA4018E530_12
-            - tex1_16x16_9A2327FF45BA9D0D_12
             - tex1_32x32_346569B5669E9B77_12
             - tex1_16x16_5578808E3D704466_12
-            - tex1_32x32_2B60CAF83D700338_12
-            - tex1_16x16_7C512B3FA44880F7_12
             - tex1_32x32_D5B11096489CA36B_12
             - tex1_16x16_B629F7555DECBF2E_12
             - tex1_32x32_E3AD0DD8815A34C7_12
@@ -837,20 +811,12 @@ pipes:
             - tex1_16x16_E936B921360FFACF_12
             - tex1_32x32_0ACADA22642B67D7_12
             - tex1_16x16_FB0471C66718CEAB_12
-            - tex1_32x32_43E876B03CA4CA1F_12
-            - tex1_16x16_95526E595AC53CEF_12
             - tex1_32x32_942845303AFD1892_13
             - tex1_16x16_39ACC118EC11F5B4_13
             - tex1_32x32_7A6C5054CF3622D2_13
             - tex1_16x16_D1AFDAD78088FA99_13
-            - tex1_32x32_49C1276AC4689A7E_12
-            - tex1_16x16_E0CE180D53DE5CBD_12
-            - tex1_32x32_B43A46209BC35279_12
-            - tex1_16x16_D5D79B605FD8C04F_12
             - tex1_32x32_42F30094962748FE_13
             - tex1_16x16_A60FAEC783931BDE_13
-            - tex1_32x32_3B412CA00A5A300B_12
-            - tex1_16x16_EFB8E3CDB9B7959A_12
             - tex1_32x32_51D5D493FDAE6503_12
             - tex1_16x16_4C867A6BE64485E7_12
             - tex1_32x32_F3E36C79D554BDDA_13
@@ -859,10 +825,6 @@ pipes:
             - tex1_16x16_EC5F174E712D3332_12
             - tex1_32x32_852AD42DF6EB8D9B_12
             - tex1_16x16_58EF2FF450800B47_12
-            - tex1_32x32_9968A52A31FBF0CE_12
-            - tex1_16x16_1BEACDB48A2235E5_12
-            - tex1_32x32_FD825BF8B73DB166_12
-            - tex1_16x16_9454F71D976AEB8B_12
             - tex1_32x32_7F09498962EA3345_12
             - tex1_16x16_B41084FC26E73B56_12
             - tex1_16x64_9CB20DD53613912A_13
@@ -889,6 +851,8 @@ pipes:
             - tex1_16x32_EF968F0F4CDFE493_12
             - tex1_32x64_5FDD9C6D9943BC00_12
             - tex1_16x32_E42D37FB7C4E1478_12
+            - tex1_32x64_9401FFB9672BB2E2_12
+            - tex1_16x32_C4504CF1E4E39104_12
             - tex1_32x64_9F24452A605B70CB_12
             - tex1_16x32_6FD8FB3A14464F1C_12
             - tex1_32x64_D2558F4CB722B666_12
@@ -917,6 +881,8 @@ pipes:
             - tex1_16x32_8E0339DC60E864C7_12
             - tex1_32x64_61B01350FCAE016E_13
             - tex1_16x32_23D0C72BDE9C6A5F_13
+            - tex1_32x64_676DC2600E8D1223_12
+            - tex1_16x32_1476EC4ECED9D0C8_12
             - tex1_32x64_2D10523D9F29C5E1_12
             - tex1_16x32_8C7FE669F7417DEB_12
             - tex1_32x64_21FBCE00040107D8_12
@@ -925,6 +891,8 @@ pipes:
             - tex1_16x32_F0B47DBEF3B30361_13
             - tex1_32x64_5DA62FBDFA199462_13
             - tex1_16x32_C108A673F4E17EF4_13
+            - tex1_32x64_3C8DBABCD031A4F0_12
+            - tex1_16x32_001E2C3D49D37120_12
             - tex1_32x64_293A222B0C102C22_12
             - tex1_16x32_D259053A12C2225A_12
             - tex1_32x64_C420BB7F3E661423_13
@@ -957,6 +925,8 @@ pipes:
             - tex1_16x32_01AC386DCF997C6A_12
             - tex1_32x64_83DC8E50CCCCB434_13
             - tex1_16x32_3DDE45358B12465C_13
+            - tex1_32x64_555297389195CCBB_12
+            - tex1_16x32_CB287B77EE10121A_12
             - tex1_32x64_11325A70578741AA_13
             - tex1_16x32_D2FC07E3FF249CE2_13
             - tex1_32x64_71DAEB9EDC9F9843_12
@@ -965,6 +935,10 @@ pipes:
             - tex1_16x32_BFB67B21B4D5EB6C_12
             - tex1_32x64_D876162E7A73372B_12
             - tex1_16x32_2C260B4C3717ACBA_12
+            - tex1_32x64_FB8E5D3130236504_12
+            - tex1_16x32_CFA87F4A990D88A1_12
+            - tex1_32x64_F8C6E1AF27EB2EBA_12
+            - tex1_16x32_E1958AB55B812D3D_12
             - tex1_32x64_55956EA062AD1B75_12
             - tex1_16x32_B8A26B85771248EE_12
             - tex1_32x64_E67BD22326FB493C_12
@@ -1039,12 +1013,16 @@ pipes:
             - tex1_16x32_27566E7160DFE29C_12
             - tex1_32x64_81869DBFE1621F5C_12
             - tex1_16x32_078113106C0506FB_12
+            - tex1_32x64_6FC1C369E8ED11B4_12
+            - tex1_16x32_C577947974DC9680_12
             - tex1_32x64_E53BE05443256F3E_12
             - tex1_16x32_FFD75A8DF835642E_12
             - tex1_32x64_03B09ECE1A9E4A32_12
             - tex1_16x32_55B360F0C41E076C_12
             - tex1_32x64_10B7045D158CAB20_12
             - tex1_16x32_9D7039706705DB5A_12
+            - tex1_32x64_EE9ED4D46DEA83B8_12
+            - tex1_16x32_CC0423A1337A47FD_12
             - tex1_32x64_0541EA2A60B73373_12
             - tex1_16x32_6DD20E8E5C4897AB_12
             - tex1_32x64_5DA62FBDFA199462_13
@@ -1093,6 +1071,8 @@ pipes:
             - tex1_16x64_9224F01030611CB6_12
             - tex1_32x128_F928CC872E104898_12
             - tex1_16x64_98CA854ECC2AD03E_12
+            - tex1_32x128_D325086B3DE81DDC_12
+            - tex1_16x64_9B7135FC98A4868C_12
             - tex1_32x128_DABF491978A6C52E_13
             - tex1_16x64_520ED97CC29A444F_13
             - tex1_64x16_9CBB966816FB25E1_13
@@ -1139,6 +1119,8 @@ pipes:
             - tex1_32x16_762831A4A28BD276_13
             - tex1_64x32_1CA1164DB5F44EF0_12
             - tex1_32x16_F84DBFCC57D05A22_12
+            - tex1_64x32_2DF65E990F74A868_12
+            - tex1_32x16_D4293FCFCE2B2EBB_12
             - tex1_64x32_92DB373B895AFA85_12
             - tex1_32x16_B1506852A659EA02_12
             - tex1_64x32_9A70507746FF14AB_13
@@ -1151,6 +1133,8 @@ pipes:
             - tex1_32x16_86FA51DFA496A141_12
             - tex1_64x32_BC66DF2EB68FB07F_12
             - tex1_32x16_3FA8410E8287EAE5_12
+            - tex1_64x32_FC4C21DA98DE5059_12
+            - tex1_32x16_10863E0F7308DCF1_12
             - tex1_64x32_E1F0254C91D3C5CB_12
             - tex1_32x16_4E7B7DC19AADCEEA_12
             - tex1_64x32_A90895CF547474A9_12
@@ -1163,6 +1147,10 @@ pipes:
             - tex1_32x16_FFFDDAB07EE16464_12
             - tex1_64x32_6CD45FCFDFFC9044_12
             - tex1_32x16_0960DEFD27F9D5BD_12
+            - tex1_64x32_8987FB4A9CA50F2E_12
+            - tex1_32x16_7470B279F872E152_12
+            - tex1_64x32_8C54C051C3D6AAF5_12
+            - tex1_32x16_04F1C10B24EC1E8E_12
             - tex1_64x32_87885397258478DC_12
             - tex1_32x16_DB01621653F099B3_12
             - tex1_64x32_805C97CE89F5BD8C_12
@@ -1179,6 +1167,8 @@ pipes:
             - tex1_32x16_74B0C60E924A1150_12
             - tex1_64x32_66D2C42C8E06EB5A_12
             - tex1_32x16_2854F427F9A4B542_12
+            - tex1_64x32_BDC6EC1211AD0C32_12
+            - tex1_32x16_6A8E36BFAAE0EF14_12
             - tex1_64x32_BF94BA7FB0BDE16E_12
             - tex1_32x16_548C4B0CCCD7A262_12
             - tex1_64x32_0438EA897186AB66_12
@@ -1209,6 +1199,8 @@ pipes:
             - tex1_32x16_38D3F1D044410A51_12
             - tex1_64x32_B80951B3BC76823E_12
             - tex1_32x16_403F2B1B696CC59C_12
+            - tex1_64x32_C9CD658D46028304_12
+            - tex1_32x16_64F5963437078FFC_12
             - tex1_64x32_3B19DE165D45CAF0_12
             - tex1_32x16_7F19775691080A28_12
             - tex1_64x32_4D897AB7C5966284_13
@@ -1263,6 +1255,8 @@ pipes:
             - tex1_32x16_23E1EB535EBECDB8_12
             - tex1_64x32_453E22ACDAC1CD40_13
             - tex1_32x16_AF50B4E54D7F3F03_13
+            - tex1_64x32_8925E92343B31D30_12
+            - tex1_32x16_6629F51A12DA4160_12
             - tex1_128x32_D7799BBA4ADA67AF_12
             - tex1_64x16_E4EE019E0BD6DD57_12
             - tex1_128x32_2A9410C46815E7F3_12
@@ -1275,6 +1269,8 @@ pipes:
             - tex1_32x32_C8E7689726C93C78_12
             - tex1_64x64_E9C929CE4C05F072_12
             - tex1_32x32_B6804BAB9F2DEDF5_12
+            - tex1_64x64_C8AC084B162009E3_12
+            - tex1_32x32_1B76980BE4AF6AE1_12
             - tex1_64x64_5D62BD8CD97A64DE_12
             - tex1_32x32_F55D2BF27E3C6B8E_12
             - tex1_64x64_8B75AA39DEE53833_12
@@ -1297,6 +1293,8 @@ pipes:
             - tex1_32x32_479888C2209AA5F5_12
             - tex1_64x64_208D4128A9D1C3C6_12
             - tex1_32x32_E0D24E82D5F5CEE2_12
+            - tex1_64x64_CD0F8ADA5A921BAF_12
+            - tex1_32x32_0E0983814D81A9D1_12
             - tex1_64x64_AD4CE690CF5DE455_12
             - tex1_32x32_7BA28EA7AE37F03F_12
             - tex1_64x64_79F44201A3184943_12
@@ -1307,12 +1305,14 @@ pipes:
             - tex1_32x32_DB94D4925D7140F1_12
             - tex1_64x64_966D5DF382948CCE_12
             - tex1_32x32_B2AF14B8816DFB39_12
+            - tex1_64x64_D9B1F003A2083F81_12
+            - tex1_32x32_6317BE2677EADC6C_12
             - tex1_64x64_90CE459BB8467D96_12
             - tex1_32x32_4E8B5EB0144CEB07_12
             - tex1_64x64_BC95B5E961197B1D_12
             - tex1_32x32_9254364C57F3DF39_12
-            - tex1_64x64_52AA260920F36315_12
-            - tex1_32x32_681FE1C310E0C215_12
+            - tex1_64x64_13DF25D3DFA746B3_12
+            - tex1_32x32_C4930FC415A70ED0_12
             - tex1_64x64_592B7BDBE6154BAA_12
             - tex1_32x32_2EC7215BC915B5B7_12
             - tex1_64x64_075EAFE65ACC5EA2_13
@@ -1371,6 +1371,8 @@ pipes:
             - tex1_32x32_7D60E03C41ED2164_12
             - tex1_64x64_0CA4F703FA010DC9_12
             - tex1_32x32_E9FDBB2D367B61E4_12
+            - tex1_64x64_406F65F8DD39DC2A_12
+            - tex1_32x32_EBC8C74F2A289A93_12
             - tex1_64x64_BDC9DD0F41DAC6B2_12
             - tex1_32x32_E2A6772F2A6D2B54_12
             - tex1_64x64_87E35C0A9E6E9024_12
@@ -1383,8 +1385,6 @@ pipes:
             - tex1_32x32_B27BDF3B49DDD8E2_12
             - tex1_64x64_B067AEBBAE85EC66_12
             - tex1_32x32_68DD519785A56E88_12
-            - tex1_64x64_5A6F17899691B74F_3
-            - tex1_32x32_BB642374F4E5D06C_3
             - tex1_64x64_F157B86A5802D987_12
             - tex1_32x32_8A13790DF414C01F_12
             - tex1_64x64_38284BD658134B32_13
@@ -1441,8 +1441,12 @@ pipes:
             - tex1_32x32_ED01512EDAEE4FF8_12
             - tex1_64x64_3B5DBAE2FB2F3E4F_12
             - tex1_32x32_21DD9503AC1CB905_12
+            - tex1_64x64_E8FFA3B39B2B1F8C_12
+            - tex1_32x32_D3DCE010B8143E93_12
             - tex1_64x64_BADB24E24997E549_12
             - tex1_32x32_33951EAA67635C2B_12
+            - tex1_64x64_9D4334C94E7C9C2C_12
+            - tex1_32x32_0330A1AC86755124_12
             - tex1_64x64_1E9AFE8B25D8C6B8_12
             - tex1_32x32_93C8B33D53A91056_12
             - tex1_64x64_D7540AF21A0FD00F_12
@@ -1453,6 +1457,8 @@ pipes:
             - tex1_32x32_F54B223E7B4CD1C5_12
             - tex1_64x64_C55E483B8D9A2086_12
             - tex1_32x32_D19A9EA9C05AAA50_12
+            - tex1_64x64_AC681C5537B628CF_12
+            - tex1_32x32_705B3BDA95136C88_12
             - tex1_64x64_00EA512AD90E74E3_12
             - tex1_32x32_2B36C56EFE57245B_12
             - tex1_64x64_20885262BA80652C_12
@@ -1501,16 +1507,22 @@ pipes:
             - tex1_32x32_377C1C468422C0E6_12
             - tex1_64x64_267CDA94ADD9ABDB_12
             - tex1_32x32_6F5AD35C8FCAB6E3_12
+            - tex1_64x64_0E7A4E3C08092CFC_12
+            - tex1_32x32_CC499EA9697DECE8_12
             - tex1_64x64_5CDB204E20CCFE64_13
             - tex1_32x32_4107D4D1E8BFEB39_13
             - tex1_64x64_B6CD59D47A847093_12
             - tex1_32x32_00B880EF6280B4C9_12
+            - tex1_64x64_197353C8B4FA1215_12
+            - tex1_32x32_AEBF33BFFD87F6BA_12
             - tex1_64x64_1B23C70D0D5B72F0_12
             - tex1_32x32_E9E2A98BCF5EA1E6_12
-            - tex1_64x64_56DEA397DF612000_12
-            - tex1_32x32_AB49AA1A2A22F6B2_3
+            - tex1_64x64_01A361889426968E_13
+            - tex1_32x32_9B3D6B382E811F97_13
             - tex1_64x64_DDA9628219020EC2_12
             - tex1_32x32_75EEAB8FE0CA32E8_12
+            - tex1_64x64_9355139E8B47F9A9_12
+            - tex1_32x32_EA8C1D0796764A52_12
             - tex1_64x64_152148FFFDBE7CA3_12
             - tex1_32x32_1B7D73F9EC1DB0C6_12
             - tex1_64x64_0709DA04D1DE752B_13
@@ -1605,6 +1617,8 @@ pipes:
             - tex1_32x32_F3B0968235B85A45_12
             - tex1_64x64_3770DB1A035B2CE1_12
             - tex1_32x32_AB8A01F880F93EB9_12
+            - tex1_64x64_959C3CDD65FAF68F_12
+            - tex1_32x32_B5EAD65E5BD9011A_12
             - tex1_64x64_E3D3D05D875F9593_12
             - tex1_32x32_25C9DEDC793A881E_12
             - tex1_64x64_816E28B6AB917C1E_13
@@ -1631,6 +1645,8 @@ pipes:
             - tex1_32x32_F704FF610C254A2C_12
             - tex1_64x64_831703FB2D6ED475_12
             - tex1_32x32_F14FC6837F28C0C8_12
+            - tex1_64x64_1EF4BF4B549DF38C_13
+            - tex1_32x32_332CF8C9DC28B548_13
             - tex1_64x64_3B0B01FE7686A67A_12
             - tex1_32x32_B0DC7CF595133562_12
             - tex1_64x64_6385876F2286A134_12
@@ -1639,6 +1655,8 @@ pipes:
             - tex1_32x32_2DF3C193D7D426CA_12
             - tex1_64x64_1BAF2E9B6CDC5278_12
             - tex1_32x32_BB0DBB8A559A2D6A_12
+            - tex1_64x64_DEAAB291B0805FC6_12
+            - tex1_32x32_95FD19C6CCDE7A01_12
             - tex1_64x64_6FC40104DB997EFE_12
             - tex1_32x32_38F9E2C0CBCC84B7_12
             - tex1_64x64_D0EA1F02E0BF647E_12
@@ -1659,6 +1677,8 @@ pipes:
             - tex1_32x32_E2F544F4E152BF84_3
             - tex1_64x64_E13DFA26E9818185_12
             - tex1_32x32_6279ABEFE8196FFC_12
+            - tex1_64x64_6C83E388965307A6_12
+            - tex1_32x32_E03254DF963BD5D2_12
             - tex1_64x64_59981E066031DF71_12
             - tex1_32x32_5A58D89D324312F3_12
             - tex1_64x64_AC2A7D2E3E185DA1_13
@@ -1773,6 +1793,8 @@ pipes:
             - tex1_32x32_DE7373D1F1D7A57A_12
             - tex1_64x64_2561C3A6C2F942F3_13
             - tex1_32x32_094CA590142A5762_13
+            - tex1_64x64_BFD021D63FFBA785_12
+            - tex1_32x32_CEA8667280D4EEF5_12
             - tex1_64x64_CB42F5460CECF2E2_12
             - tex1_32x32_08703F00A8EB026B_12
             - tex1_64x64_94C005FA5CB0487B_12
@@ -1785,6 +1807,8 @@ pipes:
             - tex1_32x32_ED7E6E2F0E807B9C_12
             - tex1_64x64_38E96C603B95B7CE_12
             - tex1_32x32_93A56EE10034E859_12
+            - tex1_64x64_5FBC1E0A57A2C380_13
+            - tex1_32x32_513E25135AE9C650_13
             - tex1_64x64_C08C2762A25216CB_12
             - tex1_32x32_1DECB88B26F41413_12
             - tex1_64x64_7BDB7C0AAB0281CD_12
@@ -1795,6 +1819,8 @@ pipes:
             - tex1_32x32_6C72DA6B4553222B_12
             - tex1_64x64_491BA43ADFCEF1AE_12
             - tex1_32x32_3C9B7E84AEC64722_12
+            - tex1_64x64_C142252B2B1F0524_12
+            - tex1_32x32_7691482007556B23_12
             - tex1_64x64_1DC502623B3D8DF3_12
             - tex1_32x32_E4117355D48CCE19_12
             - tex1_64x64_B208BE43FABF23EA_12
@@ -1805,6 +1831,8 @@ pipes:
             - tex1_32x32_C882E9600C933905_12
             - tex1_64x64_7701E1D6B69294E2_12
             - tex1_32x32_49C7C8CC3663C2E4_12
+            - tex1_64x64_71E1C6B2C678D31C_12
+            - tex1_32x32_5C8DF7483F9FD827_12
             - tex1_64x64_BA63718FD88ACCBD_12
             - tex1_32x32_8CDD0D4E297B181F_12
             - tex1_64x64_90DDA91DAF23D2FE_12
@@ -1835,6 +1863,8 @@ pipes:
             - tex1_32x32_4CBE423705043BA9_12
             - tex1_64x64_566CF9715F68407D_12
             - tex1_32x32_04A5BF887995EF23_12
+            - tex1_64x64_EC935264B8633A7F_12
+            - tex1_32x32_507BEEC2AFDD3E55_12
             - tex1_64x64_F804FE40F8B145FC_12
             - tex1_32x32_8539989B5C0C9FF0_12
             - tex1_64x64_6E19654FEFA1613B_12
@@ -1859,6 +1889,8 @@ pipes:
             - tex1_32x32_42AE1D9364156FE5_12
             - tex1_64x64_3AD9A438CA41EAF3_12
             - tex1_32x32_BED03F93157A9D39_12
+            - tex1_64x64_A7217789881B95F1_13
+            - tex1_32x32_AA75F0DF56F8F452_13
             - tex1_64x64_DA3DBA7C777BE5F1_12
             - tex1_32x32_F38782B0342B92FC_12
             - tex1_64x64_0345BFE4A1142346_13
@@ -1931,8 +1963,6 @@ pipes:
             - tex1_32x32_01F2029347A14A60_12
             - tex1_64x64_58605F7AEDDCCDFF_12
             - tex1_32x32_0D527038621E888D_12
-            - tex1_64x64_2A8C4F28CA5A3FED_12
-            - tex1_32x32_DEB1C47DA15BA809_12
             - tex1_64x64_FC22475E18542462_12
             - tex1_32x32_A6A49B168BE42072_12
             - tex1_64x64_E192497CA79442E7_12
@@ -2017,8 +2047,6 @@ pipes:
             - tex1_32x32_40FF9DA05D2F80E2_12
             - tex1_64x64_A978A586CA65EAF0_12
             - tex1_32x32_4CE13DAE0E6EF8F8_12
-            - tex1_64x64_636DAEEE24A17728_12
-            - tex1_32x32_31364054A6F65027_12
             - tex1_64x64_982634ABBCAB70DD_12
             - tex1_32x32_5350A64CE7837DA4_12
             - tex1_64x64_0B6D14801ABCBE2B_12
@@ -2041,8 +2069,12 @@ pipes:
             - tex1_32x32_ACF4F072DBFF316E_13
             - tex1_64x64_D040F03E26CE9F70_12
             - tex1_32x32_4772E3D76A8C4E80_12
+            - tex1_64x64_D83C32541486C8D8_12
+            - tex1_32x32_08ACEDD5180D2BBE_12
             - tex1_64x64_13F32D939345AAA5_12
             - tex1_32x32_20D9ED84A513941B_12
+            - tex1_64x64_AAC614B84F40B7CD_12
+            - tex1_32x32_61BC3EA88177ACF8_12
             - tex1_64x64_8A91C388A0E1FC99_12
             - tex1_32x32_90A201CE1EB0F92C_12
             - tex1_64x64_A38F2D4A7B6BEDED_12
@@ -2081,6 +2113,8 @@ pipes:
             - tex1_32x32_C01D68F734DFB7EE_12
             - tex1_64x64_9D4E420CC52E1DEF_12
             - tex1_32x32_43052DCC5AEED54F_12
+            - tex1_64x64_EC8E475A0F32F6E2_12
+            - tex1_32x32_6840CCC490411E55_12
             - tex1_64x64_AD48CDE86CF467E1_12
             - tex1_32x32_9670BE5D6CE3F2FD_12
             - tex1_64x64_B7BB05506C44A24A_12
@@ -2141,6 +2175,8 @@ pipes:
             - tex1_32x32_3226EFF496001154_12
             - tex1_64x64_65A2566F4BB4577C_12
             - tex1_32x32_CAA4848EBD174806_12
+            - tex1_64x64_F04BCC390F7F4493_12
+            - tex1_32x32_CD0129A47C1184F9_12
             - tex1_64x64_22C29D36E9C7F1F8_12
             - tex1_32x32_251D88CC0E7E50BC_12
             - tex1_64x64_2A639208C62179BF_12
@@ -2195,6 +2231,8 @@ pipes:
             - tex1_32x32_52C8623A08441E51_13
             - tex1_64x64_78EBDF78BB239E34_12
             - tex1_32x32_E852C6EFB672DC30_12
+            - tex1_64x64_5077A9138B53F049_12
+            - tex1_32x32_134C716F8E41438D_12
             - tex1_64x64_F63C453BDF3F72B7_12
             - tex1_32x32_D33D7EF1BFD59F18_12
             - tex1_64x64_32D0E8CF9D970029_13
@@ -2203,12 +2241,16 @@ pipes:
             - tex1_32x32_875607A9ADB53810_12
             - tex1_64x64_24DDE3AFA17A56FA_12
             - tex1_32x32_614784E9B8FEE5A0_12
+            - tex1_64x64_AB21F8EB4D5F0DBE_12
+            - tex1_32x32_9B0E1C42177F4C16_12
             - tex1_64x64_256CFA6B9EEC6CDC_12
             - tex1_32x32_299AD7F807680924_12
             - tex1_64x64_8ABE4AD8473007A1_12
             - tex1_32x32_6B7B33AA5B4C3D70_12
             - tex1_64x64_BFED57D76228C130_13
             - tex1_32x32_BCFEBEF9756259AC_13
+            - tex1_64x64_11F0A3267B38A1CF_12
+            - tex1_32x32_B5EAD65E5BD9011A_12
             - tex1_64x64_D7540AF21A0FD00F_12
             - tex1_32x32_9090B13AFD4435D9_12
             - tex1_64x64_15484BD00F6B7FFB_12
@@ -2235,6 +2277,8 @@ pipes:
             - tex1_32x32_966CDCFDAE7709AE_12
             - tex1_64x64_67FDC264FDAFE1AA_12
             - tex1_32x32_8BF40A81FA0344F8_12
+            - tex1_64x64_0010FA5A9B4C7913_12
+            - tex1_32x32_303941F7318CC7B3_12
             - tex1_64x64_1F674BFCDA8DC68D_12
             - tex1_32x32_40AAFE6F5D87A61B_12
             - tex1_64x64_98931CE6D23CBAC8_12
@@ -2273,6 +2317,8 @@ pipes:
             - tex1_32x32_43047318F0F96EAF_12
             - tex1_64x64_EDC7C1AB7FD3DE3A_12
             - tex1_32x32_A118CCB0B0E521A6_12
+            - tex1_64x64_37F33EB422104138_12
+            - tex1_32x32_0F3438F5BA7DC9F4_12
             - tex1_64x64_EC1B99493EAB59B7_12
             - tex1_32x32_17298A9CBF5373F2_12
             - tex1_64x64_98955188E7DF664E_12
@@ -2291,6 +2337,8 @@ pipes:
             - tex1_32x32_E85DE4ACD8900B8A_12
             - tex1_64x64_706FEC97E25AA3D9_13
             - tex1_32x32_21B2A2DF78E63093_13
+            - tex1_64x64_3035543F379A7457_12
+            - tex1_32x32_2B06B082707936F6_12
             - tex1_64x64_5F6E8F267684DFB2_12
             - tex1_32x32_C039C87CB75F3C8F_12
             - tex1_64x64_A63ED072B0DBB331_12
@@ -2319,6 +2367,8 @@ pipes:
             - tex1_64x32_4E8306DC0999D8B3_12
             - tex1_128x64_A00771F921194696_12
             - tex1_64x32_4E93E3D185723C34_12
+            - tex1_128x64_DA877BC29B973C47_12
+            - tex1_64x32_62C460E0CA0B0D54_12
             - tex1_128x64_191100FAC991FACE_13
             - tex1_64x32_1F0CC977C14228D5_13
             - tex1_128x64_E0C8BF6D9EDD3EA8_12
@@ -2331,6 +2381,8 @@ pipes:
             - tex1_64x32_AE73C56AF631F993_12
             - tex1_128x64_5B7DEE91E47B9E44_12
             - tex1_64x32_2C74C9BEBD0CCA2A_12
+            - tex1_128x64_6D5F86D7C2615B5F_12
+            - tex1_64x32_4A84DC95551C4941_12
             - tex1_128x64_10CA2118F77B3DCA_12
             - tex1_64x32_956C19B2236BC9D6_12
             - tex1_128x64_878A3ECD3F3E70DD_12
@@ -2441,6 +2493,8 @@ pipes:
             - tex1_64x32_54FE49FAE7F66333_12
             - tex1_128x64_0FF3D1488C7D4290_12
             - tex1_64x32_41C8C3BA35AF1F1B_12
+            - tex1_128x64_0FCC097E357E195E_12
+            - tex1_64x32_6B870BB98F773CA3_12
             - tex1_128x64_DFC296FF610DBF46_12
             - tex1_64x32_046E41A0733A5B0A_12
             - tex1_128x64_B3468CE09709E773_12
@@ -2461,6 +2515,8 @@ pipes:
             - tex1_64x32_77BA0FC3A7BB85EF_12
             - tex1_128x64_E55A32BF9F4E2D1D_12
             - tex1_64x32_C0B0B0B907787FC9_12
+            - tex1_128x64_21320579F1D80272_12
+            - tex1_64x32_03317FBC1620AAED_12
             - tex1_128x64_4F8695E4130CC85E_12
             - tex1_64x32_90FFE61C931FC4DC_12
             - tex1_128x64_7C54FB78C8FE35F7_12
@@ -2491,8 +2547,14 @@ pipes:
             - tex1_32x64_74F5FF2616D53750_12
             - tex1_64x128_54DDE68ED1CD9A1D_12
             - tex1_32x64_1D5E7592F248B2EC_12
+            - tex1_64x128_F1F4FC51CE9B7EE1_12
+            - tex1_32x64_E07C29B11B62DFFC_12
+            - tex1_64x128_0B105AE0597A8E18_12
+            - tex1_32x64_E7D477B75055BF51_12
             - tex1_64x128_5CA286B62FD94EB2_13
             - tex1_32x64_E9E63376EB0C63AC_13
+            - tex1_64x128_D90F0F6AA702A329_12
+            - tex1_32x64_0DBC875F24DB243E_12
             - tex1_64x128_DDF928678C571593_12
             - tex1_32x64_D6283101B26A873F_12
             - tex1_64x128_BAE9FD5FD4CA7A6C_12
@@ -2545,6 +2607,8 @@ pipes:
             - tex1_32x64_78D48968FCE534DC_12
             - tex1_64x128_41858EA5C7A7048E_13
             - tex1_32x64_C10CE46B1B98EF33_13
+            - tex1_64x128_D09511A3D94911BC_12
+            - tex1_32x64_C12FC81E51A6328F_12
             - tex1_64x128_C32647E75EB5E16E_12
             - tex1_32x64_988512C580AA8393_12
             - tex1_64x128_3F3DFFD0EBD4C7BC_13
@@ -2557,8 +2621,12 @@ pipes:
             - tex1_32x64_B9E8511FE07DC611_12
             - tex1_64x128_58B2DA3F7DCF3132_12
             - tex1_32x64_A1FE3929EF58E9FD_12
+            - tex1_64x128_A2D0E235CFC35802_12
+            - tex1_32x64_5B7A34F9DC29B970_12
             - tex1_64x128_BC0EBA9D7CCA54CE_12
             - tex1_32x64_CCDF97753BB9E846_12
+            - tex1_64x128_F45D3F1FACFAAAB7_12
+            - tex1_32x64_05FBF0A2CCF519CB_12
             - tex1_64x128_60BD294E26F8BB9D_12
             - tex1_32x64_BBEC61F5AFCDF62C_12
             - tex1_64x128_F3B978A7C171F7C2_12
@@ -2591,6 +2659,8 @@ pipes:
             - tex1_32x64_0F252AD2A70FC32E_12
             - tex1_64x128_6A81FB7E8A4F0365_12
             - tex1_32x64_CFA4B475492B325B_12
+            - tex1_64x128_19002849345B425E_13
+            - tex1_32x64_66088A295C7ABE8E_13
             - tex1_64x128_4CA97D47D349D932_12
             - tex1_32x64_0CB9584F930095FF_12
             - tex1_64x128_A7B6BBC6E8D628BB_12
@@ -2653,6 +2723,8 @@ pipes:
             - tex1_32x64_540AC61B38E03B66_12
             - tex1_64x128_57F173C92273FB2D_12
             - tex1_32x64_F07C96628A6A0C1E_12
+            - tex1_64x128_E2785C270808D4D9_12
+            - tex1_32x64_A390ED0A3FAFCCC0_12
             - tex1_64x128_484BD64B49B2C1E0_12
             - tex1_32x64_008D791FDD96C08A_12
             - tex1_64x128_D2BD5640C9DFC47B_12
@@ -2681,6 +2753,8 @@ pipes:
             - tex1_32x64_DB5B79815E19AB44_12
             - tex1_64x128_9F38FF098E1E8478_12
             - tex1_32x64_C4D9E550F5CB1C34_12
+            - tex1_64x128_9B73F3A9467B504E_12
+            - tex1_32x64_C3FC134004B25E6E_12
             - tex1_64x128_8503F15C79555777_12
             - tex1_32x64_4137D1498EA44069_12
             - tex1_64x128_12B2A91D3CDF00FE_12
@@ -2787,6 +2861,8 @@ pipes:
             - tex1_64x64_971DDAD257E6DAA4_12
             - tex1_128x128_D3F0164F9111C26E_12
             - tex1_64x64_1179668ABF4D0EE1_12
+            - tex1_128x128_696F6C77F87961E9_12
+            - tex1_64x64_9EAB9447CCDC334F_12
             - tex1_128x128_DBDC8E52741F1D25_12
             - tex1_64x64_4E1A4AA14E7E045A_12
             - tex1_128x128_302E5F3FFFA57316_12
@@ -2837,6 +2913,8 @@ pipes:
             - tex1_64x64_2D9531C12A61F44E_12
             - tex1_128x128_E63F56CB4E561A8B_12
             - tex1_64x64_FA2F2E960390B148_12
+            - tex1_128x128_E6EC49AB2CDDE83A_12
+            - tex1_64x64_4089D6A8145E2F86_12
             - tex1_128x128_C387561FD70E08CF_12
             - tex1_64x64_2EF28B7B9147D2DD_12
             - tex1_128x128_990E6B4587267E34_12
@@ -2879,6 +2957,8 @@ pipes:
             - tex1_64x64_E5D19262C78563CC_12
             - tex1_128x128_A80AD462A72CEDEF_12
             - tex1_64x64_0CFDAF0041F38EE2_12
+            - tex1_128x128_C37009F81EC4F871_12
+            - tex1_64x64_834E5AEA3B2C1C5E_12
             - tex1_128x128_A61BD65C85F58CF5_12
             - tex1_64x64_C84A819248959235_12
             - tex1_128x128_A2DB028A19284142_12
@@ -2893,6 +2973,8 @@ pipes:
             - tex1_64x64_25505F9AE6CFDD67_12
             - tex1_128x128_A9D13C7BB442B134_12
             - tex1_64x64_9C00751459CD16D0_12
+            - tex1_128x128_D8ACBCC4A22D4329_12
+            - tex1_64x64_FAF8BA172114F8C2_12
             - tex1_128x128_6BBF9C631EE3C6F4_12
             - tex1_64x64_F085509E2A7C88C4_12
             - tex1_128x128_23889BA002B8863C_12
@@ -2993,6 +3075,8 @@ pipes:
             - tex1_64x64_ACBBEE3F5CC8CC70_12
             - tex1_128x128_D0C6FB4D72988DC6_12
             - tex1_64x64_243A27AE765672A7_12
+            - tex1_128x128_751047E980A5A0A3_12
+            - tex1_64x64_187C78B89ACEF7BC_12
             - tex1_128x128_3A712C23ECC8D3C3_12
             - tex1_64x64_4DF3F368EEE2F22D_12
             - tex1_128x128_5B68C1B99A1D5CB2_12
@@ -3003,6 +3087,8 @@ pipes:
             - tex1_64x64_52A04DAEF82FC6D7_12
             - tex1_128x128_F3DC4E53BD0D3DBC_12
             - tex1_64x64_73C61C11F7549CB7_12
+            - tex1_128x128_AE26695F86033B57_12
+            - tex1_64x64_5FBE290D7F6C381B_12
             - tex1_128x128_FCB9717FD8B307E1_13
             - tex1_64x64_EDB5EB651B2AD05F_13
             - tex1_128x128_02020006ED7A2313_12
@@ -3027,6 +3113,8 @@ pipes:
             - tex1_64x64_AC21F6D73F59C6FE_13
             - tex1_128x128_253A50C580EB93C9_12
             - tex1_64x64_FC3F64E3167174ED_12
+            - tex1_128x128_9D87AA9E66933A9B_13
+            - tex1_64x64_036FDA638E5FC2F9_13
             - tex1_128x128_124DE9D576124AC5_12
             - tex1_64x64_D04C3666A176FB8E_12
             - tex1_128x128_8F523B5A9C4D6C2B_12
@@ -3067,18 +3155,26 @@ pipes:
             - tex1_64x64_92BCE09DFCABB2B4_12
             - tex1_128x128_553FDE2699AFE3CF_12
             - tex1_64x64_B72158079F5F4E40_12
+            - tex1_128x128_2B894F48CF8AB252_12
+            - tex1_64x64_08254DDBE385CDEB_12
             - tex1_128x128_73026157B3E90071_13
             - tex1_64x64_9F7E8C8B57204F42_13
             - tex1_128x128_BAFF1EB9C11E44C3_12
             - tex1_64x64_747B2880F52B0945_12
             - tex1_128x128_3C69AB8CBF51D92C_12
             - tex1_64x64_0D68177D5484239F_12
+            - tex1_128x128_1B58057CD06DD8B0_12
+            - tex1_64x64_1AC9B08A04558476_12
             - tex1_128x128_780999765EF46A00_12
             - tex1_64x64_D082A9B2E8426185_12
             - tex1_128x128_F96639CA3E8A93A6_12
             - tex1_64x64_0F6CF7CB58CF66C4_12
+            - tex1_128x128_C1A6E8768BCF7E9D_12
+            - tex1_64x64_3B8ABB537C8B3F1A_12
             - tex1_128x128_6F128765D5F8BDC4_12
             - tex1_64x64_A37C13E2AC989FA8_12
+            - tex1_128x128_8197454825E9FB3E_12
+            - tex1_64x64_89B7F5A153B56228_12
             - tex1_128x128_D434F80746C538CF_12
             - tex1_64x64_1C286FE04935E603_12
             - tex1_128x128_A1717B46F0D749F0_12
@@ -3113,10 +3209,14 @@ pipes:
             - tex1_64x64_716CD905083E4CA4_12
             - tex1_128x128_7502AE754658EFCA_12
             - tex1_64x64_3AA57CDF778BCB14_12
+            - tex1_128x128_24180B0E76E9320B_12
+            - tex1_64x64_90B7FC0BFF74FED2_12
             - tex1_128x128_7C59B8540FD43DC4_12
             - tex1_64x64_F9AB40CE8F5AC685_12
             - tex1_128x128_9593582D3505CA81_12
             - tex1_64x64_AF47B5C2D4F6C6BE_12
+            - tex1_128x128_2306CF9BDD568B76_12
+            - tex1_64x64_D95262C740853766_12
             - tex1_128x128_7627D94418674259_12
             - tex1_64x64_DA6C257A6F7DB0F5_12
             - tex1_128x128_43F815D41C7B3736_12
@@ -3191,6 +3291,8 @@ pipes:
             - tex1_64x64_900D53F30BE28D26_12
             - tex1_128x128_8D53E2C6213CF59E_12
             - tex1_64x64_4963339BC9869309_12
+            - tex1_128x128_2A84C849D0C9D9A4_12
+            - tex1_64x64_7DA1432D40FC88F5_12
             - tex1_128x128_133AE791E7D56FCF_12
             - tex1_64x64_BDC721D32A8CE823_12
             - tex1_128x128_30DCF48088D861BD_13
@@ -3289,7 +3391,7 @@ pipes:
             - tex1_480x400_D29B2B3780E51929_17
           downstream_pipes:
         default: # waifu -> 3x -> noise
-          downstream_pipes: default_size_sorter
+          downstream_pipes: default_size_sorter_1
 
   # Actors pipeline
   actors_transparency_sorter:
@@ -3328,9 +3430,9 @@ pipes:
       downstream_pipes: pngquant
 
   # Default pipeline
-  default_size_sorter:
+  default_size_sorter_1:
     RegexSorter:
-      regex: ".*(8x8|8x16|8x32|8x64|8x128|16x8|32x8|64x8|128x8).*"
+      regex: ".*_(8x8|8x16|8x32|8x64|8x128|16x8|32x8|64x8|128x8)_.*"
       downstream_pipes_for_matched: xbrz-4
       downstream_pipes_for_unmatched: default_text_sorter
   default_text_sorter:
@@ -3400,10 +3502,10 @@ pipes:
   default_resize:
     ResizeProcessor:
       scale: 0.66667
-      downstream_pipes: default_size_sorter
-  default_size_sorter:
+      downstream_pipes: default_size_sorter_2
+  default_size_sorter_2:
     RegexSorter:
-      regex: ".*(8x8|8x16|8x32|8x64|8x128|16x8|16x16|16x32|16x64|16x128|32x8|32x16|32x32|32x64|32x128).*"
+      regex: ".*_(8x8|8x16|8x32|8x64|8x128|16x8|16x16|16x32|16x64|16x128|32x8|32x16|32x32|32x64|32x128)_.*"
       downstream_pipes_for_matched: pngquant
       downstream_pipes_for_unmatched: default_lod
   default_lod:
@@ -3439,9 +3541,6 @@ pipes:
         tex1_64x64_0B96907B418B0D79_12:
           0.5: tex1_32x32_74AB3EC42E587A99_12 # 0.86
           0.25: tex1_16x16_35824AD78303123F_12 # 0.77
-        tex1_64x64_0CDC1A1DEC50AB2A_12:
-          0.5: tex1_32x32_3001A605B40C11D1_12 # 0.87
-          0.25: tex1_16x16_06C2E33287C6C54A_12 # 0.86
         tex1_64x64_0E767127A0FA3CF4_12:
           0.5: tex1_32x32_D59F6C61206FECB3_12 # 0.95
           0.25: tex1_16x16_A37C26BC53CC5894_12 # 0.92
@@ -3457,9 +3556,6 @@ pipes:
         tex1_64x64_10FC419B34C51CD6_13:
           0.5: tex1_32x32_A22279C3D82989ED_13 # 0.97
           0.25: tex1_16x16_4DA3D6C4008846F2_13 # 0.95
-        tex1_64x64_114F0005E26A791F_12:
-          0.5: tex1_32x32_749F8EEA2207AB76_12 # 0.97
-          0.25: tex1_16x16_CB06971A86B4BE19_12 # 0.95
         tex1_64x64_13F73B1B39D4F0D9_13:
           0.5: tex1_32x32_0CBEC822AD05E762_13 # 0.82
           0.25: tex1_16x16_9A6E9709CF9B583A_13 # 0.75
@@ -3532,9 +3628,6 @@ pipes:
         tex1_64x64_419E06980F5F592D_13:
           0.5: tex1_32x32_8245BFBA5D000E48_13 # 0.92
           0.25: tex1_16x16_656798FA80BB19F9_13 # 0.86
-        tex1_64x64_4317614E90738CDC_12:
-          0.5: tex1_32x32_3F6BD7AE7CBDF171_12 # 0.97
-          0.25: tex1_16x16_226592799685B741_12 # 0.95
         tex1_64x64_435A9AF0F0DEE751_12:
           0.5: tex1_32x32_F2742AFD1FFC23BF_12 # 0.91
           0.25: tex1_16x16_2D9C802DCE94F556_12 # 0.94
@@ -3616,9 +3709,6 @@ pipes:
         tex1_64x64_65C6C69964800ECE_12:
           0.5: tex1_32x32_EF76EBA1CE3A7EDD_12 # 0.92
           0.25: tex1_16x16_D24E7E152EA449DD_12 # 0.91
-        tex1_64x64_6605915523799D7A_12:
-          0.5: tex1_32x32_54F653328E88C9D7_12 # 0.96
-          0.25: tex1_16x16_8D5AA6539C2863E9_12 # 0.96
         tex1_64x64_6B90F4BB2BC85E0B_13:
           0.5: tex1_32x32_0DDC0834A9DF28B9_13 # 0.94
           0.25: tex1_16x16_2AC3B3BEEA23B8C0_13 # 0.93
@@ -3784,9 +3874,6 @@ pipes:
         tex1_64x64_A83577C84B2C370E_13:
           0.5: tex1_32x32_4341FE011AE23526_13 # 0.96
           0.25: tex1_16x16_436951D3D67E9D5A_13 # 0.92
-        tex1_64x64_A84788140383CAF4_12:
-          0.5: tex1_32x32_121738182ED1C30F_12 # 0.96
-          0.25: tex1_16x16_0DADF51BB6F85630_12 # 0.96
         tex1_64x64_A95580E3A0831543_12:
           0.5: tex1_32x32_684177FFD5637D1C_12 # 0.88
           0.25: tex1_16x16_7A51C2BE8DE6435C_12 # 0.91
@@ -3880,27 +3967,15 @@ pipes:
         tex1_64x64_E846A8734B542425_12:
           0.5: tex1_32x32_0ACADA22642B67D7_12 # 0.93
           0.25: tex1_16x16_FB0471C66718CEAB_12 # 0.96
-        tex1_64x64_E8580DEBB573CD9F_12:
-          0.5: tex1_32x32_43E876B03CA4CA1F_12 # 0.97
-          0.25: tex1_16x16_95526E595AC53CEF_12 # 0.96
         tex1_64x64_E973A572C1402D84_13:
           0.5: tex1_32x32_942845303AFD1892_13 # 0.97
           0.25: tex1_16x16_39ACC118EC11F5B4_13 # 0.97
         tex1_64x64_EB75B90F8FDC2AC1_13:
           0.5: tex1_32x32_7A6C5054CF3622D2_13 # 0.90
           0.25: tex1_16x16_D1AFDAD78088FA99_13 # 0.89
-        tex1_64x64_EBC40764B2C225BD_12:
-          0.5: tex1_32x32_49C1276AC4689A7E_12 # 0.96
-          0.25: tex1_16x16_E0CE180D53DE5CBD_12 # 0.90
-        tex1_64x64_EDC157D209551AFF_12:
-          0.5: tex1_32x32_B43A46209BC35279_12 # 0.96
-          0.25: tex1_16x16_D5D79B605FD8C04F_12 # 0.96
         tex1_64x64_F01205AE5E5418C0_13:
           0.5: tex1_32x32_42F30094962748FE_13 # 0.93
           0.25: tex1_16x16_A60FAEC783931BDE_13 # 0.94
-        tex1_64x64_F118ED87EF2CF314_12:
-          0.5: tex1_32x32_3B412CA00A5A300B_12 # 0.96
-          0.25: tex1_16x16_EFB8E3CDB9B7959A_12 # 0.95
         tex1_64x64_F20656DA61CC8919_12:
           0.5: tex1_32x32_51D5D493FDAE6503_12 # 0.93
           0.25: tex1_16x16_4C867A6BE64485E7_12 # 0.92
@@ -3913,12 +3988,6 @@ pipes:
         tex1_64x64_F95EB2C444BF6819_12:
           0.5: tex1_32x32_852AD42DF6EB8D9B_12 # 0.93
           0.25: tex1_16x16_58EF2FF450800B47_12 # 0.94
-        tex1_64x64_FD8575CCA3EAA0EA_12:
-          0.5: tex1_32x32_9968A52A31FBF0CE_12 # 0.95
-          0.25: tex1_16x16_1BEACDB48A2235E5_12 # 0.94
-        tex1_64x64_FF4AD70E8DC370C1_12:
-          0.5: tex1_32x32_FD825BF8B73DB166_12 # 0.97
-          0.25: tex1_16x16_9454F71D976AEB8B_12 # 0.96
         tex1_64x64_FFEF57A9C889E634_12:
           0.5: tex1_32x32_7F09498962EA3345_12 # 0.92
           0.25: tex1_16x16_B41084FC26E73B56_12 # 0.94
@@ -3958,6 +4027,9 @@ pipes:
         tex1_64x128_0CA4787664207668_12:
           0.5: tex1_32x64_5FDD9C6D9943BC00_12 # 0.94
           0.25: tex1_16x32_E42D37FB7C4E1478_12 # 0.94
+        tex1_64x128_12CDD83254971893_12:
+          0.5: tex1_32x64_9401FFB9672BB2E2_12 # 0.93
+          0.25: tex1_16x32_C4504CF1E4E39104_12 # 0.95
         tex1_64x128_13CCD1686506066A_12:
           0.5: tex1_32x64_9F24452A605B70CB_12 # 0.98
           0.25: tex1_16x32_6FD8FB3A14464F1C_12 # 0.97
@@ -4000,6 +4072,9 @@ pipes:
         tex1_64x128_3010BA8288B9D7F3_13:
           0.5: tex1_32x64_61B01350FCAE016E_13 # 0.96
           0.25: tex1_16x32_23D0C72BDE9C6A5F_13 # 0.95
+        tex1_64x128_305CD506972DB7D2_12:
+          0.5: tex1_32x64_676DC2600E8D1223_12 # 0.98
+          0.25: tex1_16x32_1476EC4ECED9D0C8_12 # 0.99
         tex1_64x128_312E410E8414C7BC_12:
           0.5: tex1_32x64_2D10523D9F29C5E1_12 # 0.96
           0.25: tex1_16x32_8C7FE669F7417DEB_12 # 0.94
@@ -4012,6 +4087,9 @@ pipes:
         tex1_64x128_348581E431EEAB34_13:
           0.5: tex1_32x64_5DA62FBDFA199462_13 # 0.94
           0.25: tex1_16x32_C108A673F4E17EF4_13 # 0.92
+        tex1_64x128_3ACCCF4C89109D19_12:
+          0.5: tex1_32x64_3C8DBABCD031A4F0_12 # 0.93
+          0.25: tex1_16x32_001E2C3D49D37120_12 # 0.94
         tex1_64x128_3B8638B5D1CEFFEC_12:
           0.5: tex1_32x64_293A222B0C102C22_12 # 0.92
           0.25: tex1_16x32_D259053A12C2225A_12 # 0.94
@@ -4060,6 +4138,9 @@ pipes:
         tex1_64x128_66E2FC8B475C423D_13:
           0.5: tex1_32x64_83DC8E50CCCCB434_13 # 0.94
           0.25: tex1_16x32_3DDE45358B12465C_13 # 0.92
+        tex1_64x128_6FD4728124E18A83_12:
+          0.5: tex1_32x64_555297389195CCBB_12 # 0.93
+          0.25: tex1_16x32_CB287B77EE10121A_12 # 0.97
         tex1_64x128_72557753D03B8D60_13:
           0.5: tex1_32x64_11325A70578741AA_13 # 0.97
           0.25: tex1_16x32_D2FC07E3FF249CE2_13 # 0.98
@@ -4072,6 +4153,12 @@ pipes:
         tex1_64x128_75655A9A809D3C08_12:
           0.5: tex1_32x64_D876162E7A73372B_12 # 0.95
           0.25: tex1_16x32_2C260B4C3717ACBA_12 # 0.94
+        tex1_64x128_75C0673E9CF0D1A4_12:
+          0.5: tex1_32x64_FB8E5D3130236504_12 # 0.84
+          0.25: tex1_16x32_CFA87F4A990D88A1_12 # 0.87
+        tex1_64x128_764A2AD0CBFF1419_12:
+          0.5: tex1_32x64_F8C6E1AF27EB2EBA_12 # 0.91
+          0.25: tex1_16x32_E1958AB55B812D3D_12 # 0.87
         tex1_64x128_76A9115063D16BB1_12:
           0.5: tex1_32x64_55956EA062AD1B75_12 # 0.91
           0.25: tex1_16x32_B8A26B85771248EE_12 # 0.89
@@ -4183,6 +4270,9 @@ pipes:
         tex1_64x128_BF457015EB1B2DC4_12:
           0.5: tex1_32x64_81869DBFE1621F5C_12 # 0.93
           0.25: tex1_16x32_078113106C0506FB_12 # 0.93
+        tex1_64x128_C389610644D2449A_12:
+          0.5: tex1_32x64_6FC1C369E8ED11B4_12 # 0.90
+          0.25: tex1_16x32_C577947974DC9680_12 # 0.95
         tex1_64x128_C5E9FFD7B947AA4B_12:
           0.5: tex1_32x64_E53BE05443256F3E_12 # 0.94
           0.25: tex1_16x32_FFD75A8DF835642E_12 # 0.90
@@ -4192,6 +4282,9 @@ pipes:
         tex1_64x128_CD27EAC9173C038B_12:
           0.5: tex1_32x64_10B7045D158CAB20_12 # 0.89
           0.25: tex1_16x32_9D7039706705DB5A_12 # 0.89
+        tex1_64x128_CFB608FE97320196_12:
+          0.5: tex1_32x64_EE9ED4D46DEA83B8_12 # 0.93
+          0.25: tex1_16x32_CC0423A1337A47FD_12 # 0.94
         tex1_64x128_D00536591B51D031_12:
           0.5: tex1_32x64_0541EA2A60B73373_12 # 0.94
           0.25: tex1_16x32_6DD20E8E5C4897AB_12 # 0.94
@@ -4264,6 +4357,9 @@ pipes:
         tex1_64x256_8A687E388100EB84_12:
           0.5: tex1_32x128_F928CC872E104898_12 # 0.93
           0.25: tex1_16x64_98CA854ECC2AD03E_12 # 0.93
+        tex1_64x256_E7A3410B9A8CDA04_12:
+          0.5: tex1_32x128_D325086B3DE81DDC_12 # 0.91
+          0.25: tex1_16x64_9B7135FC98A4868C_12 # 0.92
         tex1_64x256_F305637E54F43864_13:
           0.5: tex1_32x128_DABF491978A6C52E_13 # 0.94
           0.25: tex1_16x64_520ED97CC29A444F_13 # 0.93
@@ -4333,6 +4429,9 @@ pipes:
         tex1_128x64_3755DA1E9F2D3913_12:
           0.5: tex1_64x32_1CA1164DB5F44EF0_12 # 0.84
           0.25: tex1_32x16_F84DBFCC57D05A22_12 # 0.85
+        tex1_128x64_38E8AED7F40E133D_12:
+          0.5: tex1_64x32_2DF65E990F74A868_12 # 0.96
+          0.25: tex1_32x16_D4293FCFCE2B2EBB_12 # 0.95
         tex1_128x64_41A70D712F282388_12:
           0.5: tex1_64x32_92DB373B895AFA85_12 # 0.94
           0.25: tex1_32x16_B1506852A659EA02_12 # 0.90
@@ -4351,6 +4450,9 @@ pipes:
         tex1_128x64_5010E544659ECAC0_12:
           0.5: tex1_64x32_BC66DF2EB68FB07F_12 # 0.95
           0.25: tex1_32x16_3FA8410E8287EAE5_12 # 0.96
+        tex1_128x64_52B9B286CCCC6D8D_12:
+          0.5: tex1_64x32_FC4C21DA98DE5059_12 # 0.95
+          0.25: tex1_32x16_10863E0F7308DCF1_12 # 0.95
         tex1_128x64_544FA792388D7D70_12:
           0.5: tex1_64x32_E1F0254C91D3C5CB_12 # 0.95
           0.25: tex1_32x16_4E7B7DC19AADCEEA_12 # 0.96
@@ -4369,6 +4471,12 @@ pipes:
         tex1_128x64_61A1E7DAFADFE2BC_12:
           0.5: tex1_64x32_6CD45FCFDFFC9044_12 # 0.91
           0.25: tex1_32x16_0960DEFD27F9D5BD_12 # 0.92
+        tex1_128x64_6327D95DEF2122D1_12:
+          0.5: tex1_64x32_8987FB4A9CA50F2E_12 # 0.93
+          0.25: tex1_32x16_7470B279F872E152_12 # 0.93
+        tex1_128x64_680E9F2479E98E79_12:
+          0.5: tex1_64x32_8C54C051C3D6AAF5_12 # 0.93
+          0.25: tex1_32x16_04F1C10B24EC1E8E_12 # 0.90
         tex1_128x64_69D96A00AA02199B_12:
           0.5: tex1_64x32_87885397258478DC_12 # 0.94
           0.25: tex1_32x16_DB01621653F099B3_12 # 0.95
@@ -4393,6 +4501,9 @@ pipes:
         tex1_128x64_765313FA1C28BF85_12:
           0.5: tex1_64x32_66D2C42C8E06EB5A_12 # 0.93
           0.25: tex1_32x16_2854F427F9A4B542_12 # 0.94
+        tex1_128x64_77547A08A872677E_12:
+          0.5: tex1_64x32_BDC6EC1211AD0C32_12 # 0.92
+          0.25: tex1_32x16_6A8E36BFAAE0EF14_12 # 0.94
         tex1_128x64_77A52D6FD8FF3BBB_12:
           0.5: tex1_64x32_BF94BA7FB0BDE16E_12 # 0.96
           0.25: tex1_32x16_548C4B0CCCD7A262_12 # 0.95
@@ -4438,6 +4549,9 @@ pipes:
         tex1_128x64_A4E1C547809C38AE_12:
           0.5: tex1_64x32_B80951B3BC76823E_12 # 0.95
           0.25: tex1_32x16_403F2B1B696CC59C_12 # 0.92
+        tex1_128x64_A70E639DB0C13CF0_12:
+          0.5: tex1_64x32_C9CD658D46028304_12 # 0.97
+          0.25: tex1_32x16_64F5963437078FFC_12 # 0.96
         tex1_128x64_A886A801E9E14C5A_12:
           0.5: tex1_64x32_3B19DE165D45CAF0_12 # 0.97
           0.25: tex1_32x16_7F19775691080A28_12 # 0.98
@@ -4519,6 +4633,9 @@ pipes:
         tex1_128x64_FAD48A8245838A2B_13:
           0.5: tex1_64x32_453E22ACDAC1CD40_13 # 0.97
           0.25: tex1_32x16_AF50B4E54D7F3F03_13 # 0.97
+        tex1_128x64_FEE698EFDE20AC28_12:
+          0.5: tex1_64x32_8925E92343B31D30_12 # 0.94
+          0.25: tex1_32x16_6629F51A12DA4160_12 # 0.90
         tex1_256x64_3CDC239D1382813A_12:
           0.5: tex1_128x32_D7799BBA4ADA67AF_12 # 0.93
           0.25: tex1_64x16_E4EE019E0BD6DD57_12 # 0.93
@@ -4537,6 +4654,9 @@ pipes:
         tex1_128x128_01EC54D79290018C_12:
           0.5: tex1_64x64_E9C929CE4C05F072_12 # 0.95
           0.25: tex1_32x32_B6804BAB9F2DEDF5_12 # 0.94
+        tex1_128x128_03B381F99BAEC83E_12:
+          0.5: tex1_64x64_C8AC084B162009E3_12 # 0.88
+          0.25: tex1_32x32_1B76980BE4AF6AE1_12 # 0.90
         tex1_128x128_048A22BDDB5184A3_12:
           0.5: tex1_64x64_5D62BD8CD97A64DE_12 # 0.94
           0.25: tex1_32x32_F55D2BF27E3C6B8E_12 # 0.93
@@ -4570,6 +4690,9 @@ pipes:
         tex1_128x128_07B4EE49CB9E2D4F_12:
           0.5: tex1_64x64_208D4128A9D1C3C6_12 # 0.92
           0.25: tex1_32x32_E0D24E82D5F5CEE2_12 # 0.91
+        tex1_128x128_07EF1A3A49B623D0_12:
+          0.5: tex1_64x64_CD0F8ADA5A921BAF_12 # 0.91
+          0.25: tex1_32x32_0E0983814D81A9D1_12 # 0.93
         tex1_128x128_0823ACC5860E3E3E_12:
           0.5: tex1_64x64_AD4CE690CF5DE455_12 # 0.95
           0.25: tex1_32x32_7BA28EA7AE37F03F_12 # 0.95
@@ -4585,12 +4708,18 @@ pipes:
         tex1_128x128_092A5EE2A1B7E782_12:
           0.5: tex1_64x64_966D5DF382948CCE_12 # 0.93
           0.25: tex1_32x32_B2AF14B8816DFB39_12 # 0.92
+        tex1_128x128_0967F546FCBCC067_12:
+          0.5: tex1_64x64_D9B1F003A2083F81_12 # 0.90
+          0.25: tex1_32x32_6317BE2677EADC6C_12 # 0.83
         tex1_128x128_096F67F7FAD40BA1_12:
           0.5: tex1_64x64_90CE459BB8467D96_12 # 0.93
           0.25: tex1_32x32_4E8B5EB0144CEB07_12 # 0.90
         tex1_128x128_09985664E11F6048_12:
           0.5: tex1_64x64_BC95B5E961197B1D_12 # 0.96
           0.25: tex1_32x32_9254364C57F3DF39_12 # 0.93
+        tex1_128x128_0A1249BA02B0EAD6_12:
+          0.5: tex1_64x64_13DF25D3DFA746B3_12 # 0.92
+          0.25: tex1_32x32_C4930FC415A70ED0_12 # 0.94
         tex1_128x128_0A6BB36788703FA4_12:
           0.5: tex1_64x64_592B7BDBE6154BAA_12 # 0.92
           0.25: tex1_32x32_2EC7215BC915B5B7_12 # 0.95
@@ -4678,6 +4807,9 @@ pipes:
         tex1_128x128_13F0515B1E8E6BEC_12:
           0.5: tex1_64x64_0CA4F703FA010DC9_12 # 0.95
           0.25: tex1_32x32_E9FDBB2D367B61E4_12 # 0.90
+        tex1_128x128_13F6212A913E0E51_12:
+          0.5: tex1_64x64_406F65F8DD39DC2A_12 # 0.88
+          0.25: tex1_32x32_EBC8C74F2A289A93_12 # 0.88
         tex1_128x128_1456C096E1064F4D_12:
           0.5: tex1_64x64_BDC9DD0F41DAC6B2_12 # 0.93
           0.25: tex1_32x32_E2A6772F2A6D2B54_12 # 0.90
@@ -4780,9 +4912,15 @@ pipes:
         tex1_128x128_26C7934E97237D68_12:
           0.5: tex1_64x64_3B5DBAE2FB2F3E4F_12 # 0.90
           0.25: tex1_32x32_21DD9503AC1CB905_12 # 0.91
+        tex1_128x128_26DE216D23ADF002_12:
+          0.5: tex1_64x64_E8FFA3B39B2B1F8C_12 # 0.89
+          0.25: tex1_32x32_D3DCE010B8143E93_12 # 0.91
         tex1_128x128_2726033C55F15E8E_12:
           0.5: tex1_64x64_BADB24E24997E549_12 # 0.92
           0.25: tex1_32x32_33951EAA67635C2B_12 # 0.92
+        tex1_128x128_274185490413DB44_12:
+          0.5: tex1_64x64_9D4334C94E7C9C2C_12 # 0.96
+          0.25: tex1_32x32_0330A1AC86755124_12 # 0.82
         tex1_128x128_284C0372E2834809_12:
           0.5: tex1_64x64_1E9AFE8B25D8C6B8_12 # 0.96
           0.25: tex1_32x32_93C8B33D53A91056_12 # 0.95
@@ -4798,6 +4936,9 @@ pipes:
         tex1_128x128_2C95099C4AF166F0_12:
           0.5: tex1_64x64_C55E483B8D9A2086_12 # 0.92
           0.25: tex1_32x32_D19A9EA9C05AAA50_12 # 0.88
+        tex1_128x128_2C96F683C0305444_12:
+          0.5: tex1_64x64_AC681C5537B628CF_12 # 0.92
+          0.25: tex1_32x32_705B3BDA95136C88_12 # 0.92
         tex1_128x128_2CE641E7DBFD1EB4_12:
           0.5: tex1_64x64_00EA512AD90E74E3_12 # 0.95
           0.25: tex1_32x32_2B36C56EFE57245B_12 # 0.96
@@ -4870,18 +5011,30 @@ pipes:
         tex1_128x128_3842AF4239E48A98_12:
           0.5: tex1_64x64_267CDA94ADD9ABDB_12 # 0.94
           0.25: tex1_32x32_6F5AD35C8FCAB6E3_12 # 0.87
+        tex1_128x128_3968EAB8BBE6FE10_12:
+          0.5: tex1_64x64_0E7A4E3C08092CFC_12 # 0.93
+          0.25: tex1_32x32_CC499EA9697DECE8_12 # 0.93
         tex1_128x128_39C225F474E2A0E7_13:
           0.5: tex1_64x64_5CDB204E20CCFE64_13 # 0.90
           0.25: tex1_32x32_4107D4D1E8BFEB39_13 # 0.87
         tex1_128x128_3A0C5A986D48D67D_12:
           0.5: tex1_64x64_B6CD59D47A847093_12 # 0.91
           0.25: tex1_32x32_00B880EF6280B4C9_12 # 0.94
+        tex1_128x128_3A51B56209F6E49B_12:
+          0.5: tex1_64x64_197353C8B4FA1215_12 # 0.91
+          0.25: tex1_32x32_AEBF33BFFD87F6BA_12 # 0.93
         tex1_128x128_3A831A7D14B357D6_12:
           0.5: tex1_64x64_1B23C70D0D5B72F0_12 # 0.92
           0.25: tex1_32x32_E9E2A98BCF5EA1E6_12 # 0.92
+        tex1_128x128_3B1100EBDF15BFBB_13:
+          0.5: tex1_64x64_01A361889426968E_13 # 0.84
+          0.25: tex1_32x32_9B3D6B382E811F97_13 # 0.79
         tex1_128x128_3B7AD38D64FECFDE_12:
           0.5: tex1_64x64_DDA9628219020EC2_12 # 0.92
           0.25: tex1_32x32_75EEAB8FE0CA32E8_12 # 0.91
+        tex1_128x128_3BBCF144C03CC2B5_12:
+          0.5: tex1_64x64_9355139E8B47F9A9_12 # 0.90
+          0.25: tex1_32x32_EA8C1D0796764A52_12 # 0.92
         tex1_128x128_3BDC000BD333C668_12:
           0.5: tex1_64x64_152148FFFDBE7CA3_12 # 0.94
           0.25: tex1_32x32_1B7D73F9EC1DB0C6_12 # 0.92
@@ -5023,6 +5176,9 @@ pipes:
         tex1_128x128_566DAB94668326AD_12:
           0.5: tex1_64x64_3770DB1A035B2CE1_12 # 0.88
           0.25: tex1_32x32_AB8A01F880F93EB9_12 # 0.81
+        tex1_128x128_56A9654BCC2F707E_12:
+          0.5: tex1_64x64_959C3CDD65FAF68F_12 # 0.92
+          0.25: tex1_32x32_B5EAD65E5BD9011A_12 # 0.93
         tex1_128x128_572141784B254BCF_12:
           0.5: tex1_64x64_E3D3D05D875F9593_12 # 0.94
           0.25: tex1_32x32_25C9DEDC793A881E_12 # 0.94
@@ -5062,6 +5218,9 @@ pipes:
         tex1_128x128_5A57337712AC6988_12:
           0.5: tex1_64x64_831703FB2D6ED475_12 # 0.92
           0.25: tex1_32x32_F14FC6837F28C0C8_12 # 0.92
+        tex1_128x128_5ADFF285A0549213_13:
+          0.5: tex1_64x64_1EF4BF4B549DF38C_13 # 0.96
+          0.25: tex1_32x32_332CF8C9DC28B548_13 # 0.96
         tex1_128x128_5BE7BA6D3D2CB85E_12:
           0.5: tex1_64x64_3B0B01FE7686A67A_12 # 0.96
           0.25: tex1_32x32_B0DC7CF595133562_12 # 0.94
@@ -5074,6 +5233,9 @@ pipes:
         tex1_128x128_5C9FAB40A76A5E71_12:
           0.5: tex1_64x64_1BAF2E9B6CDC5278_12 # 0.89
           0.25: tex1_32x32_BB0DBB8A559A2D6A_12 # 0.87
+        tex1_128x128_5CC9B2F4359A5ED4_12:
+          0.5: tex1_64x64_DEAAB291B0805FC6_12 # 0.93
+          0.25: tex1_32x32_95FD19C6CCDE7A01_12 # 0.93
         tex1_128x128_5DB7C1BC70CC1582_12:
           0.5: tex1_64x64_6FC40104DB997EFE_12 # 0.87
           0.25: tex1_32x32_38F9E2C0CBCC84B7_12 # 0.87
@@ -5104,6 +5266,9 @@ pipes:
         tex1_128x128_610F3EC88AEF90FE_12:
           0.5: tex1_64x64_E13DFA26E9818185_12 # 0.96
           0.25: tex1_32x32_6279ABEFE8196FFC_12 # 0.94
+        tex1_128x128_61F86C124C5624AB_12:
+          0.5: tex1_64x64_6C83E388965307A6_12 # 0.94
+          0.25: tex1_32x32_E03254DF963BD5D2_12 # 0.97
         tex1_128x128_6214B3A6FBE3125C_12:
           0.5: tex1_64x64_59981E066031DF71_12 # 0.95
           0.25: tex1_32x32_5A58D89D324312F3_12 # 0.95
@@ -5275,6 +5440,9 @@ pipes:
         tex1_128x128_7B5393632573CC75_13:
           0.5: tex1_64x64_2561C3A6C2F942F3_13 # 0.91
           0.25: tex1_32x32_094CA590142A5762_13 # 0.89
+        tex1_128x128_7BF045C9FAD7724E_12:
+          0.5: tex1_64x64_BFD021D63FFBA785_12 # 0.95
+          0.25: tex1_32x32_CEA8667280D4EEF5_12 # 0.97
         tex1_128x128_7CFAF661CEDC7C67_12:
           0.5: tex1_64x64_CB42F5460CECF2E2_12 # 0.94
           0.25: tex1_32x32_08703F00A8EB026B_12 # 0.95
@@ -5293,6 +5461,9 @@ pipes:
         tex1_128x128_7E29D48D0583266C_12:
           0.5: tex1_64x64_38E96C603B95B7CE_12 # 0.88
           0.25: tex1_32x32_93A56EE10034E859_12 # 0.90
+        tex1_128x128_7EB98379B613959D_13:
+          0.5: tex1_64x64_5FBC1E0A57A2C380_13 # 0.95
+          0.25: tex1_32x32_513E25135AE9C650_13 # 0.94
         tex1_128x128_7FD38E84C953F1BF_12:
           0.5: tex1_64x64_C08C2762A25216CB_12 # 0.96
           0.25: tex1_32x32_1DECB88B26F41413_12 # 0.97
@@ -5308,6 +5479,9 @@ pipes:
         tex1_128x128_822B4A152E608FBD_12:
           0.5: tex1_64x64_491BA43ADFCEF1AE_12 # 0.93
           0.25: tex1_32x32_3C9B7E84AEC64722_12 # 0.92
+        tex1_128x128_824CAFFB6E41DADA_12:
+          0.5: tex1_64x64_C142252B2B1F0524_12 # 0.92
+          0.25: tex1_32x32_7691482007556B23_12 # 0.92
         tex1_128x128_8275E40D06355B62_12:
           0.5: tex1_64x64_1DC502623B3D8DF3_12 # 0.89
           0.25: tex1_32x32_E4117355D48CCE19_12 # 0.89
@@ -5323,6 +5497,9 @@ pipes:
         tex1_128x128_836078E823BD8ABD_12:
           0.5: tex1_64x64_7701E1D6B69294E2_12 # 0.95
           0.25: tex1_32x32_49C7C8CC3663C2E4_12 # 0.95
+        tex1_128x128_839775F7C6AB487E_12:
+          0.5: tex1_64x64_71E1C6B2C678D31C_12 # 0.88
+          0.25: tex1_32x32_5C8DF7483F9FD827_12 # 0.87
         tex1_128x128_83B6E91362674BE7_12:
           0.5: tex1_64x64_BA63718FD88ACCBD_12 # 0.95
           0.25: tex1_32x32_8CDD0D4E297B181F_12 # 0.94
@@ -5368,6 +5545,9 @@ pipes:
         tex1_128x128_8B565070E71F9AEA_12:
           0.5: tex1_64x64_566CF9715F68407D_12 # 0.90
           0.25: tex1_32x32_04A5BF887995EF23_12 # 0.89
+        tex1_128x128_8BEB01FAB30A7958_12:
+          0.5: tex1_64x64_EC935264B8633A7F_12 # 0.87
+          0.25: tex1_32x32_507BEEC2AFDD3E55_12 # 0.86
         tex1_128x128_8C196045F525A5AF_12:
           0.5: tex1_64x64_F804FE40F8B145FC_12 # 0.92
           0.25: tex1_32x32_8539989B5C0C9FF0_12 # 0.92
@@ -5404,6 +5584,9 @@ pipes:
         tex1_128x128_907D98155F3F1281_12:
           0.5: tex1_64x64_3AD9A438CA41EAF3_12 # 0.88
           0.25: tex1_32x32_BED03F93157A9D39_12 # 0.89
+        tex1_128x128_910865D437DE8243_13:
+          0.5: tex1_64x64_A7217789881B95F1_13 # 0.97
+          0.25: tex1_32x32_AA75F0DF56F8F452_13 # 0.96
         tex1_128x128_91F86192030A5435_12:
           0.5: tex1_64x64_DA3DBA7C777BE5F1_12 # 0.92
           0.25: tex1_32x32_F38782B0342B92FC_12 # 0.90
@@ -5671,9 +5854,15 @@ pipes:
         tex1_128x128_BBB0D360DA10563C_12:
           0.5: tex1_64x64_D040F03E26CE9F70_12 # 0.92
           0.25: tex1_32x32_4772E3D76A8C4E80_12 # 0.92
+        tex1_128x128_BC4545ED89B658EF_12:
+          0.5: tex1_64x64_D83C32541486C8D8_12 # 0.90
+          0.25: tex1_32x32_08ACEDD5180D2BBE_12 # 0.89
         tex1_128x128_BC891E79A4D4D07B_12:
           0.5: tex1_64x64_13F32D939345AAA5_12 # 0.92
           0.25: tex1_32x32_20D9ED84A513941B_12 # 0.92
+        tex1_128x128_BDBA293D073D357B_12:
+          0.5: tex1_64x64_AAC614B84F40B7CD_12 # 0.93
+          0.25: tex1_32x32_61BC3EA88177ACF8_12 # 0.94
         tex1_128x128_BE37F6C316A295C5_12:
           0.5: tex1_64x64_8A91C388A0E1FC99_12 # 0.91
           0.25: tex1_32x32_90A201CE1EB0F92C_12 # 0.92
@@ -5731,6 +5920,9 @@ pipes:
         tex1_128x128_C76701598026CBC1_12:
           0.5: tex1_64x64_9D4E420CC52E1DEF_12 # 0.95
           0.25: tex1_32x32_43052DCC5AEED54F_12 # 0.95
+        tex1_128x128_C79F64DE901E87FD_12:
+          0.5: tex1_64x64_EC8E475A0F32F6E2_12 # 0.92
+          0.25: tex1_32x32_6840CCC490411E55_12 # 0.93
         tex1_128x128_C7E2E633063B4D75_12:
           0.5: tex1_64x64_AD48CDE86CF467E1_12 # 0.92
           0.25: tex1_32x32_9670BE5D6CE3F2FD_12 # 0.90
@@ -5821,6 +6013,9 @@ pipes:
         tex1_128x128_D50ED028B61F845F_12:
           0.5: tex1_64x64_65A2566F4BB4577C_12 # 0.91
           0.25: tex1_32x32_CAA4848EBD174806_12 # 0.88
+        tex1_128x128_D7C586483CA08CAC_12:
+          0.5: tex1_64x64_F04BCC390F7F4493_12 # 0.90
+          0.25: tex1_32x32_CD0129A47C1184F9_12 # 0.91
         tex1_128x128_D7F46BFEE4B025A4_12:
           0.5: tex1_64x64_22C29D36E9C7F1F8_12 # 0.99
           0.25: tex1_32x32_251D88CC0E7E50BC_12 # 0.99
@@ -5902,6 +6097,9 @@ pipes:
         tex1_128x128_E229D102E964480B_12:
           0.5: tex1_64x64_78EBDF78BB239E34_12 # 0.85
           0.25: tex1_32x32_E852C6EFB672DC30_12 # 0.82
+        tex1_128x128_E2A4C9808934FEB6_12:
+          0.5: tex1_64x64_5077A9138B53F049_12 # 0.92
+          0.25: tex1_32x32_134C716F8E41438D_12 # 0.91
         tex1_128x128_E2ACD95E7A66E1F7_12:
           0.5: tex1_64x64_F63C453BDF3F72B7_12 # 0.92
           0.25: tex1_32x32_D33D7EF1BFD59F18_12 # 0.94
@@ -5914,6 +6112,9 @@ pipes:
         tex1_128x128_E2F38A3C8CEC7278_12:
           0.5: tex1_64x64_24DDE3AFA17A56FA_12 # 0.90
           0.25: tex1_32x32_614784E9B8FEE5A0_12 # 0.91
+        tex1_128x128_E3449C2D19C69B9D_12:
+          0.5: tex1_64x64_AB21F8EB4D5F0DBE_12 # 0.95
+          0.25: tex1_32x32_9B0E1C42177F4C16_12 # 0.95
         tex1_128x128_E393318381DF180D_12:
           0.5: tex1_64x64_256CFA6B9EEC6CDC_12 # 0.93
           0.25: tex1_32x32_299AD7F807680924_12 # 0.94
@@ -5923,6 +6124,9 @@ pipes:
         tex1_128x128_E57802D1DC21DB25_13:
           0.5: tex1_64x64_BFED57D76228C130_13 # 0.95
           0.25: tex1_32x32_BCFEBEF9756259AC_13 # 0.95
+        tex1_128x128_E625AC775EA6F8D8_12:
+          0.5: tex1_64x64_11F0A3267B38A1CF_12 # 0.90
+          0.25: tex1_32x32_B5EAD65E5BD9011A_12 # 0.92
         tex1_128x128_E6A74CDFD28A9B04_12:
           0.5: tex1_64x64_D7540AF21A0FD00F_12 # 0.96
           0.25: tex1_32x32_9090B13AFD4435D9_12 # 0.97
@@ -5962,6 +6166,9 @@ pipes:
         tex1_128x128_ECEEFBB1898872B3_12:
           0.5: tex1_64x64_67FDC264FDAFE1AA_12 # 0.93
           0.25: tex1_32x32_8BF40A81FA0344F8_12 # 0.94
+        tex1_128x128_ECF4E6CE5D9A268C_12:
+          0.5: tex1_64x64_0010FA5A9B4C7913_12 # 0.93
+          0.25: tex1_32x32_303941F7318CC7B3_12 # 0.94
         tex1_128x128_ED75C2D87287850F_12:
           0.5: tex1_64x64_1F674BFCDA8DC68D_12 # 0.89
           0.25: tex1_32x32_40AAFE6F5D87A61B_12 # 0.87
@@ -6019,6 +6226,9 @@ pipes:
         tex1_128x128_F4893255AC5B22FA_12:
           0.5: tex1_64x64_EDC7C1AB7FD3DE3A_12 # 0.94
           0.25: tex1_32x32_A118CCB0B0E521A6_12 # 0.93
+        tex1_128x128_F5A37BE8BF01A46D_12:
+          0.5: tex1_64x64_37F33EB422104138_12 # 0.91
+          0.25: tex1_32x32_0F3438F5BA7DC9F4_12 # 0.92
         tex1_128x128_F5D77CB04239F1DF_12:
           0.5: tex1_64x64_EC1B99493EAB59B7_12 # 0.89
           0.25: tex1_32x32_17298A9CBF5373F2_12 # 0.86
@@ -6046,6 +6256,9 @@ pipes:
         tex1_128x128_FA38B6C30688D324_13:
           0.5: tex1_64x64_706FEC97E25AA3D9_13 # 0.87
           0.25: tex1_32x32_21B2A2DF78E63093_13 # 0.81
+        tex1_128x128_FAC877774BC989A0_12:
+          0.5: tex1_64x64_3035543F379A7457_12 # 0.90
+          0.25: tex1_32x32_2B06B082707936F6_12 # 0.89
         tex1_128x128_FAD0FDE90CE85FCC_12:
           0.5: tex1_64x64_5F6E8F267684DFB2_12 # 0.95
           0.25: tex1_32x32_C039C87CB75F3C8F_12 # 0.95
@@ -6088,6 +6301,9 @@ pipes:
         tex1_256x128_0B45B35F69E75322_12:
           0.5: tex1_128x64_A00771F921194696_12 # 0.90
           0.25: tex1_64x32_4E93E3D185723C34_12 # 0.90
+        tex1_256x128_0B63DA1207C7578F_12:
+          0.5: tex1_128x64_DA877BC29B973C47_12 # 0.92
+          0.25: tex1_64x32_62C460E0CA0B0D54_12 # 0.89
         tex1_256x128_14754E77C220FABF_13:
           0.5: tex1_128x64_191100FAC991FACE_13 # 0.94
           0.25: tex1_64x32_1F0CC977C14228D5_13 # 0.91
@@ -6106,6 +6322,9 @@ pipes:
         tex1_256x128_2B0016B1B1A5FB06_12:
           0.5: tex1_128x64_5B7DEE91E47B9E44_12 # 0.89
           0.25: tex1_64x32_2C74C9BEBD0CCA2A_12 # 0.87
+        tex1_256x128_2CD8BB80BEB17A90_12:
+          0.5: tex1_128x64_6D5F86D7C2615B5F_12 # 0.87
+          0.25: tex1_64x32_4A84DC95551C4941_12 # 0.89
         tex1_256x128_32DA82A59B95F9FD_12:
           0.5: tex1_128x64_10CA2118F77B3DCA_12 # 0.92
           0.25: tex1_64x32_956C19B2236BC9D6_12 # 0.94
@@ -6271,6 +6490,9 @@ pipes:
         tex1_256x128_BDE77D8F665BECB6_12:
           0.5: tex1_128x64_0FF3D1488C7D4290_12 # 0.95
           0.25: tex1_64x32_41C8C3BA35AF1F1B_12 # 0.95
+        tex1_256x128_BE0784C5388C1087_12:
+          0.5: tex1_128x64_0FCC097E357E195E_12 # 0.92
+          0.25: tex1_64x32_6B870BB98F773CA3_12 # 0.93
         tex1_256x128_BFE7412E1C9232AC_12:
           0.5: tex1_128x64_DFC296FF610DBF46_12 # 0.94
           0.25: tex1_64x32_046E41A0733A5B0A_12 # 0.93
@@ -6301,6 +6523,9 @@ pipes:
         tex1_256x128_DD603A6C23742726_12:
           0.5: tex1_128x64_E55A32BF9F4E2D1D_12 # 0.94
           0.25: tex1_64x32_C0B0B0B907787FC9_12 # 0.95
+        tex1_256x128_DF5DE9F16AA14DC3_12:
+          0.5: tex1_128x64_21320579F1D80272_12 # 0.89
+          0.25: tex1_64x32_03317FBC1620AAED_12 # 0.92
         tex1_256x128_E24681B4C391412D_12:
           0.5: tex1_128x64_4F8695E4130CC85E_12 # 0.92
           0.25: tex1_64x32_90FFE61C931FC4DC_12 # 0.88
@@ -6346,9 +6571,18 @@ pipes:
         tex1_128x256_0708A7E5AB2C897D_12:
           0.5: tex1_64x128_54DDE68ED1CD9A1D_12 # 0.96
           0.25: tex1_32x64_1D5E7592F248B2EC_12 # 0.96
+        tex1_128x256_07243A72CA068F5F_12:
+          0.5: tex1_64x128_F1F4FC51CE9B7EE1_12 # 0.94
+          0.25: tex1_32x64_E07C29B11B62DFFC_12 # 0.95
+        tex1_128x256_0A386EE6F2C60FF9_12:
+          0.5: tex1_64x128_0B105AE0597A8E18_12 # 0.95
+          0.25: tex1_32x64_E7D477B75055BF51_12 # 0.96
         tex1_128x256_0D59A825765CC8CB_13:
           0.5: tex1_64x128_5CA286B62FD94EB2_13 # 0.95
           0.25: tex1_32x64_E9E63376EB0C63AC_13 # 0.95
+        tex1_128x256_0E116C7B58CA03DA_12:
+          0.5: tex1_64x128_D90F0F6AA702A329_12 # 0.93
+          0.25: tex1_32x64_0DBC875F24DB243E_12 # 0.93
         tex1_128x256_101C71F1CFD6B454_12:
           0.5: tex1_64x128_DDF928678C571593_12 # 0.94
           0.25: tex1_32x64_D6283101B26A873F_12 # 0.94
@@ -6427,6 +6661,9 @@ pipes:
         tex1_128x256_4A1DA69FD2F97FC7_13:
           0.5: tex1_64x128_41858EA5C7A7048E_13 # 0.94
           0.25: tex1_32x64_C10CE46B1B98EF33_13 # 0.92
+        tex1_128x256_4B8D691107A71C3A_12:
+          0.5: tex1_64x128_D09511A3D94911BC_12 # 0.89
+          0.25: tex1_32x64_C12FC81E51A6328F_12 # 0.89
         tex1_128x256_4BABB42C3842748C_12:
           0.5: tex1_64x128_C32647E75EB5E16E_12 # 0.95
           0.25: tex1_32x64_988512C580AA8393_12 # 0.94
@@ -6445,9 +6682,15 @@ pipes:
         tex1_128x256_544591F03A870D62_12:
           0.5: tex1_64x128_58B2DA3F7DCF3132_12 # 0.95
           0.25: tex1_32x64_A1FE3929EF58E9FD_12 # 0.96
+        tex1_128x256_582DCB241B0D7FA7_12:
+          0.5: tex1_64x128_A2D0E235CFC35802_12 # 0.93
+          0.25: tex1_32x64_5B7A34F9DC29B970_12 # 0.94
         tex1_128x256_5956FD2D239A50AA_12:
           0.5: tex1_64x128_BC0EBA9D7CCA54CE_12 # 0.94
           0.25: tex1_32x64_CCDF97753BB9E846_12 # 0.94
+        tex1_128x256_6482A5B34CD3E83C_12:
+          0.5: tex1_64x128_F45D3F1FACFAAAB7_12 # 0.91
+          0.25: tex1_32x64_05FBF0A2CCF519CB_12 # 0.91
         tex1_128x256_663D7DDE26C01D4F_12:
           0.5: tex1_64x128_60BD294E26F8BB9D_12 # 0.94
           0.25: tex1_32x64_BBEC61F5AFCDF62C_12 # 0.91
@@ -6496,6 +6739,9 @@ pipes:
         tex1_128x256_7B20AB5A04B63A4C_12:
           0.5: tex1_64x128_6A81FB7E8A4F0365_12 # 0.95
           0.25: tex1_32x64_CFA4B475492B325B_12 # 0.97
+        tex1_128x256_7CD7F699749CA6EA_13:
+          0.5: tex1_64x128_19002849345B425E_13 # 0.97
+          0.25: tex1_32x64_66088A295C7ABE8E_13 # 0.98
         tex1_128x256_7D839168A7EEDF2B_12:
           0.5: tex1_64x128_4CA97D47D349D932_12 # 0.88
           0.25: tex1_32x64_0CB9584F930095FF_12 # 0.88
@@ -6589,6 +6835,9 @@ pipes:
         tex1_128x256_B2F2672BEA99ECF0_12:
           0.5: tex1_64x128_57F173C92273FB2D_12 # 0.94
           0.25: tex1_32x64_F07C96628A6A0C1E_12 # 0.94
+        tex1_128x256_B3FE22365BA22361_12:
+          0.5: tex1_64x128_E2785C270808D4D9_12 # 0.92
+          0.25: tex1_32x64_A390ED0A3FAFCCC0_12 # 0.91
         tex1_128x256_B482BED5E6C6DB6F_12:
           0.5: tex1_64x128_484BD64B49B2C1E0_12 # 0.95
           0.25: tex1_32x64_008D791FDD96C08A_12 # 0.94
@@ -6631,6 +6880,9 @@ pipes:
         tex1_128x256_CD55A2D62F1A5ACE_12:
           0.5: tex1_64x128_9F38FF098E1E8478_12 # 0.95
           0.25: tex1_32x64_C4D9E550F5CB1C34_12 # 0.95
+        tex1_128x256_D32091AF92893297_12:
+          0.5: tex1_64x128_9B73F3A9467B504E_12 # 0.94
+          0.25: tex1_32x64_C3FC134004B25E6E_12 # 0.95
         tex1_128x256_D4EE634AB943E1C4_12:
           0.5: tex1_64x128_8503F15C79555777_12 # 0.95
           0.25: tex1_32x64_4137D1498EA44069_12 # 0.95
@@ -6790,6 +7042,9 @@ pipes:
         tex1_256x256_1E8740D9952AC60F_12:
           0.5: tex1_128x128_D3F0164F9111C26E_12 # 0.93
           0.25: tex1_64x64_1179668ABF4D0EE1_12 # 0.93
+        tex1_256x256_1F0C7F79CC12D837_12:
+          0.5: tex1_128x128_696F6C77F87961E9_12 # 0.93
+          0.25: tex1_64x64_9EAB9447CCDC334F_12 # 0.94
         tex1_256x256_20240F5E223758DD_12:
           0.5: tex1_128x128_DBDC8E52741F1D25_12 # 0.91
           0.25: tex1_64x64_4E1A4AA14E7E045A_12 # 0.92
@@ -6865,6 +7120,9 @@ pipes:
         tex1_256x256_30E379EB2FBB9653_12:
           0.5: tex1_128x128_E63F56CB4E561A8B_12 # 0.94
           0.25: tex1_64x64_FA2F2E960390B148_12 # 0.82
+        tex1_256x256_3120C413065B540D_12:
+          0.5: tex1_128x128_E6EC49AB2CDDE83A_12 # 0.92
+          0.25: tex1_64x64_4089D6A8145E2F86_12 # 0.91
         tex1_256x256_36FCECE6505E81EB_12:
           0.5: tex1_128x128_C387561FD70E08CF_12 # 0.92
           0.25: tex1_64x64_2EF28B7B9147D2DD_12 # 0.92
@@ -6928,6 +7186,9 @@ pipes:
         tex1_256x256_4CA28FEB8C25DC03_12:
           0.5: tex1_128x128_A80AD462A72CEDEF_12 # 0.94
           0.25: tex1_64x64_0CFDAF0041F38EE2_12 # 0.94
+        tex1_256x256_50C8B4E1BA3D8F18_12:
+          0.5: tex1_128x128_C37009F81EC4F871_12 # 0.91
+          0.25: tex1_64x64_834E5AEA3B2C1C5E_12 # 0.92
         tex1_256x256_51195B7A9353C683_12:
           0.5: tex1_128x128_A61BD65C85F58CF5_12 # 0.92
           0.25: tex1_64x64_C84A819248959235_12 # 0.88
@@ -6949,6 +7210,9 @@ pipes:
         tex1_256x256_5609526C74091426_12:
           0.5: tex1_128x128_A9D13C7BB442B134_12 # 0.95
           0.25: tex1_64x64_9C00751459CD16D0_12 # 0.96
+        tex1_256x256_56A043B7FFF02491_12:
+          0.5: tex1_128x128_D8ACBCC4A22D4329_12 # 0.92
+          0.25: tex1_64x64_FAF8BA172114F8C2_12 # 0.92
         tex1_256x256_57258979BE356D53_12:
           0.5: tex1_128x128_6BBF9C631EE3C6F4_12 # 0.93
           0.25: tex1_64x64_F085509E2A7C88C4_12 # 0.93
@@ -7099,6 +7363,9 @@ pipes:
         tex1_256x256_80BA4F957A563C9C_12:
           0.5: tex1_128x128_D0C6FB4D72988DC6_12 # 0.76
           0.25: tex1_64x64_243A27AE765672A7_12 # 0.66
+        tex1_256x256_83B82D34D35146A3_12:
+          0.5: tex1_128x128_751047E980A5A0A3_12 # 0.89
+          0.25: tex1_64x64_187C78B89ACEF7BC_12 # 0.93
         tex1_256x256_85740A5039B96443_12:
           0.5: tex1_128x128_3A712C23ECC8D3C3_12 # 0.92
           0.25: tex1_64x64_4DF3F368EEE2F22D_12 # 0.92
@@ -7114,6 +7381,9 @@ pipes:
         tex1_256x256_888E5E976F1E2150_12:
           0.5: tex1_128x128_F3DC4E53BD0D3DBC_12 # 0.95
           0.25: tex1_64x64_73C61C11F7549CB7_12 # 0.94
+        tex1_256x256_89AE521ECE461300_12:
+          0.5: tex1_128x128_AE26695F86033B57_12 # 0.88
+          0.25: tex1_64x64_5FBE290D7F6C381B_12 # 0.87
         tex1_256x256_8BC39A50612FF5DA_13:
           0.5: tex1_128x128_FCB9717FD8B307E1_13 # 0.92
           0.25: tex1_64x64_EDB5EB651B2AD05F_13 # 0.90
@@ -7150,6 +7420,9 @@ pipes:
         tex1_256x256_8F939D92B9378388_12:
           0.5: tex1_128x128_253A50C580EB93C9_12 # 0.92
           0.25: tex1_64x64_FC3F64E3167174ED_12 # 0.93
+        tex1_256x256_904E9865811F25B0_13:
+          0.5: tex1_128x128_9D87AA9E66933A9B_13 # 0.91
+          0.25: tex1_64x64_036FDA638E5FC2F9_13 # 0.90
         tex1_256x256_9054B1D91A4A94FE_12:
           0.5: tex1_128x128_124DE9D576124AC5_12 # 0.93
           0.25: tex1_64x64_D04C3666A176FB8E_12 # 0.92
@@ -7210,6 +7483,9 @@ pipes:
         tex1_256x256_9FAD043B4862D0A8_12:
           0.5: tex1_128x128_553FDE2699AFE3CF_12 # 0.86
           0.25: tex1_64x64_B72158079F5F4E40_12 # 0.85
+        tex1_256x256_A07F9EDB06DBC426_12:
+          0.5: tex1_128x128_2B894F48CF8AB252_12 # 0.90
+          0.25: tex1_64x64_08254DDBE385CDEB_12 # 0.89
         tex1_256x256_A1A6D2EA5FF11A88_13:
           0.5: tex1_128x128_73026157B3E90071_13 # 0.94
           0.25: tex1_64x64_9F7E8C8B57204F42_13 # 0.92
@@ -7219,15 +7495,24 @@ pipes:
         tex1_256x256_A4DBB212B0CFD655_12:
           0.5: tex1_128x128_3C69AB8CBF51D92C_12 # 0.94
           0.25: tex1_64x64_0D68177D5484239F_12 # 0.94
+        tex1_256x256_A4DC03E7961D3B15_12:
+          0.5: tex1_128x128_1B58057CD06DD8B0_12 # 0.91
+          0.25: tex1_64x64_1AC9B08A04558476_12 # 0.91
         tex1_256x256_A565EA49B981CB9C_12:
           0.5: tex1_128x128_780999765EF46A00_12 # 0.97
           0.25: tex1_64x64_D082A9B2E8426185_12 # 0.97
         tex1_256x256_A58E5B053AF9CFB3_12:
           0.5: tex1_128x128_F96639CA3E8A93A6_12 # 0.94
           0.25: tex1_64x64_0F6CF7CB58CF66C4_12 # 0.93
+        tex1_256x256_A7DC3D40055C38F4_12:
+          0.5: tex1_128x128_C1A6E8768BCF7E9D_12 # 0.95
+          0.25: tex1_64x64_3B8ABB537C8B3F1A_12 # 0.96
         tex1_256x256_A878D145286914E0_12:
           0.5: tex1_128x128_6F128765D5F8BDC4_12 # 0.94
           0.25: tex1_64x64_A37C13E2AC989FA8_12 # 0.94
+        tex1_256x256_A91BAAFB9CDCB3D3_12:
+          0.5: tex1_128x128_8197454825E9FB3E_12 # 0.91
+          0.25: tex1_64x64_89B7F5A153B56228_12 # 0.92
         tex1_256x256_A9E29661B1E9958F_12:
           0.5: tex1_128x128_D434F80746C538CF_12 # 0.98
           0.25: tex1_64x64_1C286FE04935E603_12 # 0.97
@@ -7279,12 +7564,18 @@ pipes:
         tex1_256x256_BA27DD7C32E19BE3_12:
           0.5: tex1_128x128_7502AE754658EFCA_12 # 0.94
           0.25: tex1_64x64_3AA57CDF778BCB14_12 # 0.95
+        tex1_256x256_BAF958574C7D03EC_12:
+          0.5: tex1_128x128_24180B0E76E9320B_12 # 0.94
+          0.25: tex1_64x64_90B7FC0BFF74FED2_12 # 0.95
         tex1_256x256_BB004384E6427B01_12:
           0.5: tex1_128x128_7C59B8540FD43DC4_12 # 0.93
           0.25: tex1_64x64_F9AB40CE8F5AC685_12 # 0.94
         tex1_256x256_BD3E8CFDE8F40A95_12:
           0.5: tex1_128x128_9593582D3505CA81_12 # 0.94
           0.25: tex1_64x64_AF47B5C2D4F6C6BE_12 # 0.95
+        tex1_256x256_BDA8DE1473AF6801_12:
+          0.5: tex1_128x128_2306CF9BDD568B76_12 # 0.89
+          0.25: tex1_64x64_D95262C740853766_12 # 0.87
         tex1_256x256_BE454AC0CD71DC8A_12:
           0.5: tex1_128x128_7627D94418674259_12 # 0.92
           0.25: tex1_64x64_DA6C257A6F7DB0F5_12 # 0.91
@@ -7396,6 +7687,9 @@ pipes:
         tex1_256x256_DE1F25B240A1F9B0_12:
           0.5: tex1_128x128_8D53E2C6213CF59E_12 # 0.95
           0.25: tex1_64x64_4963339BC9869309_12 # 0.95
+        tex1_256x256_DE8AEDA7F9C4B717_12:
+          0.5: tex1_128x128_2A84C849D0C9D9A4_12 # 0.95
+          0.25: tex1_64x64_7DA1432D40FC88F5_12 # 0.94
         tex1_256x256_DF448E669E75284A_12:
           0.5: tex1_128x128_133AE791E7D56FCF_12 # 0.96
           0.25: tex1_64x64_BDC721D32A8CE823_12 # 0.97
@@ -7513,150 +7807,6 @@ pipes:
         tex1_256x256_FC4A9C74E9C361A6_12:
           0.5: tex1_128x128_69BEE4EC01112407_12 # 0.94
           0.25: tex1_64x64_4186340A2F14E5EF_12 # 0.95
-        tex1_256x256_3120C413065B540D_12:
-          0.5: tex1_128x128_E6EC49AB2CDDE83A_12 # 0.92
-          0.25: tex1_64x64_4089D6A8145E2F86_12 # 0.91
-        tex1_256x256_1F0C7F79CC12D837_12:
-          0.5: tex1_128x128_696F6C77F87961E9_12 # 0.93
-          0.25: tex1_64x64_9EAB9447CCDC334F_12 # 0.94
-        tex1_256x256_A7DC3D40055C38F4_12:
-          0.5: tex1_128x128_C1A6E8768BCF7E9D_12 # 0.95
-          0.25: tex1_64x64_3B8ABB537C8B3F1A_12 # 0.96
-        tex1_256x256_DE8AEDA7F9C4B717_12:
-          0.5: tex1_128x128_2A84C849D0C9D9A4_12 # 0.95
-          0.25: tex1_64x64_7DA1432D40FC88F5_12 # 0.94
-        tex1_256x256_50C8B4E1BA3D8F18_12:
-          0.5: tex1_128x128_C37009F81EC4F871_12 # 0.91
-          0.25: tex1_64x64_834E5AEA3B2C1C5E_12 # 0.92
-        tex1_256x256_A07F9EDB06DBC426_12:
-          0.5: tex1_128x128_2B894F48CF8AB252_12 # 0.90
-          0.25: tex1_64x64_08254DDBE385CDEB_12 # 0.89
-        tex1_256x256_BDA8DE1473AF6801_12:
-          0.5: tex1_128x128_2306CF9BDD568B76_12 # 0.89
-          0.25: tex1_64x64_D95262C740853766_12 # 0.87
-        tex1_256x256_83B82D34D35146A3_12:
-          0.5: tex1_128x128_751047E980A5A0A3_12 # 0.89
-          0.25: tex1_64x64_187C78B89ACEF7BC_12 # 0.93
-        tex1_256x256_56A043B7FFF02491_12:
-          0.5: tex1_128x128_D8ACBCC4A22D4329_12 # 0.92
-          0.25: tex1_64x64_FAF8BA172114F8C2_12 # 0.92
-        tex1_256x256_BAF958574C7D03EC_12:
-          0.5: tex1_128x128_24180B0E76E9320B_12 # 0.94
-          0.25: tex1_64x64_90B7FC0BFF74FED2_12 # 0.95
-        tex1_256x256_A4DC03E7961D3B15_12:
-          0.5: tex1_128x128_1B58057CD06DD8B0_12 # 0.91
-          0.25: tex1_64x64_1AC9B08A04558476_12 # 0.91
-        tex1_256x256_A91BAAFB9CDCB3D3_12:
-          0.5: tex1_128x128_8197454825E9FB3E_12 # 0.91
-          0.25: tex1_64x64_89B7F5A153B56228_12 # 0.92
-        tex1_256x256_904E9865811F25B0_13:
-          0.5: tex1_128x128_9D87AA9E66933A9B_13 # 0.91
-          0.25: tex1_64x64_036FDA638E5FC2F9_13 # 0.90
-        tex1_256x256_89AE521ECE461300_12:
-          0.5: tex1_128x128_AE26695F86033B57_12 # 0.88
-          0.25: tex1_64x64_5FBE290D7F6C381B_12 # 0.87
-        tex1_128x256_07243A72CA068F5F_12:
-          0.5: tex1_64x128_F1F4FC51CE9B7EE1_12 # 0.94
-          0.25: tex1_32x64_E07C29B11B62DFFC_12 # 0.95
-        tex1_128x256_0A386EE6F2C60FF9_12:
-          0.5: tex1_64x128_0B105AE0597A8E18_12 # 0.95
-          0.25: tex1_32x64_E7D477B75055BF51_12 # 0.96
-        tex1_128x256_0E116C7B58CA03DA_12:
-          0.5: tex1_64x128_D90F0F6AA702A329_12 # 0.93
-          0.25: tex1_32x64_0DBC875F24DB243E_12 # 0.93
-        tex1_128x256_4B8D691107A71C3A_12:
-          0.5: tex1_64x128_D09511A3D94911BC_12 # 0.89
-          0.25: tex1_32x64_C12FC81E51A6328F_12 # 0.89
-        tex1_128x256_582DCB241B0D7FA7_12:
-          0.5: tex1_64x128_A2D0E235CFC35802_12 # 0.93
-          0.25: tex1_32x64_5B7A34F9DC29B970_12 # 0.94
-        tex1_128x256_6482A5B34CD3E83C_12:
-          0.5: tex1_64x128_F45D3F1FACFAAAB7_12 # 0.91
-          0.25: tex1_32x64_05FBF0A2CCF519CB_12 # 0.91
-        tex1_128x256_7CD7F699749CA6EA_13:
-          0.5: tex1_64x128_19002849345B425E_13 # 0.97
-          0.25: tex1_32x64_66088A295C7ABE8E_13 # 0.98
-        tex1_128x256_B3FE22365BA22361_12:
-          0.5: tex1_64x128_E2785C270808D4D9_12 # 0.92
-          0.25: tex1_32x64_A390ED0A3FAFCCC0_12 # 0.91
-        tex1_128x256_D32091AF92893297_12:
-          0.5: tex1_64x128_9B73F3A9467B504E_12 # 0.94
-          0.25: tex1_32x64_C3FC134004B25E6E_12 # 0.95
-        tex1_64x256_E7A3410B9A8CDA04_12:
-          0.5: tex1_32x128_D325086B3DE81DDC_12 # 0.91
-          0.25: tex1_16x64_9B7135FC98A4868C_12 # 0.92
-        tex1_256x128_0B63DA1207C7578F_12:
-          0.5: tex1_128x64_DA877BC29B973C47_12 # 0.92
-          0.25: tex1_64x32_62C460E0CA0B0D54_12 # 0.89
-        tex1_256x128_2CD8BB80BEB17A90_12:
-          0.5: tex1_128x64_6D5F86D7C2615B5F_12 # 0.87
-          0.25: tex1_64x32_4A84DC95551C4941_12 # 0.89
-        tex1_256x128_BE0784C5388C1087_12:
-          0.5: tex1_128x64_0FCC097E357E195E_12 # 0.92
-          0.25: tex1_64x32_6B870BB98F773CA3_12 # 0.93
-        tex1_256x128_DF5DE9F16AA14DC3_12:
-          0.5: tex1_128x64_21320579F1D80272_12 # 0.89
-          0.25: tex1_64x32_03317FBC1620AAED_12 # 0.92
-        tex1_128x128_13F6212A913E0E51_12:
-          0.5: tex1_64x64_406F65F8DD39DC2A_12 # 0.88
-          0.25: tex1_32x32_EBC8C74F2A289A93_12 # 0.88
-        tex1_128x128_0967F546FCBCC067_12:
-          0.5: tex1_64x64_D9B1F003A2083F81_12 # 0.90
-          0.25: tex1_32x32_6317BE2677EADC6C_12 # 0.83
-        tex1_128x128_910865D437DE8243_13:
-          0.5: tex1_64x64_A7217789881B95F1_13 # 0.97
-          0.25: tex1_32x32_AA75F0DF56F8F452_13 # 0.96
-        tex1_128x128_3B1100EBDF15BFBB_13:
-          0.5: tex1_64x64_01A361889426968E_13 # 0.84
-          0.25: tex1_32x32_9B3D6B382E811F97_13 # 0.79
-        tex1_128x128_FAC877774BC989A0_12:
-          0.5: tex1_64x64_3035543F379A7457_12 # 0.90
-          0.25: tex1_32x32_2B06B082707936F6_12 # 0.89
-        tex1_128x128_26DE216D23ADF002_12:
-          0.5: tex1_64x64_E8FFA3B39B2B1F8C_12 # 0.89
-          0.25: tex1_32x32_D3DCE010B8143E93_12 # 0.91
-        tex1_128x128_5CC9B2F4359A5ED4_12:
-          0.5: tex1_64x64_DEAAB291B0805FC6_12 # 0.93
-          0.25: tex1_32x32_95FD19C6CCDE7A01_12 # 0.93
-        tex1_128x128_E2A4C9808934FEB6_12:
-          0.5: tex1_64x64_5077A9138B53F049_12 # 0.92
-          0.25: tex1_32x32_134C716F8E41438D_12 # 0.91
-        tex1_128x128_BC4545ED89B658EF_12:
-          0.5: tex1_64x64_D83C32541486C8D8_12 # 0.90
-          0.25: tex1_32x32_08ACEDD5180D2BBE_12 # 0.89
-        tex1_128x128_824CAFFB6E41DADA_12:
-          0.5: tex1_64x64_C142252B2B1F0524_12 # 0.92
-          0.25: tex1_32x32_7691482007556B23_12 # 0.92
-        tex1_128x128_7EB98379B613959D_13:
-          0.5: tex1_64x64_5FBC1E0A57A2C380_13 # 0.95
-          0.25: tex1_32x32_513E25135AE9C650_13 # 0.94
-        tex1_128x128_E3449C2D19C69B9D_12:
-          0.5: tex1_64x64_AB21F8EB4D5F0DBE_12 # 0.95
-          0.25: tex1_32x32_9B0E1C42177F4C16_12 # 0.95
-        tex1_128x128_BDBA293D073D357B_12:
-          0.5: tex1_64x64_AAC614B84F40B7CD_12 # 0.93
-          0.25: tex1_32x32_61BC3EA88177ACF8_12 # 0.94
-        tex1_128x128_ECF4E6CE5D9A268C_12:
-          0.5: tex1_64x64_0010FA5A9B4C7913_12 # 0.93
-          0.25: tex1_32x32_303941F7318CC7B3_12 # 0.94
-        tex1_128x128_3BBCF144C03CC2B5_12:
-          0.5: tex1_64x64_9355139E8B47F9A9_12 # 0.90
-          0.25: tex1_32x32_EA8C1D0796764A52_12 # 0.92
-        tex1_128x128_3A51B56209F6E49B_12:
-          0.5: tex1_64x64_197353C8B4FA1215_12 # 0.91
-          0.25: tex1_32x32_AEBF33BFFD87F6BA_12 # 0.93
-        tex1_128x128_7BF045C9FAD7724E_12:
-          0.5: tex1_64x64_BFD021D63FFBA785_12 # 0.95
-          0.25: tex1_32x32_CEA8667280D4EEF5_12 # 0.97
-        tex1_128x128_07EF1A3A49B623D0_12:
-          0.5: tex1_64x64_CD0F8ADA5A921BAF_12 # 0.91
-          0.25: tex1_32x32_0E0983814D81A9D1_12 # 0.93
-        tex1_128x128_61F86C124C5624AB_12:
-          0.5: tex1_64x64_6C83E388965307A6_12 # 0.94
-          0.25: tex1_32x32_E03254DF963BD5D2_12 # 0.97
-        tex1_128x128_03B381F99BAEC83E_12:
-          0.5: tex1_64x64_C8AC084B162009E3_12 # 0.88
-          0.25: tex1_32x32_1B76980BE4AF6AE1_12 # 0.90
       downstream_pipes: pngquant
 
   # Final output

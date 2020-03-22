@@ -115,7 +115,9 @@ known_water = set(yaml.load("""
 - tex1_32x32_520C4DBDF9F6D86A_12
 - tex1_32x32_54F653328E88C9D7_12
 - tex1_32x32_6588817349159AEB_12
+- tex1_16x16_8D5AA6539C2863E9_12
 - tex1_32x32_658CE389FCEC3992_12
+- tex1_16x16_9454F71D976AEB8B_12
 - tex1_32x32_681FE1C310E0C215_12
 - tex1_32x32_6C9A4C016B41C888_12
 - tex1_32x32_70EF838763240875_3
@@ -151,10 +153,14 @@ known_water = set(yaml.load("""
 - tex1_64x64_3C11751C3EDDAB35_12
 - tex1_64x64_4317614E90738CDC_12
 - tex1_64x64_43E1F601DD74FAEB_12
+- tex1_16x16_CB06971A86B4BE19_12
 - tex1_64x64_4BA1C6A8FA4BFED9_12
 - tex1_64x64_503E3B07E0BC7DDA_12
+- tex1_32x32_749F8EEA2207AB76_12
 - tex1_64x64_52AA260920F36315_12
+- tex1_16x16_D5D79B605FD8C04F_12
 - tex1_64x64_56DEA397DF612000_12
+- tex1_64x64_114F0005E26A791F_12
 - tex1_64x64_59B09F068F3312B0_12
 - tex1_64x64_5A6F17899691B74F_3
 - tex1_64x64_5FA6237A5B39DF51_12
@@ -175,6 +181,10 @@ known_water = set(yaml.load("""
 - tex1_64x64_A84788140383CAF4_12
 - tex1_64x64_B18AB678D8BC5A9F_12
 - tex1_64x64_B24DE3E7113C3609_12
+- tex1_32x32_121738182ED1C30F_12
+- tex1_16x16_0DADF51BB6F85630_12
+- tex1_32x32_9968A52A31FBF0CE_12
+- tex1_16x16_1BEACDB48A2235E5_12
 - tex1_64x64_BC039CA0695F021E_12
 - tex1_64x64_BD9806D0C00B08F7_12
 - tex1_64x64_C7BE133416AAC3CA_3
@@ -187,11 +197,15 @@ known_water = set(yaml.load("""
 - tex1_64x64_E8580DEBB573CD9F_12
 - tex1_64x64_EBC40764B2C225BD_12
 - tex1_64x64_EDC157D209551AFF_12
+- tex1_16x16_E0CE180D53DE5CBD_12
 - tex1_64x64_F118ED87EF2CF314_12
+- tex1_16x16_226592799685B741_12
+- tex1_16x16_EFB8E3CDB9B7959A_12
 - tex1_64x64_FD8575CCA3EAA0EA_12
 - tex1_64x64_FEC49AB77EFD4F10_12
 - tex1_64x64_FF4AD70E8DC370C1_12
-
+- tex1_16x16_06C2E33287C6C54A_12
+- tex1_16x16_95526E595AC53CEF_12
 """))
 
 known_spider_web = set(yaml.load("""
@@ -350,7 +364,7 @@ def print_lodsets(lodsets):
 if __name__ == "__main__":
     input_directory = expandvars(
         "$HOME/.local/share/citra-emu/dump/textures/000400000008F900")
-    full_size = (128, 128)
+    full_size = (4, 4)
     threshold = 0.65
 
     # Prepare sizes and regular expressions
@@ -415,8 +429,7 @@ if __name__ == "__main__":
             continue
 
     # Print sets
-    # known_lodsets.update(new_lodsets)
-    # print_lodsets(known_lodsets)
     print("\n\n")
-    print_lodsets(new_lodsets)
-
+    known_lodsets.update(new_lodsets)
+    print_lodsets(known_lodsets)
+    # print_lodsets(new_lodsets)
