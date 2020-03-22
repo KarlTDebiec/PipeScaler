@@ -503,7 +503,7 @@ pipes:
             - tex1_64x128_8655A2DBC15EBE67_4
             - tex1_64x128_9EA0C70E643984EB_4
             - tex1_64x256_623C2F80BE5FB721_4
-          downstream_pipes: maps_xbrz-4
+          downstream_pipes: xbrz-4
         lods: # skip
           filenames:
             - tex1_16x32_BC3B59FF8AE11E5B_13
@@ -3288,7 +3288,7 @@ pipes:
             - tex1_480x400_D29B2B3780E51929_17
           downstream_pipes:
         default: # waifu -> 3x -> noise
-          downstream_pipes: default_filename_sorter
+          downstream_pipes: default_size_sorter
 
   # Actors pipeline
   actors_transparency_sorter:
@@ -3321,18 +3321,17 @@ pipes:
       downstream_pipes: pngquant
 
   # Maps pipeline
-  maps_xbrz-4:
+  xbrz-4:
     XbrzProcessor:
       executable: $HOME/OneDrive/code/external/xbrzscale/xbrzscale
       downstream_pipes: pngquant
 
   # Default pipeline
-  default_filename_sorter:
+  default_size_sorter:
     RegexSorter:
-      #      regex: ".*(64x64|64x128|128x64|128x128|128x256|256x32|256x64|256x128|256x256|256x512).*"
-      regex: ".*"
-      downstream_pipes_for_matched: default_text_sorter
-      downstream_pipes_for_unmatched:
+      regex: ".*(8x8|8x16|8x32|8x64|8x128|16x8|32x8|64x8|128x8).*"
+      downstream_pipes_for_matched: xbrz-4
+      downstream_pipes_for_unmatched: default_text_sorter
   default_text_sorter:
     TextImageSorter:
       downstream_pipes_for_text:
@@ -3403,15 +3402,9 @@ pipes:
       downstream_pipes: default_size_sorter
   default_size_sorter:
     RegexSorter:
-      regex: ".*(8x8|8x16|8x32|16x8|16x16|16x32|32x8|32x16).*"
+      regex: ".*(8x8|8x16|8x32|8x64|8x128|16x8|16x16|16x32|16x64|16x128|32x8|32x16|32x32|32x64|32x128).*"
       downstream_pipes_for_matched: pngquant
-      downstream_pipes_for_unmatched: default_noise
-
-  # Default large pipeline
-  default_noise:
-    AutomatorProcessor:
-      workflow: $HOME/OneDrive/code/LauhSeuiSin/lauhseuisin/data/workflows/15.15.workflow
-      downstream_pipes: default_lod
+      downstream_pipes_for_unmatched: default_lod
   default_lod:
     LODSorter:
       lods:
@@ -3466,9 +3459,6 @@ pipes:
         tex1_64x64_114F0005E26A791F_12:
           0.5: tex1_32x32_749F8EEA2207AB76_12 # 0.97
           0.25: tex1_16x16_CB06971A86B4BE19_12 # 0.95
-        tex1_64x64_13E2EFE009408956_3:
-          0.5: tex1_32x32_C11DCF7C20B33FB2_12 # 0.94
-          0.25: tex1_16x16_66E1EAA10B9377FE_12 # 0.85
         tex1_64x64_13F73B1B39D4F0D9_13:
           0.5: tex1_32x32_0CBEC822AD05E762_13 # 0.82
           0.25: tex1_16x16_9A6E9709CF9B583A_13 # 0.75
@@ -3574,9 +3564,6 @@ pipes:
         tex1_64x64_48C4878E2590A13F_13:
           0.5: tex1_32x32_704292F927A380F7_13 # 0.96
           0.25: tex1_16x16_496BFA1CF38C604A_13 # 0.95
-        tex1_64x64_4BA1C6A8FA4BFED9_12:
-          0.5: tex1_32x32_7179BA8F5013E990_12 # 0.97
-          0.25: tex1_16x16_9AC8FBC074406146_12 # 0.95
         tex1_64x64_4C270DFB1516C568_12:
           0.5: tex1_32x32_4224C81D58991F77_12 # 0.93
           0.25: tex1_16x16_7C25C28A0A49B97F_12 # 0.93
@@ -3607,9 +3594,6 @@ pipes:
         tex1_64x64_58CF7CA500D62F8B_12:
           0.5: tex1_32x32_0E2284263EEC5EA6_12 # 0.93
           0.25: tex1_16x16_BD29BBFCB3711777_12 # 0.92
-        tex1_64x64_59B09F068F3312B0_12:
-          0.5: tex1_32x32_520C4DBDF9F6D86A_12 # 0.95
-          0.25: tex1_16x16_49A44DD21DDA2417_12 # 0.94
         tex1_64x64_5D0532F8B6AF7174_13:
           0.5: tex1_32x32_951708539A2BF673_13 # 0.98
           0.25: tex1_16x16_9BB1AE9361F74105_13 # 0.98
@@ -3634,9 +3618,6 @@ pipes:
         tex1_64x64_6605915523799D7A_12:
           0.5: tex1_32x32_54F653328E88C9D7_12 # 0.96
           0.25: tex1_16x16_8D5AA6539C2863E9_12 # 0.96
-        tex1_64x64_66D51E8571B49E0F_12:
-          0.5: tex1_32x32_A7C4CFBC1D0DC88F_12 # 0.97
-          0.25: tex1_16x16_E4F55C92A997F6E4_12 # 0.96
         tex1_64x64_6B90F4BB2BC85E0B_13:
           0.5: tex1_32x32_0DDC0834A9DF28B9_13 # 0.94
           0.25: tex1_16x16_2AC3B3BEEA23B8C0_13 # 0.93
@@ -3667,9 +3648,6 @@ pipes:
         tex1_64x64_75EB3A9284A086DA_13:
           0.5: tex1_32x32_7E9F336D6106EF4B_13 # 0.97
           0.25: tex1_16x16_EE36D1FF563ADF01_13 # 0.94
-        tex1_64x64_76AF5635E42EBD9B_12:
-          0.5: tex1_32x32_CAF3F2DAEA9147CD_12 # 0.96
-          0.25: tex1_16x16_FAF207387A95DFD7_12 # 0.95
         tex1_64x64_77A510ADFF843A0A_13:
           0.5: tex1_32x32_6C3F3C97BCDC704C_13 # 0.88
           0.25: tex1_16x16_ACC76F31AB66C2E5_13 # 0.83
@@ -3820,9 +3798,6 @@ pipes:
         tex1_64x64_B0C169122B129337_12:
           0.5: tex1_32x32_28E459C482998985_12 # 0.88
           0.25: tex1_16x16_8FF5BD6C3CDB5719_12 # 0.89
-        tex1_64x64_B24DE3E7113C3609_12:
-          0.5: tex1_32x32_2487E0A3E7D566F6_12 # 0.96
-          0.25: tex1_16x16_1D771B9DBFAA934D_12 # 0.96
         tex1_64x64_B2E0ECCAA279C11D_12:
           0.5: tex1_32x32_4D0F1B8C37739DB5_12 # 0.93
           0.25: tex1_16x16_8BE2BF604E42AAE9_12 # 0.90
@@ -3850,15 +3825,9 @@ pipes:
         tex1_64x64_BB634ECD48967ECF_12:
           0.5: tex1_32x32_42835E1B24F5D9F2_12 # 0.91
           0.25: tex1_16x16_F714BF2156A4AB95_12 # 0.89
-        tex1_64x64_BC039CA0695F021E_12:
-          0.5: tex1_32x32_100508DA4018E530_12 # 0.95
-          0.25: tex1_16x16_9A2327FF45BA9D0D_12 # 0.95
         tex1_64x64_BC2AAC20B3537882_12:
           0.5: tex1_32x32_346569B5669E9B77_12 # 0.92
           0.25: tex1_16x16_5578808E3D704466_12 # 0.94
-        tex1_64x64_BD9806D0C00B08F7_12:
-          0.5: tex1_32x32_2B60CAF83D700338_12 # 0.96
-          0.25: tex1_16x16_7C512B3FA44880F7_12 # 0.90
         tex1_64x64_BE0CCA00F793337A_12:
           0.5: tex1_32x32_D5B11096489CA36B_12 # 0.94
           0.25: tex1_16x16_B629F7555DECBF2E_12 # 0.93
@@ -4621,9 +4590,6 @@ pipes:
         tex1_128x128_09985664E11F6048_12:
           0.5: tex1_64x64_BC95B5E961197B1D_12 # 0.96
           0.25: tex1_32x32_9254364C57F3DF39_12 # 0.93
-        tex1_128x128_09C930987A27540E_12:
-          0.5: tex1_64x64_52AA260920F36315_12 # 0.71
-          0.25: tex1_32x32_681FE1C310E0C215_12 # 0.76
         tex1_128x128_0A6BB36788703FA4_12:
           0.5: tex1_64x64_592B7BDBE6154BAA_12 # 0.92
           0.25: tex1_32x32_2EC7215BC915B5B7_12 # 0.95
@@ -4729,9 +4695,6 @@ pipes:
         tex1_128x128_17661676F2FE158E_12:
           0.5: tex1_64x64_B067AEBBAE85EC66_12 # 0.88
           0.25: tex1_32x32_68DD519785A56E88_12 # 0.88
-        tex1_128x128_17AC0716D81210BA_12:
-          0.5: tex1_64x64_5A6F17899691B74F_3 # 0.83
-          0.25: tex1_32x32_BB642374F4E5D06C_3 # 0.87
         tex1_128x128_17BC2CBE7BE75D05_12:
           0.5: tex1_64x64_F157B86A5802D987_12 # 0.93
           0.25: tex1_32x32_8A13790DF414C01F_12 # 0.94
@@ -4915,9 +4878,6 @@ pipes:
         tex1_128x128_3A831A7D14B357D6_12:
           0.5: tex1_64x64_1B23C70D0D5B72F0_12 # 0.92
           0.25: tex1_32x32_E9E2A98BCF5EA1E6_12 # 0.92
-        tex1_128x128_3B652CE8614D5902_3:
-          0.5: tex1_64x64_56DEA397DF612000_12 # 0.94
-          0.25: tex1_32x32_AB49AA1A2A22F6B2_3 # 0.99
         tex1_128x128_3B7AD38D64FECFDE_12:
           0.5: tex1_64x64_DDA9628219020EC2_12 # 0.92
           0.25: tex1_32x32_75EEAB8FE0CA32E8_12 # 0.91
@@ -5551,9 +5511,6 @@ pipes:
         tex1_128x128_A1DF7125A647EF4A_12:
           0.5: tex1_64x64_58605F7AEDDCCDFF_12 # 0.91
           0.25: tex1_32x32_0D527038621E888D_12 # 0.93
-        tex1_128x128_A2478BC7A69B2A1C_12:
-          0.5: tex1_64x64_2A8C4F28CA5A3FED_12 # 0.97
-          0.25: tex1_32x32_DEB1C47DA15BA809_12 # 0.96
         tex1_128x128_A34EA60CD17F3144_12:
           0.5: tex1_64x64_FC22475E18542462_12 # 0.87
           0.25: tex1_32x32_A6A49B168BE42072_12 # 0.86
@@ -5680,9 +5637,6 @@ pipes:
         tex1_128x128_B7AB8F79B46F0725_12:
           0.5: tex1_64x64_A978A586CA65EAF0_12 # 0.91
           0.25: tex1_32x32_4CE13DAE0E6EF8F8_12 # 0.89
-        tex1_128x128_B7C1FAE857CB9C0C_12:
-          0.5: tex1_64x64_636DAEEE24A17728_12 # 0.98
-          0.25: tex1_32x32_31364054A6F65027_12 # 0.97
         tex1_128x128_B7D54F6DC3692FD3_12:
           0.5: tex1_64x64_982634ABBCAB70DD_12 # 0.92
           0.25: tex1_32x32_5350A64CE7837DA4_12 # 0.92
