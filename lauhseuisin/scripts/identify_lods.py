@@ -209,8 +209,6 @@ known_water = set(yaml.load("""
 """))
 
 known_spider_web = set(yaml.load("""
-- tex1_64x64_C3001BFAE0DDF278_13
-- tex1_32x32_9A8BCC323040BE4B_13
 - tex1_32x32_088B69391A3B0069_13
 """))
 
