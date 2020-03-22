@@ -83,6 +83,122 @@ known_nolod = set(yaml.load("""
 - tex1_128x64_934726D8DFF694DF_5
 """))
 
+known_water = set(yaml.load("""
+- tex1_128x128_09C930987A27540E_12
+- tex1_128x128_17AC0716D81210BA_12
+- tex1_128x128_26936F2BBF0BB1F9_12
+- tex1_128x128_2ED1133F7DCED082_12
+- tex1_128x128_3B652CE8614D5902_3
+- tex1_128x128_4F812E353EA81C82_12
+- tex1_128x128_537D9D73DD84CD39_12
+- tex1_128x128_A2478BC7A69B2A1C_12
+- tex1_128x128_AA38DF5CDF5BD937_12
+- tex1_128x128_B7C1FAE857CB9C0C_12
+- tex1_128x128_BF640DA5A4111A4E_12
+- tex1_128x128_DF9C111C6FB4ECE4_12
+- tex1_128x128_E9A0B4035086E610_12
+- tex1_128x128_F61802D1C2E0F865_12
+- tex1_32x32_0585FA3279D97187_13
+- tex1_32x32_097E8AA88C226B4F_12
+- tex1_32x32_100508DA4018E530_12
+- tex1_32x32_2487E0A3E7D566F6_12
+- tex1_32x32_2B60CAF83D700338_12
+- tex1_32x32_2FBC166E53C47AC7_12
+- tex1_32x32_3001A605B40C11D1_12
+- tex1_32x32_31364054A6F65027_12
+- tex1_32x32_39A86950E64BA3FE_12
+- tex1_32x32_3B412CA00A5A300B_12
+- tex1_32x32_3F6BD7AE7CBDF171_12
+- tex1_32x32_43E876B03CA4CA1F_12
+- tex1_32x32_47E48BFCA3F20D0D_12
+- tex1_32x32_49C1276AC4689A7E_12
+- tex1_32x32_520C4DBDF9F6D86A_12
+- tex1_32x32_54F653328E88C9D7_12
+- tex1_32x32_6588817349159AEB_12
+- tex1_32x32_658CE389FCEC3992_12
+- tex1_32x32_681FE1C310E0C215_12
+- tex1_32x32_6C9A4C016B41C888_12
+- tex1_32x32_70EF838763240875_3
+- tex1_32x32_7179BA8F5013E990_12
+- tex1_32x32_786023AC54FB4A20_12
+- tex1_32x32_7F359573DBE91D16_12
+- tex1_32x32_81700F3EE2AF261E_12
+- tex1_32x32_8D25F23ABEBFBA66_12
+- tex1_32x32_8EF8058FC93B6D17_3
+- tex1_32x32_92FA921EAA90CED6_12
+- tex1_32x32_9968A52A31FBF0CE_12
+- tex1_32x32_9EF54E39A0B416B0_12
+- tex1_32x32_A7C4CFBC1D0DC88F_12
+- tex1_32x32_AB49AA1A2A22F6B2_3
+- tex1_32x32_AC8B512078D76123_12
+- tex1_32x32_B43A46209BC35279_12
+- tex1_32x32_C11DCF7C20B33FB2_12
+- tex1_32x32_C155F4D308D20FCD_12
+- tex1_32x32_C2F1C3B6E67B1DF8_12
+- tex1_32x32_C7F6F9F6314E9421_12
+- tex1_32x32_C89E6FBAD8710C9B_12
+- tex1_32x32_CAF3F2DAEA9147CD_12
+- tex1_32x32_CF564C23FA97B1E5_12
+- tex1_32x32_DC4C599088449C26_12
+- tex1_32x32_E23BAFFBAD8690FE_12
+- tex1_32x32_ED01512EDAEE4FF8_12
+- tex1_32x32_FC9AA3E8821D342D_12
+- tex1_32x32_FD825BF8B73DB166_12
+- tex1_64x64_030D5B706014F2EA_12
+- tex1_64x64_11BE0BD9FEAE32A8_12
+- tex1_64x64_13E2EFE009408956_3
+- tex1_64x64_2DB1C08C894FA060_12
+- tex1_64x64_3C11751C3EDDAB35_12
+- tex1_64x64_4317614E90738CDC_12
+- tex1_64x64_43E1F601DD74FAEB_12
+- tex1_64x64_4BA1C6A8FA4BFED9_12
+- tex1_64x64_503E3B07E0BC7DDA_12
+- tex1_64x64_52AA260920F36315_12
+- tex1_64x64_56DEA397DF612000_12
+- tex1_64x64_59B09F068F3312B0_12
+- tex1_64x64_5A6F17899691B74F_3
+- tex1_64x64_5FA6237A5B39DF51_12
+- tex1_64x64_613F9A577B091D7E_12
+- tex1_64x64_636DAEEE24A17728_12
+- tex1_64x64_6605915523799D7A_12
+- tex1_64x64_66D51E8571B49E0F_12
+- tex1_64x64_6912F54E1173447A_12
+- tex1_64x64_6FE34FF195D6EA77_13
+- tex1_64x64_75DFB6378057B73A_12
+- tex1_64x64_76AF5635E42EBD9B_12
+- tex1_64x64_77377A9C56318449_12
+- tex1_64x64_87040B6688EEF258_12
+- tex1_64x64_8B6C90CCD54B2FF9_12
+- tex1_64x64_8EB9669659A00DCD_12
+- tex1_64x64_968217193A634216_12
+- tex1_64x64_98955188E7DF664E_12
+- tex1_64x64_A84788140383CAF4_12
+- tex1_64x64_B18AB678D8BC5A9F_12
+- tex1_64x64_B24DE3E7113C3609_12
+- tex1_64x64_BC039CA0695F021E_12
+- tex1_64x64_BD9806D0C00B08F7_12
+- tex1_64x64_C7BE133416AAC3CA_3
+- tex1_64x64_C85E3098892D7F1F_12
+- tex1_64x64_C8B91BCEB792B997_3
+- tex1_64x64_CA06D4ECC2156FB4_12
+- tex1_64x64_DA372BE2BC0E14E6_12
+- tex1_64x64_E2A09F7877B2BD3E_12
+- tex1_64x64_E4899D219A362BF0_12
+- tex1_64x64_E8580DEBB573CD9F_12
+- tex1_64x64_EBC40764B2C225BD_12
+- tex1_64x64_EDC157D209551AFF_12
+- tex1_64x64_F118ED87EF2CF314_12
+- tex1_64x64_FD8575CCA3EAA0EA_12
+- tex1_64x64_FEC49AB77EFD4F10_12
+- tex1_64x64_FF4AD70E8DC370C1_12
+
+"""))
+
+known_spider_web = set(yaml.load("""
+- tex1_64x64_C3001BFAE0DDF278_13
+- tex1_32x32_9A8BCC323040BE4B_13
+- tex1_32x32_088B69391A3B0069_13
+"""))
 
 ################################## FUNCTIONS ##################################
 def get_name(filename: str) -> str:
@@ -130,6 +246,10 @@ def load_data():
         elif name in known_hires:
             continue
         elif name in known_lores:
+            continue
+        elif name in known_water:
+            continue
+        elif name in known_spider_web:
             continue
         if full_re.match(name):
             image = Image.open(get_filename(name))
@@ -230,7 +350,7 @@ def print_lodsets(lodsets):
 if __name__ == "__main__":
     input_directory = expandvars(
         "$HOME/.local/share/citra-emu/dump/textures/000400000008F900")
-    full_size = (32, 32)
+    full_size = (128, 128)
     threshold = 0.65
 
     # Prepare sizes and regular expressions
@@ -288,22 +408,15 @@ if __name__ == "__main__":
             concatenated_image = concatenate_images(
                 full_name, half_best_name, quarter_best_name)
             concatenated_image.show()
-            # new_lodsets[full_name] = {
-            #     0.5: half_best_name,
-            #     0.25: quarter_best_name}
-            # try:
-            #     result = input("Is this LOD set assigned correctly (y/n):")
-            #     if result.lower().startswith("y"):
-            #         new_lodsets[full_name] = {
-            #             0.5: half_best_name,
-            #             0.25: quarter_best_name}
-            # except KeyboardInterrupt:
-            #     print("\n\n")
-            #     break
+            new_lodsets[full_name] = {
+                0.5: half_best_name,
+                0.25: quarter_best_name}
         else:
             continue
 
     # Print sets
-    known_lodsets.update(new_lodsets)
-    print_lodsets(known_lodsets)
-    # print_lodsets(new_lodsets)
+    # known_lodsets.update(new_lodsets)
+    # print_lodsets(known_lodsets)
+    print("\n\n")
+    print_lodsets(new_lodsets)
+
