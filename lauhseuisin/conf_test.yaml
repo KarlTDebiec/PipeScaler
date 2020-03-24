@@ -3750,7 +3750,7 @@ pipes:
       downstream_pipes: large_text_copyfile
   large_text_copyfile:
     CopyFileProcessor:
-      output_directory: $HOME/Documents/Zelda/4x_kdebiec_large_text_review
+      output_directory: $HOME/Documents/Zelda/4x_kdebiec_large_text_cn
 
   # Default_transparent pipeline
   default_transparent_waifupixelmator2x-a-2-1-3x:

@@ -45,7 +45,7 @@ class WaifuPixelmator2xTransparentProcessor(Processor):
     def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
         self.process_file(infile, outfile, imagetype=self.imagetype,
                           denoise=self.denoise, workflow=self.workflow,
-                          waifu_executable=self.automator_executable,
+                          waifu_executable=self.waifu_executable,
                           automator_executable=self.automator_executable,
                           verbosity=self.pipeline.verbosity)
 
