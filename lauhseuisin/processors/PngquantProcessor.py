@@ -26,24 +26,32 @@ class PngquantProcessor(Processor):
                  **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
+        self.executable = expandvars(executable)
         self.quality = quality
         self.speed = speed
         self.floyd_steinberg = floyd_steinberg
-        self.executable = expandvars(executable)
         self.desc = f"pngquant-{self.quality}-{self.speed}"
         if self.floyd_steinberg:
             self.desc = f"{self.desc}-fs"
 
     def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
-        command = f"{self.executable} " \
-                  f"--quality {self.quality} " \
-                  f"--speed {self.speed} "
-        if not self.floyd_steinberg:
+        self.process_file(infile, outfile, self.executable, self.quality,
+                          self.speed, self.floyd_steinberg,
+                          self.pipeline.verbosity)
+
+    @classmethod
+    def process_file(cls, infile: str, outfile: str, executable: str,
+                     quality: int, speed: int, floyd_steinberg: bool,
+                     verbosity: int) -> None:
+        command = f"{executable} " \
+                  f"--quality {quality} " \
+                  f"--speed {speed} "
+        if not floyd_steinberg:
             command = f"{command} --nofs"
         command = f"{command} --output {outfile} {infile} "
 
-        if self.pipeline.verbosity >= 1:
-            print(self.get_indented_text(command))
+        if verbosity >= 1:
+            print(cls.get_indented_text(command))
         Popen(command, shell=True, close_fds=True).wait()
 
         # pngquant may not save outfile if it is too large or low quality

@@ -11,8 +11,7 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
-from os.path import isfile
-from typing import Any, List, no_type_check
+from typing import Any, no_type_check
 
 import numba as nb
 import numpy as np

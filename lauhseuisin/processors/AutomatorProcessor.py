@@ -29,10 +29,16 @@ class AutomatorProcessor(Processor):
         self.desc = f"{basename(self.workflow).rstrip('.workflow')}"
 
     def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
+        self.process_file(infile, outfile, self.executable, self.workflow,
+                          self.pipeline.verbosity)
+
+    @classmethod
+    def process_file(cls, infile: str, outfile: str, executable: str,
+                     workflow: str, verbosity: int) -> None:
         copyfile(infile, outfile)
-        command = f"{self.executable} " \
+        command = f"{executable} " \
                   f"-i {outfile} " \
-                  f"{self.workflow}"
-        if self.pipeline.verbosity >= 1:
-            print(self.get_indented_text(command))
+                  f"{workflow}"
+        if verbosity >= 1:
+            print(cls.get_indented_text(command))
         Popen(command, shell=True, close_fds=True).wait()

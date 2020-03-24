@@ -28,11 +28,16 @@ class ResizeProcessor(Processor):
         self.desc = f"resize-{scale}"
 
     def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
+        self.process_file(infile, outfile, self.scale, self.pipeline.verbosity)
+
+    @classmethod
+    def process_file(cls, infile: str, outfile: str, scale: float,
+                     verbosity: int) -> None:
         input_image = Image.open(infile)
 
         output_image = input_image.resize((
-            int(np.round(input_image.size[0] * self.scale)),
-            int(np.round(input_image.size[1] * self.scale))),
+            int(np.round(input_image.size[0] * scale)),
+            int(np.round(input_image.size[1] * scale))),
             resample=Image.LANCZOS)
 
         output_image.save(outfile)

@@ -29,10 +29,16 @@ class XbrzProcessor(Processor):
         self.desc = f"xbrz-{self.scale}"
 
     def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
-        command = f"{self.executable} " \
-                  f"{self.scale} " \
+        self.process_file(infile, outfile, self.executable, self.scale,
+                          self.pipeline.verbosity)
+
+    @classmethod
+    def process_file(cls, infile: str, outfile: str, executable: str,
+                     scale: int, verbosity: int) -> None:
+        command = f"{executable} " \
+                  f"{scale} " \
                   f"{infile} " \
                   f"{outfile}"
-        if self.pipeline.verbosity >= 1:
+        if verbosity >= 1:
             print(command)
         Popen(command, shell=True, close_fds=True).wait()

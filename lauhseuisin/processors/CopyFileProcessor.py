@@ -29,8 +29,12 @@ class CopyFileProcessor(Processor):
         return f"{self.output_directory}/{original_name}.png"
 
     def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
+        self.process_file(infile, outfile, self.pipeline.verbosity)
+
+    @classmethod
+    def process_file(cls, infile: str, outfile: str, verbosity: int) -> None:
         if isfile(outfile):
             return
-        if self.pipeline.verbosity >= 1:
-            print(self.get_indented_text(f"cp {infile} {outfile}"))
+        if verbosity >= 1:
+            print(cls.get_indented_text(f"cp {infile} {outfile}"))
         copyfile(infile, outfile)

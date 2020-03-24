@@ -20,6 +20,10 @@ class FlattenProcessor(Processor):
     desc = "flatten"
 
     def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
+        self.process_file(infile, outfile)
+
+    @classmethod
+    def process_file(cls, infile: str, outfile: str, verbosity: int) -> None:
         input_data = np.array(Image.open(infile))
 
         output_data = np.ones_like(input_data) * 255
