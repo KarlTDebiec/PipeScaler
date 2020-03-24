@@ -28,7 +28,7 @@ class AutomatorProcessor(Processor):
         self.executable = expandvars(executable)
         self.desc = f"{basename(self.workflow).rstrip('.workflow')}"
 
-    def process_file(self, infile: str, outfile: str) -> None:
+    def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
         copyfile(infile, outfile)
         command = f"{self.executable} " \
                   f"-i {outfile} " \

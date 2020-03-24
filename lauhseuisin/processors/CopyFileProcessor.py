@@ -28,7 +28,7 @@ class CopyFileProcessor(Processor):
         original_name = basename(dirname(infile))
         return f"{self.output_directory}/{original_name}.png"
 
-    def process_file(self, infile: str, outfile: str) -> None:
+    def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
         if isfile(outfile):
             return
         if self.pipeline.verbosity >= 1:

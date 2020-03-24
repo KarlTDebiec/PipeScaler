@@ -35,7 +35,7 @@ class PotraceProcessor(Processor):
         self.desc = f"potrace-{self.blacklevel:4.2f}-" \
                     f"{self.alphamax:4.2f}-{self.opttolerance:3.1f}"
 
-    def process_file(self, infile: str, outfile: str) -> None:
+    def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
         # Convert to bmp; potrace does not accept png
         bmpfile = f"{splitext(infile)[0]}.bmp"
         command = f"{self.convert_executable} " \

@@ -9,6 +9,7 @@
 ################################### MODULES ###################################
 from __future__ import annotations
 
+from argparse import ArgumentParser
 from os import remove
 from os.path import expandvars
 from subprocess import Popen
@@ -33,7 +34,52 @@ class WaifuProcessor(Processor):
         self.executable = expandvars(executable)
         self.desc = f"waifu-{self.imagetype}-{self.scale}-{self.denoise}"
 
-    def process_file(self, infile: str, outfile: str) -> None:
+    def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
+        self.process_file(infile, outfile, self.executable, self.imagetype,
+                          self.scale, self.denoise, self.pipeline.verbosity)
+
+    # region Public Class Methods
+
+    @classmethod
+    def construct_argparser(cls) -> ArgumentParser:
+        """
+        Constructs argument parser
+
+        Returns:
+            parser (ArgumentParser): Argument parser
+        """
+        parser = super().construct_argparser(description=__doc__)
+
+        parser.add_argument(
+            "-e", "--executable",
+            default="waifu",
+            dest="executable",
+            type=str,
+            help="path to waifu executable")
+        parser.add_argument(
+            "-t", "--type",
+            default="a",
+            dest="imagetype",
+            type=str,
+            help="image type - a for anime (default), p for photo")
+        parser.add_argument(
+            "-s", "--scale",
+            default=2,
+            dest="scale",
+            type=int,
+            help="scale factor (1 or 2)")
+        parser.add_argument(
+            "-n", "--noise",
+            default=1,
+            dest="denoise",
+            type=int,
+            help="denoise level (0-4)")
+
+        return parser
+
+    @classmethod
+    def process_file(cls, infile: str, outfile: str, executable: str,
+                     imagetype: str, scale: int, denoise: int, verbosity: int):
         image = Image.open(infile)
         original_size = image.size
 
@@ -53,19 +99,26 @@ class WaifuProcessor(Processor):
             waifu_infile = infile
 
         # Upscale
-        command = f"{self.executable} " \
-                  f"-t {self.imagetype} " \
-                  f"-s {self.scale} " \
-                  f"-n {self.denoise} " \
+        command = f"{executable} " \
+                  f"-t {imagetype} " \
+                  f"-s {scale} " \
+                  f"-n {denoise} " \
                   f"-i {waifu_infile} " \
                   f"-o {outfile}"
-        if self.pipeline.verbosity >= 1:
-            print(self.get_indented_text(command))
+        if verbosity >= 1:
+            print(cls.get_indented_text(command))
         Popen(command, shell=True, close_fds=True).wait()
 
         # If canvas was expanded, crop image
         if tempfile is not None:
             Image.open(outfile).crop(
-                (0, 0, original_size[0] * self.scale,
-                 original_size[1] * self.scale)).save(outfile)
+                (0, 0, original_size[0] * scale,
+                 original_size[1] * scale)).save(outfile)
             remove(tempfile.name)
+
+    # endregion
+
+
+#################################### MAIN #####################################
+if __name__ == "__main__":
+    WaifuProcessor.main()

@@ -27,7 +27,7 @@ class ResizeProcessor(Processor):
         self.scale = scale
         self.desc = f"resize-{scale}"
 
-    def process_file(self, infile: str, outfile: str) -> None:
+    def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
         input_image = Image.open(infile)
 
         output_image = input_image.resize((

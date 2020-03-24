@@ -10,8 +10,9 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from os import makedirs
-from os.path import basename, dirname, isdir, isfile, splitext
+from argparse import ArgumentError, ArgumentParser, RawDescriptionHelpFormatter
+from os import R_OK, W_OK, access, getcwd, makedirs
+from os.path import basename, dirname, expandvars, isdir, isfile, splitext
 from shutil import copyfile, get_terminal_size
 from textwrap import TextWrapper
 from typing import Any, Iterator, List, Optional, Union
@@ -40,7 +41,7 @@ class Processor(ABC):
                 print(f"{self}: {infile}")
             outfile = self.get_outfile(infile)
             if not isfile(outfile):
-                self.process_file(infile, outfile)
+                self.process_file_in_pipeline(infile, outfile)
             self.log_outfile(outfile)
             if self.downstream_pipes is not None:
                 for pipe in self.downstream_pipes:
@@ -72,8 +73,7 @@ class Processor(ABC):
 
     def get_outfile(self, infile: str) -> str:
         original_name = self.get_original_name(infile)
-        desc_so_far = splitext(basename(infile))[0].lstrip(
-            "original")
+        desc_so_far = splitext(basename(infile))[0].replace("original", "")
         outfile = f"{desc_so_far}_{self.desc}.png".lstrip("_")
         outfile = f"{self.pipeline.wip_directory}/{original_name}/{outfile}"
 
@@ -86,12 +86,96 @@ class Processor(ABC):
         else:
             self.pipeline.log[name].append(basename(outfile))
 
-    def get_indented_text(self, text):
+    @staticmethod
+    def get_indented_text(text: str) -> str:
         columns = get_terminal_size((80, 20)).columns
         wrapper = TextWrapper(initial_indent="    ", width=columns - 4,
                               subsequent_indent="    ")
         return wrapper.fill(text)
 
     @abstractmethod
-    def process_file(self, infile: str, outfile: str) -> None:
+    def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
         pass
+
+    # region Public Class Methods
+
+    @classmethod
+    def construct_argparser(cls, description: Optional[
+        str] = None) -> ArgumentParser:
+        """
+        Constructs argument parser
+
+        Returns:
+            parser (ArgumentParser): Argument parser
+        """
+
+        def infile_argument(value: str) -> str:
+            if not isinstance(value, str):
+                raise ArgumentError()
+
+            value = expandvars(value)
+            if not isfile(value):
+                raise ArgumentError(f"infile '{value}' does not exist")
+            elif not access(value, R_OK):
+                raise ArgumentError(f"infile '{value}' cannot be read")
+
+            return value
+
+        def outfile_argument(value: str) -> str:
+            if not isinstance(value, str):
+                raise ArgumentError()
+
+            value = expandvars(value)
+            if isfile(value):
+                if not access(value, W_OK):
+                    raise ArgumentError(f"outfile '{value}' cannot be written")
+            else:
+                directory = dirname(value)
+                if directory == "":
+                    directory = getcwd()
+                if not access(directory, W_OK):
+                    raise ArgumentError(f"outfile '{value}' cannot be written")
+
+            return value
+
+        parser = ArgumentParser(
+            description=description,
+            formatter_class=RawDescriptionHelpFormatter)
+        verbosity = parser.add_mutually_exclusive_group()
+        verbosity.add_argument(
+            "-v", "--verbose",
+            action="count",
+            default=1,
+            dest="verbosity",
+            help="enable verbose output, may be specified more than once")
+        verbosity.add_argument(
+            "-q", "--quiet",
+            action="store_const",
+            const=0,
+            dest="verbosity",
+            help="disable verbose output")
+        parser.add_argument(
+            "infile",
+            type=infile_argument,
+            help="input file")
+        parser.add_argument(
+            "outfile",
+            type=outfile_argument,
+            help="output file")
+
+        return parser
+
+    @classmethod
+    def main(cls) -> None:
+        """Parses and validates arguments, constructs and calls object"""
+
+        parser = cls.construct_argparser()
+        kwargs = vars(parser.parse_args())
+        cls.process_file(**kwargs)
+
+    @classmethod
+    @abstractmethod
+    def process_file(cls, infile: str, outfile: str, **kwargs: Any) -> None:
+        pass
+
+    # endregion

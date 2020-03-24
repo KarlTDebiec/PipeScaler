@@ -10,6 +10,7 @@
 ################################### MODULES ###################################
 from __future__ import annotations
 
+from argparse import ArgumentParser
 from os.path import isfile
 from typing import Any, List, no_type_check
 
@@ -33,17 +34,53 @@ class ThresholdProcessor(Processor):
         if self.denoise:
             self.desc = f"{self.desc}-{self.denoise}"
 
-    def process_file(self, infile: str, outfile: str) -> None:
+    def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
+        self.process_file(infile, outfile, self.threshold, self.denoise,
+                          self.pipeline.verbosity)
+
+    # region Public Class Methods
+
+    @classmethod
+    def construct_argparser(cls) -> ArgumentParser:
+        """
+        Constructs argument parser
+
+        Returns:
+            parser (ArgumentParser): Argument parser
+        """
+        parser = super().construct_argparser(description=__doc__)
+
+        parser.add_argument(
+            "-t", "--threshold",
+            default=128,
+            dest="threshold",
+            type=int,
+            help="threshold differentiating black and white (0-255)")
+        parser.add_argument(
+            "-d", "--denoise",
+            default=True,
+            dest="denoise",
+            type=bool,
+            help="Switch color of pixels bordered by less than 5 pixels of the"
+                 "same color")
+
+        return parser
+
+    @classmethod
+    def process_file(cls, infile: str, outfile: str, threshold: int,
+                     denoise: bool, verbosity:int):
         input_image = Image.open(infile)
 
         output_image = input_image.convert("L").point(
-            lambda p: p > self.threshold and 255)
-        if self.denoise:
+            lambda p: p > threshold and 255)
+        if denoise:
             output_data = np.array(output_image)
-            self.denoise_data(output_data)
+            cls.denoise_data(output_data)
             output_image = Image.fromarray(output_data)
 
         output_image.save(outfile)
+
+    # endregion
 
     @no_type_check
     @staticmethod
@@ -58,3 +95,8 @@ class ThresholdProcessor(Processor):
                 else:
                     if (slc == 255).sum() < 4:
                         data[y, x] = 0
+
+
+#################################### MAIN #####################################
+if __name__ == "__main__":
+    ThresholdProcessor.main()

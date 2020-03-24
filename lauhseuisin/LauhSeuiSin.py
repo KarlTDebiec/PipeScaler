@@ -24,15 +24,16 @@ from lauhseuisin.Pipeline import Pipeline
 class LauhSeuiSin:
     """
     TODO:
-        - CLI for WaifuPixelmator2xTransparentProcessor
-        - Improve processing of very small images
-        - Identify actors
+        - CLI for WaifuPixelmator2xTransparentProcessor, WaifuProcessor, and
+          PotraceProcessor
+        - Improve processing of edges, particularly for very small images
+        - Clean up LODs for images with transparency
         - Validate original LODs alongside scaled LODs
         - Split Zelda files into separate repository
-        - Implement PeriodicProcessor
-            - expand/contract flag to do/undo
-            - cubic/radial flag
         - Water LODs
+        - Treasure chest, big key treasure chest, and Sheikah tutorial have
+          issue
+        - STHeiti 80 point, STHeiti 56 point
     """
     # region Class Variables
 

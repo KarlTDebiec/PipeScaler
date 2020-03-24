@@ -362,7 +362,7 @@ def print_lodsets(lodsets):
 if __name__ == "__main__":
     input_directory = expandvars(
         "$HOME/.local/share/citra-emu/dump/textures/000400000008F900")
-    full_size = (4, 4)
+    full_size = (32, 64)
     threshold = 0.65
 
     # Prepare sizes and regular expressions
@@ -428,6 +428,6 @@ if __name__ == "__main__":
 
     # Print sets
     print("\n\n")
-    known_lodsets.update(new_lodsets)
-    print_lodsets(known_lodsets)
-    # print_lodsets(new_lodsets)
+    # known_lodsets.update(new_lodsets)
+    # print_lodsets(known_lodsets)
+    print_lodsets(new_lodsets)

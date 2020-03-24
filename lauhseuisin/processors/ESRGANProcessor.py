@@ -36,7 +36,7 @@ class ESRGANProcessor(Processor):
         import RRDBNet_arch as arch  # type:ignore
         self.arch = arch
 
-    def process_file(self, infile: str, outfile: str) -> None:
+    def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
         device = torch.device(self.device)
         model = self.arch.RRDBNet(3, 3, 64, 23, gc=32)
         model.load_state_dict(torch.load(self.model), strict=True)

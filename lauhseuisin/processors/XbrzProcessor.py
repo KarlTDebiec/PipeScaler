@@ -28,7 +28,7 @@ class XbrzProcessor(Processor):
         self.executable = expandvars(executable)
         self.desc = f"xbrz-{self.scale}"
 
-    def process_file(self, infile: str, outfile: str) -> None:
+    def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
         command = f"{self.executable} " \
                   f"{self.scale} " \
                   f"{infile} " \

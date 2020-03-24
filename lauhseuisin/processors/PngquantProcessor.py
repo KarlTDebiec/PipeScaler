@@ -34,7 +34,7 @@ class PngquantProcessor(Processor):
         if self.floyd_steinberg:
             self.desc = f"{self.desc}-fs"
 
-    def process_file(self, infile: str, outfile: str) -> None:
+    def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
         command = f"{self.executable} " \
                   f"--quality {self.quality} " \
                   f"--speed {self.speed} "

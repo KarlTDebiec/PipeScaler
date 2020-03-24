@@ -10,8 +10,10 @@
 from __future__ import annotations
 
 from collections import Iterator
+from shutil import copyfile
 from typing import Any, List, Optional, Union
 
+from os.path import basename
 import numpy as np
 from IPython import embed
 from PIL import Image
@@ -23,6 +25,8 @@ from lauhseuisin.sorters.Sorter import Sorter
 class TextImageSorter(Sorter):
 
     def __init__(self,
+                 downstream_pipes_for_shadow: Optional[
+                     Union[str, List[str]]] = None,
                  downstream_pipes_for_text: Optional[
                      Union[str, List[str]]] = None,
                  downstream_pipes_for_time_text: Optional[
@@ -33,6 +37,10 @@ class TextImageSorter(Sorter):
                      Union[str, List[str]]] = None,
                  **kwargs: Any) -> None:
         super().__init__(**kwargs)
+
+        if isinstance(downstream_pipes_for_shadow, str):
+            downstream_pipes_for_shadow = [downstream_pipes_for_shadow]
+        self.downstream_pipes_for_shadow = downstream_pipes_for_shadow
 
         if isinstance(downstream_pipes_for_text, str):
             downstream_pipes_for_text = [downstream_pipes_for_text]
@@ -54,7 +62,13 @@ class TextImageSorter(Sorter):
         while True:
             infile = (yield)
             image_type = self.get_image_type(infile)
-            if image_type == "text":
+            if image_type == "shadow":
+                if self.pipeline.verbosity >= 2:
+                    print(f"{self}: shadow {infile}")
+                if self.downstream_pipes_for_shadow is not None:
+                    for pipe in self.downstream_pipes_for_shadow:
+                        self.pipeline.pipes[pipe].send(infile)
+            elif image_type == "text":
                 if self.pipeline.verbosity >= 2:
                     print(f"{self}: text {infile}")
                 if self.downstream_pipes_for_text is not None:
@@ -93,5 +107,11 @@ class TextImageSorter(Sorter):
                     and np.all(data[:, :, 0] == data[:, :, 2])
                     and (data[:, :, 3] != 255).sum() != 0):
                 return "large_text"
-
+        elif data.shape == (64, 64, 4):
+            bincount = np.where(np.bincount(data.flatten()) != 0)[0]
+            if ((bincount.size == 4 and np.all(
+                    bincount == np.array([0, 34, 136, 170]))) or (
+                    bincount.size == 10 and np.all(bincount == np.array(
+                    [0, 34, 51, 68, 85, 102, 119, 136, 153, 170])))):
+                return "shadow"
         return "nontext"

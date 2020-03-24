@@ -19,7 +19,7 @@ from lauhseuisin.processors.Processor import Processor
 class FlattenProcessor(Processor):
     desc = "flatten"
 
-    def process_file(self, infile: str, outfile: str) -> None:
+    def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
         input_data = np.array(Image.open(infile))
 
         output_data = np.ones_like(input_data) * 255

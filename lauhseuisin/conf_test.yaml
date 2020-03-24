@@ -368,6 +368,14 @@ pipes:
           downstream_pipes: actors_transparency_sorter
         interface: # handle manually; skip here
           filenames:
+            - tex1_1024x256_3B8E791D26BB81DA_12
+            - tex1_1024x256_20E7AFFF1BE07C10_12
+            - tex1_1024x256_53A162747ACB2F03_12
+            - tex1_1024x256_628A4CA2591B91A6_12
+            - tex1_1024x256_B8344F33CDDB8882_12
+            - tex1_1024x256_CB1702F468844A59_12
+            - tex1_1024x256_EF9BBB620180A6B2_12
+            - tex1_1024x256_F010ABC3EF3BF6A1_12
             - tex1_128x32_EE00E3E7733996CE_13
             - tex1_128x64_110C74C9F44174CF_4
             - tex1_64x64_050376B252900A11_4
@@ -3689,6 +3697,7 @@ pipes:
       downstream_pipes_for_unmatched: default_text_sorter
   default_text_sorter:
     TextImageSorter:
+      downstream_pipes_for_shadow: shadow_resize
       downstream_pipes_for_text:
       downstream_pipes_for_large_text: large_text_flattener
       downstream_pipes_for_nontext: default_transparency_sorter
@@ -3696,6 +3705,16 @@ pipes:
     TransparencySorter:
       downstream_pipes_for_transparent: default_transparent_waifupixelmator2x-a-2-1-3x
       downstream_pipes_for_opaque: default_opaque_waifu-a-2-1
+
+  # Shadow pipeline
+  shadow_resize:
+    ResizeProcessor:
+      scale: 4.0
+      downstream_pipes: shadow_gaussian
+  shadow_gaussian:
+    AutomatorProcessor:
+      workflow: $HOME/OneDrive/code/LauhSeuiSin/lauhseuisin/data/workflows/Gaussian-5.0.workflow
+      downstream_pipes: pngquant
 
   # Large text pipeline
   large_text_flattener:
@@ -8161,6 +8180,219 @@ pipes:
         tex1_256x256_FC4A9C74E9C361A6_12:
           0.5: tex1_128x128_69BEE4EC01112407_12 # 0.94
           0.25: tex1_64x64_4186340A2F14E5EF_12 # 0.95
+        tex1_256x256_1395CDE07E1FA05A_12:
+          0.5: tex1_128x128_A0D46F2CE47EA591_12 # 0.91
+          0.25: tex1_64x64_5E34A2598AC4B858_12 # 0.90
+        tex1_256x256_1475B88CC756AEB0_12:
+          0.5: tex1_128x128_ADAF32F5DCCD09FB_12 # 0.90
+          0.25: tex1_64x64_27D43A833E978EC1_12 # 0.90
+        tex1_256x256_4D7E9DC2CD33E99C_13:
+          0.5: tex1_128x128_12E8D8F2F6F18B2B_13 # 0.92
+          0.25: tex1_64x64_287BF2D285CC949C_13 # 0.91
+        tex1_256x256_50B29A383F41748E_12:
+          0.5: tex1_128x128_38C8C4EF171E8FFE_12 # 0.93
+          0.25: tex1_64x64_EEBFCFA3B5432303_12 # 0.93
+        tex1_256x256_7B6B6EC62485DE7B_13:
+          0.5: tex1_128x128_A4E46C07892B2A4B_13 # 0.95
+          0.25: tex1_64x64_47804FF4971AC124_13 # 0.95
+        tex1_256x256_97882449623510CB_12:
+          0.5: tex1_128x128_CDCD9AEAAD17A857_12 # 0.96
+          0.25: tex1_64x64_F5F6D2116A0D9723_12 # 0.96
+        tex1_256x256_A356D12D617C621A_12:
+          0.5: tex1_128x128_5D34C9B9CB8B1530_12 # 0.91
+          0.25: tex1_64x64_968E8FBD470E2022_12 # 0.89
+        tex1_256x256_A357F0DAAF06A5E3_12:
+          0.5: tex1_128x128_85CBDC4414FECF49_12 # 0.89
+          0.25: tex1_64x64_A55C6BE5EAE7A9D7_12 # 0.87
+        tex1_256x256_A421369AC3CCC73C_12:
+          0.5: tex1_128x128_A33AA2BA0B66A16B_12 # 0.92
+          0.25: tex1_64x64_CDAD1784673A9F2C_12 # 0.95
+        tex1_256x256_A72D6510E7419618_13:
+          0.5: tex1_128x128_BA32CB08F4306999_13 # 0.98
+          0.25: tex1_64x64_40EAC49AC1B007BD_13 # 0.98
+        tex1_256x256_B27D012F2D7B1DC5_12:
+          0.5: tex1_128x128_116B64BB06F6A3B6_12 # 0.90
+          0.25: tex1_64x64_31A239E56049C6C8_12 # 0.91
+        tex1_256x256_CD8D8866D823AF0E_12:
+          0.5: tex1_128x128_7887929CDD9B3BAE_12 # 0.95
+          0.25: tex1_64x64_566205DFD5FF6CCF_12 # 0.95
+        tex1_256x256_DF04C2C315E9DD9E_12:
+          0.5: tex1_128x128_8CDA8741A7869A81_12 # 0.93
+          0.25: tex1_64x64_7C6DD63A804A14A8_12 # 0.93
+        tex1_256x256_F516D8F0B1923ACC_12:
+          0.5: tex1_128x128_F75B860ABF046BD0_12 # 0.91
+          0.25: tex1_64x64_348E7CE235E16101_12 # 0.92
+        tex1_256x256_F615B3F1D2CC1D1B_12:
+          0.5: tex1_128x128_71AE5ACE81665956_12 # 0.92
+          0.25: tex1_64x64_82BBCDD9331803FA_12 # 0.92
+        tex1_256x128_041F731572E2E3C3_12:
+          0.5: tex1_128x64_330C912697C45958_12 # 0.98
+          0.25: tex1_64x32_3ED59BFD38322FED_12 # 0.99
+        tex1_256x128_2281BD52B5E786E8_12:
+          0.5: tex1_128x64_979B5B7AAA297680_12 # 0.94
+          0.25: tex1_64x32_FEF769FF740C583F_12 # 0.94
+        tex1_256x128_22C661D2B6BE8E5D_12:
+          0.5: tex1_128x64_DE7E193BB3246133_12 # 0.92
+          0.25: tex1_64x32_EA895EFCB00FEEB1_12 # 0.92
+        tex1_256x128_B51ACA858F18DEF2_12:
+          0.5: tex1_128x64_E7B7660B9F064E3E_12 # 0.94
+          0.25: tex1_64x32_8EB2C7AE2D660EFC_12 # 0.93
+        tex1_256x128_CF114ED28FF86AC0_12:
+          0.5: tex1_128x64_0C93133473DB2A77_12 # 0.93
+          0.25: tex1_64x32_0BC317B6C9975B13_12 # 0.94
+        tex1_64x256_76757DEC0F452329_12:
+          0.5: tex1_32x128_640F2D792CDBB018_12 # 0.93
+          0.25: tex1_16x64_1689E37C5320F2B1_12 # 0.95
+        tex1_128x128_1A2C8874D37612F2_12:
+          0.5: tex1_64x64_00985BF0B20BA42F_12 # 0.88
+          0.25: tex1_32x32_567611C7CCF29836_12 # 0.84
+        tex1_128x128_7694F0AD2A591F66_12:
+          0.5: tex1_64x64_41968C18DAFB8434_12 # 0.93
+          0.25: tex1_32x32_6A7BF82D8B860745_12 # 0.93
+        tex1_128x128_086A907032B06361_12:
+          0.5: tex1_64x64_1C1D02943487DF6E_12 # 0.97
+          0.25: tex1_32x32_A6041A6DC2E6C489_12 # 0.98
+        tex1_128x128_1575D72D9BE598C5_12:
+          0.5: tex1_64x64_6440088330CF17E3_12 # 0.88
+          0.25: tex1_32x32_440AB22C5D3D133B_12 # 0.83
+        tex1_128x128_806A30DB6563DABF_12:
+          0.5: tex1_64x64_8F51F1E99C95DF19_12 # 0.90
+          0.25: tex1_32x32_27F9987843819189_12 # 0.90
+        tex1_128x128_80FBD755C0871F7B_12:
+          0.5: tex1_64x64_7D92C7C963E80249_12 # 0.93
+          0.25: tex1_32x32_63051040374166D7_12 # 0.94
+        tex1_128x128_A881C5333996E41D_12:
+          0.5: tex1_64x64_E564B6FD2E3D926E_12 # 0.94
+          0.25: tex1_32x32_1034E1A21FB01889_12 # 0.94
+        tex1_128x128_9B61120C02A4192D_12:
+          0.5: tex1_64x64_85BB1F0D907B0B9A_12 # 0.92
+          0.25: tex1_32x32_C1EB6649E04B24A7_12 # 0.92
+        tex1_128x128_EFC3B4EB74674F0E_12:
+          0.5: tex1_64x64_29BCBCBE2D230ED3_12 # 0.89
+          0.25: tex1_32x32_7210F62B23268C5D_12 # 0.91
+        tex1_128x128_ABE75241BF264E41_12:
+          0.5: tex1_64x64_A1FE5DA69BE8CC62_12 # 0.91
+          0.25: tex1_32x32_293F596449140621_12 # 0.88
+        tex1_128x128_6038C88781E8CB33_12:
+          0.5: tex1_64x64_274FAE4F5D0A5317_12 # 0.90
+          0.25: tex1_32x32_05B7C7DD1B57F144_12 # 0.92
+        tex1_128x128_0C541487BE138D41_12:
+          0.5: tex1_64x64_A1E53E4760C01D1A_12 # 0.95
+          0.25: tex1_32x32_9A6B5BEBEF0C5446_12 # 0.96
+        tex1_128x128_D6B30CA1C3F50CC3_12:
+          0.5: tex1_64x64_8B9BE8C822E000DD_12 # 0.96
+          0.25: tex1_32x32_FA779D0F839C9409_12 # 0.94
+        tex1_128x128_6DA0B59D4AE016BF_12:
+          0.5: tex1_64x64_E0541F9F47141AC7_12 # 0.90
+          0.25: tex1_32x32_0F642A2BF08D9877_12 # 0.91
+        tex1_128x128_8C719CC69C0D0BEA_12:
+          0.5: tex1_64x64_8E805812CBED7FDE_12 # 0.96
+          0.25: tex1_32x32_99739094918A0405_12 # 0.95
+        tex1_128x128_C4EA3183096EDE9A_12:
+          0.5: tex1_64x64_7DEC9DBE6B3A82E1_12 # 0.96
+          0.25: tex1_32x32_929D317E486E7D5D_12 # 0.95
+        tex1_128x128_7B9067029218A186_12:
+          0.5: tex1_64x64_2473A2586A326BC4_12 # 0.93
+          0.25: tex1_32x32_79E03FF118647C70_12 # 0.93
+        tex1_128x128_9DA03E130A27977C_12:
+          0.5: tex1_64x64_6EA0C5C735F5ECC0_12 # 0.93
+          0.25: tex1_32x32_AA1FA7A75D65F384_12 # 0.94
+        tex1_128x128_18000F3E5CFF7327_13:
+          0.5: tex1_64x64_5928547E9BCF3528_13 # 0.94
+          0.25: tex1_32x32_62A37A3515F5A7F1_13 # 0.92
+        tex1_128x128_15DB201A742698B1_12:
+          0.5: tex1_64x64_664F937D14CDA987_12 # 0.99
+          0.25: tex1_32x32_92BCF8E4E24C8EAD_12 # 0.99
+        tex1_128x128_1DFE99DC37B0857B_12:
+          0.5: tex1_64x64_EA693D3DFDAC2A39_12 # 0.95
+          0.25: tex1_32x32_ECF4A46DB7EE4C75_12 # 0.94
+        tex1_128x128_3D93B49246EA7CB6_12:
+          0.5: tex1_64x64_B3FDACC8C3600326_12 # 0.93
+          0.25: tex1_32x32_3683AAA76BAC333C_12 # 0.96
+        tex1_128x128_491206859E805B54_13:
+          0.5: tex1_64x64_4EF24E120CE2D1EE_13 # 0.92
+          0.25: tex1_32x32_746D75837F0F6047_13 # 0.87
+        tex1_128x128_86B1686557B23EDB_12:
+          0.5: tex1_64x64_7C901B852BBB18DF_12 # 0.96
+          0.25: tex1_32x32_4116DD8E98576E0F_12 # 0.96
+        tex1_128x128_BEA86F6A42D0865A_12:
+          0.5: tex1_64x64_1071394105E51E50_12 # 0.92
+          0.25: tex1_32x32_EA29F0AFA648210E_12 # 0.91
+        tex1_128x128_C33CA8AF48764787_12:
+          0.5: tex1_64x64_E30382A550B94744_12 # 0.94
+          0.25: tex1_32x32_832EF0B640137F0A_12 # 0.95
+        tex1_128x128_ECA8E016314324A6_12:
+          0.5: tex1_64x64_CDF2F41918B9A286_12 # 0.97
+          0.25: tex1_32x32_46718E587D9D5222_12 # 0.97
+        tex1_128x128_FA038B575D09E009_12:
+          0.5: tex1_64x64_DE60036AE2858083_12 # 0.95
+          0.25: tex1_32x32_1C9B73AAC80E5ACC_12 # 0.95
+        tex1_128x64_0E521B3A64BD05B5_12:
+          0.5: tex1_64x32_BF5639F466ECB6B2_12 # 0.93
+          0.25: tex1_32x16_A249E1B741C3DC54_12 # 0.93
+        tex1_128x64_2C276EE95FD97997_12:
+          0.5: tex1_64x32_9F78715067F1BBAF_12 # 0.96
+          0.25: tex1_32x16_C8DCBCA399F014E0_12 # 0.94
+        tex1_128x64_30BB62223002B3AF_12:
+          0.5: tex1_64x32_1ADAC1FFE438E5F9_12 # 0.98
+          0.25: tex1_32x16_873CE74D1C7D951B_12 # 0.99
+        tex1_128x64_43782E802422F8FA_12:
+          0.5: tex1_64x32_23A3B2F06AA27A22_12 # 0.93
+          0.25: tex1_32x16_24F5E2EE4107ECB7_12 # 0.80
+        tex1_128x64_48535F1B04FBAB3A_12:
+          0.5: tex1_64x32_DBEDFDFDA3A86C19_12 # 0.92
+          0.25: tex1_32x16_19676EBDABECC8A9_12 # 0.94
+        tex1_128x64_49879F29EB9A840A_12:
+          0.5: tex1_64x32_2AB7D9BCECF43C22_12 # 0.88
+          0.25: tex1_32x16_7332BFE62F6FDD45_12 # 0.88
+        tex1_128x64_6C680428499AA327_12:
+          0.5: tex1_64x32_6920C7D594AE981E_12 # 0.97
+          0.25: tex1_32x16_33488D1BB7BABC6B_12 # 0.98
+        tex1_128x64_8F872901D5A047F0_12:
+          0.5: tex1_64x32_3253D4C4A4A16FEC_12 # 0.92
+          0.25: tex1_32x16_26937F83166910DE_12 # 0.92
+        tex1_128x64_A6799C68A9FC7985_12:
+          0.5: tex1_64x32_527394FBF3B6BA6A_12 # 0.95
+          0.25: tex1_32x16_F5238370729A6521_12 # 0.94
+        tex1_128x64_A94BF25EA4894129_12:
+          0.5: tex1_64x32_4566012EE6B25259_12 # 0.93
+          0.25: tex1_32x16_6D6C9D0B16568635_12 # 0.95
+        tex1_128x64_B69CCAB37CE5416A_12:
+          0.5: tex1_64x32_4C208819AB5EECD5_12 # 0.94
+          0.25: tex1_32x16_3E416C8AD672C80F_12 # 0.90
+        tex1_64x128_36720D98259659CE_12:
+          0.5: tex1_32x64_806B5B8FD622B31B_12 # 0.96
+          0.25: tex1_16x32_23C8B8EA1A675BFB_12 # 0.93
+        tex1_64x128_47D017A07D79BC49_12:
+          0.5: tex1_32x64_EB78E4FED14F4AD3_12 # 0.94
+          0.25: tex1_16x32_23F1A8F56E95A857_12 # 0.95
+        tex1_64x128_A59A9C946B35ED37_12:
+          0.5: tex1_32x64_CF1B12C5A19B67D9_12 # 0.97
+          0.25: tex1_16x32_F06455804AF247A0_12 # 0.94
+        tex1_64x128_AFA0ED86664A4354_12:
+          0.5: tex1_32x64_6BC5D0A5F7435EEF_12 # 0.95
+          0.25: tex1_16x32_2329B4762FBBD68A_12 # 0.94
+        tex1_64x128_EC43AD85C27866D5_12:
+          0.5: tex1_32x64_B5E5C6C43B7E0DBE_12 # 0.98
+          0.25: tex1_16x32_95F62186228AA6F4_12 # 0.99
+        tex1_64x64_A51808382042D0A0_12:
+          0.5: tex1_32x32_0A4B083BF0B35A78_12 # 0.94
+          0.25: tex1_16x16_907995AFF33C0969_12 # 0.88
+        tex1_64x64_6318700B6B9A827F_12:
+          0.5: tex1_32x32_0631135F14D9B453_12 # 0.94
+          0.25: tex1_16x16_638BF2142B36EE06_12 # 0.94
+        tex1_64x64_F8C737EDD91B5DF4_12:
+          0.5: tex1_32x32_92376929B72D118D_12 # 0.91
+          0.25: tex1_16x16_CB69AEB797409B15_12 # 0.91
+        tex1_64x64_EFE1A52F1CE8FAB2_12:
+          0.5: tex1_32x32_05563ED976A47CB4_12 # 0.91
+          0.25: tex1_16x16_0E5E4EE81A45E968_12 # 0.91
+        tex1_64x64_4155C6D9F441C523_12:
+          0.5: tex1_32x32_D2FC325BE471D35E_12 # 0.91
+          0.25: tex1_16x16_CB47D3AC2A7C339E_12 # 0.92
+        tex1_64x64_4E38F0D4740C74D8_12:
+          0.5: tex1_32x32_22D9ED8FE9C60BD6_12 # 0.90
+          0.25: tex1_16x16_52963332DDF4E96A_12 # 0.93
       downstream_pipes: pngquant
 
   # Final output
