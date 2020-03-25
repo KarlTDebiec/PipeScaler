@@ -4,6 +4,8 @@ from os import listdir, remove
 from os.path import isfile, expandvars, basename, splitext
 from shutil import copyfile
 
+from lauhseuisin.sorters import TextImageSorter
+
 import yaml
 
 dump_directory = expandvars(
@@ -29,6 +31,7 @@ known_lores = set(chain.from_iterable(
 def get_name(filename: str) -> str:
     return splitext(basename(filename))[0]
 
+
 for filename in listdir(nolod_directory):
     print(filename)
     remove(f"{nolod_directory}/{filename}")
@@ -47,6 +50,9 @@ for name in [get_name(f) for f in listdir(dump_directory)]:
     elif name in known_lores:
         continue
     elif name == ".DS_Store":
+        continue
+    kind = TextImageSorter.get_image_type(f"{dump_directory}/{name}.png")
+    if kind in ["shadow", "text", "time_text", "large_text"]:
         continue
     print(name)
     copyfile(f"{dump_directory}/{name}.png", f"{nolod_directory}/{name}.png")

@@ -25,20 +25,17 @@ from lauhseuisin.processors.Processor import Processor
 class WaifuProcessor(Processor):
 
     def __init__(self, imagetype: str = "a", scale: int = 2, denoise: int = 1,
-                 executable: str = "waifu", **kwargs: Any) -> None:
+                 **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
         self.imagetype = imagetype
         self.scale = scale
         self.denoise = denoise
-        self.executable = expandvars(executable)
         self.desc = f"waifu-{self.imagetype}-{self.scale}-{self.denoise}"
 
     def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
-        self.process_file(infile, outfile, self.executable, self.imagetype,
-                          self.scale, self.denoise, self.pipeline.verbosity)
-
-    # region Public Class Methods
+        self.process_file(infile, outfile, self.imagetype, self.scale,
+                          self.denoise, self.pipeline.verbosity)
 
     @classmethod
     def construct_argparser(cls) -> ArgumentParser:
@@ -50,12 +47,6 @@ class WaifuProcessor(Processor):
         """
         parser = super().construct_argparser(description=__doc__)
 
-        parser.add_argument(
-            "-e", "--executable",
-            default="waifu",
-            dest="executable",
-            type=str,
-            help="path to waifu executable")
         parser.add_argument(
             "-t", "--type",
             default="a",
@@ -78,8 +69,8 @@ class WaifuProcessor(Processor):
         return parser
 
     @classmethod
-    def process_file(cls, infile: str, outfile: str, executable: str,
-                     imagetype: str, scale: int, denoise: int, verbosity: int):
+    def process_file(cls, infile: str, outfile: str, imagetype: str,
+                     scale: int, denoise: int, verbosity: int):
         image = Image.open(infile)
         original_size = image.size
 
@@ -99,7 +90,7 @@ class WaifuProcessor(Processor):
             waifu_infile = infile
 
         # Upscale
-        command = f"{executable} " \
+        command = f"waifu2x " \
                   f"-t {imagetype} " \
                   f"-s {scale} " \
                   f"-n {denoise} " \
@@ -115,8 +106,6 @@ class WaifuProcessor(Processor):
                 (0, 0, original_size[0] * scale,
                  original_size[1] * scale)).save(outfile)
             remove(tempfile.name)
-
-    # endregion
 
 
 #################################### MAIN #####################################

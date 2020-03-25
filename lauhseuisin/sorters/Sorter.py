@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from os import makedirs
-from os.path import basename, dirname, splitext, isdir
+from os.path import basename, dirname, isdir, splitext
 from shutil import copyfile
 from typing import Any, Iterator
 

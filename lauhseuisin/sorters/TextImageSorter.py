@@ -93,7 +93,8 @@ class TextImageSorter(Sorter):
                     for pipe in self.downstream_pipes_for_nontext:
                         self.pipeline.pipes[pipe].send(infile)
 
-    def get_image_type(self, infile: str) -> str:
+    @staticmethod
+    def get_image_type(infile: str) -> str:
         data = np.array(Image.open(infile))
 
         if data.shape == (256, 256, 4):
@@ -112,6 +113,6 @@ class TextImageSorter(Sorter):
             if ((bincount.size == 4 and np.all(
                     bincount == np.array([0, 34, 136, 170]))) or (
                     bincount.size == 10 and np.all(bincount == np.array(
-                    [0, 34, 51, 68, 85, 102, 119, 136, 153, 170])))):
+                [0, 34, 51, 68, 85, 102, 119, 136, 153, 170])))):
                 return "shadow"
         return "nontext"

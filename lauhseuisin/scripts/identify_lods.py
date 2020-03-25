@@ -10,30 +10,28 @@
 from __future__ import annotations
 
 import re
-from os import listdir, makedirs
-from os.path import basename, expandvars, splitext, join, isdir, isfile
-from shutil import copyfile
+from itertools import chain
+from os import listdir, remove
+from os.path import basename, expandvars, join, splitext
 from typing import Optional
-from os import remove
-from IPython import embed
-from skimage.metrics import structural_similarity as ssim
-from PIL import Image
+
 import numpy as np
 import yaml
-from itertools import chain
+from IPython import embed
+from PIL import Image
+from skimage.metrics import structural_similarity as ssim
 
-with open("../conf_test.yaml", "r") as f:
-    conf = yaml.load(f, Loader=yaml.SafeLoader)
-
-list_sorter_pipes = conf["pipes"]["list_sorter"]["ListSorter"][
-    "downstream_pipes_for_filenames"]
-known_actor = set(list_sorter_pipes["actors"]["filenames"])
-known_interface = set(list_sorter_pipes["interface"]["filenames"])
-known_map = set(list_sorter_pipes["maps"]["filenames"])
-known_skip = set(list_sorter_pipes["skip"]["filenames"])
-
-known_lodsets = conf["pipes"]["default_lod"]["LODSorter"]["lods"]
-known_hires = set(conf["pipes"]["default_lod"]["LODSorter"]["lods"])
+with open("../actors.yaml", "r") as f:
+    known_actor = yaml.load(f, Loader=yaml.SafeLoader)
+with open("../interface.yaml", "r") as f:
+    known_interface = yaml.load(f, Loader=yaml.SafeLoader)
+with open("../maps.yaml", "r") as f:
+    known_map = yaml.load(f, Loader=yaml.SafeLoader)
+with open("../skip.yaml", "r") as f:
+    known_skip = yaml.load(f, Loader=yaml.SafeLoader)
+with open("../lodsets.yaml", "r") as f:
+    known_lodsets = yaml.load(f, Loader=yaml.SafeLoader)
+known_hires = known_lodsets.keys()
 known_lores = set(chain.from_iterable(
     [a.values() for a in known_lodsets.values() if a is not None]))
 
@@ -81,7 +79,7 @@ known_nolod = set(yaml.load("""
 - tex1_256x256_BF257E16A50673BA_7
 - tex1_128x128_753B3BF68000DB48_7
 - tex1_128x64_934726D8DFF694DF_5
-"""))
+""", Loader=yaml.SafeLoader))
 
 known_water = set(yaml.load("""
 - tex1_128x128_09C930987A27540E_12
@@ -206,11 +204,12 @@ known_water = set(yaml.load("""
 - tex1_64x64_FF4AD70E8DC370C1_12
 - tex1_16x16_06C2E33287C6C54A_12
 - tex1_16x16_95526E595AC53CEF_12
-"""))
+""", Loader=yaml.SafeLoader))
 
 known_spider_web = set(yaml.load("""
 - tex1_32x32_088B69391A3B0069_13
-"""))
+""", Loader=yaml.SafeLoader))
+
 
 ################################## FUNCTIONS ##################################
 def get_name(filename: str) -> str:
@@ -222,10 +221,11 @@ def get_filename(filename: str) -> str:
 
 
 def concatenate_images(full_name: str, half_name: Optional[str] = None,
-                       quarter_name: Optional[str] = None):
+                       quarter_name: Optional[str] = None,
+                       eighth_name: Optional[str]=None):
     full_image = Image.open(get_filename(full_name))
     concatenated_image = Image.new(
-        "RGBA", (full_image.size[0] * 3, full_image.size[1]))
+        "RGBA", (full_image.size[0] * 4, full_image.size[1]))
     concatenated_image.paste(full_image, (0, 0))
     if half_name is not None:
         half_image = Image.open(get_filename(half_name))
@@ -237,6 +237,12 @@ def concatenate_images(full_name: str, half_name: Optional[str] = None,
         quarter_image = quarter_image.resize(
             full_image.size, resample=Image.LANCZOS)
         concatenated_image.paste(quarter_image, (full_image.size[0] * 2, 0))
+    if eighth_name is not None:
+        eighth_image = Image.open(get_filename(eighth_name))
+        eighth_image = eighth_image.resize(
+            full_image.size, resample=Image.LANCZOS)
+        concatenated_image.paste(eighth_image, (full_image.size[0] * 3, 0))
+
     return concatenated_image
 
 
@@ -244,6 +250,7 @@ def load_data():
     full_data = {}
     half_data = {}
     quarter_data = {}
+    eighth_data = {}
     for name in [get_name(f) for f in listdir(input_directory)]:
         if name in known_actor:
             continue
@@ -290,9 +297,12 @@ def load_data():
         elif quarter_re.match(name):
             image = Image.open(get_filename(name))
             quarter_data[name] = np.array(image.convert("RGB"))
+        elif eighth_re.match(name):
+            image = Image.open(get_filename(name))
+            eighth_data[name] = np.array(image.convert("RGB"))
 
-    print(len(full_data), len(half_data), len(quarter_data))
-    return full_data, half_data, quarter_data
+    print(len(full_data), len(half_data), len(quarter_data), len(eigth_data))
+    return full_data, half_data, quarter_data, eighth_data
 
 
 def name_sort(filename):
@@ -302,8 +312,8 @@ def name_sort(filename):
 
 
 def print_lodsets(lodsets):
-    with open("lodsets.txt", "w") as lodset_outfile, \
-            open("lods.txt", "w") as lods_outfile:
+    with open("../lodsets.yaml", "w") as lodset_outfile, \
+            open("../lods.yaml", "w") as lods_outfile:
 
         full_names = list(lodsets.keys())
         full_names.sort(key=name_sort)
@@ -351,18 +361,12 @@ def print_lodsets(lodsets):
                     f"  0.25: {lods[0.25]} # {quarter_score:4.2f}\n")
                 lods_outfile.write(f"- {lods[0.25]}\n")
 
-            # Show debug output
-            # if half_score < 0.8 or quarter_score < 0.8:
-            #     concatenate_images(
-            #         full_name, lods.get(0.5), lods.get(0.25)).show()
-            #     input()
-
 
 #################################### MAIN #####################################
 if __name__ == "__main__":
     input_directory = expandvars(
         "$HOME/.local/share/citra-emu/dump/textures/000400000008F900")
-    full_size = (32, 64)
+    full_size = (4, 4)
     threshold = 0.65
 
     # Prepare sizes and regular expressions
@@ -427,7 +431,6 @@ if __name__ == "__main__":
             continue
 
     # Print sets
-    print("\n\n")
-    # known_lodsets.update(new_lodsets)
-    # print_lodsets(known_lodsets)
-    print_lodsets(new_lodsets)
+    # print("\n\n")
+    known_lodsets.update(new_lodsets)
+    print_lodsets(known_lodsets)

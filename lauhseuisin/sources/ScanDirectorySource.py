@@ -28,7 +28,7 @@ class ScanDirectorySource(Source):
     def get_infiles(self) -> Iterator[str]:
         infiles = listdir(self.input_directory)
         infiles.sort(key=self.name_sort)
-        for i, infile in enumerate(reversed(infiles)):
+        for i, infile in enumerate(infiles):
             print(f"Processing {i}/{len(infiles)}: {infile}")
             if infile == ".DS_Store":
                 continue

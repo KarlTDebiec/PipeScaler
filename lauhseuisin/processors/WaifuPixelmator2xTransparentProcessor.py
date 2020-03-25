@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from argparse import ArgumentError, ArgumentParser
 from os import R_OK, access, remove
-from os.path import basename, expandvars, isfile
+from os.path import expandvars, isfile, isdir
 from shutil import copyfile
 from subprocess import Popen
 from tempfile import NamedTemporaryFile
@@ -20,33 +20,26 @@ from typing import Any, IO, Optional
 import numpy as np
 from PIL import Image
 
+from lauhseuisin import package_root
 from lauhseuisin.processors.Processor import Processor
 
 
 ################################### CLASSES ###################################
 class WaifuPixelmator2xTransparentProcessor(Processor):
 
-    def __init__(self, workflow: str, waifu_executable: str = "waifu",
-                 imagetype: str = "a", denoise: str = 1,
-                 automator_executable: str = "automator",
+    def __init__(self, imagetype: str = "a", denoise: str = 1,
                  **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
         self.imagetype = imagetype
         self.scale = 2
         self.denoise = denoise
-        self.workflow = expandvars(workflow)
-        self.waifu_executable = expandvars(waifu_executable)
-        self.automator_executable = expandvars(automator_executable)
         self.desc = f"waifupixelmator2x-" \
-                    f"{self.imagetype}-{self.scale}-{self.denoise}-" \
-                    f"{basename(self.workflow).rstrip('.workflow')}"
+                    f"{self.imagetype}-{self.scale}-{self.denoise}"
 
     def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
         self.process_file(infile, outfile, imagetype=self.imagetype,
-                          denoise=self.denoise, workflow=self.workflow,
-                          waifu_executable=self.waifu_executable,
-                          automator_executable=self.automator_executable,
+                          denoise=self.denoise,
                           verbosity=self.pipeline.verbosity)
 
     # region Public Class Methods
@@ -75,12 +68,6 @@ class WaifuPixelmator2xTransparentProcessor(Processor):
         parser = super().construct_argparser(description=__doc__)
 
         parser.add_argument(
-            "-w", "--waifu_executable",
-            default="waifu",
-            dest="waifu_executable",
-            type=str,
-            help="path to waifu executable")
-        parser.add_argument(
             "-t", "--type",
             default="a",
             dest="imagetype",
@@ -92,25 +79,16 @@ class WaifuPixelmator2xTransparentProcessor(Processor):
             dest="denoise",
             type=int,
             help="denoise level (0-4)")
-        parser.add_argument(
-            "-a", "--automator_executable",
-            default="automator",
-            dest="automator_executable",
-            type=str,
-            help="path to automator executable")
-        parser.add_argument(
-            "-r", "--workflow",
-            dest="workflow",
-            required=True,
-            type=str,
-            help="path to workflow")
 
         return parser
 
     @classmethod
-    def process_file(cls, infile: str, outfile: str, waifu_executable: str,
-                     imagetype: str, denoise: str, automator_executable: str,
-                     workflow: str, verbosity: int):
+    def process_file(cls, infile: str, outfile: str, imagetype: str,
+                     denoise: str, verbosity: int):
+
+        workflow = f"{package_root}/data/workflows/3x.workflow"
+        if not isdir(workflow):
+            raise ValueError()
 
         # Waifu 2X
         image = Image.open(infile)
@@ -124,12 +102,13 @@ class WaifuPixelmator2xTransparentProcessor(Processor):
                              max(200, original_size[1])))
             expanded_image.paste(
                 image, (0, 0, original_size[0], original_size[1]))
+            expanded_image = expanded_image.convert("RGB")
             expanded_image.save(tempfile)
             tempfile.close()
             waifu_infile = tempfile.name
         else:
             waifu_infile = infile
-        command = f"{waifu_executable} " \
+        command = f"waifu2x " \
                   f"-t {imagetype} " \
                   f"-s 2 " \
                   f"-n {denoise} " \
@@ -149,7 +128,7 @@ class WaifuPixelmator2xTransparentProcessor(Processor):
         # Pixelmator 3X
         pixelmator_tempfile = NamedTemporaryFile(delete=False, suffix=".png")
         copyfile(infile, pixelmator_tempfile.name)
-        command = f"{automator_executable} " \
+        command = f"automator " \
                   f"-i {pixelmator_tempfile.name} " \
                   f"{workflow}"
         if verbosity >= 1:
@@ -164,11 +143,13 @@ class WaifuPixelmator2xTransparentProcessor(Processor):
             int(np.round(pixelmator_3x_image.size[1] * 0.66667))),
             resample=Image.LANCZOS)
 
-        # Paste waifu on top of pixelmator and set alpha to that of pixelmator
-        merged_image = Image.new("RGBA", pixelmator_2x_image.size)
-        merged_image = Image.alpha_composite(merged_image, pixelmator_2x_image)
-        merged_image = Image.alpha_composite(merged_image, waifu_2x_image)
-        merged_data = np.array(merged_image)
+        # Paste pixelmator, then waifu, then set alpha to pixelmator's
+        merged_image = Image.new("RGB", pixelmator_2x_image.size)
+        merged_image.paste(pixelmator_2x_image.convert("RGB"))
+        merged_image.paste(waifu_2x_image)
+        merged_data = np.zeros((merged_image.size[1], merged_image.size[0], 4),
+                               np.uint8)
+        merged_data[:, :, :3] = np.array(merged_image)
         merged_data[:, :, 3] = np.array(pixelmator_2x_image)[:, :, 3]
         final_image = Image.fromarray(merged_data)
 

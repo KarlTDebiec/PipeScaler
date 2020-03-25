@@ -16,6 +16,8 @@ from lauhseuisin.processors.CopyFileProcessor import CopyFileProcessor
 from lauhseuisin.processors.ESRGANProcessor import ESRGANProcessor
 from lauhseuisin.processors.FlattenProcessor import FlattenProcessor
 from lauhseuisin.processors.PotraceProcessor import PotraceProcessor
+from lauhseuisin.processors.PotraceShadowProcessor import (
+    PotraceShadowProcessor)
 from lauhseuisin.processors.PngquantProcessor import PngquantProcessor
 from lauhseuisin.processors.ResizeProcessor import ResizeProcessor
 from lauhseuisin.processors.ThresholdProcessor import ThresholdProcessor
@@ -31,6 +33,7 @@ __all__: List[str] = [
     "ESRGANProcessor",
     "FlattenProcessor",
     "PotraceProcessor",
+    "PotraceShadowProcessor",
     "PngquantProcessor",
     "ResizeProcessor",
     "ThresholdProcessor",

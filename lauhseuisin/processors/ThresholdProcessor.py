@@ -60,8 +60,8 @@ class ThresholdProcessor(Processor):
             default=True,
             dest="denoise",
             type=bool,
-            help="Switch color of pixels bordered by less than 5 pixels of the"
-                 "same color")
+            help="Switch color of pixels bordered by less than 5 pixels of "
+                 "the same color")
 
         return parser
 

@@ -24,16 +24,24 @@ from lauhseuisin.Pipeline import Pipeline
 class LauhSeuiSin:
     """
     TODO:
-        - CLI for WaifuPixelmator2xTransparentProcessor, WaifuProcessor, and
-          PotraceProcessor
         - Improve processing of edges, particularly for very small images
+        - Handle alpha correctly for Sheikah stone-like textures
+        - Check timestamps when selecting LODs
         - Clean up LODs for images with transparency
         - Validate original LODs alongside scaled LODs
         - Split Zelda files into separate repository
-        - Water LODs
-        - Treasure chest, big key treasure chest, and Sheikah tutorial have
-          issue
+        - Clean up Water LODs
+        - Errata:
+           - Treasure chests
+           - Sheikah tutorial stone
+           - Smoke at Death Mountain crater
+           - Phanton Ganon
+           - Link's shadow
+           - Temple of time lighting
+        - Clean maps
+        - Finish interface
         - STHeiti 80 point, STHeiti 56 point
+        - Move infile_argument to a module-level function
     """
     # region Class Variables
 

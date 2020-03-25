@@ -22,11 +22,9 @@ from lauhseuisin.processors.Processor import Processor
 class PngquantProcessor(Processor):
 
     def __init__(self, quality: int = 100, speed: int = 1,
-                 floyd_steinberg: bool = True, executable="pngquant",
-                 **kwargs: Any) -> None:
+                 floyd_steinberg: bool = True, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
-        self.executable = expandvars(executable)
         self.quality = quality
         self.speed = speed
         self.floyd_steinberg = floyd_steinberg
@@ -35,15 +33,15 @@ class PngquantProcessor(Processor):
             self.desc = f"{self.desc}-fs"
 
     def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
-        self.process_file(infile, outfile, self.executable, self.quality,
+        self.process_file(infile, outfile, self.quality,
                           self.speed, self.floyd_steinberg,
                           self.pipeline.verbosity)
 
     @classmethod
-    def process_file(cls, infile: str, outfile: str, executable: str,
-                     quality: int, speed: int, floyd_steinberg: bool,
+    def process_file(cls, infile: str, outfile: str, quality: int, speed: int,
+                     floyd_steinberg: bool,
                      verbosity: int) -> None:
-        command = f"{executable} " \
+        command = f"pngquant " \
                   f"--quality {quality} " \
                   f"--speed {speed} "
         if not floyd_steinberg:

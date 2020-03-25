@@ -10,14 +10,13 @@
 from __future__ import annotations
 
 from os import makedirs
-from os.path import isdir, basename, splitext, isfile
+from os.path import basename, isdir, isfile, splitext, expandvars
 from shutil import copyfile
-from typing import Any, Iterator, Dict, Optional, Union, List
-
-from IPython import embed
-from PIL import Image
+from typing import Any, Dict, Iterator, List, Optional, Union
 
 import numpy as np
+import yaml
+from PIL import Image
 
 from lauhseuisin.sorters.Sorter import Sorter
 
@@ -25,11 +24,14 @@ from lauhseuisin.sorters.Sorter import Sorter
 ################################### CLASSES ###################################
 class LODSorter(Sorter):
 
-    def __init__(self, lods: Dict[str, Dict[float, str]],
+    def __init__(self, lods: Union[str, Dict[str, Dict[float, str]]],
                  downstream_pipes: Optional[Union[str, List[str]]] = None,
                  **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
+        if isinstance(lods, str):
+            with open(expandvars(lods), "r") as f:
+                lods = yaml.load(f, Loader=yaml.SafeLoader)
         self.lods = lods
         if isinstance(downstream_pipes, str):
             downstream_pipes = [downstream_pipes]

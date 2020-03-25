@@ -9,34 +9,38 @@
 ################################### MODULES ###################################
 from __future__ import annotations
 
-from os.path import basename, expandvars
+from os.path import basename, isfile, isdir
 from shutil import copyfile
 from subprocess import Popen
 from typing import Any
 
+from lauhseuisin import package_root
 from lauhseuisin.processors.Processor import Processor
 
 
 ################################### CLASSES ###################################
 class AutomatorProcessor(Processor):
 
-    def __init__(self, workflow: str, executable: str = "automator",
-                 **kwargs: Any) -> None:
+    def __init__(self, workflow: str, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
-        self.workflow = expandvars(workflow)
-        self.executable = expandvars(executable)
+        self.workflow = f"{package_root}/data/workflows/{workflow}"
+        if not self.workflow.endswith(".workflow"):
+            self.workflow = f"{self.workflow}.workflow"
         self.desc = f"{basename(self.workflow).rstrip('.workflow')}"
 
     def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
-        self.process_file(infile, outfile, self.executable, self.workflow,
+        self.process_file(infile, outfile, self.workflow,
                           self.pipeline.verbosity)
 
     @classmethod
-    def process_file(cls, infile: str, outfile: str, executable: str,
-                     workflow: str, verbosity: int) -> None:
+    def process_file(cls, infile: str, outfile: str, workflow: str,
+                     verbosity: int) -> None:
+        if not isdir(workflow):
+            raise ValueError(workflow)
+
         copyfile(infile, outfile)
-        command = f"{executable} " \
+        command = f"automator " \
                   f"-i {outfile} " \
                   f"{workflow}"
         if verbosity >= 1:

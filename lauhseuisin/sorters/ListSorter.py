@@ -9,11 +9,10 @@
 ################################### MODULES ###################################
 from __future__ import annotations
 
+from os.path import expandvars
 from typing import Any, Iterator
 
-from IPython import embed
-from PIL import Image
-import numpy as np
+import yaml
 
 from lauhseuisin.sorters.Sorter import Sorter
 
@@ -26,8 +25,11 @@ class ListSorter(Sorter):
         super().__init__(**kwargs)
 
         self.downstream_pipes_by_filename = {}
-        for name, conf  in downstream_pipes_for_filenames.items():
+        for name, conf in downstream_pipes_for_filenames.items():
             filenames = conf.get("filenames")
+            if isinstance(filenames, str):
+                with open(expandvars(filenames), "r") as f:
+                    filenames = yaml.load(f, Loader=yaml.SafeLoader)
             downstream_pipes = conf.get("downstream_pipes")
             if isinstance(downstream_pipes, str):
                 downstream_pipes = [downstream_pipes]

@@ -33,8 +33,6 @@ class CopyFileProcessor(Processor):
 
     @classmethod
     def process_file(cls, infile: str, outfile: str, verbosity: int) -> None:
-        if isfile(outfile):
-            return
         if verbosity >= 1:
             print(cls.get_indented_text(f"cp {infile} {outfile}"))
         copyfile(infile, outfile)
