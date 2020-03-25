@@ -275,10 +275,7 @@ def concatenate_images(full_name: str, half_name: Optional[str] = None,
 
 
 def load_data():
-    full_data = {}
-    half_data = {}
-    quarter_data = {}
-    eighth_data = {}
+    data = {1.0: {}, 0.5: {}, 0.25: {}, 0.125: {}}
     for name in [get_name(f) for f in listdir(lores_directory)]:
         if name in known_actor:
             continue
@@ -290,47 +287,25 @@ def load_data():
             continue
         elif name in known_nolod:
             continue
-        elif name in known_hires:
-            continue
-        elif name in known_lores:
-            continue
         elif name in known_water:
             continue
         elif name in known_spider_web:
             continue
-        if full_re.match(name):
-            image = Image.open(get_lores_filename(name))
-            datum = np.array(image)
-            if datum.shape == (256, 256, 4):
-                if datum[:, :, :3].sum() == 0:
-                    continue
-                y, x, _ = np.where(datum == 255)
-                if (x.size > 0 and y.size > 0
-                        and y.max() == 15 and x.max() < 128):
-                    image.show()
-                    try:
-                        ok = input("Delete time image (y/n)?:")
-                    except KeyboardInterrupt:
-                        print()
-                        print("Quitting interactive validation")
-                        break
-                    if ok.lower().startswith("y"):
-                        print("removing")
-                        remove(f"{join(lores_directory, full_name)}.png")
-                    continue
-            full_data[name] = np.array(image.convert("RGB"))
-        elif half_re.match(name):
-            image = Image.open(get_lores_filename(name))
-            half_data[name] = np.array(image.convert("RGB"))
-        elif quarter_re.match(name):
-            image = Image.open(get_lores_filename(name))
-            quarter_data[name] = np.array(image.convert("RGB"))
-        elif eighth_re.match(name):
-            image = Image.open(get_lores_filename(name))
-            eighth_data[name] = np.array(image.convert("RGB"))
+        for size in [1.0, 0.5, 0.25, 0.125]:
+            if regexes[size].match(name):
+                image = Image.open(get_lores_filename(name))
+                datum = np.array(image)
+                if datum.shape == (256, 256, 4):
+                    if datum[:, :, :3].sum() == 0:
+                        continue
+                    y, x, _ = np.where(datum == 255)
+                    if (x.size > 0 and y.size > 0
+                            and y.max() == 15 and x.max() < 128):
+                        continue
+                data[size][name] = np.array(image.convert("RGB"))
 
-    print(len(full_data), len(half_data), len(quarter_data), len(eighth_data))
-    return full_data, half_data, quarter_data, eighth_data
+    print(len(data[1.0]), len(data[0.5]), len(data[0.25]), len(data[0.125]))
+    return data
 
 
 def name_sort(filename):
@@ -414,21 +389,17 @@ if __name__ == "__main__":
         "$HOME/.local/share/citra-emu/dump/textures/000400000008F900/")
     hires_directory = expandvars(
         "$HOME//Users/kdebiec/Documents/Zelda/4x_kdebiec/")
-    threshold = 0.65
+    threshold = 0.90
 
     # Prepare sizes and regular expressions
     sizes = {1.0: (256, 256)}
-    sizes[0.5] = (sizes[1.0][0] // 2, sizes[1.0][1] // 2)
-    sizes[0.25] = (sizes[1.0][0] // 4, sizes[1.0][1] // 4)
-    sizes[0.125] = (sizes[1.0][0] // 8, sizes[1.0][1] // 8)
     regexes = {1.0: re.compile(
         f".*_{sizes[1.0][0]}x{sizes[1.0][1]}_.*_1[23]")}
-    regexes[0.5] = re.compile(
-        f".*_{sizes[0.5][0]}x{sizes[0.5][1]}_.*_1[23]")
-    regexes[0.25] = re.compile(
-        f".*_{sizes[0.25][0]}x{sizes[0.25][1]}_.*_1[23]")
-    regexes[0.125] = re.compile(
-        f".*_{sizes[0.125][0]}x{sizes[0.125][1]}_.*_1[23]")
+    for size in [0.5, 0.25, 0.125]:
+        sizes[size] = (sizes[1.0][0] // int(1 / size),
+                       sizes[1.0][1] // int(1 / size))
+        regexes[size] = re.compile(
+            f".*_{sizes[size][0]}x{sizes[size][1]}_.*_1[23]")
 
     # Load in all data for half and quarter sizes
     data = load_data()
@@ -437,15 +408,16 @@ if __name__ == "__main__":
     new_lodsets = {}
     for full_name, full_datum in data[1.0].items():
         full_image = Image.fromarray(full_datum)
+        full_image.show()
 
         for size in [0.5, 0.25, 0.125]:
 
-            # Shrink to half size
+            # Shrink full-size image LOD size
             shrunk_image = full_image.resize(
                 sizes[size], resample=Image.LANCZOS)
             shrunk_datum = np.array(shrunk_image)
 
-            # Find best-match half image
+            # Find most simialr LOD image
             best_name = ""
             best_score = 0
             for name, datum in data[size].items():

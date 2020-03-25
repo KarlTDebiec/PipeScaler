@@ -20,7 +20,7 @@ class FlattenProcessor(Processor):
     desc = "flatten"
 
     def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
-        self.process_file(infile, outfile)
+        self.process_file(infile, outfile, self.pipeline.verbosity)
 
     @classmethod
     def process_file(cls, infile: str, outfile: str, verbosity: int) -> None:

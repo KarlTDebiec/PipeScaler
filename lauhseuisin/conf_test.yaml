@@ -39,7 +39,7 @@ pipes:
   actors_transparent_waifupixelmator2x-a-2-0:
     WaifuPixelmator2xTransparentProcessor:
       denoise: 0
-      downstream_pipes: pngquant
+      downstream_pipes: copyfile
 
   # Actors opaque pipeline
   actors_opaque_waifu-a-2-1:
@@ -127,7 +127,16 @@ pipes:
   default_transparent_waifupixelmator2x-a-2-0:
     WaifuPixelmator2xTransparentProcessor:
       denoise: 0
-      downstream_pipes: default_size_sorter_2
+      downstream_pipes: default_transparent_size_sorter
+  default_transparent_size_sorter:
+    RegexSorter:
+      regex: ".*_(8x8|8x16|8x32|8x64|8x128|16x8|16x16|16x32|16x64|16x128|32x8|32x16|32x32|32x64|32x128)_.*"
+      downstream_pipes_for_matched: pngquant
+      downstream_pipes_for_unmatched: default_transparent_lod
+  default_transparent_lod:
+    LODSorter:
+      lods: lodsets.yaml
+      downstream_pipes: copyfile
 
   # Default opaque pipeline
   default_opaque_waifu-a-2-1:
@@ -141,19 +150,16 @@ pipes:
   default_opaque_resize:
     ResizeProcessor:
       scale: 0.66667
-      downstream_pipes: default_size_sorter_2
-
-  # Default transparent and opaque pipelines merge
-  default_size_sorter_2:
+      downstream_pipes: default_opaque_size_sorter
+  default_opaque_size_sorter:
     RegexSorter:
       regex: ".*_(8x8|8x16|8x32|8x64|8x128|16x8|16x16|16x32|16x64|16x128|32x8|32x16|32x32|32x64|32x128)_.*"
       downstream_pipes_for_matched: pngquant
-      downstream_pipes_for_unmatched: default_lod
-  default_lod:
+      downstream_pipes_for_unmatched: default_opaque_lod
+  default_opaque_lod:
     LODSorter:
       lods: lodsets.yaml
       downstream_pipes: pngquant
-
   # Final output
   pngquant:
     PngquantProcessor:

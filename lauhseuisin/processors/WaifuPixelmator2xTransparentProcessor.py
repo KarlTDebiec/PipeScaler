@@ -150,8 +150,6 @@ class WaifuPixelmator2xTransparentProcessor(Processor):
         merged_data[:, :, 3] = np.array(pixelmator_2x_image)[:, :, 3]
         final_image = Image.fromarray(merged_data)
 
-        embed()
-
         # cleanup
         remove(waifu_outfile.name)
         remove(pixelmator_tempfile.name)

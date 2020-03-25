@@ -25,21 +25,18 @@ class LauhSeuiSin:
     """
     TODO:
         - Improve processing of edges, particularly for very small images
-        - Handle alpha correctly for Sheikah stone-like textures
         - Check timestamps when selecting LODs
-        - Clean up LODs for images with transparency
-        - Validate original LODs alongside scaled LODs
+        - Clean up LOD assignments for images with transparency
         - Split Zelda files into separate repository
         - Clean up Water LODs
-        - Errata:
-           - Treasure chests
-           - Sheikah tutorial stone
+        - Errata and things that can be improved:
            - Smoke at Death Mountain crater
            - Phanton Ganon
            - Link's shadow
            - Temple of time lighting
-        - Clean maps
-        - Finish interface
+           - tex1_64x128_B1295DBB084D5AA4_10
+        - Clean maps using Nintendo 64 originals
+        - Finish updating interface
         - STHeiti 80 point, STHeiti 56 point
         - Move infile_argument to a module-level function
     """
