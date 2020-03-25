@@ -12,7 +12,7 @@ from __future__ import annotations
 import re
 from itertools import chain
 from os import listdir, remove
-from os.path import basename, expandvars, join, splitext
+from os.path import basename, expandvars, join, splitext, isfile
 from typing import Optional
 
 import numpy as np
@@ -216,32 +216,60 @@ def get_name(filename: str) -> str:
     return splitext(basename(filename))[0]
 
 
-def get_filename(filename: str) -> str:
-    return f"{join(input_directory, filename)}.png"
+def get_lores_filename(filename: str) -> str:
+    return f"{join(lores_directory, filename)}.png"
+
+
+def get_hires_filename(filename: str) -> str:
+    return f"{join(hires_directory, filename)}.png"
 
 
 def concatenate_images(full_name: str, half_name: Optional[str] = None,
                        quarter_name: Optional[str] = None,
-                       eighth_name: Optional[str]=None):
-    full_image = Image.open(get_filename(full_name))
+                       eighth_name: Optional[str] = None):
+    full_image = Image.open(get_lores_filename(full_name))
     concatenated_image = Image.new(
         "RGBA", (full_image.size[0] * 4, full_image.size[1]))
     concatenated_image.paste(full_image, (0, 0))
+    if isfile(get_hires_filename(full_name)):
+        full_hires_image = Image.open(get_hires_filename(full_name))
+        full_hires_image = full_hires_image.resize(
+            full_image.size, resample=Image.LANCZOS)
+        concatenated_image.paste(full_hires_image,
+                                 (0, full_image.size[1]))
     if half_name is not None:
-        half_image = Image.open(get_filename(half_name))
+        half_image = Image.open(get_lores_filename(half_name))
         half_image = half_image.resize(
             full_image.size, resample=Image.LANCZOS)
         concatenated_image.paste(half_image, (full_image.size[0], 0))
+        if isfile(get_hires_filename(half_name)):
+            half_hires_image = Image.open(get_hires_filename(half_name))
+            half_hires_image = half_hires_image.resize(
+                full_image.size, resample=Image.LANCZOS)
+            concatenated_image.paste(half_hires_image,
+                                     (0, full_image.size[1]))
     if quarter_name is not None:
-        quarter_image = Image.open(get_filename(quarter_name))
+        quarter_image = Image.open(get_lores_filename(quarter_name))
         quarter_image = quarter_image.resize(
             full_image.size, resample=Image.LANCZOS)
         concatenated_image.paste(quarter_image, (full_image.size[0] * 2, 0))
+        if isfile(get_hires_filename(quarter_name)):
+            quarter_hires_image = Image.open(get_hires_filename(quarter_name))
+            quarter_hires_image = quarter_hires_image.resize(
+                full_image.size, resample=Image.LANCZOS)
+            concatenated_image.paste(quarter_hires_image,
+                                     (0, full_image.size[1]))
     if eighth_name is not None:
-        eighth_image = Image.open(get_filename(eighth_name))
+        eighth_image = Image.open(get_lores_filename(eighth_name))
         eighth_image = eighth_image.resize(
             full_image.size, resample=Image.LANCZOS)
         concatenated_image.paste(eighth_image, (full_image.size[0] * 3, 0))
+        if isfile(get_hires_filename(eighth_name)):
+            eighth_hires_image = Image.open(get_hires_filename(eighth_name))
+            eighth_hires_image = eighth_hires_image.resize(
+                full_image.size, resample=Image.LANCZOS)
+            concatenated_image.paste(eighth_hires_image,
+                                     (0, full_image.size[1]))
 
     return concatenated_image
 
@@ -251,7 +279,7 @@ def load_data():
     half_data = {}
     quarter_data = {}
     eighth_data = {}
-    for name in [get_name(f) for f in listdir(input_directory)]:
+    for name in [get_name(f) for f in listdir(lores_directory)]:
         if name in known_actor:
             continue
         elif name in known_interface:
@@ -271,7 +299,7 @@ def load_data():
         elif name in known_spider_web:
             continue
         if full_re.match(name):
-            image = Image.open(get_filename(name))
+            image = Image.open(get_lores_filename(name))
             datum = np.array(image)
             if datum.shape == (256, 256, 4):
                 if datum[:, :, :3].sum() == 0:
@@ -288,20 +316,20 @@ def load_data():
                         break
                     if ok.lower().startswith("y"):
                         print("removing")
-                        remove(f"{join(input_directory, full_name)}.png")
+                        remove(f"{join(lores_directory, full_name)}.png")
                     continue
             full_data[name] = np.array(image.convert("RGB"))
         elif half_re.match(name):
-            image = Image.open(get_filename(name))
+            image = Image.open(get_lores_filename(name))
             half_data[name] = np.array(image.convert("RGB"))
         elif quarter_re.match(name):
-            image = Image.open(get_filename(name))
+            image = Image.open(get_lores_filename(name))
             quarter_data[name] = np.array(image.convert("RGB"))
         elif eighth_re.match(name):
-            image = Image.open(get_filename(name))
+            image = Image.open(get_lores_filename(name))
             eighth_data[name] = np.array(image.convert("RGB"))
 
-    print(len(full_data), len(half_data), len(quarter_data), len(eigth_data))
+    print(len(full_data), len(half_data), len(quarter_data), len(eighth_data))
     return full_data, half_data, quarter_data, eighth_data
 
 
@@ -322,15 +350,17 @@ def print_lodsets(lodsets):
             lodset_outfile.write(f"{full_name}:\n")
 
             # Load full image
-            full_image = Image.open(get_filename(full_name)).convert("RGB")
+            full_image = Image.open(get_lores_filename(full_name)).convert(
+                "RGB")
             half_size = (full_image.size[0] // 2, full_image.size[1] // 2)
             quarter_size = (full_image.size[0] // 4, full_image.size[1] // 4)
+            eighth_size = (full_image.size[0] // 8, full_image.size[1] // 8)
 
             # Load and score lods
             lods = lodsets[full_name]
-            if 0.5 in lods and 0.25 in lods:
+            if 0.5 in lods:
                 half_name = lods[0.5]
-                half_image = Image.open(get_filename(half_name))
+                half_image = Image.open(get_lores_filename(half_name))
                 half_datum = np.array(half_image.convert("RGB"))
 
                 half_shrunk_image = full_image.resize(
@@ -344,9 +374,9 @@ def print_lodsets(lodsets):
                 lodset_outfile.write(
                     f"  0.5: {lods[0.5]} # {half_score:4.2f}\n")
                 lods_outfile.write(f"- {lods[0.5]}\n")
-
+            if 0.25 in lods:
                 quarter_name = lods[0.25]
-                quarter_image = Image.open(get_filename(quarter_name))
+                quarter_image = Image.open(get_lores_filename(quarter_name))
                 quarter_datum = np.array(quarter_image.convert("RGB"))
 
                 quarter_shrunk_image = full_image.resize(
@@ -360,77 +390,81 @@ def print_lodsets(lodsets):
                 lodset_outfile.write(
                     f"  0.25: {lods[0.25]} # {quarter_score:4.2f}\n")
                 lods_outfile.write(f"- {lods[0.25]}\n")
+            if 0.125 in lods:
+                eighth_name = lods[0.125]
+                eighth_image = Image.open(get_lores_filename(eighth_name))
+                eighth_datum = np.array(eighth_image.convert("RGB"))
+
+                eighth_shrunk_image = full_image.resize(
+                    eighth_size, resample=Image.LANCZOS)
+                eighth_shrunk_datum = np.array(eighth_shrunk_image)
+
+                eighth_score = ssim(
+                    eighth_shrunk_datum, eighth_datum, multichannel=True)
+
+                print(f"  0.25: {lods[0.125]} # {eighth_score:4.2f}")
+                lodset_outfile.write(
+                    f"  0.25: {lods[0.125]} # {eighth_score:4.2f}\n")
+                lods_outfile.write(f"- {lods[0.125]}\n")
 
 
 #################################### MAIN #####################################
 if __name__ == "__main__":
-    input_directory = expandvars(
-        "$HOME/.local/share/citra-emu/dump/textures/000400000008F900")
-    full_size = (4, 4)
+    lores_directory = expandvars(
+        "$HOME/.local/share/citra-emu/dump/textures/000400000008F900/")
+    hires_directory = expandvars(
+        "$HOME//Users/kdebiec/Documents/Zelda/4x_kdebiec/")
     threshold = 0.65
 
     # Prepare sizes and regular expressions
-    half_size = (full_size[0] // 2, full_size[1] // 2)
-    quarter_size = (full_size[0] // 4, full_size[1] // 4)
-    full_re = re.compile(f".*_{full_size[0]}x{full_size[1]}_.*_1[23]")
-    half_re = re.compile(f".*_{half_size[0]}x{half_size[1]}_.*_1[23]")
-    quarter_re = re.compile(f".*_{quarter_size[0]}x{quarter_size[1]}_.*_1[23]")
+    sizes = {1.0: (256, 256)}
+    sizes[0.5] = (sizes[1.0][0] // 2, sizes[1.0][1] // 2)
+    sizes[0.25] = (sizes[1.0][0] // 4, sizes[1.0][1] // 4)
+    sizes[0.125] = (sizes[1.0][0] // 8, sizes[1.0][1] // 8)
+    regexes = {1.0: re.compile(
+        f".*_{sizes[1.0][0]}x{sizes[1.0][1]}_.*_1[23]")}
+    regexes[0.5] = re.compile(
+        f".*_{sizes[0.5][0]}x{sizes[0.5][1]}_.*_1[23]")
+    regexes[0.25] = re.compile(
+        f".*_{sizes[0.25][0]}x{sizes[0.25][1]}_.*_1[23]")
+    regexes[0.125] = re.compile(
+        f".*_{sizes[0.125][0]}x{sizes[0.125][1]}_.*_1[23]")
 
     # Load in all data for half and quarter sizes
-    full_data, half_data, quarter_data = load_data()
+    data = load_data()
 
     # Loop over full-size filenames and identify new lodsets
     new_lodsets = {}
-    for full_name, full_datum in full_data.items():
+    for full_name, full_datum in data[1.0].items():
         full_image = Image.fromarray(full_datum)
 
-        # Shrink to half size
-        half_shrunk_image = full_image.resize(
-            half_size, resample=Image.LANCZOS)
-        half_shrunk_datum = np.array(half_shrunk_image)
+        for size in [0.5, 0.25, 0.125]:
 
-        # Find best-match half image
-        half_best_name = ""
-        half_best_score = 0
-        for half_name, half_datum in half_data.items():
-            score = ssim(
-                half_shrunk_datum, half_datum, multichannel=True)
-            if score > half_best_score:
-                half_best_name = half_name
-                half_best_score = score
+            # Shrink to half size
+            shrunk_image = full_image.resize(
+                sizes[size], resample=Image.LANCZOS)
+            shrunk_datum = np.array(shrunk_image)
 
-        # Shrink to quarter size
-        quarter_shrunk_image = full_image.resize(
-            quarter_size, resample=Image.LANCZOS)
-        quarter_shrunk_datum = np.array(quarter_shrunk_image)
+            # Find best-match half image
+            best_name = ""
+            best_score = 0
+            for name, datum in data[size].items():
+                score = ssim(shrunk_datum, datum, multichannel=True)
+                if score > best_score:
+                    best_name = name
+                    best_score = score
 
-        # Find best-match quarter image
-        quarter_best_name = ""
-        quarter_best_score = 0
-        for quarter_name, quarter_datum in quarter_data.items():
-            score = ssim(
-                quarter_shrunk_datum, quarter_datum, multichannel=True)
-            if score > quarter_best_score:
-                quarter_best_name = quarter_name
-                quarter_best_score = score
-
-        # Display results
-        if half_best_score > 0.99 or quarter_best_score > 0.99:
-            continue
-        elif half_best_score > threshold and quarter_best_score > threshold:
-            print(f"{full_name}:")
-            print(f"  0.5: {half_best_name} # {half_best_score:4.2f}")
-            print(f"  0.25: {quarter_best_name} # {quarter_best_score:4.2f}")
-            concatenated_image = concatenate_images(
-                full_name, half_best_name, quarter_best_name)
-            concatenated_image.show()
-            new_lodsets[full_name] = {
-                0.5: half_best_name,
-                0.25: quarter_best_name}
-        else:
-            continue
+            # Display results
+            if 0.99 > best_score and best_score > threshold:
+                if full_name not in new_lodsets:
+                    new_lodsets[full_name] = {}
+                    print(f"{full_name}:")
+                new_lodsets[full_name][size] = best_name
+                print(f"  {size}:  {best_name} # {best_score:4.2f}")
+            else:
+                continue
 
     # Print sets
     # print("\n\n")
-    known_lodsets.update(new_lodsets)
-    print_lodsets(known_lodsets)
+    # known_lodsets.update(new_lodsets)
+    # print_lodsets(known_lodsets)

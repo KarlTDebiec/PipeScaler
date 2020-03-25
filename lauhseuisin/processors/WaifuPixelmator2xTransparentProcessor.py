@@ -18,6 +18,7 @@ from tempfile import NamedTemporaryFile
 from typing import Any, IO, Optional
 
 import numpy as np
+from IPython import embed
 from PIL import Image
 
 from lauhseuisin import package_root
@@ -95,19 +96,17 @@ class WaifuPixelmator2xTransparentProcessor(Processor):
         original_size = image.size
         tempfile: Optional[IO[bytes]] = None
         waifu_outfile = NamedTemporaryFile(delete=False, suffix=".png")
-        if original_size[0] < 200 or original_size[1] < 200:
-            tempfile = NamedTemporaryFile(delete=False, suffix=".png")
-            expanded_image = Image.new(
-                image.mode, (max(200, original_size[0]),
-                             max(200, original_size[1])))
-            expanded_image.paste(
-                image, (0, 0, original_size[0], original_size[1]))
-            expanded_image = expanded_image.convert("RGB")
-            expanded_image.save(tempfile)
-            tempfile.close()
-            waifu_infile = tempfile.name
-        else:
-            waifu_infile = infile
+
+        tempfile = NamedTemporaryFile(delete=False, suffix=".png")
+        expanded_image = Image.new(
+            image.mode, (max(200, original_size[0]),
+                         max(200, original_size[1])))
+        expanded_image.paste(
+            image, (0, 0, original_size[0], original_size[1]))
+        expanded_image = expanded_image.convert("RGB")
+        expanded_image.save(tempfile)
+        tempfile.close()
+        waifu_infile = tempfile.name
         command = f"waifu2x " \
                   f"-t {imagetype} " \
                   f"-s 2 " \
@@ -123,7 +122,6 @@ class WaifuPixelmator2xTransparentProcessor(Processor):
                  original_size[1] * 2)).save(waifu_outfile.name)
             remove(tempfile.name)
         waifu_2x_image = Image.open(waifu_outfile.name)
-        remove(waifu_outfile.name)
 
         # Pixelmator 3X
         pixelmator_tempfile = NamedTemporaryFile(delete=False, suffix=".png")
@@ -135,7 +133,6 @@ class WaifuPixelmator2xTransparentProcessor(Processor):
             print(cls.get_indented_text(command))
         Popen(command, shell=True, close_fds=True).wait()
         pixelmator_3x_image = Image.open(pixelmator_tempfile.name)
-        remove(pixelmator_tempfile.name)
 
         # Scale Pixelmator down to 2X
         pixelmator_2x_image = pixelmator_3x_image.resize((
@@ -152,6 +149,12 @@ class WaifuPixelmator2xTransparentProcessor(Processor):
         merged_data[:, :, :3] = np.array(merged_image)
         merged_data[:, :, 3] = np.array(pixelmator_2x_image)[:, :, 3]
         final_image = Image.fromarray(merged_data)
+
+        embed()
+
+        # cleanup
+        remove(waifu_outfile.name)
+        remove(pixelmator_tempfile.name)
 
         # Save final image
         final_image.save(outfile)
