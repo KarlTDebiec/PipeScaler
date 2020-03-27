@@ -16,6 +16,7 @@ from typing import Any, Dict, Iterator, List, Optional, Union
 
 import numpy as np
 import yaml
+from IPython import embed
 from PIL import Image
 
 from lauhseuisin.sorters.Sorter import Sorter

@@ -90,12 +90,5 @@ class Pipeline:
                 if f not in outfiles:
                     print(f"Removing '{self.wip_directory}/{name}/{f}'")
                     remove(f"{self.wip_directory}/{name}/{f}")
-        for d in listdir(self.wip_directory):
-            if isdir(d) and d not in self.log:
-                command = f"open " \
-                          f"{self.wip_directory}/{d}"
-                if self.verbosity >= 1:
-                    print(command)
-                Popen(command, shell=True, close_fds=True).wait()
 
     # endregion

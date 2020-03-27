@@ -10,10 +10,12 @@
 from __future__ import annotations
 
 import re
+from copy import deepcopy
 from itertools import chain
 from os import listdir, remove
 from os.path import basename, expandvars, join, splitext, isfile
-from typing import Optional
+from readline import insert_text, redisplay, set_pre_input_hook
+from typing import Optional, Dict
 
 import numpy as np
 import yaml
@@ -82,6 +84,7 @@ known_nolod = set(yaml.load("""
 """, Loader=yaml.SafeLoader))
 
 known_water = set(yaml.load("""
+- tex1_16x16_197DAE7B1E0686EA_12
 - tex1_128x128_09C930987A27540E_12
 - tex1_128x128_17AC0716D81210BA_12
 - tex1_128x128_26936F2BBF0BB1F9_12
@@ -224,54 +227,47 @@ def get_hires_filename(filename: str) -> str:
     return f"{join(hires_directory, filename)}.png"
 
 
-def concatenate_images(full_name: str, half_name: Optional[str] = None,
-                       quarter_name: Optional[str] = None,
-                       eighth_name: Optional[str] = None):
-    full_image = Image.open(get_lores_filename(full_name))
+def concatenate_images(lodset: Dict[float, str]) -> Image.Image:
+    # Load and paste full image
+    full_image = Image.open(get_lores_filename(lodset[1.0]))
     concatenated_image = Image.new(
-        "RGBA", (full_image.size[0] * 4, full_image.size[1]))
+        "RGBA", (full_image.size[0] * 4, full_image.size[1] * 2))
     concatenated_image.paste(full_image, (0, 0))
-    if isfile(get_hires_filename(full_name)):
-        full_hires_image = Image.open(get_hires_filename(full_name))
+    if isfile(get_hires_filename(lodset[1.0])):
+        full_hires_image = Image.open(get_hires_filename(lodset[1.0]))
         full_hires_image = full_hires_image.resize(
             full_image.size, resample=Image.LANCZOS)
-        concatenated_image.paste(full_hires_image,
-                                 (0, full_image.size[1]))
-    if half_name is not None:
-        half_image = Image.open(get_lores_filename(half_name))
-        half_image = half_image.resize(
-            full_image.size, resample=Image.LANCZOS)
-        concatenated_image.paste(half_image, (full_image.size[0], 0))
-        if isfile(get_hires_filename(half_name)):
-            half_hires_image = Image.open(get_hires_filename(half_name))
-            half_hires_image = half_hires_image.resize(
+        concatenated_image.paste(
+            full_hires_image, (0, full_image.size[1]))
+
+    # Load and paste LODs
+    for i, size in enumerate([0.5, 0.25, 0.125], 1):
+        if size in lodset:
+            lod_image = Image.open(get_lores_filename(lodset[size]))
+            lod_image = lod_image.resize(
                 full_image.size, resample=Image.LANCZOS)
-            concatenated_image.paste(half_hires_image,
-                                     (0, full_image.size[1]))
-    if quarter_name is not None:
-        quarter_image = Image.open(get_lores_filename(quarter_name))
-        quarter_image = quarter_image.resize(
-            full_image.size, resample=Image.LANCZOS)
-        concatenated_image.paste(quarter_image, (full_image.size[0] * 2, 0))
-        if isfile(get_hires_filename(quarter_name)):
-            quarter_hires_image = Image.open(get_hires_filename(quarter_name))
-            quarter_hires_image = quarter_hires_image.resize(
-                full_image.size, resample=Image.LANCZOS)
-            concatenated_image.paste(quarter_hires_image,
-                                     (0, full_image.size[1]))
-    if eighth_name is not None:
-        eighth_image = Image.open(get_lores_filename(eighth_name))
-        eighth_image = eighth_image.resize(
-            full_image.size, resample=Image.LANCZOS)
-        concatenated_image.paste(eighth_image, (full_image.size[0] * 3, 0))
-        if isfile(get_hires_filename(eighth_name)):
-            eighth_hires_image = Image.open(get_hires_filename(eighth_name))
-            eighth_hires_image = eighth_hires_image.resize(
-                full_image.size, resample=Image.LANCZOS)
-            concatenated_image.paste(eighth_hires_image,
-                                     (0, full_image.size[1]))
+            concatenated_image.paste(lod_image, (full_image.size[0] * i, 0))
+            if isfile(get_hires_filename(lodset[size])):
+                lod_hires_image = Image.open(get_hires_filename(lodset[size]))
+                lod_hires_image = lod_hires_image.resize(
+                    full_image.size, resample=Image.LANCZOS)
+                concatenated_image.paste(
+                    lod_hires_image,
+                    (full_image.size[0] * i, full_image.size[1]))
 
     return concatenated_image
+
+
+def input_prefill(prompt: str, prefill: str) -> str:
+    def pre_input_hook() -> None:
+        insert_text(prefill)
+        redisplay()
+
+    set_pre_input_hook(pre_input_hook)
+    result = input(prompt)
+    set_pre_input_hook()
+
+    return result
 
 
 def load_data():
@@ -385,14 +381,16 @@ def print_lodsets(lodsets):
 
 #################################### MAIN #####################################
 if __name__ == "__main__":
+
+    # Configuration
     lores_directory = expandvars(
         "$HOME/.local/share/citra-emu/dump/textures/000400000008F900/")
     hires_directory = expandvars(
-        "$HOME//Users/kdebiec/Documents/Zelda/4x_kdebiec/")
+        "$HOME/Documents/Zelda/4x_kdebiec/")
     threshold = 0.90
+    sizes = {1.0: (32, 32)}
 
     # Prepare sizes and regular expressions
-    sizes = {1.0: (256, 256)}
     regexes = {1.0: re.compile(
         f".*_{sizes[1.0][0]}x{sizes[1.0][1]}_.*_1[23]")}
     for size in [0.5, 0.25, 0.125]:
@@ -403,40 +401,69 @@ if __name__ == "__main__":
 
     # Load in all data for half and quarter sizes
     data = load_data()
+    new_lodsets = {}
+
+    embed()
 
     # Loop over full-size filenames and identify new lodsets
-    new_lodsets = {}
-    for full_name, full_datum in data[1.0].items():
-        full_image = Image.fromarray(full_datum)
-        full_image.show()
+    try:
+        for full_name, full_datum in data[1.0].items():
+            full_image = Image.fromarray(full_datum)
+            lods = deepcopy(known_lodsets.get(full_name, {}))
+            lods[1.0] = full_name
+            print(f"{full_name}:")
+            update = False
+            decision = ""
+            for size in [0.5, 0.25, 0.125]:
 
+                # Shrink full-size image LOD size
+                shrunk_image = full_image.resize(
+                    sizes[size], resample=Image.LANCZOS)
+                shrunk_datum = np.array(shrunk_image)
+
+                if size in lods:
+                    assigned_datum = data[size][lods[size]]
+                    assigned_score = ssim(shrunk_datum, assigned_datum,
+                                          multichannel=True)
+                    decision += "y"
+                    print(f"    {size:5.3f}: {assigned_score:4.2f}  "
+                          f"{lods[size]}")
+                else:
+                    # Find most similar LOD image
+                    best_name = None
+                    best_score = 0
+                    for name, datum in data[size].items():
+                        if name in known_lores:
+                            continue
+                        score = ssim(shrunk_datum, datum, multichannel=True)
+                        if score > best_score:
+                            best_name = name
+                            best_score = score
+                    if best_name is not None:
+                        lods[size] = best_name
+                    if 1.0 > best_score and best_score > threshold:
+                        decision += "y"
+                        print(f"  + {size:5.3f}: {best_score:4.2f}  "
+                              f"{best_name}")
+                        update = True
+                    else:
+                        decision += "n"
+                        print(f"    {size:5.3f}: {best_score:4.2f}  "
+                              f"{best_name}")
+            if update:
+                concatenate_images(lods).show()
+                decision = input_prefill("Accept assignments?: ", decision)
+                del lods[1.0]
+                for d, size in zip(decision, [0.5, 0.25, 0.125]):
+                    if d == "n":
+                        if size in lods:
+                            del lods[size]
+                new_lodsets[full_name] = lods
+    except KeyboardInterrupt:
+        embed()
+
+    for full_name, lods in new_lodsets.items():
+        print(f"{full_name}:")
         for size in [0.5, 0.25, 0.125]:
-
-            # Shrink full-size image LOD size
-            shrunk_image = full_image.resize(
-                sizes[size], resample=Image.LANCZOS)
-            shrunk_datum = np.array(shrunk_image)
-
-            # Find most simialr LOD image
-            best_name = ""
-            best_score = 0
-            for name, datum in data[size].items():
-                score = ssim(shrunk_datum, datum, multichannel=True)
-                if score > best_score:
-                    best_name = name
-                    best_score = score
-
-            # Display results
-            if 0.99 > best_score and best_score > threshold:
-                if full_name not in new_lodsets:
-                    new_lodsets[full_name] = {}
-                    print(f"{full_name}:")
-                new_lodsets[full_name][size] = best_name
-                print(f"  {size}:  {best_name} # {best_score:4.2f}")
-            else:
-                continue
-
-    # Print sets
-    # print("\n\n")
-    # known_lodsets.update(new_lodsets)
-    # print_lodsets(known_lodsets)
+            if size in lods:
+                print(f"  {size}: {lods[size]}")

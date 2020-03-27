@@ -35,6 +35,7 @@ class LauhSeuiSin:
            - Link's shadow
            - Temple of time lighting
            - tex1_64x128_B1295DBB084D5AA4_10
+           - Hand shadow
         - Clean maps using Nintendo 64 originals
         - Finish updating interface
         - STHeiti 80 point, STHeiti 56 point
