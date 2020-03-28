@@ -12,13 +12,14 @@ from __future__ import annotations
 import re
 from copy import deepcopy
 from itertools import chain
-from os import listdir, remove
+from os import listdir, remove, stat
 from os.path import basename, expandvars, join, splitext, isfile
 from readline import insert_text, redisplay, set_pre_input_hook
 from typing import Optional, Dict
 
 import numpy as np
 import yaml
+from datetime import datetime
 from IPython import embed
 from PIL import Image
 from skimage.metrics import structural_similarity as ssim
@@ -81,136 +82,6 @@ known_nolod = set(yaml.load("""
 - tex1_256x256_BF257E16A50673BA_7
 - tex1_128x128_753B3BF68000DB48_7
 - tex1_128x64_934726D8DFF694DF_5
-""", Loader=yaml.SafeLoader))
-
-known_water = set(yaml.load("""
-- tex1_16x16_197DAE7B1E0686EA_12
-- tex1_128x128_09C930987A27540E_12
-- tex1_128x128_17AC0716D81210BA_12
-- tex1_128x128_26936F2BBF0BB1F9_12
-- tex1_128x128_2ED1133F7DCED082_12
-- tex1_128x128_3B652CE8614D5902_3
-- tex1_128x128_4F812E353EA81C82_12
-- tex1_128x128_537D9D73DD84CD39_12
-- tex1_128x128_A2478BC7A69B2A1C_12
-- tex1_128x128_AA38DF5CDF5BD937_12
-- tex1_128x128_B7C1FAE857CB9C0C_12
-- tex1_128x128_BF640DA5A4111A4E_12
-- tex1_128x128_DF9C111C6FB4ECE4_12
-- tex1_128x128_E9A0B4035086E610_12
-- tex1_128x128_F61802D1C2E0F865_12
-- tex1_32x32_0585FA3279D97187_13
-- tex1_32x32_097E8AA88C226B4F_12
-- tex1_32x32_100508DA4018E530_12
-- tex1_32x32_2487E0A3E7D566F6_12
-- tex1_32x32_2B60CAF83D700338_12
-- tex1_32x32_2FBC166E53C47AC7_12
-- tex1_32x32_3001A605B40C11D1_12
-- tex1_32x32_31364054A6F65027_12
-- tex1_32x32_39A86950E64BA3FE_12
-- tex1_32x32_3B412CA00A5A300B_12
-- tex1_32x32_3F6BD7AE7CBDF171_12
-- tex1_32x32_43E876B03CA4CA1F_12
-- tex1_32x32_47E48BFCA3F20D0D_12
-- tex1_32x32_49C1276AC4689A7E_12
-- tex1_32x32_520C4DBDF9F6D86A_12
-- tex1_32x32_54F653328E88C9D7_12
-- tex1_32x32_6588817349159AEB_12
-- tex1_16x16_8D5AA6539C2863E9_12
-- tex1_32x32_658CE389FCEC3992_12
-- tex1_16x16_9454F71D976AEB8B_12
-- tex1_32x32_681FE1C310E0C215_12
-- tex1_32x32_6C9A4C016B41C888_12
-- tex1_32x32_70EF838763240875_3
-- tex1_32x32_7179BA8F5013E990_12
-- tex1_32x32_786023AC54FB4A20_12
-- tex1_32x32_7F359573DBE91D16_12
-- tex1_32x32_81700F3EE2AF261E_12
-- tex1_32x32_8D25F23ABEBFBA66_12
-- tex1_32x32_8EF8058FC93B6D17_3
-- tex1_32x32_92FA921EAA90CED6_12
-- tex1_32x32_9968A52A31FBF0CE_12
-- tex1_32x32_9EF54E39A0B416B0_12
-- tex1_32x32_A7C4CFBC1D0DC88F_12
-- tex1_32x32_AB49AA1A2A22F6B2_3
-- tex1_32x32_AC8B512078D76123_12
-- tex1_32x32_B43A46209BC35279_12
-- tex1_32x32_C11DCF7C20B33FB2_12
-- tex1_32x32_C155F4D308D20FCD_12
-- tex1_32x32_C2F1C3B6E67B1DF8_12
-- tex1_32x32_C7F6F9F6314E9421_12
-- tex1_32x32_C89E6FBAD8710C9B_12
-- tex1_32x32_CAF3F2DAEA9147CD_12
-- tex1_32x32_CF564C23FA97B1E5_12
-- tex1_32x32_DC4C599088449C26_12
-- tex1_32x32_E23BAFFBAD8690FE_12
-- tex1_32x32_ED01512EDAEE4FF8_12
-- tex1_32x32_FC9AA3E8821D342D_12
-- tex1_32x32_FD825BF8B73DB166_12
-- tex1_64x64_030D5B706014F2EA_12
-- tex1_64x64_11BE0BD9FEAE32A8_12
-- tex1_64x64_13E2EFE009408956_3
-- tex1_64x64_2DB1C08C894FA060_12
-- tex1_64x64_3C11751C3EDDAB35_12
-- tex1_64x64_4317614E90738CDC_12
-- tex1_64x64_43E1F601DD74FAEB_12
-- tex1_16x16_CB06971A86B4BE19_12
-- tex1_64x64_4BA1C6A8FA4BFED9_12
-- tex1_64x64_503E3B07E0BC7DDA_12
-- tex1_32x32_749F8EEA2207AB76_12
-- tex1_64x64_52AA260920F36315_12
-- tex1_16x16_D5D79B605FD8C04F_12
-- tex1_64x64_56DEA397DF612000_12
-- tex1_64x64_114F0005E26A791F_12
-- tex1_64x64_59B09F068F3312B0_12
-- tex1_64x64_5A6F17899691B74F_3
-- tex1_64x64_5FA6237A5B39DF51_12
-- tex1_64x64_613F9A577B091D7E_12
-- tex1_64x64_636DAEEE24A17728_12
-- tex1_64x64_6605915523799D7A_12
-- tex1_64x64_66D51E8571B49E0F_12
-- tex1_64x64_6912F54E1173447A_12
-- tex1_64x64_6FE34FF195D6EA77_13
-- tex1_64x64_75DFB6378057B73A_12
-- tex1_64x64_76AF5635E42EBD9B_12
-- tex1_64x64_77377A9C56318449_12
-- tex1_64x64_87040B6688EEF258_12
-- tex1_64x64_8B6C90CCD54B2FF9_12
-- tex1_64x64_8EB9669659A00DCD_12
-- tex1_64x64_968217193A634216_12
-- tex1_64x64_98955188E7DF664E_12
-- tex1_64x64_A84788140383CAF4_12
-- tex1_64x64_B18AB678D8BC5A9F_12
-- tex1_64x64_B24DE3E7113C3609_12
-- tex1_32x32_121738182ED1C30F_12
-- tex1_16x16_0DADF51BB6F85630_12
-- tex1_32x32_9968A52A31FBF0CE_12
-- tex1_16x16_1BEACDB48A2235E5_12
-- tex1_64x64_BC039CA0695F021E_12
-- tex1_64x64_BD9806D0C00B08F7_12
-- tex1_64x64_C7BE133416AAC3CA_3
-- tex1_64x64_C85E3098892D7F1F_12
-- tex1_64x64_C8B91BCEB792B997_3
-- tex1_64x64_CA06D4ECC2156FB4_12
-- tex1_64x64_DA372BE2BC0E14E6_12
-- tex1_64x64_E2A09F7877B2BD3E_12
-- tex1_64x64_E4899D219A362BF0_12
-- tex1_64x64_E8580DEBB573CD9F_12
-- tex1_64x64_EBC40764B2C225BD_12
-- tex1_64x64_EDC157D209551AFF_12
-- tex1_16x16_E0CE180D53DE5CBD_12
-- tex1_64x64_F118ED87EF2CF314_12
-- tex1_16x16_226592799685B741_12
-- tex1_16x16_EFB8E3CDB9B7959A_12
-- tex1_64x64_FD8575CCA3EAA0EA_12
-- tex1_64x64_FEC49AB77EFD4F10_12
-- tex1_64x64_FF4AD70E8DC370C1_12
-- tex1_16x16_06C2E33287C6C54A_12
-- tex1_16x16_95526E595AC53CEF_12
-""", Loader=yaml.SafeLoader))
-
-known_spider_web = set(yaml.load("""
-- tex1_32x32_088B69391A3B0069_13
 """, Loader=yaml.SafeLoader))
 
 
@@ -282,10 +153,6 @@ def load_data():
         elif name in known_skip:
             continue
         elif name in known_nolod:
-            continue
-        elif name in known_water:
-            continue
-        elif name in known_spider_web:
             continue
         for size in [1.0, 0.5, 0.25, 0.125]:
             if regexes[size].match(name):
@@ -379,6 +246,22 @@ def print_lodsets(lodsets):
                 lods_outfile.write(f"- {lods[0.125]}\n")
 
 
+def write_lods(lodsets):
+    lods = set()
+
+    full_names = list(lodsets.keys())
+    full_names.sort(key=name_sort)
+    for full_name in full_names:
+        for size, name in lodsets[full_name].items():
+            lods.add(name)
+
+    lods = list(lods)
+    lods.sort(key=name_sort)
+    with open("../lods.yaml", "w") as lods_outfile:
+        for name in lods:
+            lods_outfile.write(f"- {name}\n")
+
+
 #################################### MAIN #####################################
 if __name__ == "__main__":
 
@@ -387,83 +270,123 @@ if __name__ == "__main__":
         "$HOME/.local/share/citra-emu/dump/textures/000400000008F900/")
     hires_directory = expandvars(
         "$HOME/Documents/Zelda/4x_kdebiec/")
-    threshold = 0.90
-    sizes = {1.0: (32, 32)}
+    lodset_directory = expandvars("$HOME/Documents/Zelda/4x_lodsets")
+    threshold = 0.65
 
-    # Prepare sizes and regular expressions
-    regexes = {1.0: re.compile(
-        f".*_{sizes[1.0][0]}x{sizes[1.0][1]}_.*_1[23]")}
-    for size in [0.5, 0.25, 0.125]:
-        sizes[size] = (sizes[1.0][0] // int(1 / size),
-                       sizes[1.0][1] // int(1 / size))
-        regexes[size] = re.compile(
-            f".*_{sizes[size][0]}x{sizes[size][1]}_.*_1[23]")
+    # Clean up existing data
+    for filename in listdir(lodset_directory):
+        print(f"Removing {filename}")
+        remove(f"{lodset_directory}/{filename}")
+    write_lods(known_lodsets)
 
-    # Load in all data for half and quarter sizes
-    data = load_data()
-    new_lodsets = {}
+    for full_size in [(64,64)]:
+        # Prepare sizes and regular expressions
+        sizes = {1.0: full_size}
+        regexes = {1.0: re.compile(
+            f".*_{sizes[1.0][0]}x{sizes[1.0][1]}_.*_1[23]")}
+        for size in [0.5, 0.25, 0.125]:
+            sizes[size] = (sizes[1.0][0] // int(1 / size),
+                           sizes[1.0][1] // int(1 / size))
+            regexes[size] = re.compile(
+                f".*_{sizes[size][0]}x{sizes[size][1]}_.*_1[23]")
 
-    embed()
+        # Load in all data for half and quarter sizes
+        data = load_data()
 
-    # Loop over full-size filenames and identify new lodsets
-    try:
+        # Validate timestamps
         for full_name, full_datum in data[1.0].items():
-            full_image = Image.fromarray(full_datum)
+            if full_name not in known_lodsets:
+                continue
+            questionable = False
+            full_creation_time = datetime.fromtimestamp(
+                stat(get_lores_filename(full_name)).st_birthtime)
             lods = deepcopy(known_lodsets.get(full_name, {}))
             lods[1.0] = full_name
-            print(f"{full_name}:")
-            update = False
-            decision = ""
+            print(f"{full_name}: {full_creation_time}")
             for size in [0.5, 0.25, 0.125]:
-
-                # Shrink full-size image LOD size
-                shrunk_image = full_image.resize(
-                    sizes[size], resample=Image.LANCZOS)
-                shrunk_datum = np.array(shrunk_image)
-
-                if size in lods:
-                    assigned_datum = data[size][lods[size]]
-                    assigned_score = ssim(shrunk_datum, assigned_datum,
-                                          multichannel=True)
-                    decision += "y"
-                    print(f"    {size:5.3f}: {assigned_score:4.2f}  "
-                          f"{lods[size]}")
-                else:
-                    # Find most similar LOD image
-                    best_name = None
-                    best_score = 0
-                    for name, datum in data[size].items():
-                        if name in known_lores:
-                            continue
-                        score = ssim(shrunk_datum, datum, multichannel=True)
-                        if score > best_score:
-                            best_name = name
-                            best_score = score
-                    if best_name is not None:
-                        lods[size] = best_name
-                    if 1.0 > best_score and best_score > threshold:
-                        decision += "y"
-                        print(f"  + {size:5.3f}: {best_score:4.2f}  "
-                              f"{best_name}")
-                        update = True
-                    else:
-                        decision += "n"
-                        print(f"    {size:5.3f}: {best_score:4.2f}  "
-                              f"{best_name}")
-            if update:
+                if size not in lods:
+                    continue
+                name = lods[size]
+                creation_time = datetime.fromtimestamp(
+                    stat(get_lores_filename(name)).st_birthtime)
+                delta_time = abs(
+                    (full_creation_time - creation_time).total_seconds())
+                if delta_time > 1:
+                    questionable = True
+                print(f"{name}: {creation_time} {delta_time}")
+            image = concatenate_images(lods)
+            if questionable:
                 concatenate_images(lods).show()
-                decision = input_prefill("Accept assignments?: ", decision)
-                del lods[1.0]
-                for d, size in zip(decision, [0.5, 0.25, 0.125]):
-                    if d == "n":
-                        if size in lods:
-                            del lods[size]
-                new_lodsets[full_name] = lods
-    except KeyboardInterrupt:
-        embed()
+                # input()
+            print()
+            image.save(f"{join(lodset_directory, full_name)}.png")
 
-    for full_name, lods in new_lodsets.items():
-        print(f"{full_name}:")
-        for size in [0.5, 0.25, 0.125]:
-            if size in lods:
-                print(f"  {size}: {lods[size]}")
+    # new_lodsets = {}
+
+    # embed()
+
+    # Loop over full-size filenames and identify new lodsets
+    # try:
+    #     for full_name, full_datum in data[1.0].items():
+    #         full_image = Image.fromarray(full_datum)
+    #         lods = deepcopy(known_lodsets.get(full_name, {}))
+    #         lods[1.0] = full_name
+    #         print(f"{full_name}:")
+    #         update = False
+    #         decision = ""
+    #         for size in [0.5, 0.25, 0.125]:
+    #
+    #             # Shrink full-size image LOD size
+    #             shrunk_image = full_image.resize(
+    #                 sizes[size], resample=Image.LANCZOS)
+    #             shrunk_datum = np.array(shrunk_image)
+    #
+    #             if size in lods:
+    #                 # try:
+    #                 assigned_datum = data[size][lods[size]]
+    #                 # except KeyError:
+    #                 #     embed()
+    #                 assigned_score = ssim(shrunk_datum, assigned_datum,
+    #                                       multichannel=True)
+    #                 decision += "y"
+    #                 print(f"    {size:5.3f}: {assigned_score:4.2f}  "
+    #                       f"{lods[size]}")
+    #             else:
+    #                 # Find most similar LOD image
+    #                 best_name = None
+    #                 best_score = 0
+    #                 for name, datum in data[size].items():
+    #                     if name in known_lores:
+    #                         continue
+    #                     score = ssim(shrunk_datum, datum, multichannel=True)
+    #                     if score > best_score:
+    #                         best_name = name
+    #                         best_score = score
+    #                 if best_name is not None:
+    #                     lods[size] = best_name
+    #                 if 1.0 > best_score and best_score > threshold:
+    #                     decision += "y"
+    #                     print(f"  + {size:5.3f}: {best_score:4.2f}  "
+    #                           f"{best_name}")
+    #                     update = True
+    #                 else:
+    #                     decision += "n"
+    #                     print(f"    {size:5.3f}: {best_score:4.2f}  "
+    #                           f"{best_name}")
+    #         if update:
+    #             concatenate_images(lods).show()
+    #             decision = input_prefill("Accept assignments?: ", decision)
+    #             del lods[1.0]
+    #             for d, size in zip(decision, [0.5, 0.25, 0.125]):
+    #                 if d == "n":
+    #                     if size in lods:
+    #                         del lods[size]
+    #             new_lodsets[full_name] = lods
+    # except KeyboardInterrupt:
+    #     embed()
+    #
+    # for full_name, lods in new_lodsets.items():
+    #     print(f"{full_name}:")
+    #     for size in [0.5, 0.25, 0.125]:
+    #         if size in lods:
+    #             print(f"  {size}: {lods[size]}")

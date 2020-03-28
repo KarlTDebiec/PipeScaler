@@ -27,8 +27,9 @@ class LauhSeuiSin:
         - Improve processing of edges, particularly for very small images
         - Check timestamps when selecting LODs
         - Clean up LOD assignments for images with transparency
-        - Split Zelda files into separate repository
         - Clean up Water LODs
+        - Try a ColorMatchProcessor that could be used to create 64x64 water
+          textures from 128x128 original, which has a different palette
         - Errata and things that can be improved:
            - Smoke at Death Mountain crater
            - Phanton Ganon
@@ -38,7 +39,8 @@ class LauhSeuiSin:
            - Hand shadow
         - Clean maps using Nintendo 64 originals
         - Finish updating interface
-        - STHeiti 80 point, STHeiti 56 point
+            - STHeiti 80 point, STHeiti 56 point
+        - Split Zelda files into separate repository
         - Move infile_argument to a module-level function
     """
     # region Class Variables
