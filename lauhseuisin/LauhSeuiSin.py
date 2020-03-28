@@ -24,21 +24,30 @@ from lauhseuisin.Pipeline import Pipeline
 class LauhSeuiSin:
     """
     TODO:
+        - Support multiple LODs per image
+        - Create symlink when creating LODs
+        - Skip _0 files
+        - Allow LODProcessor to also filter LOD files
         - Improve processing of edges, particularly for very small images
-        - Check timestamps when selecting LODs
         - Clean up LOD assignments for images with transparency
         - Clean up Water LODs
-        - Try a ColorMatchProcessor that could be used to create 64x64 water
-          textures from 128x128 original, which has a different palette
-        - Errata and things that can be improved:
+        - Errata
            - Smoke at Death Mountain crater
            - Phanton Ganon
-           - Link's shadow
-           - Temple of time lighting
-           - tex1_64x128_B1295DBB084D5AA4_10
-           - Hand shadow
-        - Clean maps using Nintendo 64 originals
-        - Finish updating interface
+           - Ghoma
+        - Text
+            - Title
+                - tex1_256x32_9103FA5D9AB4FDFA_4
+                - tex1_256x32_00498CD1C571BF89_4
+            - THE END: tex1_128x32_3149F395AE28A5F7_5
+        - Lighting & Shadows
+            - Link's feet
+            - Temple of time
+            - Wallmaster
+        - Maps
+            - Some were erroneously compressed
+            - Clean up using Nintendo 64 originals
+        - Interface
             - STHeiti 80 point, STHeiti 56 point
         - Split Zelda files into separate repository
         - Move infile_argument to a module-level function
@@ -70,7 +79,7 @@ class LauhSeuiSin:
 
     # endregion
 
-    # region Public Class Methods
+    # region Class Methods
 
     @classmethod
     def construct_argparser(cls) -> ArgumentParser:
