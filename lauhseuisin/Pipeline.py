@@ -80,9 +80,9 @@ class Pipeline:
         Performs operations
         """
         self.source()
-        self.clean()
+        # self.clean()
 
-    def clean(self):
+    def clean(self) -> None:
         for name, outfiles in self.log.items():
             for f in listdir(f"{self.wip_directory}/{name}"):
                 if f == "original.png":

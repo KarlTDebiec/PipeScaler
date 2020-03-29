@@ -11,10 +11,9 @@ from __future__ import annotations
 
 from argparse import ArgumentParser
 from os import remove
-from os.path import expandvars
 from subprocess import Popen
 from tempfile import NamedTemporaryFile
-from typing import Any, IO, Optional
+from typing import Any
 
 from PIL import Image
 
@@ -71,41 +70,48 @@ class WaifuProcessor(Processor):
     @classmethod
     def process_file(cls, infile: str, outfile: str, imagetype: str,
                      scale: int, denoise: int, verbosity: int):
+        # Prepare temporary image with reflections and minimum size of 200x200
         image = Image.open(infile)
-        original_size = image.size
+        w, h = image.size
+        transposed_h = image.transpose(Image.FLIP_LEFT_RIGHT)
+        transposed_v = image.transpose(Image.FLIP_TOP_BOTTOM)
+        transposed_hv = transposed_h.transpose(Image.FLIP_TOP_BOTTOM)
+        reflected = Image.new(image.mode,
+                              (max(200, int(w * 1.5)), max(200, int(h * 1.5))))
+        x = reflected.size[0] // 2
+        y = reflected.size[1] // 2
+        reflected.paste(image, (x - w // 2, y - h // 2))
+        reflected.paste(transposed_h, (x + w // 2, y - h // 2))
+        reflected.paste(transposed_h, (x - w - w // 2, y - h // 2))
+        reflected.paste(transposed_v, (x - w // 2, y - h - h // 2))
+        reflected.paste(transposed_v, (x - w // 2, y + h // 2))
+        reflected.paste(transposed_hv, (x + w // 2, y - h - h // 2))
+        reflected.paste(transposed_hv, (x - w - w // 2, y - h - h // 2))
+        reflected.paste(transposed_hv, (x - w - w // 2, y + h // 2))
+        reflected.paste(transposed_hv, (x + w // 2, y + h // 2))
+        tempfile = NamedTemporaryFile(delete=False, suffix=".png")
+        reflected.save(tempfile)
+        tempfile.close()
 
-        # waifu needs images to be a minimum size; expand canvas if necessary
-        tempfile: Optional[IO[bytes]] = None
-        if original_size[0] < 200 or original_size[1] < 200:
-            tempfile = NamedTemporaryFile(delete=False, suffix=".png")
-            expanded_image = Image.new(
-                image.mode, (max(200, original_size[0]),
-                             max(200, original_size[1])))
-            expanded_image.paste(
-                image, (0, 0, original_size[0], original_size[1]))
-            expanded_image.save(tempfile)
-            tempfile.close()
-            waifu_infile = tempfile.name
-        else:
-            waifu_infile = infile
-
-        # Upscale
+        # Process using waifu
         command = f"waifu2x " \
                   f"-t {imagetype} " \
                   f"-s {scale} " \
                   f"-n {denoise} " \
-                  f"-i {waifu_infile} " \
+                  f"-i {tempfile.name} " \
                   f"-o {outfile}"
         if verbosity >= 1:
             print(cls.get_indented_text(command))
         Popen(command, shell=True, close_fds=True).wait()
 
-        # If canvas was expanded, crop image
-        if tempfile is not None:
-            Image.open(outfile).crop(
-                (0, 0, original_size[0] * scale,
-                 original_size[1] * scale)).save(outfile)
-            remove(tempfile.name)
+        # Load processed image and crop back to original content
+        reflected = Image.open(outfile).crop(
+            ((x - w // 2) * scale,
+             (y - h // 2) * scale,
+             (x + w // 2) * scale,
+             (y + h // 2) * scale))
+        remove(tempfile.name)
+        reflected.save(outfile)
 
 
 #################################### MAIN #####################################

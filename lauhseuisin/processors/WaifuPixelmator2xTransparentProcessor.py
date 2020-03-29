@@ -9,16 +9,15 @@
 ################################### MODULES ###################################
 from __future__ import annotations
 
-from argparse import ArgumentError, ArgumentParser
-from os import R_OK, access, remove
-from os.path import expandvars, isfile, isdir
+from argparse import ArgumentParser
+from os import remove
+from os.path import isdir
 from shutil import copyfile
 from subprocess import Popen
 from tempfile import NamedTemporaryFile
-from typing import Any, IO, Optional
+from typing import Any
 
 import numpy as np
-from IPython import embed
 from PIL import Image
 
 from lauhseuisin import package_root
@@ -53,19 +52,6 @@ class WaifuPixelmator2xTransparentProcessor(Processor):
         Returns:
             parser (ArgumentParser): Argument parser
         """
-
-        def infile_argument(value: str) -> str:
-            if not isinstance(value, str):
-                raise ArgumentError()
-
-            value = expandvars(value)
-            if not isfile(value):
-                raise ArgumentError(f"infile '{value}' does not exist")
-            elif not access(value, R_OK):
-                raise ArgumentError(f"infile '{value}' cannot be read")
-
-            return value
-
         parser = super().construct_argparser(description=__doc__)
 
         parser.add_argument(
@@ -91,48 +77,64 @@ class WaifuPixelmator2xTransparentProcessor(Processor):
         if not isdir(workflow):
             raise ValueError()
 
-        # Waifu 2X
+        # Prepare temporary image with reflections and minimum size of 200x200
         image = Image.open(infile)
-        original_size = image.size
-        tempfile: Optional[IO[bytes]] = None
-        waifu_outfile = NamedTemporaryFile(delete=False, suffix=".png")
+        w, h = image.size
+        transposed_h = image.transpose(Image.FLIP_LEFT_RIGHT)
+        transposed_v = image.transpose(Image.FLIP_TOP_BOTTOM)
+        transposed_hv = transposed_h.transpose(Image.FLIP_TOP_BOTTOM)
+        reflected = Image.new(image.mode,
+                              (max(200, int(w * 1.5)), max(200, int(h * 1.5))))
+        x = reflected.size[0] // 2
+        y = reflected.size[1] // 2
+        reflected.paste(image, (x - w // 2, y - h // 2))
+        reflected.paste(transposed_h, (x + w // 2, y - h // 2))
+        reflected.paste(transposed_h, (x - w - w // 2, y - h // 2))
+        reflected.paste(transposed_v, (x - w // 2, y - h - h // 2))
+        reflected.paste(transposed_v, (x - w // 2, y + h // 2))
+        reflected.paste(transposed_hv, (x + w // 2, y - h - h // 2))
+        reflected.paste(transposed_hv, (x - w - w // 2, y - h - h // 2))
+        reflected.paste(transposed_hv, (x - w - w // 2, y + h // 2))
+        reflected.paste(transposed_hv, (x + w // 2, y + h // 2))
+        reflected = reflected.convert("RGB")
+        tempfile_1 = NamedTemporaryFile(delete=False, suffix=".png")
+        reflected.save(tempfile_1)
+        tempfile_1.close()
 
-        tempfile = NamedTemporaryFile(delete=False, suffix=".png")
-        expanded_image = Image.new(
-            image.mode, (max(200, original_size[0]),
-                         max(200, original_size[1])))
-        expanded_image.paste(
-            image, (0, 0, original_size[0], original_size[1]))
-        expanded_image = expanded_image.convert("RGB")
-        expanded_image.save(tempfile)
-        tempfile.close()
-        waifu_infile = tempfile.name
+        # Upscale using waifu
+        tempfile_2 = NamedTemporaryFile(delete=False, suffix=".png")
+        tempfile_2.close()
         command = f"waifu2x " \
                   f"-t {imagetype} " \
                   f"-s 2 " \
                   f"-n {denoise} " \
-                  f"-i {waifu_infile} " \
-                  f"-o {waifu_outfile.name}"
+                  f"-i {tempfile_1.name} " \
+                  f"-o {tempfile_2.name}"
         if verbosity >= 1:
             print(cls.get_indented_text(command))
         Popen(command, shell=True, close_fds=True).wait()
-        if tempfile is not None:
-            Image.open(waifu_outfile.name).crop(
-                (0, 0, original_size[0] * 2,
-                 original_size[1] * 2)).save(waifu_outfile.name)
-            remove(tempfile.name)
-        waifu_2x_image = Image.open(waifu_outfile.name)
+
+        # Load processed image and crop back to original content
+        waifu_2x_image = Image.open(tempfile_2.name).crop(
+            ((x - w // 2) * 2,
+             (y - h // 2) * 2,
+             (x + w // 2) * 2,
+             (y + h // 2) * 2))
+        remove(tempfile_1.name)
+        remove(tempfile_2.name)
 
         # Pixelmator 3X
-        pixelmator_tempfile = NamedTemporaryFile(delete=False, suffix=".png")
-        copyfile(infile, pixelmator_tempfile.name)
+        tempfile_3 = NamedTemporaryFile(delete=False, suffix=".png")
+        tempfile_3.close()
+        copyfile(infile, tempfile_3.name)
         command = f"automator " \
-                  f"-i {pixelmator_tempfile.name} " \
+                  f"-i {tempfile_3.name} " \
                   f"{workflow}"
         if verbosity >= 1:
             print(cls.get_indented_text(command))
         Popen(command, shell=True, close_fds=True).wait()
-        pixelmator_3x_image = Image.open(pixelmator_tempfile.name)
+        pixelmator_3x_image = Image.open(tempfile_3.name)
+        remove(tempfile_3.name)
 
         # Scale Pixelmator down to 2X
         pixelmator_2x_image = pixelmator_3x_image.resize((
@@ -149,10 +151,6 @@ class WaifuPixelmator2xTransparentProcessor(Processor):
         merged_data[:, :, :3] = np.array(merged_image)
         merged_data[:, :, 3] = np.array(pixelmator_2x_image)[:, :, 3]
         final_image = Image.fromarray(merged_data)
-
-        # cleanup
-        remove(waifu_outfile.name)
-        remove(pixelmator_tempfile.name)
 
         # Save final image
         final_image.save(outfile)

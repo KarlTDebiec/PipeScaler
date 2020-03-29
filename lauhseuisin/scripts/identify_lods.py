@@ -174,7 +174,7 @@ def load_data():
 def name_sort(filename):
     _, size, code, _ = filename.split("_")
     width, height = size.split("x")
-    return int(f"{height}{width}{int(code, 16):022d}")
+    return int(f"1{int(width):04d}{int(height):04d}{int(code, 16):022d}")
 
 
 def print_lodsets(lodsets):

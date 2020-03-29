@@ -12,13 +12,13 @@
 			<key>NSMenuItem</key>
 			<dict>
 				<key>default</key>
-				<string>Pixelmator ML Denoise</string>
+				<string>denoise</string>
 			</dict>
 			<key>NSMessage</key>
 			<string>runWorkflowAsService</string>
 			<key>NSSendFileTypes</key>
 			<array>
-				<string>public.item</string>
+				<string>public.image</string>
 			</array>
 		</dict>
 	</array>

@@ -22,34 +22,40 @@ pipes:
         skip: # skip
           filenames: skip.yaml
           downstream_pipes:
-        default: # waifu -> 3x -> noise
+        default: # waifu -> 3x
           downstream_pipes: default_size_sorter_1
 
   # Actors pipeline
   actors_transparency_sorter:
     TransparencySorter:
-      downstream_pipes_for_transparent: actors_transparent_waifupixelmator2x-a-2-1
-      downstream_pipes_for_opaque: actors_opaque_waifu-a-2-1
+      downstream_pipes_for_transparent: actors_transparent_waifupixelmator2x-a-2-4
+      downstream_pipes_for_opaque: actors_opaque_waifu-a-2-4
 
   # Actors transparent pipeline
-  actors_transparent_waifupixelmator2x-a-2-1:
+  actors_transparent_waifupixelmator2x-a-2-4:
     WaifuPixelmator2xTransparentProcessor:
-      denoise: 1
-      downstream_pipes: actors_transparent_waifupixelmator2x-a-2-0
-  actors_transparent_waifupixelmator2x-a-2-0:
-    WaifuPixelmator2xTransparentProcessor:
-      denoise: 0
-      downstream_pipes: copyfile
+      denoise: 4
+      downstream_pipes: actors_3x
 
   # Actors opaque pipeline
-  actors_opaque_waifu-a-2-1:
+  actors_opaque_waifu-a-2-4:
     WaifuProcessor:
-      denoise: 1
-      downstream_pipes: actors_opaque_waifu-a-2-0
-  actors_opaque_waifu-a-2-0:
-    WaifuProcessor:
-      denoise: 0
-      downstream_pipes: pngquant
+      denoise: 4
+      downstream_pipes: actors_3x
+
+  # Actors transparent and opaque pipelines merge
+  actors_3x:
+    AutomatorProcessor:
+      workflow: 3x
+      downstream_pipes: actors_resize
+  actors_resize:
+    ResizeProcessor:
+      scale: 0.66667
+      downstream_pipes: actors_denoise
+  actors_denoise:
+    AutomatorProcessor:
+      workflow: denoise
+      downstream_pipes: copyfile
 
   # Maps pipeline
   xbrz-4:
@@ -68,11 +74,7 @@ pipes:
       downstream_pipes_for_shadow: shadow_potrace
       downstream_pipes_for_text:
       downstream_pipes_for_large_text: large_text_flattener
-      downstream_pipes_for_nontext: default_transparency_sorter
-  default_transparency_sorter:
-    TransparencySorter:
-      downstream_pipes_for_transparent: default_transparent_waifupixelmator2x-a-2-1
-      downstream_pipes_for_opaque: default_opaque_waifu-a-2-1
+      downstream_pipes_for_nontext: actors_transparency_sorter
 
   # Shadow pipeline
   shadow_potrace:
@@ -119,47 +121,6 @@ pipes:
     CopyFileProcessor:
       output_directory: $HOME/Documents/Zelda/4x_kdebiec_large_text_cn
 
-  # Default_transparent pipeline
-  default_transparent_waifupixelmator2x-a-2-1:
-    WaifuPixelmator2xTransparentProcessor:
-      denoise: 1
-      downstream_pipes: default_transparent_waifupixelmator2x-a-2-0
-  default_transparent_waifupixelmator2x-a-2-0:
-    WaifuPixelmator2xTransparentProcessor:
-      denoise: 0
-      downstream_pipes: default_transparent_size_sorter
-  default_transparent_size_sorter:
-    RegexSorter:
-      regex: ".*_(8x8|8x16|8x32|8x64|8x128|16x8|16x16|16x32|16x64|16x128|32x8|32x16|32x32|32x64|32x128)_.*"
-      downstream_pipes_for_matched: pngquant
-      downstream_pipes_for_unmatched: default_transparent_lod
-  default_transparent_lod:
-    LODSorter:
-      lods: lodsets.yaml
-      downstream_pipes: copyfile
-
-  # Default opaque pipeline
-  default_opaque_waifu-a-2-1:
-    WaifuProcessor:
-      denoise: 1
-      downstream_pipes: default_opaque_pixelmator-3x
-  default_opaque_pixelmator-3x:
-    AutomatorProcessor:
-      workflow: 3x
-      downstream_pipes: default_opaque_resize
-  default_opaque_resize:
-    ResizeProcessor:
-      scale: 0.66667
-      downstream_pipes: default_opaque_size_sorter
-  default_opaque_size_sorter:
-    RegexSorter:
-      regex: ".*_(8x8|8x16|8x32|8x64|8x128|16x8|16x16|16x32|16x64|16x128|32x8|32x16|32x32|32x64|32x128)_.*"
-      downstream_pipes_for_matched: pngquant
-      downstream_pipes_for_unmatched: default_opaque_lod
-  default_opaque_lod:
-    LODSorter:
-      lods: lodsets.yaml
-      downstream_pipes: pngquant
   # Final output
   pngquant:
     PngquantProcessor:

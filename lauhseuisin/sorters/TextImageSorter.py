@@ -97,7 +97,7 @@ class TextImageSorter(Sorter):
     def get_image_type(infile: str) -> str:
         data = np.array(Image.open(infile))
 
-        if data.shape == (256, 256, 4):
+        if data.shape in [(128, 256, 4), (128, 512, 4), (256, 256, 4)]:
             if data[:, :, :3].sum() == 0:
                 return "text"
             y, x, _ = np.where(data == 255)
