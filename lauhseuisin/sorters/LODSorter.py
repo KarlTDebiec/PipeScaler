@@ -25,15 +25,30 @@ from lauhseuisin.sorters.Sorter import Sorter
 ################################### CLASSES ###################################
 class LODSorter(Sorter):
 
-    def __init__(self, lods: Union[str, Dict[str, Dict[float, str]]],
+    def __init__(self, lodsets: Union[str, Dict[str, Dict[float, str]]],
+                 mode: str = "fork",
                  downstream_pipes: Optional[Union[str, List[str]]] = None,
                  **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
-        if isinstance(lods, str):
-            with open(expandvars(lods), "r") as f:
-                lods = yaml.load(f, Loader=yaml.SafeLoader)
-        self.lods = lods
+        if isinstance(lodsets, str):
+            with open(expandvars(lodsets), "r") as f:
+                lodsets = yaml.load(f, Loader=yaml.SafeLoader)
+        self.lodsets = lodsets
+
+        self.lods: List[str] = []
+        for lodset in self.lodsets.values():
+            if lodset is not None:
+                for lods in lodset.values():
+                    if isinstance(lods, str):
+                        lods = [lods]
+                    self.lods.extend(lods)
+        self.lods = set(self.lods)
+
+        if mode not in ["filter", "fork"]:
+            raise ValueError()
+        self.mode = mode
+
         if isinstance(downstream_pipes, str):
             downstream_pipes = [downstream_pipes]
         self.downstream_pipes = downstream_pipes
@@ -45,35 +60,47 @@ class LODSorter(Sorter):
             if self.pipeline.verbosity >= 2:
                 print(f"{self}: {infile}")
 
+            # If infile is a lod, skip
+            if self.mode == "filter":
+                if self.get_original_name(infile) in self.lods:
+                    continue
+
             # Pass infile along pipeline
             if self.downstream_pipes is not None:
                 for pipe in self.downstream_pipes:
                     self.pipeline.pipes[pipe].send(infile)
 
             # Split off LODs, scale them, and pass them along pipeline
-            if self.get_original_name(infile) in self.lods:
-                lods = self.lods[self.get_original_name(infile)]
-                for scale, name in lods.items():
-                    self.backup_lod(name)
-                    desc_so_far = splitext(basename(infile))[0].lstrip(
-                        "original")
-                    outfile = f"{desc_so_far}_" \
-                              f"lod-{scale:4.2f}.png".lstrip("_")
-                    outfile = f"{self.pipeline.wip_directory}/{name}/{outfile}"
-                    if self.pipeline.verbosity >= 2:
-                        print(f"{self}: {outfile}")
+            if self.mode == "fork":
+                if self.get_original_name(infile) in self.lodsets:
+                    lodset = self.lodsets[self.get_original_name(infile)]
+                    for scale, names in lodset.items():
+                        if isinstance(names, str):
+                            names = [names]
+                        for name in names:
+                            self.backup_lod(name)
+                            desc_so_far = splitext(basename(infile))[0].lstrip(
+                                "original")
+                            outfile = f"{desc_so_far}_" \
+                                      f"lod-{scale:4.2f}.png".lstrip("_")
+                            outfile = f"{self.pipeline.wip_directory}/" \
+                                      f"{name}/{outfile}"
+                            if self.pipeline.verbosity >= 2:
+                                print(f"{self}: {outfile}")
 
-                    if not isfile(outfile):
-                        input_image = Image.open(infile)
-                        output_image = input_image.resize((
-                            int(np.round(input_image.size[0] * scale)),
-                            int(np.round(input_image.size[1] * scale))),
-                            resample=Image.LANCZOS)
-                        output_image.save(outfile)
-                    self.log_outfile(outfile)
-                    if self.downstream_pipes is not None:
-                        for pipe in self.downstream_pipes:
-                            self.pipeline.pipes[pipe].send(outfile)
+                            if not isfile(outfile):
+                                input_image = Image.open(infile)
+                                output_image = input_image.resize((
+                                    int(np.round(
+                                        input_image.size[0] * scale)),
+                                    int(np.round(
+                                        input_image.size[1] * scale))),
+                                    resample=Image.LANCZOS)
+                                output_image.save(outfile)
+                            self.log_outfile(outfile)
+                            if self.downstream_pipes is not None:
+                                for pipe in self.downstream_pipes:
+                                    self.pipeline.pipes[pipe].send(outfile)
 
     def backup_lod(self, name: str) -> None:
         if not isdir(f"{self.pipeline.wip_directory}/{name}"):

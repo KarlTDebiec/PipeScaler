@@ -28,8 +28,14 @@ with open("../skip.yaml", "r") as f:
 with open("../lodsets.yaml", "r") as f:
     known_lodsets = yaml.load(f, Loader=yaml.SafeLoader)
 known_hires = known_lodsets.keys()
-known_lores = set(chain.from_iterable(
-    [a.values() for a in known_lodsets.values() if a is not None]))
+known_lores = []
+for lodset in known_lodsets.values():
+    if lodset is not None:
+        for lods in lodset.values():
+            if isinstance(lods, str):
+                lods = [lods]
+            known_lores.extend(lods)
+known_lores = set(known_lores)
 
 
 def concatenate_images(filename: str) -> Image.Image:
@@ -71,25 +77,26 @@ for filename in listdir(debug_directory):
 
 for name in [get_name(f) for f in listdir(lores_directory)]:
     if name in known_actor:
-        print(get_debug_filename(name))
-        concatenate_images(name).save(get_debug_filename(name))
-    # elif name in known_interface:
-    #     continue
-    # elif name in known_map:
-    #     continue
-    # elif name in known_skip:
-    #     continue
-    # elif name in known_hires:
-    #     continue
-    # elif name in known_lores:
-    #     continue
-    # elif name == ".DS_Store":
-    #     continue
-    # kind = TextImageSorter.get_image_type(f"{dump_directory}/{name}.png")
-    # if kind in ["shadow", "text", "time_text", "large_text"]:
-    #     continue
-    # print(name)
-    # copy2(f"{dump_directory}/{name}.png", f"{nolod_directory}/{name}.png")
+        continue
+        # print(get_debug_filename(name))
+        # concatenate_images(name).save(get_debug_filename(name))
+    elif name in known_interface:
+        continue
+    elif name in known_map:
+        continue
+    elif name in known_skip:
+        continue
+    elif name in known_hires:
+        continue
+    elif name in known_lores:
+        continue
+    elif name == ".DS_Store":
+        continue
+    kind = TextImageSorter.get_image_type(get_lores_filename(name))
+    if kind in ["shadow", "text", "time_text", "large_text"]:
+        continue
+    print(name)
+    copy2(get_lores_filename(name), get_debug_filename(name))
 
 # known = [get_name(f) for f in listdir(dump_directory)]
 # for name in [get_name(f) for f in listdir(henriko_directory)]:

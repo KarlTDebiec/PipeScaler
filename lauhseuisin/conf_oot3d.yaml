@@ -66,7 +66,7 @@ pipes:
   # Default pipeline
   default_size_sorter_1:
     RegexSorter:
-      regex: ".*_(8x8|8x16|8x32|8x64|8x128|16x8|32x8|64x8|128x8)_.*"
+      regex: ".*_(8x8|8x16|8x32|8x64|8x128|8x256|16x8|16x16|16x32|16x64|16x128|16x256|32x8|32x16|64x8|64x16|128x8|128x16|256x8|256x16)_.*"
       downstream_pipes_for_matched: xbrz-4
       downstream_pipes_for_unmatched: default_text_sorter
   default_text_sorter:
@@ -74,7 +74,48 @@ pipes:
       downstream_pipes_for_shadow: shadow_potrace
       downstream_pipes_for_text:
       downstream_pipes_for_large_text: large_text_flattener
-      downstream_pipes_for_nontext: actors_transparency_sorter
+      downstream_pipes_for_nontext: default_lod_filter
+  default_lod_filter:
+    LODSorter:
+      lodsets: lodsets.yaml
+      mode: filter
+      downstream_pipes: default_transparency_sorter
+
+  # Default pipeline
+  default_transparency_sorter:
+    TransparencySorter:
+      downstream_pipes_for_transparent: default_transparent_waifupixelmator2x-a-2-4
+      downstream_pipes_for_opaque: default_opaque_waifu-a-2-4
+
+  # Default transparent pipeline
+  default_transparent_waifupixelmator2x-a-2-4:
+    WaifuPixelmator2xTransparentProcessor:
+      denoise: 4
+      downstream_pipes: default_3x
+
+  # Default opaque pipeline
+  default_opaque_waifu-a-2-4:
+    WaifuProcessor:
+      denoise: 4
+      downstream_pipes: default_3x
+
+  # Default transparent and opaque pipelines merge
+  default_3x:
+    AutomatorProcessor:
+      workflow: 3x
+      downstream_pipes: default_resize
+  default_resize:
+    ResizeProcessor:
+      scale: 0.66667
+      downstream_pipes: default_denoise
+  default_denoise:
+    AutomatorProcessor:
+      workflow: denoise
+      downstream_pipes: default_lod
+  default_lod:
+    LODSorter:
+      lodsets: lodsets.yaml
+      downstream_pipes: copyfile
 
   # Shadow pipeline
   shadow_potrace:
