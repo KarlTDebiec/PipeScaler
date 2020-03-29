@@ -16,14 +16,11 @@ pipes:
         maps: # xbrz
           filenames: maps.yaml
           downstream_pipes: xbrz-4
-        lods: # skip; instead downscale highest-resolution version
-          filenames: lods.yaml
-          downstream_pipes:
         skip: # skip
           filenames: skip.yaml
           downstream_pipes:
         default: # waifu -> 3x
-          downstream_pipes: default_size_sorter_1
+          downstream_pipes: default_lod_filter
 
   # Actors pipeline
   actors_transparency_sorter:
@@ -64,6 +61,11 @@ pipes:
       downstream_pipes: pngquant
 
   # Default pipeline
+  default_lod_filter:
+    LODSorter:
+      lodsets: lodsets.yaml
+      mode: filter
+      downstream_pipes: default_size_sorter_1
   default_size_sorter_1:
     RegexSorter:
       regex: ".*_(8x8|8x16|8x32|8x64|8x128|8x256|16x8|16x16|16x32|16x64|16x128|16x256|32x8|32x16|64x8|64x16|128x8|128x16|256x8|256x16)_.*"
@@ -74,12 +76,8 @@ pipes:
       downstream_pipes_for_shadow: shadow_potrace
       downstream_pipes_for_text:
       downstream_pipes_for_large_text: large_text_flattener
-      downstream_pipes_for_nontext: default_lod_filter
-  default_lod_filter:
-    LODSorter:
-      lodsets: lodsets.yaml
-      mode: filter
-      downstream_pipes: default_transparency_sorter
+      downstream_pipes_for_nontext: default_transparency_sorter
+
 
   # Default pipeline
   default_transparency_sorter:
