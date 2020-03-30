@@ -14,7 +14,7 @@ import yaml
 lores_directory = expandvars(
     "$HOME/.local/share/citra-emu/dump/textures/000400000008F900")
 hires_directory = expandvars("$HOME/Documents/Zelda/4x_kdebiec")
-debug_directory = expandvars("$HOME/Documents/Zelda/debug")
+debug_directory = expandvars("$HOME/Documents/Zelda/1x_debug")
 henriko_directory = expandvars("$HOME/Documents/Zelda/4x_henriko")
 
 with open("../actors.yaml", "r") as f:

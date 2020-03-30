@@ -80,7 +80,7 @@ class Pipeline:
         Performs operations
         """
         self.source()
-        # self.clean()
+        self.clean()
 
     def clean(self) -> None:
         for name, outfiles in self.log.items():

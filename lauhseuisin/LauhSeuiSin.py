@@ -24,24 +24,16 @@ from lauhseuisin.Pipeline import Pipeline
 class LauhSeuiSin:
     """
     TODO:
-        - Support multiple LODs per image
-        - Create symlink when creating LODs
         - Skip _0 files
-        - Allow LODProcessor to also filter LOD files
-        - Clean up LOD assignments for images with transparency
-        - Clean up Water LODs
         - Errata
            - Smoke at Death Mountain crater
            - Phanton Ganon
            - Ghoma
         - Text
-            - Title
-                - tex1_256x32_9103FA5D9AB4FDFA_4
-                - tex1_256x32_00498CD1C571BF89_4
             - THE END: tex1_128x32_3149F395AE28A5F7_5
         - Lighting & Shadows
             - Link's feet
-            - Temple of time
+            - Temple of Time
             - Wallmaster
         - Maps
             - Some were erroneously compressed
