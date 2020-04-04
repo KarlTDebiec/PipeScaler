@@ -23,27 +23,27 @@ from lauhseuisin.sorters.Sorter import Sorter
 
 
 ################################### CLASSES ###################################
-class LODSorter(Sorter):
+class MipmapSorter(Sorter):
 
-    def __init__(self, lodsets: Union[str, Dict[str, Dict[float, str]]],
+    def __init__(self, mipmapsets: Union[str, Dict[str, Dict[float, str]]],
                  mode: str = "fork",
                  downstream_pipes: Optional[Union[str, List[str]]] = None,
                  **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
-        if isinstance(lodsets, str):
-            with open(expandvars(lodsets), "r") as f:
-                lodsets = yaml.load(f, Loader=yaml.SafeLoader)
-        self.lodsets = lodsets
+        if isinstance(mipmapsets, str):
+            with open(expandvars(mipmapsets), "r") as f:
+                mipmapsets = yaml.load(f, Loader=yaml.SafeLoader)
+        self.mipmapsets = mipmapsets
 
-        self.lods: List[str] = []
-        for lodset in self.lodsets.values():
-            if lodset is not None:
-                for lods in lodset.values():
-                    if isinstance(lods, str):
-                        lods = [lods]
-                    self.lods.extend(lods)
-        self.lods = set(self.lods)
+        self.mipmaps: List[str] = []
+        for mipmapset in self.mipmapsets.values():
+            if mipmapset is not None:
+                for mipmaps in mipmapset.values():
+                    if isinstance(mipmaps, str):
+                        mipmaps = [mipmaps]
+                    self.mipmaps.extend(mipmaps)
+        self.mipmaps = set(self.mipmaps)
 
         if mode not in ["filter", "fork"]:
             raise ValueError()
@@ -60,9 +60,9 @@ class LODSorter(Sorter):
             if self.pipeline.verbosity >= 2:
                 print(f"{self}: {infile}")
 
-            # If infile is a lod, skip
+            # If infile is a mipmap, skip
             if self.mode == "filter":
-                if self.get_original_name(infile) in self.lods:
+                if self.get_original_name(infile) in self.mipmaps:
                     continue
 
             # Pass infile along pipeline
@@ -70,19 +70,19 @@ class LODSorter(Sorter):
                 for pipe in self.downstream_pipes:
                     self.pipeline.pipes[pipe].send(infile)
 
-            # Split off LODs, scale them, and pass them along pipeline
+            # Split off mipmaps, scale them, and pass them along pipeline
             if self.mode == "fork":
-                if self.get_original_name(infile) in self.lodsets:
-                    lodset = self.lodsets[self.get_original_name(infile)]
-                    for scale, names in lodset.items():
+                if self.get_original_name(infile) in self.mipmapsets:
+                    mipmapset = self.mipmapsets[self.get_original_name(infile)]
+                    for scale, names in mipmapset.items():
                         if isinstance(names, str):
                             names = [names]
                         for name in names:
-                            self.backup_lod(name)
+                            self.backup_mipmap(name)
                             desc_so_far = splitext(basename(infile))[0].lstrip(
                                 "original")
                             outfile = f"{desc_so_far}_" \
-                                      f"lod-{scale:4.2f}.png".lstrip("_")
+                                      f"mipmap-{scale:4.2f}.png".lstrip("_")
                             outfile = f"{self.pipeline.wip_directory}/" \
                                       f"{name}/{outfile}"
                             if self.pipeline.verbosity >= 2:
@@ -102,7 +102,7 @@ class LODSorter(Sorter):
                                 for pipe in self.downstream_pipes:
                                     self.pipeline.pipes[pipe].send(outfile)
 
-    def backup_lod(self, name: str) -> None:
+    def backup_mipmap(self, name: str) -> None:
         if not isdir(f"{self.pipeline.wip_directory}/{name}"):
             makedirs(f"{self.pipeline.wip_directory}/{name}")
         backup = f"{self.pipeline.wip_directory}/{name}/original.png"

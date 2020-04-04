@@ -1,5 +1,5 @@
 #!python
-#   lauhseuisin/sources/ScanDirectorySource.py
+#   lauhseuisin/sources/CitraDumpSource.py
 #
 #   Copyright (C) 2020 Karl T Debiec
 #   All rights reserved.
@@ -17,7 +17,7 @@ from lauhseuisin.sources.Source import Source
 
 
 ################################### CLASSES ###################################
-class ScanDirectorySource(Source):
+class CitraDumpSource(Source):
 
     def __init__(self, input_directory: str, **kwargs: Any) -> None:
         super().__init__(**kwargs)

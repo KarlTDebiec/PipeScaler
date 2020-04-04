@@ -15,7 +15,6 @@ from os.path import expandvars, isfile
 from pathlib import Path
 
 import yaml
-from IPython import embed
 
 from lauhseuisin.Pipeline import Pipeline
 
@@ -24,28 +23,6 @@ from lauhseuisin.Pipeline import Pipeline
 class LauhSeuiSin:
     """
     TODO:
-        - Skip _0 files
-        - Errata
-           - Smoke at Death Mountain crater
-           - Phanton Ganon
-           - Ghoma
-        - Text
-            - THE END: tex1_128x32_3149F395AE28A5F7_5
-        - Lighting & Shadows
-            - Link's feet
-            - Temple of Time
-            - Wallmaster
-        - Maps
-            - Some were erroneously compressed
-            - Clean up using Nintendo 64 originals
-        - Interface
-            - STHeiti 80 point, STHeiti 56 point
-        - Tiny eyes
-            - tex1_16x16_DD8E1499FC36B179_13
-            - tex1_32x32_14FB2897C9E5A3E4_2
-            - tex1_32x32_3C53D10ED9BFAE42_2
-            - tex1_32x32_7FB68131695743CC_2
-        - Split Zelda files into separate repository
         - Move infile_argument to a module-level function
     """
     # region Class Variables

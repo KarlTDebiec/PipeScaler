@@ -9,24 +9,16 @@
 ################################### MODULES ###################################
 from __future__ import annotations
 
-from importlib import import_module
-from os import W_OK, access, getcwd, listdir
-from os.path import expandvars, isdir
+import importlib
+from os import W_OK, access, getcwd, listdir, remove
+from os.path import basename, expandvars, isdir, splitext
 from pathlib import Path
-from subprocess import Popen
 from typing import Any, Dict, List
-from os import remove
-
-from IPython import embed
 
 
 ################################### CLASSES ###################################
 class Pipeline:
-    # region Class Variables
-
     package_root: str = str(Path(__file__).parent.absolute())
-
-    # endregion
 
     # region Builtins
 
@@ -39,9 +31,9 @@ class Pipeline:
             raise ValueError()
 
         # Load configuration
-        sources_module = import_module("lauhseuisin.sources")
-        processors_module = import_module("lauhseuisin.processors")
-        sorters_module = import_module("lauhseuisin.sorters")
+        sources_module = importlib.import_module("lauhseuisin.sources")
+        processors_module = importlib.import_module("lauhseuisin.processors")
+        sorters_module = importlib.import_module("lauhseuisin.sorters")
         pipes_conf = conf.get("pipes")
         if pipes_conf is None:
             raise ValueError()
@@ -58,16 +50,30 @@ class Pipeline:
         # Configure sorters and processors
         pipes = {}
         for pipe_name, pipe_conf in pipes_conf.items():
+            if "module" in pipe_conf:
+                module_path = expandvars(pipe_conf.pop("module"))
+            else:
+                module_path = None
             pipe_cls_name = list(pipe_conf.keys())[0]
             pipe_cls_parameters = list(pipe_conf.values())[0]
             if pipe_cls_parameters is None:
                 pipe_cls_parameters = {}
             print(pipe_cls_name)
             print(pipe_cls_parameters)
-            try:
-                pipe_cls = getattr(processors_module, pipe_cls_name)
-            except AttributeError:
-                pipe_cls = getattr(sorters_module, pipe_cls_name)
+            if module_path is not None:
+                spec = importlib.util.spec_from_file_location(
+                    splitext(basename(module_path))[0], module_path)
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
+                pipe_cls = getattr(module, pipe_cls_name)
+            else:
+                try:
+                    pipe_cls = getattr(processors_module, pipe_cls_name)
+                except AttributeError:
+                    try:
+                        pipe_cls = getattr(sorters_module, pipe_cls_name)
+                    except AttributeError as e:
+                        raise e
             pipes[pipe_name] = pipe_cls(pipeline=self, **pipe_cls_parameters)()
             next(pipes[pipe_name])
         self.pipes = pipes

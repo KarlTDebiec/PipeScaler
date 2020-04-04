@@ -18,4 +18,5 @@ setup(
     version="0.1",
     include_package_data=True,
     package_data={"lauhseuisin": get_package_data("lauhseuisin/data")},
-    packages=find_packages())
+    packages=find_packages(),
+    scripts=["lauhseuisin/LauhSeuiSin.py"])
