@@ -15,6 +15,7 @@ from lauhseuisin.processors.AutomatorProcessor import AutomatorProcessor
 from lauhseuisin.processors.CopyFileProcessor import CopyFileProcessor
 from lauhseuisin.processors.ESRGANProcessor import ESRGANProcessor
 from lauhseuisin.processors.FlattenProcessor import FlattenProcessor
+from lauhseuisin.processors.Pixelmator2xProcessor import Pixelmator2xProcessor
 from lauhseuisin.processors.PotraceProcessor import PotraceProcessor
 from lauhseuisin.processors.PngquantProcessor import PngquantProcessor
 from lauhseuisin.processors.ResizeProcessor import ResizeProcessor
@@ -30,6 +31,7 @@ __all__: List[str] = [
     "CopyFileProcessor",
     "ESRGANProcessor",
     "FlattenProcessor",
+    "Pixelmator2xProcessor",
     "PotraceProcessor",
     "PngquantProcessor",
     "ResizeProcessor",

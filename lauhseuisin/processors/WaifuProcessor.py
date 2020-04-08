@@ -70,6 +70,7 @@ class WaifuProcessor(Processor):
     @classmethod
     def process_file(cls, infile: str, outfile: str, imagetype: str,
                      scale: int, denoise: int, verbosity: int):
+
         # Prepare temporary image with reflections and minimum size of 200x200
         image = Image.open(infile)
         w, h = image.size
@@ -101,7 +102,7 @@ class WaifuProcessor(Processor):
                   f"-i {tempfile.name} " \
                   f"-o {outfile}"
         if verbosity >= 1:
-            print(cls.get_indented_text(command))
+            print(command)
         Popen(command, shell=True, close_fds=True).wait()
 
         # Load processed image and crop back to original content

@@ -86,6 +86,10 @@ class Processor(ABC):
         else:
             self.pipeline.log[name].append(basename(outfile))
 
+    def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
+        self.process_file(infile, outfile,
+                          verbosity=self.pipeline.verbosity)
+
     @staticmethod
     def get_indented_text(text: str) -> str:
         columns = get_terminal_size((80, 20)).columns
@@ -93,15 +97,11 @@ class Processor(ABC):
                               subsequent_indent="    ")
         return wrapper.fill(text)
 
-    @abstractmethod
-    def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
-        pass
-
-    # region Public Class Methods
+    # region Class Methods
 
     @classmethod
-    def construct_argparser(cls, description: Optional[
-        str] = None) -> ArgumentParser:
+    def construct_argparser(
+            cls, description: Optional[str] = None) -> ArgumentParser:
         """
         Constructs argument parser
 

@@ -23,13 +23,15 @@ from lauhseuisin.Pipeline import Pipeline
 class LauhSeuiSin:
     """
     TODO:
-        - Move infile_argument to a module-level function
+        - [x] Pixelmator 2x processor
+        - [x] Pixelmator 2x processor with transparency
+        - [ ] ne2x processor
+        - [ ] ne2x/waifu 2x processor
+        - [ ] ne2x/waifu 2x processor with transparency
+        - [ ] Pixelmator 2x auto transparency
+        - [ ] Move infile_argument and outfile_argument to module level
     """
-    # region Class Variables
-
     package_root: str = str(Path(__file__).parent.absolute())
-
-    # endregion
 
     # region Builtins
 
