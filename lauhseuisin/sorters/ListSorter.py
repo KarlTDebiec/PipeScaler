@@ -30,6 +30,8 @@ class ListSorter(Sorter):
             if isinstance(filenames, str):
                 with open(expandvars(filenames), "r") as f:
                     filenames = yaml.load(f, Loader=yaml.SafeLoader)
+            if filenames is None:
+                filenames = []
             downstream_pipes = conf.get("downstream_pipes")
             if isinstance(downstream_pipes, str):
                 downstream_pipes = [downstream_pipes]

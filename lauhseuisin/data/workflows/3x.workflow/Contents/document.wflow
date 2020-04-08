@@ -65,7 +65,7 @@
 				<key>Class Name</key>
 				<string>Increase_Resolution_of_Images.SuperResolutionAction</string>
 				<key>InputUUID</key>
-				<string>E0B96ED2-B26D-491B-B764-AE730E557D32</string>
+				<string>9C4E8968-12C3-42E6-B5A0-3B1CADF395EC</string>
 				<key>Keywords</key>
 				<array>
 					<string>Enhance</string>
@@ -73,9 +73,9 @@
 					<string>Image Size</string>
 				</array>
 				<key>OutputUUID</key>
-				<string>4858D8F3-24DB-4A02-AAF4-72E5E93C9DB5</string>
+				<string>120E5A30-01DE-4A05-9477-84DEB6CA8714</string>
 				<key>UUID</key>
-				<string>CA523EA1-F6CA-4B21-822A-A5D1331A2DD4</string>
+				<string>28146C24-58A8-433E-8359-7849D40F3FA6</string>
 				<key>UnlocalizedApplications</key>
 				<array>
 					<string>Pixelmator Pro</string>
@@ -95,19 +95,6 @@
 	</array>
 	<key>connectors</key>
 	<dict/>
-	<key>variables</key>
-	<array>
-		<dict>
-			<key>UUID</key>
-			<string>E86E1DF1-99F6-4D50-B4DE-8801B8F96770</string>
-			<key>identifier</key>
-			<string>com.apple.Automator.Variable.Path</string>
-			<key>name</key>
-			<string>OUTPUT_DIR</string>
-			<key>value</key>
-			<string>~/Desktop</string>
-		</dict>
-	</array>
 	<key>workflowMetaData</key>
 	<dict>
 		<key>applicationBundleIDsByPath</key>

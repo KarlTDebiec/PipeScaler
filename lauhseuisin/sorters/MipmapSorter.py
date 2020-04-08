@@ -34,6 +34,8 @@ class MipmapSorter(Sorter):
         if isinstance(mipmapsets, str):
             with open(expandvars(mipmapsets), "r") as f:
                 mipmapsets = yaml.load(f, Loader=yaml.SafeLoader)
+        if mipmapsets is None:
+            mipmapsets = {}
         self.mipmapsets = mipmapsets
 
         self.mipmaps: List[str] = []
