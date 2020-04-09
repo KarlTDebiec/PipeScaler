@@ -80,7 +80,10 @@ class Pixelmator2xProcessor(Processor):
             if verbosity >= 1:
                 print(command)
             Popen(command, shell=True, close_fds=True).wait()
-            rgb_image = Image.open(tempfile.name)
+            rgb_image = Image.open(tempfile.name).resize(
+                (int(np.round(input_image.size[0] * 2)),
+                 int(np.round(input_image.size[1] * 2))),
+                resample=Image.LANCZOS)
             remove(tempfile.name)
 
         # Pixelmator 3X RGBA
@@ -93,7 +96,10 @@ class Pixelmator2xProcessor(Processor):
         if verbosity >= 1:
             print(command)
         Popen(command, shell=True, close_fds=True).wait()
-        rgba_image = Image.open(tempfile.name)
+        rgba_image = Image.open(tempfile.name).resize(
+            (int(np.round(input_image.size[0] * 2)),
+             int(np.round(input_image.size[1] * 2))),
+            resample=Image.LANCZOS)
         remove(tempfile.name)
 
         # Combine R, G, and B from RGB with A from RGBA
@@ -105,9 +111,7 @@ class Pixelmator2xProcessor(Processor):
             rgba_image = Image.fromarray(merged_data)
 
         # Scale to 2X
-        rgba_image.resize((int(np.round(rgba_image.size[0] * 0.66667)),
-                           int(np.round(rgba_image.size[1] * 0.66667))),
-                          resample=Image.LANCZOS).save(outfile)
+        rgba_image.save(outfile)
 
 
 #################################### MAIN #####################################

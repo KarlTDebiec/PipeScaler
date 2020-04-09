@@ -111,7 +111,7 @@ class WaifuPixelmator2xTransparentProcessor(Processor):
                   f"-i {tempfile_1.name} " \
                   f"-o {tempfile_2.name}"
         if verbosity >= 1:
-            print(cls.get_indented_text(command))
+            print(command)
         Popen(command, shell=True, close_fds=True).wait()
 
         # Load processed image and crop back to original content
@@ -131,7 +131,7 @@ class WaifuPixelmator2xTransparentProcessor(Processor):
                   f"-i {tempfile_3.name} " \
                   f"{workflow}"
         if verbosity >= 1:
-            print(cls.get_indented_text(command))
+            print(command)
         Popen(command, shell=True, close_fds=True).wait()
         pixelmator_3x_image = Image.open(tempfile_3.name)
         remove(tempfile_3.name)
