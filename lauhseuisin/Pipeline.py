@@ -13,6 +13,7 @@ import importlib
 from os import W_OK, access, getcwd, listdir, remove
 from os.path import basename, expandvars, isdir, splitext
 from pathlib import Path
+from shutil import rmtree
 from typing import Any, Dict, List
 
 
@@ -96,5 +97,9 @@ class Pipeline:
                 if f not in outfiles:
                     print(f"Removing '{self.wip_directory}/{name}/{f}'")
                     remove(f"{self.wip_directory}/{name}/{f}")
+        for name in listdir(f"{self.wip_directory}"):
+            if name not in self.log and isdir(f"{self.wip_directory}/{name}"):
+                print(f"Removing '{self.wip_directory}/{name}'")
+                rmtree(f"{self.wip_directory}/{name}")
 
     # endregion

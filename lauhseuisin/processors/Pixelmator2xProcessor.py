@@ -110,7 +110,7 @@ class Pixelmator2xProcessor(Processor):
             merged_data[:, :, 3] = np.array(rgba_image)[:, :, 3]
             rgba_image = Image.fromarray(merged_data)
 
-        # Scale to 2X
+        # Save image
         rgba_image.save(outfile)
 
 

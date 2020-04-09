@@ -33,11 +33,22 @@ class ResizeProcessor(Processor):
     @classmethod
     def process_file(cls, infile: str, outfile: str, scale: float,
                      verbosity: int) -> None:
+        # Load image
         input_image = Image.open(infile)
+        size = (int(np.round(input_image.size[0] * scale)),
+                int(np.round(input_image.size[1] * scale)))
 
-        output_image = input_image.resize((
-            int(np.round(input_image.size[0] * scale)),
-            int(np.round(input_image.size[1] * scale))),
-            resample=Image.LANCZOS)
+        # Scale image in both RGB and RGBA modes
+        rgb_image = input_image.convert("RGB").resize(
+            size, resample=Image.LANCZOS)
+        rgba_image = input_image.resize(
+            size, resample=Image.LANCZOS)
 
+        # Combine R, G, and B from RGB with A from RGBA
+        merged_data = np.zeros((size[1], size[0], 4), np.uint8)
+        merged_data[:, :, :3] = np.array(rgb_image)
+        merged_data[:, :, 3] = np.array(rgba_image)[:, :, 3]
+        output_image = Image.fromarray(merged_data)
+
+        # Save image
         output_image.save(outfile)
