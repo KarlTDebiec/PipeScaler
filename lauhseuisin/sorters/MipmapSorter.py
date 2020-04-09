@@ -84,7 +84,7 @@ class MipmapSorter(Sorter):
                             desc_so_far = splitext(basename(infile))[0].lstrip(
                                 "original")
                             outfile = f"{desc_so_far}_" \
-                                      f"mipmap-{scale:4.2f}.png".lstrip("_")
+                                      f"mipmap-{scale}.png".lstrip("_")
                             outfile = f"{self.pipeline.wip_directory}/" \
                                       f"{name}/{outfile}"
                             if self.pipeline.verbosity >= 2:
@@ -100,6 +100,7 @@ class MipmapSorter(Sorter):
                                     "RGB").resize(
                                     size, resample=Image.LANCZOS)
 
+                                # Combine R, G, and B from RGB with A from RGBA
                                 if input_image.mode == "RGBA":
                                     rgba_image = input_image.resize(
                                         size, resample=Image.LANCZOS)

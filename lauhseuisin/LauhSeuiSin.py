@@ -25,10 +25,11 @@ class LauhSeuiSin:
     TODO:
         - [x] Pixelmator 2x processor
         - [x] Pixelmator 2x processor with transparency
+        - [x] Pixelmator 2x auto transparency
+        - [ ] Waifu2x auto transparency
         - [ ] ne2x processor
         - [ ] ne2x/waifu 2x processor
-        - [ ] ne2x/waifu 2x processor with transparency
-        - [ ] Pixelmator 2x auto transparency
+        - [ ] ne2x/waifu 2x processor auto transparency
         - [ ] Move infile_argument and outfile_argument to module level
     """
     package_root: str = str(Path(__file__).parent.absolute())
