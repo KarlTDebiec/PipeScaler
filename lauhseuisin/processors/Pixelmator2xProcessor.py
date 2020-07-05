@@ -26,17 +26,17 @@ from lauhseuisin.processors.Processor import Processor
 ################################### CLASSES ###################################
 class Pixelmator2xProcessor(Processor):
 
-    def __init__(self, keep_transparent: bool = False, **kwargs: Any) -> None:
+    def __init__(self, sepalpha: bool = False, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
-        self.split_alpha = keep_transparent
-        if not self.split_alpha:
+        self.sepalpha = sepalpha
+        if not self.sepalpha:
             self.desc = "pm2x"
         else:
             self.desc = "pm2x-rgb+a"
 
     def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
-        self.process_file(infile, outfile, self.split_alpha,
+        self.process_file(infile, outfile, self.sepalpha,
                           self.pipeline.verbosity)
 
     @classmethod
@@ -50,18 +50,17 @@ class Pixelmator2xProcessor(Processor):
         parser = super().construct_argparser(description=__doc__)
 
         parser.add_argument(
-            "--keep_transparent",
-            default=False,
-            dest="keep_transparent",
-            type=bool,
-            help="scale using RGB and RGBA, then combine RGB with alpha from "
-                 "RGBA; useful if transparent region of image contains "
-                 "data that needs to be retained")
+            "--sepalpha",
+            action="store_true",
+            dest="sepalpha",
+            help="if an alpha channel is present, scale separately using RGB "
+                 "and RGBA, then combine RGB with alpha from RGBA; useful if "
+                 "alpha channel data does not represent transparency")
 
         return parser
 
     @classmethod
-    def process_file(cls, infile: str, outfile: str, keep_transparent: bool,
+    def process_file(cls, infile: str, outfile: str, sepalpha: bool,
                      verbosity: int):
 
         workflow = f"{package_root}/data/workflows/3x.workflow"
@@ -69,8 +68,26 @@ class Pixelmator2xProcessor(Processor):
             raise ValueError()
         input_image = Image.open(infile)
 
-        # Pixelmator 3X RGB
-        if keep_transparent:
+        # RGB or RGBA with transparency handled simultaneously
+        if input_image.mode == "RGB" or not sepalpha:
+            tempfile = NamedTemporaryFile(delete=False, suffix=".png")
+            tempfile.close()
+            input_image.save(tempfile.name)
+            command = f"automator " \
+                      f"-i {tempfile.name} " \
+                      f"{workflow}"
+            if verbosity >= 1:
+                print(command)
+            Popen(command, shell=True, close_fds=True).wait()
+            output_image = Image.open(tempfile.name).resize(
+                (int(np.round(input_image.size[0] * 2)),
+                 int(np.round(input_image.size[1] * 2))),
+                resample=Image.LANCZOS)
+            remove(tempfile.name)
+
+        # RGBA with sepalph
+        else:
+            # 2X with only RGB channels
             tempfile = NamedTemporaryFile(delete=False, suffix=".png")
             tempfile.close()
             input_image.convert("RGB").save(tempfile.name)
@@ -86,32 +103,31 @@ class Pixelmator2xProcessor(Processor):
                 resample=Image.LANCZOS)
             remove(tempfile.name)
 
-        # Pixelmator 3X RGBA
-        tempfile = NamedTemporaryFile(delete=False, suffix=".png")
-        tempfile.close()
-        input_image.save(tempfile.name)
-        command = f"automator " \
-                  f"-i {tempfile.name} " \
-                  f"{workflow}"
-        if verbosity >= 1:
-            print(command)
-        Popen(command, shell=True, close_fds=True).wait()
-        rgba_image = Image.open(tempfile.name).resize(
-            (int(np.round(input_image.size[0] * 2)),
-             int(np.round(input_image.size[1] * 2))),
-            resample=Image.LANCZOS)
-        remove(tempfile.name)
+            # 2X with all channels
+            tempfile = NamedTemporaryFile(delete=False, suffix=".png")
+            tempfile.close()
+            input_image.save(tempfile.name)
+            command = f"automator " \
+                      f"-i {tempfile.name} " \
+                      f"{workflow}"
+            if verbosity >= 1:
+                print(command)
+            Popen(command, shell=True, close_fds=True).wait()
+            rgba_image = Image.open(tempfile.name).resize(
+                (int(np.round(input_image.size[0] * 2)),
+                 int(np.round(input_image.size[1] * 2))),
+                resample=Image.LANCZOS)
+            remove(tempfile.name)
 
-        # Combine R, G, and B from RGB with A from RGBA
-        if keep_transparent:
+            # Merge RGB from former with A from latter
             merged_data = np.zeros((rgb_image.size[1], rgb_image.size[0], 4),
                                    np.uint8)
             merged_data[:, :, :3] = np.array(rgb_image)
             merged_data[:, :, 3] = np.array(rgba_image)[:, :, 3]
-            rgba_image = Image.fromarray(merged_data)
+            output_image = Image.fromarray(merged_data)
 
         # Save image
-        rgba_image.save(outfile)
+        output_image.save(outfile)
 
 
 #################################### MAIN #####################################

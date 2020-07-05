@@ -1,5 +1,4 @@
 #!python
-# -*- coding: utf-8 -*-
 #   lauhseuisin/processors/ResizeProcessor.py
 #
 #   Copyright (C) 2020 Karl T Debiec

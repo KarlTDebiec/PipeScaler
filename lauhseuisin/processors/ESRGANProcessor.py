@@ -1,5 +1,4 @@
 #!python
-# -*- coding: utf-8 -*-
 #   lauhseuisin/processors/ESRGANProcessor.py
 #
 #   Copyright (C) 2020 Karl T Debiec
@@ -11,35 +10,31 @@
 from __future__ import annotations
 
 from os.path import expandvars
-from typing import Any, Optional
+from typing import Any
 
 import cv2
 import numpy as np
 import torch
+import sys
+
+sys.path.append(expandvars("$HOME/OneDrive/code/external/ESRGAN"))
 
 from lauhseuisin.processors.Processor import Processor
 
 
 ################################### CLASSES ###################################
 class ESRGANProcessor(Processor):
-    executable_name = "waifu2x"
 
-    def __init__(self, model: str, device: str = "cpu",
-                 module_path: Optional[str] = None, **kwargs: Any) -> None:
-        super().__init__(**kwargs)
+    @classmethod
+    def process_file(cls, infile: str, outfile: str, **kwargs: Any) -> None:
+        import RRDBNet_arch as arch
+        model = expandvars("$HOME/OneDrive/code/external/ESRGAN/models/"
+                           "RRDB_ESRGAN_x4.pth")
+        print(model)
 
-        self.model = expandvars(model)
-        self.device = device
-        if module_path is not None:
-            import sys
-            sys.path.append(expandvars(module_path))
-        import RRDBNet_arch as arch  # type:ignore
-        self.arch = arch
-
-    def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
-        device = torch.device(self.device)
-        model = self.arch.RRDBNet(3, 3, 64, 23, gc=32)
-        model.load_state_dict(torch.load(self.model), strict=True)
+        device = torch.device("cpu")
+        model = arch.RRDBNet(3, 3, 64, 23, gc=32)
+        model.load_state_dict(torch.load(model), strict=True)
         model.eval()
         model = model.to(device)
 
@@ -57,3 +52,8 @@ class ESRGANProcessor(Processor):
         output = (output * 255.0).round()
 
         cv2.imwrite(outfile, output)
+
+
+#################################### MAIN #####################################
+if __name__ == "__main__":
+    ESRGANProcessor.main()
