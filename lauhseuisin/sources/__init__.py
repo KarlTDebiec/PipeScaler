@@ -12,8 +12,10 @@ from __future__ import annotations
 from typing import List
 
 from lauhseuisin.sources.CitraDumpSource import CitraDumpSource
+from lauhseuisin.sources.TexModDumpSource import TexModDumpSource
 
 ##################################### ALL #####################################
 __all__: List[str] = [
-    "CitraDumpSource"
+    "CitraDumpSource",
+    "TexModDumpSource"
 ]
