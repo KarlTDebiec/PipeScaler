@@ -46,13 +46,13 @@ class TransparencySorter(Sorter):
             infile: str = (yield)
             if self.is_transparent(infile):
                 if self.pipeline.verbosity >= 2:
-                    print(f"{self}: text {infile}")
+                    print(f"{self}: alpha {infile}")
                 if self.downstream_pipes_for_transparent is not None:
                     for pipe in self.downstream_pipes_for_transparent:
                         self.pipeline.pipes[pipe].send(infile)
             else:
                 if self.pipeline.verbosity >= 2:
-                    print(f"{self}: nontext {infile}")
+                    print(f"{self}: no alpha {infile}")
                 if self.downstream_pipes_for_opaque is not None:
                     for pipe in self.downstream_pipes_for_opaque:
                         self.pipeline.pipes[pipe].send(infile)

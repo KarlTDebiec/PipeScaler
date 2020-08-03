@@ -34,7 +34,7 @@ class WaifuPixelmator2xTransparentProcessor(Processor):
         self.imagetype = imagetype
         self.scale = 2
         self.denoise = denoise
-        self.desc = f"waifupixelmator2x-" \
+        self.desc = f"waifupm2xalpha-" \
                     f"{self.imagetype}-{self.scale}-{self.denoise}"
 
     def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
