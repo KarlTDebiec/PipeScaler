@@ -19,6 +19,7 @@ from lauhseuisin.processors.Pixelmator2xProcessor import Pixelmator2xProcessor
 from lauhseuisin.processors.PotraceProcessor import PotraceProcessor
 from lauhseuisin.processors.PngquantProcessor import PngquantProcessor
 from lauhseuisin.processors.ResizeProcessor import ResizeProcessor
+from lauhseuisin.processors.SideChannelProcessor import SideChannelProcessor
 from lauhseuisin.processors.ThresholdProcessor import ThresholdProcessor
 from lauhseuisin.processors.WaifuProcessor import WaifuProcessor
 from lauhseuisin.processors.XbrzProcessor import XbrzProcessor
@@ -35,6 +36,7 @@ __all__: List[str] = [
     "PotraceProcessor",
     "PngquantProcessor",
     "ResizeProcessor",
+    "SideChannelProcessor",
     "ThresholdProcessor",
     "WaifuProcessor",
     "XbrzProcessor",

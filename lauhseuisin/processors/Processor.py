@@ -59,7 +59,7 @@ class Processor(ABC):
             ext = self.get_extension(infile)
             if not isdir(f"{self.pipeline.wip_directory}/{name}"):
                 makedirs(f"{self.pipeline.wip_directory}/{name}")
-            new_infile = f"{self.pipeline.wip_directory}/{name}/original.{ext}"
+            new_infile = f"{self.pipeline.wip_directory}/{name}/{name}.{ext}"
             copyfile(infile, new_infile)
 
             return new_infile
@@ -77,7 +77,7 @@ class Processor(ABC):
 
     def get_outfile(self, infile: str) -> str:
         original_name = self.get_original_name(infile)
-        desc_so_far = splitext(basename(infile))[0].replace("original", "")
+        desc_so_far = splitext(basename(infile))[0].replace(original_name, "")
         outfile = f"{desc_so_far}_{self.desc}.png".lstrip("_")
         outfile = f"{self.pipeline.wip_directory}/{original_name}/{outfile}"
 
