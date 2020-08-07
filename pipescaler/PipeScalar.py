@@ -1,4 +1,4 @@
-#!python
+#!/usr/bin/env python
 #   pipescaler/PipeScaler.py
 #
 #   Copyright (C) 2020 Karl T Debiec
