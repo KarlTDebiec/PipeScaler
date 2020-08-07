@@ -9,7 +9,8 @@
 ################################### MODULES ###################################
 from __future__ import annotations
 
-import importlib
+from importlib import import_module
+from importlib.util import module_from_spec, spec_from_file_location
 from os import W_OK, access, getcwd, listdir, remove
 from os.path import basename, expandvars, isdir, splitext
 from pathlib import Path
@@ -32,9 +33,9 @@ class Pipeline:
             raise ValueError()
 
         # Load configuration
-        sources_module = importlib.import_module("lauhseuisin.sources")
-        processors_module = importlib.import_module("lauhseuisin.processors")
-        sorters_module = importlib.import_module("lauhseuisin.sorters")
+        sources_module = import_module("lauhseuisin.sources")
+        processors_module = import_module("lauhseuisin.processors")
+        sorters_module = import_module("lauhseuisin.sorters")
         pipes_conf = conf.get("pipes")
         if pipes_conf is None:
             raise ValueError()
@@ -62,9 +63,9 @@ class Pipeline:
             print(pipe_cls_name)
             print(pipe_cls_parameters)
             if module_path is not None:
-                spec = importlib.util.spec_from_file_location(
+                spec = spec_from_file_location(
                     splitext(basename(module_path))[0], module_path)
-                module = importlib.util.module_from_spec(spec)
+                module = module_from_spec(spec)
                 spec.loader.exec_module(module)
                 pipe_cls = getattr(module, pipe_cls_name)
             else:
@@ -87,7 +88,7 @@ class Pipeline:
         Performs operations
         """
         self.source()
-        self.clean()
+        # self.clean()
 
     def clean(self) -> None:
         for name, outfiles in self.log.items():
