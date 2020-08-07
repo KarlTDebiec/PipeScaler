@@ -14,9 +14,9 @@ def get_package_data(directory):
 
 
 setup(
-    name="lauhseuisin",
+    name="pipescaler",
     version="0.1",
     include_package_data=True,
-    package_data={"lauhseuisin": get_package_data("lauhseuisin/data")},
+    package_data={"pipescaler": get_package_data("pipescaler/data")},
     packages=find_packages(),
-    scripts=["lauhseuisin/LauhSeuiSin.py"])
+    scripts=["pipescaler/PipeScaler.py"])
