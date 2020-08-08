@@ -40,6 +40,8 @@ class Processor(ABC):
             if self.pipeline.verbosity >= 2:
                 print(f"{self}: {infile}")
             outfile = self.get_outfile(infile)
+            if outfile is None:
+                continue
             if not isfile(outfile):
                 self.process_file_in_pipeline(infile, outfile)
             self.log_outfile(outfile)

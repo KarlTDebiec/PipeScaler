@@ -31,9 +31,10 @@ class SideChannelProcessor(Processor):
         desc_so_far = splitext(basename(infile))[0].replace(original_name, "")
         if isfile(f"{self.input_directory}/{original_name}.png"):
             outfile = f"{desc_so_far}_{self.desc}.png".lstrip("_")
+            outfile = f"{self.pipeline.wip_directory}/{original_name}/" \
+                      f"{outfile}"
         else:
-            outfile = infile
-        outfile = f"{self.pipeline.wip_directory}/{original_name}/{outfile}"
+            outfile = None
 
         return outfile
 
