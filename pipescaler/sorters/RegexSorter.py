@@ -18,7 +18,8 @@ from pipescaler.sorters.Sorter import Sorter
 ################################### CLASSES ###################################
 class RegexSorter(Sorter):
 
-    def __init__(self, regex: str,
+    def __init__(self,
+                 regex: str,
                  downstream_pipes_for_matched: Optional[
                      Union[str, List[str]]] = None,
                  downstream_pipes_for_unmatched: Optional[

@@ -25,7 +25,8 @@ from pipescaler.sorters.Sorter import Sorter
 ################################### CLASSES ###################################
 class MipmapSorter(Sorter):
 
-    def __init__(self, mipmapsets: Union[str, Dict[str, Dict[float, str]]],
+    def __init__(self,
+                 mipmapsets: Union[str, Dict[str, Dict[float, str]]],
                  mode: str = "fork",
                  downstream_pipes: Optional[Union[str, List[str]]] = None,
                  **kwargs: Any) -> None:

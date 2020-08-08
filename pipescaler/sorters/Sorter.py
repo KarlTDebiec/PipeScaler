@@ -37,16 +37,19 @@ class Sorter(ABC):
 
     def backup_infile(self, infile: str) -> str:
         if self.pipeline.wip_directory not in infile:
-            name = splitext(basename(infile))[0]
-            ext = splitext(infile)[1]
+            name = self.get_original_name(infile)
+            ext = self.get_extension(infile)
             if not isdir(f"{self.pipeline.wip_directory}/{name}"):
                 makedirs(f"{self.pipeline.wip_directory}/{name}")
-            new_infile = f"{self.pipeline.wip_directory}/{name}/original{ext}"
+            new_infile = f"{self.pipeline.wip_directory}/{name}/{name}.{ext}"
             copyfile(infile, new_infile)
 
             return new_infile
         else:
             return infile
+
+    def get_extension(self, infile: str) -> str:
+        return splitext(basename(infile))[1].strip(".")
 
     def get_original_name(self, infile: str) -> str:
         if self.pipeline.wip_directory in infile:

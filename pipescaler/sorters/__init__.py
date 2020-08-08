@@ -14,6 +14,7 @@ from typing import List
 from pipescaler.sorters.ListSorter import ListSorter
 from pipescaler.sorters.MipmapSorter import MipmapSorter
 from pipescaler.sorters.RegexSorter import RegexSorter
+from pipescaler.sorters.SizeSorter import SizeSorter
 from pipescaler.sorters.TransparencySorter import TransparencySorter
 
 
@@ -22,5 +23,6 @@ __all__: List[str] = [
     "ListSorter",
     "MipmapSorter",
     "RegexSorter",
+    "SizeSorter",
     "TransparencySorter"
 ]
