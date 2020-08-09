@@ -11,12 +11,17 @@ from __future__ import annotations
 
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from os import getenv, listdir
-from typing import Dict, Set, Tuple
+from os.path import splitext
+from typing import Dict, Tuple
 
 import numpy as np
 import yaml
+from IPython import embed
 from PIL import Image
 from skimage.metrics import structural_similarity as ssim
+
+if False:
+    embed()
 
 
 ################################### CLASSES ###################################
@@ -37,55 +42,70 @@ class ScaledImageIdentifier:
         conf = f"{getenv('HOME')}/OneDrive/code/Zelda3DHD/OOT"
         local = f"{getenv('HOME')}/Documents/OOT"
 
-        with open(f"{conf}/interface.yaml", "r") as f:
-            interface = yaml.load(f, Loader=yaml.SafeLoader)
-        with open(f"{conf}/large_text.yaml", "r") as f:
-            large_text = yaml.load(f, Loader=yaml.SafeLoader)
-        with open(f"{conf}/maps.yaml", "r") as f:
-            maps = yaml.load(f, Loader=yaml.SafeLoader)
-        with open(f"{conf}/skip.yaml", "r") as f:
-            skip = yaml.load(f, Loader=yaml.SafeLoader)
+        skip = set(listdir(f"{local}/1x_skip"))
+        skip = skip.union(listdir(f"{local}/1x_interface"))
+        skip = skip.union(listdir(f"{local}/1x_large_text"))
+        skip = skip.union(listdir(f"{local}/1x_maps"))
+        skip = skip.union(listdir(f"{local}/1x_normal"))
 
-        # Construct dictionary of sizes to sets of images
-        images: Dict[Tuple[int, int], Set[str]] = {}
+        # Load assigned images
+        with open(f"{conf}/scaled.yaml", "r") as f:
+            assignments = yaml.load(f, Loader=yaml.SafeLoader)
+        large_to_small = {}
+        small_to_large = {}
+        for large, scaled in assignments.items():
+            large_to_small[large] = []
+            for scale, smalls in scaled.items():
+                if not isinstance(smalls, list):
+                    smalls = [smalls]
+                for small in smalls:
+                    small_to_large[small] = (large, scale)
+                    large_to_small[large].append((small, scale))
+
+        skip = skip.union(small_to_large.keys())
+
+        # Construct dictionary of sizes to dictionaries of images
+        data: Dict[Tuple[int, int], Dict[str, np.ndarray]] = {}
         for infile in listdir(f"{local}/1x"):
-            if infile == ".DS_Store":
+            if infile == ".DS_Store" or infile in skip:
                 continue
             image = Image.open(f"{local}/1X/{infile}")
             size = image.size
-            if size not in images:
-                images[size] = set()
-            images[size].add(infile)
+            if size not in data:
+                data[size] = {}
+            data[size][splitext(infile)[0]] = np.array(image)
 
         # Loop over sizes from largest to smallest
-        for size in reversed(sorted(images.keys())):
-            print(f"{size}: {len(images[size])}")
+        for size in reversed(sorted(data.keys())):
+            print(f"{size}: {len(data[size])}")
 
             # Loop over images at this size
-            for large_infile in images[size]:
-                large_image = Image.open(f"{local}/1X/{large_infile}")
+            for large_infile, large_datum in data[size].items():
 
                 # Loop over scales from largest to smallest
                 for scale in [0.5, 0.25, 0.125, 0.0625]:
-                    scaled_size = tuple([int(size[0] * scale),
-                                         int(size[1] * scale)])
-                    if scaled_size not in images:
+                    scaled_size = tuple(
+                        [int(size[0] * scale), int(size[1] * scale)])
+                    if scaled_size not in data:
                         continue
-                    print(f"    {scaled_size}: {len(images[scaled_size])}")
-                    scaled_image = large_image.resize(scaled_size,
-                                                      resample=Image.LANCZOS)
-                    scaled_datum = np.array(scaled_image)
+                    print(f"    {scaled_size}: {len(data[scaled_size])}")
+                    scaled_datum = np.array(
+                        Image.fromarray(large_datum).resize(
+                            scaled_size, resample=Image.LANCZOS))
 
-                    for small_infile in images[scaled_size]:
-                        small_image = Image.open(f"{local}/1X/{small_infile}")
-                        small_datum = np.array(small_image)
+                    for small_infile, small_datum in data[scaled_size].items():
+                        if small_infile == large_infile:
+                            continue
                         if scaled_datum.shape != small_datum.shape:
                             continue
                         score = ssim(scaled_datum, small_datum,
                                      multichannel=True)
-                        if score > 0.9:
-                            print(f"        {large_infile} {small_infile} "
-                                  f"{score:4.2f}")
+
+                        print(f"        {large_infile} {small_infile} "
+                              f"{score:4.2f}")
+                        if score > 0.7:
+                            Image.fromarray(large_datum).show()
+                            Image.fromarray(small_datum).show()
 
     # endregion
 
