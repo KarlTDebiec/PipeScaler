@@ -75,9 +75,8 @@ class PipeScaler:
 
             return value
 
-        parser = ArgumentParser(
-            description=__doc__,
-            formatter_class=RawDescriptionHelpFormatter)
+        parser = ArgumentParser(description=__doc__,
+                                formatter_class=RawDescriptionHelpFormatter)
         verbosity = parser.add_mutually_exclusive_group()
         verbosity.add_argument(
             "-v", "--verbose",
