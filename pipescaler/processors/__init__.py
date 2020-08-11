@@ -16,15 +16,15 @@ from pipescaler.processors.CopyFileProcessor import CopyFileProcessor
 from pipescaler.processors.ESRGANProcessor import ESRGANProcessor
 from pipescaler.processors.FlattenProcessor import FlattenProcessor
 from pipescaler.processors.Pixelmator2xProcessor import Pixelmator2xProcessor
-from pipescaler.processors.PotraceProcessor import PotraceProcessor
 from pipescaler.processors.PngquantProcessor import PngquantProcessor
+from pipescaler.processors.PotraceProcessor import PotraceProcessor
 from pipescaler.processors.ResizeProcessor import ResizeProcessor
 from pipescaler.processors.SideChannelProcessor import SideChannelProcessor
 from pipescaler.processors.ThresholdProcessor import ThresholdProcessor
-from pipescaler.processors.WaifuProcessor import WaifuProcessor
-from pipescaler.processors.XbrzProcessor import XbrzProcessor
 from pipescaler.processors.WaifuPixelmator2xTransparentProcessor import (
     WaifuPixelmator2xTransparentProcessor)
+from pipescaler.processors.WaifuProcessor import WaifuProcessor
+from pipescaler.processors.XbrzProcessor import XbrzProcessor
 
 ##################################### ALL #####################################
 __all__: List[str] = [

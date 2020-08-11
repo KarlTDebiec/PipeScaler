@@ -124,7 +124,10 @@ class MipmapSorter(Sorter):
     def backup_mipmap(self, name: str) -> None:
         if not isdir(f"{self.pipeline.wip_directory}/{name}"):
             makedirs(f"{self.pipeline.wip_directory}/{name}")
+        original = f"{self.pipeline.source.input_directory}/{name}.png"
         backup = f"{self.pipeline.wip_directory}/{name}/{name}.png"
+        if not isfile(original):
+            original = f"{self.pipeline.source.input_directory}/{name}.tga"
+            backup = f"{self.pipeline.wip_directory}/{name}/{name}.tga"
         if not isfile(backup):
-            original = f"{self.pipeline.source.input_directory}/{name}.png"
             copyfile(original, backup)

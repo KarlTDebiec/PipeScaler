@@ -35,9 +35,9 @@ class ScaledImageIdentifier:
         # Store output directory for concatenations
 
     def __call__(self):
-        # conf = f"{getenv('HOME')}/OneDrive/code/Zelda3DHD/OOT"
+        # conf = f"{getenv('HOME')}/OneDrive/code/PipeScalerProjects/ZeldaOOT3D"
         # local = f"{getenv('HOME')}/Documents/OOT"
-        conf = f"{getenv('HOME')}/OneDrive/code/JSRHD/JSR"
+        conf = f"{getenv('HOME')}/OneDrive/code/PipeScalerProjects/JetSetRadio"
         local = f"{getenv('HOME')}/Documents/JSR"
 
         skip = set(
@@ -52,7 +52,7 @@ class ScaledImageIdentifier:
         #     [splitext(f)[0] for f in listdir(f"{local}/1x_normal")])
 
         # Load assigned images
-        with open(f"{conf}/scaled.yaml", "r") as f:
+        with open(f"{conf}/classes/scaled.yaml", "r") as f:
             assignments = yaml.load(f, Loader=yaml.SafeLoader)
         large_to_small = {}
         small_to_large = {}
@@ -78,8 +78,7 @@ class ScaledImageIdentifier:
             data[size][splitext(infile)[0]] = np.array(image)
 
         # Loop over sizes from largest to smallest
-        # for size in reversed(sorted(data.keys())):
-        for size in [(256, 256)]:
+        for size in list(reversed(sorted(data.keys()))):
             print(f"{size}: {len(data[size])}")
             for scale in [0.5, 0.25, 0.125, 0.0625]:
                 scaled_size = tuple(
