@@ -151,17 +151,16 @@ class CLTool(ABC):
                 # noinspection Mypy
                 value = float(value)
             except ValueError:
-                raise ArgumentTypeError(
-                    f"input value '{value}' is of type '{type(value)}', not "
-                    f"float")
+                raise ArgumentTypeError(f"'{value}' is of type "
+                                        f"'{type(value)}', not float")
+
+            # noinspection Mypy
             if min_value is not None and value < min_value:
-                raise ArgumentTypeError(
-                    f"input value '{value}' is less than minimum value of "
-                    f"'{min_value}'")
+                raise ArgumentTypeError(f"'{value}' is less than minimum "
+                                        f"value of '{min_value}'")
             if max_value is not None and value > max_value:
-                raise ArgumentTypeError(
-                    f"input value '{value}' is greater than maximum value of "
-                    f"'{max_value}'")
+                raise ArgumentTypeError(f"'{value}' is greater than maximum "
+                                        f"value of '{max_value}'")
             return value
 
         return func
@@ -170,24 +169,17 @@ class CLTool(ABC):
     def indir_argument() -> Callable[[str], str]:
         def func(value: str) -> str:
             if not isinstance(value, str):
-                raise ArgumentTypeError(
-                    f"input directory '{value}' is of type '{type(value)}', "
-                    f"not str")
+                raise ArgumentTypeError(f"'{value}' is of type "
+                                        f"'{type(value)}', not str")
 
             value = expandvars(value)
-            if exists(value):
-                if isdir(value):
-                    if not access(value, R_OK):
-                        raise ArgumentTypeError(
-                            f"input directory '{value}' exists but cannot be "
-                            f"read")
-                else:
-                    raise ArgumentTypeError(
-                        f"input directory '{value}' exists but is not a "
-                        f"directory")
-            else:
-                raise ArgumentTypeError(
-                    f"input directory '{value}' does not exist")
+
+            if not exists(value):
+                raise ValueError(f"'{value}' does not exist")
+            if not isdir(value):
+                raise ValueError(f"'{value}' exists but is not a directory")
+            if not access(value, R_OK):
+                raise ValueError(f"'{value}' exists but cannot be read")
 
             return value
 
@@ -197,25 +189,22 @@ class CLTool(ABC):
     def indir_or_infile_argument() -> Callable[[str], str]:
         def func(value: str) -> str:
             if not isinstance(value, str):
-                raise ArgumentTypeError(
-                    f"input file/directory '{value}' is of type "
-                    f"'{type(value)}', not str")
+                raise ArgumentTypeError(f"'{value}' is of type "
+                                        f"'{type(value)}', not str")
 
             value = expandvars(value)
             directory = dirname(value)
             if directory == "":
                 directory = getcwd()
             value = join(directory, basename(value))
-            if exists(value):
-                if isfile(value):
-                    if not access(value, R_OK):
-                        raise ArgumentTypeError(
-                            f"input file '{value}' exists but cannot be read")
-                else:
-                    raise ArgumentTypeError(
-                        f"input file '{value}' exists but is not a file")
-            else:
-                raise ArgumentTypeError(f"input file '{value}' does not exist")
+
+            if not exists(value):
+                raise ValueError(f"'{value}' does not exist")
+            if not (isdir(value) or isfile(value)):
+                raise ValueError(f"'{value}' exists but is not a file or "
+                                 f"directory")
+            if not access(value, R_OK):
+                raise ValueError(f"'{value}' exists but cannot be read")
 
             return value
 
@@ -225,25 +214,21 @@ class CLTool(ABC):
     def infile_argument() -> Callable[[str], str]:
         def func(value: str) -> str:
             if not isinstance(value, str):
-                raise ArgumentTypeError(
-                    f"input file '{value}' is of type '{type(value)}', not "
-                    f"str")
+                raise ArgumentTypeError(f"'{value}' is of type "
+                                        f"'{type(value)}', not str")
 
             value = expandvars(value)
             directory = dirname(value)
             if directory == "":
                 directory = getcwd()
             value = join(directory, basename(value))
-            if exists(value):
-                if isfile(value):
-                    if not access(value, R_OK):
-                        raise ArgumentTypeError(
-                            f"input file '{value}' exists but cannot be read")
-                else:
-                    raise ArgumentTypeError(
-                        f"input file '{value}' exists but is not a file")
-            else:
-                raise ArgumentTypeError(f"input file '{value}' does not exist")
+
+            if not exists(value):
+                raise ValueError(f"'{value}' does not exist")
+            if not isfile(value):
+                raise ValueError(f"'{value}' exists but is not a file")
+            if not access(value, R_OK):
+                raise ValueError(f"'{value}' exists but cannot be read")
 
             return value
 
@@ -253,24 +238,18 @@ class CLTool(ABC):
     def outdir_argument() -> Callable[[str], str]:
         def func(value: str) -> str:
             if not isinstance(value, str):
-                raise ArgumentTypeError(
-                    f"output directory '{value}' is of type '{type(value)}', "
-                    f"not str")
+                if not isinstance(value, str):
+                    raise ArgumentTypeError(f"'{value}' is of type "
+                                            f"'{type(value)}', not str")
 
             value = expandvars(value)
-            if exists(value):
-                if isdir(value):
-                    if not access(value, W_OK):
-                        raise ArgumentTypeError(
-                            f"output directory '{value}' exists but cannot be "
-                            f"written")
-                else:
-                    raise ArgumentTypeError(
-                        f"output directory '{value}' exists but is not a "
-                        f"directory")
-            else:
-                raise ArgumentTypeError(
-                    f"output directory '{value}' does not exist")
+
+            if not exists(value):
+                raise ValueError(f"'{value}' does not exist")
+            if not isdir(value):
+                raise ValueError(f"'{value}' exists but is not a directory")
+            if not access(value, W_OK):
+                raise ValueError(f"'{value}' exists but cannot be written")
 
             return value
 
@@ -280,38 +259,31 @@ class CLTool(ABC):
     def outfile_argument() -> Callable[[str], str]:
         def func(value: str) -> str:
             if not isinstance(value, str):
-                raise ArgumentTypeError(
-                    f"output file '{value}' is of type '{type(value)}', not "
-                    f"str")
+                raise ArgumentTypeError(f"'{value}' is of type "
+                                        f"'{type(value)}', not str")
 
             value = expandvars(value)
             directory = dirname(value)
             if directory == "":
                 directory = getcwd()
             value = join(directory, basename(value))
+
             if exists(value):
-                if isfile(value):
-                    if not access(value, W_OK):
-                        raise ArgumentTypeError(
-                            f"output file '{value}' exists but cannot be "
-                            f"written")
-                else:
-                    raise ArgumentTypeError(
-                        f"output file '{value}' exists but is not a file")
+                if not isfile(value):
+                    raise ArgumentTypeError(f"'{value}' exists but is not a "
+                                            f"file")
+                if not access(value, W_OK):
+                    raise ArgumentTypeError(f"'{value}' exists but cannot be "
+                                            f"written")
             else:
-                if exists(directory):
-                    if isdir(directory):
-                        if not access(directory, W_OK):
-                            raise ArgumentTypeError(
-                                f"output directory '{directory}' exists but "
-                                f"cannot be written")
-                    else:
-                        raise ArgumentTypeError(
-                            f"output directory '{directory}' exists but is "
-                            f"not a directory")
-                else:
-                    raise ArgumentTypeError(
-                        f"output directory '{directory}' does not exist")
+                if not exists(directory):
+                    raise ArgumentTypeError(f"'{directory}' does not exist")
+                if not isdir(directory):
+                    raise ArgumentTypeError(f"'{directory}' exists but is not "
+                                            f"a directory")
+                if not access(directory, W_OK):
+                    raise ArgumentTypeError(f"'{directory}' exists but cannot "
+                                            f"be written")
 
             return value
 

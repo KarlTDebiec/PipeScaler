@@ -11,8 +11,8 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
-from os import getenv, listdir
-from os.path import splitext
+from os import R_OK, access, getenv, listdir
+from os.path import exists, expandvars, isdir, splitext
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
@@ -125,6 +125,26 @@ class ScaledImageIdentifier(CLTool):
 
     # endregion
 
+    # region Properties
+
+    @property
+    def dump_directory(self) -> str:
+        """str: Directory from which to load image files"""
+        return self._dump_directory
+
+    @dump_directory.setter
+    def dump_directory(self, value: str) -> None:
+        value = expandvars(value)
+        if not exists(value):
+            raise ValueError(f"'{value}' does not exist")
+        if not isdir(value):
+            raise ValueError(f"'{value}' exists but is not a directory")
+        if not access(value, R_OK):
+            raise ValueError(f"'{value}' exists but cannot be read")
+        self._dump_directory = value
+
+    # endregion
+
     # region Class Methods
 
     @classmethod
@@ -143,11 +163,11 @@ class ScaledImageIdentifier(CLTool):
         # Input
         parser_input = parser.add_argument_group("input arguments")
         parser_input.add_argument(
-            "-i", "--indir",
+            "-d", "--dump",
             metavar="DIR",
             required=True,
             type=cls.indir_argument(),
-            help="input directory from which to read files")
+            help="input directory from which to read images")
         parser_input.add_argument(
             "-s", "--skip",
             metavar="FILE|DIR",
@@ -157,10 +177,10 @@ class ScaledImageIdentifier(CLTool):
                  "input directories whose contained filenames should be "
                  "skipped")
         parser_input.add_argument(
-            "-a", "--asd",
+            "-i", "--infile",
             metavar="FILE",
             type=cls.infile_argument(),
-            help="input yaml file from which to read scaled file "
+            help="input yaml file from which to read known scaled file "
                  "relationships")
 
         # Operations
@@ -179,7 +199,7 @@ class ScaledImageIdentifier(CLTool):
             help="output yaml file to which to write scaled file "
                  "relationships")
         parser_output.add_argument(
-            "-c", "--concat_outdir",
+            "-c", "--concat",
             metavar="FILE",
             type=cls.outdir_argument(),
             help="output directory to which to write concatenated images")
