@@ -32,6 +32,6 @@ setup(
         "pipescaler": get_package_data("pipescaler/data")},
     packages=find_packages(),
     scripts=[
-        "pipescaler/PipeScaler.py",
-        "pipescaler/tools/ScaledImageIdentifier.py",
+        "pipescaler/scripts/pipescaler.py",
+        "pipescaler/scripts/scaled_image_identifier.py",
     ])

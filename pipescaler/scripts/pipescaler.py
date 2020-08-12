@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/PipeScaler.py
+#   pipescaler/pipescaler.py
 #
 #   Copyright (C) 2020 Karl T Debiec
 #   All rights reserved.
@@ -9,13 +9,12 @@
 ################################### MODULES ###################################
 from __future__ import annotations
 
-from argparse import ArgumentError, ArgumentParser, RawDescriptionHelpFormatter
-from os import R_OK, access
-from os.path import expandvars, isfile
+from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from pathlib import Path
 
 import yaml
 
+from pipescaler import infile_argument
 from pipescaler.Pipeline import Pipeline
 
 
@@ -23,9 +22,9 @@ from pipescaler.Pipeline import Pipeline
 class PipeScaler:
     """
     TODO:
-        - [x] Pixelmator 2x processor
-        - [x] Pixelmator 2x processor with transparency
-        - [x] Pixelmator 2x auto transparency
+        - [ ] Add arguments to scaled_image_identifier.py
+        - [ ] Rename mipmap to scaled
+        - [ ] Fix ESRGAN
         - [ ] Waifu2x auto transparency
         - [ ] Move infile_argument and outfile_argument to module level
     """
@@ -62,19 +61,6 @@ class PipeScaler:
         Returns:
             parser (ArgumentParser): Argument parser
         """
-
-        def infile_argument(value: str) -> str:
-            if not isinstance(value, str):
-                raise ArgumentError()
-
-            value = expandvars(value)
-            if not isfile(value):
-                raise ArgumentError(f"infile '{value}' does not exist")
-            elif not access(value, R_OK):
-                raise ArgumentError(f"infile '{value}' cannot be read")
-
-            return value
-
         parser = ArgumentParser(description=__doc__,
                                 formatter_class=RawDescriptionHelpFormatter)
         verbosity = parser.add_mutually_exclusive_group()
@@ -100,7 +86,6 @@ class PipeScaler:
     @classmethod
     def main(cls) -> None:
         """Parses and validates arguments, constructs and calls object"""
-
         parser = cls.construct_argparser()
         kwargs = vars(parser.parse_args())
         cls(**kwargs)()

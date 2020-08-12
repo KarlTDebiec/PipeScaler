@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/tools/ScaledImageIdentifier.py
+#   pipescaler/tools/scaled_image_identifier.py
 #
 #   Copyright (C) 2020 Karl T Debiec
 #   All rights reserved.
@@ -9,32 +9,39 @@
 ################################### MODULES ###################################
 from __future__ import annotations
 
-from argparse import ArgumentParser, RawDescriptionHelpFormatter
+from argparse import ArgumentParser
 from os import getenv, listdir
 from os.path import splitext
-from typing import Dict, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import yaml
 from PIL import Image
 from skimage.metrics import structural_similarity as ssim
 
+from pipescaler.core import CLTool
+
 
 ################################### CLASSES ###################################
-class ScaledImageIdentifier:
+class ScaledImageIdentifier(CLTool):
 
     # region Builtins
 
-    def __init__(self, verbosity: int = 1) -> None:
+    def __init__(self,
+                 indir: str,
+                 skip: Optional[Union[List[str], str]] = None,
+                 scaled: Optional[str] = None,
+                 threshold: float = 0.9,
+                 concat_outdir: Optional[str] = None,
+                 verbosity: int = 1,
+                 **kwargs: Any) -> None:
         pass
-        # Store input directory
-        # Store list of files to ignore
-        # Store dictionary of known scaled images
-        # Store threshold
         # Store output directory for individual scaled images
         # Store output directory for concatenations
 
     def __call__(self):
+        print("called")
+        return
         # conf = f"{getenv('HOME')}/OneDrive/code/PipeScalerProjects/ZeldaOOT3D"
         # local = f"{getenv('HOME')}/Documents/OOT"
         conf = f"{getenv('HOME')}/OneDrive/code/PipeScalerProjects/JetSetRadio"
@@ -122,35 +129,67 @@ class ScaledImageIdentifier:
     # region Class Methods
 
     @classmethod
-    def construct_argparser(cls) -> ArgumentParser:
+    def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
         Constructs argument parser
 
+        Args:
+            kwargs (Any): Additional keyword arguments
+
         Returns:
-            parser (ArgumentParser): Argument parser
+            ArgumentParser: Argument parser
         """
-        parser = ArgumentParser(description=__doc__,
-                                formatter_class=RawDescriptionHelpFormatter)
-        verbosity = parser.add_mutually_exclusive_group()
-        verbosity.add_argument(
-            "-v", "--verbose",
-            action="count",
-            default=1,
-            dest="verbosity",
-            help="enable verbose output, may be specified more than once")
-        verbosity.add_argument(
-            "-q", "--quiet",
-            action="store_const",
-            const=0,
-            dest="verbosity",
-            help="disable verbose output")
+        parser = super().construct_argparser(description=__doc__, **kwargs)
+
+        # Input
+        parser_input = parser.add_argument_group("input arguments")
+        parser_input.add_argument(
+            "-i", "--indir",
+            metavar="DIR",
+            type=cls.indir_argument(),
+            help="input directory from which to read files")
+        parser_input.add_argument(
+            "-s", "--skip",
+            metavar="FILE|DIR",
+            nargs="+",
+            required=False,
+            type=cls.indir_or_infile_argument(),
+            help="input file(s) from which to read lists of files to skip, or "
+                 "input directories whose contained filenames should be "
+                 "skipped")
+        parser_input.add_argument(
+            "-a", "--asd",
+            metavar="FILE",
+            type=cls.infile_argument(),
+            help="input yaml file from which to read scaled file "
+                 "relationships")
+
+        # Operations
+        parser_ops = parser.add_argument_group("operation arguments")
+        parser_ops.add_argument(
+            "-t", "--threshold",
+            type=cls.float_argument(0, 1),
+            help="threshold")
+
+        # Output
+        parser_output = parser.add_argument_group("output arguments")
+        parser_output.add_argument(
+            "-o", "--outfile",
+            metavar="FILE",
+            type=cls.outfile_argument(),
+            help="output yaml file to which to write scaled file "
+                 "relationships")
+        parser_output.add_argument(
+            "-c", "--concat_outdir",
+            metavar="FILE",
+            type=cls.outdir_argument(),
+            help="output directory to which to write concatenated images")
 
         return parser
 
     @classmethod
     def main(cls) -> None:
         """Parses and validates arguments, constructs and calls object"""
-
         parser = cls.construct_argparser()
         kwargs = vars(parser.parse_args())
         cls(**kwargs)()
