@@ -1,11 +1,12 @@
 #!/usr/bin/env python
-#   pipescaler/tools/scaled_image_identifier.py
+#   pipescaler/scripts/scaled_image_identifier.py
 #
 #   Copyright (C) 2020 Karl T Debiec
 #   All rights reserved.
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+""""""
 ################################### MODULES ###################################
 from __future__ import annotations
 
@@ -19,7 +20,7 @@ import yaml
 from PIL import Image
 from skimage.metrics import structural_similarity as ssim
 
-from pipescaler.core import CLTool
+from pipescaler.common import CLTool
 
 
 ################################### CLASSES ###################################
@@ -35,7 +36,8 @@ class ScaledImageIdentifier(CLTool):
                  concat_outdir: Optional[str] = None,
                  verbosity: int = 1,
                  **kwargs: Any) -> None:
-        pass
+        super().__init__(**kwargs)
+
         # Store output directory for individual scaled images
         # Store output directory for concatenations
 
@@ -146,13 +148,13 @@ class ScaledImageIdentifier(CLTool):
         parser_input.add_argument(
             "-i", "--indir",
             metavar="DIR",
+            required=True,
             type=cls.indir_argument(),
             help="input directory from which to read files")
         parser_input.add_argument(
             "-s", "--skip",
             metavar="FILE|DIR",
             nargs="+",
-            required=False,
             type=cls.indir_or_infile_argument(),
             help="input file(s) from which to read lists of files to skip, or "
                  "input directories whose contained filenames should be "

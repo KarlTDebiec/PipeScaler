@@ -1,11 +1,12 @@
 #!/usr/bin/env python
-#   pipescaler/tools/cltool.py
+#   common/cltool.py
 #
 #   Copyright (C) 2017-2020 Karl T Debiec
 #   All rights reserved.
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license. See the LICENSE file for details.
+""""""
 ################################### MODULES ###################################
 from abc import ABC
 from argparse import (ArgumentParser,
@@ -16,12 +17,13 @@ from os import R_OK, W_OK, access, getcwd
 from os.path import basename, dirname, exists, expandvars, isdir, isfile, join
 from typing import Any, Callable, Dict, Optional, Union
 
-from pipescaler import package_root
+# noinspection Mypy
+from . import package_root
 
 
 ################################### CLASSES ###################################
 class CLTool(ABC):
-    """Base for command line tools"""
+    """Abstract base class for command line tools"""
 
     # region Builtins
 
@@ -29,7 +31,7 @@ class CLTool(ABC):
         pass
 
     def __call__(self, **kwargs: Any) -> None:
-        pass
+        raise NotImplementedError()
 
     # endregion
 
@@ -152,11 +154,11 @@ class CLTool(ABC):
                     f"float")
             if min_value is not None and value < min_value:
                 raise ArgumentTypeError(
-                    f"input value '{value}' is below minimum value of "
+                    f"input value '{value}' is less than minimum value of "
                     f"'{min_value}'")
             if max_value is not None and value > max_value:
                 raise ArgumentTypeError(
-                    f"input value '{value}' is below maximum value of "
+                    f"input value '{value}' is greater than maximum value of "
                     f"'{max_value}'")
             return value
 
@@ -189,7 +191,6 @@ class CLTool(ABC):
 
         return func
 
-
     @staticmethod
     def indir_or_infile_argument() -> Callable[[str], str]:
         def func(value: str) -> str:
@@ -217,7 +218,6 @@ class CLTool(ABC):
             return value
 
         return func
-
 
     @staticmethod
     def infile_argument() -> Callable[[str], str]:
