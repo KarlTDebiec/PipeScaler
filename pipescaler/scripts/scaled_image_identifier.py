@@ -38,9 +38,6 @@ class ScaledImageIdentifier(CLTool):
                  **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
-        # Store output directory for individual scaled images
-        # Store output directory for concatenations
-
     def __call__(self):
         print("called")
         return
