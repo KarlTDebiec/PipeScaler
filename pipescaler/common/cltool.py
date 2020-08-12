@@ -10,7 +10,7 @@
 ################################### MODULES ###################################
 from abc import ABC
 from argparse import (ArgumentParser,
-                      ArgumentTypeError, FileType, RawDescriptionHelpFormatter,
+                      ArgumentTypeError, RawDescriptionHelpFormatter,
                       _SubParsersAction)
 from inspect import currentframe, getframeinfo
 from os import R_OK, W_OK, access, getcwd
@@ -144,17 +144,14 @@ class CLTool(ABC):
     @staticmethod
     def float_argument(
             min_value: Optional[float] = None,
-            max_value: Optional[float] = None) \
-            -> Union[Callable[[str], float], FileType]:
+            max_value: Optional[float] = None) -> Callable[[str], float]:
         def func(value: str) -> float:
             try:
-                # noinspection Mypy
                 value = float(value)
             except ValueError:
                 raise ArgumentTypeError(f"'{value}' is of type "
                                         f"'{type(value)}', not float")
 
-            # noinspection Mypy
             if min_value is not None and value < min_value:
                 raise ArgumentTypeError(f"'{value}' is less than minimum "
                                         f"value of '{min_value}'")

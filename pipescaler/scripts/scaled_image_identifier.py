@@ -11,12 +11,13 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
-from os import R_OK, access, getenv, listdir
-from os.path import exists, expandvars, isdir, splitext
-from typing import Any, Dict, List, Optional, Tuple, Union
+from os import R_OK, W_OK, access, getenv, listdir
+from os.path import exists, expandvars, isdir, isfile, splitext
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import numpy as np
 import yaml
+from IPython import embed
 from PIL import Image
 from skimage.metrics import structural_similarity as ssim
 
@@ -29,16 +30,43 @@ class ScaledImageIdentifier(CLTool):
     # region Builtins
 
     def __init__(self,
-                 indir: str,
+                 dump_directory: str,
                  skip: Optional[Union[List[str], str]] = None,
-                 scaled: Optional[str] = None,
+                 infile: Optional[str] = None,
                  threshold: float = 0.9,
+                 outfile: Optional[str] = None,
                  concat_outdir: Optional[str] = None,
-                 verbosity: int = 1,
                  **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
-    def __call__(self):
+        self.dump_directory = dump_directory
+        if skip is not None:
+            skip_files: Set[str] = set()
+            for s in skip:
+                if not exists(s):
+                    raise ValueError()
+                if isfile(s):
+                    with open(s, "r") as f:
+                        skip_files = skip_files.union(
+                            set(yaml.load(f, Loader=yaml.SafeLoader)))
+                elif isdir(s):
+                    skip_files = skip_files.union(
+                        set([splitext(f)[0] for f in listdir(s)]))
+                else:
+                    raise ValueError()
+            self.skip_files = skip_files
+        if infile is not None:
+            with open(infile, "r") as f:
+                self.known_scaled = yaml.load(f, Loader=yaml.SafeLoader)
+        if outfile is not None:
+            pass
+
+        self.threshold = threshold
+        # outfile
+        # concat
+        embed()
+
+    def __call__(self) -> None:
         print("called")
         return
         # conf = f"{getenv('HOME')}/OneDrive/code/PipeScalerProjects/ZeldaOOT3D"
@@ -128,12 +156,36 @@ class ScaledImageIdentifier(CLTool):
     # region Properties
 
     @property
+    def concat_directory(self) -> Optional[str]:
+        """str: Directory to which to write concatenated image files"""
+        if not hasattr(self, "concat_directory"):
+            self._concat_directory: Optional[str] = None
+        return self._concat_directory
+
+    @concat_directory.setter
+    def concat_directory(self, value: Optional[str]) -> None:
+        if value is not None:
+            if not isinstance(value, str):
+                raise ValueError(f"'{value}' is of type '{type(value)}', not "
+                                 f"str")
+            value = expandvars(value)
+            if not exists(value):
+                raise ValueError(f"'{value}' does not exist")
+            if not isdir(value):
+                raise ValueError(f"'{value}' exists but is not a directory")
+            if not access(value, W_OK):
+                raise ValueError(f"'{value}' exists but cannot be written")
+        self._concat_directory = value
+
+    @property
     def dump_directory(self) -> str:
         """str: Directory from which to load image files"""
         return self._dump_directory
 
     @dump_directory.setter
     def dump_directory(self, value: str) -> None:
+        if not isinstance(value, str):
+            raise ValueError(f"'{value}' is of type '{type(value)}', not str")
         value = expandvars(value)
         if not exists(value):
             raise ValueError(f"'{value}' does not exist")
@@ -142,6 +194,51 @@ class ScaledImageIdentifier(CLTool):
         if not access(value, R_OK):
             raise ValueError(f"'{value}' exists but cannot be read")
         self._dump_directory = value
+
+    @property
+    def known_scaled(self) -> Dict[str, Dict[float, Union[str, List[str]]]]:
+        """Dict[float, Union[str, List[str]]]]: known scaled relationships"""
+        if not hasattr(self, "_known_scaled"):
+            self._known_scaled: Dict[
+                str, Dict[float, Union[str, List[str]]]] = {}
+        return self._known_scaled
+
+    @known_scaled.setter
+    def known_scaled(self, value: Dict[
+        str, Dict[float, Union[str, List[str]]]]) -> None:
+        self._known_scaled = value
+
+    @property
+    def skip_files(self) -> Set[str]:
+        """Set[str]: Files to skip if found in dump directory"""
+        if not hasattr(self, "_skip_files"):
+            self._skip_files: Set[str] = set()
+        return self._skip_files
+
+    @skip_files.setter
+    def skip_files(self, value: Set[str]) -> None:
+        self._skip_files = value
+
+    @property
+    def threshold(self) -> float:
+        """
+        float: Threshold structural similarity above which images are
+        considered to match
+        """
+        return self._threshold
+
+    @threshold.setter
+    def threshold(self, value: float) -> None:
+        try:
+            value = float(value)
+        except ValueError:
+            raise ValueError(f"'{value}' is of type '{type(value)}', not "
+                             f"float")
+        if value < 0:
+            raise ValueError(f"'{value}' is less than minimum value of 0.0")
+        elif value > 1:
+            raise ValueError(f"'{value}' is greater than maximum value of 1.0")
+        self._threshold = value
 
     # endregion
 
@@ -164,6 +261,7 @@ class ScaledImageIdentifier(CLTool):
         parser_input = parser.add_argument_group("input arguments")
         parser_input.add_argument(
             "-d", "--dump",
+            dest="dump_directory",
             metavar="DIR",
             required=True,
             type=cls.indir_argument(),
@@ -187,6 +285,7 @@ class ScaledImageIdentifier(CLTool):
         parser_ops = parser.add_argument_group("operation arguments")
         parser_ops.add_argument(
             "-t", "--threshold",
+            default=0.9,
             type=cls.float_argument(0, 1),
             help="threshold")
 
