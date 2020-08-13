@@ -19,7 +19,7 @@ from typing import Any
 import numpy as np
 from PIL import Image
 
-from pipescaler import package_root
+from pipescaler.common import package_root
 from pipescaler.processors.Processor import Processor
 
 

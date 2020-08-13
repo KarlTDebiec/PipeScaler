@@ -9,12 +9,12 @@
 ################################### MODULES ###################################
 from __future__ import annotations
 
-from os.path import basename, isfile, isdir
+from os.path import basename, isdir
 from shutil import copyfile
 from subprocess import Popen
 from typing import Any
 
-from pipescaler import package_root
+from pipescaler.common import package_root
 from pipescaler.processors.Processor import Processor
 
 

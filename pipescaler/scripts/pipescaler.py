@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/pipescaler.py
+#   pipescaler/scripts/pipescaler.py
 #
 #   Copyright (C) 2020 Karl T Debiec
 #   All rights reserved.
@@ -9,17 +9,18 @@
 ################################### MODULES ###################################
 from __future__ import annotations
 
-from argparse import ArgumentParser, RawDescriptionHelpFormatter
+from argparse import ArgumentParser
 from pathlib import Path
+from typing import Any
 
 import yaml
 
-from pipescaler import infile_argument
 from pipescaler.Pipeline import Pipeline
+from pipescaler.common import CLTool
 
 
 ################################### CLASSES ###################################
-class PipeScaler:
+class PipeScaler(CLTool):
     """
     TODO:
         - [ ] Add arguments to scaled_image_identifier.py
@@ -32,21 +33,21 @@ class PipeScaler:
 
     # region Builtins
 
-    def __init__(self, conf_file: str, verbosity: int = 1) -> None:
+    def __init__(self, conf_file: str, **kwargs) -> None:
         """
         Initializes
 
         Args:
             conf_file (str): file from which to load configuration
         """
-        # Read configuration file
+        super().__init__(**kwargs)
+
+        # Input
         with open(conf_file, "r") as f:
             conf = yaml.load(f, Loader=yaml.SafeLoader)
+        self.pipeline = Pipeline(conf, verbosity=self.verbosity)
 
-        # Build pipeline
-        self.pipeline = Pipeline(conf, verbosity=verbosity)
-
-    def __call__(self):
+    def __call__(self) -> None:
         self.pipeline()
 
     # endregion
@@ -54,41 +55,23 @@ class PipeScaler:
     # region Class Methods
 
     @classmethod
-    def construct_argparser(cls) -> ArgumentParser:
+    def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
         Constructs argument parser
 
         Returns:
             parser (ArgumentParser): Argument parser
         """
-        parser = ArgumentParser(description=__doc__,
-                                formatter_class=RawDescriptionHelpFormatter)
-        verbosity = parser.add_mutually_exclusive_group()
-        verbosity.add_argument(
-            "-v", "--verbose",
-            action="count",
-            default=1,
-            dest="verbosity",
-            help="enable verbose output, may be specified more than once")
-        verbosity.add_argument(
-            "-q", "--quiet",
-            action="store_const",
-            const=0,
-            dest="verbosity",
-            help="disable verbose output")
+        parser = super().construct_argparser(description=__doc__, **kwargs)
+
+        # Input
+        parser_input = parser.add_argument_group("input arguments")
         parser.add_argument(
             "conf_file",
-            type=infile_argument,
+            type=cls.infile_argument(),
             help="configuration file")
 
         return parser
-
-    @classmethod
-    def main(cls) -> None:
-        """Parses and validates arguments, constructs and calls object"""
-        parser = cls.construct_argparser()
-        kwargs = vars(parser.parse_args())
-        cls(**kwargs)()
 
     # endregion
 

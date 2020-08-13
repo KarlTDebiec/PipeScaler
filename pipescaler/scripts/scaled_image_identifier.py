@@ -18,7 +18,6 @@ from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import numpy as np
 import yaml
-from IPython import embed
 from PIL import Image
 from skimage.metrics import structural_similarity as ssim
 
