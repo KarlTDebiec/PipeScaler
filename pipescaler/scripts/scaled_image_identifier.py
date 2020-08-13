@@ -11,8 +11,9 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
-from os import R_OK, W_OK, access, getenv, listdir
-from os.path import exists, expandvars, isdir, isfile, splitext
+from os import R_OK, W_OK, access, getcwd, listdir
+from os.path import basename, dirname, exists, expandvars, isdir, isfile, join, \
+    splitext
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import numpy as np
@@ -35,10 +36,11 @@ class ScaledImageIdentifier(CLTool):
                  infile: Optional[str] = None,
                  threshold: float = 0.9,
                  outfile: Optional[str] = None,
-                 concat_outdir: Optional[str] = None,
+                 concat_directory: Optional[str] = None,
                  **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
+        # Input
         self.dump_directory = dump_directory
         if skip is not None:
             skip_files: Set[str] = set()
@@ -58,39 +60,21 @@ class ScaledImageIdentifier(CLTool):
         if infile is not None:
             with open(infile, "r") as f:
                 self.known_scaled = yaml.load(f, Loader=yaml.SafeLoader)
-        if outfile is not None:
-            pass
 
+        # Operations
         self.threshold = threshold
-        # outfile
-        # concat
-        embed()
+
+        # Output
+        if outfile is not None:
+            self.outfile = outfile
+        self.concat_directory = concat_directory
 
     def __call__(self) -> None:
-        print("called")
-        return
-        # conf = f"{getenv('HOME')}/OneDrive/code/PipeScalerProjects/ZeldaOOT3D"
-        # local = f"{getenv('HOME')}/Documents/OOT"
-        conf = f"{getenv('HOME')}/OneDrive/code/PipeScalerProjects/JetSetRadio"
-        local = f"{getenv('HOME')}/Documents/JSR"
-
-        skip = set(
-            [splitext(f)[0] for f in listdir(f"{local}/1x_skip")])
-        skip = skip.union(
-            [splitext(f)[0] for f in listdir(f"{local}/1x_interface")])
-        # skip = skip.union(
-        #     [splitext(f)[0] for f in listdir(f"{local}/1x_large_text")])
-        # skip = skip.union(
-        #     [splitext(f)[0] for f in listdir(f"{local}/1x_maps")])
-        # skip = skip.union(
-        #     [splitext(f)[0] for f in listdir(f"{local}/1x_normal")])
 
         # Load assigned images
-        with open(f"{conf}/classes/scaled.yaml", "r") as f:
-            assignments = yaml.load(f, Loader=yaml.SafeLoader)
         large_to_small = {}
         small_to_large = {}
-        for large, scaled in assignments.items():
+        for large, scaled in self.known_scaled.items():
             large_to_small[large] = []
             for scale, smalls in scaled.items():
                 if not isinstance(smalls, list):
@@ -98,18 +82,25 @@ class ScaledImageIdentifier(CLTool):
                 for small in smalls:
                     small_to_large[small] = (large, scale)
                     large_to_small[large].append((small, scale))
-        skip = skip.union(small_to_large.keys())
+        self.skip_files = self.skip_files.union(small_to_large.keys())
 
         # Construct dictionary of sizes to dictionaries of images
         data: Dict[Tuple[int, int], Dict[str, np.ndarray]] = {}
-        for infile in listdir(f"{local}/1x"):
-            if infile == ".DS_Store" or splitext(infile)[0] in skip:
+        thumb_data: Dict[str, np.ndarray] = {}
+        for infile in listdir(self.dump_directory):
+            name, ext = splitext(infile)
+            if infile == ".DS_Store" or name in self.skip_files:
                 continue
-            image = Image.open(f"{local}/1X/{infile}")
+            image = Image.open(f"{self.dump_directory}/{name}{ext}")
             size = image.size
             if size not in data:
                 data[size] = {}
-            data[size][splitext(infile)[0]] = np.array(image)
+            data[size][name] = np.array(image)
+            thumb_scale = max(8.0 / size[0], 8.0 / size[1])
+            thumb_size = tuple(
+                [int(size[0] * thumb_scale), int(size[1] * thumb_scale)])
+            thumb_data[name] = np.array(
+                image.resize(thumb_size, resample=Image.LANCZOS))
 
         # Loop over sizes from largest to smallest
         for size in list(reversed(sorted(data.keys()))):
@@ -122,8 +113,9 @@ class ScaledImageIdentifier(CLTool):
 
             # Loop over images at this size
             i = 0
-            for large_infile, large_datum in data[size].items():
-                # print(large_infile)
+            for large_name, large_datum in data[size].items():
+                print(large_name)
+                large_thumb_datum = thumb_data[large_name]
 
                 # Loop over scales from largest to smallest
                 for scale in [0.5, 0.25, 0.125, 0.0625]:
@@ -131,22 +123,29 @@ class ScaledImageIdentifier(CLTool):
                         [int(size[0] * scale), int(size[1] * scale)])
                     if scaled_size not in data:
                         continue
-                    # print(f"    {scaled_size}: {len(data[scaled_size])}")
-                    scaled_datum = np.array(
-                        Image.fromarray(large_datum).resize(
-                            scaled_size, resample=Image.LANCZOS))
+                    scaled_datum = np.array(Image.fromarray(
+                        large_datum).resize(scaled_size,
+                                            resample=Image.LANCZOS))
 
-                    for small_infile, small_datum in data[scaled_size].items():
-                        if small_infile == large_infile:
-                            continue
+                    # Loop over images of this size
+                    for small_name, small_datum in data[scaled_size].items():
                         if scaled_datum.shape != small_datum.shape:
                             continue
+
+                        # Check thumbnail
+                        # embed()
+                        small_thumb_datum = thumb_data[small_name]
+                        score = ssim(large_thumb_datum, small_thumb_datum,
+                                     multichannel=True)
+                        if score < self.threshold / 2:
+                            continue
+
+                        # Check full size
                         score = ssim(scaled_datum, small_datum,
                                      multichannel=True)
-
-                        if score > 0.9:
-                            print(f"        {i:4d} {large_infile} "
-                                  f"{small_infile} {scale:6.4f} {score:4.2f}")
+                        if score > self.threshold:
+                            print(f"        {i:4d} {large_name} "
+                                  f"{small_name} {scale:6.4f} {score:4.2f}")
                             Image.fromarray(large_datum).show()
                             Image.fromarray(small_datum).show()
                 i += 1
@@ -207,6 +206,40 @@ class ScaledImageIdentifier(CLTool):
     def known_scaled(self, value: Dict[
         str, Dict[float, Union[str, List[str]]]]) -> None:
         self._known_scaled = value
+
+    @property
+    def outfile(self) -> Optional[str]:
+        """Optional[str]: Directory from which to load image files"""
+        if not hasattr(self, "outfile"):
+            self._outfile: Optional[str] = None
+        return self._outfile
+
+    @outfile.setter
+    def outfile(self, value: str) -> None:
+        if value is not None:
+            if not isinstance(value, str):
+                raise ValueError(f"'{value}' is of type '{type(value)}', not "
+                                 f"str")
+            value = expandvars(value)
+            directory = dirname(value)
+            if directory == "":
+                directory = getcwd()
+            value = join(directory, basename(value))
+            if exists(value):
+                if not isfile(value):
+                    raise ValueError(f"'{value}' exists but is not a file")
+                if not access(value, W_OK):
+                    raise ValueError(f"'{value}' exists but cannot be written")
+            else:
+                if not exists(directory):
+                    raise ValueError(f"'{directory}' does not exist")
+                if not isdir(directory):
+                    raise ValueError(f"'{directory}' exists but is not a "
+                                     f"directory")
+                if not access(directory, W_OK):
+                    raise ValueError(f"'{directory}' exists but cannot be "
+                                     f"written")
+        self._outfile = value
 
     @property
     def skip_files(self) -> Set[str]:
