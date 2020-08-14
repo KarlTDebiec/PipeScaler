@@ -12,8 +12,8 @@ from __future__ import annotations
 
 from argparse import ArgumentParser
 from os import R_OK, W_OK, access, getcwd, listdir
-from os.path import basename, dirname, exists, expandvars, isdir, isfile, join, \
-    splitext
+from os.path import (basename, dirname, exists, expandvars, isdir, isfile,
+                     join, splitext)
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import numpy as np
@@ -68,10 +68,10 @@ class ScaledImageIdentifier(CLTool):
             self.outfile = outfile
         self.concat_directory = concat_directory
 
-    def __call__(self) -> None:
+    def __call__(self, **kwargs: Any) -> None:
 
         # Load assigned images
-        large_to_small = {}
+        large_to_small: Dict[str, List[Tuple[str, float]]] = {}
         small_to_large = {}
         for large, scaled in self.known_scaled.items():
             large_to_small[large] = []
@@ -84,7 +84,7 @@ class ScaledImageIdentifier(CLTool):
         self.skip_files = self.skip_files.union(small_to_large.keys())
 
         # Construct dictionary of sizes to dictionaries of images
-        data: Dict[Tuple[int, int], Dict[str, np.ndarray]] = {}
+        data: Dict[Tuple[int, ...], Dict[str, np.ndarray]] = {}
         thumb_data: Dict[str, np.ndarray] = {}
         for infile in listdir(self.dump_directory):
             name, ext = splitext(infile)
@@ -105,7 +105,7 @@ class ScaledImageIdentifier(CLTool):
         for size in list(reversed(sorted(data.keys()))):
             print(f"{size}: {len(data[size])}")
             for scale in [0.5, 0.25, 0.125, 0.0625]:
-                scaled_size = tuple(
+                scaled_size: Tuple[int, ...] = tuple(
                     [int(size[0] * scale), int(size[1] * scale)])
                 if scaled_size in data:
                     print(f"    {scaled_size}: {len(data[scaled_size])}")
@@ -202,8 +202,9 @@ class ScaledImageIdentifier(CLTool):
         return self._known_scaled
 
     @known_scaled.setter
-    def known_scaled(self, value: Dict[
-        str, Dict[float, Union[str, List[str]]]]) -> None:
+    def known_scaled(
+            self,
+            value: Dict[str, Dict[float, Union[str, List[str]]]]) -> None:
         self._known_scaled = value
 
     @property
@@ -336,13 +337,6 @@ class ScaledImageIdentifier(CLTool):
             help="output directory to which to write concatenated images")
 
         return parser
-
-    @classmethod
-    def main(cls) -> None:
-        """Parses and validates arguments, constructs and calls object"""
-        parser = cls.construct_argparser()
-        kwargs = vars(parser.parse_args())
-        cls(**kwargs)()
 
     # endregion
 

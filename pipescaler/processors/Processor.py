@@ -9,33 +9,38 @@
 ################################### MODULES ###################################
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
-from argparse import ArgumentError, ArgumentParser, RawDescriptionHelpFormatter
-from os import R_OK, W_OK, access, getcwd, makedirs
-from os.path import basename, dirname, expandvars, isdir, isfile, splitext
+from abc import abstractmethod
+from argparse import ArgumentParser
+from os import makedirs
+from os.path import basename, dirname, isdir, isfile, splitext
 from shutil import copyfile, get_terminal_size
 from textwrap import TextWrapper
 from typing import Any, Iterator, List, Optional, Union
 
 from pipescaler.Pipeline import Pipeline
+from pipescaler.common import CLTool
 
 
 ################################### CLASSES ###################################
-class Processor(ABC):
+class Processor(CLTool):
     desc: str = ""
+
+    # region Builtins
 
     def __init__(self, pipeline: Pipeline,
                  downstream_pipes: Optional[Union[str, List[str]]] = None,
                  **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+
         self.pipeline = pipeline
 
         if isinstance(downstream_pipes, str):
             downstream_pipes = [downstream_pipes]
         self.downstream_pipes = downstream_pipes
 
-    def __call__(self) -> Iterator[str]:
+    def __call__(self, **kwargs: Any) -> Iterator[str]:
         while True:
-            infile = (yield)
+            infile: str = (yield)
             infile = self.backup_infile(infile)
             if self.pipeline.verbosity >= 2:
                 print(f"{self}: {infile}")
@@ -55,6 +60,10 @@ class Processor(ABC):
     def __str__(self) -> str:
         return self.__repr__()
 
+    # endregion
+
+    # region Methods
+
     def backup_infile(self, infile: str) -> str:
         if self.pipeline.wip_directory not in infile:
             name = self.get_original_name(infile)
@@ -69,7 +78,7 @@ class Processor(ABC):
             return infile
 
     def get_extension(self, infile: str) -> str:
-            return splitext(basename(infile))[1].strip(".")
+        return splitext(basename(infile))[1].strip(".")
 
     def get_original_name(self, infile: str) -> str:
         if self.pipeline.wip_directory in infile:
@@ -96,92 +105,53 @@ class Processor(ABC):
         self.process_file(infile, outfile,
                           verbosity=self.pipeline.verbosity)
 
+    # endregion
+
+    # region Class Methods
+
+    @classmethod
+    def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
+        """
+        Constructs argument parser
+
+        Args:
+            kwargs (Any): Additional keyword arguments
+
+        Returns:
+            ArgumentParser: Argument parser
+        """
+        parser = super().construct_argparser(description=__doc__, **kwargs)
+
+        # Input
+        parser_input = parser.add_argument_group("input arguments")
+        parser_input.add_argument(
+            "infile",
+            type=cls.infile_argument(),
+            help="input file")
+
+        # Output
+        parser_output = parser.add_argument_group("output arguments")
+        parser_output.add_argument(
+            "outfile",
+            type=cls.outfile_argument(),
+            help="output file")
+
+        return parser
+
+    @classmethod
+    @abstractmethod
+    def process_file(cls, infile: str, outfile: str, **kwargs: Any) -> None:
+        pass
+
+    # endregion
+
+    # region Static Methods
+
     @staticmethod
     def get_indented_text(text: str) -> str:
         columns = get_terminal_size((80, 20)).columns
         wrapper = TextWrapper(initial_indent="    ", width=columns - 4,
                               subsequent_indent="    ")
         return wrapper.fill(text)
-
-    # region Class Methods
-
-    @classmethod
-    def construct_argparser(
-            cls, description: Optional[str] = None) -> ArgumentParser:
-        """
-        Constructs argument parser
-
-        Returns:
-            parser (ArgumentParser): Argument parser
-        """
-
-        def infile_argument(value: str) -> str:
-            if not isinstance(value, str):
-                raise ArgumentError()
-
-            value = expandvars(value)
-            if not isfile(value):
-                raise ArgumentError(f"infile '{value}' does not exist")
-            elif not access(value, R_OK):
-                raise ArgumentError(f"infile '{value}' cannot be read")
-
-            return value
-
-        def outfile_argument(value: str) -> str:
-            if not isinstance(value, str):
-                raise ArgumentError()
-
-            value = expandvars(value)
-            if isfile(value):
-                if not access(value, W_OK):
-                    raise ArgumentError(f"outfile '{value}' cannot be written")
-            else:
-                directory = dirname(value)
-                if directory == "":
-                    directory = getcwd()
-                if not access(directory, W_OK):
-                    raise ArgumentError(f"outfile '{value}' cannot be written")
-
-            return value
-
-        parser = ArgumentParser(
-            description=description,
-            formatter_class=RawDescriptionHelpFormatter)
-        verbosity = parser.add_mutually_exclusive_group()
-        verbosity.add_argument(
-            "-v", "--verbose",
-            action="count",
-            default=1,
-            dest="verbosity",
-            help="enable verbose output, may be specified more than once")
-        verbosity.add_argument(
-            "-q", "--quiet",
-            action="store_const",
-            const=0,
-            dest="verbosity",
-            help="disable verbose output")
-        parser.add_argument(
-            "infile",
-            type=infile_argument,
-            help="input file")
-        parser.add_argument(
-            "outfile",
-            type=outfile_argument,
-            help="output file")
-
-        return parser
-
-    @classmethod
-    def main(cls) -> None:
-        """Parses and validates arguments, constructs and calls object"""
-
-        parser = cls.construct_argparser()
-        kwargs = vars(parser.parse_args())
-        cls.process_file(**kwargs)
-
-    @classmethod
-    @abstractmethod
-    def process_file(cls, infile: str, outfile: str, **kwargs: Any) -> None:
-        pass
 
     # endregion

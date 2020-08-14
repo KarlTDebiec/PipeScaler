@@ -30,7 +30,7 @@ class CLTool(ABC):
     def __init__(self, **kwargs: Any) -> None:
         pass
 
-    def __call__(self, **kwargs: Any) -> None:
+    def __call__(self, **kwargs: Any) -> Any:
         raise NotImplementedError()
 
     # endregion
@@ -145,7 +145,7 @@ class CLTool(ABC):
     def float_argument(
             min_value: Optional[float] = None,
             max_value: Optional[float] = None) -> Callable[[str], float]:
-        def func(value: str) -> float:
+        def func(value: Union[str, float]) -> float:
             try:
                 value = float(value)
             except ValueError:

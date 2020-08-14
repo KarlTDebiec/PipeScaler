@@ -60,7 +60,7 @@ class PipeScaler(CLTool):
         Constructs argument parser
 
         Returns:
-            parser (ArgumentParser): Argument parser
+            ArgumentParser: Argument parser
         """
         parser = super().construct_argparser(description=__doc__, **kwargs)
 
