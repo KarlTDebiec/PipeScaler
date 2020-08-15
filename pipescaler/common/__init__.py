@@ -18,7 +18,7 @@ from typing import List
 
 from .cltool import CLTool
 from .general import (embed_kw, get_shell_type, input_prefill, todo,
-                      validate_infile)
+                      validate_input_path, validate_output_path)
 
 ##################################### ALL #####################################
 __all__: List[str] = [
@@ -28,5 +28,6 @@ __all__: List[str] = [
     "input_prefill",
     "package_root",
     "todo",
-    "validate_infile"
+    "validate_input_path",
+    "validate_output_path"
 ]

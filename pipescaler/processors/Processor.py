@@ -122,24 +122,17 @@ class Processor(CLTool):
         """
         parser = super().construct_argparser(
             description=kwargs.pop("description", __doc__), **kwargs)
-        arg_groups = {ag.title: ag for ag in parser._action_groups}
 
         # Input
-        parser_input = arg_groups.get(
-            "input arguments",
-            parser.add_argument_group("input arguments"))
-        parser_input.add_argument(
+        parser.add_argument(
             "infile",
-            type=cls.infile_argument(),
+            type=cls.input_path_argument(),
             help="input file")
 
         # Output
-        parser_output = arg_groups.get(
-            "output arguments",
-            parser.add_argument_group("output arguments"))
-        parser_output.add_argument(
+        parser.add_argument(
             "outfile",
-            type=cls.outfile_argument(),
+            type=cls.output_path_argument(),
             help="output file")
 
         return parser

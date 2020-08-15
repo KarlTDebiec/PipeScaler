@@ -23,11 +23,13 @@ from pipescaler.common import CLTool
 class PipeScaler(CLTool):
     """
     TODO:
-        - [ ] Add arguments to scaled_image_identifier.py
+        - [x] Add arguments to scaled_image_identifier.py
+        - [x] Fix ESRGAN
+        - [x] Move input_path_argument and output_path_argument to module level
         - [ ] Rename mipmap to scaled
-        - [ ] Fix ESRGAN
+        - [ ] Split/merge alpha processor
         - [ ] Waifu2x auto transparency
-        - [ ] Move infile_argument and outfile_argument to module level
+        - [ ] Tests
     """
     package_root: str = str(Path(__file__).parent.absolute())
 
@@ -68,7 +70,7 @@ class PipeScaler(CLTool):
         parser_input = parser.add_argument_group("input arguments")
         parser.add_argument(
             "conf_file",
-            type=cls.infile_argument(),
+            type=cls.input_path_argument(),
             help="configuration file")
 
         return parser

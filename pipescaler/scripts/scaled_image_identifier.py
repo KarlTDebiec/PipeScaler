@@ -310,7 +310,7 @@ class ScaledImageIdentifier(CLTool):
         parser_input.add_argument(
             "-i", "--infile",
             metavar="FILE",
-            type=cls.infile_argument(),
+            type=cls.input_path_argument(),
             help="input yaml file from which to read known scaled file "
                  "relationships")
 
@@ -327,7 +327,7 @@ class ScaledImageIdentifier(CLTool):
         parser_output.add_argument(
             "-o", "--outfile",
             metavar="FILE",
-            type=cls.outfile_argument(),
+            type=cls.output_path_argument(),
             help="output yaml file to which to write scaled file "
                  "relationships")
         parser_output.add_argument(

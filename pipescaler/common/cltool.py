@@ -13,13 +13,11 @@ from argparse import (ArgumentParser,
                       ArgumentTypeError, RawDescriptionHelpFormatter,
                       _SubParsersAction)
 from inspect import currentframe, getframeinfo
-from os import R_OK, W_OK, access, getcwd
-from os.path import basename, dirname, exists, expandvars, isdir, isfile, join
 from typing import Any, Callable, Dict, Optional, Union
 
 # noinspection Mypy
 from . import package_root
-from .general import validate_infile
+from .general import validate_input_path, validate_output_path
 
 
 ################################### CLASSES ###################################
@@ -150,8 +148,8 @@ class CLTool(ABC):
             try:
                 value = float(value)
             except ValueError:
-                raise ArgumentTypeError(f"'{value}' is of type "
-                                        f"'{type(value)}', not float")
+                raise ArgumentTypeError(
+                    f"'{value}' is of type '{type(value)}', not float")
 
             if min_value is not None and value < min_value:
                 raise ArgumentTypeError(f"'{value}' is less than minimum "
@@ -164,114 +162,32 @@ class CLTool(ABC):
         return func
 
     @staticmethod
-    def indir_argument() -> Callable[[str], str]:
+    def input_path_argument(
+            file_ok: bool = True,
+            directory_ok: bool = False) -> Callable[[str], str]:
         def func(value: str) -> str:
-            if not isinstance(value, str):
-                raise ArgumentTypeError(f"'{value}' is of type "
-                                        f"'{type(value)}', not str")
-
-            value = expandvars(value)
-
-            if not exists(value):
-                raise ValueError(f"'{value}' does not exist")
-            if not isdir(value):
-                raise ValueError(f"'{value}' exists but is not a directory")
-            if not access(value, R_OK):
-                raise ValueError(f"'{value}' exists but cannot be read")
-
-            return value
-
-        return func
-
-    @staticmethod
-    def indir_or_infile_argument() -> Callable[[str], str]:
-        def func(value: str) -> str:
-            if not isinstance(value, str):
-                raise ArgumentTypeError(f"'{value}' is of type "
-                                        f"'{type(value)}', not str")
-
-            value = expandvars(value)
-            directory = dirname(value)
-            if directory == "":
-                directory = getcwd()
-            value = join(directory, basename(value))
-
-            if not exists(value):
-                raise ValueError(f"'{value}' does not exist")
-            if not (isdir(value) or isfile(value)):
-                raise ValueError(f"'{value}' exists but is not a file or "
-                                 f"directory")
-            if not access(value, R_OK):
-                raise ValueError(f"'{value}' exists but cannot be read")
-
-            return value
-
-        return func
-
-    @staticmethod
-    def infile_argument() -> Callable[[str], str]:
-        def func(value: str) -> str:
+            # Try cast here, to raise ArgumentTypeError instead of ValueError
             try:
                 value = str(value)
             except ValueError:
                 raise ArgumentTypeError(
                     f"'{value}' is of type '{type(value)}', not str")
-            return validate_infile(value)
+            return validate_input_path(value, file_ok, directory_ok)
 
         return func
 
     @staticmethod
-    def outdir_argument() -> Callable[[str], str]:
+    def output_path_argument(
+            file_ok: bool = True,
+            directory_ok: bool = False) -> Callable[[str], str]:
         def func(value: str) -> str:
-            if not isinstance(value, str):
-                if not isinstance(value, str):
-                    raise ArgumentTypeError(f"'{value}' is of type "
-                                            f"'{type(value)}', not str")
-
-            value = expandvars(value)
-
-            if not exists(value):
-                raise ValueError(f"'{value}' does not exist")
-            if not isdir(value):
-                raise ValueError(f"'{value}' exists but is not a directory")
-            if not access(value, W_OK):
-                raise ValueError(f"'{value}' exists but cannot be written")
-
-            return value
-
-        return func
-
-    @staticmethod
-    def outfile_argument() -> Callable[[str], str]:
-        def func(value: str) -> str:
-            if not isinstance(value, str):
-                raise ArgumentTypeError(f"'{value}' is of type "
-                                        f"'{type(value)}', not str")
-
-            value = expandvars(value)
-            directory = dirname(value)
-            if directory == "":
-                directory = getcwd()
-            value = join(directory, basename(value))
-
-            if exists(value):
-                if not isfile(value):
-                    raise ArgumentTypeError(f"'{value}' exists but is not a "
-                                            f"file")
-                if not access(value, W_OK):
-                    raise ArgumentTypeError(f"'{value}' exists but cannot be "
-                                            f"written")
-            else:
-                if not exists(directory):
-                    raise ArgumentTypeError(f"'{directory}' does not exist")
-                if not isdir(directory):
-                    raise ArgumentTypeError(f"'{directory}' exists but is not "
-                                            f"a directory")
-                if not access(directory, W_OK):
-                    raise ArgumentTypeError(f"'{directory}' exists but cannot "
-                                            f"be written")
-
-            return value
+            # Try cast here, to raise ArgumentTypeError instead of ValueError
+            try:
+                value = str(value)
+            except ValueError:
+                raise ArgumentTypeError(
+                    f"'{value}' is of type '{type(value)}', not str")
+            return validate_output_path(value, file_ok, directory_ok)
 
         return func
 

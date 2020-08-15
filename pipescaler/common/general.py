@@ -9,8 +9,8 @@
 """"""
 ################################### MODULES ###################################
 from inspect import currentframe, getframeinfo
-from os import R_OK, access, getcwd
-from os.path import basename, dirname, exists, expandvars, isfile, join
+from os import R_OK, W_OK, access, getcwd
+from os.path import basename, dirname, exists, expandvars, isdir, isfile, join
 from readline import insert_text, redisplay, set_pre_input_hook
 from typing import Any, Callable, Dict, Optional
 
@@ -116,29 +116,76 @@ def todo(func: Callable[[Any], Any]) -> Callable[[Any], Any]:
     TODO: Remember why this seemed useful :)
     """
 
-    def wrapper(*args: Any, **kwargs: Any) -> Any:
+    def func(*args: Any, **kwargs: Any) -> Any:
         raise NotImplementedError()
 
-    return wrapper
+    return func
 
 
-def validate_infile(value: str) -> str:
+def validate_input_path(value: str, file_ok: bool = True,
+                        directory_ok: bool = False,
+                        default_directory: Optional[str] = None) -> str:
+    if not file_ok and not directory_ok:
+        raise ValueError("both file and directory paths may not be prohibited")
+    if default_directory is None:
+        default_directory = getcwd()
+
     try:
         value = str(value)
     except ValueError:
         raise ValueError(f"'{value}' is of type '{type(value)}', not str")
 
     value = expandvars(value)
-    directory = dirname(value)
-    if directory == "":
-        directory = getcwd()
-    value = join(directory, basename(value))
+    if dirname(value) == "":
+        value = join(default_directory, basename(value))
 
     if not exists(value):
         raise ValueError(f"'{value}' does not exist")
-    if not isfile(value):
-        raise ValueError(f"'{value}' exists but is not a file")
-    if not access(value, R_OK):
-        raise ValueError(f"'{value}' exists but cannot be read")
+    elif file_ok and not directory_ok and not isfile(value):
+        raise ValueError(f"'{value}' is not a file")
+    elif not file_ok and directory_ok and not isdir(value):
+        raise ValueError(f"'{value}' is not a directory")
+    elif not isfile(value) and not isdir(value):
+        raise ValueError(f"'{value}' is not a file or directory")
+    elif not access(value, R_OK):
+        raise ValueError(f"'{value}' cannot be read")
+
+    return value
+
+
+def validate_output_path(value: str, file_ok: bool = True,
+                         directory_ok: bool = False,
+                         default_directory: Optional[str] = None) -> str:
+    if not file_ok and not directory_ok:
+        raise ValueError("both file and directory paths may not be prohibited")
+    if default_directory is None:
+        default_directory = getcwd()
+
+    try:
+        value = str(value)
+    except ValueError:
+        raise ValueError(f"'{value}' is of type '{type(value)}', not str")
+
+    value = expandvars(value)
+    if dirname(value) == "":
+        value = join(default_directory, basename(value))
+
+    if exists(value):
+        if file_ok and not directory_ok and not isfile(value):
+            raise ValueError(f"'{value}' is not a file")
+        elif not file_ok and directory_ok and not isdir(value):
+            raise ValueError(f"'{value}' is not a directory")
+        elif not isfile(value) and not isdir(value):
+            raise ValueError(f"'{value}' is not a file or directory")
+        elif not access(value, W_OK):
+            raise ValueError(f"'{value}' cannot be written")
+    else:
+        directory = dirname(value)
+        if not exists(directory):
+            raise ValueError(f"'{directory}' does not exist")
+        elif not isdir(directory):
+            raise ValueError(f"'{directory}' is not a directory")
+        if not access(directory, W_OK):
+            raise ValueError(f"'{directory}' cannot be written")
 
     return value

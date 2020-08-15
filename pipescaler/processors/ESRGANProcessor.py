@@ -21,10 +21,9 @@ from typing import Any
 
 import numpy as np
 import torch
-from IPython import embed
 from PIL import Image
 
-from pipescaler.common import validate_infile
+from pipescaler.common import validate_input_path
 from pipescaler.processors.Processor import Processor
 
 
@@ -136,7 +135,7 @@ class ESRGANProcessor(Processor):
 
     @model_infile.setter
     def model_infile(self, value: str) -> None:
-        self._model_infile = validate_infile(value)
+        self._model_infile = validate_input_path(value)
 
     # endregion
 
@@ -165,7 +164,7 @@ class ESRGANProcessor(Processor):
             "-m", "--model",
             dest="model_infile",
             required=True,
-            type=cls.infile_argument(),
+            type=cls.input_path_argument(),
             help="model input file")
 
         # Operations
@@ -178,12 +177,8 @@ class ESRGANProcessor(Processor):
         return parser
 
     @classmethod
-    def process_file(cls,
-                     infile: str,
-                     outfile: str,
-                     model_infile: str,
-                     device: str = "cpu",
-                     **kwargs: Any) -> None:
+    def process_file(cls, infile: str, outfile: str, model_infile: str,
+                     device: str = "cpu", **kwargs: Any) -> None:
         # Read model
         model = cls.RRDBNet(3, 3, 64, 23, gc=32)
         model.load_state_dict(torch.load(model_infile), strict=True)
@@ -194,8 +189,8 @@ class ESRGANProcessor(Processor):
         input_image = Image.open(infile).convert("RGB")
         input_datum = np.array(input_image, np.float) / 255
         input_datum = np.transpose(input_datum[:, :, [2, 1, 0]], (2, 0, 1))
-        input_tensor = torch.from_numpy(input_datum).float().unsqueeze(0).to(
-            device)
+        input_tensor = torch.from_numpy(
+            input_datum).float().unsqueeze(0).to(device)
 
         # Run model
         with torch.no_grad():
@@ -203,7 +198,6 @@ class ESRGANProcessor(Processor):
                 input_tensor).data.squeeze().float().cpu().clamp_(0, 1).numpy()
         output_datum = np.array(np.transpose(
             output_datum[[2, 1, 0], :, :], (1, 2, 0)) * 255, np.uint8)
-        embed()
 
         # Write image
         output_image = Image.fromarray(output_datum)
