@@ -19,6 +19,7 @@ from typing import Any, Callable, Dict, Optional, Union
 
 # noinspection Mypy
 from . import package_root
+from .general import validate_infile
 
 
 ################################### CLASSES ###################################
@@ -90,7 +91,7 @@ class CLTool(ABC):
         Constructs argument parser
 
         Args:
-            description (Optional[str]):
+            description (Optional[str]): Description of parser
             parser (Optional[Union[ArgumentParser, _SubParsersAction]]):
               Nascent argument parser
             kwargs (Any): Additional keyword arguments
@@ -210,24 +211,12 @@ class CLTool(ABC):
     @staticmethod
     def infile_argument() -> Callable[[str], str]:
         def func(value: str) -> str:
-            if not isinstance(value, str):
-                raise ArgumentTypeError(f"'{value}' is of type "
-                                        f"'{type(value)}', not str")
-
-            value = expandvars(value)
-            directory = dirname(value)
-            if directory == "":
-                directory = getcwd()
-            value = join(directory, basename(value))
-
-            if not exists(value):
-                raise ValueError(f"'{value}' does not exist")
-            if not isfile(value):
-                raise ValueError(f"'{value}' exists but is not a file")
-            if not access(value, R_OK):
-                raise ValueError(f"'{value}' exists but cannot be read")
-
-            return value
+            try:
+                value = str(value)
+            except ValueError:
+                raise ArgumentTypeError(
+                    f"'{value}' is of type '{type(value)}', not str")
+            return validate_infile(value)
 
         return func
 

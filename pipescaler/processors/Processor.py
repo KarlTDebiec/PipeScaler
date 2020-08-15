@@ -120,23 +120,36 @@ class Processor(CLTool):
         Returns:
             ArgumentParser: Argument parser
         """
-        parser = super().construct_argparser(description=__doc__, **kwargs)
+        parser = super().construct_argparser(
+            description=kwargs.pop("description", __doc__), **kwargs)
+        arg_groups = {ag.title: ag for ag in parser._action_groups}
 
         # Input
-        parser_input = parser.add_argument_group("input arguments")
+        parser_input = arg_groups.get(
+            "input arguments",
+            parser.add_argument_group("input arguments"))
         parser_input.add_argument(
             "infile",
             type=cls.infile_argument(),
             help="input file")
 
         # Output
-        parser_output = parser.add_argument_group("output arguments")
+        parser_output = arg_groups.get(
+            "output arguments",
+            parser.add_argument_group("output arguments"))
         parser_output.add_argument(
             "outfile",
             type=cls.outfile_argument(),
             help="output file")
 
         return parser
+
+    @classmethod
+    def main(cls) -> None:
+        """Parses and validates arguments, passes them to process_file"""
+        parser = cls.construct_argparser()
+        kwargs = vars(parser.parse_args())
+        cls.process_file(**kwargs)
 
     @classmethod
     @abstractmethod

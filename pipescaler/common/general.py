@@ -9,6 +9,8 @@
 """"""
 ################################### MODULES ###################################
 from inspect import currentframe, getframeinfo
+from os import R_OK, access, getcwd
+from os.path import basename, dirname, exists, expandvars, isfile, join
 from readline import insert_text, redisplay, set_pre_input_hook
 from typing import Any, Callable, Dict, Optional
 
@@ -24,11 +26,11 @@ def embed_kw(verbosity: int = 2, **kwargs: Any) -> Dict[str, str]:
     Use ``IPython.embed(**embed_kw())``.
 
     Args:
-        verbosity (int): level of verbose output
-        **kwargs (Any): additional keyword arguments
+        verbosity (int): Level of verbose output
+        **kwargs (Any): Additional keyword arguments
 
     Returns:
-        Dict[str, str]: keyword arguments to be passed to IPython.embed
+        Dict[str, str]: Keyword arguments to be passed to IPython.embed
     """
     frame = currentframe()
     if frame is None:
@@ -58,7 +60,7 @@ def get_shell_type() -> Optional[str]:
     Determines if inside IPython prompt
 
     Returns:
-        Optional[str]: type of shell in use, or None if not in a shell
+        Optional[str]: Type of shell in use, or None if not in a shell
     """
     try:
         # noinspection Mypy
@@ -89,11 +91,11 @@ def input_prefill(prompt: str, prefill: str) -> str:
     TODO: Does this block CTRL-D?
 
     Args:
-        prompt (str): prompt to present to user
-        prefill (str): text to prefill for user
+        prompt (str): Prompt to present to user
+        prefill (str): Text to prefill for user
 
     Returns:
-        str: text inputted by user
+        str: Text inputted by user
     """
 
     def pre_input_hook() -> None:
@@ -118,3 +120,25 @@ def todo(func: Callable[[Any], Any]) -> Callable[[Any], Any]:
         raise NotImplementedError()
 
     return wrapper
+
+
+def validate_infile(value: str) -> str:
+    try:
+        value = str(value)
+    except ValueError:
+        raise ValueError(f"'{value}' is of type '{type(value)}', not str")
+
+    value = expandvars(value)
+    directory = dirname(value)
+    if directory == "":
+        directory = getcwd()
+    value = join(directory, basename(value))
+
+    if not exists(value):
+        raise ValueError(f"'{value}' does not exist")
+    if not isfile(value):
+        raise ValueError(f"'{value}' exists but is not a file")
+    if not access(value, R_OK):
+        raise ValueError(f"'{value}' exists but cannot be read")
+
+    return value

@@ -17,7 +17,8 @@ package_root: str = str(Path(__file__).parent.parent.absolute())
 from typing import List
 
 from .cltool import CLTool
-from .general import embed_kw, get_shell_type, input_prefill, todo
+from .general import (embed_kw, get_shell_type, input_prefill, todo,
+                      validate_infile)
 
 ##################################### ALL #####################################
 __all__: List[str] = [
@@ -26,5 +27,6 @@ __all__: List[str] = [
     "get_shell_type",
     "input_prefill",
     "package_root",
-    "todo"
+    "todo",
+    "validate_infile"
 ]

@@ -6,6 +6,15 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+"""Processes an image using waifu.
+
+Requires the macOS version of waifu2x (https://github.com/imxieyi/waifu2x-mac)
+in the executor's path.
+
+Provides two improvements over running waifu2x directly:
+1. If image is below waifu2x's minimum size, expands canvas.
+2. Eliminates edge effects by reflecting image around edges.
+"""
 ################################### MODULES ###################################
 from __future__ import annotations
 
@@ -69,16 +78,16 @@ class WaifuProcessor(Processor):
 
     @classmethod
     def process_file(cls, infile: str, outfile: str, imagetype: str,
-                     scale: int, denoise: int, verbosity: int):
-
+                     scale: int, denoise: int, verbosity: int, **kwargs: Any) \
+            -> None:
         # Prepare temporary image with reflections and minimum size of 200x200
         image = Image.open(infile)
         w, h = image.size
         transposed_h = image.transpose(Image.FLIP_LEFT_RIGHT)
         transposed_v = image.transpose(Image.FLIP_TOP_BOTTOM)
         transposed_hv = transposed_h.transpose(Image.FLIP_TOP_BOTTOM)
-        reflected = Image.new(image.mode,
-                              (max(200, int(w * 1.5)), max(200, int(h * 1.5))))
+        reflected = Image.new(
+            image.mode, (max(200, int(w * 1.5)), max(200, int(h * 1.5))))
         x = reflected.size[0] // 2
         y = reflected.size[1] // 2
         reflected.paste(image, (x - w // 2, y - h // 2))
