@@ -19,9 +19,10 @@ from functools import partial
 from os.path import basename, splitext
 from typing import Any
 
-import cv2
 import numpy as np
 import torch
+from IPython import embed
+from PIL import Image
 
 from pipescaler.common import validate_infile
 from pipescaler.processors.Processor import Processor
@@ -190,22 +191,23 @@ class ESRGANProcessor(Processor):
         model = model.to(device)
 
         # Read image
-        image = cv2.imread(infile, cv2.IMREAD_COLOR)
-        image = image * 1.0 / 255
-        image = torch.from_numpy(
-            np.transpose(image[:, :, [2, 1, 0]], (2, 0, 1))).float()
-        image2 = image.unsqueeze(0)
-        image2 = image2.to(device)
+        input_image = Image.open(infile).convert("RGB")
+        input_datum = np.array(input_image, np.float) / 255
+        input_datum = np.transpose(input_datum[:, :, [2, 1, 0]], (2, 0, 1))
+        input_tensor = torch.from_numpy(input_datum).float().unsqueeze(0).to(
+            device)
 
         # Run model
         with torch.no_grad():
-            output = model(
-                image2).data.squeeze().float().cpu().clamp_(0, 1).numpy()
-        output = np.transpose(output[[2, 1, 0], :, :], (1, 2, 0))
-        output = (output * 255.0).round()
+            output_datum = model(
+                input_tensor).data.squeeze().float().cpu().clamp_(0, 1).numpy()
+        output_datum = np.array(np.transpose(
+            output_datum[[2, 1, 0], :, :], (1, 2, 0)) * 255, np.uint8)
+        embed()
 
         # Write image
-        cv2.imwrite(outfile, output)
+        output_image = Image.fromarray(output_datum)
+        output_image.save(outfile)
 
     # endregion
 
