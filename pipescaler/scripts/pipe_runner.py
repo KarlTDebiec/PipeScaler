@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/scripts/pipescaler.py
+#   pipescaler/scripts/pipe_runner.py
 #
 #   Copyright (C) 2020 Karl T Debiec
 #   All rights reserved.
@@ -26,8 +26,8 @@ class PipeScaler(CLTool):
         - [x] Add arguments to scaled_image_identifier.py
         - [x] Fix ESRGAN
         - [x] Move input_path_argument and output_path_argument to module level
-        - [ ] Processors: Move desc to a property
-        - [ ] Processors: Consistent function arguments
+        - [x] Processors: Move desc to a property
+        - [x] Processors: Consistent function arguments
         - [ ] Processors: Command-line support for all
         - [ ] Processors: Do not regenerate objects each call in pipeline
         - [ ] Processors: Tests

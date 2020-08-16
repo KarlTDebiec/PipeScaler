@@ -32,6 +32,7 @@ setup(
         "pipescaler": get_package_data("pipescaler/data")},
     packages=find_packages(),
     scripts=[
-        "pipescaler/scripts/pipescaler.py",
+        "pipescaler/scripts/apng_creator.py",
+        "pipescaler/scripts/pipe_runner.py",
         "pipescaler/scripts/scaled_image_identifier.py",
     ])
