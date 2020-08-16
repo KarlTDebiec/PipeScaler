@@ -9,9 +9,9 @@
 ################################### MODULES ###################################
 from __future__ import annotations
 
-from argparse import ArgumentParser, ArgumentError
-from os import remove, access, R_OK
-from os.path import expandvars, splitext, isfile
+from argparse import ArgumentParser
+from os import remove
+from os.path import splitext
 from subprocess import Popen
 from typing import Any
 
@@ -21,6 +21,8 @@ from pipescaler.processors.Processor import Processor
 ################################### CLASSES ###################################
 class PotraceProcessor(Processor):
 
+    # region Builtins
+
     def __init__(self, blacklevel: float = 0.3, alphamax: float = 1.34,
                  opttolerance: float = 0.2, **kwargs: Any) -> None:
         super().__init__(**kwargs)
@@ -29,12 +31,30 @@ class PotraceProcessor(Processor):
         self.alphamax = alphamax
         self.opttolerance = opttolerance
 
-        self.desc = f"potrace-{self.blacklevel:4.2f}-" \
-                    f"{self.alphamax:4.2f}-{self.opttolerance:3.1f}"
+    # endregion
+
+    # region Properties
+
+    @property
+    def desc(self) -> str:
+        """str: Description"""
+        if not hasattr(self, "_desc"):
+            return f"potrace-{self.blacklevel:4.2f}-" \
+                   f"{self.alphamax:4.2f}-{self.opttolerance:3.1f}"
+        return self._desc
+
+    # endregion
+
+    # region Methods
 
     def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
-        self.process_file(infile, outfile, self.blacklevel, self.alphamax,
-                          self.opttolerance, self.pipeline.verbosity)
+        self.process_file(infile, outfile, self.pipeline.verbosity,
+                          blacklevel=self.blacklevel, alphamax=self.alphamax,
+                          opttolerance=self.opttolerance)
+
+    # endregion
+
+    # region Class Methods
 
     @classmethod
     def construct_argparser(cls) -> ArgumentParser:
@@ -44,19 +64,6 @@ class PotraceProcessor(Processor):
         Returns:
             parser (ArgumentParser): Argument parser
         """
-
-        def infile_argument(value: str) -> str:
-            if not isinstance(value, str):
-                raise ArgumentError()
-
-            value = expandvars(value)
-            if not isfile(value):
-                raise ArgumentError(f"infile '{value}' does not exist")
-            elif not access(value, R_OK):
-                raise ArgumentError(f"infile '{value}' cannot be read")
-
-            return value
-
         parser = super().construct_argparser(description=__doc__)
 
         parser.add_argument(
@@ -78,8 +85,12 @@ class PotraceProcessor(Processor):
         return parser
 
     @classmethod
-    def process_file(cls, infile: str, outfile: str, blacklevel: float,
-                     alphamax: float, opttolerance: float, verbosity: int):
+    def process_file(cls, infile: str, outfile: str, verbosity: int = 1,
+                     **kwargs: Any):
+        blacklevel = kwargs.get("blacklevel")
+        alphamax = kwargs.get("alphamax")
+        opttolerance = kwargs.get("opttolerance")
+
         # TODO: Use temporary files
 
         # Convert to bmp; potrace does not accept png
@@ -115,6 +126,8 @@ class PotraceProcessor(Processor):
         # Clean up
         remove(bmpfile)
         remove(svgfile)
+
+    # endregion
 
 
 #################################### MAIN #####################################

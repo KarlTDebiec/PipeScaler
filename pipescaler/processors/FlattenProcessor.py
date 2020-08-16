@@ -9,6 +9,8 @@
 ################################### MODULES ###################################
 from __future__ import annotations
 
+from typing import Any
+
 import numpy as np
 from PIL import Image
 
@@ -17,20 +19,32 @@ from pipescaler.processors.Processor import Processor
 
 ################################### CLASSES ###################################
 class FlattenProcessor(Processor):
-    desc = "flatten"
 
-    def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
-        self.process_file(infile, outfile, self.pipeline.verbosity)
+    # region Properties
+
+    @property
+    def desc(self) -> str:
+        """str: Description"""
+        if not hasattr(self, "_desc"):
+            return "flatten"
+        return self._desc
+
+    # endregion
+
+    # region Class Methods
 
     @classmethod
-    def process_file(cls, infile: str, outfile: str, verbosity: int) -> None:
-        input_data = np.array(Image.open(infile))
+    def process_file(cls, infile: str, outfile: str, verbosity: int = 1,
+                     **kwargs: Any) -> None:
+        input_datum = np.array(Image.open(infile))
 
-        output_data = np.ones_like(input_data) * 255
-        output_data[:, :, 0] = 255 - input_data[:, :, 3]
-        output_data[:, :, 1] = 255 - input_data[:, :, 3]
-        output_data[:, :, 2] = 255 - input_data[:, :, 3]
-        output_data[:, :, :3] += input_data[:, :, :3]
-        output_image = Image.fromarray(output_data).convert("RGB")
+        output_datum = np.ones_like(input_datum) * 255
+        output_datum[:, :, 0] = 255 - input_datum[:, :, 3]
+        output_datum[:, :, 1] = 255 - input_datum[:, :, 3]
+        output_datum[:, :, 2] = 255 - input_datum[:, :, 3]
+        output_datum[:, :, :3] += input_datum[:, :, :3]
+        output_image = Image.fromarray(output_datum).convert("RGB")
 
         output_image.save(outfile)
+
+    # endregion

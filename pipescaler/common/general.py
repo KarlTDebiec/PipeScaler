@@ -15,14 +15,14 @@ from inspect import currentframe, getframeinfo
 from os import R_OK, W_OK, access, getcwd
 from os.path import basename, dirname, exists, expandvars, isdir, isfile, join
 from readline import insert_text, redisplay, set_pre_input_hook
-from typing import Any, Callable, Dict, Optional
+from typing import Dict, Optional
 
 # noinspection Mypy
 from . import package_root
 
 
 ################################## FUNCTIONS ##################################
-def embed_kw(verbosity: int = 2, **kwargs: Any) -> Dict[str, str]:
+def embed_kw(verbosity: int = 2) -> Dict[str, str]:
     """
     Prepares header for IPython prompt showing current location in code
 
@@ -30,7 +30,6 @@ def embed_kw(verbosity: int = 2, **kwargs: Any) -> Dict[str, str]:
 
     Args:
         verbosity (int): Level of verbose output
-        **kwargs (Any): Additional keyword arguments
 
     Returns:
         Dict[str, str]: Keyword arguments to be passed to IPython.embed
@@ -110,19 +109,6 @@ def input_prefill(prompt: str, prefill: str) -> str:
     set_pre_input_hook()
 
     return result
-
-
-def todo(func: Callable[[Any], Any]) -> Callable[[Any], Any]:
-    """
-    Decorator used to annotate unimplemented functions in a useful way
-
-    TODO: Remember why this seemed useful :)
-    """
-
-    def func(*args: Any, **kwargs: Any) -> Any:
-        raise NotImplementedError()
-
-    return func
 
 
 def validate_input_path(value: str, file_ok: bool = True,

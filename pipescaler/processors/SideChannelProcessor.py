@@ -9,22 +9,50 @@
 ################################### MODULES ###################################
 from __future__ import annotations
 
-from os.path import basename, expandvars, isfile, splitext
+from os.path import basename, isfile, join, splitext
 from shutil import copyfile
 from typing import Any
 
+from pipescaler.common import validate_input_path
 from pipescaler.processors.Processor import Processor
 
 
 ################################### CLASSES ###################################
 class SideChannelProcessor(Processor):
 
-    def __init__(self, input_directory: str, desc: str = "sidechannel",
-                 **kwargs: Any) -> None:
+    # region Builtins
+
+    def __init__(self, input_directory: str, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
-        self.input_directory = expandvars(input_directory)
-        self.desc = desc
+        self.input_directory = input_directory
+
+    # endregion
+
+    # region Properties
+
+    @property
+    def desc(self) -> str:
+        """str: Description"""
+        if not hasattr(self, "_desc"):
+            return "sidechannel"
+        return self._desc
+
+    @property
+    def input_directory(self) -> str:
+        """str: Input directory"""
+        if not hasattr(self, "_input_directory"):
+            raise ValueError()
+        return self._input_directory
+
+    @input_directory.setter
+    def input_directory(self, value: str) -> None:
+        self._input_directory = validate_input_path(
+            value, file_ok=False, directory_ok=True)
+
+    # endregion
+
+    # region Methods
 
     def get_outfile(self, infile: str) -> str:
         original_name = self.get_original_name(infile)
@@ -40,14 +68,22 @@ class SideChannelProcessor(Processor):
 
     def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
         original_name = self.get_original_name(infile)
-        sidechannel_file = f"{self.input_directory}/{original_name}.png"
+        extension = self.get_extension(infile)
+        sidechannel_file = join(self.input_directory,
+                                f"{original_name}.{extension}")
         if isfile(sidechannel_file):
             self.process_file(sidechannel_file, outfile,
                               self.pipeline.verbosity)
 
+    # endregion
+
+    # region Class Methods
+
     @classmethod
-    def process_file(cls, sidechannel_file: str, outfile: str,
-                     verbosity: int) -> None:
+    def process_file(cls, infile: str, outfile: str, verbosity: int = 1,
+                     **kwargs) -> None:
         if verbosity >= 1:
-            print(f"cp {sidechannel_file} {outfile}")
-        copyfile(sidechannel_file, outfile)
+            print(f"cp {infile} {outfile}")
+        copyfile(infile, outfile)
+
+    # endregion

@@ -22,21 +22,40 @@ from pipescaler.processors.Processor import Processor
 ################################### CLASSES ###################################
 class ThresholdProcessor(Processor):
 
+    # region Builtins
+
     def __init__(self, threshold: int = 128, denoise: bool = False,
                  **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
         self.threshold = threshold
         self.denoise = denoise
-        self.desc = f"threshold-{self.threshold}"
-        if self.denoise:
-            self.desc = f"{self.desc}-{self.denoise}"
+
+    # endregion
+
+    # region Properties
+
+    @property
+    def desc(self) -> str:
+        """str: Description"""
+        if not hasattr(self, "_desc"):
+            if self.denoise:
+                return f"threshold-{self.threshold}-{self.denoise}"
+            else:
+                return f"threshold-{self.threshold}"
+        return self._desc
+
+    # endregion
+
+    # region Methods
 
     def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
-        self.process_file(infile, outfile, self.threshold, self.denoise,
-                          self.pipeline.verbosity)
+        self.process_file(infile, outfile, self.pipeline.verbosity,
+                          threshold=self.threshold, denoise=self.denoise)
 
-    # region Public Class Methods
+    # endregion
+
+    # region Class Methods
 
     @classmethod
     def construct_argparser(cls) -> ArgumentParser:
@@ -65,8 +84,10 @@ class ThresholdProcessor(Processor):
         return parser
 
     @classmethod
-    def process_file(cls, infile: str, outfile: str, threshold: int,
-                     denoise: bool, verbosity:int):
+    def process_file(cls, infile: str, outfile: str, verbosity: int = 1,
+                     **kwargs: Any) -> None:
+        threshold = kwargs.get("threshold")
+        denoise = kwargs.get("denoise")
         input_image = Image.open(infile)
 
         output_image = input_image.convert("L").point(
@@ -79,6 +100,8 @@ class ThresholdProcessor(Processor):
         output_image.save(outfile)
 
     # endregion
+
+    # region Static Methods
 
     @no_type_check
     @staticmethod
@@ -93,6 +116,8 @@ class ThresholdProcessor(Processor):
                 else:
                     if (slc == 255).sum() < 4:
                         data[y, x] = 0
+
+    # endregion
 
 
 #################################### MAIN #####################################

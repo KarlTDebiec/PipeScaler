@@ -26,10 +26,20 @@ class PipeScaler(CLTool):
         - [x] Add arguments to scaled_image_identifier.py
         - [x] Fix ESRGAN
         - [x] Move input_path_argument and output_path_argument to module level
+        - [ ] Processors: Move desc to a property
+        - [ ] Processors: Consistent function arguments
+        - [ ] Processors: Command-line support for all
+        - [ ] Processors: Do not regenerate objects each call in pipeline
+        - [ ] Processors: Tests
+        - [ ] Scripts: Generate animated gif
         - [ ] Rename mipmap to scaled
-        - [ ] Split/merge alpha processor
-        - [ ] Waifu2x auto transparency
+        - [ ] Processor: Generic alpha splitter
+        - [ ] Processor: Generic chainer
+        - [ ] Processor: Consider if specular maps could be handled better
+        - [ ] Processor: Generic splitter and recompiler
         - [ ] Tests
+        - [ ] Linux
+        - [ ] Windows
     """
     package_root: str = str(Path(__file__).parent.absolute())
 

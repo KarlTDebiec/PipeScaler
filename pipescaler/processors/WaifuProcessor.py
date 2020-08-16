@@ -32,6 +32,8 @@ from pipescaler.processors.Processor import Processor
 ################################### CLASSES ###################################
 class WaifuProcessor(Processor):
 
+    # region Builtins
+
     def __init__(self, imagetype: str = "a", scale: int = 2, denoise: int = 1,
                  **kwargs: Any) -> None:
         super().__init__(**kwargs)
@@ -39,11 +41,30 @@ class WaifuProcessor(Processor):
         self.imagetype = imagetype
         self.scale = scale
         self.denoise = denoise
-        self.desc = f"waifu-{self.imagetype}-{self.scale}-{self.denoise}"
+
+    # endregion
+
+    # region Properties
+
+    @property
+    def desc(self) -> str:
+        """str: Description"""
+        if not hasattr(self, "_desc"):
+            return f"waifu-{self.imagetype}-{self.scale}-{self.denoise}"
+        return self._desc
+
+    # endregion
+
+    # region Methods
 
     def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
-        self.process_file(infile, outfile, self.imagetype, self.scale,
-                          self.denoise, self.pipeline.verbosity)
+        self.process_file(infile, outfile, self.pipeline.verbosity,
+                          imagetype=self.imagetype, scale=self.scale,
+                          denoise=self.denoise)
+
+    # endregion
+
+    # region Class Methods
 
     @classmethod
     def construct_argparser(cls) -> ArgumentParser:
@@ -77,9 +98,12 @@ class WaifuProcessor(Processor):
         return parser
 
     @classmethod
-    def process_file(cls, infile: str, outfile: str, imagetype: str,
-                     scale: int, denoise: int, verbosity: int, **kwargs: Any) \
-            -> None:
+    def process_file(cls, infile: str, outfile: str, verbosity: int = 1,
+                     **kwargs: Any) -> None:
+        imagetype = kwargs.get("imagetype")
+        scale = kwargs.get("scale")
+        denoise = kwargs.get("denoise")
+
         # Prepare temporary image with reflections and minimum size of 200x200
         image = Image.open(infile)
         w, h = image.size
@@ -122,6 +146,8 @@ class WaifuProcessor(Processor):
              (y + h // 2) * scale))
         remove(tempfile.name)
         reflected.save(outfile)
+
+    # endregion
 
 
 #################################### MAIN #####################################

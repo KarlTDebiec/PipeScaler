@@ -19,25 +19,59 @@ from typing import Any
 import numpy as np
 from PIL import Image
 
-from pipescaler.common import package_root
+from pipescaler.common import (package_root, validate_input_path,
+                               validate_output_path)
 from pipescaler.processors.Processor import Processor
 
 
 ################################### CLASSES ###################################
 class Pixelmator2xProcessor(Processor):
 
+    # region Builtins
+
     def __init__(self, sepalpha: bool = False, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
         self.sepalpha = sepalpha
-        if not self.sepalpha:
-            self.desc = "pm2x"
-        else:
-            self.desc = "pm2x-rgb+a"
+
+    # endregion
+
+    # region Properties
+
+    @property
+    def desc(self) -> str:
+        """str: Description"""
+        if not hasattr(self, "_desc"):
+            if not self.sepalpha:
+                return "pm2x"
+            else:
+                return "pm2x-rgb+a"
+        return self._desc
+
+    @property
+    def sepalpha(self) -> bool:
+        """bool: Separate alpha channel"""
+        if not hasattr(self, "_sepalpha"):
+            self._sepalpha = False
+        return self._sepalpha
+
+    @sepalpha.setter
+    def sepalpha(self, value: str) -> None:
+        self._sepalpha = value
+
+    # endregion
+
+    # region Methods
 
     def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
-        self.process_file(infile, outfile, self.sepalpha,
-                          self.pipeline.verbosity)
+        infile = validate_input_path(infile)
+        outfile = validate_output_path(infile)
+        self.process_file(infile, outfile, self.pipeline.verbosity,
+                          sepalpha=self.sepalpha)
+
+    # endregion
+
+    # region Class Methods
 
     @classmethod
     def construct_argparser(cls) -> ArgumentParser:
@@ -60,8 +94,9 @@ class Pixelmator2xProcessor(Processor):
         return parser
 
     @classmethod
-    def process_file(cls, infile: str, outfile: str, sepalpha: bool,
-                     verbosity: int):
+    def process_file(cls, infile: str, outfile: str, verbosity: int = 1,
+                     **kwargs: Any):
+        sepalpha = kwargs.get("sepalpha")
 
         workflow = f"{package_root}/data/workflows/3x.workflow"
         if not isdir(workflow):
@@ -128,6 +163,8 @@ class Pixelmator2xProcessor(Processor):
 
         # Save image
         output_image.save(outfile)
+
+    # endregion
 
 
 #################################### MAIN #####################################

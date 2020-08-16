@@ -27,6 +27,8 @@ from pipescaler.processors.Processor import Processor
 ################################### CLASSES ###################################
 class WaifuPixelmator2xTransparentProcessor(Processor):
 
+    # region Builtins
+
     def __init__(self, imagetype: str = "a", denoise: str = 1,
                  **kwargs: Any) -> None:
         super().__init__(**kwargs)
@@ -34,15 +36,31 @@ class WaifuPixelmator2xTransparentProcessor(Processor):
         self.imagetype = imagetype
         self.scale = 2
         self.denoise = denoise
-        self.desc = f"waifupm2xalpha-" \
-                    f"{self.imagetype}-{self.scale}-{self.denoise}"
+
+        # endregion
+
+    # region Properties
+
+    @property
+    def desc(self) -> str:
+        """str: Description"""
+        if not hasattr(self, "_desc"):
+            return f"waifupm2xalpha-" \
+                   f"{self.imagetype}-{self.scale}-{self.denoise}"
+        return self._desc
+
+    # endregion
+
+    # region Methods
 
     def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
         self.process_file(infile, outfile, imagetype=self.imagetype,
                           denoise=self.denoise,
                           verbosity=self.pipeline.verbosity)
 
-    # region Public Class Methods
+    # endregion
+
+    # region Class Methods
 
     @classmethod
     def construct_argparser(cls) -> ArgumentParser:
@@ -70,8 +88,10 @@ class WaifuPixelmator2xTransparentProcessor(Processor):
         return parser
 
     @classmethod
-    def process_file(cls, infile: str, outfile: str, imagetype: str,
-                     denoise: str, verbosity: int):
+    def process_file(cls, infile: str, outfile: str, verbosity: int = 1,
+                     **kwargs: Any) -> None:
+        imagetype = kwargs.get("imagetype")
+        denoise = kwargs.get("denoise")
 
         workflow = f"{package_root}/data/workflows/3x.workflow"
         if not isdir(workflow):

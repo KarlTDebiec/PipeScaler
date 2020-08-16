@@ -12,23 +12,22 @@ from __future__ import annotations
 from abc import abstractmethod
 from argparse import ArgumentParser
 from os import makedirs
-from os.path import basename, dirname, isdir, isfile, splitext
-from shutil import copyfile, get_terminal_size
-from textwrap import TextWrapper
+from os.path import basename, dirname, isdir, isfile, join, splitext
+from shutil import copyfile
 from typing import Any, Iterator, List, Optional, Union
 
 from pipescaler.Pipeline import Pipeline
-from pipescaler.common import CLTool
+from pipescaler.common import CLTool, validate_input_path, validate_output_path
 
 
 ################################### CLASSES ###################################
 class Processor(CLTool):
-    desc: str = ""
 
     # region Builtins
 
     def __init__(self, pipeline: Pipeline,
                  downstream_pipes: Optional[Union[str, List[str]]] = None,
+                 desc: str = None,
                  **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
@@ -37,6 +36,9 @@ class Processor(CLTool):
         if isinstance(downstream_pipes, str):
             downstream_pipes = [downstream_pipes]
         self.downstream_pipes = downstream_pipes
+
+        if desc is not None:
+            self.desc = desc
 
     def __call__(self, **kwargs: Any) -> Iterator[str]:
         while True:
@@ -62,6 +64,20 @@ class Processor(CLTool):
 
     # endregion
 
+    # region Properties
+
+    @property
+    @abstractmethod
+    def desc(self) -> str:
+        """str: Description"""
+        raise NotImplementedError()
+
+    @desc.setter
+    def desc(self, value: str) -> None:
+        self._desc = value
+
+    # endregion
+
     # region Methods
 
     def backup_infile(self, infile: str) -> str:
@@ -77,9 +93,6 @@ class Processor(CLTool):
         else:
             return infile
 
-    def get_extension(self, infile: str) -> str:
-        return splitext(basename(infile))[1].strip(".")
-
     def get_original_name(self, infile: str) -> str:
         if self.pipeline.wip_directory in infile:
             return basename(dirname(infile))
@@ -88,11 +101,11 @@ class Processor(CLTool):
 
     def get_outfile(self, infile: str) -> str:
         original_name = self.get_original_name(infile)
+        extension = self.get_extension(infile)
         desc_so_far = splitext(basename(infile))[0].replace(original_name, "")
-        outfile = f"{desc_so_far}_{self.desc}.png".lstrip("_")
-        outfile = f"{self.pipeline.wip_directory}/{original_name}/{outfile}"
+        outfile = f"{desc_so_far}_{self.desc}.{extension}".lstrip("_")
 
-        return outfile
+        return join(self.pipeline.wip_directory, original_name, outfile)
 
     def log_outfile(self, outfile: str) -> None:
         name = self.get_original_name(outfile)
@@ -102,6 +115,8 @@ class Processor(CLTool):
             self.pipeline.log[name].append(basename(outfile))
 
     def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
+        infile = validate_input_path(infile)
+        outfile = validate_output_path(outfile)
         self.process_file(infile, outfile,
                           verbosity=self.pipeline.verbosity)
 
@@ -142,22 +157,27 @@ class Processor(CLTool):
         """Parses and validates arguments, passes them to process_file"""
         parser = cls.construct_argparser()
         kwargs = vars(parser.parse_args())
-        cls.process_file(**kwargs)
+        cls.process_file_from_cl(**kwargs)
 
     @classmethod
     @abstractmethod
-    def process_file(cls, infile: str, outfile: str, **kwargs: Any) -> None:
-        pass
+    def process_file(cls, infile: str, outfile: str, verbosity: int = 1,
+                     **kwargs: Any) -> None:
+        raise NotImplementedError()
+
+    @classmethod
+    def process_file_from_cl(cls, infile: str, outfile: str,
+                             **kwargs: Any) -> None:
+        infile = validate_input_path(infile)
+        outfile = validate_output_path(outfile)
+        cls.process_file(infile, outfile, **kwargs)
 
     # endregion
 
-    # region Static Methods
+    # region Static methods
 
     @staticmethod
-    def get_indented_text(text: str) -> str:
-        columns = get_terminal_size((80, 20)).columns
-        wrapper = TextWrapper(initial_indent="    ", width=columns - 4,
-                              subsequent_indent="    ")
-        return wrapper.fill(text)
+    def get_extension(infile: str) -> str:
+        return splitext(basename(infile))[1].strip(".")
 
     # endregion

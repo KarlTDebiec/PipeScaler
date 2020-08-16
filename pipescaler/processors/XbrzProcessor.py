@@ -18,18 +18,40 @@ from pipescaler.processors.Processor import Processor
 ################################### CLASSES ###################################
 class XbrzProcessor(Processor):
 
+    # region Builtins
+
     def __init__(self, scale: int = 4, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
         self.scale = scale
-        self.desc = f"xbrz-{self.scale}"
+
+    # endregion
+
+    # region Properties
+
+    @property
+    def desc(self) -> str:
+        """str: Description"""
+        if not hasattr(self, "_desc"):
+            return f"xbrz-{self.scale}"
+        return self._desc
+
+    # endregion
+
+    # region Methods
 
     def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
-        self.process_file(infile, outfile, self.scale, self.pipeline.verbosity)
+        self.process_file(infile, outfile, self.pipeline.verbosity,
+                          scale=self.scale)
+
+    # endregion
+
+    # region Class Methods
 
     @classmethod
-    def process_file(cls, infile: str, outfile: str, scale: int,
-                     verbosity: int) -> None:
+    def process_file(cls, infile: str, outfile: str, verbosity: int = 1,
+                     **kwargs: Any) -> None:
+        scale = kwargs.get("scale")
         command = f"xbrzscale " \
                   f"{scale} " \
                   f"{infile} " \
@@ -37,3 +59,5 @@ class XbrzProcessor(Processor):
         if verbosity >= 1:
             print(command)
         Popen(command, shell=True, close_fds=True).wait()
+
+    # endregion

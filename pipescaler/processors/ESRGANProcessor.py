@@ -27,7 +27,7 @@ import numpy as np
 import torch
 from PIL import Image
 
-from pipescaler.common import validate_input_path
+from pipescaler.common import validate_input_path, validate_output_path
 from pipescaler.processors.Processor import Processor
 
 
@@ -155,11 +155,17 @@ class ESRGANProcessor(Processor):
 
         self.model_infile = model_infile
         self.device = device
-        self.desc = f"esrgan-{splitext(basename(self.model_infile))[0]}"
 
     # endregion
 
     # region Properties
+
+    @property
+    def desc(self) -> str:
+        """str: Description"""
+        if not hasattr(self, "_desc"):
+            return f"esrgan-{splitext(basename(self.model_infile))[0]}"
+        return self._desc
 
     @property
     def model_infile(self) -> str:
@@ -177,8 +183,11 @@ class ESRGANProcessor(Processor):
     # region Methods
 
     def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
-        self.process_file(infile, outfile, self.model_infile, self.device,
-                          self.pipeline.verbosity)
+        infile = validate_input_path(infile)
+        outfile = validate_output_path(outfile)
+        upscaler = ESRGANProcessor.RRDBNetUpscaler(
+            infile, torch.device(self.device))
+        self.process_file(infile, outfile, upscaler, self.pipeline.verbosity)
 
     # endregion
 
@@ -227,12 +236,8 @@ class ESRGANProcessor(Processor):
         return state_dict, scale_index
 
     @classmethod
-    def process_file(cls, infile: str, outfile: str, model_infile: str,
-                     device: str = "cpu", verbosity=1, **kwargs: Any) -> None:
-        # Read model
-        upscaler = ESRGANProcessor.RRDBNetUpscaler(
-            model_infile, torch.device(device))
-
+    def process_file(cls, infile: str, outfile: str, upscaler: RRDBNetUpscaler,
+                     verbosity=1, **kwargs: Any) -> None:
         # Read image
         input_datum = np.array(Image.open(infile).convert("RGB"))
 
@@ -242,6 +247,16 @@ class ESRGANProcessor(Processor):
         # Write image
         output_image = Image.fromarray(output_datum)
         output_image.save(outfile)
+
+    @classmethod
+    def process_file_from_cl(cls, infile: str, outfile: str, model_infile: str,
+                             device: str = "cpu", **kwargs):
+        infile = validate_input_path(infile)
+        outfile = validate_output_path(outfile)
+        model_infile = validate_input_path(model_infile)
+        upscaler = ESRGANProcessor.RRDBNetUpscaler(
+            model_infile, torch.device(device))
+        cls.process_file(infile, outfile, upscaler, **kwargs)
 
     # endregion
 
