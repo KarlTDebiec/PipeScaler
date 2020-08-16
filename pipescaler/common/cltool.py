@@ -6,17 +6,19 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license. See the LICENSE file for details.
-""""""
+"""
+General-purpose command-line tool base class not tied to a particular project.
+Last updated 2020-08-15
+"""
 ################################### MODULES ###################################
 from abc import ABC
 from argparse import (ArgumentParser,
                       ArgumentTypeError, RawDescriptionHelpFormatter,
                       _SubParsersAction)
 from inspect import currentframe, getframeinfo
-from typing import Any, Callable, Dict, Optional, Union
+from typing import Any, Callable, Optional, Union
 
 # noinspection Mypy
-from . import package_root
 from .general import validate_input_path, validate_output_path
 
 
@@ -27,40 +29,16 @@ class CLTool(ABC):
     # region Builtins
 
     def __init__(self, **kwargs: Any) -> None:
+        """Initialize, including cross-argument validation and value storage"""
         pass
 
     def __call__(self, **kwargs: Any) -> Any:
+        """Perform operations"""
         raise NotImplementedError()
 
     # endregion
 
     # region Properties
-
-    @property
-    def embed_kw(self) -> Dict[str, str]:
-        """Use ``IPython.embed(**self.embed_kw)`` for better prompt"""
-        frame = currentframe()
-        if frame is None:
-            raise ValueError()
-        frameinfo = getframeinfo(frame.f_back)
-        file = frameinfo.filename.replace(package_root, "")
-        func = frameinfo.function
-        number = frameinfo.lineno - 1
-        header = ""
-
-        if self.verbosity >= 1:
-            header = f"IPython prompt in file {file}, function {func}," \
-                     f" line {number}\n"
-        if self.verbosity >= 2:
-            header += "\n"
-            with open(frameinfo.filename, "r") as infile:
-                lines = [(i, line) for i, line in enumerate(infile)
-                         if i in range(number - 5, number + 6)]
-            for i, line in lines:
-                header += f"{i:5d} {'>' if i == number else ' '} " \
-                          f"{line.rstrip()}\n"
-
-        return {"header": header}
 
     @property
     def verbosity(self) -> int:
@@ -91,7 +69,7 @@ class CLTool(ABC):
         Args:
             description (Optional[str]): Description of parser
             parser (Optional[Union[ArgumentParser, _SubParsersAction]]):
-              Nascent argument parser
+              Nascent argument parser or subparsers
             kwargs (Any): Additional keyword arguments
 
         Returns:
@@ -144,6 +122,8 @@ class CLTool(ABC):
     def float_argument(
             min_value: Optional[float] = None,
             max_value: Optional[float] = None) -> Callable[[str], float]:
+        """TODO: Document"""
+
         def func(value: Union[str, float]) -> float:
             try:
                 value = float(value)
@@ -165,6 +145,8 @@ class CLTool(ABC):
     def input_path_argument(
             file_ok: bool = True,
             directory_ok: bool = False) -> Callable[[str], str]:
+        """TODO: Document"""
+
         def func(value: str) -> str:
             # Try cast here, to raise ArgumentTypeError instead of ValueError
             try:
@@ -180,6 +162,8 @@ class CLTool(ABC):
     def output_path_argument(
             file_ok: bool = True,
             directory_ok: bool = False) -> Callable[[str], str]:
+        """TODO: Document"""
+
         def func(value: str) -> str:
             # Try cast here, to raise ArgumentTypeError instead of ValueError
             try:
@@ -198,6 +182,8 @@ class CLTool(ABC):
     def _generate_setter_exception(self, value: Any) -> str:
         """
         Generates Exception text for setters that are passed invalid values
+
+        TODO: Decide if this actually makes sense
 
         Args:
             value (Any): Provided value
