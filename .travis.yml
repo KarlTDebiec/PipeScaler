@@ -2,8 +2,12 @@ language: python
 cache: pip
 python:
     - "3.7"
+before-install:
+  - pip install coveralls
 install:
   - python setup.py install
 script:
     - cd test
-    - pytest test.py
+    - pytest test.py --cov=moldynplot --cov-report=term-missing
+after-success
+    - coveralls
