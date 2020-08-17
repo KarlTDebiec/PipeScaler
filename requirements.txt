@@ -1,3 +1,6 @@
+pytest==6.0.1
+pytest-cov==2.10.0
+coveralls==2.1.2
 numpy~=1.18.1
 yaml~=0.1.7
 pyyaml~=5.3
@@ -6,4 +9,4 @@ scikit-image~=0.16.2
 readline~=7.0
 ipython~=7.11.1
 numba~=0.48.0
-setuptools~=44.0.0
+setuptools~=44.0.01
