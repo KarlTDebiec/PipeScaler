@@ -7,4 +7,4 @@ pillow~=7.0.0
 scikit-image~=0.16.2
 ipython~=7.11.1
 numba~=0.48.0
-setuptools~=44.0.01
+setuptools~=44.0
