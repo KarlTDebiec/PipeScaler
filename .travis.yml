@@ -9,5 +9,5 @@ install:
 script:
     - cd test
     - pytest test.py --cov=moldynplot --cov-report=term-missing
-after-success
+after-success:
     - coveralls
