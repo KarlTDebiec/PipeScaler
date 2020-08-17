@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/KarlTDebiec/PipeScaler.svg?branch=master)](https://travis-ci.org/KarlTDebiec/PipeScaler)
+
 PipeScaler is a tool for increasing the resolution of collections of images. It
 wraps around tools including ESRGAN, Pixelmator, potrace, pngquant, waifu, and
 xbrz, and allows them to be applied in a defined sequence to a batch of images.
