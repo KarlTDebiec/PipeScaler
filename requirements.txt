@@ -2,7 +2,6 @@ pytest==6.0.1
 pytest-cov==2.10.0
 coveralls==2.1.2
 numpy~=1.18.1
-yaml
 pyyaml~=5.3
 pillow~=7.0.0
 scikit-image~=0.16.2
