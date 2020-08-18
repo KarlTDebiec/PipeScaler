@@ -8,6 +8,6 @@ install:
     - python setup.py install
 script:
     - cd test
-    - pytest test.py --cov=moldynplot --cov-report=term-missing
+    - pytest test.py --cov=pipescaler --cov-report=term-missing
 after-success:
     - coveralls
