@@ -6,6 +6,7 @@ python:
     - "3.7"
 before-install:
     - pip install -r requirements.txt
+    - apt -y install potrace
 install:
     - python setup.py install
 script:
