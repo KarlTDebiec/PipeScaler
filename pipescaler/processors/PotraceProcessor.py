@@ -11,8 +11,8 @@ from __future__ import annotations
 
 from argparse import ArgumentParser
 from os import remove
-from os.path import splitext
 from subprocess import Popen
+from tempfile import NamedTemporaryFile
 from typing import Any
 
 from pipescaler.processors.Processor import Processor
@@ -70,62 +70,62 @@ class PotraceProcessor(Processor):
             "-k", "--blacklevel",
             default=0.3,
             type=float,
-            help="black/white cutoff in input file (default: 0.3)")
+            help="black/white cutoff in input file (default: %(default)s)")
         parser.add_argument(
             "-a", "--alphamax",
             default=1.34,
             type=float,
-            help="corner threshold parameter (default: 1.34)")
+            help="corner threshold parameter (default: %(default)s)")
         parser.add_argument(
             "-O", "--opttolerance",
             default=0.2,
             type=float,
-            help="curve optimization tolerance (default: 0.2)")
+            help="curve optimization tolerance (default: %(default)s)")
 
         return parser
 
     @classmethod
     def process_file(cls, infile: str, outfile: str, verbosity: int = 1,
                      **kwargs: Any):
-        blacklevel = kwargs.get("blacklevel")
-        alphamax = kwargs.get("alphamax")
-        opttolerance = kwargs.get("opttolerance")
-
-        # TODO: Use temporary files
+        blacklevel = kwargs.get("blacklevel", 0.3)
+        alphamax = kwargs.get("alphamax", 1.34)
+        opttolerance = kwargs.get("opttolerance", 0.2)
 
         # Convert to bmp; potrace does not accept png
-        bmpfile = f"{splitext(infile)[0]}.bmp"
+        bmpfile = NamedTemporaryFile(delete=False, suffix=".bmp")
+        bmpfile.close()
         command = f"convert " \
                   f"{infile} " \
-                  f"{bmpfile}"
-        if verbosity >= 1:
+                  f"{bmpfile.name}"
+        if verbosity >= 2:
             print(command)
         Popen(command, shell=True, close_fds=True).wait()
 
         # trace
-        svgfile = f"{splitext(outfile)[0]}.svg"
+        svgfile = NamedTemporaryFile(delete=False, suffix=".svg")
+        svgfile.close()
         command = f"potrace " \
-                  f"{bmpfile} " \
+                  f"{bmpfile.name} " \
                   f"-b svg " \
                   f"-k {blacklevel} " \
                   f"-a {alphamax} " \
                   f"-O {opttolerance} " \
-                  f"-o {svgfile}"
-        if verbosity >= 1:
+                  f"-o {svgfile.name}"
+        if verbosity >= 2:
             print(command)
         Popen(command, shell=True, close_fds=True).wait()
 
         # Rasterize svg to png
         command = f"convert " \
-                  f"{svgfile} " \
+                  f"{svgfile.name} " \
                   f"{outfile}"
-        if verbosity >= 1:
+        if verbosity >= 2:
             print(command)
         Popen(command, shell=True, close_fds=True).wait()
 
         # Clean up
-        remove(bmpfile)
-        remove(svgfile)
+        remove(bmpfile.name)
+        remove(svgfile.name)
 
     # endregion
 

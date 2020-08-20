@@ -31,6 +31,8 @@ class PipeScaler(CLTool):
         - [ ] Processors: Command-line support for all
         - [ ] Processors: Do not regenerate objects each call in pipeline
         - [ ] Processors: Tests
+        - [ ] Processors: Check if necessary executables exist
+        - [ ] Processors: Consistent handling of verbosity
         - [ ] Scripts: Generate animated gif
         - [ ] Rename mipmap to scaled
         - [ ] Processor: Generic alpha splitter
