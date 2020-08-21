@@ -29,9 +29,15 @@ def cl_processor(request):
     return request.param
 
 
+@pytest.fixture(params=["1x_BC1-smooth2.pth", "RRDB_ESRGAN_x4.pth",
+                        "RRDB_ESRGAN_x4_old_arch.pth"])
+def esrgan_model(request):
+    return join(getcwd(), "models", request.param)
+
+
 @pytest.fixture
-def dabenxiang():
-    return join(getcwd(), "data", "1x", "dabenxiang.png")
+def rgb():
+    return join(getcwd(), "data", "1x", "rgb.png")
 
 
 #################################### TESTS ####################################
@@ -39,19 +45,27 @@ def test_construct_argparser(cl_processor):
     cl_processor.construct_argparser()
 
 
-def test_potrace(dabenxiang):
+def test_esrgan(rgb, esrgan_model):
     outfile = NamedTemporaryFile(delete=False, suffix=".png")
     outfile.close()
-    PotraceProcessor.process_file_from_cl(dabenxiang, outfile.name,
+    ESRGANProcessor.process_file_from_cl(rgb, outfile.name,
+                                         esrgan_model, verbosity=2)
+    remove(outfile.name)
+
+
+def test_potrace(rgb):
+    outfile = NamedTemporaryFile(delete=False, suffix=".png")
+    outfile.close()
+    PotraceProcessor.process_file_from_cl(rgb, outfile.name,
                                           verbosity=2)
     remove(outfile.name)
 
 
 @pytest.mark.skipif(platform != "darwin",
                     reason="Application only available on macOS")
-def test_pixelmator(dabenxiang):
+def test_pixelmator(rgb):
     outfile = NamedTemporaryFile(delete=False, suffix=".png")
     outfile.close()
-    Pixelmator2xProcessor.process_file_from_cl(dabenxiang, outfile.name,
+    Pixelmator2xProcessor.process_file_from_cl(rgb, outfile.name,
                                                verbosity=2)
     remove(outfile.name)
