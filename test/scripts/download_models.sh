@@ -6,7 +6,7 @@ MODEL_ROOT="${TRAVIS_BUILD_DIR}/test/models"
     mkdir -p "${MODEL_ROOT}"
 
 # https://drive.google.com/file/d/1TPrz5QKd8DHHt1k8SRtm6tMiPjz_Qene/view?usp=sharing
-FILENAME="${MODEL_ROOT}/sRRDB_ESRGAN_x4.pth"
+FILENAME="${MODEL_ROOT}/RRDB_ESRGAN_x4.pth"
 FILEID="1TPrz5QKd8DHHt1k8SRtm6tMiPjz_Qene"
 curl -c ./cookie -s -L "https://drive.google.com/uc?export=download&id=${FILEID}" > /dev/null
 curl -Lb ./cookie "https://drive.google.com/uc?export=download&confirm=`awk '/download/ {print $NF}' ./cookie`&id=${FILEID}" -o ${FILENAME}
