@@ -120,7 +120,7 @@ class Pixelmator2xProcessor(Processor):
                 resample=Image.LANCZOS)
             remove(tempfile.name)
 
-        # RGBA with sepalph
+        # RGBA with sepalpha
         else:
             # 2X with only RGB channels
             tempfile = NamedTemporaryFile(delete=False, suffix=".png")
