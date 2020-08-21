@@ -35,7 +35,7 @@ def esrgan_model(request):
     return join(getcwd(), "models", request.param)
 
 
-@pytest.fixture(params=["L.png", "RGB.png", "RGBA.png"])
+@pytest.fixture(params=["l.png", "rgb.png", "rgba.png"])
 def infiles(request):
     return join(getcwd(), "data", "infiles", request.param)
 
