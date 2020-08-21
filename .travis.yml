@@ -5,6 +5,7 @@ cache: pip
 python:
     - "3.8"
 before-install:
+    - echo ${TRAVIS_BUILD_DIR}
     - pip install -r requirements.txt
     - sudo apt-get update
     - sudo apt -y install imagemagick potrace
@@ -12,6 +13,7 @@ before-install:
     - mkdir models
     - cd models
     - ../scripts/download_models.sh
+    - cd
 install:
     - python setup.py install
 script:
