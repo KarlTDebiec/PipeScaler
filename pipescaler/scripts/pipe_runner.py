@@ -21,28 +21,6 @@ from pipescaler.common import CLTool
 
 ################################### CLASSES ###################################
 class PipeScaler(CLTool):
-    """
-    TODO:
-        - [x] Add arguments to scaled_image_identifier.py
-        - [x] Fix ESRGAN
-        - [x] Move input_path_argument and output_path_argument to module level
-        - [x] Processors: Move desc to a property
-        - [x] Processors: Consistent function arguments
-        - [x] Scripts: Generate animated gif
-        - [x] Testing: Travis CI
-        - [x] Testing: Coveralls
-        - [ ] Processors: Command-line support for all
-        - [ ] Processors: Do not regenerate objects each call in pipeline
-        - [ ] Processors: Tests
-        - [ ] Processors: Check if necessary executables exist
-        - [ ] Processors: Consistent handling of verbosity
-        - [ ] Rename mipmap to scaled
-        - [ ] Processors: Generic alpha splitter
-        - [ ] Processors: Generic chainer
-        - [ ] Processors: Consider if specular maps could be handled better
-        - [ ] Processors: Generic splitter and recompiler
-        - [ ] Windows Support
-    """
     package_root: str = str(Path(__file__).parent.absolute())
 
     # region Builtins
