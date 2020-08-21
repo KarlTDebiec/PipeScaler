@@ -7,8 +7,11 @@ python:
 before-install:
     - pip install -r requirements.txt
     - sudo apt-get update
-    - sudo apt -y install imagemagick potrace
-    - bash ${TRAVIS_BUILD_DIR}/test/scripts/download_models.sh
+    - sudo apt -y install imagemagick pngquant potrace
+    - bash -ex ${TRAVIS_BUILD_DIR}/test/scripts/download_models.sh
+    - ls ${TRAVIS_BUILD_DIR}/test/models/
+    - bash ${TRAVIS_BUILD_DIR}/test/scripts/install_xbrzscale.sh
+    - export PATH="${TRAVIS_BUILD_DIR}/xbrzscale:${PATH}"
 install:
     - python setup.py install
 script:
