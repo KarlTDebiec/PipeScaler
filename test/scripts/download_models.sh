@@ -1,6 +1,6 @@
 #!/bin/bash -ex
 
-MODEL_ROOT="${TRAVIS_BUILD_DIR}/tests/models"
+MODEL_ROOT="${TRAVIS_BUILD_DIR}/test/models"
 
 [ -d "${MODEL_ROOT}" ] ||
     mkdir -p "${MODEL_ROOT}"
