@@ -108,8 +108,8 @@ def test_pixelmator(infile):
 def test_xbrz(infile):
     script = getfile(XbrzProcessor)
     print(script)
-    for k, v in environ.items():
-        print(f"{k}: {v}")
+    for i, k in enumerate(sorted(environ.keys())):
+        print(f"{i:02d} {k}: {environ[k]}")
     with temporary_filename(".png") as outfile:
         # command = f"python {getfile(XbrzProcessor)} -vv " \
         #           f"{infile} {outfile}"
