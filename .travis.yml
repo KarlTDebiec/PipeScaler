@@ -16,6 +16,6 @@ before-install:
 #    - python setup.py install
 script:
     - cd test
-    - pytest test.py --cov=pipescaler --cov-report=term
+    - pytest test.py --cov=pipescaler --cov-report=term -s
 after-success:
     - coveralls
