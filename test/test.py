@@ -45,16 +45,12 @@ def infile(request):
 
 #################################### TESTS ####################################
 def test_help(processor):
-    script = getfile(processor)
-    print(script)
     command = f"python {getfile(processor)} -h"
     print(command)
     Popen(command, shell=True, env=environ, close_fds=True).wait()
 
 
 def test_esrgan(infile, esrgan_model):
-    script = getfile(ESRGANProcessor)
-    print(script)
     with temporary_filename(".png") as outfile:
         command = f"python {getfile(ESRGANProcessor)} -vv " \
                   f"--model {esrgan_model} " \
@@ -64,8 +60,6 @@ def test_esrgan(infile, esrgan_model):
 
 
 def test_pngquant(infile):
-    script = getfile(PngquantProcessor)
-    print(script)
     with temporary_filename(".png") as outfile:
         command = f"python {getfile(PngquantProcessor)} -vv " \
                   f"{infile} {outfile}"
@@ -74,8 +68,6 @@ def test_pngquant(infile):
 
 
 def test_potrace(infile):
-    script = getfile(PotraceProcessor)
-    print(script)
     with temporary_filename(".png") as outfile:
         command = f"python {getfile(PotraceProcessor)} -vv " \
                   f"{infile} {outfile}"
@@ -84,8 +76,6 @@ def test_potrace(infile):
 
 
 def test_threshold(infile):
-    script = getfile(ThresholdProcessor)
-    print(script)
     with temporary_filename(".png") as outfile:
         command = f"python {getfile(ThresholdProcessor)} -vv " \
                   f"{infile} {outfile}"
@@ -96,8 +86,6 @@ def test_threshold(infile):
 @pytest.mark.skipif(platform != "darwin",
                     reason="Application only available on macOS")
 def test_pixelmator(infile):
-    script = getfile(Pixelmator2xProcessor)
-    print(script)
     with temporary_filename(".png") as outfile:
         command = f"python {getfile(Pixelmator2xProcessor)} -vv " \
                   f"{infile} {outfile}"
@@ -106,10 +94,6 @@ def test_pixelmator(infile):
 
 
 def test_xbrz(infile):
-    script = getfile(XbrzProcessor)
-    print(script)
-    for i, k in enumerate(sorted(environ.keys())):
-        print(f"{i:02d} {k}: {environ[k]}")
     with temporary_filename(".png") as outfile:
         command = f"python {getfile(XbrzProcessor)} -vv " \
                   f"{infile} {outfile}"
