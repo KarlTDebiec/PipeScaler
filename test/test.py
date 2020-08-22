@@ -8,7 +8,7 @@
 #   BSD license. See the LICENSE file for details.
 ################################### MODULES ###################################
 from inspect import getfile
-from os import getcwd
+from os import environ, getcwd
 from os.path import join
 from subprocess import Popen
 from sys import platform
@@ -49,7 +49,7 @@ def test_help(processor):
     print(script)
     command = f"python {getfile(processor)} -h"
     print(command)
-    Popen(command, shell=True, close_fds=True).wait()
+    Popen(command, shell=True, env=environ, close_fds=True).wait()
 
 
 def test_esrgan(infile, esrgan_model):
