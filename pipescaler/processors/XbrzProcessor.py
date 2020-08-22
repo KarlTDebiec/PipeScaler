@@ -57,6 +57,9 @@ class XbrzProcessor(Processor):
         Returns:
             parser (ArgumentParser): Argument parser
         """
+        import coverage
+        coverage.process_startup()
+
         parser = super().construct_argparser(description=__doc__)
 
         # Input
