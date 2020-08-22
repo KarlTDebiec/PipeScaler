@@ -94,6 +94,8 @@ def test_pixelmator(infile):
 
 
 def test_xbrz(infile):
+    import coverage
+    coverage.process_startup()
     with temporary_filename(".png") as outfile:
         command = f"python {getfile(XbrzProcessor)} -vv " \
                   f"{infile} {outfile}"
