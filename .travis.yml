@@ -17,7 +17,7 @@ before-install:
 #install:
 #    - python setup.py install
 script:
-  - cd ${TRAVIS_BUILD_DIR}/test && pytest test.py --cov=pipescaler --cov-report=term --cov-report html -s -k "test_help"
+  - cd ${TRAVIS_BUILD_DIR}/test && pytest test.py --cov=pipescaler --cov-report=term --cov-report html -s -k "test_xbrz"
 after-success:
   - bash -ex ${TRAVIS_BUILD_DIR}/test/scripts/encode_coverage.sh
   - cd ${TRAVIS_BUILD_DIR}/test && coveralls
