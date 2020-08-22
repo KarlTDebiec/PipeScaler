@@ -17,7 +17,7 @@ before-install:
 #install:
 #    - python setup.py install
 script:
-  - cd ${TRAVIS_BUILD_DIR}/test && pytest test.py --cov=${TRAVIS_BUILD_DIR} --cov-report=term --cov-report html -s
+  - cd ${TRAVIS_BUILD_DIR}/test && pytest test.py --cov=${TRAVIS_BUILD_DIR} --cov-report=term --cov-report html -vs
 after-success:
   - bash -ex ${TRAVIS_BUILD_DIR}/test/scripts/encode_coverage.sh
   - cd ${TRAVIS_BUILD_DIR}/test && coveralls
