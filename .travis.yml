@@ -3,20 +3,21 @@ os:
   - linux
 cache: pip
 python:
-    - "3.8"
+  - "3.8"
 services:
   - xvfb
 before-install:
-    - pip install -r requirements.txt
-    - sudo apt-get update
-    - sudo apt -y install imagemagick libsdl2-dev libsdl2-image-dev p7zip-full pngquant potrace
-    - bash -ex ${TRAVIS_BUILD_DIR}/test/scripts/download_models.sh
-    - bash -ex ${TRAVIS_BUILD_DIR}/test/scripts/install_xbrzscale.sh
-    - export PATH="${TRAVIS_BUILD_DIR}/xbrzscale:${PATH}"
-    - export PYTHONPATH="${TRAVIS_BUILD_DIR}:${PATH}"
+  - pip install -r requirements.txt
+  - sudo apt-get update
+  - sudo apt -y install imagemagick libsdl2-dev libsdl2-image-dev pngquant potrace
+  - bash -ex ${TRAVIS_BUILD_DIR}/test/scripts/download_models.sh
+  - bash -ex ${TRAVIS_BUILD_DIR}/test/scripts/install_xbrzscale.sh
+  - export PATH="${TRAVIS_BUILD_DIR}/xbrzscale:${PATH}"
+  - export PYTHONPATH="${TRAVIS_BUILD_DIR}:${PATH}"
 #install:
 #    - python setup.py install
 script:
-    - cd ${TRAVIS_BUILD_DIR}/test && pytest test.py --cov=pipescaler --cov-report=term --cov-report html -s -k "test_help"
+  - cd ${TRAVIS_BUILD_DIR}/test && pytest test.py --cov=pipescaler --cov-report=term --cov-report html -s -k "test_help"
 after-success:
-    - cd ${TRAVIS_BUILD_DIR}/test && coveralls
+  - bash -ex ${TRAVIS_BUILD_DIR}/test/scripts/encode_coverage.sh
+  - cd ${TRAVIS_BUILD_DIR}/test && coveralls
