@@ -98,5 +98,4 @@ def test_xbrz(infile):
         command = f"python {getfile(XbrzProcessor)} -vv " \
                   f"{infile} {outfile}"
         Popen(command, shell=True).wait()
-        XbrzProcessor.process_file_from_cl(infile, outfile, verbosity=2)
         Image.open(outfile)
