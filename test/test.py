@@ -53,7 +53,7 @@ def test_help(processor):
 
 
 def test_esrgan(infile, esrgan_model):
-    script = getfile(processor)
+    script = getfile(infile)
     print(script)
     with temporary_filename(".png") as outfile:
         command = f"python {getfile(ESRGANProcessor)} -vv " \
@@ -64,7 +64,7 @@ def test_esrgan(infile, esrgan_model):
 
 
 def test_pngquant(infile):
-    script = getfile(processor)
+    script = getfile(infile)
     print(script)
     with temporary_filename(".png") as outfile:
         command = f"python {getfile(PngquantProcessor)} -vv " \
@@ -74,7 +74,7 @@ def test_pngquant(infile):
 
 
 def test_potrace(infile):
-    script = getfile(processor)
+    script = getfile(infile)
     print(script)
     with temporary_filename(".png") as outfile:
         command = f"python {getfile(PotraceProcessor)} -vv " \
@@ -84,7 +84,7 @@ def test_potrace(infile):
 
 
 def test_threshold(infile):
-    script = getfile(processor)
+    script = getfile(infile)
     print(script)
     with temporary_filename(".png") as outfile:
         command = f"python {getfile(ThresholdProcessor)} -vv " \
@@ -96,7 +96,7 @@ def test_threshold(infile):
 @pytest.mark.skipif(platform != "darwin",
                     reason="Application only available on macOS")
 def test_pixelmator(infile):
-    script = getfile(processor)
+    script = getfile(infile)
     print(script)
     with temporary_filename(".png") as outfile:
         command = f"python {getfile(Pixelmator2xProcessor)} -vv " \
@@ -106,7 +106,7 @@ def test_pixelmator(infile):
 
 
 def test_xbrz(infile):
-    script = getfile(processor)
+    script = getfile(infile)
     print(script)
     with temporary_filename(".png") as outfile:
         command = f"python {getfile(XbrzProcessor)} -vv " \
