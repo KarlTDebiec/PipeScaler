@@ -113,6 +113,6 @@ def test_xbrz(infile):
     with temporary_filename(".png") as outfile:
         command = f"python {getfile(XbrzProcessor)} -vv " \
                   f"{infile} {outfile}"
-        Popen(command, shell=True, env=environ, close_fds=True).wait()
+        Popen(command, shell=True, env=environ.copy(), close_fds=True).wait()
         XbrzProcessor.process_file_from_cl(infile, outfile, verbosity=2)
         Image.open(outfile)
