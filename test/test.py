@@ -8,7 +8,7 @@
 #   BSD license. See the LICENSE file for details.
 ################################### MODULES ###################################
 from inspect import getfile
-from os import environ, getcwd
+from os import getcwd
 from os.path import join
 from subprocess import Popen
 from sys import platform
@@ -46,8 +46,7 @@ def infile(request):
 #################################### TESTS ####################################
 def test_help(processor):
     command = f"python {getfile(processor)} -h"
-    print(command)
-    Popen(command, shell=True, env=environ, close_fds=True).wait()
+    Popen(command, shell=True).wait()
 
 
 def test_esrgan(infile, esrgan_model):
@@ -55,7 +54,7 @@ def test_esrgan(infile, esrgan_model):
         command = f"python {getfile(ESRGANProcessor)} -vv " \
                   f"--model {esrgan_model} " \
                   f"{infile} {outfile}"
-        Popen(command, shell=True, close_fds=True).wait()
+        Popen(command, shell=True).wait()
         Image.open(outfile)
 
 
@@ -63,7 +62,7 @@ def test_pngquant(infile):
     with temporary_filename(".png") as outfile:
         command = f"python {getfile(PngquantProcessor)} -vv " \
                   f"{infile} {outfile}"
-        Popen(command, shell=True, close_fds=True).wait()
+        Popen(command, shell=True).wait()
         Image.open(outfile)
 
 
@@ -71,7 +70,7 @@ def test_potrace(infile):
     with temporary_filename(".png") as outfile:
         command = f"python {getfile(PotraceProcessor)} -vv " \
                   f"{infile} {outfile}"
-        Popen(command, shell=True, close_fds=True).wait()
+        Popen(command, shell=True).wait()
         Image.open(outfile)
 
 
@@ -79,7 +78,7 @@ def test_threshold(infile):
     with temporary_filename(".png") as outfile:
         command = f"python {getfile(ThresholdProcessor)} -vv " \
                   f"{infile} {outfile}"
-        Popen(command, shell=True, close_fds=True).wait()
+        Popen(command, shell=True).wait()
         Image.open(outfile)
 
 
@@ -89,7 +88,17 @@ def test_pixelmator(infile):
     with temporary_filename(".png") as outfile:
         command = f"python {getfile(Pixelmator2xProcessor)} -vv " \
                   f"{infile} {outfile}"
-        Popen(command, shell=True, close_fds=True).wait()
+        Popen(command, shell=True).wait()
+        Image.open(outfile)
+
+
+@pytest.mark.skipif(platform != "darwin",
+                    reason="Processor on implemented on macOS")
+def test_waifu(infile):
+    with temporary_filename(".png") as outfile:
+        command = f"python {getfile(WaifuProcessor)} -vv " \
+                  f"{infile} {outfile}"
+        Popen(command, shell=True).wait()
         Image.open(outfile)
 
 
