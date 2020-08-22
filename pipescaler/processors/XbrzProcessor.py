@@ -72,7 +72,7 @@ class XbrzProcessor(Processor):
     @classmethod
     def process_file(cls, infile: str, outfile: str, verbosity: int = 1,
                      **kwargs: Any) -> None:
-        scale = kwargs.get("scale")
+        scale = kwargs.get("scale", 2)
         command = f"xbrzscale " \
                   f"{scale} " \
                   f"{infile} " \
