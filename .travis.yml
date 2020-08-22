@@ -4,6 +4,8 @@ os:
 cache: pip
 python:
     - "3.8"
+services:
+  - xvfb
 before-install:
     - pip install -r requirements.txt
     - sudo apt-get update
