@@ -9,6 +9,7 @@
 ################################### MODULES ###################################
 from __future__ import annotations
 
+from argparse import ArgumentParser
 from subprocess import Popen
 from typing import Any
 
@@ -49,6 +50,26 @@ class XbrzProcessor(Processor):
     # region Class Methods
 
     @classmethod
+    def construct_argparser(cls) -> ArgumentParser:
+        """
+        Constructs argument parser
+
+        Returns:
+            parser (ArgumentParser): Argument parser
+        """
+        parser = super().construct_argparser(description=__doc__)
+
+        # Input
+        parser.add_argument(
+            "--scale",
+            default=2,
+            type=int,
+            help="factor by which to scale height and width (2-6, default: "
+                 "%(default)s)")
+
+        return parser
+
+    @classmethod
     def process_file(cls, infile: str, outfile: str, verbosity: int = 1,
                      **kwargs: Any) -> None:
         scale = kwargs.get("scale")
@@ -61,3 +82,8 @@ class XbrzProcessor(Processor):
         Popen(command, shell=True, close_fds=True).wait()
 
     # endregion
+
+
+#################################### MAIN #####################################
+if __name__ == "__main__":
+    XbrzProcessor.main()

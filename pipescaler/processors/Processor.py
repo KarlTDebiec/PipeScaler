@@ -170,6 +170,7 @@ class Processor(CLTool):
                              **kwargs: Any) -> None:
         infile = validate_input_path(infile)
         outfile = validate_output_path(outfile)
+
         cls.process_file(infile, outfile, **kwargs)
 
     # endregion

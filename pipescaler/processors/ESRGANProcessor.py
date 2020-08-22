@@ -17,8 +17,8 @@ Adapted from ESRGAN (https://github.com/xinntao/ESRGAN) and Colab-ESRGAN
 ################################## MODULES ###################################
 from __future__ import annotations
 
-import argparse
 import collections
+from argparse import ArgumentParser
 from functools import partial
 from os.path import basename, splitext
 from typing import Any
@@ -194,7 +194,7 @@ class ESRGANProcessor(Processor):
     # region Class Methods
 
     @classmethod
-    def construct_argparser(cls) -> argparse.ArgumentParser:
+    def construct_argparser(cls) -> ArgumentParser:
         """
         Constructs argument parser
 
@@ -205,7 +205,7 @@ class ESRGANProcessor(Processor):
 
         # Input
         parser.add_argument(
-            "-m", "--model",
+            "--model",
             dest="model_infile",
             required=True,
             type=cls.input_path_argument(),
@@ -213,10 +213,10 @@ class ESRGANProcessor(Processor):
 
         # Operations
         parser.add_argument(
-            "-d", "--device",
+            "--device",
             default="cpu",
             type=str,
-            help="device (default: cpu)")
+            help="device (default: %(default)s)")
 
         return parser
 
@@ -236,8 +236,10 @@ class ESRGANProcessor(Processor):
         return state_dict, scale_index
 
     @classmethod
-    def process_file(cls, infile: str, outfile: str, upscaler: RRDBNetUpscaler,
-                     verbosity=1, **kwargs: Any) -> None:
+    def process_file(cls, infile: str, outfile: str, verbosity=1,
+                     **kwargs: Any) -> None:
+        upscaler = kwargs.get("upscaler")
+
         # Read image
         input_datum = np.array(Image.open(infile).convert("RGB"))
 
@@ -249,14 +251,14 @@ class ESRGANProcessor(Processor):
         output_image.save(outfile)
 
     @classmethod
-    def process_file_from_cl(cls, infile: str, outfile: str, model_infile: str,
-                             device: str = "cpu", **kwargs):
+    def process_file_from_cl(cls, infile: str, outfile: str, **kwargs):
         infile = validate_input_path(infile)
         outfile = validate_output_path(outfile)
-        model_infile = validate_input_path(model_infile)
+        model_infile = validate_input_path(kwargs.get("model_infile"))
+        device = kwargs.get("device")
         upscaler = ESRGANProcessor.RRDBNetUpscaler(
             model_infile, torch.device(device))
-        cls.process_file(infile, outfile, upscaler, **kwargs)
+        cls.process_file(infile, outfile, upscaler=upscaler, **kwargs)
 
     # endregion
 

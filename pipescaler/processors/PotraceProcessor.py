@@ -67,17 +67,18 @@ class PotraceProcessor(Processor):
         parser = super().construct_argparser(description=__doc__)
 
         parser.add_argument(
-            "-k", "--blacklevel",
+            "--blacklevel",
             default=0.3,
             type=float,
-            help="black/white cutoff in input file (default: %(default)s)")
+            help="black/white cutoff in input file (0.0-1.0, default: "
+                 "%(default)s)")
         parser.add_argument(
-            "-a", "--alphamax",
+            "--alphamax",
             default=1.34,
             type=float,
             help="corner threshold parameter (default: %(default)s)")
         parser.add_argument(
-            "-O", "--opttolerance",
+            "--opttolerance",
             default=0.2,
             type=float,
             help="curve optimization tolerance (default: %(default)s)")

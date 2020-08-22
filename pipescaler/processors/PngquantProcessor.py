@@ -9,6 +9,7 @@
 ################################### MODULES ###################################
 from __future__ import annotations
 
+from argparse import ArgumentParser
 from os.path import isfile
 from shutil import copyfile
 from subprocess import Popen
@@ -56,13 +57,44 @@ class PngquantProcessor(Processor):
     # endregion
 
     @classmethod
+    def construct_argparser(cls) -> ArgumentParser:
+        """
+        Constructs argument parser
+
+        Returns:
+            parser (ArgumentParser): Argument parser
+        """
+        parser = super().construct_argparser(description=__doc__)
+
+        parser.add_argument(
+            "--quality",
+            default="100",
+            type=int,
+            help="minimum quality below which output image will not be saved, "
+                 "and maximum quality above which fewer colors will be used, "
+                 "(1-100, default: %(default)s)")
+        parser.add_argument(
+            "--speed",
+            default=1,
+            type=int,
+            help="speed/quality balance (1-100, default: %(default)s)")
+        parser.add_argument(
+            "--nofs",
+            action="store_false",
+            dest="floyd_steinberg",
+            help="disable Floyd-Steinberg dithering")
+
+        return parser
+
+    @classmethod
     def process_file(cls, infile: str, outfile: str, verbosity: int = 1,
                      **kwargs: Any) -> None:
-        quality = kwargs.get("quality")
-        speed = kwargs.get("speed")
-        floyd_steinberg = kwargs.get("floyd_steinberg")
+        quality = kwargs.get("quality", 100)
+        speed = kwargs.get("speed", 1)
+        floyd_steinberg = kwargs.get("floyd_steinberg", True)
 
         command = f"pngquant " \
+                  f"--force " \
                   f"--quality {quality} " \
                   f"--speed {speed} "
         if not floyd_steinberg:
@@ -76,3 +108,8 @@ class PngquantProcessor(Processor):
         # pngquant may not save outfile if it is too large or low quality
         if not isfile(outfile):
             copyfile(infile, outfile)
+
+
+#################################### MAIN #####################################
+if __name__ == "__main__":
+    PngquantProcessor.main()

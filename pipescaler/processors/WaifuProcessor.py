@@ -77,23 +77,24 @@ class WaifuProcessor(Processor):
         parser = super().construct_argparser(description=__doc__)
 
         parser.add_argument(
-            "-t", "--type",
+            "--type",
             default="a",
             dest="imagetype",
             type=str,
-            help="image type - a for anime (default), p for photo")
+            help="image type - a for anime, p for photo, (default: "
+                 "%(default)s)")
         parser.add_argument(
-            "-s", "--scale",
+            "--scale",
             default=2,
             dest="scale",
             type=int,
-            help="scale factor (1 or 2)")
+            help="scale factor (1 or 2, default: %(default)s)")
         parser.add_argument(
-            "-n", "--noise",
+            "--denoise",
             default=1,
             dest="denoise",
             type=int,
-            help="denoise level (0-4)")
+            help="denoise level (0-4, default: %(default)s)")
 
         return parser
 

@@ -68,17 +68,16 @@ class ThresholdProcessor(Processor):
         parser = super().construct_argparser(description=__doc__)
 
         parser.add_argument(
-            "-t", "--threshold",
+            "--threshold",
             default=128,
-            dest="threshold",
             type=int,
-            help="threshold differentiating black and white (0-255)")
+            help="threshold differentiating black and white (0-255, default: "
+                 "%(default)s)")
         parser.add_argument(
-            "-d", "--denoise",
+            "--denoise",
             default=True,
-            dest="denoise",
             type=bool,
-            help="Switch color of pixels bordered by less than 5 pixels of "
+            help="Flip color of pixels bordered by less than 5 pixels of "
                  "the same color")
 
         return parser
