@@ -8,15 +8,15 @@
 #   BSD license. See the LICENSE file for details.
 ################################### MODULES ###################################
 from inspect import getfile
-from os import getcwd, remove
+from os import getcwd
 from os.path import join
 from subprocess import Popen
 from sys import platform
-from tempfile import NamedTemporaryFile
 
 import pytest
 from PIL import Image
 
+from pipescaler.common.general import temporary_filename
 from pipescaler.processors import (
     ESRGANProcessor, Pixelmator2xProcessor, PngquantProcessor,
     PotraceProcessor, ThresholdProcessor,
@@ -28,7 +28,7 @@ from pipescaler.processors import (
     ESRGANProcessor, Pixelmator2xProcessor, PngquantProcessor,
     PotraceProcessor, ThresholdProcessor,
     WaifuPixelmator2xTransparentProcessor, WaifuProcessor, XbrzProcessor])
-def cl_processor(request):
+def processor(request):
     return request.param
 
 
@@ -44,70 +44,72 @@ def infile(request):
 
 
 #################################### TESTS ####################################
-def test_help(cl_processor):
-    command = f"python {getfile(cl_processor)} -h"
+def test_help(processor):
+    script = getfile(processor)
+    print(script)
+    command = f"python {getfile(processor)} -h"
     print(command)
     Popen(command, shell=True, close_fds=True).wait()
 
 
 def test_esrgan(infile, esrgan_model):
-    outfile = NamedTemporaryFile(delete=False, suffix=".png")
-    outfile.close()
-    command = f"python {getfile(ESRGANProcessor)} -vv " \
-              f"--model {esrgan_model} " \
-              f"{infile} {outfile.name}"
-    Popen(command, shell=True, close_fds=True).wait()
-    Image.open(outfile.name)
-    remove(outfile.name)
+    script = getfile(processor)
+    print(script)
+    with temporary_filename(".png") as outfile:
+        command = f"python {getfile(ESRGANProcessor)} -vv " \
+                  f"--model {esrgan_model} " \
+                  f"{infile} {outfile}"
+        Popen(command, shell=True, close_fds=True).wait()
+        Image.open(outfile)
 
 
 def test_pngquant(infile):
-    outfile = NamedTemporaryFile(delete=False, suffix=".png")
-    outfile.close()
-    command = f"python {getfile(PngquantProcessor)} -vv " \
-              f"{infile} {outfile.name}"
-    Popen(command, shell=True, close_fds=True).wait()
-    Image.open(outfile.name)
-    remove(outfile.name)
+    script = getfile(processor)
+    print(script)
+    with temporary_filename(".png") as outfile:
+        command = f"python {getfile(PngquantProcessor)} -vv " \
+                  f"{infile} {outfile}"
+        Popen(command, shell=True, close_fds=True).wait()
+        Image.open(outfile)
 
 
 def test_potrace(infile):
-    outfile = NamedTemporaryFile(delete=False, suffix=".png")
-    outfile.close()
-    command = f"python {getfile(PotraceProcessor)} -vv " \
-              f"{infile} {outfile.name}"
-    Popen(command, shell=True, close_fds=True).wait()
-    Image.open(outfile.name)
-    remove(outfile.name)
+    script = getfile(processor)
+    print(script)
+    with temporary_filename(".png") as outfile:
+        command = f"python {getfile(PotraceProcessor)} -vv " \
+                  f"{infile} {outfile}"
+        Popen(command, shell=True, close_fds=True).wait()
+        Image.open(outfile)
 
 
 def test_threshold(infile):
-    outfile = NamedTemporaryFile(delete=False, suffix=".png")
-    outfile.close()
-    command = f"python {getfile(ThresholdProcessor)} -vv " \
-              f"{infile} {outfile.name}"
-    Popen(command, shell=True, close_fds=True).wait()
-    Image.open(outfile.name)
-    remove(outfile.name)
+    script = getfile(processor)
+    print(script)
+    with temporary_filename(".png") as outfile:
+        command = f"python {getfile(ThresholdProcessor)} -vv " \
+                  f"{infile} {outfile}"
+        Popen(command, shell=True, close_fds=True).wait()
+        Image.open(outfile)
 
 
 @pytest.mark.skipif(platform != "darwin",
                     reason="Application only available on macOS")
 def test_pixelmator(infile):
-    outfile = NamedTemporaryFile(delete=False, suffix=".png")
-    outfile.close()
-    command = f"python {getfile(Pixelmator2xProcessor)} -vv " \
-              f"{infile} {outfile.name}"
-    Popen(command, shell=True, close_fds=True).wait()
-    Image.open(outfile.name)
-    remove(outfile.name)
+    script = getfile(processor)
+    print(script)
+    with temporary_filename(".png") as outfile:
+        command = f"python {getfile(Pixelmator2xProcessor)} -vv " \
+                  f"{infile} {outfile}"
+        Popen(command, shell=True, close_fds=True).wait()
+        Image.open(outfile)
 
 
 def test_xbrz(infile):
-    outfile = NamedTemporaryFile(delete=False, suffix=".png")
-    outfile.close()
-    command = f"python {getfile(XbrzProcessor)} -vv " \
-              f"{infile} {outfile.name}"
-    Popen(command, shell=True, close_fds=True).wait()
-    Image.open(outfile.name)
-    remove(outfile.name)
+    script = getfile(processor)
+    print(script)
+    with temporary_filename(".png") as outfile:
+        command = f"python {getfile(XbrzProcessor)} -vv " \
+                  f"{infile} {outfile}"
+        Popen(command, shell=True, close_fds=True).wait()
+        Image.open(outfile)

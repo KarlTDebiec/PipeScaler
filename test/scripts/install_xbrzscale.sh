@@ -1,4 +1,4 @@
-#!/bin/bash -ex
+ls#!/bin/bash -ex
 
 git clone https://github.com/atheros/xbrzscale
 cd xbrzscale

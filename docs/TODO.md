@@ -5,16 +5,18 @@ TODO:
 - [x] Processors: Move desc to a property
 - [x] Processors: Consistent function arguments
 - [x] Scripts: Generate animated gif
-- [x] Testing: Travis CI
-- [x] Testing: Coveralls
+- [x] Tests: Travis CI
+- [x] Tests: Coveralls
+- [ ] Tests: Determine why coverage is not accurate
+- [ ] Tests: Get outfiles working with "with:"
+- [ ] Processors: Consistent handling of verbosity
 - [ ] Processors: Command-line support for all
 - [ ] Processors: Do not regenerate objects each call in pipeline
-- [ ] Processors: Tests
 - [ ] Processors: Check if necessary executables exist
-- [ ] Processors: Consistent handling of verbosity
 - [ ] Rename mipmap to scaled
-- [ ] Processors: Generic alpha splitter
+- [ ] Processors: Generic alpha splitter, which can replace FlattenProcessor
 - [ ] Processors: Generic chainer
+- [ ] Processors: Normal map splitter
 - [ ] Processors: Consider if specular maps could be handled better
-- [ ] Processors: Generic splitter and recompiler
+- [ ] Waifu on Linux (without CUDA?)
 - [ ] Windows Support

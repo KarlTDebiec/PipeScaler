@@ -11,10 +11,12 @@ General-purpose functions not tied to a particular project.
 Last updated 2020-08-15
 """
 ################################### MODULES ###################################
+from contextlib import contextmanager
 from inspect import currentframe, getframeinfo
-from os import R_OK, W_OK, access, getcwd
+from os import R_OK, W_OK, access, getcwd, remove
 from os.path import basename, dirname, exists, expandvars, isdir, isfile, join
 from readline import insert_text, redisplay, set_pre_input_hook
+from tempfile import NamedTemporaryFile
 from typing import Dict, Optional
 
 # noinspection Mypy
@@ -109,6 +111,16 @@ def input_prefill(prompt: str, prefill: str) -> str:
     set_pre_input_hook()
 
     return result
+
+
+@contextmanager
+def temporary_filename(suffix=None):
+    try:
+        f = NamedTemporaryFile(delete=False, suffix=suffix)
+        f.close()
+        yield f.name
+    finally:
+        remove(f.name)
 
 
 def validate_input_path(value: str, file_ok: bool = True,
