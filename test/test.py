@@ -15,6 +15,7 @@ from sys import platform
 from tempfile import NamedTemporaryFile
 
 import pytest
+from PIL import Image
 
 from pipescaler.processors import (
     ESRGANProcessor, Pixelmator2xProcessor, PngquantProcessor,
@@ -56,6 +57,7 @@ def test_esrgan(infile, esrgan_model):
               f"--model {esrgan_model} " \
               f"{infile} {outfile.name}"
     Popen(command, shell=True, close_fds=True).wait()
+    Image.open(outfile.name)
     remove(outfile.name)
 
 
@@ -65,6 +67,7 @@ def test_pngquant(infile):
     command = f"python {getfile(PngquantProcessor)} -vv " \
               f"{infile} {outfile.name}"
     Popen(command, shell=True, close_fds=True).wait()
+    Image.open(outfile.name)
     remove(outfile.name)
 
 
@@ -74,6 +77,7 @@ def test_potrace(infile):
     command = f"python {getfile(PotraceProcessor)} -vv " \
               f"{infile} {outfile.name}"
     Popen(command, shell=True, close_fds=True).wait()
+    Image.open(outfile.name)
     remove(outfile.name)
 
 
@@ -83,6 +87,7 @@ def test_threshold(infile):
     command = f"python {getfile(ThresholdProcessor)} -vv " \
               f"{infile} {outfile.name}"
     Popen(command, shell=True, close_fds=True).wait()
+    Image.open(outfile.name)
     remove(outfile.name)
 
 
@@ -94,6 +99,7 @@ def test_pixelmator(infile):
     command = f"python {getfile(Pixelmator2xProcessor)} -vv " \
               f"{infile} {outfile.name}"
     Popen(command, shell=True, close_fds=True).wait()
+    Image.open(outfile.name)
     remove(outfile.name)
 
 
@@ -103,4 +109,5 @@ def test_xbrz(infile):
     command = f"python {getfile(XbrzProcessor)} -vv " \
               f"{infile} {outfile.name}"
     Popen(command, shell=True, close_fds=True).wait()
+    Image.open(outfile.name)
     remove(outfile.name)
