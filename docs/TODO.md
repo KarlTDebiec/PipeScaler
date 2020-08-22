@@ -20,3 +20,4 @@ TODO:
 - [ ] Processors: Consider if specular maps could be handled better
 - [ ] Waifu on Linux (without CUDA?)
 - [ ] Windows Support
+- [ ] Standards-compliant filenames
