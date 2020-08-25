@@ -16,18 +16,18 @@ from sys import platform
 import pytest
 from PIL import Image
 
-from pipescaler.common.general import temporary_filename
+from pipescaler.common import temporary_filename
 from pipescaler.processors import (
     ESRGANProcessor, Pixelmator2xProcessor, PngquantProcessor,
     PotraceProcessor, ThresholdProcessor,
-    WaifuPixelmator2xTransparentProcessor, WaifuProcessor, XbrzProcessor)
+    WaifuPixelmator2xProcessor, WaifuProcessor, XbrzProcessor)
 
 
 ################################## FIXTURES ###################################
 @pytest.fixture(params=[
     ESRGANProcessor, Pixelmator2xProcessor, PngquantProcessor,
     PotraceProcessor, ThresholdProcessor,
-    WaifuPixelmator2xTransparentProcessor, WaifuProcessor, XbrzProcessor])
+    WaifuPixelmator2xProcessor, WaifuProcessor, XbrzProcessor])
 def processor(request):
     return request.param
 
@@ -93,7 +93,7 @@ def test_pixelmator(infile):
 
 
 @pytest.mark.skipif(platform != "darwin",
-                    reason="Processor on implemented on macOS")
+                    reason="Processor only implemented on macOS")
 def test_waifu(infile):
     with temporary_filename(".png") as outfile:
         command = f"python {getfile(WaifuProcessor)} -vv " \

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/processors/ThresholdProcessor.py
+#   pipescaler/processors/threshold_processor.py
 #
 #   Copyright (C) 2020 Karl T Debiec
 #   All rights reserved.
@@ -16,7 +16,7 @@ import numba as nb
 import numpy as np
 from PIL import Image
 
-from pipescaler.processors.Processor import Processor
+from pipescaler.processors.processor import Processor
 
 
 ################################### CLASSES ###################################

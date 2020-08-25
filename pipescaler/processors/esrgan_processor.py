@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/processors/ESRGANProcessor.py
+#   pipescaler/processors/esrgan_processor.py
 #
 #   Copyright (C) 2020 Karl T Debiec
 #   All rights reserved.
@@ -28,7 +28,7 @@ import torch
 from PIL import Image
 
 from pipescaler.common import validate_input_path, validate_output_path
-from pipescaler.processors.Processor import Processor
+from pipescaler.processors.processor import Processor
 
 
 ################################### CLASSES ###################################

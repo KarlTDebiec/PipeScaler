@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/processors/Source.py
+#   pipescaler/processors/source.py
 #
 #   Copyright (C) 2020 Karl T Debiec
 #   All rights reserved.
@@ -12,7 +12,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Any, Iterator, List, Optional, Union
 
-from pipescaler.Pipeline import Pipeline
+from pipescaler.pipelines import Pipeline
 
 
 ################################### CLASSES ###################################

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/sorters/SizeSorter.py
+#   pipescaler/sorters/size_sorter.py
 #
 #   Copyright (C) 2020 Karl T Debiec
 #   All rights reserved.
@@ -15,7 +15,7 @@ from typing import Any, List, Optional, Union
 import numpy as np
 from PIL import Image
 
-from pipescaler.sorters.Sorter import Sorter
+from pipescaler.sorters.sorter import Sorter
 
 
 ################################### CLASSES ###################################

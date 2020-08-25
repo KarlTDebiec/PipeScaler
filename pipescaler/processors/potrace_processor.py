@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/processors/PotraceProcessor.py
+#   pipescaler/processors/potrace_processor.py
 #
 #   Copyright (C) 2020 Karl T Debiec
 #   All rights reserved.
@@ -15,7 +15,7 @@ from subprocess import Popen
 from tempfile import NamedTemporaryFile
 from typing import Any
 
-from pipescaler.processors.Processor import Processor
+from pipescaler.processors.processor import Processor
 
 
 ################################### CLASSES ###################################

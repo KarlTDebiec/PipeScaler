@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/sorters/ListSorter.py
+#   pipescaler/sorters/list_sorter.py
 #
 #   Copyright (C) 2020 Karl T Debiec
 #   All rights reserved.
@@ -14,7 +14,7 @@ from typing import Any, Iterator
 
 import yaml
 
-from pipescaler.sorters.Sorter import Sorter
+from pipescaler.sorters.sorter import Sorter
 
 
 ################################### CLASSES ###################################

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/processors/XbrzProcessor.py
+#   pipescaler/processors/xbrz_processor.py
 #
 #   Copyright (C) 2020 Karl T Debiec
 #   All rights reserved.
@@ -13,7 +13,7 @@ from argparse import ArgumentParser
 from subprocess import Popen
 from typing import Any
 
-from pipescaler.processors.Processor import Processor
+from pipescaler.processors.processor import Processor
 
 
 ################################### CLASSES ###################################

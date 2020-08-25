@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/processors/Processor.py
+#   pipescaler/processors/processor.py
 #
 #   Copyright (C) 2020 Karl T Debiec
 #   All rights reserved.
@@ -16,8 +16,8 @@ from os.path import basename, dirname, isdir, isfile, join, splitext
 from shutil import copyfile
 from typing import Any, Iterator, List, Optional, Union
 
-from pipescaler.Pipeline import Pipeline
 from pipescaler.common import CLTool, validate_input_path, validate_output_path
+from pipescaler.pipelines import Pipeline
 
 
 ################################### CLASSES ###################################

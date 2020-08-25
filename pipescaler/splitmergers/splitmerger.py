@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/sorters/Sorter.py
+#   pipescaler/splitmergers/splitmerger.py
 #
 #   Copyright (C) 2020 Karl T Debiec
 #   All rights reserved.
@@ -15,11 +15,11 @@ from os.path import basename, dirname, isdir, splitext
 from shutil import copyfile
 from typing import Any, Iterator
 
-from pipescaler.Pipeline import Pipeline
+from pipescaler.pipelines import Pipeline
 
 
 ################################### CLASSES ###################################
-class Sorter(ABC):
+class SplitMerger(ABC):
     desc: str = ""
 
     def __init__(self, pipeline: Pipeline, **kwargs: Any) -> None:

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/Pipeline.py
+#   pipescaler/pipeline.py
 #
 #   Copyright (C) 2020 Karl T Debiec
 #   All rights reserved.
@@ -36,6 +36,7 @@ class Pipeline:
         sources_module = import_module("pipescaler.sources")
         processors_module = import_module("pipescaler.processors")
         sorters_module = import_module("pipescaler.sorters")
+        splitmergers_module = import_module("pipescaler.splitmergers")
         pipes_conf = conf.get("pipes")
         if pipes_conf is None:
             raise ValueError()
@@ -74,8 +75,12 @@ class Pipeline:
                 except AttributeError:
                     try:
                         pipe_cls = getattr(sorters_module, pipe_cls_name)
-                    except AttributeError as e:
-                        raise e
+                    except AttributeError:
+                        try:
+                            pipe_cls = getattr(splitmergers_module,
+                                               pipe_cls_name)
+                        except AttributeError as e:
+                            raise e
             pipes[pipe_name] = pipe_cls(pipeline=self, **pipe_cls_parameters)()
             next(pipes[pipe_name])
         self.pipes = pipes

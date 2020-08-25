@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/sorters/__init__.py
+#   pipescaler/pipelines/__init__.py
 #
 #   Copyright (C) 2020 Karl T Debiec
 #   All rights reserved.
@@ -11,17 +11,9 @@ from __future__ import annotations
 
 from typing import List
 
-from pipescaler.sorters.list_sorter import ListSorter
-from pipescaler.sorters.regex_sorter import RegexSorter
-from pipescaler.sorters.scale_sorter import ScaleSorter
-from pipescaler.sorters.size_sorter import SizeSorter
-from pipescaler.sorters.transparency_sorter import TransparencySorter
+from pipescaler.pipelines.pipeline import Pipeline
 
 ##################################### ALL #####################################
 __all__: List[str] = [
-    "ListSorter",
-    "ScaleSorter",
-    "RegexSorter",
-    "SizeSorter",
-    "TransparencySorter"
+    "Pipeline"
 ]

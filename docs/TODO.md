@@ -7,8 +7,9 @@ TODO:
 - [x] Scripts: Generate animated gif
 - [x] Tests: Travis CI
 - [x] Tests: Coveralls
-- [ ] Tests: Determine why coverage is not accurate
-- [ ] Tests: Get outfiles working with "with:"
+- [x] Tests: Determine why coverage is not accurate
+- [x] Tests: Get outfiles working with "with:"
+- [x] Tests: Validate accuracy of output
 - [ ] Processors: Consistent handling of verbosity
 - [ ] Processors: Command-line support for all
 - [ ] Processors: Do not regenerate objects each call in pipeline

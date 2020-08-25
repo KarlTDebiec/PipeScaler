@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/sources/CitraDumpSource.py
+#   pipescaler/sources/citra_dump_source.py
 #
 #   Copyright (C) 2020 Karl T Debiec
 #   All rights reserved.
@@ -13,7 +13,7 @@ from os import listdir
 from os.path import expandvars, join
 from typing import Any, Iterator
 
-from pipescaler.sources.Source import Source
+from pipescaler.sources.source import Source
 
 
 ################################### CLASSES ###################################

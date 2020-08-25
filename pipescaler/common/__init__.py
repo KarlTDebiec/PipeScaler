@@ -21,7 +21,8 @@ from typing import List
 
 from .cltool import CLTool
 from .general import (embed_kw, get_shell_type, input_prefill,
-                      validate_input_path, validate_output_path)
+                      temporary_filename, validate_input_path,
+                      validate_output_path)
 
 ##################################### ALL #####################################
 __all__: List[str] = [
@@ -30,6 +31,7 @@ __all__: List[str] = [
     "get_shell_type",
     "input_prefill",
     "package_root",
+    "temporary_filename",
     "validate_input_path",
     "validate_output_path"
 ]

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/processors/AutomatorProcessor.py
+#   pipescaler/processors/automator_processor.py
 #
 #   Copyright (C) 2020 Karl T Debiec
 #   All rights reserved.
@@ -9,14 +9,14 @@
 ################################### MODULES ###################################
 from __future__ import annotations
 
-from os.path import basename
+from os.path import basename, join, split
 from shutil import copyfile
 from subprocess import Popen
 from typing import Any
 
 from pipescaler.common import package_root, validate_input_path, \
     validate_output_path
-from pipescaler.processors.Processor import Processor
+from pipescaler.processors.processor import Processor
 
 
 ################################### CLASSES ###################################
@@ -53,7 +53,7 @@ class AutomatorProcessor(Processor):
             value = f"{value}.workflow"
         self._workflow = validate_input_path(
             value, file_ok=False, directory_ok=True,
-            default_directory=f"{package_root}/data/workflows/")
+            default_directory=join(*split(package_root), "data", "workflows"))
 
     # endregion
 
@@ -91,7 +91,7 @@ class AutomatorProcessor(Processor):
             workflow = f"{workflow}.workflow"
         workflow = validate_input_path(
             workflow, file_ok=False, directory_ok=True,
-            default_directory=f"{package_root}/data/workflows/")
+            default_directory=join(*split(package_root), "data", "workflows"))
         cls.process_file(infile, outfile, workflow=workflow, **kwargs)
 
     # endregion

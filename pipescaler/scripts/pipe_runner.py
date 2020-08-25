@@ -15,8 +15,8 @@ from typing import Any
 
 import yaml
 
-from pipescaler.Pipeline import Pipeline
 from pipescaler.common import CLTool
+from pipescaler.pipelines import Pipeline
 
 
 ################################### CLASSES ###################################

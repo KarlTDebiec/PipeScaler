@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/processors/CopyFileProcessor.py
+#   pipescaler/processors/copy_processor.py
 #
 #   Copyright (C) 2020 Karl T Debiec
 #   All rights reserved.
@@ -13,7 +13,7 @@ from shutil import copyfile
 from typing import Any
 
 from pipescaler.common import validate_output_path
-from pipescaler.processors.Processor import Processor
+from pipescaler.processors.processor import Processor
 
 
 ################################### CLASSES ###################################

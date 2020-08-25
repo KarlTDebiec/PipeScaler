@@ -14,7 +14,8 @@ Last updated 2020-08-15
 from contextlib import contextmanager
 from inspect import currentframe, getframeinfo
 from os import R_OK, W_OK, access, getcwd, remove
-from os.path import basename, dirname, exists, expandvars, isdir, isfile, join
+from os.path import dirname, exists, expandvars, isabs, isdir, \
+    isfile, join
 from readline import insert_text, redisplay, set_pre_input_hook
 from tempfile import NamedTemporaryFile
 from typing import Dict, Optional
@@ -115,12 +116,14 @@ def input_prefill(prompt: str, prefill: str) -> str:
 
 @contextmanager
 def temporary_filename(suffix=None):
+    f = None
     try:
         f = NamedTemporaryFile(delete=False, suffix=suffix)
         f.close()
         yield f.name
     finally:
-        remove(f.name)
+        if f is not None:
+            remove(f.name)
 
 
 def validate_input_path(value: str, file_ok: bool = True,
@@ -137,8 +140,8 @@ def validate_input_path(value: str, file_ok: bool = True,
         raise ValueError(f"'{value}' is of type '{type(value)}', not str")
 
     value = expandvars(value)
-    if dirname(value) == "":
-        value = join(default_directory, basename(value))
+    if not isabs(value):
+        value = join(default_directory, value)
 
     if not exists(value):
         raise ValueError(f"'{value}' does not exist")
@@ -168,8 +171,8 @@ def validate_output_path(value: str, file_ok: bool = True,
         raise ValueError(f"'{value}' is of type '{type(value)}', not str")
 
     value = expandvars(value)
-    if dirname(value) == "":
-        value = join(default_directory, basename(value))
+    if not isabs(value):
+        value = join(default_directory, value)
 
     if exists(value):
         if file_ok and not directory_ok and not isfile(value):

@@ -11,8 +11,8 @@ from __future__ import annotations
 
 from typing import List
 
-from pipescaler.sources.CitraDumpSource import CitraDumpSource
-from pipescaler.sources.TexModDumpSource import TexModDumpSource
+from pipescaler.sources.citra_dump_source import CitraDumpSource
+from pipescaler.sources.texmod_source import TexModDumpSource
 
 ##################################### ALL #####################################
 __all__: List[str] = [

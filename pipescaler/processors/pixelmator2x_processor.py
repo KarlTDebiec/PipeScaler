@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/processors/Pixelmator2xProcessor.py
+#   pipescaler/processors/pixelmator2x_processor.py
 #
 #   Copyright (C) 2020 Karl T Debiec
 #   All rights reserved.
@@ -21,7 +21,7 @@ from PIL import Image
 
 from pipescaler.common import (package_root, validate_input_path,
                                validate_output_path)
-from pipescaler.processors.Processor import Processor
+from pipescaler.processors.processor import Processor
 
 
 ################################### CLASSES ###################################
@@ -98,7 +98,7 @@ class Pixelmator2xProcessor(Processor):
                      **kwargs: Any):
         sepalpha = kwargs.get("sepalpha")
 
-        workflow = f"{package_root}/data/workflows/3x.workflow"
+        workflow = f"{package_root}/data/workflows/pixelmator/3x.workflow"
         if not isdir(workflow):
             raise ValueError()
         input_image = Image.open(infile)

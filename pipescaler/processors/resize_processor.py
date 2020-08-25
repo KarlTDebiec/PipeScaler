@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/processors/ResizeProcessor.py
+#   pipescaler/processors/resize_processor.py
 #
 #   Copyright (C) 2020 Karl T Debiec
 #   All rights reserved.
@@ -14,7 +14,7 @@ from typing import Any
 import numpy as np
 from PIL import Image
 
-from pipescaler.processors.Processor import Processor
+from pipescaler.processors.processor import Processor
 
 
 ################################### CLASSES ###################################

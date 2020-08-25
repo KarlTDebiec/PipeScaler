@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/sorters/ListSorter.py
+#   pipescaler/sorters/scale_sorter.py
 #
 #   Copyright (C) 2020 Karl T Debiec
 #   All rights reserved.
@@ -10,43 +10,42 @@
 from __future__ import annotations
 
 from os import makedirs
-from os.path import basename, isdir, isfile, splitext, expandvars
+from os.path import basename, expandvars, isdir, isfile, splitext
 from shutil import copyfile
 from typing import Any, Dict, Iterator, List, Optional, Union
 
 import numpy as np
 import yaml
-from IPython import embed
 from PIL import Image
 
-from pipescaler.sorters.Sorter import Sorter
+from pipescaler.sorters.sorter import Sorter
 
 
 ################################### CLASSES ###################################
-class MipmapSorter(Sorter):
+class ScaleSorter(Sorter):
 
     def __init__(self,
-                 mipmapsets: Union[str, Dict[str, Dict[float, str]]],
+                 scalesets: Union[str, Dict[str, Dict[float, str]]],
                  mode: str = "fork",
                  downstream_pipes: Optional[Union[str, List[str]]] = None,
                  **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
-        if isinstance(mipmapsets, str):
-            with open(expandvars(mipmapsets), "r") as f:
-                mipmapsets = yaml.load(f, Loader=yaml.SafeLoader)
-        if mipmapsets is None:
-            mipmapsets = {}
-        self.mipmapsets = mipmapsets
+        if isinstance(scalesets, str):
+            with open(expandvars(scalesets), "r") as f:
+                scalesets = yaml.load(f, Loader=yaml.SafeLoader)
+        if scalesets is None:
+            scalesets = {}
+        self.scalesets = scalesets
 
-        self.mipmaps: List[str] = []
-        for mipmapset in self.mipmapsets.values():
-            if mipmapset is not None:
-                for mipmaps in mipmapset.values():
-                    if isinstance(mipmaps, str):
-                        mipmaps = [mipmaps]
-                    self.mipmaps.extend(mipmaps)
-        self.mipmaps = set(self.mipmaps)
+        self.scales: List[str] = []
+        for scaleset in self.scalesets.values():
+            if scaleset is not None:
+                for scales in scaleset.values():
+                    if isinstance(scales, str):
+                        scales = [scales]
+                    self.scales.extend(scales)
+        self.scales = set(self.scales)
 
         if mode not in ["filter", "fork"]:
             raise ValueError()
@@ -65,7 +64,7 @@ class MipmapSorter(Sorter):
 
             # If infile is a mipmap, skip
             if self.mode == "filter":
-                if self.get_original_name(infile) in self.mipmaps:
+                if self.get_original_name(infile) in self.scales:
                     continue
 
             # Pass infile along pipeline
@@ -75,9 +74,9 @@ class MipmapSorter(Sorter):
 
             # Split off mipmaps, scale them, and pass them along pipeline
             if self.mode == "fork":
-                if self.get_original_name(infile) in self.mipmapsets:
-                    mipmapset = self.mipmapsets[self.get_original_name(infile)]
-                    for scale, names in mipmapset.items():
+                if self.get_original_name(infile) in self.scalesets:
+                    scaleset = self.scalesets[self.get_original_name(infile)]
+                    for scale, names in scaleset.items():
                         if isinstance(names, str):
                             names = [names]
                         for name in names:
@@ -85,7 +84,7 @@ class MipmapSorter(Sorter):
                             desc_so_far = splitext(basename(infile))[0].lstrip(
                                 "original")
                             outfile = f"{desc_so_far}_" \
-                                      f"mipmap-{scale}.png".lstrip("_")
+                                      f"scale-{scale}.png".lstrip("_")
                             outfile = f"{self.pipeline.wip_directory}/" \
                                       f"{name}/{outfile}"
                             if self.pipeline.verbosity >= 2:
