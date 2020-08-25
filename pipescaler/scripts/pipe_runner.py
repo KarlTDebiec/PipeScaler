@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-################################### MODULES ###################################
+####################################### MODULES ########################################
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -19,7 +19,7 @@ from pipescaler.common import CLTool
 from pipescaler.pipelines import Pipeline
 
 
-################################### CLASSES ###################################
+####################################### CLASSES ########################################
 class PipeScaler(CLTool):
     package_root: str = str(Path(__file__).parent.absolute())
 
@@ -67,6 +67,6 @@ class PipeScaler(CLTool):
     # endregion
 
 
-#################################### MAIN #####################################
+######################################### MAIN #########################################
 if __name__ == "__main__":
     PipeScaler.main()

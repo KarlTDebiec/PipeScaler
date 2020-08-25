@@ -67,7 +67,7 @@ class AlphaMerger(Merger):
         if extension == "tga":
             extension = "png"
         desc_so_far = splitext(basename(rgb_infile))[0].replace(original_name, "")
-        desc_so_far.rstrip("_RGB").rstrip(("_A"))
+        desc_so_far.rstrip("_RGB").rstrip("_A")
         outfile = f"{desc_so_far}_RGBA-merge.{extension}".lstrip("_")
 
         return join(self.pipeline.wip_directory, original_name, outfile)

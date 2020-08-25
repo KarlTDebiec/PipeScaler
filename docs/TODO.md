@@ -10,15 +10,21 @@ TODO:
 - [x] Tests: Determine why coverage is not accurate
 - [x] Tests: Get outfiles working with "with:"
 - [x] Tests: Validate accuracy of output
+- [x] Splitters/Mergers: Generic alpha splitter
+- [x] Set up black
+- [x] Reformat for black and 88 columns
+- [ ] Splitters/Mergers: Update alpha splitter so that it can replaceFlattenProcessor
+- [ ] Splitters/Mergers: normal map
+- [ ] Splitters/Mergers: size
 - [ ] Processors: Consistent handling of verbosity
 - [ ] Processors: Command-line support for all
 - [ ] Processors: Do not regenerate objects each call in pipeline
 - [ ] Processors: Check if necessary executables exist
 - [ ] Rename mipmap to scaled
-- [ ] Processors: Generic alpha splitter, which can replace FlattenProcessor
 - [ ] Processors: Generic chainer
-- [ ] Processors: Normal map splitter
 - [ ] Processors: Consider if specular maps could be handled better
+- [ ] CI: Run black
+- [ ] CI: Run mypy
 - [ ] Waifu on Linux (without CUDA?)
 - [ ] Windows Support
 - [ ] Standards-compliant filenames

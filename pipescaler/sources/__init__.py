@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-################################### MODULES ###################################
+####################################### MODULES ########################################
 from __future__ import annotations
 
 from typing import List
@@ -14,5 +14,5 @@ from typing import List
 from pipescaler.sources.citra_dump_source import CitraDumpSource
 from pipescaler.sources.texmod_source import TexModDumpSource
 
-##################################### ALL #####################################
+######################################### ALL ##########################################
 __all__: List[str] = ["CitraDumpSource", "TexModDumpSource"]

@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-################################### MODULES ###################################
+####################################### MODULES ########################################
 from __future__ import annotations
 
 from os import makedirs
@@ -21,7 +21,7 @@ from PIL import Image
 from pipescaler.sorters.sorter import Sorter
 
 
-################################### CLASSES ###################################
+####################################### CLASSES ########################################
 class ScaleSorter(Sorter):
     def __init__(
         self,

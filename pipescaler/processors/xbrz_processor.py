@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-################################### MODULES ###################################
+####################################### MODULES ########################################
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -16,7 +16,7 @@ from typing import Any
 from pipescaler.processors.processor import Processor
 
 
-################################### CLASSES ###################################
+####################################### CLASSES ########################################
 class XbrzProcessor(Processor):
 
     # region Builtins
@@ -82,6 +82,6 @@ class XbrzProcessor(Processor):
     # endregion
 
 
-#################################### MAIN #####################################
+######################################### MAIN #########################################
 if __name__ == "__main__":
     XbrzProcessor.main()

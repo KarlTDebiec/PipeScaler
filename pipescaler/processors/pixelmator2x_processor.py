@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-################################### MODULES ###################################
+####################################### MODULES ########################################
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -23,7 +23,7 @@ from pipescaler.common import package_root, validate_input_path, validate_output
 from pipescaler.processors.processor import Processor
 
 
-################################### CLASSES ###################################
+####################################### CLASSES ########################################
 class Pixelmator2xProcessor(Processor):
 
     # region Builtins
@@ -169,6 +169,6 @@ class Pixelmator2xProcessor(Processor):
     # endregion
 
 
-#################################### MAIN #####################################
+######################################### MAIN #########################################
 if __name__ == "__main__":
     Pixelmator2xProcessor.main()

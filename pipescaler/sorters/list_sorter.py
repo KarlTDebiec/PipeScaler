@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-################################### MODULES ###################################
+####################################### MODULES ########################################
 from __future__ import annotations
 
 from os.path import expandvars
@@ -17,7 +17,7 @@ import yaml
 from pipescaler.sorters.sorter import Sorter
 
 
-################################### CLASSES ###################################
+####################################### CLASSES ########################################
 class ListSorter(Sorter):
     def __init__(self, downstream_pipes_for_filenames: Any, **kwargs: Any) -> None:
         super().__init__(**kwargs)

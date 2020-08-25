@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-################################### MODULES ###################################
+####################################### MODULES ########################################
 from __future__ import annotations
 
 from importlib import import_module
@@ -18,7 +18,7 @@ from shutil import rmtree
 from typing import Any, Dict, List
 
 
-################################### CLASSES ###################################
+####################################### CLASSES ########################################
 class Pipeline:
     package_root: str = str(Path(__file__).parent.absolute())
 

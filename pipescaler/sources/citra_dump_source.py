@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-################################### MODULES ###################################
+####################################### MODULES ########################################
 from __future__ import annotations
 
 from os import listdir
@@ -16,7 +16,7 @@ from typing import Any, Iterator
 from pipescaler.sources.source import Source
 
 
-################################### CLASSES ###################################
+####################################### CLASSES ########################################
 class CitraDumpSource(Source):
     def __init__(self, input_directory: str, **kwargs: Any) -> None:
         super().__init__(**kwargs)

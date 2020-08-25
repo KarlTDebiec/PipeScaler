@@ -6,12 +6,12 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-################################### MODULES ###################################
+####################################### MODULES ########################################
 from __future__ import annotations
 
 from typing import List
 
 from pipescaler.pipelines.pipeline import Pipeline
 
-##################################### ALL #####################################
+######################################### ALL ##########################################
 __all__: List[str] = ["Pipeline"]

@@ -7,7 +7,7 @@
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
 """"""
-################################### MODULES ###################################
+####################################### MODULES ########################################
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -23,7 +23,7 @@ from skimage.metrics import structural_similarity as ssim
 from pipescaler.common import CLTool
 
 
-################################### CLASSES ###################################
+####################################### CLASSES ########################################
 class ScaledImageIdentifier(CLTool):
 
     # region Builtins
@@ -353,6 +353,6 @@ class ScaledImageIdentifier(CLTool):
     # endregion
 
 
-#################################### MAIN #####################################
+######################################### MAIN #########################################
 if __name__ == "__main__":
     ScaledImageIdentifier.main()

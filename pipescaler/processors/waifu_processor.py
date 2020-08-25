@@ -15,7 +15,7 @@ Provides two improvements over running waifu2x directly:
 1. If image is below waifu2x's minimum size, expands canvas.
 2. Eliminates edge effects by reflecting image around edges.
 """
-################################### MODULES ###################################
+####################################### MODULES ########################################
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -29,7 +29,7 @@ from PIL import Image
 from pipescaler.processors.processor import Processor
 
 
-################################### CLASSES ###################################
+####################################### CLASSES ########################################
 class WaifuProcessor(Processor):
 
     # region Builtins
@@ -166,6 +166,6 @@ class WaifuProcessor(Processor):
     # endregion
 
 
-#################################### MAIN #####################################
+######################################### MAIN #########################################
 if __name__ == "__main__":
     WaifuProcessor.main()

@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-################################### MODULES ###################################
+####################################### MODULES ########################################
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -15,7 +15,7 @@ from typing import Any, Iterator, List, Optional, Union
 from pipescaler.pipelines import Pipeline
 
 
-################################### CLASSES ###################################
+####################################### CLASSES ########################################
 class Source(ABC):
     desc: str = ""
 

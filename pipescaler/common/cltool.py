@@ -10,7 +10,7 @@
 General-purpose command-line tool base class not tied to a particular project.
 Last updated 2020-08-15
 """
-################################### MODULES ###################################
+####################################### MODULES ########################################
 from abc import ABC
 from argparse import (
     ArgumentParser,
@@ -25,7 +25,7 @@ from typing import Any, Callable, Optional, Union
 from .general import validate_input_path, validate_output_path
 
 
-################################### CLASSES ###################################
+####################################### CLASSES ########################################
 class CLTool(ABC):
     """Abstract base class for command line tools"""
 

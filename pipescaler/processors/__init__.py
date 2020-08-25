@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-################################### MODULES ###################################
+####################################### MODULES ########################################
 from __future__ import annotations
 
 from typing import List
@@ -21,11 +21,11 @@ from pipescaler.processors.potrace_processor import PotraceProcessor
 from pipescaler.processors.resize_processor import ResizeProcessor
 from pipescaler.processors.side_channel_processor import SideChannelProcessor
 from pipescaler.processors.threshold_processor import ThresholdProcessor
-from pipescaler.processors.waifupixelmator2x_processor import WaifuPixelmator2xProcessor
 from pipescaler.processors.waifu_processor import WaifuProcessor
+from pipescaler.processors.waifupixelmator2x_processor import WaifuPixelmator2xProcessor
 from pipescaler.processors.xbrz_processor import XbrzProcessor
 
-##################################### ALL #####################################
+######################################### ALL ##########################################
 __all__: List[str] = [
     "AutomatorProcessor",
     "CopyFileProcessor",

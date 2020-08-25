@@ -13,5 +13,5 @@ from typing import List
 
 from pipescaler.mergers.alpha_merger import AlphaMerger
 
-####################################### CLASSES ########################################
+######################################### ALL ##########################################
 __all__: List[str] = ["AlphaMerger"]

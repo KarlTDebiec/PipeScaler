@@ -10,7 +10,7 @@
 General-purpose functions not tied to a particular project.
 Last updated 2020-08-15
 """
-################################### MODULES ###################################
+####################################### MODULES ########################################
 from contextlib import contextmanager
 from inspect import currentframe, getframeinfo
 from os import R_OK, W_OK, access, getcwd, remove
@@ -23,7 +23,7 @@ from typing import Dict, Optional
 from . import package_root
 
 
-################################## FUNCTIONS ##################################
+###################################### FUNCTIONS #######################################
 def embed_kw(verbosity: int = 2) -> Dict[str, str]:
     """
     Prepares header for IPython prompt showing current location in code

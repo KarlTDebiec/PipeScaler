@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license. See the LICENSE file for details.
-################################### MODULES ###################################
+####################################### MODULES ########################################
 from inspect import getfile
 from os import getcwd
 from os.path import join
@@ -18,22 +18,37 @@ from PIL import Image
 
 from pipescaler.common import temporary_filename
 from pipescaler.processors import (
-    ESRGANProcessor, Pixelmator2xProcessor, PngquantProcessor,
-    PotraceProcessor, ThresholdProcessor,
-    WaifuPixelmator2xProcessor, WaifuProcessor, XbrzProcessor)
+    ESRGANProcessor,
+    Pixelmator2xProcessor,
+    PngquantProcessor,
+    PotraceProcessor,
+    ThresholdProcessor,
+    WaifuPixelmator2xProcessor,
+    WaifuProcessor,
+    XbrzProcessor,
+)
 
 
-################################## FIXTURES ###################################
-@pytest.fixture(params=[
-    ESRGANProcessor, Pixelmator2xProcessor, PngquantProcessor,
-    PotraceProcessor, ThresholdProcessor,
-    WaifuPixelmator2xProcessor, WaifuProcessor, XbrzProcessor])
+####################################### FIXTURES #######################################
+@pytest.fixture(
+    params=[
+        ESRGANProcessor,
+        Pixelmator2xProcessor,
+        PngquantProcessor,
+        PotraceProcessor,
+        ThresholdProcessor,
+        WaifuPixelmator2xProcessor,
+        WaifuProcessor,
+        XbrzProcessor,
+    ]
+)
 def processor(request):
     return request.param
 
 
-@pytest.fixture(params=["1x_BC1-smooth2.pth", "RRDB_ESRGAN_x4.pth",
-                        "RRDB_ESRGAN_x4_old_arch.pth"])
+@pytest.fixture(
+    params=["1x_BC1-smooth2.pth", "RRDB_ESRGAN_x4.pth", "RRDB_ESRGAN_x4_old_arch.pth"]
+)
 def esrgan_model(request):
     return join(getcwd(), "models", request.param)
 
@@ -43,7 +58,7 @@ def infile(request):
     return join(getcwd(), "data", "infiles", request.param)
 
 
-#################################### TESTS ####################################
+######################################## TESTS #########################################
 def test_help(processor):
     command = f"python {getfile(processor)} -h"
     Popen(command, shell=True).wait()
@@ -51,60 +66,54 @@ def test_help(processor):
 
 def test_esrgan(infile, esrgan_model):
     with temporary_filename(".png") as outfile:
-        command = f"python {getfile(ESRGANProcessor)} -vv " \
-                  f"--model {esrgan_model} " \
-                  f"{infile} {outfile}"
+        command = (
+            f"python {getfile(ESRGANProcessor)} -vv "
+            f"--model {esrgan_model} "
+            f"{infile} {outfile}"
+        )
         Popen(command, shell=True).wait()
         Image.open(outfile)
 
 
 def test_pngquant(infile):
     with temporary_filename(".png") as outfile:
-        command = f"python {getfile(PngquantProcessor)} -vv " \
-                  f"{infile} {outfile}"
+        command = f"python {getfile(PngquantProcessor)} -vv " f"{infile} {outfile}"
         Popen(command, shell=True).wait()
         Image.open(outfile)
 
 
 def test_potrace(infile):
     with temporary_filename(".png") as outfile:
-        command = f"python {getfile(PotraceProcessor)} -vv " \
-                  f"{infile} {outfile}"
+        command = f"python {getfile(PotraceProcessor)} -vv " f"{infile} {outfile}"
         Popen(command, shell=True).wait()
         Image.open(outfile)
 
 
 def test_threshold(infile):
     with temporary_filename(".png") as outfile:
-        command = f"python {getfile(ThresholdProcessor)} -vv " \
-                  f"{infile} {outfile}"
+        command = f"python {getfile(ThresholdProcessor)} -vv " f"{infile} {outfile}"
         Popen(command, shell=True).wait()
         Image.open(outfile)
 
 
-@pytest.mark.skipif(platform != "darwin",
-                    reason="Application only available on macOS")
+@pytest.mark.skipif(platform != "darwin", reason="Application only available on macOS")
 def test_pixelmator(infile):
     with temporary_filename(".png") as outfile:
-        command = f"python {getfile(Pixelmator2xProcessor)} -vv " \
-                  f"{infile} {outfile}"
+        command = f"python {getfile(Pixelmator2xProcessor)} -vv " f"{infile} {outfile}"
         Popen(command, shell=True).wait()
         Image.open(outfile)
 
 
-@pytest.mark.skipif(platform != "darwin",
-                    reason="Processor only implemented on macOS")
+@pytest.mark.skipif(platform != "darwin", reason="Processor only implemented on macOS")
 def test_waifu(infile):
     with temporary_filename(".png") as outfile:
-        command = f"python {getfile(WaifuProcessor)} -vv " \
-                  f"{infile} {outfile}"
+        command = f"python {getfile(WaifuProcessor)} -vv " f"{infile} {outfile}"
         Popen(command, shell=True).wait()
         Image.open(outfile)
 
 
 def test_xbrz(infile):
     with temporary_filename(".png") as outfile:
-        command = f"python {getfile(XbrzProcessor)} -vv " \
-                  f"{infile} {outfile}"
+        command = f"python {getfile(XbrzProcessor)} -vv " f"{infile} {outfile}"
         Popen(command, shell=True).wait()
         Image.open(outfile)

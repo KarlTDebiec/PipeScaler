@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-############################################# MODULES ##############################################
+####################################### MODULES ########################################
 from __future__ import annotations
 
 from os.path import basename, join, splitext
@@ -18,7 +18,7 @@ from PIL import Image
 from pipescaler.splitters.splitter import Splitter
 
 
-############################################# CLASSES ##############################################
+####################################### CLASSES ########################################
 class AlphaSplitter(Splitter):
 
     # region Builtins
@@ -39,19 +39,15 @@ class AlphaSplitter(Splitter):
             infile: str = (yield)
             infile = self.backup_infile(infile)
             image = Image.open(infile)
-            if image.mode == "RGBA" and image.size[0] < 200:
+            if image.mode == "RGBA":
                 if self.downstream_pipe_for_RGB is not None:
                     rgb_outfile = self.get_outfile(infile, "RGB")
-                    print(rgb_outfile)
                     Image.fromarray(np.array(image)[:, :, :3]).save(rgb_outfile)
                     self.pipeline.pipes[self.downstream_pipe_for_RGB].send(rgb_outfile)
                 if self.downstream_pipe_for_A is not None:
                     a_outfile = self.get_outfile(infile, "A")
-                    print(a_outfile)
                     Image.fromarray(np.array(image)[:, :, 3]).save(a_outfile)
                     self.pipeline.pipes[self.downstream_pipe_for_A].send(a_outfile)
-            else:
-                continue
 
     # endregion
 
