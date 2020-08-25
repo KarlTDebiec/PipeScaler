@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-################################### MODULES ###################################
+####################################### MODULES ########################################
 from __future__ import annotations
 
 from abc import abstractmethod
@@ -20,15 +20,18 @@ from pipescaler.common import CLTool, validate_input_path, validate_output_path
 from pipescaler.pipelines import Pipeline
 
 
-################################### CLASSES ###################################
+####################################### CLASSES ########################################
 class Processor(CLTool):
 
     # region Builtins
 
-    def __init__(self, pipeline: Pipeline,
-                 downstream_pipes: Optional[Union[str, List[str]]] = None,
-                 desc: str = None,
-                 **kwargs: Any) -> None:
+    def __init__(
+        self,
+        pipeline: Pipeline,
+        downstream_pipes: Optional[Union[str, List[str]]] = None,
+        desc: str = None,
+        **kwargs: Any,
+    ) -> None:
         super().__init__(**kwargs)
 
         self.pipeline = pipeline
@@ -117,8 +120,7 @@ class Processor(CLTool):
     def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
         infile = validate_input_path(infile)
         outfile = validate_output_path(outfile)
-        self.process_file(infile, outfile,
-                          verbosity=self.pipeline.verbosity)
+        self.process_file(infile, outfile, verbosity=self.pipeline.verbosity)
 
     # endregion
 
@@ -136,19 +138,16 @@ class Processor(CLTool):
             ArgumentParser: Argument parser
         """
         parser = super().construct_argparser(
-            description=kwargs.pop("description", __doc__), **kwargs)
+            description=kwargs.pop("description", __doc__), **kwargs
+        )
 
         # Input
-        parser.add_argument(
-            "infile",
-            type=cls.input_path_argument(),
-            help="input file")
+        parser.add_argument("infile", type=cls.input_path_argument(), help="input file")
 
         # Output
         parser.add_argument(
-            "outfile",
-            type=cls.output_path_argument(),
-            help="output file")
+            "outfile", type=cls.output_path_argument(), help="output file"
+        )
 
         return parser
 
@@ -161,13 +160,13 @@ class Processor(CLTool):
 
     @classmethod
     @abstractmethod
-    def process_file(cls, infile: str, outfile: str, verbosity: int = 1,
-                     **kwargs: Any) -> None:
+    def process_file(
+        cls, infile: str, outfile: str, verbosity: int = 1, **kwargs: Any
+    ) -> None:
         raise NotImplementedError()
 
     @classmethod
-    def process_file_from_cl(cls, infile: str, outfile: str,
-                             **kwargs: Any) -> None:
+    def process_file_from_cl(cls, infile: str, outfile: str, **kwargs: Any) -> None:
         infile = validate_input_path(infile)
         outfile = validate_output_path(outfile)
 

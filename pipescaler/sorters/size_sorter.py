@@ -20,14 +20,13 @@ from pipescaler.sorters.sorter import Sorter
 
 ################################### CLASSES ###################################
 class SizeSorter(Sorter):
-
-    def __init__(self,
-                 cutoff: int = 16,
-                 downstream_pipes_for_small: Optional[
-                     Union[str, List[str]]] = None,
-                 downstream_pipes_for_large: Optional[
-                     Union[str, List[str]]] = None,
-                 **kwargs: Any) -> None:
+    def __init__(
+        self,
+        cutoff: int = 16,
+        downstream_pipes_for_small: Optional[Union[str, List[str]]] = None,
+        downstream_pipes_for_large: Optional[Union[str, List[str]]] = None,
+        **kwargs: Any,
+    ) -> None:
         super().__init__(**kwargs)
 
         self.cutoff = cutoff

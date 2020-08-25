@@ -47,7 +47,8 @@ class CopyFileProcessor(Processor):
     @output_directory.setter
     def output_directory(self, value: str) -> None:
         self._output_directory = validate_output_path(
-            value, file_ok=False, directory_ok=True)
+            value, file_ok=False, directory_ok=True
+        )
 
     # endregion
 
@@ -63,8 +64,9 @@ class CopyFileProcessor(Processor):
     # region Class Methods
 
     @classmethod
-    def process_file(cls, infile: str, outfile: str, verbosity: int = 1,
-                     **kwargs) -> None:
+    def process_file(
+        cls, infile: str, outfile: str, verbosity: int = 1, **kwargs
+    ) -> None:
         if verbosity >= 1:
             print(f"Copying {infile} to {outfile}")
         copyfile(infile, outfile)

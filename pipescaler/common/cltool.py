@@ -12,9 +12,12 @@ Last updated 2020-08-15
 """
 ################################### MODULES ###################################
 from abc import ABC
-from argparse import (ArgumentParser,
-                      ArgumentTypeError, RawDescriptionHelpFormatter,
-                      _SubParsersAction)
+from argparse import (
+    ArgumentParser,
+    ArgumentTypeError,
+    RawDescriptionHelpFormatter,
+    _SubParsersAction,
+)
 from inspect import currentframe, getframeinfo
 from typing import Any, Callable, Optional, Union
 
@@ -59,10 +62,11 @@ class CLTool(ABC):
 
     @classmethod
     def construct_argparser(
-            cls,
-            description: Optional[str] = None,
-            parser: Optional[Union[ArgumentParser, _SubParsersAction]] = None,
-            **kwargs: Any) -> ArgumentParser:
+        cls,
+        description: Optional[str] = None,
+        parser: Optional[Union[ArgumentParser, _SubParsersAction]] = None,
+        **kwargs: Any,
+    ) -> ArgumentParser:
         """
         Constructs argument parser
 
@@ -82,28 +86,32 @@ class CLTool(ABC):
                 name=cls.__name__.lower(),
                 description=description,
                 help=description,
-                formatter_class=RawDescriptionHelpFormatter)
+                formatter_class=RawDescriptionHelpFormatter,
+            )
         elif parser is None:
             # noinspection PyTypeChecker
             parser = ArgumentParser(
-                description=description,
-                formatter_class=RawDescriptionHelpFormatter)
+                description=description, formatter_class=RawDescriptionHelpFormatter
+            )
 
         # General
         verbosity = parser.add_mutually_exclusive_group()
         verbosity.add_argument(
-            "-v", "--verbose",
+            "-v",
+            "--verbose",
             action="count",
             default=1,
             dest="verbosity",
-            help="enable verbose output, may be specified "
-                 "more than once")
+            help="enable verbose output, may be specified " "more than once",
+        )
         verbosity.add_argument(
-            "-q", "--quiet",
+            "-q",
+            "--quiet",
             action="store_const",
             const=0,
             dest="verbosity",
-            help="disable verbose output")
+            help="disable verbose output",
+        )
 
         return parser
 
@@ -120,8 +128,8 @@ class CLTool(ABC):
 
     @staticmethod
     def float_argument(
-            min_value: Optional[float] = None,
-            max_value: Optional[float] = None) -> Callable[[str], float]:
+        min_value: Optional[float] = None, max_value: Optional[float] = None
+    ) -> Callable[[str], float]:
         """TODO: Document"""
 
         def func(value: Union[str, float]) -> float:
@@ -129,22 +137,25 @@ class CLTool(ABC):
                 value = float(value)
             except ValueError:
                 raise ArgumentTypeError(
-                    f"'{value}' is of type '{type(value)}', not float")
+                    f"'{value}' is of type '{type(value)}', not float"
+                )
 
             if min_value is not None and value < min_value:
-                raise ArgumentTypeError(f"'{value}' is less than minimum "
-                                        f"value of '{min_value}'")
+                raise ArgumentTypeError(
+                    f"'{value}' is less than minimum " f"value of '{min_value}'"
+                )
             if max_value is not None and value > max_value:
-                raise ArgumentTypeError(f"'{value}' is greater than maximum "
-                                        f"value of '{max_value}'")
+                raise ArgumentTypeError(
+                    f"'{value}' is greater than maximum " f"value of '{max_value}'"
+                )
             return value
 
         return func
 
     @staticmethod
     def input_path_argument(
-            file_ok: bool = True,
-            directory_ok: bool = False) -> Callable[[str], str]:
+        file_ok: bool = True, directory_ok: bool = False
+    ) -> Callable[[str], str]:
         """TODO: Document"""
 
         def func(value: str) -> str:
@@ -153,15 +164,16 @@ class CLTool(ABC):
                 value = str(value)
             except ValueError:
                 raise ArgumentTypeError(
-                    f"'{value}' is of type '{type(value)}', not str")
+                    f"'{value}' is of type '{type(value)}', not str"
+                )
             return validate_input_path(value, file_ok, directory_ok)
 
         return func
 
     @staticmethod
     def output_path_argument(
-            file_ok: bool = True,
-            directory_ok: bool = False) -> Callable[[str], str]:
+        file_ok: bool = True, directory_ok: bool = False
+    ) -> Callable[[str], str]:
         """TODO: Document"""
 
         def func(value: str) -> str:
@@ -170,7 +182,8 @@ class CLTool(ABC):
                 value = str(value)
             except ValueError:
                 raise ArgumentTypeError(
-                    f"'{value}' is of type '{type(value)}', not str")
+                    f"'{value}' is of type '{type(value)}', not str"
+                )
             return validate_output_path(value, file_ok, directory_ok)
 
         return func
@@ -195,9 +208,11 @@ class CLTool(ABC):
         if frame is None:
             raise ValueError()
         frameinfo = getframeinfo(frame.f_back)
-        return f"Property '{type(self).__name__}.{frameinfo.function}' " \
-               f"was passed invalid value '{value}' " \
-               f"of type '{type(value).__name__}'. " \
-               f"Expects '{getattr(type(self), frameinfo.function).__doc__}'."
+        return (
+            f"Property '{type(self).__name__}.{frameinfo.function}' "
+            f"was passed invalid value '{value}' "
+            f"of type '{type(value).__name__}'. "
+            f"Expects '{getattr(type(self), frameinfo.function).__doc__}'."
+        )
 
     # endregion

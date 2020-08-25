@@ -14,6 +14,4 @@ from typing import List
 from pipescaler.pipelines.pipeline import Pipeline
 
 ##################################### ALL #####################################
-__all__: List[str] = [
-    "Pipeline"
-]
+__all__: List[str] = ["Pipeline"]

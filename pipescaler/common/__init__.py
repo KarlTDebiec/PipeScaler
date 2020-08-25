@@ -20,9 +20,14 @@ package_root: str = str(Path(__file__).parent.parent.absolute())
 from typing import List
 
 from .cltool import CLTool
-from .general import (embed_kw, get_shell_type, input_prefill,
-                      temporary_filename, validate_input_path,
-                      validate_output_path)
+from .general import (
+    embed_kw,
+    get_shell_type,
+    input_prefill,
+    temporary_filename,
+    validate_input_path,
+    validate_output_path,
+)
 
 ##################################### ALL #####################################
 __all__: List[str] = [
@@ -33,5 +38,5 @@ __all__: List[str] = [
     "package_root",
     "temporary_filename",
     "validate_input_path",
-    "validate_output_path"
+    "validate_output_path",
 ]

@@ -19,9 +19,12 @@ from pipescaler.pipelines import Pipeline
 class Source(ABC):
     desc: str = ""
 
-    def __init__(self, pipeline: Pipeline,
-                 downstream_pipes: Optional[Union[str, List[str]]] = None,
-                 **kwargs: Any) -> None:
+    def __init__(
+        self,
+        pipeline: Pipeline,
+        downstream_pipes: Optional[Union[str, List[str]]] = None,
+        **kwargs: Any,
+    ) -> None:
         self.pipeline = pipeline
         if isinstance(downstream_pipes, str):
             downstream_pipes = [downstream_pipes]

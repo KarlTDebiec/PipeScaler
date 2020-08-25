@@ -14,7 +14,7 @@ Adapted from ESRGAN (https://github.com/xinntao/ESRGAN) and Colab-ESRGAN
 (https://github.com/styler00dollar/Colab-ESRGAN), both licensed under the
 `Apache 2.0 License
 (https://raw.githubusercontent.com/xinntao/ESRGAN/master/LICENSE)."""
-################################## MODULES ###################################
+####################################### MODULES ########################################
 from __future__ import annotations
 
 import collections
@@ -31,7 +31,7 @@ from pipescaler.common import validate_input_path, validate_output_path
 from pipescaler.processors.processor import Processor
 
 
-################################### CLASSES ###################################
+####################################### CLASSES ########################################
 class ESRGANProcessor(Processor):
     # region Classes
 
@@ -109,8 +109,12 @@ class ESRGANProcessor(Processor):
             for n in range(1, self.n_upscale + 1):
                 upconv = getattr(self, "upconv%d" % n)
                 fea = self.lrelu(
-                    upconv(torch.nn.functional.interpolate(fea, scale_factor=2,
-                                                           mode="nearest")))
+                    upconv(
+                        torch.nn.functional.interpolate(
+                            fea, scale_factor=2, mode="nearest"
+                        )
+                    )
+                )
 
             out = self.conv_last(self.lrelu(self.HRconv(fea)))
 
@@ -137,10 +141,15 @@ class ESRGANProcessor(Processor):
             input_datum = torch.from_numpy(input_datum).float()
             input_datum = input_datum.unsqueeze(0).to(self.device)
 
-            output_datum = self.model(
-                input_datum).data.squeeze().float().cpu().clamp_(0, 1).numpy()
-            output_datum = np.transpose(output_datum[[2, 1, 0], :, :],
-                                        (1, 2, 0))
+            output_datum = (
+                self.model(input_datum)
+                .data.squeeze()
+                .float()
+                .cpu()
+                .clamp_(0, 1)
+                .numpy()
+            )
+            output_datum = np.transpose(output_datum[[2, 1, 0], :, :], (1, 2, 0))
             output_datum = np.array(output_datum * 255, np.uint8)
 
             return output_datum
@@ -149,8 +158,7 @@ class ESRGANProcessor(Processor):
 
     # region Builtins
 
-    def __init__(self, model_infile: str, device: str = "cpu",
-                 **kwargs: Any) -> None:
+    def __init__(self, model_infile: str, device: str = "cpu", **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
         self.model_infile = model_infile
@@ -185,9 +193,10 @@ class ESRGANProcessor(Processor):
     def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
         infile = validate_input_path(infile)
         outfile = validate_output_path(outfile)
-        upscaler = ESRGANProcessor.RRDBNetUpscaler(
-            infile, torch.device(self.device))
-        self.process_file(infile, outfile, upscaler, self.pipeline.verbosity)
+        upscaler = ESRGANProcessor.RRDBNetUpscaler(infile, torch.device(self.device))
+        self.process_file(
+            infile, outfile, verbosity=self.pipeline.verbosity, upscaler=upscaler
+        )
 
     # endregion
 
@@ -209,14 +218,13 @@ class ESRGANProcessor(Processor):
             dest="model_infile",
             required=True,
             type=cls.input_path_argument(),
-            help="model input file")
+            help="model input file",
+        )
 
         # Operations
         parser.add_argument(
-            "--device",
-            default="cpu",
-            type=str,
-            help="device (default: %(default)s)")
+            "--device", default="cpu", type=str, help="device (default: %(default)s)"
+        )
 
         return parser
 
@@ -236,8 +244,9 @@ class ESRGANProcessor(Processor):
         return state_dict, scale_index
 
     @classmethod
-    def process_file(cls, infile: str, outfile: str, verbosity=1,
-                     **kwargs: Any) -> None:
+    def process_file(
+        cls, infile: str, outfile: str, verbosity=1, **kwargs: Any
+    ) -> None:
         upscaler = kwargs.get("upscaler")
 
         # Read image
@@ -256,8 +265,7 @@ class ESRGANProcessor(Processor):
         outfile = validate_output_path(outfile)
         model_infile = validate_input_path(kwargs.get("model_infile"))
         device = kwargs.get("device")
-        upscaler = ESRGANProcessor.RRDBNetUpscaler(
-            model_infile, torch.device(device))
+        upscaler = ESRGANProcessor.RRDBNetUpscaler(model_infile, torch.device(device))
         cls.process_file(infile, outfile, upscaler=upscaler, **kwargs)
 
     # endregion
@@ -273,8 +281,9 @@ class ESRGANProcessor(Processor):
         for i in range(23):
             for j in range(1, 4):
                 for k in range(1, 6):
-                    keymap[f"model.1.sub.{i}.RDB{j}.conv{k}.0"] = \
-                        f"RRDB_trunk.{i}.RDB{j}.conv{k}"
+                    keymap[
+                        f"model.1.sub.{i}.RDB{j}.conv{k}.0"
+                    ] = f"RRDB_trunk.{i}.RDB{j}.conv{k}"
         keymap["model.1.sub.23"] = "trunk_conv"
         n = 0
         for i in range(1, n_upscale + 1):
@@ -295,8 +304,7 @@ class ESRGANProcessor(Processor):
     def get_old_scale_index(state_dict):
         try:
             # get largest model index from keys like "model.X.weight"
-            max_index = max(
-                [int(n.split(".")[1]) for n in state_dict.keys()])
+            max_index = max([int(n.split(".")[1]) for n in state_dict.keys()])
         except:
             # invalid model dict format?
             raise RuntimeError("Unable to determine scale index for model")

@@ -23,5 +23,5 @@ __all__: List[str] = [
     "ScaleSorter",
     "RegexSorter",
     "SizeSorter",
-    "TransparencySorter"
+    "TransparencySorter",
 ]

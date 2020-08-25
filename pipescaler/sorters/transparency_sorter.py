@@ -20,26 +20,21 @@ from pipescaler.sorters.sorter import Sorter
 
 ################################### CLASSES ###################################
 class TransparencySorter(Sorter):
-
-    def __init__(self,
-                 downstream_pipes_for_transparent: Optional[
-                     Union[str, List[str]]] = None,
-                 downstream_pipes_for_opaque: Optional[
-                     Union[str, List[str]]] = None,
-                 **kwargs: Any) -> None:
+    def __init__(
+        self,
+        downstream_pipes_for_transparent: Optional[Union[str, List[str]]] = None,
+        downstream_pipes_for_opaque: Optional[Union[str, List[str]]] = None,
+        **kwargs: Any,
+    ) -> None:
         super().__init__(**kwargs)
 
         if isinstance(downstream_pipes_for_transparent, str):
-            downstream_pipes_for_transparent = \
-                [downstream_pipes_for_transparent]
-        self.downstream_pipes_for_transparent = \
-            downstream_pipes_for_transparent
+            downstream_pipes_for_transparent = [downstream_pipes_for_transparent]
+        self.downstream_pipes_for_transparent = downstream_pipes_for_transparent
 
         if isinstance(downstream_pipes_for_opaque, str):
-            downstream_pipes_for_opaque = \
-                [downstream_pipes_for_opaque]
-        self.downstream_pipes_for_opaque = \
-            downstream_pipes_for_opaque
+            downstream_pipes_for_opaque = [downstream_pipes_for_opaque]
+        self.downstream_pipes_for_opaque = downstream_pipes_for_opaque
 
     def __call__(self) -> Iterator[str]:
         while True:

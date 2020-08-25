@@ -19,8 +19,7 @@ from typing import Any
 import numpy as np
 from PIL import Image
 
-from pipescaler.common import (package_root, validate_input_path,
-                               validate_output_path)
+from pipescaler.common import package_root, validate_input_path, validate_output_path
 from pipescaler.processors.processor import Processor
 
 
@@ -66,8 +65,9 @@ class Pixelmator2xProcessor(Processor):
     def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
         infile = validate_input_path(infile)
         outfile = validate_output_path(infile)
-        self.process_file(infile, outfile, self.pipeline.verbosity,
-                          sepalpha=self.sepalpha)
+        self.process_file(
+            infile, outfile, self.pipeline.verbosity, sepalpha=self.sepalpha
+        )
 
     # endregion
 
@@ -88,14 +88,14 @@ class Pixelmator2xProcessor(Processor):
             action="store_true",
             dest="sepalpha",
             help="if an alpha channel is present, scale separately using RGB "
-                 "and RGBA, then combine RGB with alpha from RGBA; useful if "
-                 "alpha channel data does not represent transparency")
+            "and RGBA, then combine RGB with alpha from RGBA; useful if "
+            "alpha channel data does not represent transparency",
+        )
 
         return parser
 
     @classmethod
-    def process_file(cls, infile: str, outfile: str, verbosity: int = 1,
-                     **kwargs: Any):
+    def process_file(cls, infile: str, outfile: str, verbosity: int = 1, **kwargs: Any):
         sepalpha = kwargs.get("sepalpha")
 
         workflow = f"{package_root}/data/workflows/pixelmator/3x.workflow"
@@ -108,16 +108,17 @@ class Pixelmator2xProcessor(Processor):
             tempfile = NamedTemporaryFile(delete=False, suffix=".png")
             tempfile.close()
             input_image.save(tempfile.name)
-            command = f"automator " \
-                      f"-i {tempfile.name} " \
-                      f"{workflow}"
+            command = f"automator " f"-i {tempfile.name} " f"{workflow}"
             if verbosity >= 1:
                 print(command)
             Popen(command, shell=True, close_fds=True).wait()
             output_image = Image.open(tempfile.name).resize(
-                (int(np.round(input_image.size[0] * 2)),
-                 int(np.round(input_image.size[1] * 2))),
-                resample=Image.LANCZOS)
+                (
+                    int(np.round(input_image.size[0] * 2)),
+                    int(np.round(input_image.size[1] * 2)),
+                ),
+                resample=Image.LANCZOS,
+            )
             remove(tempfile.name)
 
         # RGBA with sepalpha
@@ -126,37 +127,38 @@ class Pixelmator2xProcessor(Processor):
             tempfile = NamedTemporaryFile(delete=False, suffix=".png")
             tempfile.close()
             input_image.convert("RGB").save(tempfile.name)
-            command = f"automator " \
-                      f"-i {tempfile.name} " \
-                      f"{workflow}"
+            command = f"automator " f"-i {tempfile.name} " f"{workflow}"
             if verbosity >= 1:
                 print(command)
             Popen(command, shell=True, close_fds=True).wait()
             rgb_image = Image.open(tempfile.name).resize(
-                (int(np.round(input_image.size[0] * 2)),
-                 int(np.round(input_image.size[1] * 2))),
-                resample=Image.LANCZOS)
+                (
+                    int(np.round(input_image.size[0] * 2)),
+                    int(np.round(input_image.size[1] * 2)),
+                ),
+                resample=Image.LANCZOS,
+            )
             remove(tempfile.name)
 
             # 2X with all channels
             tempfile = NamedTemporaryFile(delete=False, suffix=".png")
             tempfile.close()
             input_image.save(tempfile.name)
-            command = f"automator " \
-                      f"-i {tempfile.name} " \
-                      f"{workflow}"
+            command = f"automator " f"-i {tempfile.name} " f"{workflow}"
             if verbosity >= 1:
                 print(command)
             Popen(command, shell=True, close_fds=True).wait()
             rgba_image = Image.open(tempfile.name).resize(
-                (int(np.round(input_image.size[0] * 2)),
-                 int(np.round(input_image.size[1] * 2))),
-                resample=Image.LANCZOS)
+                (
+                    int(np.round(input_image.size[0] * 2)),
+                    int(np.round(input_image.size[1] * 2)),
+                ),
+                resample=Image.LANCZOS,
+            )
             remove(tempfile.name)
 
             # Merge RGB from former with A from latter
-            merged_data = np.zeros((rgb_image.size[1], rgb_image.size[0], 4),
-                                   np.uint8)
+            merged_data = np.zeros((rgb_image.size[1], rgb_image.size[0], 4), np.uint8)
             merged_data[:, :, :3] = np.array(rgb_image)
             merged_data[:, :, 3] = np.array(rgba_image)[:, :, 3]
             output_image = Image.fromarray(merged_data)

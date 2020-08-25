@@ -29,8 +29,7 @@ class WaifuPixelmator2xProcessor(Processor):
 
     # region Builtins
 
-    def __init__(self, imagetype: str = "a", denoise: str = 1,
-                 **kwargs: Any) -> None:
+    def __init__(self, imagetype: str = "a", denoise: str = 1, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
         self.imagetype = imagetype
@@ -45,8 +44,7 @@ class WaifuPixelmator2xProcessor(Processor):
     def desc(self) -> str:
         """str: Description"""
         if not hasattr(self, "_desc"):
-            return f"waifupm2xalpha-" \
-                   f"{self.imagetype}-{self.scale}-{self.denoise}"
+            return f"waifupm2xalpha-" f"{self.imagetype}-{self.scale}-{self.denoise}"
         return self._desc
 
     # endregion
@@ -54,9 +52,13 @@ class WaifuPixelmator2xProcessor(Processor):
     # region Methods
 
     def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
-        self.process_file(infile, outfile, imagetype=self.imagetype,
-                          denoise=self.denoise,
-                          verbosity=self.pipeline.verbosity)
+        self.process_file(
+            infile,
+            outfile,
+            imagetype=self.imagetype,
+            denoise=self.denoise,
+            verbosity=self.pipeline.verbosity,
+        )
 
     # endregion
 
@@ -77,20 +79,22 @@ class WaifuPixelmator2xProcessor(Processor):
             default="a",
             dest="imagetype",
             type=str,
-            help="image type - a for anime, p for photo, (default: "
-                 "%(default)s)")
+            help="image type - a for anime, p for photo, (default: " "%(default)s)",
+        )
         parser.add_argument(
             "--denoise",
             default=1,
             dest="denoise",
             type=int,
-            help="denoise level (0-4, default: %(default)s)")
+            help="denoise level (0-4, default: %(default)s)",
+        )
 
         return parser
 
     @classmethod
-    def process_file(cls, infile: str, outfile: str, verbosity: int = 1,
-                     **kwargs: Any) -> None:
+    def process_file(
+        cls, infile: str, outfile: str, verbosity: int = 1, **kwargs: Any
+    ) -> None:
         imagetype = kwargs.get("imagetype")
         denoise = kwargs.get("denoise")
 
@@ -104,8 +108,9 @@ class WaifuPixelmator2xProcessor(Processor):
         transposed_h = image.transpose(Image.FLIP_LEFT_RIGHT)
         transposed_v = image.transpose(Image.FLIP_TOP_BOTTOM)
         transposed_hv = transposed_h.transpose(Image.FLIP_TOP_BOTTOM)
-        reflected = Image.new(image.mode,
-                              (max(200, int(w * 1.5)), max(200, int(h * 1.5))))
+        reflected = Image.new(
+            image.mode, (max(200, int(w * 1.5)), max(200, int(h * 1.5)))
+        )
         x = reflected.size[0] // 2
         y = reflected.size[1] // 2
         reflected.paste(image, (x - w // 2, y - h // 2))
@@ -125,22 +130,22 @@ class WaifuPixelmator2xProcessor(Processor):
         # Upscale using waifu
         tempfile_2 = NamedTemporaryFile(delete=False, suffix=".png")
         tempfile_2.close()
-        command = f"waifu2x " \
-                  f"-t {imagetype} " \
-                  f"-s 2 " \
-                  f"-n {denoise} " \
-                  f"-i {tempfile_1.name} " \
-                  f"-o {tempfile_2.name}"
+        command = (
+            f"waifu2x "
+            f"-t {imagetype} "
+            f"-s 2 "
+            f"-n {denoise} "
+            f"-i {tempfile_1.name} "
+            f"-o {tempfile_2.name}"
+        )
         if verbosity >= 1:
             print(command)
         Popen(command, shell=True, close_fds=True).wait()
 
         # Load processed image and crop back to original content
         waifu_2x_image = Image.open(tempfile_2.name).crop(
-            ((x - w // 2) * 2,
-             (y - h // 2) * 2,
-             (x + w // 2) * 2,
-             (y + h // 2) * 2))
+            ((x - w // 2) * 2, (y - h // 2) * 2, (x + w // 2) * 2, (y + h // 2) * 2)
+        )
         remove(tempfile_1.name)
         remove(tempfile_2.name)
 
@@ -148,9 +153,7 @@ class WaifuPixelmator2xProcessor(Processor):
         tempfile_3 = NamedTemporaryFile(delete=False, suffix=".png")
         tempfile_3.close()
         copyfile(infile, tempfile_3.name)
-        command = f"automator " \
-                  f"-i {tempfile_3.name} " \
-                  f"{workflow}"
+        command = f"automator " f"-i {tempfile_3.name} " f"{workflow}"
         if verbosity >= 1:
             print(command)
         Popen(command, shell=True, close_fds=True).wait()
@@ -158,17 +161,21 @@ class WaifuPixelmator2xProcessor(Processor):
         remove(tempfile_3.name)
 
         # Scale Pixelmator down to 2X
-        pixelmator_2x_image = pixelmator_3x_image.resize((
-            int(np.round(pixelmator_3x_image.size[0] * 0.66667)),
-            int(np.round(pixelmator_3x_image.size[1] * 0.66667))),
-            resample=Image.LANCZOS)
+        pixelmator_2x_image = pixelmator_3x_image.resize(
+            (
+                int(np.round(pixelmator_3x_image.size[0] * 0.66667)),
+                int(np.round(pixelmator_3x_image.size[1] * 0.66667)),
+            ),
+            resample=Image.LANCZOS,
+        )
 
         # Paste pixelmator, then waifu, then set alpha to pixelmator's
         merged_image = Image.new("RGB", pixelmator_2x_image.size)
         merged_image.paste(pixelmator_2x_image.convert("RGB"))
         merged_image.paste(waifu_2x_image)
-        merged_data = np.zeros((merged_image.size[1], merged_image.size[0], 4),
-                               np.uint8)
+        merged_data = np.zeros(
+            (merged_image.size[1], merged_image.size[0], 4), np.uint8
+        )
         merged_data[:, :, :3] = np.array(merged_image)
         merged_data[:, :, 3] = np.array(pixelmator_2x_image)[:, :, 3]
         final_image = Image.fromarray(merged_data)

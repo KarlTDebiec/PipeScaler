@@ -1,12 +1,12 @@
 #!/usr/bin/env python
-#   pipescaler/splitmergers/splitmerger.py
+#   pipescaler/mergers/merger.py
 #
 #   Copyright (C) 2020 Karl T Debiec
 #   All rights reserved.
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-################################### MODULES ###################################
+####################################### MODULES ########################################
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -17,10 +17,10 @@ from typing import Any, Iterator
 
 from pipescaler.pipelines import Pipeline
 
+####################################### CLASSES ########################################
+class Merger(ABC):
 
-################################### CLASSES ###################################
-class SplitMerger(ABC):
-    desc: str = ""
+    # region Builtins
 
     def __init__(self, pipeline: Pipeline, **kwargs: Any) -> None:
         self.pipeline = pipeline
@@ -34,6 +34,24 @@ class SplitMerger(ABC):
 
     def __str__(self) -> str:
         return self.__repr__()
+
+    # endregion
+
+    # region Properties
+
+    @property
+    @abstractmethod
+    def desc(self) -> str:
+        """str: Description"""
+        raise NotImplementedError()
+
+    @desc.setter
+    def desc(self, value: str) -> None:
+        self._desc = value
+
+    # endregion
+
+    # region Methods
 
     def backup_infile(self, infile: str) -> str:
         if self.pipeline.wip_directory not in infile:
@@ -63,3 +81,5 @@ class SplitMerger(ABC):
             self.pipeline.log[name] = [basename(outfile)]
         else:
             self.pipeline.log[name].append(basename(outfile))
+
+    # endregion

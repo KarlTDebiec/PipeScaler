@@ -42,8 +42,7 @@ class XbrzProcessor(Processor):
     # region Methods
 
     def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
-        self.process_file(infile, outfile, self.pipeline.verbosity,
-                          scale=self.scale)
+        self.process_file(infile, outfile, self.pipeline.verbosity, scale=self.scale)
 
     # endregion
 
@@ -65,18 +64,17 @@ class XbrzProcessor(Processor):
             default=2,
             type=int,
             help="factor by which to scale height and width (2-6, default: "
-                 "%(default)s)")
+            "%(default)s)",
+        )
 
         return parser
 
     @classmethod
-    def process_file(cls, infile: str, outfile: str, verbosity: int = 1,
-                     **kwargs: Any) -> None:
+    def process_file(
+        cls, infile: str, outfile: str, verbosity: int = 1, **kwargs: Any
+    ) -> None:
         scale = kwargs.get("scale", 2)
-        command = f"xbrzscale " \
-                  f"{scale} " \
-                  f"{infile} " \
-                  f"{outfile}"
+        command = f"xbrzscale " f"{scale} " f"{infile} " f"{outfile}"
         if verbosity >= 1:
             print(command)
         Popen(command, shell=True, close_fds=True).wait()

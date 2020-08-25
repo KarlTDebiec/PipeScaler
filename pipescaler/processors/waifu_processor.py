@@ -34,8 +34,9 @@ class WaifuProcessor(Processor):
 
     # region Builtins
 
-    def __init__(self, imagetype: str = "a", scale: int = 2, denoise: int = 1,
-                 **kwargs: Any) -> None:
+    def __init__(
+        self, imagetype: str = "a", scale: int = 2, denoise: int = 1, **kwargs: Any
+    ) -> None:
         super().__init__(**kwargs)
 
         self.imagetype = imagetype
@@ -58,9 +59,14 @@ class WaifuProcessor(Processor):
     # region Methods
 
     def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
-        self.process_file(infile, outfile, self.pipeline.verbosity,
-                          imagetype=self.imagetype, scale=self.scale,
-                          denoise=self.denoise)
+        self.process_file(
+            infile,
+            outfile,
+            self.pipeline.verbosity,
+            imagetype=self.imagetype,
+            scale=self.scale,
+            denoise=self.denoise,
+        )
 
     # endregion
 
@@ -81,26 +87,29 @@ class WaifuProcessor(Processor):
             default="a",
             dest="imagetype",
             type=str,
-            help="image type - a for anime, p for photo, (default: "
-                 "%(default)s)")
+            help="image type - a for anime, p for photo, (default: " "%(default)s)",
+        )
         parser.add_argument(
             "--scale",
             default=2,
             dest="scale",
             type=int,
-            help="scale factor (1 or 2, default: %(default)s)")
+            help="scale factor (1 or 2, default: %(default)s)",
+        )
         parser.add_argument(
             "--denoise",
             default=1,
             dest="denoise",
             type=int,
-            help="denoise level (0-4, default: %(default)s)")
+            help="denoise level (0-4, default: %(default)s)",
+        )
 
         return parser
 
     @classmethod
-    def process_file(cls, infile: str, outfile: str, verbosity: int = 1,
-                     **kwargs: Any) -> None:
+    def process_file(
+        cls, infile: str, outfile: str, verbosity: int = 1, **kwargs: Any
+    ) -> None:
         imagetype = kwargs.get("imagetype")
         scale = kwargs.get("scale")
         denoise = kwargs.get("denoise")
@@ -112,7 +121,8 @@ class WaifuProcessor(Processor):
         transposed_v = image.transpose(Image.FLIP_TOP_BOTTOM)
         transposed_hv = transposed_h.transpose(Image.FLIP_TOP_BOTTOM)
         reflected = Image.new(
-            image.mode, (max(200, int(w * 1.5)), max(200, int(h * 1.5))))
+            image.mode, (max(200, int(w * 1.5)), max(200, int(h * 1.5)))
+        )
         x = reflected.size[0] // 2
         y = reflected.size[1] // 2
         reflected.paste(image, (x - w // 2, y - h // 2))
@@ -129,22 +139,27 @@ class WaifuProcessor(Processor):
         tempfile.close()
 
         # Process using waifu
-        command = f"waifu2x " \
-                  f"-t {imagetype} " \
-                  f"-s {scale} " \
-                  f"-n {denoise} " \
-                  f"-i {tempfile.name} " \
-                  f"-o {outfile}"
+        command = (
+            f"waifu2x "
+            f"-t {imagetype} "
+            f"-s {scale} "
+            f"-n {denoise} "
+            f"-i {tempfile.name} "
+            f"-o {outfile}"
+        )
         if verbosity >= 1:
             print(command)
         Popen(command, shell=True, close_fds=True).wait()
 
         # Load processed image and crop back to original content
         reflected = Image.open(outfile).crop(
-            ((x - w // 2) * scale,
-             (y - h // 2) * scale,
-             (x + w // 2) * scale,
-             (y + h // 2) * scale))
+            (
+                (x - w // 2) * scale,
+                (y - h // 2) * scale,
+                (x + w // 2) * scale,
+                (y + h // 2) * scale,
+            )
+        )
         remove(tempfile.name)
         reflected.save(outfile)
 

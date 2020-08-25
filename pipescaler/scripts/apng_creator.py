@@ -26,8 +26,7 @@ class APNGCreator(CLTool):
 
     # region Builtins
 
-    def __init__(self, infiles: List[str], outfile: str,
-                 **kwargs: Any) -> None:
+    def __init__(self, infiles: List[str], outfile: str, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
         self.infiles = infiles
@@ -48,11 +47,13 @@ class APNGCreator(CLTool):
             tempfiles.append(NamedTemporaryFile(delete=False, suffix=".png"))
             tempfiles[-1].close()
             image.save(tempfiles[-1].name)
-        command = f"apngasm " \
-                  f"-o {self.outfile} " \
-                  f"{' '.join([t.name for t in tempfiles])} " \
-                  f"-d 500 " \
-                  f"--force"
+        command = (
+            f"apngasm "
+            f"-o {self.outfile} "
+            f"{' '.join([t.name for t in tempfiles])} "
+            f"-d 500 "
+            f"--force"
+        )
         print(command)
         Popen(command, shell=True, close_fds=True).wait()
         for tempfile in tempfiles:
@@ -103,10 +104,12 @@ class APNGCreator(CLTool):
 
         # Input
         parser.add_argument(
-            "-i", "--infiles",
+            "-i",
+            "--infiles",
             nargs="+",
             type=cls.input_path_argument(file_ok=True, directory_ok=True),
-            help="input files or directory")
+            help="input files or directory",
+        )
         # Labels
 
         # Operations
@@ -115,10 +118,12 @@ class APNGCreator(CLTool):
 
         # Output
         parser.add_argument(
-            "-o", "--outfile",
+            "-o",
+            "--outfile",
             default="out.png",
             type=cls.output_path_argument(),
-            help="output animated png")
+            help="output animated png",
+        )
 
         return parser
 

@@ -59,9 +59,8 @@ class PipeScaler(CLTool):
         # Input
         parser_input = parser.add_argument_group("input arguments")
         parser.add_argument(
-            "conf_file",
-            type=cls.input_path_argument(),
-            help="configuration file")
+            "conf_file", type=cls.input_path_argument(), help="configuration file"
+        )
 
         return parser
 

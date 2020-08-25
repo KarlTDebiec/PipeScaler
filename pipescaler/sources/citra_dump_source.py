@@ -18,7 +18,6 @@ from pipescaler.sources.source import Source
 
 ################################### CLASSES ###################################
 class CitraDumpSource(Source):
-
     def __init__(self, input_directory: str, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 

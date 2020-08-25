@@ -23,8 +23,13 @@ class PngquantProcessor(Processor):
 
     # region Builtins
 
-    def __init__(self, quality: int = 100, speed: int = 1,
-                 floyd_steinberg: bool = True, **kwargs: Any) -> None:
+    def __init__(
+        self,
+        quality: int = 100,
+        speed: int = 1,
+        floyd_steinberg: bool = True,
+        **kwargs: Any,
+    ) -> None:
         super().__init__(**kwargs)
 
         self.quality = quality
@@ -50,9 +55,14 @@ class PngquantProcessor(Processor):
     # region Methods
 
     def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
-        self.process_file(infile, outfile, self.pipeline.verbosity,
-                          quality=self.quality, speed=self.speed,
-                          floyd_steinberg=self.floyd_steinberg)
+        self.process_file(
+            infile,
+            outfile,
+            self.pipeline.verbosity,
+            quality=self.quality,
+            speed=self.speed,
+            floyd_steinberg=self.floyd_steinberg,
+        )
 
     # endregion
 
@@ -71,32 +81,33 @@ class PngquantProcessor(Processor):
             default="100",
             type=int,
             help="minimum quality below which output image will not be saved, "
-                 "and maximum quality above which fewer colors will be used, "
-                 "(1-100, default: %(default)s)")
+            "and maximum quality above which fewer colors will be used, "
+            "(1-100, default: %(default)s)",
+        )
         parser.add_argument(
             "--speed",
             default=1,
             type=int,
-            help="speed/quality balance (1-100, default: %(default)s)")
+            help="speed/quality balance (1-100, default: %(default)s)",
+        )
         parser.add_argument(
             "--nofs",
             action="store_false",
             dest="floyd_steinberg",
-            help="disable Floyd-Steinberg dithering")
+            help="disable Floyd-Steinberg dithering",
+        )
 
         return parser
 
     @classmethod
-    def process_file(cls, infile: str, outfile: str, verbosity: int = 1,
-                     **kwargs: Any) -> None:
+    def process_file(
+        cls, infile: str, outfile: str, verbosity: int = 1, **kwargs: Any
+    ) -> None:
         quality = kwargs.get("quality", 100)
         speed = kwargs.get("speed", 1)
         floyd_steinberg = kwargs.get("floyd_steinberg", True)
 
-        command = f"pngquant " \
-                  f"--force " \
-                  f"--quality {quality} " \
-                  f"--speed {speed} "
+        command = f"pngquant " f"--force " f"--quality {quality} " f"--speed {speed} "
         if not floyd_steinberg:
             command = f"{command} --nofs"
         command = f"{command} --output {outfile} {infile} "

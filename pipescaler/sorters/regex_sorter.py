@@ -17,14 +17,13 @@ from pipescaler.sorters.sorter import Sorter
 
 ################################### CLASSES ###################################
 class RegexSorter(Sorter):
-
-    def __init__(self,
-                 regex: str,
-                 downstream_pipes_for_matched: Optional[
-                     Union[str, List[str]]] = None,
-                 downstream_pipes_for_unmatched: Optional[
-                     Union[str, List[str]]] = None,
-                 **kwargs: Any) -> None:
+    def __init__(
+        self,
+        regex: str,
+        downstream_pipes_for_matched: Optional[Union[str, List[str]]] = None,
+        downstream_pipes_for_unmatched: Optional[Union[str, List[str]]] = None,
+        **kwargs: Any,
+    ) -> None:
         super().__init__(**kwargs)
 
         self.regex = re.compile(regex)
@@ -40,7 +39,7 @@ class RegexSorter(Sorter):
 
     def __call__(self) -> Iterator[str]:
         while True:
-            infile = (yield)
+            infile = yield
             if self.regex.match(self.get_original_name(infile)):
                 if self.pipeline.verbosity >= 2:
                     print(f"{self}: match {infile}")

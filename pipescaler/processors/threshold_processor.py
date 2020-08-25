@@ -24,8 +24,9 @@ class ThresholdProcessor(Processor):
 
     # region Builtins
 
-    def __init__(self, threshold: int = 128, denoise: bool = False,
-                 **kwargs: Any) -> None:
+    def __init__(
+        self, threshold: int = 128, denoise: bool = False, **kwargs: Any
+    ) -> None:
         super().__init__(**kwargs)
 
         self.threshold = threshold
@@ -50,8 +51,13 @@ class ThresholdProcessor(Processor):
     # region Methods
 
     def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
-        self.process_file(infile, outfile, self.pipeline.verbosity,
-                          threshold=self.threshold, denoise=self.denoise)
+        self.process_file(
+            infile,
+            outfile,
+            self.pipeline.verbosity,
+            threshold=self.threshold,
+            denoise=self.denoise,
+        )
 
     # endregion
 
@@ -72,25 +78,27 @@ class ThresholdProcessor(Processor):
             default=128,
             type=int,
             help="threshold differentiating black and white (0-255, default: "
-                 "%(default)s)")
+            "%(default)s)",
+        )
         parser.add_argument(
             "--denoise",
             default=True,
             type=bool,
             help="Flip color of pixels bordered by less than 5 pixels of "
-                 "the same color")
+            "the same color",
+        )
 
         return parser
 
     @classmethod
-    def process_file(cls, infile: str, outfile: str, verbosity: int = 1,
-                     **kwargs: Any) -> None:
+    def process_file(
+        cls, infile: str, outfile: str, verbosity: int = 1, **kwargs: Any
+    ) -> None:
         threshold = kwargs.get("threshold")
         denoise = kwargs.get("denoise")
         input_image = Image.open(infile)
 
-        output_image = input_image.convert("L").point(
-            lambda p: p > threshold and 255)
+        output_image = input_image.convert("L").point(lambda p: p > threshold and 255)
         if denoise:
             output_data = np.array(output_image)
             cls.denoise_data(output_data)
@@ -108,7 +116,7 @@ class ThresholdProcessor(Processor):
     def denoise_data(data: np.ndarray) -> None:
         for x in range(1, data.shape[1] - 1):
             for y in range(1, data.shape[0] - 1):
-                slc = data[y - 1:y + 2, x - 1:x + 2]
+                slc = data[y - 1 : y + 2, x - 1 : x + 2]
                 if data[y, x] == 0:
                     if (slc == 0).sum() < 4:
                         data[y, x] = 255

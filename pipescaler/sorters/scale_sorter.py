@@ -23,12 +23,13 @@ from pipescaler.sorters.sorter import Sorter
 
 ################################### CLASSES ###################################
 class ScaleSorter(Sorter):
-
-    def __init__(self,
-                 scalesets: Union[str, Dict[str, Dict[float, str]]],
-                 mode: str = "fork",
-                 downstream_pipes: Optional[Union[str, List[str]]] = None,
-                 **kwargs: Any) -> None:
+    def __init__(
+        self,
+        scalesets: Union[str, Dict[str, Dict[float, str]]],
+        mode: str = "fork",
+        downstream_pipes: Optional[Union[str, List[str]]] = None,
+        **kwargs: Any,
+    ) -> None:
         super().__init__(**kwargs)
 
         if isinstance(scalesets, str):
@@ -57,7 +58,7 @@ class ScaleSorter(Sorter):
 
     def __call__(self) -> Iterator[str]:
         while True:
-            infile = (yield)
+            infile = yield
             infile = self.backup_infile(infile)
             if self.pipeline.verbosity >= 2:
                 print(f"{self}: {infile}")
@@ -82,11 +83,12 @@ class ScaleSorter(Sorter):
                         for name in names:
                             self.backup_mipmap(name)
                             desc_so_far = splitext(basename(infile))[0].lstrip(
-                                "original")
-                            outfile = f"{desc_so_far}_" \
-                                      f"scale-{scale}.png".lstrip("_")
-                            outfile = f"{self.pipeline.wip_directory}/" \
-                                      f"{name}/{outfile}"
+                                "original"
+                            )
+                            outfile = f"{desc_so_far}_" f"scale-{scale}.png".lstrip("_")
+                            outfile = (
+                                f"{self.pipeline.wip_directory}/" f"{name}/{outfile}"
+                            )
                             if self.pipeline.verbosity >= 2:
                                 print(f"{self}: {outfile}")
 
@@ -95,21 +97,22 @@ class ScaleSorter(Sorter):
                                 input_image = Image.open(infile)
                                 size = (
                                     int(np.round(input_image.size[0] * scale)),
-                                    int(np.round(input_image.size[1] * scale)))
-                                output_image = input_image.convert(
-                                    "RGB").resize(
-                                    size, resample=Image.LANCZOS)
+                                    int(np.round(input_image.size[1] * scale)),
+                                )
+                                output_image = input_image.convert("RGB").resize(
+                                    size, resample=Image.LANCZOS
+                                )
 
                                 # Combine R, G, and B from RGB with A from RGBA
                                 if input_image.mode == "RGBA":
                                     rgba_image = input_image.resize(
-                                        size, resample=Image.LANCZOS)
+                                        size, resample=Image.LANCZOS
+                                    )
                                     merged_data = np.zeros(
-                                        (size[1], size[0], 4), np.uint8)
-                                    merged_data[:, :, :3] = np.array(
-                                        output_image)
-                                    merged_data[:, :, 3] = np.array(
-                                        rgba_image)[:, :, 3]
+                                        (size[1], size[0], 4), np.uint8
+                                    )
+                                    merged_data[:, :, :3] = np.array(output_image)
+                                    merged_data[:, :, 3] = np.array(rgba_image)[:, :, 3]
                                     output_image = Image.fromarray(merged_data)
 
                                 # Save image

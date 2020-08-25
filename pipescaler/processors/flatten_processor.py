@@ -34,8 +34,9 @@ class FlattenProcessor(Processor):
     # region Class Methods
 
     @classmethod
-    def process_file(cls, infile: str, outfile: str, verbosity: int = 1,
-                     **kwargs: Any) -> None:
+    def process_file(
+        cls, infile: str, outfile: str, verbosity: int = 1, **kwargs: Any
+    ) -> None:
         input_datum = np.array(Image.open(infile))
 
         output_datum = np.ones_like(input_datum) * 255

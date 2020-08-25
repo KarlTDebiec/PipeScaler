@@ -12,8 +12,7 @@ from __future__ import annotations
 
 from argparse import ArgumentParser
 from os import R_OK, W_OK, access, getcwd, listdir
-from os.path import (basename, dirname, exists, expandvars, isdir, isfile,
-                     join, splitext)
+from os.path import basename, dirname, exists, expandvars, isdir, isfile, join, splitext
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import numpy as np
@@ -29,14 +28,16 @@ class ScaledImageIdentifier(CLTool):
 
     # region Builtins
 
-    def __init__(self,
-                 dump_directory: str,
-                 skip: Optional[Union[List[str], str]] = None,
-                 infile: Optional[str] = None,
-                 threshold: float = 0.9,
-                 outfile: Optional[str] = None,
-                 concat_directory: Optional[str] = None,
-                 **kwargs: Any) -> None:
+    def __init__(
+        self,
+        dump_directory: str,
+        skip: Optional[Union[List[str], str]] = None,
+        infile: Optional[str] = None,
+        threshold: float = 0.9,
+        outfile: Optional[str] = None,
+        concat_directory: Optional[str] = None,
+        **kwargs: Any,
+    ) -> None:
         super().__init__(**kwargs)
 
         # Input
@@ -49,10 +50,12 @@ class ScaledImageIdentifier(CLTool):
                 if isfile(s):
                     with open(s, "r") as f:
                         skip_files = skip_files.union(
-                            set(yaml.load(f, Loader=yaml.SafeLoader)))
+                            set(yaml.load(f, Loader=yaml.SafeLoader))
+                        )
                 elif isdir(s):
                     skip_files = skip_files.union(
-                        set([splitext(f)[0] for f in listdir(s)]))
+                        set([splitext(f)[0] for f in listdir(s)])
+                    )
                 else:
                     raise ValueError()
             self.skip_files = skip_files
@@ -96,17 +99,18 @@ class ScaledImageIdentifier(CLTool):
                 data[size] = {}
             data[size][name] = np.array(image)
             thumb_scale = max(8.0 / size[0], 8.0 / size[1])
-            thumb_size = tuple(
-                [int(size[0] * thumb_scale), int(size[1] * thumb_scale)])
+            thumb_size = tuple([int(size[0] * thumb_scale), int(size[1] * thumb_scale)])
             thumb_data[name] = np.array(
-                image.resize(thumb_size, resample=Image.LANCZOS))
+                image.resize(thumb_size, resample=Image.LANCZOS)
+            )
 
         # Loop over sizes from largest to smallest
         for size in list(reversed(sorted(data.keys()))):
             print(f"{size}: {len(data[size])}")
             for scale in [0.5, 0.25, 0.125, 0.0625]:
                 scaled_size: Tuple[int, ...] = tuple(
-                    [int(size[0] * scale), int(size[1] * scale)])
+                    [int(size[0] * scale), int(size[1] * scale)]
+                )
                 if scaled_size in data:
                     print(f"    {scaled_size}: {len(data[scaled_size])}")
 
@@ -118,13 +122,14 @@ class ScaledImageIdentifier(CLTool):
 
                 # Loop over scales from largest to smallest
                 for scale in [0.5, 0.25, 0.125, 0.0625]:
-                    scaled_size = tuple(
-                        [int(size[0] * scale), int(size[1] * scale)])
+                    scaled_size = tuple([int(size[0] * scale), int(size[1] * scale)])
                     if scaled_size not in data:
                         continue
-                    scaled_datum = np.array(Image.fromarray(
-                        large_datum).resize(scaled_size,
-                                            resample=Image.LANCZOS))
+                    scaled_datum = np.array(
+                        Image.fromarray(large_datum).resize(
+                            scaled_size, resample=Image.LANCZOS
+                        )
+                    )
 
                     # Loop over images of this size
                     for small_name, small_datum in data[scaled_size].items():
@@ -134,17 +139,19 @@ class ScaledImageIdentifier(CLTool):
                         # Check thumbnail
                         # embed()
                         small_thumb_datum = thumb_data[small_name]
-                        score = ssim(large_thumb_datum, small_thumb_datum,
-                                     multichannel=True)
+                        score = ssim(
+                            large_thumb_datum, small_thumb_datum, multichannel=True
+                        )
                         if score < self.threshold / 2:
                             continue
 
                         # Check full size
-                        score = ssim(scaled_datum, small_datum,
-                                     multichannel=True)
+                        score = ssim(scaled_datum, small_datum, multichannel=True)
                         if score > self.threshold:
-                            print(f"        {i:4d} {large_name} "
-                                  f"{small_name} {scale:6.4f} {score:4.2f}")
+                            print(
+                                f"        {i:4d} {large_name} "
+                                f"{small_name} {scale:6.4f} {score:4.2f}"
+                            )
                             Image.fromarray(large_datum).show()
                             Image.fromarray(small_datum).show()
                 i += 1
@@ -164,8 +171,7 @@ class ScaledImageIdentifier(CLTool):
     def concat_directory(self, value: Optional[str]) -> None:
         if value is not None:
             if not isinstance(value, str):
-                raise ValueError(f"'{value}' is of type '{type(value)}', not "
-                                 f"str")
+                raise ValueError(f"'{value}' is of type '{type(value)}', not " f"str")
             value = expandvars(value)
             if not exists(value):
                 raise ValueError(f"'{value}' does not exist")
@@ -197,14 +203,13 @@ class ScaledImageIdentifier(CLTool):
     def known_scaled(self) -> Dict[str, Dict[float, Union[str, List[str]]]]:
         """Dict[float, Union[str, List[str]]]]: known scaled relationships"""
         if not hasattr(self, "_known_scaled"):
-            self._known_scaled: Dict[
-                str, Dict[float, Union[str, List[str]]]] = {}
+            self._known_scaled: Dict[str, Dict[float, Union[str, List[str]]]] = {}
         return self._known_scaled
 
     @known_scaled.setter
     def known_scaled(
-            self,
-            value: Dict[str, Dict[float, Union[str, List[str]]]]) -> None:
+        self, value: Dict[str, Dict[float, Union[str, List[str]]]]
+    ) -> None:
         self._known_scaled = value
 
     @property
@@ -218,8 +223,7 @@ class ScaledImageIdentifier(CLTool):
     def outfile(self, value: str) -> None:
         if value is not None:
             if not isinstance(value, str):
-                raise ValueError(f"'{value}' is of type '{type(value)}', not "
-                                 f"str")
+                raise ValueError(f"'{value}' is of type '{type(value)}', not " f"str")
             value = expandvars(value)
             directory = dirname(value)
             if directory == "":
@@ -234,11 +238,9 @@ class ScaledImageIdentifier(CLTool):
                 if not exists(directory):
                     raise ValueError(f"'{directory}' does not exist")
                 if not isdir(directory):
-                    raise ValueError(f"'{directory}' exists but is not a "
-                                     f"directory")
+                    raise ValueError(f"'{directory}' exists but is not a " f"directory")
                 if not access(directory, W_OK):
-                    raise ValueError(f"'{directory}' exists but cannot be "
-                                     f"written")
+                    raise ValueError(f"'{directory}' exists but cannot be " f"written")
         self._outfile = value
 
     @property
@@ -265,8 +267,7 @@ class ScaledImageIdentifier(CLTool):
         try:
             value = float(value)
         except ValueError:
-            raise ValueError(f"'{value}' is of type '{type(value)}', not "
-                             f"float")
+            raise ValueError(f"'{value}' is of type '{type(value)}', not " f"float")
         if value < 0:
             raise ValueError(f"'{value}' is less than minimum value of 0.0")
         elif value > 1:
@@ -293,48 +294,59 @@ class ScaledImageIdentifier(CLTool):
         # Input
         parser_input = parser.add_argument_group("input arguments")
         parser_input.add_argument(
-            "-d", "--dump",
+            "-d",
+            "--dump",
             dest="dump_directory",
             metavar="DIR",
             required=True,
             type=cls.indir_argument(),
-            help="input directory from which to read images")
+            help="input directory from which to read images",
+        )
         parser_input.add_argument(
-            "-s", "--skip",
+            "-s",
+            "--skip",
             metavar="FILE|DIR",
             nargs="+",
             type=cls.indir_or_infile_argument(),
             help="input file(s) from which to read lists of files to skip, or "
-                 "input directories whose contained filenames should be "
-                 "skipped")
+            "input directories whose contained filenames should be "
+            "skipped",
+        )
         parser_input.add_argument(
-            "-i", "--infile",
+            "-i",
+            "--infile",
             metavar="FILE",
             type=cls.input_path_argument(),
             help="input yaml file from which to read known scaled file "
-                 "relationships")
+            "relationships",
+        )
 
         # Operations
         parser_ops = parser.add_argument_group("operation arguments")
         parser_ops.add_argument(
-            "-t", "--threshold",
+            "-t",
+            "--threshold",
             default=0.9,
             type=cls.float_argument(0, 1),
-            help="threshold")
+            help="threshold",
+        )
 
         # Output
         parser_output = parser.add_argument_group("output arguments")
         parser_output.add_argument(
-            "-o", "--outfile",
+            "-o",
+            "--outfile",
             metavar="FILE",
             type=cls.output_path_argument(),
-            help="output yaml file to which to write scaled file "
-                 "relationships")
+            help="output yaml file to which to write scaled file " "relationships",
+        )
         parser_output.add_argument(
-            "-c", "--concat",
+            "-c",
+            "--concat",
             metavar="FILE",
             type=cls.outdir_argument(),
-            help="output directory to which to write concatenated images")
+            help="output directory to which to write concatenated images",
+        )
 
         return parser
 

@@ -36,7 +36,7 @@ class Pipeline:
         sources_module = import_module("pipescaler.sources")
         processors_module = import_module("pipescaler.processors")
         sorters_module = import_module("pipescaler.sorters")
-        splitmergers_module = import_module("pipescaler.splitmergers")
+        splitmergers_module = import_module("pipescaler.splitters")
         pipes_conf = conf.get("pipes")
         if pipes_conf is None:
             raise ValueError()
@@ -65,7 +65,8 @@ class Pipeline:
             print(pipe_cls_parameters)
             if module_path is not None:
                 spec = spec_from_file_location(
-                    splitext(basename(module_path))[0], module_path)
+                    splitext(basename(module_path))[0], module_path
+                )
                 module = module_from_spec(spec)
                 spec.loader.exec_module(module)
                 pipe_cls = getattr(module, pipe_cls_name)
@@ -77,8 +78,7 @@ class Pipeline:
                         pipe_cls = getattr(sorters_module, pipe_cls_name)
                     except AttributeError:
                         try:
-                            pipe_cls = getattr(splitmergers_module,
-                                               pipe_cls_name)
+                            pipe_cls = getattr(splitmergers_module, pipe_cls_name)
                         except AttributeError as e:
                             raise e
             pipes[pipe_name] = pipe_cls(pipeline=self, **pipe_cls_parameters)()

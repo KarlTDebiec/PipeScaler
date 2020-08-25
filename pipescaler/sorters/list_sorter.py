@@ -19,9 +19,7 @@ from pipescaler.sorters.sorter import Sorter
 
 ################################### CLASSES ###################################
 class ListSorter(Sorter):
-
-    def __init__(self, downstream_pipes_for_filenames: Any,
-                 **kwargs: Any) -> None:
+    def __init__(self, downstream_pipes_for_filenames: Any, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
         self.downstream_pipes_by_filename = {}
@@ -39,14 +37,14 @@ class ListSorter(Sorter):
                 self.default_downstream_pipes = downstream_pipes
             else:
                 for filename in filenames:
-                    self.downstream_pipes_by_filename[
-                        filename] = downstream_pipes
+                    self.downstream_pipes_by_filename[filename] = downstream_pipes
 
     def __call__(self) -> Iterator[str]:
         while True:
-            infile = (yield)
+            infile = yield
             pipes = self.downstream_pipes_by_filename.get(
-                self.get_original_name(infile), self.default_downstream_pipes)
+                self.get_original_name(infile), self.default_downstream_pipes
+            )
             if self.pipeline.verbosity >= 2:
                 print(f"{self}: {infile}")
             if pipes is not None:

@@ -15,7 +15,4 @@ from pipescaler.sources.citra_dump_source import CitraDumpSource
 from pipescaler.sources.texmod_source import TexModDumpSource
 
 ##################################### ALL #####################################
-__all__: List[str] = [
-    "CitraDumpSource",
-    "TexModDumpSource"
-]
+__all__: List[str] = ["CitraDumpSource", "TexModDumpSource"]

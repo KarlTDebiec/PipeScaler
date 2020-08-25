@@ -23,8 +23,13 @@ class PotraceProcessor(Processor):
 
     # region Builtins
 
-    def __init__(self, blacklevel: float = 0.3, alphamax: float = 1.34,
-                 opttolerance: float = 0.2, **kwargs: Any) -> None:
+    def __init__(
+        self,
+        blacklevel: float = 0.3,
+        alphamax: float = 1.34,
+        opttolerance: float = 0.2,
+        **kwargs: Any,
+    ) -> None:
         super().__init__(**kwargs)
 
         self.blacklevel = blacklevel
@@ -39,8 +44,10 @@ class PotraceProcessor(Processor):
     def desc(self) -> str:
         """str: Description"""
         if not hasattr(self, "_desc"):
-            return f"potrace-{self.blacklevel:4.2f}-" \
-                   f"{self.alphamax:4.2f}-{self.opttolerance:3.1f}"
+            return (
+                f"potrace-{self.blacklevel:4.2f}-"
+                f"{self.alphamax:4.2f}-{self.opttolerance:3.1f}"
+            )
         return self._desc
 
     # endregion
@@ -48,9 +55,14 @@ class PotraceProcessor(Processor):
     # region Methods
 
     def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
-        self.process_file(infile, outfile, self.pipeline.verbosity,
-                          blacklevel=self.blacklevel, alphamax=self.alphamax,
-                          opttolerance=self.opttolerance)
+        self.process_file(
+            infile,
+            outfile,
+            self.pipeline.verbosity,
+            blacklevel=self.blacklevel,
+            alphamax=self.alphamax,
+            opttolerance=self.opttolerance,
+        )
 
     # endregion
 
@@ -70,24 +82,25 @@ class PotraceProcessor(Processor):
             "--blacklevel",
             default=0.3,
             type=float,
-            help="black/white cutoff in input file (0.0-1.0, default: "
-                 "%(default)s)")
+            help="black/white cutoff in input file (0.0-1.0, default: " "%(default)s)",
+        )
         parser.add_argument(
             "--alphamax",
             default=1.34,
             type=float,
-            help="corner threshold parameter (default: %(default)s)")
+            help="corner threshold parameter (default: %(default)s)",
+        )
         parser.add_argument(
             "--opttolerance",
             default=0.2,
             type=float,
-            help="curve optimization tolerance (default: %(default)s)")
+            help="curve optimization tolerance (default: %(default)s)",
+        )
 
         return parser
 
     @classmethod
-    def process_file(cls, infile: str, outfile: str, verbosity: int = 1,
-                     **kwargs: Any):
+    def process_file(cls, infile: str, outfile: str, verbosity: int = 1, **kwargs: Any):
         blacklevel = kwargs.get("blacklevel", 0.3)
         alphamax = kwargs.get("alphamax", 1.34)
         opttolerance = kwargs.get("opttolerance", 0.2)
@@ -95,9 +108,7 @@ class PotraceProcessor(Processor):
         # Convert to bmp; potrace does not accept png
         bmpfile = NamedTemporaryFile(delete=False, suffix=".bmp")
         bmpfile.close()
-        command = f"convert " \
-                  f"{infile} " \
-                  f"{bmpfile.name}"
+        command = f"convert " f"{infile} " f"{bmpfile.name}"
         if verbosity >= 2:
             print(command)
         Popen(command, shell=True, close_fds=True).wait()
@@ -105,21 +116,21 @@ class PotraceProcessor(Processor):
         # trace
         svgfile = NamedTemporaryFile(delete=False, suffix=".svg")
         svgfile.close()
-        command = f"potrace " \
-                  f"{bmpfile.name} " \
-                  f"-b svg " \
-                  f"-k {blacklevel} " \
-                  f"-a {alphamax} " \
-                  f"-O {opttolerance} " \
-                  f"-o {svgfile.name}"
+        command = (
+            f"potrace "
+            f"{bmpfile.name} "
+            f"-b svg "
+            f"-k {blacklevel} "
+            f"-a {alphamax} "
+            f"-O {opttolerance} "
+            f"-o {svgfile.name}"
+        )
         if verbosity >= 2:
             print(command)
         Popen(command, shell=True, close_fds=True).wait()
 
         # Rasterize svg to png
-        command = f"convert " \
-                  f"{svgfile.name} " \
-                  f"{outfile}"
+        command = f"convert " f"{svgfile.name} " f"{outfile}"
         if verbosity >= 2:
             print(command)
         Popen(command, shell=True, close_fds=True).wait()

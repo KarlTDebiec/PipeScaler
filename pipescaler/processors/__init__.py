@@ -21,8 +21,7 @@ from pipescaler.processors.potrace_processor import PotraceProcessor
 from pipescaler.processors.resize_processor import ResizeProcessor
 from pipescaler.processors.side_channel_processor import SideChannelProcessor
 from pipescaler.processors.threshold_processor import ThresholdProcessor
-from pipescaler.processors.waifupixelmator2x_processor import (
-    WaifuPixelmator2xProcessor)
+from pipescaler.processors.waifupixelmator2x_processor import WaifuPixelmator2xProcessor
 from pipescaler.processors.waifu_processor import WaifuProcessor
 from pipescaler.processors.xbrz_processor import XbrzProcessor
 
@@ -40,5 +39,5 @@ __all__: List[str] = [
     "ThresholdProcessor",
     "WaifuProcessor",
     "XbrzProcessor",
-    "WaifuPixelmator2xProcessor"
+    "WaifuPixelmator2xProcessor",
 ]

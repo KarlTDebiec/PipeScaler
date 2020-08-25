@@ -1,31 +1,34 @@
 #!/usr/bin/env python
-#   pipescaler/splitmergers/alpha_splitmerger.py
+#   pipescaler/splitter/alpha_splitter.py
 #
 #   Copyright (C) 2020 Karl T Debiec
 #   All rights reserved.
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-################################### MODULES ###################################
+############################################# MODULES ##############################################
 from __future__ import annotations
 
 from os.path import basename, join, splitext
-from typing import Any, List, Optional, Union
+from typing import Any, Optional
 
 import numpy as np
-from IPython import embed
 from PIL import Image
 
-from pipescaler.splitmergers.splitmerger import SplitMerger
+from pipescaler.splitters.splitter import Splitter
 
 
-################################### CLASSES ###################################
-class AlphaSplitMerger(SplitMerger):
+############################################# CLASSES ##############################################
+class AlphaSplitter(Splitter):
 
-    def __init__(self,
-                 downstream_pipe_for_RGB: Optional[str] = None,
-                 downstream_pipe_for_A: Optional[str] = None,
-                 **kwargs: Any) -> None:
+    # region Builtins
+
+    def __init__(
+        self,
+        downstream_pipe_for_RGB: Optional[str] = None,
+        downstream_pipe_for_A: Optional[str] = None,
+        **kwargs: Any,
+    ) -> None:
         super().__init__(**kwargs)
 
         self.downstream_pipe_for_RGB = downstream_pipe_for_RGB
@@ -40,18 +43,30 @@ class AlphaSplitMerger(SplitMerger):
                 if self.downstream_pipe_for_RGB is not None:
                     rgb_outfile = self.get_outfile(infile, "RGB")
                     print(rgb_outfile)
-                    Image.fromarray(np.array(image)[:, :, :3]).save(
-                        rgb_outfile)
-                    self.pipeline.pipes[
-                        self.downstream_pipe_for_RGB].send(rgb_outfile)
+                    Image.fromarray(np.array(image)[:, :, :3]).save(rgb_outfile)
+                    self.pipeline.pipes[self.downstream_pipe_for_RGB].send(rgb_outfile)
                 if self.downstream_pipe_for_A is not None:
                     a_outfile = self.get_outfile(infile, "A")
                     print(a_outfile)
                     Image.fromarray(np.array(image)[:, :, 3]).save(a_outfile)
-                    self.pipeline.pipes[
-                        self.downstream_pipe_for_A].send(a_outfile)
+                    self.pipeline.pipes[self.downstream_pipe_for_A].send(a_outfile)
             else:
                 continue
+
+    # endregion
+
+    # region Properties
+
+    @property
+    def desc(self) -> str:
+        """str: Description"""
+        if not hasattr(self, "_desc"):
+            return "alphasplitter"
+        return self._desc
+
+    # endregion
+
+    # region Methods
 
     def get_outfile(self, infile: str, nay: str) -> str:
         original_name = self.get_original_name(infile)
@@ -62,3 +77,5 @@ class AlphaSplitMerger(SplitMerger):
         outfile = f"{desc_so_far}_{nay}.{extension}".lstrip("_")
 
         return join(self.pipeline.wip_directory, original_name, outfile)
+
+    # endregion
