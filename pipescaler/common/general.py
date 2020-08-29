@@ -8,7 +8,8 @@
 #   BSD license. See the LICENSE file for details.
 """
 General-purpose functions not tied to a particular project.
-Last updated 2020-08-15
+
+Last updated 2020-08-28.
 """
 ####################################### MODULES ########################################
 from contextlib import contextmanager
@@ -17,16 +18,15 @@ from os import R_OK, W_OK, access, getcwd, remove
 from os.path import dirname, exists, expandvars, isabs, isdir, isfile, join
 from readline import insert_text, redisplay, set_pre_input_hook
 from tempfile import NamedTemporaryFile
-from typing import Dict, Optional
+from typing import Dict, Iterator, Optional
 
-# noinspection Mypy
 from . import package_root
 
 
 ###################################### FUNCTIONS #######################################
 def embed_kw(verbosity: int = 2) -> Dict[str, str]:
     """
-    Prepares header for IPython prompt showing current location in code
+    Prepares header for IPython prompt showing current location in code.
 
     Use ``IPython.embed(**embed_kw())``.
 
@@ -39,6 +39,7 @@ def embed_kw(verbosity: int = 2) -> Dict[str, str]:
     frame = currentframe()
     if frame is None:
         raise ValueError()
+    # noinspection Mypy
     frameinfo = getframeinfo(frame.f_back)
     file = frameinfo.filename.replace(package_root, "")
     func = frameinfo.function
@@ -62,7 +63,7 @@ def embed_kw(verbosity: int = 2) -> Dict[str, str]:
 
 def get_shell_type() -> Optional[str]:
     """
-    Determines if inside IPython prompt
+    Determines if inside IPython prompt.
 
     Returns:
         Optional[str]: Type of shell in use, or None if not in a shell
@@ -89,9 +90,9 @@ def get_shell_type() -> Optional[str]:
 
 def input_prefill(prompt: str, prefill: str) -> str:
     """
-    Prompts user for input with pre-filled text
+    Prompts user for input with pre-filled text.
 
-    Does not handle colored prompt correctly
+    Does not handle colored prompt correctly.
 
     TODO: Does this block CTRL-D?
 
@@ -115,7 +116,16 @@ def input_prefill(prompt: str, prefill: str) -> str:
 
 
 @contextmanager
-def temporary_filename(suffix=None):
+def temporary_filename(suffix: Optional[str] = None) -> Iterator[str]:
+    """
+    Provides a temporary filename; use with 'with'.
+
+    Args:
+        suffix (Optional[str]): Suffix (extension) for temporary filename
+
+    Yields:
+        str: Temporary filename
+    """
     f = None
     try:
         f = NamedTemporaryFile(delete=False, suffix=suffix)
@@ -132,6 +142,22 @@ def validate_input_path(
     directory_ok: bool = False,
     default_directory: Optional[str] = None,
 ) -> str:
+    """
+    Validates an input path and makes it absolute.
+
+    Args:
+        value (str): Provided input path
+        file_ok (bool): Whether or not file paths are permissible
+        directory_ok (bool): Whether or not directory paths are permissible
+        default_directory (Optional[str]): Default directory to prepend to *value* if
+          not absolute (default: current working directory)
+
+    Returns:
+        str: Absolute path to input file or directory
+
+    Raises:
+        ValueError: If input path is not valid
+    """
     if not file_ok and not directory_ok:
         raise ValueError("both file and directory paths may not be prohibited")
     if default_directory is None:
@@ -166,6 +192,22 @@ def validate_output_path(
     directory_ok: bool = False,
     default_directory: Optional[str] = None,
 ) -> str:
+    """
+    Validates an output path and makes it absolute.
+
+    Args:
+        value (str): Provided output path
+        file_ok (bool): Whether or not file paths are permissible
+        directory_ok (bool): Whether or not directory paths are permissible
+        default_directory (Optional[str]): Default directory to prepend to *value* if
+          not absolute (default: current working directory)
+
+    Returns:
+        str: Absolute path to output file or directory
+
+    Raises:
+        ValueError: If output path is not valid
+    """
     if not file_ok and not directory_ok:
         raise ValueError("both file and directory paths may not be prohibited")
     if default_directory is None:

@@ -34,9 +34,11 @@ class Pipeline:
 
         # Load configuration
         sources_module = import_module("pipescaler.sources")
+        mergers_module = import_module("pipescaler.mergers")
         processors_module = import_module("pipescaler.processors")
         sorters_module = import_module("pipescaler.sorters")
-        splitmergers_module = import_module("pipescaler.splitters")
+        splitters_module = import_module("pipescaler.splitters")
+        modules = [mergers_module, processors_module, sorters_module, splitters_module]
         pipes_conf = conf.get("pipes")
         if pipes_conf is None:
             raise ValueError()
@@ -71,16 +73,14 @@ class Pipeline:
                 spec.loader.exec_module(module)
                 pipe_cls = getattr(module, pipe_cls_name)
             else:
-                try:
-                    pipe_cls = getattr(processors_module, pipe_cls_name)
-                except AttributeError:
+                pipe_cls = None
+                for module in modules:
                     try:
-                        pipe_cls = getattr(sorters_module, pipe_cls_name)
+                        pipe_cls = getattr(module, pipe_cls_name)
                     except AttributeError:
-                        try:
-                            pipe_cls = getattr(splitmergers_module, pipe_cls_name)
-                        except AttributeError as e:
-                            raise e
+                        continue
+                if pipe_cls is None:
+                    raise AttributeError(f"Class {pipe_cls_name} not found")
             pipes[pipe_name] = pipe_cls(pipeline=self, **pipe_cls_parameters)()
             next(pipes[pipe_name])
         self.pipes = pipes
@@ -89,9 +89,7 @@ class Pipeline:
         self.log: Dict[str, List[str]] = {}
 
     def __call__(self) -> None:
-        """
-        Performs operations
-        """
+        """Performs operations."""
         self.source()
         # self.clean()
 

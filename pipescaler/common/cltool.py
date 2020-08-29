@@ -8,7 +8,8 @@
 #   BSD license. See the LICENSE file for details.
 """
 General-purpose command-line tool base class not tied to a particular project.
-Last updated 2020-08-15
+
+Last updated 2020-08-28.
 """
 ####################################### MODULES ########################################
 from abc import ABC
@@ -21,22 +22,21 @@ from argparse import (
 from inspect import currentframe, getframeinfo
 from typing import Any, Callable, Optional, Union
 
-# noinspection Mypy
 from .general import validate_input_path, validate_output_path
 
 
 ####################################### CLASSES ########################################
 class CLTool(ABC):
-    """Abstract base class for command line tools"""
+    """Abstract base class for command line tools."""
 
     # region Builtins
 
     def __init__(self, **kwargs: Any) -> None:
-        """Initialize, including cross-argument validation and value storage"""
+        """Initialize, including argument validation and value storage."""
         pass
 
     def __call__(self, **kwargs: Any) -> Any:
-        """Perform operations"""
+        """Perform operations."""
         raise NotImplementedError()
 
     # endregion
@@ -68,7 +68,7 @@ class CLTool(ABC):
         **kwargs: Any,
     ) -> ArgumentParser:
         """
-        Constructs argument parser
+        Constructs argument parser.
 
         Args:
             description (Optional[str]): Description of parser
@@ -117,7 +117,7 @@ class CLTool(ABC):
 
     @classmethod
     def main(cls) -> None:
-        """Parses and validates arguments, constructs and calls object"""
+        """Parses and validates arguments, constructs and calls object."""
         parser = cls.construct_argparser()
         kwargs = vars(parser.parse_args())
         cls(**kwargs)()
@@ -130,7 +130,16 @@ class CLTool(ABC):
     def float_argument(
         min_value: Optional[float] = None, max_value: Optional[float] = None
     ) -> Callable[[str], float]:
-        """TODO: Document"""
+        """
+        Validates a float argument.
+
+        Args:
+            min_value (Optional[float]): Minimum permissible value
+            max_value (Optional[float]): Maximum permissible value
+
+        Returns:
+            Callable[[str], float]: Value validator function
+        """
 
         def func(value: Union[str, float]) -> float:
             try:
@@ -156,7 +165,16 @@ class CLTool(ABC):
     def input_path_argument(
         file_ok: bool = True, directory_ok: bool = False
     ) -> Callable[[str], str]:
-        """TODO: Document"""
+        """
+        Validates an input path argument.
+
+        Args:
+            file_ok (bool): Whether or not file paths are permissible
+            directory_ok (bool): Whether or not directory paths are permissible
+
+        Returns:
+            Callable[[str], str]: Value validator function
+        """
 
         def func(value: str) -> str:
             # Try cast here, to raise ArgumentTypeError instead of ValueError
@@ -174,7 +192,16 @@ class CLTool(ABC):
     def output_path_argument(
         file_ok: bool = True, directory_ok: bool = False
     ) -> Callable[[str], str]:
-        """TODO: Document"""
+        """
+        Validates an output path argument.
+
+        Args:
+            file_ok (bool): Whether or not file paths are permissible
+            directory_ok (bool): Whether or not directory paths are permissible
+
+        Returns:
+            Callable[[str], str]: Value validator function
+        """
 
         def func(value: str) -> str:
             # Try cast here, to raise ArgumentTypeError instead of ValueError
@@ -194,7 +221,7 @@ class CLTool(ABC):
 
     def _generate_setter_exception(self, value: Any) -> str:
         """
-        Generates Exception text for setters that are passed invalid values
+        Generates Exception text for setters that are passed invalid values.
 
         TODO: Decide if this actually makes sense
 
@@ -207,11 +234,11 @@ class CLTool(ABC):
         frame = currentframe()
         if frame is None:
             raise ValueError()
+        # noinspection Mypy
         frameinfo = getframeinfo(frame.f_back)
         return (
             f"Property '{type(self).__name__}.{frameinfo.function}' "
-            f"was passed invalid value '{value}' "
-            f"of type '{type(value).__name__}'. "
+            f"was passed invalid value '{value}' of type '{type(value).__name__}'. "
             f"Expects '{getattr(type(self), frameinfo.function).__doc__}'."
         )
 

@@ -15,7 +15,7 @@ from pipescaler.sorters.list_sorter import ListSorter
 from pipescaler.sorters.regex_sorter import RegexSorter
 from pipescaler.sorters.scale_sorter import ScaleSorter
 from pipescaler.sorters.size_sorter import SizeSorter
-from pipescaler.sorters.transparency_sorter import TransparencySorter
+from pipescaler.sorters.alpha_sorter import AlphaSorter
 
 ######################################### ALL ##########################################
 __all__: List[str] = [
@@ -23,5 +23,5 @@ __all__: List[str] = [
     "ScaleSorter",
     "RegexSorter",
     "SizeSorter",
-    "TransparencySorter",
+    "AlphaSorter",
 ]

@@ -6,6 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+""""""
 ####################################### MODULES ########################################
 from __future__ import annotations
 
@@ -27,7 +28,7 @@ class PipeScaler(CLTool):
 
     def __init__(self, conf_file: str, **kwargs) -> None:
         """
-        Initializes
+        Initializes.
 
         Args:
             conf_file (str): file from which to load configuration
@@ -49,12 +50,12 @@ class PipeScaler(CLTool):
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
-        Constructs argument parser
+        Constructs argument parser.
 
         Returns:
             ArgumentParser: Argument parser
         """
-        parser = super().construct_argparser(description=__doc__, **kwargs)
+        parser = super().construct_argparser(description=__doc__.strip(), **kwargs)
 
         # Input
         parser_input = parser.add_argument_group("input arguments")

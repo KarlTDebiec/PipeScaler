@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/sorters/transparency_sorter.py
+#   pipescaler/sorters/alpha_sorter.py
 #
 #   Copyright (C) 2020 Karl T Debiec
 #   All rights reserved.
@@ -19,7 +19,7 @@ from pipescaler.sorters.sorter import Sorter
 
 
 ####################################### CLASSES ########################################
-class TransparencySorter(Sorter):
+class AlphaSorter(Sorter):
     def __init__(
         self,
         downstream_pipes_for_transparent: Optional[Union[str, List[str]]] = None,

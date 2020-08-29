@@ -6,14 +6,16 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Processes an image using ESRGAN.
+"""
+Processes an image using ESRGAN.
 
 Supports both old and new architecture models
 
 Adapted from ESRGAN (https://github.com/xinntao/ESRGAN) and Colab-ESRGAN
 (https://github.com/styler00dollar/Colab-ESRGAN), both licensed under the
 `Apache 2.0 License
-(https://raw.githubusercontent.com/xinntao/ESRGAN/master/LICENSE)."""
+(https://raw.githubusercontent.com/xinntao/ESRGAN/master/LICENSE).
+"""
 ####################################### MODULES ########################################
 from __future__ import annotations
 
@@ -205,12 +207,12 @@ class ESRGANProcessor(Processor):
     @classmethod
     def construct_argparser(cls) -> ArgumentParser:
         """
-        Constructs argument parser
+        Constructs argument parser.
 
         Returns:
             parser (ArgumentParser): Argument parser
         """
-        parser = super().construct_argparser(description=__doc__)
+        parser = super().construct_argparser(description=__doc__.strip())
 
         # Input
         parser.add_argument(

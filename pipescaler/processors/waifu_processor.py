@@ -6,7 +6,8 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Processes an image using waifu.
+"""
+Processes an image using waifu.
 
 Requires the macOS version of waifu2x (https://github.com/imxieyi/waifu2x-mac)
 in the executor's path.
@@ -75,12 +76,12 @@ class WaifuProcessor(Processor):
     @classmethod
     def construct_argparser(cls) -> ArgumentParser:
         """
-        Constructs argument parser
+        Constructs argument parser.
 
         Returns:
             parser (ArgumentParser): Argument parser
         """
-        parser = super().construct_argparser(description=__doc__)
+        parser = super().construct_argparser(description=__doc__.strip())
 
         parser.add_argument(
             "--type",

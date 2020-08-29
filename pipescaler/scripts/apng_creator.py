@@ -92,7 +92,7 @@ class APNGCreator(CLTool):
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
-        Constructs argument parser
+        Constructs argument parser.
 
         Args:
             kwargs (Any): Additional keyword arguments
@@ -100,7 +100,7 @@ class APNGCreator(CLTool):
         Returns:
             ArgumentParser: Argument parser
         """
-        parser = super().construct_argparser(description=__doc__, **kwargs)
+        parser = super().construct_argparser(description=__doc__.strip(), **kwargs)
 
         # Input
         parser.add_argument(

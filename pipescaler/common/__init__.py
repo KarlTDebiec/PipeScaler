@@ -7,8 +7,9 @@
 #   This software may be modified and distributed under the terms of the
 #   BSD license. See the LICENSE file for details.
 """
-General-purpose functions not tied to a particular project.
-Last updated 2020-08-15
+General-purpose code not tied to a particular project.
+
+Last updated 2020-08-28.
 """
 ####################################### MODULES ########################################
 from pathlib import Path

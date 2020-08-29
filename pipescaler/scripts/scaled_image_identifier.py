@@ -201,7 +201,7 @@ class ScaledImageIdentifier(CLTool):
 
     @property
     def known_scaled(self) -> Dict[str, Dict[float, Union[str, List[str]]]]:
-        """Dict[float, Union[str, List[str]]]]: known scaled relationships"""
+        """Dict[float, Union[str, List[str]]]]: known scaled relationships."""
         if not hasattr(self, "_known_scaled"):
             self._known_scaled: Dict[str, Dict[float, Union[str, List[str]]]] = {}
         return self._known_scaled
@@ -281,7 +281,7 @@ class ScaledImageIdentifier(CLTool):
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
-        Constructs argument parser
+        Constructs argument parser.
 
         Args:
             kwargs (Any): Additional keyword arguments
@@ -289,7 +289,7 @@ class ScaledImageIdentifier(CLTool):
         Returns:
             ArgumentParser: Argument parser
         """
-        parser = super().construct_argparser(description=__doc__, **kwargs)
+        parser = super().construct_argparser(description=__doc__.strip(), **kwargs)
 
         # Input
         parser_input = parser.add_argument_group("input arguments")
