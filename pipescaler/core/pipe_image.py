@@ -22,10 +22,15 @@ class PipeImage:
     # region Builtins
 
     def __init__(self, infile: str) -> None:
-        self._infile = validate_input_path(infile)
+        self.infile = validate_input_path(infile)
+        self.name = get_name(self.infile)
+        self.ext = get_ext(self.infile)
+
         image = Image.open(self.infile)
-        self._mode: str = image.mode
-        self._shape: Tuple[int] = image.size
+        self.mode: str = image.mode
+        self.shape: Tuple[int] = image.size
+
+        self.history = []
 
     def __repr__(self) -> str:
         return self.name
@@ -38,28 +43,20 @@ class PipeImage:
     # region Properties
 
     @property
-    def ext(self) -> str:
-        """str: Name"""
-        return get_ext(self.infile)
+    def last(self) -> str:
+        if len(self.history) > 1:
+            return self.history[-1][1]
+        else:
+            return self.infile
 
-    @property
-    def infile(self) -> str:
-        """str: Path to infile"""
-        return self._infile
+    # endregion
 
-    @property
-    def mode(self) -> str:
-        """str: Image mode"""
-        return self._mode
+    # region Methods
 
-    @property
-    def name(self) -> str:
-        """str: Name"""
-        return get_name(self.infile)
+    def log(self, stage_name: str, outfile: str):
+        self.history.append((stage_name, outfile))
 
-    @property
-    def shape(self) -> Tuple[int]:
-        """Tuple[int]: Image shape"""
-        return self._shape
+    def show(self):
+        Image.open(self.infile).show()
 
     # endregion

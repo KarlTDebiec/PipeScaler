@@ -10,42 +10,10 @@
 from __future__ import annotations
 
 from abc import ABC
-from os import makedirs
-from os.path import basename, dirname, isdir, splitext
-from shutil import copyfile
 
 from pipescaler.core.stage import Stage
 
 
 ####################################### CLASSES ########################################
 class Sorter(Stage, ABC):
-
-    # region Methods
-
-    def backup_infile(self, infile: str) -> str:
-        if self.pipeline.wip_directory not in infile:
-            name = self.get_original_name(infile)
-            ext = self.get_extension(infile)
-            if not isdir(f"{self.pipeline.wip_directory}/{name}"):
-                makedirs(f"{self.pipeline.wip_directory}/{name}")
-            new_infile = f"{self.pipeline.wip_directory}/{name}/{name}.{ext}"
-            copyfile(infile, new_infile)
-
-            return new_infile
-        else:
-            return infile
-
-    def get_original_name(self, infile: str) -> str:
-        if self.pipeline.wip_directory in infile:
-            return basename(dirname(infile))
-        else:
-            return splitext(basename(infile))[0]
-
-    def log_outfile(self, outfile: str) -> None:
-        name = self.get_original_name(outfile)
-        if name not in self.pipeline.log:
-            self.pipeline.log[name] = [basename(outfile)]
-        else:
-            self.pipeline.log[name].append(basename(outfile))
-
-    # endregion
+    pass

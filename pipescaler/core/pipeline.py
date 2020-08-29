@@ -11,16 +11,20 @@ from __future__ import annotations
 
 from importlib import import_module
 from importlib.util import module_from_spec, spec_from_file_location
-from os import listdir, remove
-from os.path import basename, isdir, splitext
-from shutil import rmtree
+from os import makedirs
+from os.path import basename, isdir, isfile, join, splitext
+from shutil import copyfile
 from typing import Any, Dict, TYPE_CHECKING
 
-from pipescaler.common import validate_input_path, validate_int, validate_output_path
+from pipescaler.common import (
+    get_name,
+    validate_input_path,
+    validate_int,
+    validate_output_path,
+)
 
 if TYPE_CHECKING:
-    from pipescaler.core.source import Source
-    from pipescaler.core.stage import Stage
+    from pipescaler.core.pipe_image import PipeImage
 
 
 ####################################### CLASSES ########################################
@@ -37,8 +41,10 @@ class Pipeline:
     ) -> None:
 
         # Store global configuration
-        self.verbosity = verbosity
-        self.wip_directory = wip_directory
+        self.wip_directory = validate_output_path(
+            wip_directory, file_ok=False, directory_ok=True
+        )
+        self.verbosity = validate_int(verbosity, min_value=0)
 
         # Load configuration
         sources_module = import_module("pipescaler.sources")
@@ -92,74 +98,36 @@ class Pipeline:
         source = self.source()
         next(source)
         for image in self.source:
+            self.backup(image)
             source.send(image)
-        # self.clean()
 
     def __repr__(self) -> str:
-        return self.__class__.__name__
+        return self.__class__.__name__.lower()
 
     def __str__(self) -> str:
-        return self.__class__.__name__
-
-    # endregion
-
-    # region Properties
-
-    @property
-    def source(self) -> Source:
-        """Source: Source"""
-        return self._source
-
-    @source.setter
-    def source(self, value: Source) -> None:
-        self._source = value
-
-    @property
-    def stages(self) -> Dict[str, Stage]:
-        """Dict[str, Stage]: Stages."""
-        return self._stages
-
-    @stages.setter
-    def stages(self, value: Dict[str, Stage]) -> None:
-        self._stages = value
-
-    @property
-    def verbosity(self) -> int:
-        """int: Level of output to provide"""
-        if not hasattr(self, "_verbosity"):
-            self._verbosity = 1
-        return self._verbosity
-
-    @verbosity.setter
-    def verbosity(self, value: int) -> None:
-        self._verbosity = validate_int(value, min_value=0)
-
-    @property
-    def wip_directory(self) -> str:
-        """str: Path to work-in-progress directory"""
-        return self._wip_directory
-
-    @wip_directory.setter
-    def wip_directory(self, value: str) -> None:
-        self._wip_directory = validate_output_path(
-            value, file_ok=False, directory_ok=True
-        )
+        return self.__class__.__name__.lower()
 
     # endregion
 
     # region Methods
 
-    def clean(self) -> None:
-        for name, outfiles in self.log.items():
-            for f in listdir(f"{self.wip_directory}/{name}"):
-                if f == "original.png":
-                    continue
-                if f not in outfiles:
-                    print(f"Removing '{self.wip_directory}/{name}/{f}'")
-                    remove(f"{self.wip_directory}/{name}/{f}")
-        for name in listdir(f"{self.wip_directory}"):
-            if name not in self.log and isdir(f"{self.wip_directory}/{name}"):
-                print(f"Removing '{self.wip_directory}/{name}'")
-                rmtree(f"{self.wip_directory}/{name}")
+    def backup(self, image: PipeImage) -> None:
+        if not isdir(f"{self.wip_directory}/{image.name}"):
+            if self.verbosity >= 1:
+                print(f"{self} creating: {self.wip_directory}/{image.name}")
+            makedirs(f"{self.wip_directory}/{image.name}")
+        backup = f"{self.wip_directory}/{image.name}/{image.name}.{image.ext}"
+        if not isfile(backup):
+            if self.verbosity >= 1:
+                print(f"{self} backing up to: {backup}")
+            copyfile(image.infile, backup)
+        image.log(str(self), backup)
+
+    def get_outfile(self, image, suffix):
+        if len(image.history) > 1:
+            filename = f"{get_name(image.last)}_{suffix}.png"
+        else:
+            filename = f"{suffix}.png"
+        return join(self.wip_directory, image.name, filename)
 
     # endregion

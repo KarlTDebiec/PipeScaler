@@ -9,12 +9,13 @@
 ####################################### MODULES ########################################
 from __future__ import annotations
 
-from os.path import basename, isfile, join, splitext
+from os import listdir
+from os.path import isfile, join
 from shutil import copyfile
 from typing import Any
 
-from pipescaler.common import validate_input_path
-from pipescaler.core import Processor
+from pipescaler.common import get_name, validate_input_path, validate_output_path
+from pipescaler.core import PipeImage, Processor
 
 
 ####################################### CLASSES ########################################
@@ -22,56 +23,42 @@ class SideChannelProcessor(Processor):
 
     # region Builtins
 
-    def __init__(self, input_directory: str, **kwargs: Any) -> None:
+    def __init__(self, directory: str, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
-        self.input_directory = input_directory
-
-    # endregion
-
-    # region Properties
-
-    @property
-    def desc(self) -> str:
-        """str: Description"""
-        if not hasattr(self, "_desc"):
-            return "sidechannel"
-        return self._desc
-
-    @property
-    def input_directory(self) -> str:
-        """str: Input directory"""
-        if not hasattr(self, "_input_directory"):
-            raise ValueError()
-        return self._input_directory
-
-    @input_directory.setter
-    def input_directory(self, value: str) -> None:
-        self._input_directory = validate_input_path(
-            value, file_ok=False, directory_ok=True
+        self.directory = validate_input_path(
+            directory, file_ok=False, directory_ok=True
         )
+        self.infiles = {
+            get_name(f): f
+            for f in [
+                validate_input_path(f, default_directory=self.directory)
+                for f in listdir(self.directory)
+                if f != ".DS_Store"
+            ]
+        }
+
+        # Prepare description
+        desc = f"{self.name} {self.__class__.__name__} ({self.directory})"
+        if self.downstream_stages is not None:
+            if len(self.downstream_stages) >= 2:
+                for stage in self.downstream_stages[:-1]:
+                    desc += f"\n ├─ {stage}"
+            desc += f"\n └─ {self.downstream_stages[-1]}"
+        self.desc = desc
 
     # endregion
 
     # region Methods
 
-    def get_outfile(self, infile: str) -> str:
-        original_name = self.get_original_name(infile)
-        desc_so_far = splitext(basename(infile))[0].replace(original_name, "")
-        if isfile(f"{self.input_directory}/{original_name}.png"):
-            outfile = f"{desc_so_far}_{self.desc}.png".lstrip("_")
-            outfile = f"{self.pipeline.wip_directory}/{original_name}/" f"{outfile}"
-        else:
-            outfile = None
-
-        return outfile
-
-    def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
-        original_name = self.get_original_name(infile)
-        extension = self.get_extension(infile)
-        sidechannel_file = join(self.input_directory, f"{original_name}.{extension}")
-        if isfile(sidechannel_file):
-            self.process_file(sidechannel_file, outfile, self.pipeline.verbosity)
+    def process_file_in_pipeline(self, image: PipeImage) -> None:
+        if image.name in self.infiles:
+            infile = self.infiles[image.name]
+            outfile = validate_output_path(
+                self.pipeline.get_outfile(image, self.suffix)
+            )
+            self.process_file(infile, outfile, self.pipeline.verbosity)
+            image.log(self.name, outfile)
 
     # endregion
 
@@ -81,7 +68,7 @@ class SideChannelProcessor(Processor):
     def process_file(
         cls, infile: str, outfile: str, verbosity: int = 1, **kwargs
     ) -> None:
-        if verbosity >= 1:
+        if verbosity >= 3:
             print(f"cp {infile} {outfile}")
         copyfile(infile, outfile)
 

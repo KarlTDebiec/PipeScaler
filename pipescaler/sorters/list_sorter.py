@@ -11,10 +11,10 @@ from __future__ import annotations
 
 from os import listdir
 from os.path import isdir
-from typing import Any, Dict, Generator, List, Optional
+from typing import Any, Dict, Generator
 
 from pipescaler.common import get_name, load_yaml, validate_input_path
-from pipescaler.core import Sorter, Stage
+from pipescaler.core import Sorter
 
 
 ####################################### CLASSES ########################################
@@ -93,9 +93,9 @@ class ListSorter(Sorter):
             desc += f"\n     └─"
 
         # Store results
-        self._desc = desc
-        self._downstream_forks_by_filename = downstream_forks_by_filename
-        self._default_downstream_stages = default_downstream_stages
+        self.desc = desc
+        self.downstream_forks_by_filename = downstream_forks_by_filename
+        self.default_downstream_stages = default_downstream_stages
 
     def __call__(self) -> Generator[str, str, None]:
         while True:
@@ -103,25 +103,10 @@ class ListSorter(Sorter):
             stages = self.downstream_forks_by_filename.get(
                 image.name, self.default_downstream_stages
             )
-            if self.pipeline.verbosity >= 1:
+            if self.pipeline.verbosity >= 2:
                 print(f"{self} sorting: {image}")
             if stages is not None:
                 for stage in stages:
                     self.pipeline.stages[stage].send(image)
-
-    # endregion
-
-    # region Properties
-
-    @property
-    def downstream_forks_by_filename(self) -> Dict[str, Optional[List[str]]]:
-        """Dict[str, Optional[List[Stage]]]: Mapping between filenames and
-        their downstream stages."""
-        return self._downstream_forks_by_filename
-
-    @property
-    def default_downstream_stages(self) -> Optional[List[Stage]]:
-        """Optional[List[Stage]]: Default downstream stages."""
-        return self._default_downstream_stages
 
     # endregion

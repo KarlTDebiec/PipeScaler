@@ -27,11 +27,15 @@ class Stage(ABC):
         desc: Optional[str] = None,
         **kwargs: Any
     ) -> None:
-        self._pipeline = pipeline
+        self.pipeline = pipeline
         if name is not None:
-            self._name = name
+            self.name = name
+        else:
+            self.name = self.__class__.__name__
         if desc is not None:
-            self._desc = desc
+            self.desc = desc
+        else:
+            self.desc = self.name
 
     @abstractmethod
     def __call__(self) -> Generator[str, str, None]:
@@ -42,28 +46,5 @@ class Stage(ABC):
 
     def __str__(self) -> str:
         return self.name
-
-    # endregion
-
-    # region Properties
-
-    @property
-    def desc(self) -> str:
-        """str: Description"""
-        if not hasattr(self, "_desc"):
-            self._desc = self.name
-        return self._desc
-
-    @property
-    def name(self) -> str:
-        """str: Name"""
-        if not hasattr(self, "_name"):
-            self._name = self.__class__.__name__
-        return self._name
-
-    @property
-    def pipeline(self) -> Pipeline:
-        """Pipeline: Pipeline"""
-        return self._pipeline
 
     # endregion

@@ -35,29 +35,14 @@ class CLTool(ABC):
 
     # region Builtins
 
-    def __init__(self, **kwargs: Any) -> None:
+    def __init__(self, verbosity: int = 1, **kwargs: Any) -> None:
         """Initialize, including argument validation and value storage."""
-        pass
+        self.verbosity = validate_int(verbosity, min_value=0)
 
     @abstractmethod
     def __call__(self) -> Any:
         """Perform operations."""
         raise NotImplementedError()
-
-    # endregion
-
-    # region Properties
-
-    @property
-    def verbosity(self) -> int:
-        """int: Level of output to provide"""
-        if not hasattr(self, "_verbosity"):
-            self._verbosity = 1
-        return self._verbosity
-
-    @verbosity.setter
-    def verbosity(self, value: int) -> None:
-        self._verbosity = validate_int(value, min_value=0)
 
     # endregion
 

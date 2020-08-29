@@ -15,12 +15,12 @@ from typing import Any
 
 import yaml
 
-from pipescaler.common import CLTool
+from pipescaler.common import CLTool, validate_input_path
 from pipescaler.core.pipeline import Pipeline
 
 
 ####################################### CLASSES ########################################
-class PipeScaler(CLTool):
+class PipeRunner(CLTool):
 
     # region Builtins
 
@@ -34,7 +34,7 @@ class PipeScaler(CLTool):
         super().__init__(**kwargs)
 
         # Input
-        with open(conf_file, "r") as f:
+        with open(validate_input_path(conf_file), "r") as f:
             conf = yaml.load(f, Loader=yaml.SafeLoader)
         self.pipeline = Pipeline(verbosity=self.verbosity, **conf)
 
@@ -68,4 +68,4 @@ class PipeScaler(CLTool):
 
 ######################################### MAIN #########################################
 if __name__ == "__main__":
-    PipeScaler.main()
+    PipeRunner.main()
