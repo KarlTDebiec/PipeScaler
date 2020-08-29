@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/sorters/sorter.py
+#   pipescaler/splitters/splitter.py
 #
 #   Copyright (C) 2020 Karl T Debiec
 #   All rights reserved.
@@ -15,12 +15,13 @@ from os.path import basename, dirname, isdir, splitext
 from shutil import copyfile
 from typing import Any, Generator
 
-from pipescaler.pipelines import Pipeline
+from pipescaler.core.pipeline import Pipeline
 
 
 ####################################### CLASSES ########################################
-class Sorter(ABC):
-    desc: str = ""
+class Splitter(ABC):
+
+    # region Builtins
 
     def __init__(self, pipeline: Pipeline, **kwargs: Any) -> None:
         self.pipeline = pipeline
@@ -34,6 +35,24 @@ class Sorter(ABC):
 
     def __str__(self) -> str:
         return self.__repr__()
+
+    # endregion
+
+    # region Properties
+
+    @property
+    @abstractmethod
+    def desc(self) -> str:
+        """str: Description"""
+        raise NotImplementedError()
+
+    @desc.setter
+    def desc(self, value: str) -> None:
+        raise NotImplementedError()
+
+    # endregion
+
+    # region Methods
 
     def backup_infile(self, infile: str) -> str:
         if self.pipeline.wip_directory not in infile:
@@ -63,3 +82,5 @@ class Sorter(ABC):
             self.pipeline.log[name] = [basename(outfile)]
         else:
             self.pipeline.log[name].append(basename(outfile))
+
+    # endregion

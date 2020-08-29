@@ -16,7 +16,7 @@ import numba as nb
 import numpy as np
 from PIL import Image
 
-from pipescaler.processors.processor import Processor
+from pipescaler.core import Processor
 
 
 ####################################### CLASSES ########################################
@@ -66,7 +66,7 @@ class ThresholdProcessor(Processor):
     @classmethod
     def construct_argparser(cls) -> ArgumentParser:
         """
-        Constructs argument parser
+        Constructs argument parser.
 
         Returns:
             parser (ArgumentParser): Argument parser

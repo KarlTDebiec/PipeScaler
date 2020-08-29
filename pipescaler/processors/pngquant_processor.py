@@ -15,7 +15,7 @@ from shutil import copyfile
 from subprocess import Popen
 from typing import Any
 
-from pipescaler.processors.processor import Processor
+from pipescaler.core import Processor
 
 
 ####################################### CLASSES ########################################
@@ -69,7 +69,7 @@ class PngquantProcessor(Processor):
     @classmethod
     def construct_argparser(cls) -> ArgumentParser:
         """
-        Constructs argument parser
+        Constructs argument parser.
 
         Returns:
             parser (ArgumentParser): Argument parser

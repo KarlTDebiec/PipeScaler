@@ -13,7 +13,7 @@ from shutil import copyfile
 from typing import Any
 
 from pipescaler.common import validate_output_path
-from pipescaler.processors.processor import Processor
+from pipescaler.core import Processor
 
 
 ####################################### CLASSES ########################################

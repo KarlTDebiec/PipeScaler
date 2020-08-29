@@ -15,7 +15,7 @@ from subprocess import Popen
 from typing import Any
 
 from pipescaler.common import package_root, validate_input_path, validate_output_path
-from pipescaler.processors.processor import Processor
+from pipescaler.core import Processor
 
 
 ####################################### CLASSES ########################################

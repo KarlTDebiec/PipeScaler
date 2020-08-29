@@ -20,7 +20,7 @@ import numpy as np
 from PIL import Image
 
 from pipescaler.common import package_root, validate_input_path, validate_output_path
-from pipescaler.processors.processor import Processor
+from pipescaler.core import Processor
 
 
 ####################################### CLASSES ########################################
@@ -76,7 +76,7 @@ class Pixelmator2xProcessor(Processor):
     @classmethod
     def construct_argparser(cls) -> ArgumentParser:
         """
-        Constructs argument parser
+        Constructs argument parser.
 
         Returns:
             parser (ArgumentParser): Argument parser

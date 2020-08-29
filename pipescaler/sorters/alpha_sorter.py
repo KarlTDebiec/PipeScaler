@@ -14,7 +14,7 @@ from typing import Any, Generator, List, Optional, Union
 import numpy as np
 from PIL import Image
 
-from pipescaler.sorters.sorter import Sorter
+from pipescaler.core import Sorter
 
 
 ####################################### CLASSES ########################################
@@ -23,10 +23,10 @@ class AlphaSorter(Sorter):
     # region Builtins
 
     def __init__(
-        self,
-        downstream_pipes_for_transparent: Optional[Union[str, List[str]]] = None,
-        downstream_pipes_for_opaque: Optional[Union[str, List[str]]] = None,
-        **kwargs: Any,
+            self,
+            downstream_pipes_for_transparent: Optional[Union[str, List[str]]] = None,
+            downstream_pipes_for_opaque: Optional[Union[str, List[str]]] = None,
+            **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
 

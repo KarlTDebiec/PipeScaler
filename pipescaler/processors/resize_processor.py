@@ -14,7 +14,7 @@ from typing import Any
 import numpy as np
 from PIL import Image
 
-from pipescaler.processors.processor import Processor
+from pipescaler.core import Processor
 
 
 ####################################### CLASSES ########################################

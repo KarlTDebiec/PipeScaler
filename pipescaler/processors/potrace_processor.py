@@ -15,7 +15,7 @@ from subprocess import Popen
 from tempfile import NamedTemporaryFile
 from typing import Any
 
-from pipescaler.processors.processor import Processor
+from pipescaler.core import Processor
 
 
 ####################################### CLASSES ########################################
@@ -71,7 +71,7 @@ class PotraceProcessor(Processor):
     @classmethod
     def construct_argparser(cls) -> ArgumentParser:
         """
-        Constructs argument parser
+        Constructs argument parser.
 
         Returns:
             parser (ArgumentParser): Argument parser

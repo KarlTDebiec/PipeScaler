@@ -9,12 +9,12 @@
 ####################################### MODULES ########################################
 from __future__ import annotations
 
-from os.path import expandvars
-from typing import Any, Generator
+from os import listdir
+from os.path import isdir
+from typing import Any, Dict, Generator, List, Optional
 
-import yaml
-
-from pipescaler.sorters.sorter import Sorter
+from pipescaler.common import get_name, load_yaml, validate_input_path
+from pipescaler.core import Sorter, Stage
 
 
 ####################################### CLASSES ########################################
@@ -22,36 +22,106 @@ class ListSorter(Sorter):
 
     # region Builtins
 
-    def __init__(self, downstream_pipes_for_filenames: Any, **kwargs: Any) -> None:
+    def __init__(
+        self, downstream_forks: Dict[str, Dict[str, Any]], **kwargs: Any
+    ) -> None:
         super().__init__(**kwargs)
 
-        self.downstream_pipes_by_filename = {}
-        for name, conf in downstream_pipes_for_filenames.items():
-            filenames = conf.get("filenames")
-            if isinstance(filenames, str):
-                with open(expandvars(filenames), "r") as f:
-                    filenames = yaml.load(f, Loader=yaml.SafeLoader)
-            if filenames is None:
-                filenames = []
-            downstream_pipes = conf.get("downstream_pipes")
-            if isinstance(downstream_pipes, str):
-                downstream_pipes = [downstream_pipes]
-            if name == "default":
-                self.default_downstream_pipes = downstream_pipes
-            else:
+        desc = f"{self.name} {self.__class__.__name__}"
+        downstream_forks_by_filename = {}
+        default_fork_name = None
+        default_downstream_stages = None
+
+        # Loop over forks
+        for fork_name, fork_conf in downstream_forks.items():
+            if fork_conf is None:
+                fork_conf = {}
+
+            # Parse file definitions for this class
+            infiles = fork_conf.get("infiles")
+
+            if infiles is None:
+                if default_fork_name is not None:
+                    raise ValueError(
+                        "At most one configuration may omit 'infiles' "
+                        "and will be used as the default fork"
+                    )
+                default_fork_name = fork_name
+                downstream_stages = fork_conf.get("downstream_stages")
+                if isinstance(downstream_stages, str):
+                    downstream_stages = [downstream_stages]
+                default_downstream_stages = downstream_stages
+                continue
+
+            if isinstance(infiles, str):
+                infiles = [infiles]
+            filenames = set()
+            desc += f"\n ├─ {fork_name} ("
+            for infile in infiles:
+                infile = validate_input_path(infile, file_ok=True, directory_ok=True)
+                desc += f"{infile}, "
+                if isdir(infile):
+                    filenames |= {get_name(f) for f in listdir(infile)}
+                else:
+                    filenames |= {get_name(f) for f in load_yaml(infile)}
+            desc = f"{desc.rstrip(', ')}, {len(filenames)} filenames)"
+
+            # Parse downstream stages for this class
+            downstream_stages = fork_conf.get("downstream_stages")
+            if isinstance(downstream_stages, str):
+                downstream_stages = [downstream_stages]
+            if downstream_stages is not None:
+                if len(downstream_stages) >= 2:
+                    for stage in downstream_stages:
+                        desc += f"\n │   ├─ {stage}"
+                desc += f"\n │   └─ {downstream_stages[-1]}"
                 for filename in filenames:
-                    self.downstream_pipes_by_filename[filename] = downstream_pipes
+                    downstream_forks_by_filename[filename] = downstream_stages
+            else:
+                desc += f"\n │   └─"
+
+        # Add description for default fork
+        if default_fork_name is None:
+            default_fork_name = "default"
+        desc += f"\n └─ {default_fork_name}"
+        if default_downstream_stages is not None:
+            if len(default_downstream_stages) >= 2:
+                for stage in default_downstream_stages[:-1]:
+                    desc += f"\n     ├─ {stage}:"
+            desc += f"\n     └─ {default_downstream_stages[-1]}"
+        else:
+            desc += f"\n     └─"
+
+        # Store results
+        self._desc = desc
+        self._downstream_forks_by_filename = downstream_forks_by_filename
+        self._default_downstream_stages = default_downstream_stages
 
     def __call__(self) -> Generator[str, str, None]:
         while True:
-            infile = yield  # type: ignore
-            pipes = self.downstream_pipes_by_filename.get(
-                self.get_original_name(infile), self.default_downstream_pipes
+            image = yield
+            stages = self.downstream_forks_by_filename.get(
+                image.name, self.default_downstream_stages
             )
-            if self.pipeline.verbosity >= 2:
-                print(f"{self}: {infile}")
-            if pipes is not None:
-                for pipe in pipes:
-                    self.pipeline.pipes[pipe].send(infile)
+            if self.pipeline.verbosity >= 1:
+                print(f"{self} sorting: {image}")
+            if stages is not None:
+                for stage in stages:
+                    self.pipeline.stages[stage].send(image)
+
+    # endregion
+
+    # region Properties
+
+    @property
+    def downstream_forks_by_filename(self) -> Dict[str, Optional[List[str]]]:
+        """Dict[str, Optional[List[Stage]]]: Mapping between filenames and
+        their downstream stages."""
+        return self._downstream_forks_by_filename
+
+    @property
+    def default_downstream_stages(self) -> Optional[List[Stage]]:
+        """Optional[List[Stage]]: Default downstream stages."""
+        return self._default_downstream_stages
 
     # endregion

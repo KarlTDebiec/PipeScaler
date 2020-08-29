@@ -14,7 +14,7 @@ from typing import Any, Generator, List, Optional, Union
 import numpy as np
 from PIL import Image
 
-from pipescaler.sorters.sorter import Sorter
+from pipescaler.core import Sorter
 
 
 ####################################### CLASSES ########################################

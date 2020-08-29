@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/sources/texmod_source.py
+#   pipescaler/sources/citra_source.py
 #
 #   Copyright (C) 2020 Karl T Debiec
 #   All rights reserved.
@@ -14,12 +14,14 @@ from pipescaler.core import Source
 
 
 ####################################### CLASSES ########################################
-class TexModSource(Source):
+class CitraSource(Source):
 
     # region Static Methods
 
     @staticmethod
     def sort(filename):
-        return int(f"1{int(get_name(filename)[2:10], 16):022d}")
+        _, size, code, _ = get_name(filename).split("_")
+        width, height = size.split("x")
+        return int(f"1{int(width):04d}{int(height):04d}{int(code, 16):022d}")
 
     # endregion

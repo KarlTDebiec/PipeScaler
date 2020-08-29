@@ -30,7 +30,7 @@ import torch
 from PIL import Image
 
 from pipescaler.common import validate_input_path, validate_output_path
-from pipescaler.processors.processor import Processor
+from pipescaler.core import Processor
 
 
 ####################################### CLASSES ########################################
@@ -219,7 +219,7 @@ class ESRGANProcessor(Processor):
             "--model",
             dest="model_infile",
             required=True,
-            type=cls.input_path_argument(),
+            type=cls.input_path_arg(),
             help="model input file",
         )
 

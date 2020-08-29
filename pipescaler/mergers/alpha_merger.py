@@ -10,12 +10,12 @@
 from __future__ import annotations
 
 from os.path import basename, isfile, join, splitext
-from typing import Any, List, Optional, Union
+from typing import Any, Generator, List, Optional, Union
 
 import numpy as np
 from PIL import Image
 
-from pipescaler.mergers.merger import Merger
+from pipescaler.core import Merger
 
 
 ####################################### CLASSES ########################################
@@ -32,10 +32,10 @@ class AlphaMerger(Merger):
             downstream_pipes = [downstream_pipes]
         self.downstream_pipes = downstream_pipes
 
-    def __call__(self):
+    def __call__(self) -> Generator[str, str, None]:
         while True:
-            rgb_infile: str = (yield)
-            a_infile: str = (yield)
+            rgb_infile: str = (yield)  # type: ignore
+            a_infile: str = (yield)  # type: ignore
             outfile = self.get_outfile(rgb_infile, a_infile)
             if outfile is None:
                 continue

@@ -12,7 +12,7 @@ from __future__ import annotations
 import re
 from typing import Any, Generator, List, Optional, Union
 
-from pipescaler.sorters.sorter import Sorter
+from pipescaler.core import Sorter
 
 
 ####################################### CLASSES ########################################

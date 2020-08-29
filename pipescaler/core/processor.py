@@ -14,10 +14,10 @@ from argparse import ArgumentParser
 from os import makedirs
 from os.path import basename, dirname, isdir, isfile, join, splitext
 from shutil import copyfile
-from typing import Any, Iterator, List, Optional, Union
+from typing import Any, Generator, List, Optional, Union
 
 from pipescaler.common import CLTool, validate_input_path, validate_output_path
-from pipescaler.pipelines import Pipeline
+from pipescaler.core.pipeline import Pipeline
 
 
 ####################################### CLASSES ########################################
@@ -43,7 +43,7 @@ class Processor(CLTool):
         if desc is not None:
             self.desc = desc
 
-    def __call__(self, **kwargs: Any) -> Iterator[str]:
+    def __call__(self, **kwargs: Any) -> Generator[str, str, None]:
         while True:
             infile: str = (yield)
             infile = self.backup_infile(infile)
@@ -60,7 +60,10 @@ class Processor(CLTool):
                     self.pipeline.pipes[pipe].send(outfile)
 
     def __repr__(self) -> str:
-        return f"<{self.__class__.__name__} {self.desc}>"
+        if self.name != self.__class__.__name__:
+            return f"<{self.__class__.__name__} {self.name}>"
+        else:
+            return self.name
 
     def __str__(self) -> str:
         return self.__repr__()
@@ -70,14 +73,26 @@ class Processor(CLTool):
     # region Properties
 
     @property
-    @abstractmethod
     def desc(self) -> str:
         """str: Description"""
-        raise NotImplementedError()
+        if not hasattr(self, "_desc"):
+            self._desc = self.name
+        return self._desc
 
     @desc.setter
     def desc(self, value: str) -> None:
         self._desc = value
+
+    @property
+    def name(self) -> str:
+        """str: Name"""
+        if not hasattr(self, "_name"):
+            self._name = self.__class__.__name__
+        return self._name
+
+    @name.setter
+    def name(self, value: str) -> None:
+        self._name = value
 
     # endregion
 
@@ -129,7 +144,7 @@ class Processor(CLTool):
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
-        Constructs argument parser
+        Constructs argument parser.
 
         Args:
             kwargs (Any): Additional keyword arguments
@@ -142,18 +157,16 @@ class Processor(CLTool):
         )
 
         # Input
-        parser.add_argument("infile", type=cls.input_path_argument(), help="input file")
+        parser.add_argument("infile", type=cls.input_path_arg(), help="input file")
 
         # Output
-        parser.add_argument(
-            "outfile", type=cls.output_path_argument(), help="output file"
-        )
+        parser.add_argument("outfile", type=cls.output_path_arg(), help="output file")
 
         return parser
 
     @classmethod
     def main(cls) -> None:
-        """Parses and validates arguments, passes them to process_file"""
+        """Parses and validates arguments, passes them to process_file."""
         parser = cls.construct_argparser()
         kwargs = vars(parser.parse_args())
         cls.process_file_from_cl(**kwargs)

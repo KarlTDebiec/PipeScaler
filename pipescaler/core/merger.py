@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/splitters/splitter.py
+#   pipescaler/mergers/merger.py
 #
 #   Copyright (C) 2020 Karl T Debiec
 #   All rights reserved.
@@ -13,13 +13,13 @@ from abc import ABC, abstractmethod
 from os import makedirs
 from os.path import basename, dirname, isdir, splitext
 from shutil import copyfile
-from typing import Any, Iterator
+from typing import Any, Generator
 
-from pipescaler.pipelines import Pipeline
+from pipescaler.core.pipeline import Pipeline
 
 
 ####################################### CLASSES ########################################
-class Splitter(ABC):
+class Merger(ABC):
 
     # region Builtins
 
@@ -27,7 +27,7 @@ class Splitter(ABC):
         self.pipeline = pipeline
 
     @abstractmethod
-    def __call__(self) -> Iterator[str]:
+    def __call__(self) -> Generator[str, str, None]:
         pass
 
     def __repr__(self) -> str:

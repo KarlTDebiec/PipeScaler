@@ -316,7 +316,7 @@ class ScaledImageIdentifier(CLTool):
             "-i",
             "--infile",
             metavar="FILE",
-            type=cls.input_path_argument(),
+            type=cls.input_path_arg(),
             help="input yaml file from which to read known scaled file "
             "relationships",
         )
@@ -327,7 +327,7 @@ class ScaledImageIdentifier(CLTool):
             "-t",
             "--threshold",
             default=0.9,
-            type=cls.float_argument(0, 1),
+            type=cls.float_arg(0, 1),
             help="threshold",
         )
 
@@ -337,7 +337,7 @@ class ScaledImageIdentifier(CLTool):
             "-o",
             "--outfile",
             metavar="FILE",
-            type=cls.output_path_argument(),
+            type=cls.output_path_arg(),
             help="output yaml file to which to write scaled file " "relationships",
         )
         parser_output.add_argument(

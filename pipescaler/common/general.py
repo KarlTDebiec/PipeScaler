@@ -9,16 +9,28 @@
 """
 General-purpose functions not tied to a particular project.
 
-Last updated 2020-08-28.
+Last updated 2020-08-29.
 """
 ####################################### MODULES ########################################
 from contextlib import contextmanager
 from inspect import currentframe, getframeinfo
 from os import R_OK, W_OK, access, getcwd, remove
-from os.path import dirname, exists, expandvars, isabs, isdir, isfile, join
+from os.path import (
+    basename,
+    dirname,
+    exists,
+    expandvars,
+    isabs,
+    isdir,
+    isfile,
+    join,
+    splitext,
+)
 from readline import insert_text, redisplay, set_pre_input_hook
 from tempfile import NamedTemporaryFile
-from typing import Dict, Iterator, Optional
+from typing import Any, Dict, Iterator, Optional
+
+import yaml
 
 from . import package_root
 
@@ -59,6 +71,14 @@ def embed_kw(verbosity: int = 2) -> Dict[str, str]:
             header += f"{i:5d} {'>' if i == number else ' '} " f"{line.rstrip()}\n"
 
     return {"header": header}
+
+
+def get_ext(infile: str) -> str:
+    return splitext(basename(infile))[1].strip(".")
+
+
+def get_name(infile: str) -> str:
+    return splitext(basename(infile))[0]
 
 
 def get_shell_type() -> Optional[str]:
@@ -115,6 +135,11 @@ def input_prefill(prompt: str, prefill: str) -> str:
     return result
 
 
+def load_yaml(infile: str) -> Dict[Any, Any]:
+    with open(infile, "r") as f:
+        return yaml.load(f, Loader=yaml.SafeLoader)
+
+
 @contextmanager
 def temporary_filename(suffix: Optional[str] = None) -> Iterator[str]:
     """
@@ -136,8 +161,26 @@ def temporary_filename(suffix: Optional[str] = None) -> Iterator[str]:
             remove(f.name)
 
 
+def validate_float(
+    value: Any, min_value: Optional[float] = None, max_value: Optional[float] = None
+) -> float:
+    if min_value is not None and max_value is not None and (min_value >= max_value):
+        raise ValueError("min_value must be greater than max_value")
+
+    try:
+        value = float(value)
+    except ValueError:
+        raise ValueError(f"'{value}' is of type '{type(value)}', not float")
+
+    if min_value is not None and value < min_value:
+        raise ValueError(f"'{value}' is less than minimum value of '{min_value}'")
+    if max_value is not None and value > max_value:
+        raise ValueError(f"'{value}' is greater than maximum value of '{max_value}'")
+    return value
+
+
 def validate_input_path(
-    value: str,
+    value: Any,
     file_ok: bool = True,
     directory_ok: bool = False,
     default_directory: Optional[str] = None,
@@ -146,7 +189,7 @@ def validate_input_path(
     Validates an input path and makes it absolute.
 
     Args:
-        value (str): Provided input path
+        value (Any): Provided input path
         file_ok (bool): Whether or not file paths are permissible
         directory_ok (bool): Whether or not directory paths are permissible
         default_directory (Optional[str]): Default directory to prepend to *value* if
@@ -186,8 +229,26 @@ def validate_input_path(
     return value
 
 
+def validate_int(
+    value: Any, min_value: Optional[int] = None, max_value: Optional[int] = None
+) -> int:
+    if min_value is not None and max_value is not None and (min_value >= max_value):
+        raise ValueError("min_value must be greater than max_value")
+
+    try:
+        value = int(value)
+    except ValueError:
+        raise ValueError(f"'{value}' is of type '{type(value)}', not int")
+
+    if min_value is not None and value < min_value:
+        raise ValueError(f"'{value}' is less than minimum value of '{min_value}'")
+    if max_value is not None and value > max_value:
+        raise ValueError(f"'{value}' is greater than maximum value of '{max_value}'")
+    return value
+
+
 def validate_output_path(
-    value: str,
+    value: Any,
     file_ok: bool = True,
     directory_ok: bool = False,
     default_directory: Optional[str] = None,
@@ -196,7 +257,7 @@ def validate_output_path(
     Validates an output path and makes it absolute.
 
     Args:
-        value (str): Provided output path
+        value (Any): Provided output path
         file_ok (bool): Whether or not file paths are permissible
         directory_ok (bool): Whether or not directory paths are permissible
         default_directory (Optional[str]): Default directory to prepend to *value* if
@@ -240,4 +301,10 @@ def validate_output_path(
         if not access(directory, W_OK):
             raise ValueError(f"'{directory}' cannot be written")
 
+    return value
+
+
+def validate_type(value: Any, cls: Any) -> Any:
+    if not isinstance(value, cls):
+        raise ValueError(f"'{value}' is of type '{type(value)}', not {cls.__name__}")
     return value

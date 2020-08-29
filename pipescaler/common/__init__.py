@@ -9,7 +9,7 @@
 """
 General-purpose code not tied to a particular project.
 
-Last updated 2020-08-28.
+Last updated 2020-08-29.
 """
 ####################################### MODULES ########################################
 from pathlib import Path
@@ -23,21 +23,33 @@ from typing import List
 from .cltool import CLTool
 from .general import (
     embed_kw,
+    get_ext,
+    get_name,
     get_shell_type,
     input_prefill,
+    load_yaml,
     temporary_filename,
+    validate_float,
     validate_input_path,
+    validate_int,
     validate_output_path,
+    validate_type,
 )
 
 ######################################### ALL ##########################################
 __all__: List[str] = [
     "CLTool",
     "embed_kw",
+    "get_ext",
+    "get_name",
     "get_shell_type",
     "input_prefill",
+    "load_yaml",
     "package_root",
     "temporary_filename",
+    "validate_float",
     "validate_input_path",
+    "validate_int",
     "validate_output_path",
+    "validate_type",
 ]

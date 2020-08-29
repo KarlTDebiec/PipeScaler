@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/mergers/merger.py
+#   pipescaler/sorters/sorter.py
 #
 #   Copyright (C) 2020 Karl T Debiec
 #   All rights reserved.
@@ -9,47 +9,16 @@
 ####################################### MODULES ########################################
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABC
 from os import makedirs
 from os.path import basename, dirname, isdir, splitext
 from shutil import copyfile
-from typing import Any, Iterator
 
-from pipescaler.pipelines import Pipeline
+from pipescaler.core.stage import Stage
+
 
 ####################################### CLASSES ########################################
-class Merger(ABC):
-
-    # region Builtins
-
-    def __init__(self, pipeline: Pipeline, **kwargs: Any) -> None:
-        self.pipeline = pipeline
-
-    @abstractmethod
-    def __call__(self) -> Iterator[str]:
-        pass
-
-    def __repr__(self) -> str:
-        return f"<{self.__class__.__name__} {self.desc}>"
-
-    def __str__(self) -> str:
-        return self.__repr__()
-
-    # endregion
-
-    # region Properties
-
-    @property
-    @abstractmethod
-    def desc(self) -> str:
-        """str: Description"""
-        raise NotImplementedError()
-
-    @desc.setter
-    def desc(self, value: str) -> None:
-        self._desc = value
-
-    # endregion
+class Sorter(Stage, ABC):
 
     # region Methods
 
@@ -65,9 +34,6 @@ class Merger(ABC):
             return new_infile
         else:
             return infile
-
-    def get_extension(self, infile: str) -> str:
-        return splitext(basename(infile))[1].strip(".")
 
     def get_original_name(self, infile: str) -> str:
         if self.pipeline.wip_directory in infile:

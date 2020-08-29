@@ -1,7 +1,7 @@
 TODO:
 - [x] Add arguments to scaled_image_identifier.py
 - [x] Fix ESRGAN
-- [x] Move input_path_argument and output_path_argument to module level
+- [x] Move input_path_arg and output_path_arg to module level
 - [x] Processors: Move desc to a property
 - [x] Processors: Consistent function arguments
 - [x] Scripts: Generate animated gif
@@ -13,18 +13,22 @@ TODO:
 - [x] Splitters/Mergers: Generic alpha splitter
 - [x] Set up black
 - [x] Reformat for black and 88 columns
+- [x] Sorters: Rename mipmap to scaled
+
+- [ ] Stages: Review desc across all classes
+- [ ] Stages: Consider Stage base class
 - [ ] Splitters/Mergers: Update alpha splitter so that it can replaceFlattenProcessor
 - [ ] Splitters/Mergers: normal map
 - [ ] Splitters/Mergers: size
 - [ ] Processors: Consistent handling of verbosity
 - [ ] Processors: Command-line support for all
+- [ ] Sorters: Command line support (just print match)
 - [ ] Processors: Do not regenerate objects each call in pipeline
 - [ ] Processors: Check if necessary executables exist
-- [ ] Rename mipmap to scaled
 - [ ] Processors: Generic chainer
 - [ ] Processors: Consider if specular maps could be handled better
 - [ ] CI: Run black
 - [ ] CI: Run mypy
-- [ ] Waifu on Linux (without CUDA?)
+- [ ] CI: Waifu on Linux (without CUDA?)
 - [ ] Windows Support
 - [ ] Standards-compliant filenames
