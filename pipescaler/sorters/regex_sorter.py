@@ -10,13 +10,16 @@
 from __future__ import annotations
 
 import re
-from typing import Any, Iterator, List, Optional, Union
+from typing import Any, Generator, List, Optional, Union
 
 from pipescaler.sorters.sorter import Sorter
 
 
 ####################################### CLASSES ########################################
 class RegexSorter(Sorter):
+
+    # region Builtins
+
     def __init__(
         self,
         regex: str,
@@ -37,9 +40,9 @@ class RegexSorter(Sorter):
             downstream_pipes_for_unmatched = [downstream_pipes_for_unmatched]
         self.downstream_pipes_for_unmatched = downstream_pipes_for_unmatched
 
-    def __call__(self) -> Iterator[str]:
+    def __call__(self) -> Generator[str, str, None]:
         while True:
-            infile = yield
+            infile = yield  # type: ignore
             if self.regex.match(self.get_original_name(infile)):
                 if self.pipeline.verbosity >= 2:
                     print(f"{self}: match {infile}")
@@ -52,3 +55,5 @@ class RegexSorter(Sorter):
                 if self.downstream_pipes_for_unmatched is not None:
                     for pipe in self.downstream_pipes_for_unmatched:
                         self.pipeline.pipes[pipe].send(infile)
+
+    # endregion

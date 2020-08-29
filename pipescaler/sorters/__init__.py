@@ -11,17 +11,17 @@ from __future__ import annotations
 
 from typing import List
 
+from pipescaler.sorters.alpha_sorter import AlphaSorter
 from pipescaler.sorters.list_sorter import ListSorter
 from pipescaler.sorters.regex_sorter import RegexSorter
-from pipescaler.sorters.scale_sorter import ScaleSorter
+from pipescaler.sorters.resize_sorter import ResizeSorter
 from pipescaler.sorters.size_sorter import SizeSorter
-from pipescaler.sorters.alpha_sorter import AlphaSorter
 
 ######################################### ALL ##########################################
 __all__: List[str] = [
-    "ListSorter",
-    "ScaleSorter",
-    "RegexSorter",
-    "SizeSorter",
     "AlphaSorter",
+    "ListSorter",
+    "RegexSorter",
+    "ResizeSorter",
+    "SizeSorter",
 ]

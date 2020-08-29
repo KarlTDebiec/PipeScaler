@@ -9,8 +9,7 @@
 ####################################### MODULES ########################################
 from __future__ import annotations
 
-from collections import Iterator
-from typing import Any, List, Optional, Union
+from typing import Any, Generator, List, Optional, Union
 
 import numpy as np
 from PIL import Image
@@ -20,6 +19,9 @@ from pipescaler.sorters.sorter import Sorter
 
 ####################################### CLASSES ########################################
 class AlphaSorter(Sorter):
+
+    # region Builtins
+
     def __init__(
         self,
         downstream_pipes_for_transparent: Optional[Union[str, List[str]]] = None,
@@ -36,9 +38,9 @@ class AlphaSorter(Sorter):
             downstream_pipes_for_opaque = [downstream_pipes_for_opaque]
         self.downstream_pipes_for_opaque = downstream_pipes_for_opaque
 
-    def __call__(self) -> Iterator[str]:
+    def __call__(self) -> Generator[str, str, None]:
         while True:
-            infile: str = (yield)
+            infile: str = yield  # type: ignore
             if self.is_transparent(infile):
                 if self.pipeline.verbosity >= 2:
                     print(f"{self}: alpha {infile}")
@@ -52,7 +54,12 @@ class AlphaSorter(Sorter):
                     for pipe in self.downstream_pipes_for_opaque:
                         self.pipeline.pipes[pipe].send(infile)
 
-    def is_transparent(self, infile: str) -> bool:
+    # endregion
+
+    # region Static Methods
+
+    @staticmethod
+    def is_transparent(infile: str) -> bool:
         data = np.array(Image.open(infile))
 
         if data.shape[2] != 4:
@@ -60,3 +67,5 @@ class AlphaSorter(Sorter):
         if (data[:, :, 3] != 255).sum() == 0:
             return False
         return True
+
+    # endregion

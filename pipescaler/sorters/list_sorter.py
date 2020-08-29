@@ -10,7 +10,7 @@
 from __future__ import annotations
 
 from os.path import expandvars
-from typing import Any, Iterator
+from typing import Any, Generator
 
 import yaml
 
@@ -19,6 +19,9 @@ from pipescaler.sorters.sorter import Sorter
 
 ####################################### CLASSES ########################################
 class ListSorter(Sorter):
+
+    # region Builtins
+
     def __init__(self, downstream_pipes_for_filenames: Any, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
@@ -39,9 +42,9 @@ class ListSorter(Sorter):
                 for filename in filenames:
                     self.downstream_pipes_by_filename[filename] = downstream_pipes
 
-    def __call__(self) -> Iterator[str]:
+    def __call__(self) -> Generator[str, str, None]:
         while True:
-            infile = yield
+            infile = yield  # type: ignore
             pipes = self.downstream_pipes_by_filename.get(
                 self.get_original_name(infile), self.default_downstream_pipes
             )
@@ -50,3 +53,5 @@ class ListSorter(Sorter):
             if pipes is not None:
                 for pipe in pipes:
                     self.pipeline.pipes[pipe].send(infile)
+
+    # endregion

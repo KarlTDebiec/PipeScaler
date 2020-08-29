@@ -9,8 +9,7 @@
 ####################################### MODULES ########################################
 from __future__ import annotations
 
-from collections import Iterator
-from typing import Any, List, Optional, Union
+from typing import Any, Generator, List, Optional, Union
 
 import numpy as np
 from PIL import Image
@@ -20,17 +19,19 @@ from pipescaler.sorters.sorter import Sorter
 
 ####################################### CLASSES ########################################
 class SizeSorter(Sorter):
+
+    # region Builtins
     def __init__(
-        self,
-        cutoff: int = 16,
-        downstream_pipes_for_small: Optional[Union[str, List[str]]] = None,
-        downstream_pipes_for_large: Optional[Union[str, List[str]]] = None,
-        **kwargs: Any,
+            self,
+            cutoff: int = 16,
+            downstream_pipes_for_small: Optional[Union[str, List[str]]] = None,
+            downstream_pipes_for_large: Optional[Union[str, List[str]]] = None,
+            **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
 
         self.cutoff = cutoff
-        self.desc = cutoff
+        self.desc = str(cutoff)
 
         if isinstance(downstream_pipes_for_small, str):
             downstream_pipes_for_small = [downstream_pipes_for_small]
@@ -40,9 +41,9 @@ class SizeSorter(Sorter):
             downstream_pipes_for_large = [downstream_pipes_for_large]
         self.downstream_pipes_for_large = downstream_pipes_for_large
 
-    def __call__(self) -> Iterator[str]:
+    def __call__(self) -> Generator[str, str, None]:
         while True:
-            infile: str = (yield)
+            infile: str = yield  # type: ignore
             if self.is_small(infile):
                 if self.pipeline.verbosity >= 2:
                     print(f"{self}: small {infile}")
@@ -56,6 +57,10 @@ class SizeSorter(Sorter):
                     for pipe in self.downstream_pipes_for_large:
                         self.pipeline.pipes[pipe].send(infile)
 
+    # endregion
+
+    # region Methods
+
     def is_small(self, infile: str) -> bool:
         data = np.array(Image.open(infile))
 
@@ -63,3 +68,5 @@ class SizeSorter(Sorter):
             return True
         else:
             return False
+
+    # endregion

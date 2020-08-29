@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/sorters/scale_sorter.py
+#   pipescaler/sorters/resize_sorter.py
 #
 #   Copyright (C) 2020 Karl T Debiec
 #   All rights reserved.
@@ -12,7 +12,7 @@ from __future__ import annotations
 from os import makedirs
 from os.path import basename, expandvars, isdir, isfile, splitext
 from shutil import copyfile
-from typing import Any, Dict, Iterator, List, Optional, Union
+from typing import Any, Dict, Generator, List, Optional, Union
 
 import numpy as np
 import yaml
@@ -22,7 +22,10 @@ from pipescaler.sorters.sorter import Sorter
 
 
 ####################################### CLASSES ########################################
-class ScaleSorter(Sorter):
+class ResizeSorter(Sorter):
+
+    # region Builtins
+
     def __init__(
         self,
         scalesets: Union[str, Dict[str, Dict[float, str]]],
@@ -56,9 +59,9 @@ class ScaleSorter(Sorter):
             downstream_pipes = [downstream_pipes]
         self.downstream_pipes = downstream_pipes
 
-    def __call__(self) -> Iterator[str]:
+    def __call__(self) -> Generator[str, str, None]:
         while True:
-            infile = yield
+            infile = yield  # type:ignore
             infile = self.backup_infile(infile)
             if self.pipeline.verbosity >= 2:
                 print(f"{self}: {infile}")
@@ -123,6 +126,10 @@ class ScaleSorter(Sorter):
                                 for pipe in self.downstream_pipes:
                                     self.pipeline.pipes[pipe].send(outfile)
 
+    # endregion
+
+    # region Methods
+
     def backup_mipmap(self, name: str) -> None:
         if not isdir(f"{self.pipeline.wip_directory}/{name}"):
             makedirs(f"{self.pipeline.wip_directory}/{name}")
@@ -133,3 +140,5 @@ class ScaleSorter(Sorter):
             backup = f"{self.pipeline.wip_directory}/{name}/{name}.tga"
         if not isfile(backup):
             copyfile(original, backup)
+
+    # endregion
