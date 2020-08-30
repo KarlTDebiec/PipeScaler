@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/processors/source.py
+#   pipescaler/core/source.py
 #
 #   Copyright (C) 2020 Karl T Debiec
 #   All rights reserved.

@@ -12,6 +12,7 @@ from __future__ import annotations
 from typing import Any, Generator, List, Optional, Union
 
 import numpy as np
+from IPython import embed
 from PIL import Image
 
 from pipescaler.core import Merger, PipeImage
@@ -27,14 +28,28 @@ class AlphaMerger(Merger):
     ) -> None:
         super().__init__(**kwargs)
 
+        # Store configuration
         if isinstance(downstream_stages, str):
             downstream_stages = [downstream_stages]
         self.downstream_stages = downstream_stages
 
+        # Prepare description
+        desc = f"{self.name} {self.__class__.__name__}"
+        if self.downstream_stages is not None:
+            if len(self.downstream_stages) >= 2:
+                for stage in self.downstream_stages[:-1]:
+                    desc += f"\n ├─ {stage}"
+            desc += f"\n └─ {self.downstream_stages[-1]}"
+        self.desc = desc
+
     def __call__(self) -> Generator[PipeImage, PipeImage, None]:
         while True:
-            image = yield
-            image = yield
+            image_1 = yield
+            image_2 = yield
+            if self.pipeline.verbosity >= 2:
+                print(f"{self} merging: {image_1.name}")
+                print(f"{self} merging: {image_2.name}")
+            embed()
 
             # self.merge_files(image, image, outfile)
             # self.log_outfile(outfile)

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/sorters/sorter.py
+#   pipescaler/core/sorter.py
 #
 #   Copyright (C) 2020 Karl T Debiec
 #   All rights reserved.

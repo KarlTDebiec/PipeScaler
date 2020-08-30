@@ -47,18 +47,24 @@ class ModeSorter(Sorter):
                 for stage in self.downstream_stages_for_rgba[:-1]:
                     desc += f"\n │   ├─ {stage}"
             desc += f"\n │   └─ {self.downstream_stages_for_rgba[-1]}"
+        else:
+            desc += f"\n │   └─"
         desc += f"\n ├─ RGB"
         if self.downstream_stages_for_rgb is not None:
             if len(self.downstream_stages_for_rgb) >= 2:
                 for stage in self.downstream_stages_for_rgb[:-1]:
                     desc += f"\n │   ├─ {stage}"
             desc += f"\n │   └─ {self.downstream_stages_for_rgb[-1]}"
+        else:
+            desc += f"\n │   └─"
         desc += f"\n └─ L"
         if self.downstream_stages_for_l is not None:
             if len(self.downstream_stages_for_l) >= 2:
                 for stage in self.downstream_stages_for_l[:-1]:
                     desc += f"\n     ├─ {stage}"
             desc += f"\n     └─ {self.downstream_stages_for_l[-1]}"
+        else:
+            desc += f"\n     └─"
         self.desc = desc
 
     def __call__(self) -> Generator[PipeImage, PipeImage, None]:

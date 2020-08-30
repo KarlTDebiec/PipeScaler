@@ -12,6 +12,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Any, Generator, Optional
 
+from pipescaler.core.pipe_image import PipeImage
 from pipescaler.core.pipeline import Pipeline
 
 
@@ -38,7 +39,7 @@ class Stage(ABC):
             self.desc = self.name
 
     @abstractmethod
-    def __call__(self) -> Generator[str, str, None]:
+    def __call__(self) -> Generator[PipeImage, PipeImage, None]:
         raise NotImplementedError()
 
     def __repr__(self) -> str:
