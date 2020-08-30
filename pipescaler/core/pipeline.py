@@ -97,7 +97,6 @@ class Pipeline:
         source = self.source()
         next(source)
         for image in self.source:
-            self.backup(image)
             source.send(image)
 
     def __repr__(self) -> str:
@@ -111,18 +110,20 @@ class Pipeline:
     # region Methods
 
     def backup(self, image: PipeImage) -> None:
-        if not isdir(f"{self.wip_directory}/{image.name}"):
+        directory = join(self.wip_directory, image.name)
+        backup = join(directory, f"{image.name}.{image.ext}")
+        if not isdir(directory):
             if self.verbosity >= 1:
-                print(f"{self} creating: {self.wip_directory}/{image.name}")
-            makedirs(f"{self.wip_directory}/{image.name}")
-        backup = f"{self.wip_directory}/{image.name}/{image.name}.{image.ext}"
+                print(f"{self} creating: {dir()}")
+            makedirs(directory)
         if not isfile(backup):
             if self.verbosity >= 1:
                 print(f"{self} backing up to: {backup}")
             copyfile(image.infile, backup)
-        image.log(str(self), backup)
+            image.log(str(self), backup)
 
     def get_outfile(self, image, suffix):
+        self.backup(image)
         if len(image.history) > 1:
             filename = f"{get_name(image.last)}_{suffix}.png"
         else:

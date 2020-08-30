@@ -60,7 +60,7 @@ class SideChannelProcessor(Processor):
             except FileNotFoundError as e:
                 if self.required:
                     raise e
-                # TODO: Provide alternate pipeline
+                # TODO: Provide alternate pipeline if not found
             if self.downstream_stages is not None:
                 for pipe in self.downstream_stages:
                     self.pipeline.stages[pipe].send(image)

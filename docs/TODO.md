@@ -14,6 +14,7 @@ TODO:
 - [x] Set up black
 - [x] Reformat for black and 88 columns
 - [x] Sorters: Rename mipmap to scaled
+- [ ] Pipeline: Do not backup until needed
 
 - [ ] Stages: Review desc across all classes
 - [ ] Stages: Consider Stage base class
@@ -22,7 +23,7 @@ TODO:
 - [ ] Splitters/Mergers: size
 - [ ] Processors: Consistent handling of verbosity
 - [ ] Processors: Command-line support for all
-- [ ] Sorters: Command line support (just print match)
+- [ ] Sorters: Command line support (just print match?)
 - [ ] Processors: Do not regenerate objects each call in pipeline
 - [ ] Processors: Check if necessary executables exist
 - [ ] Processors: Generic chainer
