@@ -97,6 +97,8 @@ class Pipeline:
         source = self.source()
         next(source)
         for image in self.source:
+            # if image.name == "0x004E4981":
+            #     break
             source.send(image)
 
     def __repr__(self) -> str:
@@ -120,11 +122,10 @@ class Pipeline:
             if self.verbosity >= 1:
                 print(f"{self} backing up to: {backup}")
             copyfile(image.infile, backup)
-            image.log(str(self), backup)
 
     def get_outfile(self, image, suffix):
         self.backup(image)
-        if len(image.history) > 1:
+        if len(image.history) >= 1:
             filename = f"{get_name(image.last)}_{suffix}.png"
         else:
             filename = f"{suffix}.png"

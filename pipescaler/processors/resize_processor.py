@@ -9,12 +9,14 @@
 ####################################### MODULES ########################################
 from __future__ import annotations
 
+from os.path import isfile
 from typing import Any
 
 import numpy as np
 from PIL import Image
 
-from pipescaler.core import Processor
+from pipescaler.common import validate_output_path
+from pipescaler.core import PipeImage, Processor
 
 
 ####################################### CLASSES ########################################
@@ -25,25 +27,30 @@ class ResizeProcessor(Processor):
     def __init__(self, scale: float, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
+        # Store configuration
         self.scale = scale
 
-    # endregion
-
-    # region Properties
-
-    @property
-    def desc(self) -> str:
-        """str: Description"""
-        if not hasattr(self, "_desc"):
-            return f"resize-{self.scale}"
-        return self._desc
+        # Prepare description
+        desc = f"{self.name} {self.__class__.__name__} ({self.scale})"
+        if self.downstream_stages is not None:
+            if len(self.downstream_stages) >= 2:
+                for stage in self.downstream_stages[:-1]:
+                    desc += f"\n ├─ {stage}"
+            desc += f"\n └─ {self.downstream_stages[-1]}"
+        self.desc = desc
 
     # endregion
 
     # region Methods
 
-    def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
-        self.process_file(infile, outfile, self.pipeline.verbosity, scale=self.scale)
+    def process_file_in_pipeline(self, image: PipeImage) -> None:
+        infile = image.last
+        outfile = validate_output_path(self.pipeline.get_outfile(image, self.suffix))
+        if not isfile(outfile):
+            self.process_file(
+                infile, outfile, self.pipeline.verbosity, scale=self.scale,
+            )
+        image.log(self.name, outfile)
 
     # endregion
 

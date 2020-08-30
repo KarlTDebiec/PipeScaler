@@ -137,7 +137,9 @@ class CLTool(ABC):
 
     @staticmethod
     def input_path_arg(
-        file_ok: bool = True, directory_ok: bool = False
+        file_ok: bool = True,
+        directory_ok: bool = False,
+        default_directory: Optional[str] = None,
     ) -> Callable[[Any], str]:
         """
         Validates an input path argument.
@@ -158,7 +160,7 @@ class CLTool(ABC):
                 raise ArgumentTypeError(
                     f"'{value}' is of type '{type(value)}', not str"
                 )
-            return validate_input_path(value, file_ok, directory_ok)
+            return validate_input_path(value, file_ok, directory_ok, default_directory)
 
         return func
 
@@ -191,7 +193,9 @@ class CLTool(ABC):
 
     @staticmethod
     def output_path_arg(
-        file_ok: bool = True, directory_ok: bool = False
+        file_ok: bool = True,
+        directory_ok: bool = False,
+        default_directory: Optional[str] = None,
     ) -> Callable[[Any], str]:
         """
         Validates an output path argument.
@@ -212,7 +216,7 @@ class CLTool(ABC):
                 raise ArgumentTypeError(
                     f"'{value}' is of type '{type(value)}', not str"
                 )
-            return validate_output_path(value, file_ok, directory_ok)
+            return validate_output_path(value, file_ok, directory_ok, default_directory)
 
         return func
 

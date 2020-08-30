@@ -61,6 +61,7 @@ class SideChannelProcessor(Processor):
                 if self.required:
                     raise e
                 # TODO: Provide alternate pipeline if not found
+                continue
             if self.downstream_stages is not None:
                 for pipe in self.downstream_stages:
                     self.pipeline.stages[pipe].send(image)
@@ -75,8 +76,10 @@ class SideChannelProcessor(Processor):
             outfile = validate_output_path(
                 self.pipeline.get_outfile(image, self.suffix)
             )
-            self.process_file(infile, outfile, self.pipeline.verbosity)
+            if not isfile(outfile):
+                self.process_file(infile, outfile, self.pipeline.verbosity)
             image.log(self.name, outfile)
+            print(image.history)
         else:
             raise FileNotFoundError(
                 f"{self} did not file matching '{image.name}' in '{self.directory}'"

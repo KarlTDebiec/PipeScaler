@@ -21,13 +21,15 @@ from __future__ import annotations
 
 from argparse import ArgumentParser
 from os import remove
+from os.path import isfile
 from subprocess import Popen
 from tempfile import NamedTemporaryFile
 from typing import Any
 
 from PIL import Image
 
-from pipescaler.core import Processor
+from pipescaler.common import validate_output_path
+from pipescaler.core import PipeImage, Processor
 
 
 ####################################### CLASSES ########################################
@@ -40,49 +42,58 @@ class WaifuProcessor(Processor):
     ) -> None:
         super().__init__(**kwargs)
 
+        # Store configuration
         self.imagetype = imagetype
         self.scale = scale
         self.denoise = denoise
+        self.suffix = f"waifu-{self.imagetype}-{self.scale}-{self.denoise}"
 
-    # endregion
-
-    # region Properties
-
-    @property
-    def desc(self) -> str:
-        """str: Description"""
-        if not hasattr(self, "_desc"):
-            return f"waifu-{self.imagetype}-{self.scale}-{self.denoise}"
-        return self._desc
+        # Prepare description
+        desc = (
+            f"{self.name} {self.__class__.__name__} (imagetype={self.imagetype}, "
+            f"scale={self.scale}, denoise={self.denoise})"
+        )
+        if self.downstream_stages is not None:
+            if len(self.downstream_stages) >= 2:
+                for stage in self.downstream_stages[:-1]:
+                    desc += f"\n ├─ {stage}"
+            desc += f"\n └─ {self.downstream_stages[-1]}"
+        self.desc = desc
 
     # endregion
 
     # region Methods
 
-    def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
-        self.process_file(
-            infile,
-            outfile,
-            self.pipeline.verbosity,
-            imagetype=self.imagetype,
-            scale=self.scale,
-            denoise=self.denoise,
-        )
+    def process_file_in_pipeline(self, image: PipeImage) -> None:
+        infile = image.last
+        outfile = validate_output_path(self.pipeline.get_outfile(image, self.suffix))
+        if not isfile(outfile):
+            self.process_file(
+                infile,
+                outfile,
+                self.pipeline.verbosity,
+                imagetype=self.imagetype,
+                scale=self.scale,
+                denoise=self.denoise,
+            )
+        image.log(self.name, outfile)
 
     # endregion
 
     # region Class Methods
 
     @classmethod
-    def construct_argparser(cls) -> ArgumentParser:
+    def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
         Constructs argument parser.
 
         Returns:
             parser (ArgumentParser): Argument parser
         """
-        parser = super().construct_argparser(description=__doc__.strip())
+        description = kwargs.get("description", __doc__.strip())
+        parser = super().construct_argparser(description=description, **kwargs)
 
+        # Operations
         parser.add_argument(
             "--type",
             default="a",
@@ -94,14 +105,14 @@ class WaifuProcessor(Processor):
             "--scale",
             default=2,
             dest="scale",
-            type=int,
+            type=cls.int_arg(min_value=1, max_value=2),
             help="scale factor (1 or 2, default: %(default)s)",
         )
         parser.add_argument(
             "--denoise",
             default=1,
             dest="denoise",
-            type=int,
+            type=cls.int_arg(min_value=0, max_value=4),
             help="denoise level (0-4, default: %(default)s)",
         )
 
@@ -111,9 +122,9 @@ class WaifuProcessor(Processor):
     def process_file(
         cls, infile: str, outfile: str, verbosity: int = 1, **kwargs: Any
     ) -> None:
-        imagetype = kwargs.get("imagetype")
-        scale = kwargs.get("scale")
-        denoise = kwargs.get("denoise")
+        imagetype = kwargs.get("imagetype", "a")
+        scale = kwargs.get("scale", 2)
+        denoise = kwargs.get("denoise", 1)
 
         # Prepare temporary image with reflections and minimum size of 200x200
         image = Image.open(infile)
@@ -148,7 +159,7 @@ class WaifuProcessor(Processor):
             f"-i {tempfile.name} "
             f"-o {outfile}"
         )
-        if verbosity >= 1:
+        if verbosity >= 2:
             print(command)
         Popen(command, shell=True, close_fds=True).wait()
 

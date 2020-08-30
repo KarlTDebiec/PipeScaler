@@ -32,12 +32,16 @@ class AlphaSplitter(Splitter):
         super().__init__(**kwargs)
 
         # Store configuration
-        if isinstance(downstream_stage_for_rgb, str):
-            downstream_stage_for_rgb = [downstream_stage_for_rgb]
         self.downstream_stage_for_rgb = downstream_stage_for_rgb
-        if isinstance(downstream_stage_for_a, str):
-            downstream_stage_for_a = [downstream_stage_for_a]
         self.downstream_stage_for_a = downstream_stage_for_a
+
+        # Prepare description
+        desc = f"{self.name} {self.__class__.__name__}"
+        desc += f"\n ├─ RGB"
+        desc += f"\n │   └─ {self.downstream_stage_for_rgb}"
+        desc += f"\n └─ A"
+        desc += f"\n     └─ {self.downstream_stage_for_a}"
+        self.desc = desc
 
     def __call__(self) -> Generator[PipeImage, PipeImage, None]:
         while True:

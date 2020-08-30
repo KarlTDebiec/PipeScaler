@@ -48,7 +48,7 @@ class PipeImage:
 
     @property
     def last(self) -> str:
-        if len(self.history) > 1:
+        if len(self.history) >= 1:
             return self.history[-1][1]
         else:
             return self.infile
