@@ -24,7 +24,7 @@ from pipescaler.common import (
 )
 
 if TYPE_CHECKING:
-    from pipescaler.core.pipe_image import PipeImage
+    from pipescaler.core import PipeImage, Stage
 
 
 ####################################### CLASSES ########################################
@@ -40,7 +40,7 @@ class Pipeline:
         verbosity: int = 1,
     ) -> None:
 
-        # Store global configuration
+        # Store configuration
         self.wip_directory = validate_output_path(
             wip_directory, file_ok=False, directory_ok=True
         )
@@ -61,7 +61,7 @@ class Pipeline:
         print(repr(self.source))
 
         # Configure stages
-        self.stages = {}
+        self.stages: Dict[str, Stage] = {}
         for stage_name, stage_conf in stages.items():
             if "module" in stage_conf:
                 module_path = validate_input_path(stage_conf.pop("module"))
@@ -88,10 +88,9 @@ class Pipeline:
                 if stage_cls is None:
                     raise AttributeError(f"Class {stage_cls_name} not found")
             stage = stage_cls(pipeline=self, name=stage_name, **stage_args)
-            stages[stage_name] = stage()
-            next(stages[stage_name])
             print(repr(stage))
-        self.stages = stages
+            self.stages[stage_name] = stage()
+            next(self.stages[stage_name])
 
     def __call__(self, **kwargs: Any) -> None:
         """Performs operations."""

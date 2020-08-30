@@ -43,6 +43,10 @@ class PipeImage:
     # region Properties
 
     @property
+    def image(self) -> Image:
+        return Image.open(self.infile)
+
+    @property
     def last(self) -> str:
         if len(self.history) > 1:
             return self.history[-1][1]
@@ -57,6 +61,6 @@ class PipeImage:
         self.history.append((stage_name, outfile))
 
     def show(self):
-        Image.open(self.infile).show()
+        self.image.show()
 
     # endregion

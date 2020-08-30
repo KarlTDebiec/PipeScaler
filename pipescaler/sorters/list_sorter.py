@@ -27,12 +27,13 @@ class ListSorter(Sorter):
     ) -> None:
         super().__init__(**kwargs)
 
+        # Store configuration
         desc = f"{self.name} {self.__class__.__name__}"
+
+        # Organize downstream forks
         downstream_forks_by_filename = {}
         default_fork_name = None
         default_downstream_stages = None
-
-        # Loop over forks
         for fork_name, fork_conf in downstream_forks.items():
             if fork_conf is None:
                 fork_conf = {}
@@ -64,19 +65,20 @@ class ListSorter(Sorter):
                     filenames |= {get_name(f) for f in listdir(infile)}
                 else:
                     filenames |= {get_name(f) for f in load_yaml(infile)}
+                filenames.discard(".DS_Store")
             desc = f"{desc.rstrip(', ')}, {len(filenames)} filenames)"
 
             # Parse downstream stages for this class
             downstream_stages = fork_conf.get("downstream_stages")
             if isinstance(downstream_stages, str):
                 downstream_stages = [downstream_stages]
+            for filename in filenames:
+                downstream_forks_by_filename[filename] = downstream_stages
             if downstream_stages is not None:
                 if len(downstream_stages) >= 2:
                     for stage in downstream_stages:
                         desc += f"\n │   ├─ {stage}"
                 desc += f"\n │   └─ {downstream_stages[-1]}"
-                for filename in filenames:
-                    downstream_forks_by_filename[filename] = downstream_stages
             else:
                 desc += f"\n │   └─"
 

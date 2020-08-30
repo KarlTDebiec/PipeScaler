@@ -32,6 +32,7 @@ class Processor(Stage, CLTool):
     ) -> None:
         super().__init__(**kwargs)
 
+        # Store configuration
         if suffix is not None:
             self.suffix = suffix
         else:
@@ -42,13 +43,13 @@ class Processor(Stage, CLTool):
 
     def __call__(self, **kwargs: Any) -> Generator[PipeImage, PipeImage, None]:
         while True:
-            image: PipeImage = (yield)
+            image = yield
             if self.pipeline.verbosity >= 2:
                 print(f"{self} processing: {image.name}")
             self.process_file_in_pipeline(image)
-            # if self.downstream_stages is not None:
-            #     for pipe in self.downstream_stages:
-            #         self.pipeline.stages[pipe].send(outfile)
+            if self.downstream_stages is not None:
+                for pipe in self.downstream_stages:
+                    self.pipeline.stages[pipe].send(image)
 
     # endregion
 

@@ -10,9 +10,9 @@
 from __future__ import annotations
 
 from os import listdir
-from os.path import isfile, join
+from os.path import isfile
 from shutil import copyfile
-from typing import Any
+from typing import Any, Generator
 
 from pipescaler.common import get_name, validate_input_path, validate_output_path
 from pipescaler.core import PipeImage, Processor
@@ -23,12 +23,14 @@ class SideChannelProcessor(Processor):
 
     # region Builtins
 
-    def __init__(self, directory: str, **kwargs: Any) -> None:
+    def __init__(self, directory: str, required: bool = False, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
+        # Store configuration
         self.directory = validate_input_path(
             directory, file_ok=False, directory_ok=True
         )
+        self.required = required
         self.infiles = {
             get_name(f): f
             for f in [
@@ -36,6 +38,7 @@ class SideChannelProcessor(Processor):
                 for f in listdir(self.directory)
                 if f != ".DS_Store"
             ]
+            if isfile(f)
         }
 
         # Prepare description
@@ -46,6 +49,21 @@ class SideChannelProcessor(Processor):
                     desc += f"\n ├─ {stage}"
             desc += f"\n └─ {self.downstream_stages[-1]}"
         self.desc = desc
+
+    def __call__(self, **kwargs: Any) -> Generator[PipeImage, PipeImage, None]:
+        while True:
+            image: PipeImage = (yield)
+            if self.pipeline.verbosity >= 2:
+                print(f"{self} processing: {image.name}")
+            try:
+                self.process_file_in_pipeline(image)
+            except FileNotFoundError as e:
+                if self.required:
+                    raise e
+                # TODO: Provide alternate pipeline
+            if self.downstream_stages is not None:
+                for pipe in self.downstream_stages:
+                    self.pipeline.stages[pipe].send(image)
 
     # endregion
 
@@ -59,6 +77,10 @@ class SideChannelProcessor(Processor):
             )
             self.process_file(infile, outfile, self.pipeline.verbosity)
             image.log(self.name, outfile)
+        else:
+            raise FileNotFoundError(
+                f"{self} did not file matching '{image.name}' in '{self.directory}'"
+            )
 
     # endregion
 
@@ -69,7 +91,7 @@ class SideChannelProcessor(Processor):
         cls, infile: str, outfile: str, verbosity: int = 1, **kwargs
     ) -> None:
         if verbosity >= 3:
-            print(f"cp {infile} {outfile}")
+            print(f"cp '{infile}' '{outfile}'")
         copyfile(infile, outfile)
 
     # endregion
