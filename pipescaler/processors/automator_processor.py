@@ -15,7 +15,12 @@ from shutil import copyfile
 from subprocess import Popen
 from typing import Any
 
-from pipescaler.common import package_root, validate_input_path, validate_output_path
+from pipescaler.common import (
+    package_root,
+    temporary_filename,
+    validate_input_path,
+    validate_output_path,
+)
 from pipescaler.core import PipeImage, Processor
 
 
@@ -90,11 +95,14 @@ class AutomatorProcessor(Processor):
         cls, infile: str, outfile: str, verbosity: int = 1, **kwargs: Any
     ) -> None:
         workflow = kwargs.pop("workflow")
-        copyfile(infile, outfile)
-        command = f"automator -i {outfile} {workflow}"
-        if verbosity >= 2:
-            print(command)
-        Popen(command, shell=True, close_fds=True).wait()
+
+        with temporary_filename(".png") as tempfile:
+            copyfile(infile, tempfile)
+            command = f"automator -i {tempfile} {workflow}"
+            if verbosity >= 2:
+                print(command)
+            Popen(command, shell=True, close_fds=True).wait()
+            copyfile(tempfile, outfile)
 
     # endregion
 
