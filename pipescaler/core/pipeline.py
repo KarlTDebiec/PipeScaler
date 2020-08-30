@@ -123,12 +123,15 @@ class Pipeline:
                 print(f"{self} backing up to: {backup}")
             copyfile(image.infile, backup)
 
-    def get_outfile(self, image, suffix):
+    def get_outfile(self, image, suffix, strip=None):
         self.backup(image)
         if len(image.history) >= 1:
-            filename = f"{get_name(image.last)}_{suffix}.png"
+            filename = f"{get_name(image.last)}"
+            if strip is not None:
+                filename = filename.rstrip(strip)
+            filename = f"{filename}_{suffix}"
         else:
-            filename = f"{suffix}.png"
-        return join(self.wip_directory, image.name, filename)
+            filename = suffix
+        return join(self.wip_directory, image.name, f"{filename}.png")
 
     # endregion

@@ -12,9 +12,9 @@ from __future__ import annotations
 from typing import Any, Generator, List, Optional, Union
 
 import numpy as np
-from IPython import embed
 from PIL import Image
 
+from pipescaler.common import get_name, validate_output_path
 from pipescaler.core import Merger, PipeImage
 
 
@@ -44,32 +44,29 @@ class AlphaMerger(Merger):
 
     def __call__(self) -> Generator[PipeImage, PipeImage, None]:
         while True:
-            image_1 = yield
-            image_2 = yield
+            image = yield
+            rgb_infile = image.last
+            image = yield
+            a_infile = image.last
+            stages = get_name(image.last).split("_")
+            strip = "_".join(stages[stages.index("A") :])
+            outfile = validate_output_path(
+                self.pipeline.get_outfile(image, "merge-RGBA", strip,)
+            )
+
             if self.pipeline.verbosity >= 2:
-                print(f"{self} merging: {image_1.name}")
-                print(f"{self} merging: {image_2.name}")
-            embed()
+                print(f"{self} merging: {image.name}")
+            rgb_datum = np.array(Image.open(rgb_infile))
+            a_datum = np.array(Image.open(a_infile).convert("L"))
+            rgba_datum = np.zeros((rgb_datum.shape[0], rgb_datum.shape[1], 4), np.uint8)
+            rgba_datum[:, :, :3] = rgb_datum
+            rgba_datum[:, :, 3] = a_datum
+            rgba_image = Image.fromarray(rgba_datum)
+            rgba_image.save(outfile)
 
-            # self.merge_files(image, image, outfile)
-            # self.log_outfile(outfile)
-            # if self.downstream_stages is not None:
-            #     for pipe in self.downstream_stages:
-            #         self.pipeline.pipes[pipe].send(image)
-
-    # endregion
-
-    # region Class Methods
-
-    @classmethod
-    def merge_files(cls, rgb_infile: str, a_infile: str, outfile: str):
-        rgb_datum = np.array(Image.open(rgb_infile))
-        a_datum = np.array(Image.open(a_infile).convert("L"))
-        rgba_datum = np.zeros((rgb_datum.shape[0], rgb_datum.shape[1], 4), np.uint8)
-        rgba_datum[:, :, :3] = rgb_datum
-        rgba_datum[:, :, 3] = a_datum
-        rgba_image = Image.fromarray(rgba_datum)
-
-        rgba_image.save(outfile)
+            image.log(self.name, outfile)
+            if self.downstream_stages is not None:
+                for pipe in self.downstream_stages:
+                    self.pipeline.stages[pipe].send(image)
 
     # endregion

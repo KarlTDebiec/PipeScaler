@@ -15,7 +15,6 @@ from pipescaler.processors.automator_processor import AutomatorProcessor
 from pipescaler.processors.copy_processor import CopyFileProcessor
 from pipescaler.processors.esrgan_processor import ESRGANProcessor
 from pipescaler.processors.flatten_processor import FlattenProcessor
-from pipescaler.processors.pixelmator2x_processor import Pixelmator2xProcessor
 from pipescaler.processors.pngquant_processor import PngquantProcessor
 from pipescaler.processors.potrace_processor import PotraceProcessor
 from pipescaler.processors.resize_processor import ResizeProcessor
@@ -31,7 +30,6 @@ __all__: List[str] = [
     "CopyFileProcessor",
     "ESRGANProcessor",
     "FlattenProcessor",
-    "Pixelmator2xProcessor",
     "PotraceProcessor",
     "PngquantProcessor",
     "ResizeProcessor",
