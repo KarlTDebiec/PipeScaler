@@ -14,7 +14,7 @@ Last updated 2020-09-10.
 ####################################### MODULES ########################################
 from contextlib import contextmanager
 from inspect import currentframe, getframeinfo
-from os import R_OK, W_OK, X_OK, access, getcwd, remove
+from os import R_OK, W_OK, access, getcwd, remove
 from os.path import (
     basename,
     defpath,
@@ -31,8 +31,6 @@ from readline import insert_text, redisplay, set_pre_input_hook
 from shutil import which
 from tempfile import NamedTemporaryFile
 from typing import Any, Dict, Iterator, Optional
-
-import yaml
 
 from . import package_root
 
@@ -135,11 +133,6 @@ def input_prefill(prompt: str, prefill: str) -> str:
     set_pre_input_hook()
 
     return result
-
-
-def load_yaml(infile: str) -> Dict[Any, Any]:
-    with open(infile, "r") as f:
-        return yaml.load(f, Loader=yaml.SafeLoader)
 
 
 @contextmanager

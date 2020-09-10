@@ -13,7 +13,9 @@ from os import listdir
 from os.path import isdir
 from typing import Any, Dict, Generator
 
-from pipescaler.common import get_name, load_yaml, validate_input_path
+import yaml
+
+from pipescaler.common import get_name, validate_input_path
 from pipescaler.core import Sorter
 
 
@@ -64,7 +66,10 @@ class ListSorter(Sorter):
                 if isdir(infile):
                     filenames |= {get_name(f) for f in listdir(infile)}
                 else:
-                    filenames |= {get_name(f) for f in load_yaml(infile)}
+                    with open(infile, "r") as f:
+                        filenames |= {
+                            get_name(f) for f in yaml.load(f, Loader=yaml.SafeLoader)
+                        }
                 filenames.discard(".DS_Store")
             desc = f"{desc.rstrip(', ')}, {len(filenames)} filenames)"
 
