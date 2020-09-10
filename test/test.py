@@ -19,11 +19,9 @@ from PIL import Image
 from pipescaler.common import temporary_filename
 from pipescaler.processors import (
     ESRGANProcessor,
-    Pixelmator2xProcessor,
     PngquantProcessor,
     PotraceProcessor,
     ThresholdProcessor,
-    WaifuPixelmator2xProcessor,
     WaifuProcessor,
     XbrzProcessor,
 )
@@ -33,11 +31,9 @@ from pipescaler.processors import (
 @pytest.fixture(
     params=[
         ESRGANProcessor,
-        Pixelmator2xProcessor,
         PngquantProcessor,
         PotraceProcessor,
         ThresholdProcessor,
-        WaifuPixelmator2xProcessor,
         WaifuProcessor,
         XbrzProcessor,
     ]
@@ -77,29 +73,21 @@ def test_esrgan(infile, esrgan_model):
 
 def test_pngquant(infile):
     with temporary_filename(".png") as outfile:
-        command = f"python {getfile(PngquantProcessor)} -vv " f"{infile} {outfile}"
+        command = f"python {getfile(PngquantProcessor)} -vv {infile} {outfile}"
         Popen(command, shell=True).wait()
         Image.open(outfile)
 
 
 def test_potrace(infile):
     with temporary_filename(".png") as outfile:
-        command = f"python {getfile(PotraceProcessor)} -vv " f"{infile} {outfile}"
+        command = f"python {getfile(PotraceProcessor)} -vv {infile} {outfile}"
         Popen(command, shell=True).wait()
         Image.open(outfile)
 
 
 def test_threshold(infile):
     with temporary_filename(".png") as outfile:
-        command = f"python {getfile(ThresholdProcessor)} -vv " f"{infile} {outfile}"
-        Popen(command, shell=True).wait()
-        Image.open(outfile)
-
-
-@pytest.mark.skipif(platform != "darwin", reason="Application only available on macOS")
-def test_pixelmator(infile):
-    with temporary_filename(".png") as outfile:
-        command = f"python {getfile(Pixelmator2xProcessor)} -vv " f"{infile} {outfile}"
+        command = f"python {getfile(ThresholdProcessor)} -vv {infile} {outfile}"
         Popen(command, shell=True).wait()
         Image.open(outfile)
 
@@ -107,13 +95,13 @@ def test_pixelmator(infile):
 @pytest.mark.skipif(platform != "darwin", reason="Processor only implemented on macOS")
 def test_waifu(infile):
     with temporary_filename(".png") as outfile:
-        command = f"python {getfile(WaifuProcessor)} -vv " f"{infile} {outfile}"
+        command = f"python {getfile(WaifuProcessor)} -vv {infile} {outfile}"
         Popen(command, shell=True).wait()
         Image.open(outfile)
 
 
 def test_xbrz(infile):
     with temporary_filename(".png") as outfile:
-        command = f"python {getfile(XbrzProcessor)} -vv " f"{infile} {outfile}"
+        command = f"python {getfile(XbrzProcessor)} -vv {infile} {outfile}"
         Popen(command, shell=True).wait()
         Image.open(outfile)

@@ -9,7 +9,7 @@
 """
 General-purpose code not tied to a particular project.
 
-Last updated 2020-08-29.
+Last updated 2020-09-10.
 """
 ####################################### MODULES ########################################
 from pathlib import Path

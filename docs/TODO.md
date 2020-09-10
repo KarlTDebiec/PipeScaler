@@ -6,11 +6,13 @@ TODO:
 - [x] Sorters: Rename mipmap to scaled
 - [x] Stages: Consider Stage base class
 - [x] Pipeline: Do not backup until needed
+- [x] apng_creator: Support annotation
 - [ ] AlphaSplitter/AlphaMerger: Option to keep RGBA for both and stack
 - [ ] WaifuPixelmator2XProcessor: Remove
 - [ ] SideChannelProcessor: Alternative downstream stages for unmatched
 - [ ] common: Review documentation
 
+- [ ] AppleScriptProcessor for Pixelmator
 - [ ] ModeChangeProcessor?
 - [ ] Splitters/Mergers: normal map
 - [ ] Splitters/Mergers: size

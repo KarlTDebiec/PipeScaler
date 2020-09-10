@@ -9,7 +9,7 @@
 """
 General-purpose command-line tool base class not tied to a particular project.
 
-Last updated 2020-08-29.
+Last updated 2020-09-10.
 """
 ####################################### MODULES ########################################
 from abc import ABC, abstractmethod
@@ -147,6 +147,8 @@ class CLTool(ABC):
         Args:
             file_ok (bool): Whether or not file paths are permissible
             directory_ok (bool): Whether or not directory paths are permissible
+            default_directory (Optional[str]): Default directory to prepend to *value*
+               if not absolute (default: current working directory)
 
         Returns:
             Callable[[Any], str]: Value validator function
@@ -203,6 +205,8 @@ class CLTool(ABC):
         Args:
             file_ok (bool): Whether or not file paths are permissible
             directory_ok (bool): Whether or not directory paths are permissible
+            default_directory (Optional[str]): Default directory to prepend to *value*
+               if not absolute (default: current working directory)
 
         Returns:
             Callable[[Any], str]: Value validator function
