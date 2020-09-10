@@ -12,14 +12,18 @@ from __future__ import annotations
 
 from argparse import ArgumentParser
 from os import remove
-from shutil import which
 from subprocess import Popen
 from tempfile import NamedTemporaryFile
 from typing import Any, Dict, List, Optional
 
 from PIL import Image, ImageDraw, ImageFont
 
-from pipescaler.common import CLTool, validate_output_path
+from pipescaler.common import (
+    CLTool,
+    validate_executable,
+    validate_input_path,
+    validate_output_path,
+)
 
 
 ####################################### CLASSES ########################################
@@ -38,17 +42,14 @@ class APNGCreator(CLTool):
     ) -> None:
         super().__init__(**kwargs)
 
-        self.infiles = list(map(validate_output_path, infiles))
+        self.infiles = list(map(validate_input_path, infiles))
         self.outfile = validate_output_path(outfile)
         self.labels = labels
         if self.labels is not None and len(self.labels) != len(self.infiles):
             raise ValueError
         self.show_size = show_size
         self.duration = duration
-        self.apngasm_executable = which("apngasm")
-        if self.apngasm_executable is None:
-            raise ValueError()
-            # TODO: implement validate_executable
+        self.apngasm_executable = validate_executable("apngasm")
 
     def __call__(self, **kwargs: Any) -> None:
         images = []

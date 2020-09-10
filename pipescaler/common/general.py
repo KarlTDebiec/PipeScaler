@@ -14,9 +14,10 @@ Last updated 2020-09-10.
 ####################################### MODULES ########################################
 from contextlib import contextmanager
 from inspect import currentframe, getframeinfo
-from os import R_OK, W_OK, access, getcwd, remove
+from os import R_OK, W_OK, X_OK, access, getcwd, remove
 from os.path import (
     basename,
+    defpath,
     dirname,
     exists,
     expandvars,
@@ -27,6 +28,7 @@ from os.path import (
     splitext,
 )
 from readline import insert_text, redisplay, set_pre_input_hook
+from shutil import which
 from tempfile import NamedTemporaryFile
 from typing import Any, Dict, Iterator, Optional
 
@@ -159,6 +161,19 @@ def temporary_filename(suffix: Optional[str] = None) -> Iterator[str]:
     finally:
         if f is not None:
             remove(f.name)
+
+
+def validate_executable(value: Any) -> str:
+    try:
+        value = str(value)
+    except ValueError:
+        raise ValueError(f"'{value}' is of type '{type(value)}', not str")
+
+    if which(value) is None:
+        raise ValueError(f"'{value}' executable not found in '{defpath}'")
+    value = which(value)
+
+    return value
 
 
 def validate_float(
