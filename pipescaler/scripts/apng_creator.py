@@ -14,7 +14,7 @@ from argparse import ArgumentParser
 from os import remove
 from subprocess import Popen
 from tempfile import NamedTemporaryFile
-from typing import Any, Dict, List, Optional
+from typing import Any, List, Optional
 
 from PIL import Image, ImageDraw, ImageFont
 
@@ -35,7 +35,7 @@ class APNGCreator(CLTool):
         self,
         infiles: List[str],
         outfile: str,
-        labels: Optional[List[str]],
+        labels: Optional[List[str]] = None,
         show_size: bool = False,
         duration: Optional[int] = 500,
         **kwargs: Any,
@@ -55,23 +55,23 @@ class APNGCreator(CLTool):
         images = []
         sizes = []
         for infile in self.infiles:
-            image = Image.open(infile)
+            image = Image.open(infile).convert("RGBA")
             images.append(image)
             sizes.append(image.size)
-        max_size = max(sizes)
+        final_size = sizes[-1]
 
         tempfiles = []
         label = ""
         for i, image in enumerate(images):
             if image.size != max(sizes):
-                image = image.resize(max_size, resample=Image.NEAREST)
+                image = image.resize(final_size, resample=Image.NEAREST)
             draw = ImageDraw.Draw(image)
-            font = ImageFont.truetype("Helvetica", 32)
+            font = ImageFont.truetype("Arial", 32)
             if self.labels is not None:
-                label = f"{label} -> {self.labels[i]}".strip(" -> ")
+                label = f"{label} → {self.labels[i]}".strip(" → ")
                 # width, height = draw.textsize(label, font=font)
                 draw.text(
-                    (15, max_size[1] - 45),
+                    (15, final_size[1] - 45),
                     label,
                     font=font,
                     stroke="white",
@@ -80,6 +80,7 @@ class APNGCreator(CLTool):
                 )
                 # Annotate with label
             if self.show_size:
+                print(sizes[i], final_size, image.mode)
                 draw.text(
                     (15, 15),
                     f"{sizes[i][0]} x {sizes[i][1]}",
@@ -115,7 +116,7 @@ class APNGCreator(CLTool):
         Constructs argument parser.
 
         Args:
-            kwargs (Dict[str, Any]): Additional keyword arguments
+            kwargs (Any): Additional keyword arguments
 
         Returns:
             ArgumentParser: Argument parser
