@@ -129,7 +129,7 @@ class APNGCreator(CLTool):
             "--infiles",
             nargs="+",
             required=True,
-            type=cls.input_path_arg(file_ok=True),
+            type=cls.input_path_arg(),
             help="input image files",
         )
         # Labels
