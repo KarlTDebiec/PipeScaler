@@ -1,0 +1,3 @@
+[submodule "pipescaler/common"]
+    path = pipescaler/common
+    url = https://github.com/KarlTDebiec/common.git
