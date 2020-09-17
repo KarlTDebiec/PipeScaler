@@ -128,6 +128,7 @@ class APNGCreator(CLTool):
             "-i",
             "--infiles",
             nargs="+",
+            required=True,
             type=cls.input_path_arg(file_ok=True),
             help="input image files",
         )
@@ -155,6 +156,7 @@ class APNGCreator(CLTool):
             "-o",
             "--outfile",
             default="out.png",
+            required=True,
             type=cls.output_path_arg(),
             help="output animated png",
         )
