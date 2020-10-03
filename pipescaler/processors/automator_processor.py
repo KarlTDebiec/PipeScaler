@@ -6,6 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+""""""
 ####################################### MODULES ########################################
 from __future__ import annotations
 
@@ -71,11 +72,13 @@ class AutomatorProcessor(Processor):
         """
         Constructs argument parser.
 
+        Args:
+            kwargs (Any): Additional keyword arguments
+
         Returns:
             parser (ArgumentParser): Argument parser
         """
-        description = kwargs.get("description", __doc__.strip())
-        parser = super().construct_argparser(description=description, **kwargs)
+        parser = super().construct_argparser(description=__doc__.strip(), **kwargs)
 
         # Operations
         parser.add_argument(
@@ -103,6 +106,16 @@ class AutomatorProcessor(Processor):
                 print(command)
             Popen(command, shell=True, close_fds=True).wait()
             copyfile(tempfile, outfile)
+
+    @classmethod
+    def process_file_from_cl(cls, infile: str, outfile: str, **kwargs: Any) -> None:
+        infile = validate_input_path(infile)
+        outfile = validate_output_path(outfile)
+        workflow = validate_input_path(
+            kwargs.pop("workflow"), file_ok=False, directory_ok=True
+        )
+
+        cls.process_file(infile, outfile, workflow=workflow, **kwargs)
 
     # endregion
 

@@ -6,6 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+""""""
 ####################################### MODULES ########################################
 from __future__ import annotations
 
@@ -77,7 +78,7 @@ class Processor(Stage, CLTool):
         Returns:
             ArgumentParser: Argument parser
         """
-        description = kwargs.get("description", __doc__.strip())
+        description = kwargs.pop("description", __doc__.strip())
         parser = super().construct_argparser(description=description, **kwargs)
 
         # Input
