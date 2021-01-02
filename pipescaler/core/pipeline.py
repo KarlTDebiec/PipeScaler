@@ -97,8 +97,6 @@ class Pipeline:
         source = self.source()
         next(source)
         for image in self.source:
-            if image.name == "0x004E4981":
-                break
             source.send(image)
 
     def __repr__(self) -> str:

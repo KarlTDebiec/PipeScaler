@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/sources/citra_source.py
+#   pipescaler/sources/directory_source.py
 #
 #   Copyright (C) 2020-2021 Karl T Debiec
 #   All rights reserved.
@@ -14,14 +14,12 @@ from pipescaler.core import Source
 
 
 ####################################### CLASSES ########################################
-class CitraSource(Source):
+class DirectorySource(Source):
 
     # region Static Methods
 
     @staticmethod
     def sort(filename):
-        _, size, code, _ = get_name(filename).split("_")
-        width, height = size.split("x")
-        return int(f"1{int(width):04d}{int(height):04d}{int(code, 16):022d}")
+        return "".join([f"{ord(c):03d}" for c in filename])
 
     # endregion

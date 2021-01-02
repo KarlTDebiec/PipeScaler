@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #   pipescaler/core/source.py
 #
-#   Copyright (C) 2020 Karl T Debiec
+#   Copyright (C) 2020-2021 Karl T Debiec
 #   All rights reserved.
 #
 #   This software may be modified and distributed under the terms of the
@@ -13,7 +13,7 @@ from abc import ABC, abstractmethod
 from os import listdir
 from typing import Any, Generator, List, Optional, Union
 
-from pipescaler.common import validate_input_path
+from pipescaler.common import validate_input_path, validate_output_path
 from pipescaler.core import PipeImage
 from pipescaler.core.pipeline import Pipeline
 
@@ -33,7 +33,7 @@ class Source(ABC):
 
         # Prepare attributes
         self.pipeline = pipeline
-        self.directory = validate_input_path(
+        self.directory = validate_output_path(
             directory, file_ok=False, directory_ok=True
         )
         if isinstance(downstream_stages, str):

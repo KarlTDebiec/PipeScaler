@@ -44,7 +44,7 @@ class PipeImage:
 
     @property
     def image(self) -> Image:
-        return Image.open(self.infile)
+        return Image.open(self.last)
 
     @property
     def last(self) -> str:

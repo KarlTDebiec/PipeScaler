@@ -12,6 +12,7 @@ from __future__ import annotations
 from typing import Any, Generator, Optional
 
 import numpy as np
+from IPython import embed
 from PIL import Image
 
 from pipescaler.common import validate_output_path
@@ -32,15 +33,27 @@ class AlphaSplitter(Splitter):
         super().__init__(**kwargs)
 
         # Store configuration
+        if isinstance(downstream_stage_for_rgb, str):
+            downstream_stage_for_rgb = [downstream_stage_for_rgb]
         self.downstream_stage_for_rgb = downstream_stage_for_rgb
+        if isinstance(downstream_stage_for_a, str):
+            downstream_stage_for_a = [downstream_stage_for_a]
         self.downstream_stage_for_a = downstream_stage_for_a
 
         # Prepare description
         desc = f"{self.name} {self.__class__.__name__}"
-        desc += f"\n ├─ RGB"
-        desc += f"\n │   └─ {self.downstream_stage_for_rgb}"
-        desc += f"\n └─ A"
-        desc += f"\n     └─ {self.downstream_stage_for_a}"
+        if self.downstream_stage_for_rgb is not None:
+            desc += f"\n ├─ RGB"
+            if len(self.downstream_stage_for_rgb) >= 2:
+                for stage in self.downstream_stage_for_rgb[:-1]:
+                    desc += f"\n │  ├─ {stage}"
+            desc += f"\n │  └─ {self.downstream_stage_for_rgb[-1]}"
+        if self.downstream_stage_for_a is not None:
+            desc += f"\n └─ A"
+            if len(self.downstream_stage_for_a) >= 2:
+                for stage in self.downstream_stage_for_a[:-1]:
+                    desc += f"\n    ├─ {stage}"
+            desc += f"\n    └─ {self.downstream_stage_for_a[-1]}"
         self.desc = desc
 
     def __call__(self) -> Generator[PipeImage, PipeImage, None]:
@@ -49,6 +62,7 @@ class AlphaSplitter(Splitter):
             if self.pipeline.verbosity >= 2:
                 print(f"{self} splitting: {image.name}")
             if image.mode == "RGBA":
+                rgba = Image.open(image.last)
                 rgb_outfile = validate_output_path(
                     self.pipeline.get_outfile(image, "RGB")
                 )
@@ -56,16 +70,18 @@ class AlphaSplitter(Splitter):
 
                 if self.pipeline.verbosity >= 3:
                     print(f"saving RGB file to '{rgb_outfile}'")
-                Image.fromarray(np.array(image.image)[:, :, :3]).save(rgb_outfile)
+                Image.fromarray(np.array(rgba)[:, :, :3]).save(rgb_outfile)
                 image.log(self.name, rgb_outfile)
                 if self.downstream_stage_for_rgb is not None:
-                    self.pipeline.stages[self.downstream_stage_for_rgb].send(image)
+                    for pipe in self.downstream_stage_for_rgb:
+                        self.pipeline.stages[pipe].send(image)
 
                 if self.pipeline.verbosity >= 3:
                     print(f"saving A file to '{a_outfile}'")
-                Image.fromarray(np.array(image.image)[:, :, 3]).save(a_outfile)
+                Image.fromarray(np.array(rgba)[:, :, 3]).save(a_outfile)
                 image.log(self.name, a_outfile)
                 if self.downstream_stage_for_a is not None:
-                    self.pipeline.stages[self.downstream_stage_for_a].send(image)
+                    for pipe in self.downstream_stage_for_a:
+                        self.pipeline.stages[pipe].send(image)
 
     # endregion
