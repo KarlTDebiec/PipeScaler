@@ -23,8 +23,8 @@ class RegexSorter(Sorter):
     def __init__(
         self,
         regex: str,
-        downstream_pipes_for_matched: Optional[Union[str, List[str]]] = None,
-        downstream_pipes_for_unmatched: Optional[Union[str, List[str]]] = None,
+        downstream_stages_for_matched: Optional[Union[str, List[str]]] = None,
+        downstream_stages_for_unmatched: Optional[Union[str, List[str]]] = None,
         **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
@@ -32,28 +32,30 @@ class RegexSorter(Sorter):
         self.regex = re.compile(regex)
         self.desc = regex
 
-        if isinstance(downstream_pipes_for_matched, str):
-            downstream_pipes_for_matched = [downstream_pipes_for_matched]
-        self.downstream_pipes_for_matched = downstream_pipes_for_matched
+        if isinstance(downstream_stages_for_matched, str):
+            downstream_stages_for_matched = [downstream_stages_for_matched]
+        self.downstream_stages_for_matched = downstream_stages_for_matched
 
-        if isinstance(downstream_pipes_for_unmatched, str):
-            downstream_pipes_for_unmatched = [downstream_pipes_for_unmatched]
-        self.downstream_pipes_for_unmatched = downstream_pipes_for_unmatched
+        if isinstance(downstream_stages_for_unmatched, str):
+            downstream_stages_for_unmatched = [downstream_stages_for_unmatched]
+        self.downstream_stages_for_unmatched = downstream_stages_for_unmatched
 
     def __call__(self) -> Generator[str, str, None]:
         while True:
-            infile = yield  # type: ignore
-            if self.regex.match(self.get_original_name(infile)):
+            image = yield  # type: ignore
+            if self.pipeline.verbosity >= 2:
+                print(f"{self} processing: {image.name}")
+            if self.regex.match(image.name):
                 if self.pipeline.verbosity >= 2:
-                    print(f"{self}: match {infile}")
-                if self.downstream_pipes_for_matched is not None:
-                    for pipe in self.downstream_pipes_for_matched:
-                        self.pipeline.pipes[pipe].send(infile)
+                    print(f"{self}: match {image.name}")
+                if self.downstream_stages_for_matched is not None:
+                    for pipe in self.downstream_stages_for_matched:
+                        self.pipeline.stages[pipe].send(image)
             else:
                 if self.pipeline.verbosity >= 2:
-                    print(f"{self}: unmatch {infile}")
-                if self.downstream_pipes_for_unmatched is not None:
-                    for pipe in self.downstream_pipes_for_unmatched:
-                        self.pipeline.pipes[pipe].send(infile)
+                    print(f"{self}: unmatch {image.name}")
+                if self.downstream_stages_for_unmatched is not None:
+                    for pipe in self.downstream_stages_for_unmatched:
+                        self.pipeline.stages[pipe].send(image)
 
     # endregion
