@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #   pipescaler/processors/side_channel_processor.py
 #
-#   Copyright (C) 2020 Karl T Debiec
+#   Copyright (C) 2020-2021 Karl T Debiec
 #   All rights reserved.
 #
 #   This software may be modified and distributed under the terms of the
@@ -61,6 +61,7 @@ class SideChannelProcessor(Processor):
                 if self.required:
                     raise e
                 # TODO: Support alternate pipeline if not found
+                # continue
             if self.downstream_stages is not None:
                 for pipe in self.downstream_stages:
                     self.pipeline.stages[pipe].send(image)
@@ -78,7 +79,6 @@ class SideChannelProcessor(Processor):
             if not isfile(outfile):
                 self.process_file(infile, outfile, self.pipeline.verbosity)
             image.log(self.name, outfile)
-            print(image.history)
         else:
             raise FileNotFoundError(
                 f"{self} did not file matching '{image.name}' in '{self.directory}'"

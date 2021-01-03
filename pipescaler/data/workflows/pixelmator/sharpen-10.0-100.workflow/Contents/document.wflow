@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>AMApplicationBuild</key>
-	<string>492</string>
+	<string>509</string>
 	<key>AMApplicationVersion</key>
 	<string>2.10</string>
 	<key>AMDocumentVersion</key>
@@ -32,12 +32,7 @@
 					<string>Pixelmator Pro</string>
 				</array>
 				<key>AMParameterProperties</key>
-				<dict>
-					<key>com.pixelmatorteam.pixelmator.x.automatorActionPresetKey</key>
-					<dict/>
-					<key>com.pixelmatorteam.pixelmator.x.automatorActionPresetNameKey</key>
-					<dict/>
-				</dict>
+				<dict/>
 				<key>AMProvides</key>
 				<dict>
 					<key>Container</key>
@@ -54,43 +49,7 @@
 				<key>ActionName</key>
 				<string>Apply Color Adjustments to Images</string>
 				<key>ActionParameters</key>
-				<dict>
-					<key>com.pixelmatorteam.pixelmator.x.automatorActionPresetKey</key>
-					<data>
-					WzEseyJ3IjpbMSx7IlYiOjAsIlQiOjAsIkEi
-					OjAsIkUiOjAsInQiOjB9XSwiQiI6WzEseyJW
-					IjowLCJFIjowLCJBIjowfV0sImNhIjpbMSx7
-					IlYiOjAsIkUiOjAsIkEiOjB9XSwiaSI6WzEs
-					eyJWIjowLCJFIjowLCJpIjoxfV0sIkMiOlsx
-					LHsiZyI6W1swLDBdLFsxLDFdXSwiViI6MCwi
-					cmdiIjpbWzAsMF0sWzEsMV1dLCJFIjowLCJs
-					IjpbWzAsMF0sWzEsMV1dLCJyIjpbWzAsMF0s
-					WzEsMV1dLCJiIjpbWzAsMF0sWzEsMV1dfV0s
-					ImIiOlsxLHsiViI6MCwiaSI6MSwiRSI6MCwi
-					dCI6MH1dLCJTIjpbMSx7IlYiOjEsImkiOjEs
-					InIiOjEwLCJFIjoxfV0sInIiOlsxLHsiViI6
-					MCwiRSI6MCwiciI6WzEseyJyIjowLjUsImki
-					OjF9XX1dLCJMIjpbMSx7IlYiOjAsIkUiOjB9
-					XSwiaFMiOlsxLHsiViI6MCwidiI6MCwiQSI6
-					MCwicyI6MCwiRSI6MCwiaCI6MH1dLCJzIjpb
-					MSx7IlYiOjAsIkUiOjAsImkiOjF9XSwiTSI6
-					WzEseyJWIjowLCJpIjoxLCJjIjpbMSx7Im0i
-					OjIsImMiOlswLjU5MTk5OTk5OTk5OTk5OTk3
-					LDAuNDUwMDAwMDAwMDAwMDAwMDEsMC4zMDQ5
-					OTk5OTk5OTk5OTk5OSwxXX1dLCJFIjowfV0s
-					ImwiOlsxLHsiViI6MCwiYyI6MCwiaCI6MCwi
-					RSI6MCwiQSI6MCwiQiI6MCwiZSI6MCwicyI6
-					MCwiYiI6MH1dLCJjdHgiOlsxLHsiY3MiOlsx
-					LHsibWFwIjp7fX1dfV0sImUiOjAsIm0iOlsx
-					LHsiViI6MCwiRSI6MH1dLCJmIjpbMSx7IlYi
-					OjAsImMiOjAsIkUiOjAsImYiOjF9XSwidiI6
-					WzEseyJWIjowLCJiIjowLCJlIjowLjUsInMi
-					OjEsIkUiOjB9XSwiZyI6WzEseyJWIjowLCJp
-					IjowLjUsInMiOjAuMjUsIkUiOjB9XX1d
-					</data>
-					<key>com.pixelmatorteam.pixelmator.x.automatorActionPresetNameKey</key>
-					<string>Sharpen 10 100</string>
-				</dict>
+				<dict/>
 				<key>BundleIdentifier</key>
 				<string>com.pixelmatorteam.pixelmator.x.automator.apply-color-adjustments-to-images</string>
 				<key>CFBundleVersion</key>
@@ -104,30 +63,38 @@
 					<string>AMCategoryPhotos</string>
 				</array>
 				<key>Class Name</key>
-				<string>Apply_Color_Adjustments_to_Images.ApplyColorAdjustmentAction</string>
+				<string>AMRemoteAction</string>
 				<key>InputUUID</key>
-				<string>2E01C396-8D30-4375-A43A-857EF43ADB72</string>
+				<string>FCCDD75A-523E-4C6E-A989-7B4C83040E46</string>
 				<key>Keywords</key>
-				<array/>
+				<array>
+					<string>brightness</string>
+					<string>exposure</string>
+					<string>saturation</string>
+					<string>hue</string>
+					<string>presets</string>
+				</array>
 				<key>OutputUUID</key>
-				<string>7F90A644-4535-4AB8-924C-E3199DFBE403</string>
+				<string>B66B9846-F333-4C25-9424-968F6556366F</string>
 				<key>UUID</key>
-				<string>3F80B2FB-8B23-497C-93FA-504ADC39E8F5</string>
+				<string>1C503954-AC3D-4412-AF65-36C76499B3F9</string>
 				<key>UnlocalizedApplications</key>
 				<array>
 					<string>Pixelmator Pro</string>
 				</array>
 				<key>arguments</key>
 				<dict/>
+				<key>conversionLabel</key>
+				<integer>0</integer>
 				<key>isViewVisible</key>
-				<true/>
+				<integer>1</integer>
 				<key>location</key>
 				<string>529.000000:283.000000</string>
 				<key>nibPath</key>
 				<string>/Applications/Pixelmator Pro.app/Contents/Library/Automator/Apply Color Adjustments to Images.action/Contents/Resources/Base.lproj/main.nib</string>
 			</dict>
 			<key>isViewVisible</key>
-			<true/>
+			<integer>1</integer>
 		</dict>
 	</array>
 	<key>connectors</key>

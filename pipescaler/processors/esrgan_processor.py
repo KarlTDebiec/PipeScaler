@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #   pipescaler/processors/esrgan_processor.py
 #
-#   Copyright (C) 2020 Karl T Debiec
+#   Copyright (C) 2020-2021 Karl T Debiec
 #   All rights reserved.
 #
 #   This software may be modified and distributed under the terms of the
@@ -22,7 +22,7 @@ from __future__ import annotations
 import collections
 from argparse import ArgumentParser
 from functools import partial
-from os.path import basename, splitext
+from os.path import basename, isfile
 from typing import Any
 
 import numpy as np
@@ -30,7 +30,7 @@ import torch
 from PIL import Image
 
 from pipescaler.common import validate_input_path, validate_output_path
-from pipescaler.core import Processor
+from pipescaler.core import PipeImage, Processor
 
 
 ####################################### CLASSES ########################################
@@ -166,16 +166,17 @@ class ESRGANProcessor(Processor):
         self.model_infile = model_infile
         self.device = device
 
+        desc = f"{self.name} {self.__class__.__name__} (model={basename(self.model_infile)})"
+        if self.downstream_stages is not None:
+            if len(self.downstream_stages) >= 2:
+                for stage in self.downstream_stages[:-1]:
+                    desc += f"\n ├─ {stage}"
+            desc += f"\n └─ {self.downstream_stages[-1]}"
+        self.desc = desc
+
     # endregion
 
     # region Properties
-
-    @property
-    def desc(self) -> str:
-        """str: Description"""
-        if not hasattr(self, "_desc"):
-            return f"esrgan-{splitext(basename(self.model_infile))[0]}"
-        return self._desc
 
     @property
     def model_infile(self) -> str:
@@ -192,13 +193,17 @@ class ESRGANProcessor(Processor):
 
     # region Methods
 
-    def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
-        infile = validate_input_path(infile)
-        outfile = validate_output_path(outfile)
-        upscaler = ESRGANProcessor.RRDBNetUpscaler(infile, torch.device(self.device))
-        self.process_file(
-            infile, outfile, verbosity=self.pipeline.verbosity, upscaler=upscaler
+    def process_file_in_pipeline(self, image: PipeImage) -> None:
+        infile = validate_input_path(image.last)
+        outfile = validate_output_path(self.pipeline.get_outfile(image, self.suffix))
+        upscaler = ESRGANProcessor.RRDBNetUpscaler(
+            self.model_infile, torch.device(self.device)
         )
+        if not isfile(outfile):
+            self.process_file(
+                infile, outfile, verbosity=self.pipeline.verbosity, upscaler=upscaler
+            )
+        image.log(self.name, outfile)
 
     # endregion
 

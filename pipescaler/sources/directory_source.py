@@ -20,6 +20,6 @@ class DirectorySource(Source):
 
     @staticmethod
     def sort(filename):
-        return "".join([f"{ord(c):03d}" for c in filename])
+        return "".join([f"{ord(c):03d}" for c in filename.lower()])
 
     # endregion
