@@ -12,6 +12,7 @@ from __future__ import annotations
 from typing import List
 
 from pipescaler.splitters.alpha_splitter import AlphaSplitter
+from pipescaler.splitters.normal_splitter import NormalSplitter
 
 ######################################### ALL ##########################################
-__all__: List[str] = ["AlphaSplitter"]
+__all__: List[str] = ["AlphaSplitter", "NormalSplitter"]

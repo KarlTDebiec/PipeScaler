@@ -12,7 +12,6 @@ from __future__ import annotations
 from typing import Any, Generator, Optional
 
 import numpy as np
-from IPython import embed
 from PIL import Image
 
 from pipescaler.common import validate_output_path
@@ -26,34 +25,34 @@ class AlphaSplitter(Splitter):
 
     def __init__(
         self,
-        downstream_stage_for_rgb: Optional[str] = None,
-        downstream_stage_for_a: Optional[str] = None,
+        downstream_stages_for_rgb: Optional[str] = None,
+        downstream_stages_for_a: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
 
         # Store configuration
-        if isinstance(downstream_stage_for_rgb, str):
-            downstream_stage_for_rgb = [downstream_stage_for_rgb]
-        self.downstream_stage_for_rgb = downstream_stage_for_rgb
-        if isinstance(downstream_stage_for_a, str):
-            downstream_stage_for_a = [downstream_stage_for_a]
-        self.downstream_stage_for_a = downstream_stage_for_a
+        if isinstance(downstream_stages_for_rgb, str):
+            downstream_stages_for_rgb = [downstream_stages_for_rgb]
+        self.downstream_stages_for_rgb = downstream_stages_for_rgb
+        if isinstance(downstream_stages_for_a, str):
+            downstream_stages_for_a = [downstream_stages_for_a]
+        self.downstream_stages_for_a = downstream_stages_for_a
 
         # Prepare description
         desc = f"{self.name} {self.__class__.__name__}"
-        if self.downstream_stage_for_rgb is not None:
+        if self.downstream_stages_for_rgb is not None:
             desc += f"\n ├─ RGB"
-            if len(self.downstream_stage_for_rgb) >= 2:
-                for stage in self.downstream_stage_for_rgb[:-1]:
+            if len(self.downstream_stages_for_rgb) >= 2:
+                for stage in self.downstream_stages_for_rgb[:-1]:
                     desc += f"\n │  ├─ {stage}"
-            desc += f"\n │  └─ {self.downstream_stage_for_rgb[-1]}"
-        if self.downstream_stage_for_a is not None:
+            desc += f"\n │  └─ {self.downstream_stages_for_rgb[-1]}"
+        if self.downstream_stages_for_a is not None:
             desc += f"\n └─ A"
-            if len(self.downstream_stage_for_a) >= 2:
-                for stage in self.downstream_stage_for_a[:-1]:
+            if len(self.downstream_stages_for_a) >= 2:
+                for stage in self.downstream_stages_for_a[:-1]:
                     desc += f"\n    ├─ {stage}"
-            desc += f"\n    └─ {self.downstream_stage_for_a[-1]}"
+            desc += f"\n    └─ {self.downstream_stages_for_a[-1]}"
         self.desc = desc
 
     def __call__(self) -> Generator[PipeImage, PipeImage, None]:
@@ -72,16 +71,16 @@ class AlphaSplitter(Splitter):
                     print(f"saving RGB file to '{rgb_outfile}'")
                 Image.fromarray(np.array(rgba)[:, :, :3]).save(rgb_outfile)
                 image.log(self.name, rgb_outfile)
-                if self.downstream_stage_for_rgb is not None:
-                    for pipe in self.downstream_stage_for_rgb:
+                if self.downstream_stages_for_rgb is not None:
+                    for pipe in self.downstream_stages_for_rgb:
                         self.pipeline.stages[pipe].send(image)
 
                 if self.pipeline.verbosity >= 3:
                     print(f"saving A file to '{a_outfile}'")
                 Image.fromarray(np.array(rgba)[:, :, 3]).save(a_outfile)
                 image.log(self.name, a_outfile)
-                if self.downstream_stage_for_a is not None:
-                    for pipe in self.downstream_stage_for_a:
+                if self.downstream_stages_for_a is not None:
+                    for pipe in self.downstream_stages_for_a:
                         self.pipeline.stages[pipe].send(image)
 
     # endregion
