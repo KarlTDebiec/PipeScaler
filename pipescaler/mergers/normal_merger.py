@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/mergers/alpha_merger.py
+#   pipescaler/mergers/normal_merger.py
 #
 #   Copyright (C) 2020-2021 Karl T Debiec
 #   All rights reserved.
@@ -13,6 +13,7 @@ from os.path import isfile
 from typing import Any, Generator, List, Optional, Union
 
 import numpy as np
+from IPython import embed
 from PIL import Image
 
 from pipescaler.common import get_name, validate_output_path
@@ -20,7 +21,7 @@ from pipescaler.core import Merger, PipeImage
 
 
 ####################################### CLASSES ########################################
-class AlphaMerger(Merger):
+class NormalMerger(Merger):
 
     # region Builtins
 
@@ -46,7 +47,11 @@ class AlphaMerger(Merger):
     def __call__(self) -> Generator[PipeImage, PipeImage, None]:
         while True:
             image = yield
-            rgb_infile = image.last
+            r_infile = image.last
+            image = yield
+            g_infile = image.last
+            image = yield
+            b_infile = image.last
             image = yield
             a_infile = image.last
             stages = get_name(image.last).split("_")
@@ -58,12 +63,18 @@ class AlphaMerger(Merger):
             if not isfile(outfile):
                 if self.pipeline.verbosity >= 2:
                     print(f"{self} merging: {image.name}")
-                rgb_datum = np.array(Image.open(rgb_infile))
+                r_datum = np.array(Image.open(r_infile).convert("L"), np.float) - 128
+                g_datum = np.array(Image.open(g_infile).convert("L"), np.float) - 128
+                b_datum = np.array(Image.open(b_infile).convert("L"), np.float) - 128
+                mag = np.sqrt(r_datum ** 2 + g_datum ** 2 + b_datum ** 2)
+                r_datum = (((r_datum / mag) * 128) + 128).astype(np.uint8)
+                g_datum = (((g_datum / mag) * 128) + 128).astype(np.uint8)
+                b_datum = (((b_datum / mag) * 128) + 128).astype(np.uint8)
                 a_datum = np.array(Image.open(a_infile).convert("L"))
-                rgba_datum = np.zeros(
-                    (rgb_datum.shape[0], rgb_datum.shape[1], 4), np.uint8
-                )
-                rgba_datum[:, :, :3] = rgb_datum
+                rgba_datum = np.zeros((r_datum.shape[0], r_datum.shape[1], 4), np.uint8)
+                rgba_datum[:, :, 0] = r_datum
+                rgba_datum[:, :, 1] = g_datum
+                rgba_datum[:, :, 2] = b_datum
                 rgba_datum[:, :, 3] = a_datum
                 rgba_image = Image.fromarray(rgba_datum)
                 rgba_image.save(outfile)

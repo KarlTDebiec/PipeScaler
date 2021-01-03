@@ -12,6 +12,7 @@ from __future__ import annotations
 from typing import List
 
 from pipescaler.mergers.alpha_merger import AlphaMerger
+from pipescaler.mergers.normal_merger import NormalMerger
 
 ######################################### ALL ##########################################
-__all__: List[str] = ["AlphaMerger"]
+__all__: List[str] = ["AlphaMerger", "NormalMerger"]
