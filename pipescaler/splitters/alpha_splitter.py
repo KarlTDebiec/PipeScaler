@@ -9,6 +9,7 @@
 ####################################### MODULES ########################################
 from __future__ import annotations
 
+from os.path import isfile
 from typing import Any, Generator, Optional
 
 import numpy as np
@@ -67,17 +68,19 @@ class AlphaSplitter(Splitter):
                 )
                 a_outfile = validate_output_path(self.pipeline.get_outfile(image, "A"))
 
-                if self.pipeline.verbosity >= 3:
-                    print(f"saving RGB file to '{rgb_outfile}'")
-                Image.fromarray(np.array(rgba)[:, :, :3]).save(rgb_outfile)
+                if not isfile(rgb_outfile):
+                    if self.pipeline.verbosity >= 3:
+                        print(f"saving RGB file to '{rgb_outfile}'")
+                    Image.fromarray(np.array(rgba)[:, :, :3]).save(rgb_outfile)
                 image.log(self.name, rgb_outfile)
                 if self.downstream_stages_for_rgb is not None:
                     for pipe in self.downstream_stages_for_rgb:
                         self.pipeline.stages[pipe].send(image)
 
-                if self.pipeline.verbosity >= 3:
-                    print(f"saving A file to '{a_outfile}'")
-                Image.fromarray(np.array(rgba)[:, :, 3]).save(a_outfile)
+                if not isfile(a_outfile):
+                    if self.pipeline.verbosity >= 3:
+                        print(f"saving A file to '{a_outfile}'")
+                    Image.fromarray(np.array(rgba)[:, :, 3]).save(a_outfile)
                 image.log(self.name, a_outfile)
                 if self.downstream_stages_for_a is not None:
                     for pipe in self.downstream_stages_for_a:

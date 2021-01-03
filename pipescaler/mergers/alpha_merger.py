@@ -12,6 +12,7 @@ from __future__ import annotations
 from typing import Any, Generator, List, Optional, Union
 
 import numpy as np
+from IPython import embed
 from PIL import Image
 
 from pipescaler.common import get_name, validate_output_path
@@ -49,9 +50,9 @@ class AlphaMerger(Merger):
             image = yield
             a_infile = image.last
             stages = get_name(image.last).split("_")
-            strip = "_".join(stages[stages.index("A") :])
+            rstrip = "_".join(stages[stages.index("A") :])
             outfile = validate_output_path(
-                self.pipeline.get_outfile(image, "merge-RGBA", strip,)
+                self.pipeline.get_outfile(image, "merge-RGBA", rstrip=rstrip)
             )
 
             if self.pipeline.verbosity >= 2:
