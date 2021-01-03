@@ -9,11 +9,12 @@
 ####################################### MODULES ########################################
 from __future__ import annotations
 
+from os.path import isfile
 from shutil import copyfile
 from typing import Any
 
-from pipescaler.common import validate_output_path
-from pipescaler.core import Processor
+from pipescaler.common import get_ext, validate_input_path, validate_output_path
+from pipescaler.core import PipeImage, Processor
 
 
 ####################################### CLASSES ########################################
@@ -26,16 +27,29 @@ class CopyFileProcessor(Processor):
 
         self.output_directory = output_directory
 
+        # Prepare description
+        desc = f"{self.name} {self.__class__.__name__} ({self.output_directory})"
+        if self.downstream_stages is not None:
+            if len(self.downstream_stages) >= 2:
+                for stage in self.downstream_stages[:-1]:
+                    desc += f"\n ├─ {stage}"
+            desc += f"\n └─ {self.downstream_stages[-1]}"
+        self.desc = desc
+
+    # endregion
+
+    # region Methods
+
+    def process_file_in_pipeline(self, image: PipeImage) -> None:
+        infile = validate_input_path(image.last)
+        outfile = f"{self.output_directory}/{image.name}.{get_ext(image.last)}"
+        if not isfile(outfile):
+            self.process_file(infile, outfile, verbosity=self.pipeline.verbosity)
+        image.log(self.name, outfile)
+
     # endregion
 
     # region Properties
-
-    @property
-    def desc(self) -> str:
-        """str: Description"""
-        if not hasattr(self, "_desc"):
-            return "copyfile"
-        return self._desc
 
     @property
     def output_directory(self) -> str:
