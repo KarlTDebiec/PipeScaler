@@ -12,6 +12,7 @@ from __future__ import annotations
 from typing import Any, Generator, Optional
 
 import numpy as np
+from IPython import embed
 from PIL import Image
 
 from pipescaler.common import validate_output_path
@@ -60,7 +61,7 @@ class NormalSplitter(Splitter):
             image = yield
             if self.pipeline.verbosity >= 2:
                 print(f"{self} splitting: {image.name}")
-            if image.mode == "RGBA":
+            if image.image.mode == "RGBA":
                 rgba = Image.open(image.last)
                 r_outfile = validate_output_path(self.pipeline.get_outfile(image, "R"))
                 g_outfile = validate_output_path(self.pipeline.get_outfile(image, "G"))
@@ -97,6 +98,35 @@ class NormalSplitter(Splitter):
                 image.log(self.name, a_outfile)
                 if self.downstream_stage_for_a is not None:
                     for pipe in self.downstream_stage_for_a:
+                        self.pipeline.stages[pipe].send(image)
+            elif image.image.mode == "RGB":
+                rgb = Image.open(image.last)
+                r_outfile = validate_output_path(self.pipeline.get_outfile(image, "R"))
+                g_outfile = validate_output_path(self.pipeline.get_outfile(image, "G"))
+                b_outfile = validate_output_path(self.pipeline.get_outfile(image, "B"))
+
+                if self.pipeline.verbosity >= 3:
+                    print(f"saving RGB file to '{r_outfile}'")
+                Image.fromarray(np.array(rgb)[:, :, 0]).save(r_outfile)
+                image.log(self.name, r_outfile)
+                if self.downstream_stage_for_rgb is not None:
+                    for pipe in self.downstream_stage_for_rgb:
+                        self.pipeline.stages[pipe].send(image)
+
+                if self.pipeline.verbosity >= 3:
+                    print(f"saving RGB file to '{g_outfile}'")
+                Image.fromarray(np.array(rgb)[:, :, 1]).save(g_outfile)
+                image.log(self.name, g_outfile)
+                if self.downstream_stage_for_rgb is not None:
+                    for pipe in self.downstream_stage_for_rgb:
+                        self.pipeline.stages[pipe].send(image)
+
+                if self.pipeline.verbosity >= 3:
+                    print(f"saving RGB file to '{b_outfile}'")
+                Image.fromarray(np.array(rgb)[:, :, 2]).save(b_outfile)
+                image.log(self.name, b_outfile)
+                if self.downstream_stage_for_rgb is not None:
+                    for pipe in self.downstream_stage_for_rgb:
                         self.pipeline.stages[pipe].send(image)
 
     # endregion
