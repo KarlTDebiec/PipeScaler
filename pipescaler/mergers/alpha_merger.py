@@ -25,7 +25,7 @@ class AlphaMerger(Merger):
     # region Builtins
 
     def __init__(
-        self, downstream_stages: Optional[Union[str, List[str]]] = None, **kwargs: Any
+        self, downstream_stages: Optional[Union[str, List[str]]] = None, **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
 
@@ -51,15 +51,14 @@ class AlphaMerger(Merger):
             a_infile = image.last
             stages = get_name(image.last).split("_")
             rstrip = "_".join(stages[stages.index("A") :])
+            rgb_datum = np.array(Image.open(rgb_infile))
+            a_datum = np.array(Image.open(a_infile).convert("L"))
             outfile = validate_output_path(
                 self.pipeline.get_outfile(image, "merge-RGBA", rstrip=rstrip)
             )
-
             if not isfile(outfile):
                 if self.pipeline.verbosity >= 2:
                     print(f"{self} merging: {image.name}")
-                rgb_datum = np.array(Image.open(rgb_infile))
-                a_datum = np.array(Image.open(a_infile).convert("L"))
                 rgba_datum = np.zeros(
                     (rgb_datum.shape[0], rgb_datum.shape[1], 4), np.uint8
                 )

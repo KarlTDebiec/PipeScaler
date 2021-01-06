@@ -35,6 +35,8 @@ from pipescaler.core import PipeImage, Processor
 
 ####################################### CLASSES ########################################
 class ESRGANProcessor(Processor):
+    """"""
+
     # region Classes
 
     class ResidualDenseBlock5C(torch.nn.Module):
@@ -166,6 +168,10 @@ class ESRGANProcessor(Processor):
         self.model_infile = model_infile
         self.device = device
 
+        self._upscaler = ESRGANProcessor.RRDBNetUpscaler(
+            self.model_infile, torch.device(self.device)
+        )
+
         desc = f"{self.name} {self.__class__.__name__} (model={basename(self.model_infile)})"
         if self.downstream_stages is not None:
             if len(self.downstream_stages) >= 2:
@@ -189,6 +195,12 @@ class ESRGANProcessor(Processor):
     def model_infile(self, value: str) -> None:
         self._model_infile = validate_input_path(value)
 
+    @property
+    def upscaler(self):
+        if not hasattr(self, "_upscaler"):
+            raise ValueError()
+        return self._upscaler
+
     # endregion
 
     # region Methods
@@ -196,12 +208,12 @@ class ESRGANProcessor(Processor):
     def process_file_in_pipeline(self, image: PipeImage) -> None:
         infile = validate_input_path(image.last)
         outfile = validate_output_path(self.pipeline.get_outfile(image, self.suffix))
-        upscaler = ESRGANProcessor.RRDBNetUpscaler(
-            self.model_infile, torch.device(self.device)
-        )
         if not isfile(outfile):
             self.process_file(
-                infile, outfile, verbosity=self.pipeline.verbosity, upscaler=upscaler
+                infile,
+                outfile,
+                verbosity=self.pipeline.verbosity,
+                upscaler=self.upscaler,
             )
         image.log(self.name, outfile)
 
