@@ -25,12 +25,12 @@ class ModeSorter(Sorter):
     # region Builtins
 
     def __init__(
-            self,
-            drop_alpha_threshold: Optional[int] = None,
-            downstream_stages_for_rgba: Optional[Union[str, List[str]]] = None,
-            downstream_stages_for_rgb: Optional[Union[str, List[str]]] = None,
-            downstream_stages_for_l: Optional[Union[str, List[str]]] = None,
-            **kwargs: Any,
+        self,
+        drop_alpha_threshold: Optional[int] = None,
+        downstream_stages_for_rgba: Optional[Union[str, List[str]]] = None,
+        downstream_stages_for_rgb: Optional[Union[str, List[str]]] = None,
+        downstream_stages_for_l: Optional[Union[str, List[str]]] = None,
+        **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
 
@@ -83,18 +83,18 @@ class ModeSorter(Sorter):
         while True:
             image = yield
             if self.pipeline.verbosity >= 2:
-                print(f"{self} sorting: {image.name} ({image.mode})")
+                print(f"  {self}")
             if image.mode == "RGBA":
                 if self.drop_alpha_threshold is not None and np.all(
-                        np.array(Image.open(image.last))[:, :, 3]
-                        >= self.drop_alpha_threshold
+                    np.array(Image.open(image.last))[:, :, 3]
+                    >= self.drop_alpha_threshold
                 ):
                     outfile = validate_output_path(
                         self.pipeline.get_outfile(image, "RGB")
                     )
                     if not isfile(outfile):
                         if self.pipeline.verbosity >= 2:
-                            print(f"{self} dropping alpha: {image.name}")
+                            print(f"    RGBA, but dropping A and treating as RGB")
                         rgba_image = Image.open(image.last)
                         rgba_datum = np.array(rgba_image)
                         rgb_image = Image.fromarray(rgba_datum[:, :, :3])
@@ -104,14 +104,20 @@ class ModeSorter(Sorter):
                         for stage in self.downstream_stages_for_rgb:
                             self.pipeline.stages[stage].send(image)
                 else:
+                    if self.pipeline.verbosity >= 2:
+                        print(f"    RGBA")
                     if self.downstream_stages_for_rgba is not None:
                         for stage in self.downstream_stages_for_rgba:
                             self.pipeline.stages[stage].send(image)
             elif image.mode == "RGB":
+                if self.pipeline.verbosity >= 2:
+                    print(f"    RGB")
                 if self.downstream_stages_for_rgb is not None:
                     for stage in self.downstream_stages_for_rgb:
                         self.pipeline.stages[stage].send(image)
             elif image.mode == "L":
+                if self.pipeline.verbosity >= 2:
+                    print(f"    L")
                 if self.downstream_stages_for_l is not None:
                     for stage in self.downstream_stages_for_l:
                         self.pipeline.stages[stage].send(image)

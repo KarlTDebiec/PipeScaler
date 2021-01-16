@@ -50,7 +50,10 @@ class AlphaMerger(Merger):
             image = yield
             a_infile = image.last
             stages = get_name(image.last).split("_")
-            rstrip = "_".join(stages[stages.index("A") :])
+            if "A" in stages:
+                rstrip = "_".join(stages[stages.index("A") :])
+            else:
+                rstrip = "_".join(stages[stages.index("RGB") :])
             rgb_datum = np.array(Image.open(rgb_infile))
             a_datum = np.array(Image.open(a_infile).convert("L"))
             outfile = validate_output_path(

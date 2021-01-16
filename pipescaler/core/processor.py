@@ -46,7 +46,7 @@ class Processor(Stage, CLTool):
         while True:
             image = yield
             if self.pipeline.verbosity >= 2:
-                print(f"{self} processing: {image.name}")
+                print(f"  {self}")
             self.process_file_in_pipeline(image)
             if self.downstream_stages is not None:
                 for pipe in self.downstream_stages:

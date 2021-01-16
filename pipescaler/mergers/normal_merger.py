@@ -10,10 +10,10 @@
 from __future__ import annotations
 
 from os.path import isfile
+from pprint import pprint
 from typing import Any, Generator, List, Optional, Union
 
 import numpy as np
-from IPython import embed
 from PIL import Image
 
 from pipescaler.common import get_name, validate_output_path
@@ -52,12 +52,10 @@ class NormalMerger(Merger):
             g_infile = image.last
             image = yield
             b_infile = image.last
-            image = yield
-            a_infile = image.last
             stages = get_name(image.last).split("_")
-            rstrip = "_".join(stages[stages.index("A") :])
+            rstrip = "_".join(stages[stages.index("B") :])
             outfile = validate_output_path(
-                self.pipeline.get_outfile(image, "merge-RGBA", rstrip=rstrip)
+                self.pipeline.get_outfile(image, "merge-RGB", rstrip=rstrip)
             )
 
             if not isfile(outfile):
@@ -70,14 +68,12 @@ class NormalMerger(Merger):
                 r_datum = (((r_datum / mag) * 128) + 128).astype(np.uint8)
                 g_datum = (((g_datum / mag) * 128) + 128).astype(np.uint8)
                 b_datum = (((b_datum / mag) * 128) + 128).astype(np.uint8)
-                a_datum = np.array(Image.open(a_infile).convert("L"))
-                rgba_datum = np.zeros((r_datum.shape[0], r_datum.shape[1], 4), np.uint8)
-                rgba_datum[:, :, 0] = r_datum
-                rgba_datum[:, :, 1] = g_datum
-                rgba_datum[:, :, 2] = b_datum
-                rgba_datum[:, :, 3] = a_datum
-                rgba_image = Image.fromarray(rgba_datum)
-                rgba_image.save(outfile)
+                rgb_datum = np.zeros((r_datum.shape[0], r_datum.shape[1], 3), np.uint8)
+                rgb_datum[:, :, 0] = r_datum
+                rgb_datum[:, :, 1] = g_datum
+                rgb_datum[:, :, 2] = b_datum
+                rgb_image = Image.fromarray(rgb_datum)
+                rgb_image.save(outfile)
             image.log(self.name, outfile)
             if self.downstream_stages is not None:
                 for pipe in self.downstream_stages:

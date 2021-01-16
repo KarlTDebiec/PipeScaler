@@ -9,7 +9,6 @@
 ####################################### MODULES ########################################
 from __future__ import annotations
 
-from pipescaler.common import get_name
 from pipescaler.core import Source
 
 

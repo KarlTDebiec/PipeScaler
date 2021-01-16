@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #   pipescaler/sorters/list_sorter.py
 #
-#   Copyright (C) 2020 Karl T Debiec
+#   Copyright (C) 2020-2021 Karl T Debiec
 #   All rights reserved.
 #
 #   This software may be modified and distributed under the terms of the
@@ -21,33 +21,34 @@ from pipescaler.core import Sorter
 
 ####################################### CLASSES ########################################
 class ListSorter(Sorter):
+    """
+    TODO: map filename to fork at runtime rather than creating a list beforehand
+    """
 
     # region Builtins
 
-    def __init__(
-        self, downstream_forks: Dict[str, Dict[str, Any]], **kwargs: Any
-    ) -> None:
+    def __init__(self, forks: Dict[str, Dict[str, Any]], **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
         # Store configuration
         desc = f"{self.name} {self.__class__.__name__}"
 
         # Organize downstream forks
-        downstream_forks_by_filename = {}
+        forks_by_filename = {}
         default_fork_name = None
         default_downstream_stages = None
-        for fork_name, fork_conf in downstream_forks.items():
+        for fork_name, fork_conf in forks.items():
             if fork_conf is None:
                 fork_conf = {}
 
-            # Parse file definitions for this class
-            infiles = fork_conf.get("infiles")
+            # Parse filenames for this fork
+            input_filenames = fork_conf.get("filenames")
 
-            if infiles is None:
+            if input_filenames is None:
                 if default_fork_name is not None:
                     raise ValueError(
-                        "At most one configuration may omit 'infiles' "
-                        "and will be used as the default fork"
+                        "At most one configuration may omit 'filenames' and will be "
+                        "used as the default fork; two or more have been provided."
                     )
                 default_fork_name = fork_name
                 downstream_stages = fork_conf.get("downstream_stages")
@@ -56,29 +57,33 @@ class ListSorter(Sorter):
                 default_downstream_stages = downstream_stages
                 continue
 
-            if isinstance(infiles, str):
-                infiles = [infiles]
+            if isinstance(input_filenames, str):
+                input_filenames = [input_filenames]
             filenames = set()
-            desc += f"\n ├─ {fork_name} ("
-            for infile in infiles:
-                infile = validate_input_path(infile, file_ok=True, directory_ok=True)
-                desc += f"{infile}, "
-                if isdir(infile):
-                    filenames |= {get_name(f) for f in listdir(infile)}
-                else:
-                    with open(infile, "r") as f:
-                        filenames |= {
-                            get_name(f) for f in yaml.load(f, Loader=yaml.SafeLoader)
-                        }
+            for input_filename in input_filenames:
+                try:
+                    input_filename = validate_input_path(
+                        input_filename, file_ok=True, directory_ok=True
+                    )
+                    if isdir(input_filename):
+                        filenames |= {get_name(f) for f in listdir(input_filename)}
+                    else:
+                        with open(input_filename, "r") as f:
+                            filenames |= {
+                                get_name(f)
+                                for f in yaml.load(f, Loader=yaml.SafeLoader)
+                            }
+                except FileNotFoundError:
+                    filenames |= {get_name(input_filename)}
                 filenames.discard(".DS_Store")
-            desc = f"{desc.rstrip(', ')}, {len(filenames)} filenames)"
+            desc += f"\n ├─ {fork_name} ({len(filenames)} filenames)"
 
             # Parse downstream stages for this class
             downstream_stages = fork_conf.get("downstream_stages")
             if isinstance(downstream_stages, str):
                 downstream_stages = [downstream_stages]
             for filename in filenames:
-                downstream_forks_by_filename[filename] = downstream_stages
+                forks_by_filename[filename] = downstream_stages
             if downstream_stages is not None:
                 if len(downstream_stages) >= 2:
                     for stage in downstream_stages:
@@ -101,17 +106,18 @@ class ListSorter(Sorter):
 
         # Store results
         self.desc = desc
-        self.downstream_forks_by_filename = downstream_forks_by_filename
+        self.forks_by_filename = forks_by_filename
         self.default_downstream_stages = default_downstream_stages
+        print(self.forks_by_filename)
 
     def __call__(self) -> Generator[str, str, None]:
         while True:
             image = yield
-            stages = self.downstream_forks_by_filename.get(
+            stages = self.forks_by_filename.get(
                 image.name, self.default_downstream_stages
             )
             if self.pipeline.verbosity >= 2:
-                print(f"{self} sorting: {image}")
+                print(f"  {self}")
             if stages is not None:
                 for stage in stages:
                     self.pipeline.stages[stage].send(image)

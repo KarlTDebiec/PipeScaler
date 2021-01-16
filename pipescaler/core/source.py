@@ -59,8 +59,6 @@ class Source(ABC):
     def __call__(self, **kwargs: Any) -> Generator[PipeImage, PipeImage, None]:
         while True:
             image = yield
-            if self.pipeline.verbosity >= 2:
-                print(f"{self} processing {image.name}")
             if self.downstream_stages is not None:
                 for stage in self.downstream_stages:
                     try:
@@ -75,7 +73,7 @@ class Source(ABC):
         for i, infile in enumerate(self.infiles):
             image = PipeImage(infile)
             if self.pipeline.verbosity >= 1:
-                print(f"{self} yielding: {image.name} ({i}/{len(self.infiles)})")
+                print(f"{image.name} ({i}/{len(self.infiles)})")
             yield image
 
     def __repr__(self) -> str:

@@ -60,7 +60,7 @@ class AlphaSplitter(Splitter):
         while True:
             image = yield
             if self.pipeline.verbosity >= 2:
-                print(f"{self} splitting: {image.name}")
+                print(f"  {self}")
             if image.mode == "RGBA":
                 rgba = Image.open(image.last)
                 rgb_outfile = validate_output_path(
@@ -70,7 +70,7 @@ class AlphaSplitter(Splitter):
 
                 if not isfile(rgb_outfile):
                     if self.pipeline.verbosity >= 3:
-                        print(f"saving RGB file to '{rgb_outfile}'")
+                        print(f"    saving RGB file to '{rgb_outfile}'")
                     Image.fromarray(np.array(rgba)[:, :, :3]).save(rgb_outfile)
                 image.log(self.name, rgb_outfile)
                 if self.downstream_stages_for_rgb is not None:
@@ -79,11 +79,13 @@ class AlphaSplitter(Splitter):
 
                 if not isfile(a_outfile):
                     if self.pipeline.verbosity >= 3:
-                        print(f"saving A file to '{a_outfile}'")
+                        print(f"    saving A file to '{a_outfile}'")
                     Image.fromarray(np.array(rgba)[:, :, 3]).save(a_outfile)
                 image.log(self.name, a_outfile)
                 if self.downstream_stages_for_a is not None:
                     for pipe in self.downstream_stages_for_a:
                         self.pipeline.stages[pipe].send(image)
+            else:
+                raise ValueError()
 
     # endregion
