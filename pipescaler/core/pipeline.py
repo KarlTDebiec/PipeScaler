@@ -13,8 +13,9 @@ from importlib import import_module
 from importlib.util import module_from_spec, spec_from_file_location
 from os import makedirs
 from os.path import basename, isdir, isfile, join, splitext
+from pprint import pprint
 from shutil import copyfile
-from typing import Any, Dict, TYPE_CHECKING
+from typing import Any, Dict, List, TYPE_CHECKING
 
 from pipescaler.common import (
     get_name,
@@ -33,11 +34,11 @@ class Pipeline:
     # region Builtins
 
     def __init__(
-        self,
-        wip_directory: str,
-        source: Dict[str, Dict[str, Any]],
-        stages: Dict[str, Dict[str, Any]],
-        verbosity: int = 1,
+            self,
+            pipeline: List[Any],
+            stages: Dict[str, Dict[str, Any]],
+            wip_directory: str,
+            verbosity: int = 1,
     ) -> None:
 
         # Store configuration
@@ -47,18 +48,10 @@ class Pipeline:
         self.verbosity = validate_int(verbosity, min_value=0)
 
         # Load configuration
-        sources_module = import_module("pipescaler.sources")
         stage_modules = [
             import_module(f"pipescaler.{package}")
-            for package in ["mergers", "processors", "sorters", "splitters"]
+            for package in ["mergers", "processors", "sorters", "sources", "splitters"]
         ]
-
-        # Configure source
-        source_cls_name = list(source.keys())[0]
-        source_args = list(source.values())[0]
-        source_cls = getattr(sources_module, source_cls_name)
-        self.source = source_cls(pipeline=self, **source_args)
-        print(repr(self.source))
 
         # Configure stages
         self.stages: Dict[str, Stage] = {}
@@ -87,17 +80,17 @@ class Pipeline:
                         continue
                 if stage_cls is None:
                     raise AttributeError(f"Class {stage_cls_name} not found")
-            stage = stage_cls(pipeline=self, name=stage_name, **stage_args)
-            print(repr(stage))
-            self.stages[stage_name] = stage()
-            next(self.stages[stage_name])
+            self.stages[stage_name] = stage_cls(name=stage_name, **stage_args)
+
+        # Configure pipeline
+        # TODO: Validate
+        self.pipeline = pipeline
 
     def __call__(self, **kwargs: Any) -> None:
         """Performs operations."""
-        source = self.source()
-        next(source)
-        for image in self.source:
-            source.send(image)
+        pprint(self.pipeline)
+        for image in self.stages[self.pipeline[0]]:
+            print(image, image.directory)
 
     def __repr__(self) -> str:
         return self.__class__.__name__.lower()

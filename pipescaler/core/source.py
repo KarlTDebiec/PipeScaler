@@ -10,12 +10,12 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from os import listdir
-from typing import Any, Generator, List, Optional, Union
+from os import walk
+from os.path import join
+from typing import Any, List, Optional
 
-from pipescaler.common import validate_input_path, validate_output_path
+from pipescaler.common import validate_output_path
 from pipescaler.core import PipeImage
-from pipescaler.core.pipeline import Pipeline
 
 
 ####################################### CLASSES ########################################
@@ -24,63 +24,46 @@ class Source(ABC):
     # region Builtins
 
     def __init__(
-        self,
-        pipeline: Pipeline,
-        directory: str,
-        downstream_stages: Optional[Union[List[str], str]] = None,
-        **kwargs: Any,
+            self,
+            directory: str,
+            **kwargs: Any,
     ) -> None:
-
         # Prepare attributes
-        self.pipeline = pipeline
         self.directory = validate_output_path(
             directory, file_ok=False, directory_ok=True
         )
-        if isinstance(downstream_stages, str):
-            downstream_stages = [downstream_stages]
-        self.downstream_stages = downstream_stages
-        self.infiles = [
-            validate_input_path(f, default_directory=self.directory)
-            for f in listdir(self.directory)
-            if f != ".DS_Store"
-        ]
+        self.infiles = []
+        for (dirpath, dirnames, filenames) in walk(self.directory):
+            for file in filenames:
+                if file != ".DS_Store":
+                    self.infiles.append(join(dirpath, file))
         self.infiles.sort(key=self.sort)
 
         # Prepare name and description
         self.name = self.__class__.__name__.lower()
-        desc = f"source {self.__class__.__name__} ({self.directory})"
-        if self.downstream_stages is not None:
-            if len(self.downstream_stages) >= 2:
-                for stage in self.downstream_stages[:-1]:
-                    desc += f"\n ├─ {stage}"
-            desc += f"\n └─ {self.downstream_stages[-1]}"
-        self.desc = desc
-
-    def __call__(self, **kwargs: Any) -> Generator[PipeImage, PipeImage, None]:
-        while True:
-            image = yield
-            if self.downstream_stages is not None:
-                for stage in self.downstream_stages:
-                    try:
-                        self.pipeline.stages[stage].send(image)
-                    except KeyError:
-                        raise ValueError(
-                            f"Downstream stage '{stage}' sought by '{self}' does not "
-                            f"exist in '{self.pipeline}'"
-                        )
+        self.desc = f"source {self.__class__.__name__} ({self.directory})"
 
     def __iter__(self):
-        for i, infile in enumerate(self.infiles):
-            image = PipeImage(infile)
-            if self.pipeline.verbosity >= 1:
-                print(f"{image.name} ({i}/{len(self.infiles)})")
-            yield image
+        for infile in self.infiles:
+            yield PipeImage(infile, base_directory=self.directory)
 
     def __repr__(self) -> str:
         return self.desc
 
     def __str__(self) -> str:
         return self.name
+
+    # endregion
+
+    # region Properties
+
+    @property
+    def inlets(self) -> Optional[List[str]]:
+        return None
+
+    @property
+    def outlets(self) -> Optional[List[str]]:
+        return ["outlet"]
 
     # endregion
 

@@ -9,6 +9,7 @@
 ####################################### MODULES ########################################
 from __future__ import annotations
 
+from os.path import dirname
 from typing import Tuple
 
 from PIL import Image
@@ -18,12 +19,20 @@ from pipescaler.common import get_ext, get_name, validate_input_path
 
 ####################################### CLASSES ########################################
 class PipeImage:
+    """
+    TODO: RelativePath Property
+    """
 
     # region Builtins
 
-    def __init__(self, infile: str) -> None:
+    def __init__(self, infile: str, base_directory=None) -> None:
         self.infile = validate_input_path(infile)
         self.name = get_name(self.infile)
+        if base_directory is not None:
+            self.directory = dirname(self.infile).replace(base_directory.rstrip('/'),
+                                                          '').lstrip('/')
+        else:
+            self.directory = ""
         self.ext = get_ext(self.infile)
 
         image = Image.open(self.infile)

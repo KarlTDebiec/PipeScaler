@@ -65,6 +65,18 @@ class Processor(Stage, CLTool):
 
     # endregion
 
+    # region Properties
+
+    @property
+    def inlets(self) -> Optional[List[str]]:
+        return ["inlet"]
+
+    @property
+    def outlets(self) -> Optional[List[str]]:
+        return ["outlet"]
+
+    # endregion
+
     # region Class Methods
 
     @classmethod

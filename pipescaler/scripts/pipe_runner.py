@@ -11,6 +11,7 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
+from pprint import pprint
 from typing import Any
 
 import yaml
@@ -36,6 +37,7 @@ class PipeRunner(CLTool):
         # Input
         with open(validate_input_path(conf_file), "r") as f:
             conf = yaml.load(f, Loader=yaml.SafeLoader)
+        pprint(conf)
         self.pipeline = Pipeline(verbosity=self.verbosity, **conf)
 
     def __call__(self) -> None:

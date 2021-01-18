@@ -25,7 +25,8 @@ class CopyFileProcessor(Processor):
     def __init__(self, output_directory: str, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
-        self.output_directory = output_directory
+        self.output_directory = validate_output_path(output_directory,
+                                                     directory_ok=True, file_ok=False)
 
         # Prepare description
         desc = f"{self.name} {self.__class__.__name__} ({self.output_directory})"
@@ -79,7 +80,7 @@ class CopyFileProcessor(Processor):
 
     @classmethod
     def process_file(
-        cls, infile: str, outfile: str, verbosity: int = 1, **kwargs
+            cls, infile: str, outfile: str, verbosity: int = 1, **kwargs
     ) -> None:
         if verbosity >= 1:
             print(f"Copying {infile} to {outfile}")
