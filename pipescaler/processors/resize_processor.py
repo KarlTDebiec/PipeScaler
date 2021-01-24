@@ -68,7 +68,7 @@ class ResizeProcessor(Processor):
             int(np.round(input_image.size[0] * scale)),
             int(np.round(input_image.size[1] * scale)),
         )
-        output_image = input_image.convert("RGB").resize(size, resample=Image.LANCZOS)
+        output_image = input_image.convert("RGB").resize(size, resample=Image.NEAREST)
 
         # Combine R, G, and B from RGB with A from RGBA
         if input_image.mode == "RGBA":

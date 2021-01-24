@@ -139,7 +139,7 @@ class WaifuPixelmator2xProcessor(Processor):
             f"-o {tempfile_2.name}"
         )
         if verbosity >= 1:
-            print(command)
+            print(f"    {command}")
         Popen(command, shell=True, close_fds=True).wait()
 
         # Load processed image and crop back to original content
@@ -155,7 +155,7 @@ class WaifuPixelmator2xProcessor(Processor):
         copyfile(infile, tempfile_3.name)
         command = f"automator " f"-i {tempfile_3.name} " f"{workflow}"
         if verbosity >= 1:
-            print(command)
+            print(f"    {command}")
         Popen(command, shell=True, close_fds=True).wait()
         pixelmator_3x_image = Image.open(tempfile_3.name)
         remove(tempfile_3.name)

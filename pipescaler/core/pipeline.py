@@ -114,11 +114,11 @@ class Pipeline:
         backup = join(directory, f"{image.name}.{image.ext}")
         if not isdir(directory):
             if self.verbosity >= 1:
-                print(f"{self} creating: {dir()}")
+                print(f"    creating '{directory}'")
             makedirs(directory)
         if not isfile(backup):
             if self.verbosity >= 1:
-                print(f"{self} backing up to: {backup}")
+                print(f"    backing up to '{backup}'")
             copyfile(image.infile, backup)
 
     def get_outfile(self, image, suffix, lstrip="_", rstrip=None):

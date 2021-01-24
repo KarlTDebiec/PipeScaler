@@ -10,7 +10,6 @@
 from __future__ import annotations
 
 from os.path import isfile
-from pprint import pprint
 from typing import Any, Generator, List, Optional, Union
 
 import numpy as np
@@ -26,7 +25,8 @@ class NormalMerger(Merger):
     # region Builtins
 
     def __init__(
-        self, downstream_stages: Optional[Union[str, List[str]]] = None, **kwargs: Any
+            self, downstream_stages: Optional[Union[str, List[str]]] = None,
+            **kwargs: Any
     ) -> None:
         super().__init__(**kwargs)
 
@@ -53,14 +53,17 @@ class NormalMerger(Merger):
             image = yield
             b_infile = image.last
             stages = get_name(image.last).split("_")
-            rstrip = "_".join(stages[stages.index("B") :])
+            rstrip = "_".join(stages[stages.index("B"):])
             outfile = validate_output_path(
                 self.pipeline.get_outfile(image, "merge-RGB", rstrip=rstrip)
             )
 
             if not isfile(outfile):
                 if self.pipeline.verbosity >= 2:
-                    print(f"{self} merging: {image.name}")
+                    print(f"    merging: {image.name}")
+                # r_datum = np.array(Image.open(r_infile).convert("L"))
+                # g_datum = np.array(Image.open(g_infile).convert("L"))
+                # b_datum = np.array(Image.open(b_infile).convert("L"))
                 r_datum = np.array(Image.open(r_infile).convert("L"), np.float) - 128
                 g_datum = np.array(Image.open(g_infile).convert("L"), np.float) - 128
                 b_datum = np.array(Image.open(b_infile).convert("L"), np.float) - 128

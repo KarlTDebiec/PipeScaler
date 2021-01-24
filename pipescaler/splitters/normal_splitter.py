@@ -13,7 +13,6 @@ from os.path import isfile
 from typing import Any, Generator, Optional
 
 import numpy as np
-from IPython import embed
 from PIL import Image
 
 from pipescaler.common import validate_output_path
@@ -26,10 +25,10 @@ class NormalSplitter(Splitter):
     # region Builtins
 
     def __init__(
-        self,
-        downstream_stages_for_rgb: Optional[str] = None,
-        downstream_stages_for_a: Optional[str] = None,
-        **kwargs: Any,
+            self,
+            downstream_stages_for_rgb: Optional[str] = None,
+            downstream_stages_for_a: Optional[str] = None,
+            **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
 
@@ -61,7 +60,7 @@ class NormalSplitter(Splitter):
         while True:
             image = yield
             if self.pipeline.verbosity >= 2:
-                print(f"{self} splitting: {image.name}")
+                print(f"    splitting: {image.name}")
             rgb = Image.open(image.last)
             r_outfile = validate_output_path(self.pipeline.get_outfile(image, "R"))
             g_outfile = validate_output_path(self.pipeline.get_outfile(image, "G"))
@@ -69,7 +68,7 @@ class NormalSplitter(Splitter):
 
             if not isfile(r_outfile):
                 if self.pipeline.verbosity >= 3:
-                    print(f"saving R file to '{r_outfile}'")
+                    print(f"    saving red to '{r_outfile}'")
                 Image.fromarray(np.array(rgb)[:, :, 0]).save(r_outfile)
             image.log(self.name, r_outfile)
             if self.downstream_stages_for_rgb is not None:
@@ -78,7 +77,7 @@ class NormalSplitter(Splitter):
 
             if not isfile(g_outfile):
                 if self.pipeline.verbosity >= 3:
-                    print(f"saving G file to '{g_outfile}'")
+                    print(f"    saving green to '{g_outfile}'")
                 Image.fromarray(np.array(rgb)[:, :, 1]).save(g_outfile)
             image.log(self.name, g_outfile)
             if self.downstream_stages_for_rgb is not None:
@@ -87,7 +86,7 @@ class NormalSplitter(Splitter):
 
             if not isfile(b_outfile):
                 if self.pipeline.verbosity >= 3:
-                    print(f"saving B file to '{b_outfile}'")
+                    print(f"    saving blue to '{b_outfile}'")
                 Image.fromarray(np.array(rgb)[:, :, 2]).save(b_outfile)
             image.log(self.name, b_outfile)
             if self.downstream_stages_for_rgb is not None:
