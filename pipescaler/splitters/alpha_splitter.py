@@ -70,7 +70,7 @@ class AlphaSplitter(Splitter):
 
                 if not isfile(rgb_outfile):
                     if self.pipeline.verbosity >= 3:
-                        print(f"    saving RGB file to '{rgb_outfile}'")
+                        print(f"    saving RGB to '{rgb_outfile}'")
                     Image.fromarray(np.array(rgba)[:, :, :3]).save(rgb_outfile)
                 image.log(self.name, rgb_outfile)
                 if self.downstream_stages_for_rgb is not None:
@@ -79,7 +79,7 @@ class AlphaSplitter(Splitter):
 
                 if not isfile(a_outfile):
                     if self.pipeline.verbosity >= 3:
-                        print(f"    saving A file to '{a_outfile}'")
+                        print(f"    saving alpha to '{a_outfile}'")
                     Image.fromarray(np.array(rgba)[:, :, 3]).save(a_outfile)
                 image.log(self.name, a_outfile)
                 if self.downstream_stages_for_a is not None:

@@ -128,6 +128,8 @@ class WaifuProcessor(Processor):
 
         # Prepare temporary image with reflections and minimum size of 200x200
         image = Image.open(infile)
+        if image.mode == "L":
+            image = image.convert("RGB")
         w, h = image.size
         transposed_h = image.transpose(Image.FLIP_LEFT_RIGHT)
         transposed_v = image.transpose(Image.FLIP_TOP_BOTTOM)
