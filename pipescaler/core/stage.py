@@ -10,9 +10,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any, Generator, List, Optional
-
-from pipescaler.core.pipe_image import PipeImage
+from typing import Any, List, Optional
 
 
 ####################################### CLASSES ########################################
@@ -21,10 +19,7 @@ class Stage(ABC):
     # region Builtins
 
     def __init__(
-            self,
-            name: Optional[str] = None,
-            desc: Optional[str] = None,
-            **kwargs: Any
+        self, name: Optional[str] = None, desc: Optional[str] = None, **kwargs: Any
     ) -> None:
         if name is not None:
             self.name = name
@@ -33,7 +28,7 @@ class Stage(ABC):
         if desc is not None:
             self.desc = desc
         else:
-            self.desc = self.name
+            self.desc = f"{self.name} {self.__class__.__name__}"
 
     def __repr__(self) -> str:
         return self.desc

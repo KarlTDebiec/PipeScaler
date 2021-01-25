@@ -25,21 +25,16 @@ class PipeImage:
 
     # region Builtins
 
-    def __init__(self, infile: str, base_directory=None) -> None:
-        self.infile = validate_input_path(infile)
-        self.name = get_name(self.infile)
-        if base_directory is not None:
-            self.directory = dirname(self.infile).replace(base_directory.rstrip('/'),
-                                                          '').lstrip('/')
-        else:
-            self.directory = ""
-        self.ext = get_ext(self.infile)
-
-        image = Image.open(self.infile)
-        self.mode: str = image.mode
-        self.shape: Tuple[int] = image.size
+    def __init__(self, infile: str, name: str, ext: str, image: Image.Image) -> None:
+        self.infile = infile
+        self.name = name
+        self.ext = ext
+        self.image = image
+        # self.mode: str = image.mode
+        # self.shape: Tuple[int] = image.size
 
         self.history = []
+        self.log = {}
 
     def __repr__(self) -> str:
         return self.name
@@ -51,23 +46,23 @@ class PipeImage:
 
     # region Properties
 
-    @property
-    def image(self) -> Image:
-        return Image.open(self.last)
+    # @property
+    # def image(self) -> Image:
+    #     return Image.open(self.last)
 
-    @property
-    def last(self) -> str:
-        if len(self.history) >= 1:
-            return self.history[-1][1]
-        else:
-            return self.infile
+    # @property
+    # def last(self) -> str:
+    #     if len(self.history) >= 1:
+    #         return self.history[-1][1]
+    #     else:
+    #         return self.infile
 
     # endregion
 
     # region Methods
 
-    def log(self, stage_name: str, outfile: str):
-        self.history.append((stage_name, outfile))
+    # def log(self, stage_name: str, outfile: str):
+    #     self.history.append((stage_name, outfile))
 
     def show(self):
         self.image.show()

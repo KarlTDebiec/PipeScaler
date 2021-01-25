@@ -49,20 +49,69 @@ class WaifuProcessor(Processor):
         self.suffix = f"waifu-{self.imagetype}-{self.scale}-{self.denoise}"
 
         # Prepare description
-        desc = (
+        self.desc = (
             f"{self.name} {self.__class__.__name__} (imagetype={self.imagetype}, "
             f"scale={self.scale}, denoise={self.denoise})"
         )
-        if self.downstream_stages is not None:
-            if len(self.downstream_stages) >= 2:
-                for stage in self.downstream_stages[:-1]:
-                    desc += f"\n ├─ {stage}"
-            desc += f"\n └─ {self.downstream_stages[-1]}"
-        self.desc = desc
 
     # endregion
 
     # region Methods
+
+    def process(self, inlet=None):
+        imagetype = self.imagetype
+        scale = self.scale
+        denoise = self.denoise
+        if inlet.mode == "L":
+            inlet = inlet.convert("RGB")
+
+        # Prepare temporary image with reflections and minimum size of 200x200
+        w, h = inlet.size
+        transposed_h = inlet.transpose(Image.FLIP_LEFT_RIGHT)
+        transposed_v = inlet.transpose(Image.FLIP_TOP_BOTTOM)
+        transposed_hv = transposed_h.transpose(Image.FLIP_TOP_BOTTOM)
+        reflected = Image.new(
+            inlet.mode, (max(200, int(w * 1.5)), max(200, int(h * 1.5)))
+        )
+        x = reflected.size[0] // 2
+        y = reflected.size[1] // 2
+        reflected.paste(inlet, (x - w // 2, y - h // 2))
+        reflected.paste(transposed_h, (x + w // 2, y - h // 2))
+        reflected.paste(transposed_h, (x - w - w // 2, y - h // 2))
+        reflected.paste(transposed_v, (x - w // 2, y - h - h // 2))
+        reflected.paste(transposed_v, (x - w // 2, y + h // 2))
+        reflected.paste(transposed_hv, (x + w // 2, y - h - h // 2))
+        reflected.paste(transposed_hv, (x - w - w // 2, y - h - h // 2))
+        reflected.paste(transposed_hv, (x - w - w // 2, y + h // 2))
+        reflected.paste(transposed_hv, (x + w // 2, y + h // 2))
+        reflected_temp_file = NamedTemporaryFile(delete=False, suffix=".png")
+        reflected.save(reflected_temp_file)
+        reflected_temp_file.close()
+
+        # Process using waifu
+        processed_temp_file = NamedTemporaryFile(delete=False, suffix=".png")
+        command = (
+            f"waifu2x "
+            f"-t {imagetype} "
+            f"-s {scale} "
+            f"-n {denoise} "
+            f"-i {reflected_temp_file.name} "
+            f"-o {processed_temp_file.name}"
+        )
+        Popen(command, shell=True, close_fds=True).wait()
+
+        # Load processed image and crop back to original content
+        unreflected = Image.open(processed_temp_file.name).crop(
+            (
+                (x - w // 2) * scale,
+                (y - h // 2) * scale,
+                (x + w // 2) * scale,
+                (y + h // 2) * scale,
+            )
+        )
+        remove(reflected_temp_file.name)
+        remove(processed_temp_file.name)
+        return unreflected
 
     def process_file_in_pipeline(self, image: PipeImage) -> None:
         infile = image.last
@@ -166,7 +215,7 @@ class WaifuProcessor(Processor):
         Popen(command, shell=True, close_fds=True).wait()
 
         # Load processed image and crop back to original content
-        reflected = Image.open(outfile).crop(
+        unreflected = Image.open(outfile).crop(
             (
                 (x - w // 2) * scale,
                 (y - h // 2) * scale,
@@ -175,7 +224,7 @@ class WaifuProcessor(Processor):
             )
         )
         remove(tempfile.name)
-        reflected.save(outfile)
+        unreflected.save(outfile)
 
     # endregion
 

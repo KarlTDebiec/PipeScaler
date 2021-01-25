@@ -9,15 +9,20 @@
 ####################################### MODULES ########################################
 from __future__ import annotations
 
+from copy import deepcopy
 from importlib import import_module
 from importlib.util import module_from_spec, spec_from_file_location
 from os import makedirs
-from os.path import basename, isdir, isfile, join, splitext
+from os.path import basename, expandvars, isdir, isfile, join, splitext
 from pprint import pprint
 from shutil import copyfile
 from typing import Any, Dict, List, TYPE_CHECKING
 
+import numpy as np
+from PIL import Image
+
 from pipescaler.common import (
+    DirectoryNotFoundError,
     get_name,
     validate_input_path,
     validate_int,
@@ -29,22 +34,44 @@ if TYPE_CHECKING:
 
 
 ####################################### CLASSES ########################################
+class StageRun:
+    def __init__(self, stage):
+        self.stage = stage
+        self.inlets = {inlet: None for inlet in stage.inlets}
+        self.outlets = {outlet: None for outlet in stage.outlets}
+
+    def run(self):
+        pass
+
+    def __repr__(self) -> str:
+        return self.__str__()
+
+    def __str__(self) -> str:
+        return f"Run for {self.stage.name}\n  {self.inlets}\n  {self.outlets}"
+
+
 class Pipeline:
 
     # region Builtins
 
     def __init__(
-            self,
-            pipeline: List[Any],
-            stages: Dict[str, Dict[str, Any]],
-            wip_directory: str,
-            verbosity: int = 1,
+        self,
+        pipeline: List[Any],
+        stages: Dict[str, Dict[str, Any]],
+        wip_directory: str,
+        verbosity: int = 1,
     ) -> None:
 
         # Store configuration
-        self.wip_directory = validate_output_path(
-            wip_directory, file_ok=False, directory_ok=True
-        )
+        try:
+            self.wip_directory = validate_output_path(
+                wip_directory, file_ok=False, directory_ok=True
+            )
+        except DirectoryNotFoundError as e:
+            makedirs(expandvars(wip_directory))
+            self.wip_directory = validate_output_path(
+                wip_directory, file_ok=False, directory_ok=True
+            )
         self.verbosity = validate_int(verbosity, min_value=0)
 
         # Load configuration
@@ -88,9 +115,79 @@ class Pipeline:
 
     def __call__(self, **kwargs: Any) -> None:
         """Performs operations."""
-        pprint(self.pipeline)
-        for image in self.stages[self.pipeline[0]]:
-            print(image, image.directory)
+        source = self.stages[self.pipeline[0]]
+
+        for i, image in enumerate(source):
+            print(f"{image} ({i})")
+            directory = join(self.wip_directory, image.name)
+            backup = join(directory, f"{image.name}.{image.ext}")
+            if not isdir(directory):
+                if self.verbosity >= 1:
+                    print(f"    creating '{directory}'")
+                makedirs(directory)
+            if not isfile(backup):
+                if self.verbosity >= 1:
+                    print(f"    backing up to '{backup}'")
+                copyfile(image.infile, backup)
+            image.infile = backup
+            self.process_image(image, self.pipeline[1:])
+
+    def process_image(self, image, stages):
+        # Prepare the stages
+        stage_runs = []
+        for stage_name in stages:
+            if isinstance(stage_name, dict):
+                outlet_stages = list(stage_name.values())[0]
+                stage_name = list(stage_name.keys())[0]
+            stage = self.stages[stage_name]
+            stage_runs.append(StageRun(stage))
+            print(stage, stage.inlets, stage.outlets)
+        stage_runs[0].inlets[""] = image.infile
+        pprint(stage_runs)
+
+    # def process_image(self, image, infile, upstream, stages):
+    #     stage_spec = stages.pop(0)
+    #
+    #     suffixes = []
+    #     if isinstance(stage_spec, str):
+    #         stage_name = stage_spec
+    #     elif isinstance(stage_spec, dict):
+    #         stage_name = list(stage_spec.keys())[0]
+    #         downstream_2 = list(stage_spec.values())[0]
+    #     else:
+    #         raise ValueError()
+    #     stage = self.stages[stage_name]
+    #     print(f"  {stage}")
+    #     if len(stage.inlets) == 1 and len(stage.outlets) == 1:
+    #         suffixes.append(stage.suffix)
+    #         outfile = join(self.wip_directory, image.name, f"{'_'.join(suffixes)}.png")
+    #         if not isfile(outfile):
+    #             inlet = Image.open(infile)
+    #             outlet = stage.process(inlet)
+    #             print(f"    Saving {outfile}")
+    #             outlet.save(outfile)
+    #         else:
+    #             print(f"    Previously saved {outfile}")
+    # elif len(stage.inlets) == 1 and len(stage.outlets) >= 2:
+    #     outfiles = []
+    #     for outlet in stage.outlets:
+    #         suffixes_2 = deepcopy(suffixes)
+    #         suffixes_2.append(outlet)
+    #         outfiles.append(
+    #             join(self.wip_directory, image.name, f"{'_'.join(suffixes_2)}.png",)
+    #         )
+    #     if not np.all([isfile(outfile) for outfile in outfiles]):
+    #         inlet = Image.open(last_infile)
+    #         outlets = stage.process(inlet)
+    #         for outlet, outfile in zip(outlets, outfiles):
+    #             print(f"    Saving {outfile}")
+    #             outlet.save(outfile)
+    #     else:
+    #         for outfile in outfiles:
+    #             print(f"    Previously saved {outfile}")
+    #     print(downstream_2)
+    # else:
+    #     exit()
 
     def __repr__(self) -> str:
         return self.__class__.__name__.lower()

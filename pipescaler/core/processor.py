@@ -13,7 +13,7 @@ from __future__ import annotations
 from abc import abstractmethod
 from argparse import ArgumentParser
 from os.path import isfile
-from typing import Any, Generator, List, Optional, Union
+from typing import Any, List, Optional
 
 from pipescaler.common import CLTool, validate_input_path, validate_output_path
 from pipescaler.core import PipeImage
@@ -25,12 +25,7 @@ class Processor(Stage, CLTool):
 
     # region Builtins
 
-    def __init__(
-        self,
-        suffix: Optional[str] = None,
-        downstream_stages: Optional[Union[str, List[str]]] = None,
-        **kwargs: Any,
-    ) -> None:
+    def __init__(self, suffix: Optional[str] = None, **kwargs: Any,) -> None:
         super().__init__(**kwargs)
 
         # Store configuration
@@ -38,19 +33,21 @@ class Processor(Stage, CLTool):
             self.suffix = suffix
         else:
             self.suffix = self.name
-        if isinstance(downstream_stages, str):
-            downstream_stages = [downstream_stages]
-        self.downstream_stages = downstream_stages
 
-    def __call__(self, **kwargs: Any) -> Generator[PipeImage, PipeImage, None]:
-        while True:
-            image = yield
-            if self.pipeline.verbosity >= 2:
-                print(f"  {self}")
-            self.process_file_in_pipeline(image)
-            if self.downstream_stages is not None:
-                for pipe in self.downstream_stages:
-                    self.pipeline.stages[pipe].send(image)
+    def __call__(self):
+        pass
+
+    # endregion
+
+    # region Properties
+
+    @property
+    def inlets(self) -> Optional[List[str]]:
+        return [""]
+
+    @property
+    def outlets(self) -> Optional[List[str]]:
+        return [""]
 
     # endregion
 
@@ -62,18 +59,6 @@ class Processor(Stage, CLTool):
         if not isfile(outfile):
             self.process_file(infile, outfile, verbosity=self.pipeline.verbosity)
         image.log(self.name, outfile)
-
-    # endregion
-
-    # region Properties
-
-    @property
-    def inlets(self) -> Optional[List[str]]:
-        return ["inlet"]
-
-    @property
-    def outlets(self) -> Optional[List[str]]:
-        return ["outlet"]
 
     # endregion
 

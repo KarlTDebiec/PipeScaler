@@ -75,3 +75,11 @@ class AlphaMerger(Merger):
                     self.pipeline.stages[pipe].send(image)
 
     # endregion
+
+    # region Properties
+
+    @property
+    def inlets(self) -> Optional[List[str]]:
+        return ["rgb", "a"]
+
+    # endregion

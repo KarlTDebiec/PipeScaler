@@ -25,4 +25,10 @@
 ## Notes:
 
 - Don't use a property unless you cannot do the initialization in __init__
-- Don't write a setter unless you need to set the value outside of __init__
+- Don't write a setter unless you need to set the value outside __init__
+
+## Reorganization Notes:
+
+- Image object can store its history and understanding of what it has gone through
+    - Keep a 'history' and a 'queue'
+  

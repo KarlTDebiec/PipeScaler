@@ -10,10 +10,17 @@
 from __future__ import annotations
 
 from abc import ABC
+from typing import List, Optional
 
 from pipescaler.core.stage import Stage
 
 
 ####################################### CLASSES ########################################
 class Splitter(Stage, ABC):
-    pass
+    # region Properties
+
+    @property
+    def inlets(self) -> Optional[List[str]]:
+        return [""]
+
+    # endregion
