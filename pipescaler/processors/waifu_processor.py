@@ -158,8 +158,8 @@ class WaifuProcessor(Processor):
             f"-t {imagetype} "
             f"-s {scale} "
             f"-n {denoise} "
-            f"-i {tempfile.name} "
-            f"-o {outfile}"
+            f"-i \"{tempfile.name}\" "
+            f"-o \"{outfile}\""
         )
         if verbosity >= 2:
             print(command)
