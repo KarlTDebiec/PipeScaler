@@ -6,7 +6,7 @@ numba
 pillow
 pytest
 pytest-cov
+pytorch
 pyyaml
 scikit-image
 setuptools
-torch
