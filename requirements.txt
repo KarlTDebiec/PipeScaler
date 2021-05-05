@@ -1,3 +1,4 @@
+black
 coveralls
 ipython
 numpy

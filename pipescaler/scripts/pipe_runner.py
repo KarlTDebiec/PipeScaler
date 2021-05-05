@@ -1,33 +1,32 @@
 #!/usr/bin/env python
 #   pipescaler/scripts/pipe_runner.py
 #
-#   Copyright (C) 2020 Karl T Debiec
+#   Copyright (C) 2020-2021 Karl T Debiec
 #   All rights reserved.
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-################################### MODULES ###################################
+""""""
+####################################### MODULES ########################################
 from __future__ import annotations
 
 from argparse import ArgumentParser
-from pathlib import Path
 from typing import Any
 
 import yaml
 
-from pipescaler.Pipeline import Pipeline
-from pipescaler.common import CLTool
+from pipescaler.common import CLTool, validate_input_path
+from pipescaler.core.pipeline import Pipeline
 
 
-################################### CLASSES ###################################
-class PipeScaler(CLTool):
-    package_root: str = str(Path(__file__).parent.absolute())
+####################################### CLASSES ########################################
+class PipeRunner(CLTool):
 
     # region Builtins
 
-    def __init__(self, conf_file: str, **kwargs) -> None:
+    def __init__(self, conf_file: str, **kwargs: Any) -> None:
         """
-        Initializes
+        Initializes.
 
         Args:
             conf_file (str): file from which to load configuration
@@ -35,9 +34,9 @@ class PipeScaler(CLTool):
         super().__init__(**kwargs)
 
         # Input
-        with open(conf_file, "r") as f:
+        with open(validate_input_path(conf_file), "r") as f:
             conf = yaml.load(f, Loader=yaml.SafeLoader)
-        self.pipeline = Pipeline(conf, verbosity=self.verbosity)
+        self.pipeline = Pipeline(verbosity=self.verbosity, **conf)
 
     def __call__(self) -> None:
         self.pipeline()
@@ -49,25 +48,24 @@ class PipeScaler(CLTool):
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
-        Constructs argument parser
+        Constructs argument parser.
 
         Returns:
             ArgumentParser: Argument parser
         """
-        parser = super().construct_argparser(description=__doc__, **kwargs)
+        description = kwargs.get("description", __doc__.strip())
+        parser = super().construct_argparser(description=description, **kwargs)
 
         # Input
-        parser_input = parser.add_argument_group("input arguments")
         parser.add_argument(
-            "conf_file",
-            type=cls.input_path_argument(),
-            help="configuration file")
+            "conf_file", type=cls.input_path_arg(), help="configuration file"
+        )
 
         return parser
 
     # endregion
 
 
-#################################### MAIN #####################################
+######################################### MAIN #########################################
 if __name__ == "__main__":
-    PipeScaler.main()
+    PipeRunner.main()

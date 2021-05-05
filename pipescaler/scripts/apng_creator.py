@@ -1,88 +1,110 @@
 #!/usr/bin/env python
 #   pipescaler/scripts/apng_creator.py
 #
-#   Copyright (C) 2020 Karl T Debiec
+#   Copyright (C) 2020-2021 Karl T Debiec
 #   All rights reserved.
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
 """"""
-################################### MODULES ###################################
+####################################### MODULES ########################################
 from __future__ import annotations
 
 from argparse import ArgumentParser
 from os import remove
 from subprocess import Popen
 from tempfile import NamedTemporaryFile
-from typing import Any, List
+from typing import Any, List, Optional
 
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 
-from pipescaler.common import CLTool, validate_output_path
+from pipescaler.common import (
+    CLTool,
+    validate_executable,
+    validate_input_path,
+    validate_output_path,
+)
 
 
-################################### CLASSES ###################################
+####################################### CLASSES ########################################
 class APNGCreator(CLTool):
 
     # region Builtins
 
-    def __init__(self, infiles: List[str], outfile: str,
-                 **kwargs: Any) -> None:
+    def __init__(
+        self,
+        infiles: List[str],
+        outfile: str,
+        labels: Optional[List[str]] = None,
+        show_size: bool = False,
+        duration: Optional[int] = 500,
+        **kwargs: Any,
+    ) -> None:
         super().__init__(**kwargs)
 
-        self.infiles = infiles
-        self.outfile = outfile
+        self.infiles = list(map(validate_input_path, infiles))
+        self.outfile = validate_output_path(outfile)
+        self.labels = labels
+        if self.labels is not None and len(self.labels) != len(self.infiles):
+            raise ValueError
+        self.show_size = show_size
+        self.duration = duration
+        self.apngasm_executable = validate_executable("apngasm")
 
     def __call__(self, **kwargs: Any) -> None:
         images = []
         sizes = []
         for infile in self.infiles:
-            image = Image.open(infile)
+            image = Image.open(infile).convert("RGBA")
             images.append(image)
             sizes.append(image.size)
+        final_size = sizes[-1]
 
         tempfiles = []
+        label = ""
         for i, image in enumerate(images):
             if image.size != max(sizes):
-                image = image.resize(max(sizes), resample=Image.NEAREST)
+                image = image.resize(final_size, resample=Image.NEAREST)
+            draw = ImageDraw.Draw(image)
+            font = ImageFont.truetype("Arial", 32)
+            if self.labels is not None:
+                label = f"{label} → {self.labels[i]}".strip(" → ")
+                # width, height = draw.textsize(label, font=font)
+                draw.text(
+                    (15, final_size[1] - 45),
+                    label,
+                    font=font,
+                    stroke="white",
+                    stroke_fill="black",
+                    stroke_width=2,
+                )
+                # Annotate with label
+            if self.show_size:
+                print(sizes[i], final_size, image.mode)
+                draw.text(
+                    (15, 15),
+                    f"{sizes[i][0]} x {sizes[i][1]}",
+                    font=font,
+                    stroke="white",
+                    stroke_fill="black",
+                    stroke_width=2,
+                )
+                # Annotate with size
             tempfiles.append(NamedTemporaryFile(delete=False, suffix=".png"))
             tempfiles[-1].close()
             image.save(tempfiles[-1].name)
-        command = f"apngasm " \
-                  f"-o {self.outfile} " \
-                  f"{' '.join([t.name for t in tempfiles])} " \
-                  f"-d 500 " \
-                  f"--force"
-        print(command)
+        command = (
+            f"{self.apngasm_executable} "
+            f"-o {self.outfile} "
+            f"{' '.join([t.name for t in tempfiles])} "
+            f"-d {self.duration} "
+            f"--force"
+        )
+        if self.verbosity >= 1:
+            print(command)
         Popen(command, shell=True, close_fds=True).wait()
         for tempfile in tempfiles:
             remove(tempfile.name)
-
-    # endregion
-
-    # region Properties
-
-    @property
-    def infiles(self) -> List[str]:
-        """str: Directory from which to load image files"""
-        if not hasattr(self, "_infiles"):
-            self._infiles = []
-        return self._infiles
-
-    @infiles.setter
-    def infiles(self, value: List[str]) -> None:
-        self._infiles = list(map(validate_output_path, value))
-
-    @property
-    def outfile(self) -> str:
-        """str: Output animated png file"""
-        if not hasattr(self, "_outfile"):
-            self._outfile = validate_output_path("out.png")
-        return self._outfile
-
-    @outfile.setter
-    def outfile(self, value: str):
-        self._outfile = validate_output_path(value)
 
     # endregion
 
@@ -91,7 +113,7 @@ class APNGCreator(CLTool):
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
-        Constructs argument parser
+        Constructs argument parser.
 
         Args:
             kwargs (Any): Additional keyword arguments
@@ -99,32 +121,51 @@ class APNGCreator(CLTool):
         Returns:
             ArgumentParser: Argument parser
         """
-        parser = super().construct_argparser(description=__doc__, **kwargs)
+        parser = super().construct_argparser(description=__doc__.strip(), **kwargs)
 
         # Input
         parser.add_argument(
-            "-i", "--infiles",
+            "-i",
+            "--infiles",
             nargs="+",
-            type=cls.input_path_argument(file_ok=True, directory_ok=True),
-            help="input files or directory")
+            required=True,
+            type=cls.input_path_arg(),
+            help="input image files",
+        )
         # Labels
 
         # Operations
-        # Show labels
-        # Show size
+        parser.add_argument(
+            "--labels",
+            nargs="+",
+            type=str,
+            help="labels with which to annotate images",
+        )
+        parser.add_argument(
+            "--show_size", action="store_true", help="annotate each image with size",
+        )
+        parser.add_argument(
+            "--duration",
+            default=500,
+            type=cls.int_arg(min_value=1),
+            help="duration for which to show each image (ms)",
+        )
 
         # Output
         parser.add_argument(
-            "-o", "--outfile",
+            "-o",
+            "--outfile",
             default="out.png",
-            type=cls.output_path_argument(),
-            help="output animated png")
+            required=True,
+            type=cls.output_path_arg(),
+            help="output animated png",
+        )
 
         return parser
 
     # endregion
 
 
-#################################### MAIN #####################################
+######################################### MAIN #########################################
 if __name__ == "__main__":
     APNGCreator.main()

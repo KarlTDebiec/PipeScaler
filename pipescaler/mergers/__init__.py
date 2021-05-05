@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/sources/__init__.py
+#   pipescaler/mergers/__init__.py
 #
 #   Copyright (C) 2020-2021 Karl T Debiec
 #   All rights reserved.
@@ -11,9 +11,8 @@ from __future__ import annotations
 
 from typing import List
 
-from pipescaler.sources.citra_source import CitraSource
-from pipescaler.sources.directory_source import DirectorySource
-from pipescaler.sources.texmod_source import TexModSource
+from pipescaler.mergers.alpha_merger import AlphaMerger
+from pipescaler.mergers.normal_merger import NormalMerger
 
 ######################################### ALL ##########################################
-__all__: List[str] = ["CitraSource", "DirectorySource", "TexModSource"]
+__all__: List[str] = ["AlphaMerger", "NormalMerger"]
