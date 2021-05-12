@@ -53,7 +53,7 @@ class NormalMerger(Merger):
             image = yield
             b_infile = image.last
             stages = get_name(image.last).split("_")
-            rstrip = "_".join(stages[stages.index("B"):])
+            rstrip = "_" + "_".join(stages[stages.index("B"):])
             outfile = validate_output_path(
                 self.pipeline.get_outfile(image, "merge-RGB", rstrip=rstrip)
             )
