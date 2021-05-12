@@ -1,16 +1,16 @@
 TODO:
-- [ ] ModeConverter
 - [ ] Fix bugs in texconv output
+- [ ] ModeProcessor
+- [ ] Check OS when running OS-specific processors
+- [ ] Try CUDA and fall back to CPU if necessary
+- [ ] Clean up path separators
 
 Backlog:
 - [ ] AlphaSplitter/AlphaMerger: Option to keep RGBA for both and stack
 - [ ] WaifuPixelmator2XProcessor: Remove
 - [ ] SideChannelProcessor: Alternative downstream stages for unmatched
 - [ ] common: Review documentation
-
 - [ ] AppleScriptProcessor for Pixelmator
-- [ ] ModeChangeProcessor?
-- [ ] Splitters/Mergers: normal map
 - [ ] Splitters/Mergers: size
 - [ ] Processors: Consistent handling of verbosity
 - [ ] Processors: Command-line support for all
@@ -21,7 +21,6 @@ Backlog:
 - [ ] CI: Run mypy
 - [ ] CI: Documentation coverage
 - [ ] CI: Waifu on Linux (without CUDA?)
-- [ ] Windows Support
 
 Notes:
 - Don't use a property unless you cannot do the initialization in __init__
