@@ -1,12 +1,8 @@
 TODO:
-- [x] Splitters/Mergers: Generic alpha splitter
-- [x] Set up black
-- [x] Reformat for black and 88 columns
-- [x] Standards-compliant filenames
-- [x] Sorters: Rename mipmap to scaled
-- [x] Stages: Consider Stage base class
-- [x] Pipeline: Do not backup until needed
-- [x] apng_creator: Support annotation
+- [ ] ModeConverter
+- [ ] Fix bugs in texconv output
+
+Backlog:
 - [ ] AlphaSplitter/AlphaMerger: Option to keep RGBA for both and stack
 - [ ] WaifuPixelmator2XProcessor: Remove
 - [ ] SideChannelProcessor: Alternative downstream stages for unmatched
