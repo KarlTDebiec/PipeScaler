@@ -13,6 +13,7 @@ from os.path import isfile
 from typing import Any, Generator, List, Optional, Union
 
 import numpy as np
+from IPython import embed
 from PIL import Image
 
 from pipescaler.common import validate_int, validate_output_path
@@ -96,8 +97,8 @@ class ModeSorter(Sorter):
                         if self.pipeline.verbosity >= 2:
                             print(f"    RGBA, but dropping A and treating as RGB")
                         rgba_image = Image.open(image.last)
-                        rgba_datum = np.array(rgba_image)
-                        rgb_image = Image.fromarray(rgba_datum[:, :, :3])
+                        rgb_image = Image.fromarray(np.zeros((rgba_image.size[0], rgba_image.size[1], 3), np.uint8))
+                        rgb_image.paste(rgba_image)
                         rgb_image.save(outfile)
                     image.log(self.name, outfile)
                     if self.downstream_stages_for_rgb is not None:
