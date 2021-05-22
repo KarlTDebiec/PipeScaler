@@ -1,7 +1,15 @@
 TODO:
-- [ ] Fix bugs in texconv output
-- [ ] ModeProcessor
+- [x] Fix bugs in texconv output
 - [ ] Check OS when running OS-specific processors
+    - [x] texconv
+    - [ ] automator
+- [ ] Check if executables exist in `__init__`
+    - [x] texconv
+    - [ ] pngquant
+    - [ ] xbrzscale
+    - [ ] waifu
+    - [ ] potrace
+- [ ] ModeProcessor
 - [ ] Try CUDA and fall back to CPU if necessary
 - [ ] Clean up path separators
 

@@ -11,18 +11,18 @@ from __future__ import annotations
 
 from argparse import ArgumentParser
 from os.path import basename, isfile, join
-from shutil import copyfile
+from platform import win32_ver
+from shutil import copyfile, which
 from subprocess import Popen
 from tempfile import TemporaryDirectory
 from typing import Any, Optional
 
-from pipescaler.common import validate_output_path
-from pipescaler.core import PipeImage, Processor
+from pipescaler.common import ExecutableNotFoundError, validate_output_path
+from pipescaler.core import PipeImage, PlatformNotSupportedError, Processor
 
 
 ####################################### CLASSES ########################################
 class TexconvProcessor(Processor):
-    extension = "dds"
 
     # region Builtins
 
@@ -33,6 +33,12 @@ class TexconvProcessor(Processor):
         format: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
+
+        if not any(win32_ver()):
+            raise PlatformNotSupportedError("TexconvProcessor may ")
+        if not which("texconv.exe"):
+            raise ExecutableNotFoundError("texcov.exe executable not found in PATH")
+
         super().__init__(**kwargs)
 
         self.sepalpha = sepalpha

@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from typing import List
 
+from pipescaler.core.exceptions import PlatformNotSupportedError
 from pipescaler.core.merger import Merger
 from pipescaler.core.pipe_image import PipeImage
 from pipescaler.core.pipeline import Pipeline
@@ -25,6 +26,7 @@ __all__: List[str] = [
     "Merger",
     "PipeImage",
     "Pipeline",
+    "PlatformNotSupportedError",
     "Processor",
     "Sorter",
     "Source",
