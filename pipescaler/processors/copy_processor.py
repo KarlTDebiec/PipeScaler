@@ -42,7 +42,9 @@ class CopyFileProcessor(Processor):
 
     def process_file_in_pipeline(self, image: PipeImage) -> None:
         infile = validate_input_path(image.last)
-        outfile = f"{self.output_directory}/{image.name}.{get_ext(image.last)}"
+        outfile = validate_output_path(
+            f"{self.output_directory}/{image.name}.{get_ext(image.last)}"
+        )
         if not isfile(outfile):
             self.process_file(infile, outfile, verbosity=self.pipeline.verbosity)
         image.log(self.name, outfile)

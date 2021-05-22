@@ -12,6 +12,8 @@ TODO:
 - [ ] ModeProcessor
 - [ ] Try CUDA and fall back to CPU if necessary
 - [ ] Clean up path separators
+  - [x] Path validation
+  - [x] CopyProcessor
 
 Backlog:
 - [ ] AlphaSplitter/AlphaMerger: Option to keep RGBA for both and stack
