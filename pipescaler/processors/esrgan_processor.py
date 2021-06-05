@@ -205,7 +205,7 @@ class ESRGANProcessor(Processor):
 
     # region Methods
 
-    def process_file_in_pipeline(self, image: PipeImage) -> None:
+    def process_file_from_pipeline(self, image: PipeImage) -> None:
         infile = validate_input_path(image.last)
         outfile = validate_output_path(self.pipeline.get_outfile(image, self.suffix))
         if not isfile(outfile):

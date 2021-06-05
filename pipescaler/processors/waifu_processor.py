@@ -64,7 +64,7 @@ class WaifuProcessor(Processor):
 
     # region Methods
 
-    def process_file_in_pipeline(self, image: PipeImage) -> None:
+    def process_file_from_pipeline(self, image: PipeImage) -> None:
         infile = image.last
         outfile = validate_output_path(self.pipeline.get_outfile(image, self.suffix))
         if not isfile(outfile):
@@ -158,8 +158,8 @@ class WaifuProcessor(Processor):
             f"-t {imagetype} "
             f"-s {scale} "
             f"-n {denoise} "
-            f"-i \"{tempfile.name}\" "
-            f"-o \"{outfile}\""
+            f'-i "{tempfile.name}" '
+            f'-o "{outfile}"'
         )
         if verbosity >= 2:
             print(command)

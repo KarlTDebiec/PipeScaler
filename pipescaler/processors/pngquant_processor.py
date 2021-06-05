@@ -54,7 +54,7 @@ class PngquantProcessor(Processor):
 
     # region Methods
 
-    def process_file_in_pipeline(self, infile: str, outfile: str) -> None:
+    def process_file_from_pipeline(self, infile: str, outfile: str) -> None:
         self.process_file(
             infile,
             outfile,

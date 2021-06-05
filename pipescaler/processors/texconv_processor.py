@@ -45,7 +45,7 @@ class TexconvProcessor(Processor):
 
     # region Methods
 
-    def process_file_in_pipeline(self, image: PipeImage) -> None:
+    def process_file_from_pipeline(self, image: PipeImage) -> None:
         if not any(win32_ver()):
             raise UnsupportedPlatformError(
                 "TexconvProcessor may only be used on Windows"

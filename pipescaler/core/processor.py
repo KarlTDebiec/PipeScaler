@@ -12,11 +12,9 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from argparse import ArgumentParser
-from os.path import isfile
-from typing import Any, Generator, List, Optional, Union
+from typing import Any, Optional
 
-from pipescaler.common import CLTool, validate_input_path, validate_output_path
-from pipescaler.core import PipeImage
+from pipescaler.common import CLTool
 from pipescaler.core.stage import Stage
 
 
@@ -25,12 +23,7 @@ class Processor(Stage, CLTool):
 
     # region Builtins
 
-    def __init__(
-        self,
-        suffix: Optional[str] = None,
-        downstream_stages: Optional[Union[str, List[str]]] = None,
-        **kwargs: Any,
-    ) -> None:
+    def __init__(self, suffix: Optional[str] = None, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
         # Store configuration
@@ -38,30 +31,9 @@ class Processor(Stage, CLTool):
             self.suffix = suffix
         else:
             self.suffix = self.name
-        if isinstance(downstream_stages, str):
-            downstream_stages = [downstream_stages]
-        self.downstream_stages = downstream_stages
 
-    def __call__(self, **kwargs: Any) -> Generator[PipeImage, PipeImage, None]:
-        while True:
-            image = yield
-            if self.pipeline.verbosity >= 2:
-                print(f"  {self}")
-            self.process_file_in_pipeline(image)
-            if self.downstream_stages is not None:
-                for pipe in self.downstream_stages:
-                    self.pipeline.stages[pipe].send(image)
-
-    # endregion
-
-    # region Methods
-
-    def process_file_in_pipeline(self, image: PipeImage) -> None:
-        infile = validate_input_path(image.last)
-        outfile = validate_output_path(self.pipeline.get_outfile(image, self.suffix))
-        if not isfile(outfile):
-            self.process_file(infile, outfile, verbosity=self.pipeline.verbosity)
-        image.log(self.name, outfile)
+    def __call__(self, infile: str, outfile: str, verbosity: int = 1) -> None:
+        self.process_file(infile, outfile, verbosity=verbosity)
 
     # endregion
 
@@ -83,8 +55,6 @@ class Processor(Stage, CLTool):
 
         # Input
         parser.add_argument("infile", type=cls.input_path_arg(), help="input file")
-
-        # Output
         parser.add_argument("outfile", type=cls.output_path_arg(), help="output file")
 
         return parser
@@ -94,7 +64,7 @@ class Processor(Stage, CLTool):
         """Parses and validates arguments, passes them to process_file."""
         parser = cls.construct_argparser()
         kwargs = vars(parser.parse_args())
-        cls.process_file_from_cl(**kwargs)
+        cls.process_file(**kwargs)
 
     @classmethod
     @abstractmethod
@@ -102,12 +72,5 @@ class Processor(Stage, CLTool):
         cls, infile: str, outfile: str, verbosity: int = 1, **kwargs: Any
     ) -> None:
         raise NotImplementedError()
-
-    @classmethod
-    def process_file_from_cl(cls, infile: str, outfile: str, **kwargs: Any) -> None:
-        infile = validate_input_path(infile)
-        outfile = validate_output_path(outfile)
-
-        cls.process_file(infile, outfile, **kwargs)
 
     # endregion

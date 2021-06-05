@@ -56,7 +56,7 @@ class SideChannelProcessor(Processor):
             if self.pipeline.verbosity >= 2:
                 print(f"{self} processing: {image.name}")
             try:
-                self.process_file_in_pipeline(image)
+                self.process_file_from_pipeline(image)
             except FileNotFoundError as e:
                 if self.required:
                     raise e
@@ -70,7 +70,7 @@ class SideChannelProcessor(Processor):
 
     # region Methods
 
-    def process_file_in_pipeline(self, image: PipeImage) -> None:
+    def process_file_from_pipeline(self, image: PipeImage) -> None:
         if image.name in self.infiles:
             infile = self.infiles[image.name]
             outfile = validate_output_path(

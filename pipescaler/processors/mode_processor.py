@@ -9,51 +9,83 @@
 ####################################### MODULES ########################################
 from __future__ import annotations
 
-from os.path import isfile
-from typing import Any, List, Optional, Union
+from argparse import ArgumentParser
+from typing import Any
 
-import numpy as np
 from PIL import Image, ImageColor
 
-from pipescaler.common import validate_output_path
-from pipescaler.core import PipeImage, Processor
+from pipescaler.common import validate_str
+from pipescaler.core import Processor
 
 
 ####################################### CLASSES ########################################
 class ModeProcessor(Processor):
+    modes = ["rgba", "rgb", "l"]
 
     # region Builtins
 
     def __init__(
         self, mode: str = "RGB", background_color="#000000", **kwargs: Any,
     ) -> None:
-
         super().__init__(**kwargs)
 
-        self.mode = mode
-        self.background_color = ImageColor.getrgb(background_color)
-        self.desc = f"{self.name}_{mode}"
+        # Store configuration
+        self.mode = validate_str(mode, self.modes)
+        self.background_color = ImageColor.getrgb(background_color)  # TODO: Validate
+
+    def __call__(self, infile: str, outfile: str, verbosity: int = 1) -> None:
+        self.process_file(
+            infile,
+            outfile,
+            verbosity=verbosity,
+            mode=self.mode,
+            background_color=self.background_color,
+        )
 
     # endregion
 
-    # region Methods
+    # region Properties
 
-    def process_file_in_pipeline(self, image: PipeImage) -> None:
-        infile = image.last
-        outfile = validate_output_path(self.pipeline.get_outfile(image, self.suffix))
-        if not isfile(outfile):
-            self.process_file(
-                infile,
-                outfile,
-                self.pipeline.verbosity,
-                mode=self.mode,
-                background_color=self.background_color,
-            )
-        image.log(self.name, outfile)
+    @property
+    def inlets(self):
+        return ["inlet"]
+
+    @property
+    def outlets(self):
+        return ["outlet"]
+
+    # endregion
 
     # endregion
 
     # region Class Methods
+
+    @classmethod
+    def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
+        """
+        Constructs argument parser.
+
+        Returns:
+            parser (ArgumentParser): Argument parser
+        """
+        description = kwargs.get("description", __doc__.strip())
+        parser = super().construct_argparser(description=description, **kwargs)
+
+        # Operations
+        parser.add_argument(
+            "--mode",
+            default="rgba",
+            type=cls.str_arg(options=cls.modes),
+            help="image mode ('rgba', 'rgb', or 'l', default: %(default)s)",
+        )
+        parser.add_argument(
+            "--background_color",
+            default="#000000",
+            type=str,
+            help="background color (default: %(default)s)",
+        )
+
+        return parser
 
     @classmethod
     def process_file(
@@ -74,6 +106,6 @@ class ModeProcessor(Processor):
                 output_image = output_image.convert("RGB")
             elif mode == "L":
                 output_image = output_image.convert("L")
-        output_image.save(outfile)
+            output_image.save(outfile)
 
     # endregion
