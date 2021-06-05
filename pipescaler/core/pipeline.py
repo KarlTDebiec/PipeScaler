@@ -10,21 +10,20 @@
 from __future__ import annotations
 
 from importlib import import_module
-from importlib.util import module_from_spec, spec_from_file_location
 from os import makedirs
-from os.path import basename, isdir, isfile, join, splitext
+from os.path import basename, isdir, isfile, join
 from shutil import copyfile
-from typing import Any, Dict, Optional, TYPE_CHECKING
+from typing import Any, Dict, List, Optional, TYPE_CHECKING
 
 from pipescaler.common import (
     get_name,
-    validate_input_path,
     validate_int,
     validate_output_path,
 )
+from pipescaler.core import Block, PipeImage, Source
 
 if TYPE_CHECKING:
-    from pipescaler.core import PipeImage, Stage
+    from pipescaler.core import Stage
 
 
 ####################################### CLASSES ########################################
@@ -66,56 +65,54 @@ class Pipeline:
                     continue
             if stage_cls is None:
                 raise AttributeError(f"Class {stage_cls_name} not found")
-            self.stages[stage_name] = stage_cls(**stage_args)
+            self.stages[stage_name] = stage_cls(name=stage_name, **stage_args)
 
-        breakpoint()
+        # Initialize blocks
+        self.blocks = {}
+        for block_name, block_conf in blocks.items():
+            if block_name in self.stages:
+                raise KeyError()
+            block_stages = []
+            for stage_name in block_conf:
+                if stage_name not in self.stages:
+                    raise KeyError()
+            preceding_stage_outlets = self.stages[block_conf[0]].inlets
+            for stage_name in block_conf:
+                stage = self.stages[stage_name]
+                if stage.inlets != preceding_stage_outlets:
+                    raise ValueError()
+            self.blocks[block_name] = Block(block_stages, name=block_name)
 
-        # # Configure source
-        # source_cls_name = list(source.keys())[0]
-        # source_args = list(source.values())[0]
-        # source_cls = getattr(sources_module, source_cls_name)
-        # self.source = source_cls(pipeline=self, **source_args)
-        # print(repr(self.source))
-        #
-        # # Configure stages
-        # self.stages: Dict[str, Stage] = {}
-        # for stage_name, stage_conf in stages.items():
-        #     if "module" in stage_conf:
-        #         module_path = validate_input_path(stage_conf.pop("module"))
-        #     else:
-        #         module_path = None
-        #     stage_cls_name = list(stage_conf.keys())[0]
-        #     stage_args = list(stage_conf.values())[0]
-        #     if stage_args is None:
-        #         stage_args = {}
-        #     if module_path is not None:
-        #         spec = spec_from_file_location(
-        #             splitext(basename(module_path))[0], module_path
-        #         )
-        #         module = module_from_spec(spec)
-        #         spec.loader.exec_module(module)
-        #         stage_cls = getattr(module, stage_cls_name)
-        #     else:
-        #         stage_cls = None
-        #         for module in stage_modules:
-        #             try:
-        #                 stage_cls = getattr(module, stage_cls_name)
-        #             except AttributeError:
-        #                 continue
-        #         if stage_cls is None:
-        #             raise AttributeError(f"Class {stage_cls_name} not found")
-        #     stage = stage_cls(pipeline=self, name=stage_name, **stage_args)
-        #     print(repr(stage))
-        #     self.stages[stage_name] = stage()
-        #     next(self.stages[stage_name])
+        # Initialize pipeline
+        self.pipeline: List[Stage] = []
+        for stage_name in pipeline:
+            if stage_name in self.stages:
+                self.pipeline.append(self.stages[stage_name])
+            elif stage_name in self.blocks:
+                self.pipeline.append(self.blocks[stage_name])
+            else:
+                raise KeyError()
+        if not isinstance(self.pipeline[0], Source):
+            raise ValueError()
+
+        # Initialize directory
+        if not isdir(self.wip_directory):
+            if self.verbosity >= 1:
+                print(f"Creating directory '{self.wip_directory}'")
+            makedirs(self.wip_directory)
 
     def __call__(self, **kwargs: Any) -> None:
         """Performs operations."""
-        pass
-        # source = self.source()
-        # next(source)
-        # for image in self.source:
-        #     source.send(image)
+        for infile in self.pipeline[0]:
+            image = PipeImage(infile)
+            infile = self.backup(image)
+            print(infile)
+            for stage in self.pipeline[1:]:
+                if len(stage.outlets) != 0:
+                    outfile = self.get_outfile(image, infile, stage)
+                    print(infile, outfile)
+                    stage(infile, outfile)
+                    infile = outfile
 
     def __repr__(self) -> str:
         return self.__class__.__name__.lower()
@@ -127,31 +124,30 @@ class Pipeline:
 
     # region Methods
 
-    # def backup(self, image: PipeImage) -> None:
-    #     directory = join(self.wip_directory, image.name)
-    #     backup = join(directory, f"{image.name}.{image.ext}")
-    #     if not isdir(directory):
-    #         if self.verbosity >= 1:
-    #             print(f"    creating '{directory}'")
-    #         makedirs(directory)
-    #     if not isfile(backup):
-    #         if self.verbosity >= 1:
-    #             print(f"    backing up to '{backup}'")
-    #         copyfile(image.infile, backup)
-    #
-    # def get_outfile(
-    #     self, image, suffix, lstrip="_", rstrip=None, extension: str = "png"
-    # ):
-    #     self.backup(image)
-    #     if len(image.history) >= 1:
-    #         filename = f"{get_name(image.last)}"
-    #         if lstrip is not None:
-    #             filename = filename.lstrip(lstrip)
-    #         if rstrip is not None:
-    #             filename = filename.rstrip(rstrip)
-    #         filename = f"{filename}_{suffix}".lstrip("_")
-    #     else:
-    #         filename = suffix
-    #     return join(self.wip_directory, image.name, f"{filename}.{extension}")
+    def backup(self, image: PipeImage) -> str:
+        output_directory = validate_output_path(
+            join(self.wip_directory, image.name), file_ok=False, directory_ok=True
+        )
+        if not isdir(output_directory):
+            if self.verbosity >= 1:
+                print(f"Creating directory '{output_directory}'")
+            makedirs(output_directory)
+
+        outfile = join(output_directory, basename(image.full_path))
+        if not isfile(outfile):
+            if self.verbosity >= 1:
+                print(f"Copying '{image.full_path}' to '{outfile}'")
+            copyfile(image.full_path, outfile)
+
+        return outfile
+
+    def get_outfile(self, image: PipeImage, infile: str, stage: Stage):
+        prefix = get_name(infile)
+        if prefix.startswith(image.name):
+            prefix = prefix[len(image.name) :]
+        outfile = f"{prefix}_{stage.suffix}.png"
+        outfile = outfile.lstrip("_")
+
+        return join(self.wip_directory, image.name, outfile)
 
     # endregion

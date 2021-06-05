@@ -9,24 +9,29 @@
 ####################################### MODULES ########################################
 from __future__ import annotations
 
+from os.path import basename, splitext
 from typing import Tuple
 
 from PIL import Image
 
-from pipescaler.common import get_ext, get_name, validate_input_path
+from pipescaler.common import validate_input_path
 
 
 ####################################### CLASSES ########################################
+from pipescaler.core import Stage
+
+
 class PipeImage:
 
     # region Builtins
 
     def __init__(self, infile: str) -> None:
-        self.infile = validate_input_path(infile)
-        self.name = get_name(self.infile)
-        self.ext = get_ext(self.infile)
+        self.full_path = validate_input_path(infile)
+        self.filename = basename(self.full_path)
+        self.name = splitext(basename(self.filename))[0]
+        self.ext = splitext(basename(self.filename))[1].strip(".")
 
-        image = Image.open(self.infile)
+        image = Image.open(self.full_path)
         self.mode: str = image.mode
         self.shape: Tuple[int] = image.size
 
@@ -51,14 +56,16 @@ class PipeImage:
         if len(self.history) >= 1:
             return self.history[-1][1]
         else:
-            return self.infile
+            return self.full_path
 
     # endregion
 
     # region Methods
 
-    def log(self, stage_name: str, outfile: str):
-        self.history.append((stage_name, outfile))
+    def log(self, stage_name: str, outfile: str, suffixes=None):
+        if suffixes is None:
+            suffixes = []
+        self.history.append((stage_name, suffixes, outfile))
 
     def show(self):
         self.image.show()
