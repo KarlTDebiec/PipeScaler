@@ -18,7 +18,7 @@ from tempfile import TemporaryDirectory
 from typing import Any, Optional
 
 from pipescaler.common import ExecutableNotFoundError, validate_output_path
-from pipescaler.core import PipeImage, PlatformNotSupportedError, Processor
+from pipescaler.core import PipeImage, UnsupportedPlatformError, Processor
 
 
 ####################################### CLASSES ########################################
@@ -34,11 +34,6 @@ class TexconvProcessor(Processor):
         **kwargs: Any,
     ) -> None:
 
-        if not any(win32_ver()):
-            raise PlatformNotSupportedError("TexconvProcessor may ")
-        if not which("texconv.exe"):
-            raise ExecutableNotFoundError("texcov.exe executable not found in PATH")
-
         super().__init__(**kwargs)
 
         self.sepalpha = sepalpha
@@ -51,6 +46,13 @@ class TexconvProcessor(Processor):
     # region Methods
 
     def process_file_in_pipeline(self, image: PipeImage) -> None:
+        if not any(win32_ver()):
+            raise UnsupportedPlatformError(
+                "TexconvProcessor may only be used on Windows"
+            )
+        if not which("texconv.exe"):
+            raise ExecutableNotFoundError("texcov.exe executable not found in PATH")
+
         infile = image.last
         outfile = validate_output_path(
             self.pipeline.get_outfile(image, self.suffix, extension="dds")

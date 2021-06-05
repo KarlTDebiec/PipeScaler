@@ -14,7 +14,6 @@ from typing import List
 from pipescaler.processors.automator_processor import AutomatorProcessor
 from pipescaler.processors.copy_processor import CopyFileProcessor
 from pipescaler.processors.esrgan_processor import ESRGANProcessor
-from pipescaler.processors.flatten_processor import FlattenProcessor
 from pipescaler.processors.pngquant_processor import PngquantProcessor
 from pipescaler.processors.potrace_processor import PotraceProcessor
 from pipescaler.processors.resize_processor import ResizeProcessor
@@ -24,13 +23,14 @@ from pipescaler.processors.threshold_processor import ThresholdProcessor
 from pipescaler.processors.waifu_processor import WaifuProcessor
 from pipescaler.processors.waifupixelmator2x_processor import WaifuPixelmator2xProcessor
 from pipescaler.processors.xbrz_processor import XbrzProcessor
+from pipescaler.processors.mode_processor import ModeProcessor
 
 ######################################### ALL ##########################################
 __all__: List[str] = [
     "AutomatorProcessor",
     "CopyFileProcessor",
     "ESRGANProcessor",
-    "FlattenProcessor",
+    "ModeProcessor",
     "PotraceProcessor",
     "PngquantProcessor",
     "ResizeProcessor",

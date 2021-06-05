@@ -1,5 +1,5 @@
 TODO:
-- [x] Fix bugs in texconv output
+- [x] ModeProcessor
 - [ ] Check OS when running OS-specific processors
     - [x] texconv
     - [ ] automator
@@ -9,7 +9,6 @@ TODO:
     - [ ] xbrzscale
     - [ ] waifu
     - [ ] potrace
-- [ ] ModeProcessor
 - [ ] Try CUDA and fall back to CPU if necessary
 - [ ] Clean up path separators
   - [x] Path validation
