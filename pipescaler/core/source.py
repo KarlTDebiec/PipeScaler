@@ -10,7 +10,6 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import Any
 
 from pipescaler.core import Stage
 
@@ -20,17 +19,20 @@ class Source(Stage):
 
     # region Builtins
 
-    def __init__(self, **kwargs: Any,) -> None:
-        super().__init__(**kwargs)
-
     def __iter__(self):
         raise NotImplementedError()
 
-    def __repr__(self) -> str:
-        return self.desc
+    # endregion
 
-    def __str__(self) -> str:
-        return self.name
+    # region Properties
+
+    @property
+    def inlets(self):
+        return []
+
+    @property
+    def outlets(self):
+        return ["default"]
 
     # endregion
 

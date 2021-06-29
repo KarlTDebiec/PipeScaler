@@ -1,11 +1,12 @@
 #!/usr/bin/env python
-#   pipescaler/processors/copy_processor.py
+#   pipescaler/processors/copy_file_processor.py
 #
 #   Copyright (C) 2020-2021 Karl T Debiec
 #   All rights reserved.
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+""""""
 ####################################### MODULES ########################################
 from __future__ import annotations
 
@@ -34,10 +35,6 @@ class CopyFileProcessor(Processor):
     # region Properties
 
     @property
-    def inlets(self):
-        return ["inlet"]
-
-    @property
     def outlets(self):
         return []
 
@@ -47,8 +44,8 @@ class CopyFileProcessor(Processor):
 
     @classmethod
     def process_file(
-        cls, infile: str, outfile: str, verbosity: int = 1, **kwargs
+        cls, inlet: str, outlet: str, verbosity: int = 1, **kwargs
     ) -> None:
-        copyfile(infile, outfile)
+        copyfile(inlet, outlet)
 
     # endregion

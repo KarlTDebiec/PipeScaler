@@ -39,19 +39,7 @@ class DirectorySource(Source):
         filenames.sort(key=self.sort)
 
         for filename in filenames:
-            yield filename
-
-    # endregion
-
-    # region Properties
-
-    @property
-    def inlets(self):
-        return []
-
-    @property
-    def outlets(self):
-        return ["outlet"]
+            yield {"outlet": filename}
 
     # endregion
 

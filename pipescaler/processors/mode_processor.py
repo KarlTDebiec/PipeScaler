@@ -6,6 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+""""""
 ####################################### MODULES ########################################
 from __future__ import annotations
 
@@ -33,28 +34,17 @@ class ModeProcessor(Processor):
         self.mode = validate_str(mode, self.modes)
         self.background_color = ImageColor.getrgb(background_color)  # TODO: Validate
 
-    def __call__(self, infile: str, outfile: str, verbosity: int = 1) -> None:
+    def __call__(
+        self, inlet: str, outlet: str, verbosity: int = 1, **kwargs: Any
+    ) -> None:
         self.process_file(
-            infile,
-            outfile,
+            inlet,
+            outlet,
             verbosity=verbosity,
             mode=self.mode,
             background_color=self.background_color,
+            **kwargs,
         )
-
-    # endregion
-
-    # region Properties
-
-    @property
-    def inlets(self):
-        return ["inlet"]
-
-    @property
-    def outlets(self):
-        return ["outlet"]
-
-    # endregion
 
     # endregion
 
@@ -109,3 +99,8 @@ class ModeProcessor(Processor):
             output_image.save(outfile)
 
     # endregion
+
+
+######################################### MAIN #########################################
+if __name__ == "__main__":
+    ModeProcessor.main()

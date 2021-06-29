@@ -6,6 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+""""""
 ####################################### MODULES ########################################
 from __future__ import annotations
 
@@ -37,26 +38,15 @@ class ResizeProcessor(Processor):
         self.scale = validate_float(scale, min_value=0)
         self.resample = validate_str(resample, options=self.resample_methods.keys())
 
-    def __call__(self, infile: str, outfile: str, verbosity: int = 1) -> None:
+    def __call__(self, inlet: str, outlet: str, verbosity: int = 1, **kwargs) -> None:
         self.process_file(
-            infile,
-            outfile,
+            inlet,
+            outlet,
             verbosity=verbosity,
             scale=self.scale,
             resample=self.resample,
+            **kwargs
         )
-
-    # endregion
-
-    # region Properties
-
-    @property
-    def inlets(self):
-        return ["inlet"]
-
-    @property
-    def outlets(self):
-        return ["outlet"]
 
     # endregion
 
@@ -118,3 +108,8 @@ class ResizeProcessor(Processor):
         output_image.save(outfile)
 
     # endregion
+
+
+######################################### MAIN #########################################
+if __name__ == "__main__":
+    ResizeProcessor.main()

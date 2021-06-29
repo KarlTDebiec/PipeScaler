@@ -23,104 +23,18 @@ from pipescaler.core import PipeImage, Sorter
 ####################################### CLASSES ########################################
 class ModeSorter(Sorter):
 
-    # region Builtins
+    # region Properties
 
-    def __init__(
-        self,
-        drop_alpha_threshold: Optional[int] = None,
-        downstream_stages_for_rgba: Optional[Union[str, List[str]]] = None,
-        downstream_stages_for_rgb: Optional[Union[str, List[str]]] = None,
-        downstream_stages_for_l: Optional[Union[str, List[str]]] = None,
-        **kwargs: Any,
-    ) -> None:
-        super().__init__(**kwargs)
+    @property
+    def outlets(self):
+        return ["rgba", "rgb", "l"]
 
-        # Store configuration
-        if drop_alpha_threshold is None:
-            self.drop_alpha_threshold = None
-        else:
-            self.drop_alpha_threshold = validate_int(
-                drop_alpha_threshold, min_value=0, max_value=255
-            )
-        if isinstance(downstream_stages_for_rgba, str):
-            downstream_stages_for_rgba = [downstream_stages_for_rgba]
-        self.downstream_stages_for_rgba = downstream_stages_for_rgba
-        if isinstance(downstream_stages_for_rgb, str):
-            downstream_stages_for_rgb = [downstream_stages_for_rgb]
-        self.downstream_stages_for_rgb = downstream_stages_for_rgb
-        if isinstance(downstream_stages_for_l, str):
-            downstream_stages_for_l = [downstream_stages_for_l]
-        self.downstream_stages_for_l = downstream_stages_for_l
+    # endregion
 
-        # Prepare description
-        desc = f"{self.name} {self.__class__.__name__}"
-        desc += f"\n ├─ RGBA"
-        if self.downstream_stages_for_rgba is not None:
-            if len(self.downstream_stages_for_rgba) >= 2:
-                for stage in self.downstream_stages_for_rgba[:-1]:
-                    desc += f"\n │   ├─ {stage}"
-            desc += f"\n │  └─ {self.downstream_stages_for_rgba[-1]}"
-        else:
-            desc += f"\n │  └─"
-        desc += f"\n ├─ RGB"
-        if self.downstream_stages_for_rgb is not None:
-            if len(self.downstream_stages_for_rgb) >= 2:
-                for stage in self.downstream_stages_for_rgb[:-1]:
-                    desc += f"\n │   ├─ {stage}"
-            desc += f"\n │  └─ {self.downstream_stages_for_rgb[-1]}"
-        else:
-            desc += f"\n │  └─"
-        desc += f"\n └─ L"
-        if self.downstream_stages_for_l is not None:
-            if len(self.downstream_stages_for_l) >= 2:
-                for stage in self.downstream_stages_for_l[:-1]:
-                    desc += f"\n     ├─ {stage}"
-            desc += f"\n    └─ {self.downstream_stages_for_l[-1]}"
-        else:
-            desc += f"\n    └─"
-        self.desc = desc
+    # region Class Methods
 
-    def __call__(self) -> Generator[PipeImage, PipeImage, None]:
-        while True:
-            image = yield
-            if self.pipeline.verbosity >= 2:
-                print(f"  {self}")
-            if image.mode == "RGBA":
-                if self.drop_alpha_threshold is not None and np.all(
-                    np.array(Image.open(image.last))[:, :, 3]
-                    >= self.drop_alpha_threshold
-                ):
-                    outfile = validate_output_path(
-                        self.pipeline.get_outfile(image, "RGB")
-                    )
-                    if not isfile(outfile):
-                        if self.pipeline.verbosity >= 2:
-                            print(f"    RGBA, but dropping A and treating as RGB")
-                        rgba_image = Image.open(image.last)
-                        rgb_image = Image.fromarray(np.zeros((rgba_image.size[0], rgba_image.size[1], 3), np.uint8))
-                        rgb_image.paste(rgba_image)
-                        rgb_image.save(outfile)
-                    image.log(self.name, outfile)
-                    if self.downstream_stages_for_rgb is not None:
-                        for stage in self.downstream_stages_for_rgb:
-                            self.pipeline.stages[stage].send(image)
-                else:
-                    if self.pipeline.verbosity >= 2:
-                        print(f"    RGBA")
-                    if self.downstream_stages_for_rgba is not None:
-                        for stage in self.downstream_stages_for_rgba:
-                            self.pipeline.stages[stage].send(image)
-            elif image.mode == "RGB":
-                if self.pipeline.verbosity >= 2:
-                    print(f"    RGB")
-                if self.downstream_stages_for_rgb is not None:
-                    for stage in self.downstream_stages_for_rgb:
-                        self.pipeline.stages[stage].send(image)
-            elif image.mode == "L":
-                if self.pipeline.verbosity >= 2:
-                    print(f"    L")
-                if self.downstream_stages_for_l is not None:
-                    for stage in self.downstream_stages_for_l:
-                        self.pipeline.stages[stage].send(image)
+    @classmethod
+    def process_file(cls, infile: str, verbosity: int = 1, **kwargs: Any) -> None:
+        raise NotImplementedError()
 
     # endregion

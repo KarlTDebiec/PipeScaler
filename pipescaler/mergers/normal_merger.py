@@ -25,8 +25,7 @@ class NormalMerger(Merger):
     # region Builtins
 
     def __init__(
-            self, downstream_stages: Optional[Union[str, List[str]]] = None,
-            **kwargs: Any
+        self, downstream_stages: Optional[Union[str, List[str]]] = None, **kwargs: Any
     ) -> None:
         super().__init__(**kwargs)
 
@@ -53,7 +52,7 @@ class NormalMerger(Merger):
             image = yield
             b_infile = image.last
             stages = get_name(image.last).split("_")
-            rstrip = "_" + "_".join(stages[stages.index("B"):])
+            rstrip = "_" + "_".join(stages[stages.index("B") :])
             outfile = validate_output_path(
                 self.pipeline.get_outfile(image, "merge-RGB", rstrip=rstrip)
             )

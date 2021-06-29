@@ -18,9 +18,6 @@ from pipescaler.common import validate_input_path
 
 
 ####################################### CLASSES ########################################
-from pipescaler.core import Stage
-
-
 class PipeImage:
 
     # region Builtins

@@ -12,7 +12,7 @@ from __future__ import annotations
 from typing import List
 
 from pipescaler.processors.automator_processor import AutomatorProcessor
-from pipescaler.processors.copy_processor import CopyFileProcessor
+from pipescaler.processors.copy_file_processor import CopyFileProcessor
 from pipescaler.processors.esrgan_processor import ESRGANProcessor
 from pipescaler.processors.pngquant_processor import PngquantProcessor
 from pipescaler.processors.potrace_processor import PotraceProcessor
