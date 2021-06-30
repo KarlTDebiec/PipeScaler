@@ -10,7 +10,7 @@
 from __future__ import annotations
 
 import re
-from typing import Any
+from typing import Any, Dict
 
 from pipescaler.core import Sorter
 
@@ -25,6 +25,12 @@ class RegexSorter(Sorter):
 
         self.regex = re.compile(regex)
 
+    def __call__(self, infile: str, verbosity: int = 1, **kwargs: Any) -> str:
+        if self.regex.match(infile):
+            return "matched"
+        else:
+            return "unmatched"
+
     # endregion
 
     # region Properties
@@ -34,11 +40,3 @@ class RegexSorter(Sorter):
         return ["matched", "unmatched"]
 
     # endregion
-
-    # region Class Methods
-
-    @classmethod
-    def process_file(cls, infile: str, verbosity: int = 1, **kwargs: Any) -> None:
-        raise NotImplementedError()
-
-    #

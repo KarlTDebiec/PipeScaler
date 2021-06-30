@@ -33,9 +33,9 @@ class Processor(Stage, CLTool):
             self.suffix = self.name
 
     def __call__(
-        self, inlet: str, outlet: str, verbosity: int = 1, **kwargs: Any
+        self, infile: str, outfile: str, verbosity: int = 1, **kwargs: Any
     ) -> None:
-        self.process_file(inlet, outlet, verbosity=verbosity, **kwargs)
+        self.process_file(infile, outfile, verbosity=verbosity, **kwargs)
 
     # endregion
 
@@ -43,11 +43,11 @@ class Processor(Stage, CLTool):
 
     @property
     def inlets(self):
-        return ["default"]
+        return ["inlet"]
 
     @property
     def outlets(self):
-        return ["default"]
+        return ["outlet"]
 
     # endregion
 
@@ -83,7 +83,7 @@ class Processor(Stage, CLTool):
     @classmethod
     @abstractmethod
     def process_file(
-        cls, infile: str, outfile: str, verbosity: int = 1, **kwargs: Any
+        cls, inlet: str, outfile: str, verbosity: int = 1, **kwargs: Any
     ) -> None:
         raise NotImplementedError()
 

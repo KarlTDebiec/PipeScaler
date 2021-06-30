@@ -38,10 +38,10 @@ class ResizeProcessor(Processor):
         self.scale = validate_float(scale, min_value=0)
         self.resample = validate_str(resample, options=self.resample_methods.keys())
 
-    def __call__(self, inlet: str, outlet: str, verbosity: int = 1, **kwargs) -> None:
+    def __call__(self, infile: str, outfile: str, verbosity: int = 1, **kwargs) -> None:
         self.process_file(
-            inlet,
-            outlet,
+            infile,
+            outfile,
             verbosity=verbosity,
             scale=self.scale,
             resample=self.resample,
@@ -70,7 +70,6 @@ class ResizeProcessor(Processor):
             type=cls.float_arg(min_value=0),
             help="scaling factor (default: %(default)s)",
         )
-        # TODO: Create cls.str_dict and convert key to value here rather than later
         parser.add_argument(
             "--resample",
             default="lanczos",
@@ -96,7 +95,7 @@ class ResizeProcessor(Processor):
         output_image = input_image.convert("RGB").resize(size, resample=resample)
 
         # Combine R, G, and B from RGB with A from RGBA
-        # TODO: Figure out why this is done, and write it down this time
+        # TODO: Check why this is done, perhaps color is dropped for transparent pixels?
         if input_image.mode == "RGBA":
             rgba_image = input_image.resize(size, resample=resample)
             merged_data = np.zeros((size[1], size[0], 4), np.uint8)

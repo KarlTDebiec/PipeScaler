@@ -33,42 +33,35 @@ class TexconvProcessor(Processor):
         format: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
-
         super().__init__(**kwargs)
 
+        # Store configuration
         self.sepalpha = sepalpha
         self.filetype = filetype
         self.format = format
-        self.desc = self.name
 
-    # endregion
-
-    # region Methods
-
-    def process_file_from_pipeline(self, image: PipeImage) -> None:
+    def __call__(
+        self, infile: str, outfile: str, verbosity: int = 1, **kwargs: Any
+    ) -> None:
         if not any(win32_ver()):
             raise UnsupportedPlatformError(
-                "TexconvProcessor may only be used on Windows"
+                "TexconvProcessor is only supported on Windows"
             )
         if not which("texconv.exe"):
             raise ExecutableNotFoundError("texcov.exe executable not found in PATH")
-
-        infile = image.last
-        outfile = validate_output_path(
-            self.pipeline.get_outfile(image, self.suffix, extension="dds")
+        self.process_file(
+            infile,
+            outfile,
+            verbosity=verbosity,
+            sepalpha=self.sepalpha,
+            filetype=self.filetype,
+            format=self.format,
+            **kwargs,
         )
-        if not isfile(outfile):
-            self.process_file(
-                infile,
-                outfile,
-                self.pipeline.verbosity,
-                sepalpha=self.sepalpha,
-                filetype=self.filetype,
-                format=self.format,
-            )
-        image.log(self.name, outfile)
 
     # endregion
+
+    # region Class Methods
 
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
@@ -114,8 +107,6 @@ class TexconvProcessor(Processor):
             if format:
                 command = f"{command} -f {format}"
             command = f"{command} -o {temp_directory} {tempfile}"
-            if verbosity >= 2:
-                print(command)
             Popen(command, shell=True, close_fds=True).wait()
             copyfile(f"{tempfile[:-4]}.dds", outfile)
 

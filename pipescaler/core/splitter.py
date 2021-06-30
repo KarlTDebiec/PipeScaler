@@ -9,8 +9,8 @@
 ####################################### MODULES ########################################
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
-from typing import Any
+from abc import ABC
+from typing import Any, Dict
 
 from pipescaler.core.stage import Stage
 
@@ -18,19 +18,19 @@ from pipescaler.core.stage import Stage
 ####################################### CLASSES ########################################
 class Splitter(Stage, ABC):
 
+    # region Builtins
+
+    def __call__(
+        self, infile: str, verbosity: int = 1, **kwargs: Any
+    ) -> Dict[str, str]:
+        raise NotImplementedError()
+
+    # endregion
+
     # region Properties
 
     @property
     def inlets(self):
-        return ["default"]
-
-    # endregion
-
-    # region Class Methods
-
-    @classmethod
-    @abstractmethod
-    def process_file(cls, infile: str, verbosity: int = 1, **kwargs: Any) -> None:
-        raise NotImplementedError()
+        return ["infile"]
 
     # endregion

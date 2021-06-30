@@ -44,8 +44,8 @@ class CopyFileProcessor(Processor):
 
     @classmethod
     def process_file(
-        cls, inlet: str, outlet: str, verbosity: int = 1, **kwargs
+        cls, infile: str, outfile: str, verbosity: int = 1, **kwargs
     ) -> None:
-        copyfile(inlet, outlet)
+        copyfile(infile, outfile)
 
     # endregion

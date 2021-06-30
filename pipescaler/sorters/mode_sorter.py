@@ -9,32 +9,33 @@
 ####################################### MODULES ########################################
 from __future__ import annotations
 
-from os.path import isfile
-from typing import Any, Generator, List, Optional, Union
+from typing import Any, Dict
 
-import numpy as np
-from IPython import embed
 from PIL import Image
 
-from pipescaler.common import validate_int, validate_output_path
-from pipescaler.core import PipeImage, Sorter
+from pipescaler.core import Sorter
 
 
 ####################################### CLASSES ########################################
 class ModeSorter(Sorter):
+
+    # region Builtins
+
+    def __call__(self, infile: str, verbosity: int = 1, **kwargs: Any) -> str:
+        image = Image.open(infile)
+        if image.mode == "rgba":
+            return "rgba"
+        elif image.mode == "rgb":
+            return "rgb"
+        elif image.mode == "l":
+            return "l"
+
+    # endregion
 
     # region Properties
 
     @property
     def outlets(self):
         return ["rgba", "rgb", "l"]
-
-    # endregion
-
-    # region Class Methods
-
-    @classmethod
-    def process_file(cls, infile: str, verbosity: int = 1, **kwargs: Any) -> None:
-        raise NotImplementedError()
 
     # endregion

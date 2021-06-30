@@ -14,7 +14,7 @@ from os import makedirs
 from os.path import basename, isdir, isfile, join
 from pprint import pprint
 from shutil import copyfile
-from typing import Any, Dict, List, TYPE_CHECKING
+from typing import Any, Dict, List, TYPE_CHECKING, Union
 
 from pipescaler.common import (
     get_name,
@@ -42,7 +42,7 @@ class Pipeline:
         self,
         wip_directory: str,
         stages: Dict[str, Dict[str, Dict[str, Any]]],
-        pipeline: Dict[str, Dict[str, Any]],
+        pipeline: List[Union[str, Dict[str, Any]]],
         verbosity: int = 1,
     ) -> None:
 

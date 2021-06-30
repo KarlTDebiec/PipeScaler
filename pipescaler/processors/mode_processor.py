@@ -21,12 +21,12 @@ from pipescaler.core import Processor
 
 ####################################### CLASSES ########################################
 class ModeProcessor(Processor):
-    modes = ["rgba", "rgb", "l"]
+    modes = ["RGBA", "RGB", "L"]
 
     # region Builtins
 
     def __init__(
-        self, mode: str = "RGB", background_color="#000000", **kwargs: Any,
+        self, mode: str = "RGB", background_color: str = "#000000", **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
 
@@ -35,11 +35,11 @@ class ModeProcessor(Processor):
         self.background_color = ImageColor.getrgb(background_color)  # TODO: Validate
 
     def __call__(
-        self, inlet: str, outlet: str, verbosity: int = 1, **kwargs: Any
+        self, infile: str, outfile: str, verbosity: int = 1, **kwargs: Any
     ) -> None:
         self.process_file(
-            inlet,
-            outlet,
+            infile,
+            outfile,
             verbosity=verbosity,
             mode=self.mode,
             background_color=self.background_color,
@@ -66,7 +66,7 @@ class ModeProcessor(Processor):
             "--mode",
             default="rgba",
             type=cls.str_arg(options=cls.modes),
-            help="image mode ('rgba', 'rgb', or 'l', default: %(default)s)",
+            help="image mode ('RGBA', 'RGB', or 'L', default: %(default)s)",
         )
         parser.add_argument(
             "--background_color",

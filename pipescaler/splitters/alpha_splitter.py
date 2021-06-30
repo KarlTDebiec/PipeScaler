@@ -9,7 +9,10 @@
 ####################################### MODULES ########################################
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Dict
+
+import numpy as np
+from PIL.Image import Image
 
 from pipescaler.core import Splitter
 
@@ -17,18 +20,25 @@ from pipescaler.core import Splitter
 ####################################### CLASSES ########################################
 class AlphaSplitter(Splitter):
 
+    # region Builtins
+
+    def __call__(
+        self, infile: str, verbosity: int = 1, **kwargs: Any
+    ) -> Dict[str, str]:
+        outfiles = {k: kwargs.get(k) for k in self.outlets}
+
+        rgba = Image.open(infile)
+        Image.fromarray(np.array(rgba)[:, :, :3]).save(outfiles["rgb"])
+        Image.fromarray(np.array(rgba)[:, :, 3]).save(outfiles["a"])
+
+        return outfiles
+
+    # endregion
+
     # region Properties
 
     @property
     def outlets(self):
         return ["rgb", "a"]
-
-    # endregion
-
-    # region Class Methods
-
-    @classmethod
-    def process_file(cls, infile: str, verbosity: int = 1, **kwargs: Any) -> None:
-        raise NotImplementedError()
 
     # endregion

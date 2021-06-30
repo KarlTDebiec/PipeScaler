@@ -1,20 +1,12 @@
 TODO:
 - Reorganization
-  - [ ] build_pipeline
-    - [x] Support basic processors
-    - [x] Support sorters
-    - [ ] Support mergers
-  - [ ] Implement sources
-    - [ ] DirectorySource
-  - [ ] Implement Processors
-    - [ ] ModeProcessor
-    - [ ] ResizeProcessor
-  - [ ] Implement sorters
-    - [ ] RegexSorter
-    - [ ] ModeSorter
-  - [ ] Implement splitters
-    - [ ] AlphaSplitter
-  - [ ] Implement mergers
+  - [x] DirectorySourc
+  - [x] CopyFileProcessor
+  - [x] ModeProcessor
+  - [x] ResizeProcessor
+  - [ ] RegexSorter
+  - [ ] ModeSorter
+  - [ ] AlphaSplitter
 - Enhancements
   - [ ] Check OS when running OS-specific processors
     - [x] TexConvProcessor
