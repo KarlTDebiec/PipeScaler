@@ -89,8 +89,8 @@ class Pipeline:
         else:
             raise KeyError()
         self.pipeline = self.build_source(stage, pipeline)
-        print()
-        pprint(self.pipeline)
+        if self.verbosity >= 1:
+            pprint(self.pipeline)
 
         # Initialize directory
         if not isdir(self.wip_directory):
@@ -98,90 +98,40 @@ class Pipeline:
                 print(f"Creating directory '{self.wip_directory}'")
             makedirs(self.wip_directory)
 
-    def build_source(self, stage_cls, downstream_pipeline_conf):
-        downstream_pipeline = [stage_cls]
-        downstream_pipeline.extend(self.build_route(downstream_pipeline_conf))
-
-        return downstream_pipeline
-
-    def build_merger(self, stage_cls, inlet, downstream_pipeline_conf):
-        if inlet is not None:
-            downstream_pipeline = [{stage_cls: inlet}]
-        else:
-            downstream_pipeline = [stage_cls]
-
-        downstream_pipeline.extend(self.build_route(downstream_pipeline_conf))
-
-        return downstream_pipeline
-
-    def build_processor(self, stage_cls, downstream_pipeline_conf):
-        downstream_pipeline = [stage_cls]
-        downstream_pipeline.extend(self.build_route(downstream_pipeline_conf))
-
-        return downstream_pipeline
-
-    def build_sorter(self, stage_cls, stage_conf):
-        downstream_pipeline = [{stage_cls: {}}]
-
-        for outlet in filter(lambda o: o in stage_conf, stage_cls.outlets):
-            downstream_pipeline[0][stage_cls][outlet] = self.build_route(
-                stage_conf.pop(outlet)
-            )
-
-        return downstream_pipeline
-
-    def build_splitter(self, stage_cls, stage_conf, downstream_pipeline_conf):
-        downstream_pipeline = [{stage_cls: {}}]
-
-        for outlet in filter(lambda o: o in stage_conf, stage_cls.outlets):
-            downstream_pipeline[0][stage_cls][outlet] = self.build_route(
-                stage_conf.pop(outlet)
-            )
-
-        downstream_pipeline.extend(self.build_route(downstream_pipeline_conf))
-
-        return downstream_pipeline
-
-    def build_route(self, downstream_pipeline_conf):
-        if not isinstance(downstream_pipeline_conf, List):
-            raise ValueError()
-        if len(downstream_pipeline_conf) == 0:
-            return []
-
-        if isinstance(downstream_pipeline_conf[0], str):
-            stage_name = downstream_pipeline_conf.pop(0)
-            stage_conf = None
-        elif isinstance(downstream_pipeline_conf[0], dict):
-            stage_name, stage_conf = next(iter(downstream_pipeline_conf.pop(0).items()))
-        else:
-            raise ValueError()
-        stage = self.stages[stage_name]
-
-        if isinstance(stage, Merger):
-            return self.build_merger(stage, stage_conf, downstream_pipeline_conf)
-        elif isinstance(stage, Processor):
-            return self.build_processor(stage, downstream_pipeline_conf)
-        elif isinstance(stage, Sorter):
-            return self.build_sorter(stage, stage_conf)
-        elif isinstance(stage, Splitter):
-            return self.build_splitter(stage, stage_conf, downstream_pipeline_conf)
-
     def __call__(self, **kwargs: Any) -> None:
         """Performs operations."""
-        pass
-        # source = self.pipeline[0]
+        source = self.pipeline[0]
 
-    #         for outlets in source:
-    #             infile = outlets["outlet"]
-    #             image = PipeImage(infile)
-    #             infile = self.backup(image)
-    #             print(infile)
-    #             for stage in self.pipeline[1:]:
-    #                 if len(stage.outlets) != 0:
-    #                     outfile = self.get_outfile(image, infile, stage)
-    #                     print(infile, outfile)
-    #                     stage(infile, outfile)
-    #                     infile = outfile
+        for infile in source:
+            image = PipeImage(infile)
+
+            # Create image working directory
+            image_directory = validate_output_path(
+                join(self.wip_directory, image.name), file_ok=False, directory_ok=True
+            )
+            if not isdir(image_directory):
+                if self.verbosity >= 1:
+                    print(f"Creating directory '{image_directory}'")
+                makedirs(image_directory)
+
+            # Backup original image to working directory
+            image_backup = join(image_directory, image.filename)
+            if not isfile(image_backup):
+                if self.verbosity >= 1:
+                    print(f"Copying '{image.full_path}' to '{outfile}'")
+                copyfile(image.full_path, outfile)
+
+            # Flow into pipeline
+            stage = self.pipeline[1]
+            if isinstance(stage, Processor):
+                outfile = join(
+                    self.wip_directory, image.name, image.get_outfile(stage, infile)
+                )
+                if not isfile(outfile):
+                    stage(infile=infile, outfile=outfile, verbosity=self.verbosity)
+
+    def run_processor(self, stage, downstream_pipeline):
+        pass
 
     def __repr__(self) -> str:
         return self.__class__.__name__.lower()
@@ -193,30 +143,67 @@ class Pipeline:
 
     # region Methods
 
-    def backup(self, image: PipeImage) -> str:
-        output_directory = validate_output_path(
-            join(self.wip_directory, image.name), file_ok=False, directory_ok=True
-        )
-        if not isdir(output_directory):
-            if self.verbosity >= 1:
-                print(f"Creating directory '{output_directory}'")
-            makedirs(output_directory)
+    def build_source(self, stage, pipeline_conf):
+        pipeline = [stage]
+        pipeline.extend(self.build_route(pipeline_conf))
 
-        outfile = join(output_directory, basename(image.full_path))
-        if not isfile(outfile):
-            if self.verbosity >= 1:
-                print(f"Copying '{image.full_path}' to '{outfile}'")
-            copyfile(image.full_path, outfile)
+        return pipeline
 
-        return outfile
+    def build_merger(self, stage, inlet, pipeline_conf):
+        if inlet is not None:
+            pipeline = [{stage: inlet}]
+        else:
+            pipeline = [stage]
 
-    def get_outfile(self, image: PipeImage, infile: str, stage: Stage):
-        prefix = get_name(infile)
-        if prefix.startswith(image.name):
-            prefix = prefix[len(image.name) :]
-        outfile = f"{prefix}_{stage.suffix}.png"
-        outfile = outfile.lstrip("_")
+        pipeline.extend(self.build_route(pipeline_conf))
 
-        return join(self.wip_directory, image.name, outfile)
+        return pipeline
+
+    def build_processor(self, stage, pipeline_conf):
+        pipeline = [stage]
+        pipeline.extend(self.build_route(pipeline_conf))
+
+        return pipeline
+
+    def build_sorter(self, stage, stage_conf):
+        pipeline = [{stage: {}}]
+
+        for outlet in filter(lambda o: o in stage_conf, stage.outlets):
+            pipeline[0][stage][outlet] = self.build_route(stage_conf.pop(outlet))
+
+        return pipeline
+
+    def build_splitter(self, stage, stage_conf, pipeline_conf):
+        pipeline = [{stage: {}}]
+
+        for outlet in filter(lambda o: o in stage_conf, stage.outlets):
+            pipeline[0][stage][outlet] = self.build_route(stage_conf.pop(outlet))
+        pipeline.extend(self.build_route(pipeline_conf))
+
+        return pipeline
+
+    def build_route(self, pipeline_conf):
+        if not isinstance(pipeline_conf, List):
+            raise ValueError()
+        if len(pipeline_conf) == 0:
+            return []
+
+        if isinstance(pipeline_conf[0], str):
+            stage_name = pipeline_conf.pop(0)
+            stage_conf = None
+        elif isinstance(pipeline_conf[0], dict):
+            stage_name, stage_conf = next(iter(pipeline_conf.pop(0).items()))
+        else:
+            raise ValueError()
+        stage = self.stages[stage_name]
+
+        if isinstance(stage, Merger):
+            return self.build_merger(stage, stage_conf, pipeline_conf)
+        elif isinstance(stage, Processor):
+            return self.build_processor(stage, pipeline_conf)
+        elif isinstance(stage, Sorter):
+            return self.build_sorter(stage, stage_conf)
+        elif isinstance(stage, Splitter):
+            return self.build_splitter(stage, stage_conf, pipeline_conf)
 
     # endregion

@@ -46,6 +46,8 @@ class CopyFileProcessor(Processor):
     def process_file(
         cls, infile: str, outfile: str, verbosity: int = 1, **kwargs
     ) -> None:
+        if verbosity >= 1:
+            print(f"Copying image from '{infile}' to '{outfile}'")
         copyfile(infile, outfile)
 
     # endregion

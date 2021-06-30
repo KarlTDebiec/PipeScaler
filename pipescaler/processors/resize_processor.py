@@ -45,7 +45,7 @@ class ResizeProcessor(Processor):
             verbosity=verbosity,
             scale=self.scale,
             resample=self.resample,
-            **kwargs
+            **kwargs,
         )
 
     # endregion
@@ -104,6 +104,8 @@ class ResizeProcessor(Processor):
             output_image = Image.fromarray(merged_data)
 
         # Save image
+        if verbosity >= 1:
+            print(f"Saving resized image to '{outfile}'")
         output_image.save(outfile)
 
     # endregion

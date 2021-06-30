@@ -86,7 +86,7 @@ class ModeProcessor(Processor):
         input_image = Image.open(infile)
 
         if input_image.mode == mode:
-            input_image.save(outfile)
+            output_image = input_image
         else:
             output_image = Image.new("RGBA", input_image.size, background_color)
             output_image.paste(input_image)
@@ -96,7 +96,11 @@ class ModeProcessor(Processor):
                 output_image = output_image.convert("RGB")
             elif mode == "L":
                 output_image = output_image.convert("L")
-            output_image.save(outfile)
+
+        # Save image
+        if verbosity >= 1:
+            print(f"Saving {mode} image to '{outfile}'")
+        output_image.save(outfile)
 
     # endregion
 

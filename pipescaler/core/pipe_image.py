@@ -9,12 +9,13 @@
 ####################################### MODULES ########################################
 from __future__ import annotations
 
-from os.path import basename, splitext
+from os.path import basename, join, splitext
 from typing import Tuple
 
 from PIL import Image
 
 from pipescaler.common import validate_input_path
+from pipescaler.core import Stage
 
 
 ####################################### CLASSES ########################################
@@ -58,6 +59,15 @@ class PipeImage:
     # endregion
 
     # region Methods
+
+    def get_outfile(self, stage: Stage, infile: str):
+        prefix = splitext(basename(infile))[0]
+        if prefix.startswith(self.name):
+            prefix = prefix[len(self.name) :]
+        outfile = f"{prefix}_{stage.suffix}.png"
+        outfile = outfile.lstrip("_")
+
+        return outfile
 
     def log(self, stage_name: str, outfile: str, suffixes=None):
         if suffixes is None:
