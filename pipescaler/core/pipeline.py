@@ -207,6 +207,8 @@ class Pipeline:
         )
         if not isfile(outfile):
             stage(outfile=outfile, **kwargs)
+        elif self.verbosity >= 1:
+            print(f"'{outfile}' already exists")
 
         return self.run_route(image=image, infile=outfile, **kwargs)
 
@@ -216,6 +218,8 @@ class Pipeline:
         )
         if not isfile(outfile):
             stage(infile=infile, outfile=outfile, verbosity=self.verbosity)
+        elif self.verbosity >= 1:
+            print(f"'{outfile}' already exists")
 
         return self.run_route(image=image, infile=outfile, **kwargs)
 
@@ -234,10 +238,14 @@ class Pipeline:
             )
             for outlet in stage.outlets
         }
+        to_run = False
         for outfile in outfiles.values():
             if not isfile(outfile):
-                stage(infile=infile, verbosity=self.verbosity, **outfiles)
-                break
+                to_run = True
+            elif self.verbosity >= 1:
+                print(f"'{outfile}' already exists")
+        if to_run:
+            stage(infile=infile, verbosity=self.verbosity, **outfiles)
 
         downstream_inlets = {}
         for outlet_name in stage.outlets:
@@ -251,7 +259,7 @@ class Pipeline:
                 raise ValueError()
         kwargs.update(downstream_inlets)
 
-        self.run_route(image=image, **kwargs)
+        return self.run_route(image=image, **kwargs)
 
     def run_route(self, pipeline, **kwargs):
         if pipeline is None:
