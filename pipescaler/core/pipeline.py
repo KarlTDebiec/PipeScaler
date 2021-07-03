@@ -210,27 +210,13 @@ class Pipeline:
         # if not isfile(outfile):
         stage(infile=infile, outfile=outfile, verbosity=self.verbosity)
 
-        if len(pipeline) > 0:
-            if isinstance(pipeline[0], Stage):
-                stage = pipeline[0]
-                stage_pipeline = None
-            elif isinstance(pipeline[0], dict):
-                stage, stage_pipeline = next(iter(pipeline[0].items()))
-
-            self.run_route(image, outfile, stage, stage_pipeline, pipeline[1:])
+        self.run_route(image, outfile, pipeline)
 
     def run_sorter(self, image, infile, stage, stage_pipeline, pipeline):
         outlet_name = stage(infile=infile, verbosity=self.verbosity)
-
         outlet_pipeline = stage_pipeline.get(outlet_name, [])
-        if len(outlet_pipeline) > 0:
-            if isinstance(outlet_pipeline[0], Stage):
-                stage = outlet_pipeline[0]
-                stage_pipeline = None
-            elif isinstance(outlet_pipeline[0], dict):
-                stage, stage_pipeline = next(iter(outlet_pipeline[0].items()))
 
-            self.run_route(image, infile, stage, stage_pipeline, pipeline[1:])
+        self.run_route(image, infile, outlet_pipeline)
 
     def run_splitter(self, image, infile, stage, stage_pipeline, pipeline):
         outfiles = {
@@ -241,26 +227,40 @@ class Pipeline:
             )
             for outlet in stage.outlets
         }
+        # TODO: skip if all outfiles already exist
         stage(infile=infile, verbosity=self.verbosity, **outfiles)
 
-        for outlet_name, outlet_pipeline in stage_pipeline.items():
+        for outlet_name in stage.outlets:
             outfile = outfiles[outlet_name]
-            if len(outlet_pipeline) > 0:
-                if isinstance(outlet_pipeline[0], Stage):
-                    stage = outlet_pipeline[0]
-                    stage_pipeline = None
-                elif isinstance(outlet_pipeline[0], dict):
-                    stage, stage_pipeline = next(iter(outlet_pipeline[0].items()))
+            outlet_pipeline = stage_pipeline.get(outlet_name, [])
 
-            self.run_route(image, outfile, stage, stage_pipeline, outlet_pipeline[1:])
+            self.run_route(image, outfile, outlet_pipeline)
 
-    def run_route(self, image, infile, stage, stage_pipeline, pipeline):
+        # TODO: Run downstream
+
+    def run_route(self, image, infile, pipeline):
+        if pipeline is None:
+            return
+        elif not isinstance(pipeline, List):
+            raise ValueError()
+        elif len(pipeline) == 0:
+            return
+
+        if isinstance(pipeline[0], Stage):
+            stage, stage_pipeline = pipeline[0], None
+        elif isinstance(pipeline[0], dict):
+            stage, stage_pipeline = next(iter(pipeline[0].items()))
+        else:
+            raise ValueError()
+
         if isinstance(stage, Processor):
-            return self.run_processor(image, infile, stage, stage_pipeline, pipeline)
+            return self.run_processor(
+                image, infile, stage, stage_pipeline, pipeline[1:]
+            )
         elif isinstance(stage, Sorter):
-            return self.run_sorter(image, infile, stage, stage_pipeline, pipeline)
+            return self.run_sorter(image, infile, stage, stage_pipeline, pipeline[1:])
         elif isinstance(stage, Splitter):
-            return self.run_splitter(image, infile, stage, stage_pipeline, pipeline)
+            return self.run_splitter(image, infile, stage, stage_pipeline, pipeline[1:])
         else:
             raise ValueError()
 
