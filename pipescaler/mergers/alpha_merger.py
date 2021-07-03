@@ -32,7 +32,8 @@ class AlphaMerger(Merger):
         rgba_datum[:, :, :3] = rgb_datum
         rgba_datum[:, :, 3] = a_datum
         rgba_image = Image.fromarray(rgba_datum)
-
+        if verbosity >= 1:
+            print(f"Saving rgba to '{outfile}'")
         rgba_image.save(outfile)
 
     # endregion

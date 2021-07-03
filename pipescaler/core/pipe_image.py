@@ -10,7 +10,7 @@
 from __future__ import annotations
 
 from os.path import basename, splitext
-from typing import Tuple
+from typing import List, Tuple
 
 from PIL import Image
 
@@ -42,10 +42,20 @@ class PipeImage:
 
     # region Methods
 
-    def get_outfile(self, infile: str, suffix: str) -> str:
+    def get_outfile(
+        self, infile: str, suffix: str, trim_suffixes: List[str] = None
+    ) -> str:
         prefix = splitext(basename(infile))[0]
         if prefix.startswith(self.name):
             prefix = prefix[len(self.name) :]
+
+        if trim_suffixes is not None:
+            for trim_suffix in trim_suffixes:
+                if trim_suffix in prefix:
+                    prefix = prefix[: prefix.rindex(trim_suffix)]
+                    break
+            prefix = prefix.rstrip("_")
+
         outfile = f"{prefix}_{suffix}.png"
         outfile = outfile.lstrip("_")
 

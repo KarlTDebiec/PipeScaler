@@ -42,6 +42,8 @@ class NormalMerger(Merger):
         rgb_datum[:, :, 2] = b_datum
         rgb_image = Image.fromarray(rgb_datum)
 
+        if verbosity >= 1:
+            print(f"Saving rgb to '{outfile}'")
         rgb_image.save(outfile)
 
     # endregion

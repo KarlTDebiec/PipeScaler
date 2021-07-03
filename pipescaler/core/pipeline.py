@@ -114,16 +114,7 @@ class Pipeline:
                 copyfile(image.full_path, image_backup)
 
             # Flow into pipeline
-            pipeline = self.pipeline[1:]
-            if isinstance(pipeline[0], Stage):
-                stage = pipeline.pop(0)
-                stage_pipeline = None
-            elif isinstance(pipeline[0], dict):
-                stage, stage_pipeline = next(iter(pipeline.pop(0).items()))
-            if isinstance(stage, Processor):
-                self.run_processor(image, infile, stage, stage_pipeline, pipeline)
-            elif isinstance(stage, Sorter):
-                return self.run_sorter(image, infile, stage, stage_pipeline, pipeline)
+            self.run_route(pipeline=self.pipeline[1:], image=image, infile=infile)
 
     def __repr__(self) -> str:
         return self.__class__.__name__.lower()
@@ -203,22 +194,38 @@ class Pipeline:
 
         return pipeline
 
-    def run_processor(self, image, infile, stage, stage_pipeline, pipeline):
+    def run_merger(self, stage, stage_pipeline, image, **kwargs):
+        if isinstance(stage_pipeline, str):
+            return {stage_pipeline: kwargs["infile"]}
+
+        outfile = join(
+            self.wip_directory,
+            image.name,
+            image.get_outfile(
+                kwargs[stage.inlets[0]], stage.suffix, stage.trim_suffixes
+            ),
+        )
+        if not isfile(outfile):
+            stage(outfile=outfile, **kwargs)
+
+        return self.run_route(image=image, infile=outfile, **kwargs)
+
+    def run_processor(self, stage, image, infile, **kwargs):
         outfile = join(
             self.wip_directory, image.name, image.get_outfile(infile, stage.suffix)
         )
-        # if not isfile(outfile):
-        stage(infile=infile, outfile=outfile, verbosity=self.verbosity)
+        if not isfile(outfile):
+            stage(infile=infile, outfile=outfile, verbosity=self.verbosity)
 
-        self.run_route(image, outfile, pipeline)
+        return self.run_route(image=image, infile=outfile, **kwargs)
 
-    def run_sorter(self, image, infile, stage, stage_pipeline, pipeline):
+    def run_sorter(self, stage, stage_pipeline, infile, **kwargs):
         outlet_name = stage(infile=infile, verbosity=self.verbosity)
-        outlet_pipeline = stage_pipeline.get(outlet_name, [])
+        kwargs["pipeline"] = stage_pipeline.get(outlet_name, [])
 
-        self.run_route(image, infile, outlet_pipeline)
+        return self.run_route(infile=infile, **kwargs)
 
-    def run_splitter(self, image, infile, stage, stage_pipeline, pipeline):
+    def run_splitter(self, stage, stage_pipeline, image, infile, **kwargs):
         outfiles = {
             outlet: join(
                 self.wip_directory,
@@ -227,18 +234,26 @@ class Pipeline:
             )
             for outlet in stage.outlets
         }
-        # TODO: skip if all outfiles already exist
-        stage(infile=infile, verbosity=self.verbosity, **outfiles)
+        for outfile in outfiles.values():
+            if not isfile(outfile):
+                stage(infile=infile, verbosity=self.verbosity, **outfiles)
+                break
 
+        downstream_inlets = {}
         for outlet_name in stage.outlets:
             outfile = outfiles[outlet_name]
             outlet_pipeline = stage_pipeline.get(outlet_name, [])
+            nay = self.run_route(pipeline=outlet_pipeline, image=image, infile=outfile)
 
-            self.run_route(image, outfile, outlet_pipeline)
+            if isinstance(nay, dict):
+                downstream_inlets.update(nay)
+            else:
+                raise ValueError()
+        kwargs.update(downstream_inlets)
 
-        # TODO: Run downstream
+        self.run_route(image=image, **kwargs)
 
-    def run_route(self, image, infile, pipeline):
+    def run_route(self, pipeline, **kwargs):
         if pipeline is None:
             return
         elif not isinstance(pipeline, List):
@@ -247,20 +262,22 @@ class Pipeline:
             return
 
         if isinstance(pipeline[0], Stage):
-            stage, stage_pipeline = pipeline[0], None
+            kwargs["stage"], kwargs["stage_pipeline"] = pipeline[0], None
         elif isinstance(pipeline[0], dict):
-            stage, stage_pipeline = next(iter(pipeline[0].items()))
+            kwargs["stage"], kwargs["stage_pipeline"] = next(iter(pipeline[0].items()))
         else:
             raise ValueError()
 
-        if isinstance(stage, Processor):
-            return self.run_processor(
-                image, infile, stage, stage_pipeline, pipeline[1:]
-            )
-        elif isinstance(stage, Sorter):
-            return self.run_sorter(image, infile, stage, stage_pipeline, pipeline[1:])
-        elif isinstance(stage, Splitter):
-            return self.run_splitter(image, infile, stage, stage_pipeline, pipeline[1:])
+        kwargs["pipeline"] = pipeline[1:]
+
+        if isinstance(kwargs["stage"], Merger):
+            return self.run_merger(**kwargs)
+        elif isinstance(kwargs["stage"], Processor):
+            return self.run_processor(**kwargs)
+        elif isinstance(kwargs["stage"], Sorter):
+            return self.run_sorter(**kwargs)
+        elif isinstance(kwargs["stage"], Splitter):
+            return self.run_splitter(**kwargs)
         else:
             raise ValueError()
 
