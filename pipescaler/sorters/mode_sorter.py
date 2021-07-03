@@ -23,12 +23,20 @@ class ModeSorter(Sorter):
 
     def __call__(self, infile: str, verbosity: int = 1, **kwargs: Any) -> str:
         image = Image.open(infile)
-        if image.mode == "rgba":
+        if image.mode == "RGBA":
+            if verbosity >= 1:
+                print(f"'{infile}' is 'rgba'")
             return "rgba"
-        elif image.mode == "rgb":
+        elif image.mode == "RGB":
+            if verbosity >= 1:
+                print(f"'{infile}' is 'rgb'")
             return "rgb"
-        elif image.mode == "l":
+        elif image.mode == "L":
+            if verbosity >= 1:
+                print(f"'{infile}' is 'l'")
             return "l"
+        else:
+            raise ValueError()
 
     # endregion
 

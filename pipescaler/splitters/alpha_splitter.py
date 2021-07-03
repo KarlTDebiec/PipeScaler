@@ -12,7 +12,7 @@ from __future__ import annotations
 from typing import Any, Dict
 
 import numpy as np
-from PIL.Image import Image
+from PIL import Image
 
 from pipescaler.core import Splitter
 
@@ -28,7 +28,11 @@ class AlphaSplitter(Splitter):
         outfiles = {k: kwargs.get(k) for k in self.outlets}
 
         rgba = Image.open(infile)
+        if verbosity >= 1:
+            print(f"Saving rgb to '{outfiles['rgb']}'")
         Image.fromarray(np.array(rgba)[:, :, :3]).save(outfiles["rgb"])
+        if verbosity >= 1:
+            print(f"Saving alpha to '{outfiles['a']}'")
         Image.fromarray(np.array(rgba)[:, :, 3]).save(outfiles["a"])
 
         return outfiles

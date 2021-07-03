@@ -28,9 +28,16 @@ class NormalSplitter(Splitter):
         outfiles = {k: kwargs.get(k) for k in self.outlets}
 
         rgb = Image.open(infile)
+        if verbosity >= 1:
+            print(f"Saving r to '{outfiles['r']}'")
         Image.fromarray(np.array(rgb)[:, :, 0]).save(outfiles["r"])
+        if verbosity >= 1:
+            print(f"Saving g to '{outfiles['g']}'")
         Image.fromarray(np.array(rgb)[:, :, 1]).save(outfiles["g"])
+        if verbosity >= 1:
+            print(f"Saving b to '{outfiles['b']}'")
         Image.fromarray(np.array(rgb)[:, :, 2]).save(outfiles["b"])
+        # TODO: Should this spread out blue channel from 128-255 to 0-255?
 
         return outfiles
 

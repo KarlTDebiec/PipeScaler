@@ -10,7 +10,7 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from pipescaler.core.stage import Stage
 
@@ -19,6 +19,17 @@ from pipescaler.core.stage import Stage
 class Splitter(Stage, ABC):
 
     # region Builtins
+
+    def __init__(
+        self, suffixes: Optional[Dict[str, str]] = None, **kwargs: Any
+    ) -> None:
+        super().__init__(**kwargs)
+
+        # Store configuration
+        if suffixes is not None:
+            self.suffixes = suffixes
+        else:
+            self.suffixes = {outlet: outlet for outlet in self.outlets}
 
     def __call__(
         self, infile: str, verbosity: int = 1, **kwargs: Any

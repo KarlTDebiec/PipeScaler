@@ -9,13 +9,12 @@
 ####################################### MODULES ########################################
 from __future__ import annotations
 
-from os.path import basename, join, splitext
+from os.path import basename, splitext
 from typing import Tuple
 
 from PIL import Image
 
 from pipescaler.common import validate_input_path
-from pipescaler.core import Stage
 
 
 ####################################### CLASSES ########################################
@@ -33,8 +32,6 @@ class PipeImage:
         self.mode: str = image.mode
         self.shape: Tuple[int] = image.size
 
-        self.history = []
-
     def __repr__(self) -> str:
         return self.name
 
@@ -43,38 +40,18 @@ class PipeImage:
 
     # endregion
 
-    # region Properties
-
-    @property
-    def image(self) -> Image:
-        return Image.open(self.last)
-
-    @property
-    def last(self) -> str:
-        if len(self.history) >= 1:
-            return self.history[-1][1]
-        else:
-            return self.full_path
-
-    # endregion
-
     # region Methods
 
-    def get_outfile(self, stage: Stage, infile: str):
+    def get_outfile(self, infile: str, suffix: str) -> str:
         prefix = splitext(basename(infile))[0]
         if prefix.startswith(self.name):
             prefix = prefix[len(self.name) :]
-        outfile = f"{prefix}_{stage.suffix}.png"
+        outfile = f"{prefix}_{suffix}.png"
         outfile = outfile.lstrip("_")
 
         return outfile
 
-    def log(self, stage_name: str, outfile: str, suffixes=None):
-        if suffixes is None:
-            suffixes = []
-        self.history.append((stage_name, suffixes, outfile))
-
     def show(self):
-        self.image.show()
+        Image.open(self.full_path).show()
 
     # endregion
