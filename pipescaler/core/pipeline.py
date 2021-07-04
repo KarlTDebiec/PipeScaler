@@ -114,7 +114,7 @@ class Pipeline:
                 copyfile(image.full_path, image_backup)
 
             # Flow into pipeline
-            self.run_route(pipeline=self.pipeline[1:], image=image, infile=infile)
+            self.run_route(pipeline=self.pipeline[1:], image=image, infile=image_backup)
 
     def __repr__(self) -> str:
         return self.__class__.__name__.lower()

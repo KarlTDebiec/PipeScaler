@@ -1,12 +1,6 @@
 TODO:
 - Reorganization
-  - [x] DirectorySourc
-  - [x] CopyFileProcessor
-  - [x] ModeProcessor
-  - [x] ResizeProcessor
-  - [ ] RegexSorter
-  - [ ] ModeSorter
-  - [ ] AlphaSplitter
+  - [ ] ESRGANProcessor
 - Enhancements
   - [ ] Check OS when running OS-specific processors
     - [x] TexConvProcessor
@@ -17,8 +11,6 @@ TODO:
     - [ ] xbrzscale
     - [ ] waifu
     - [ ] potrace
-  - Try CUDA and fall back to CPU if necessary
-    - [ ] ESRGANProcessor
 - Notes:
   - Don't use a property unless you cannot do the initialization in __init__
   - Don't write a setter unless you need to set the value outside of __init__
