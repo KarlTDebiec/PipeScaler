@@ -9,7 +9,9 @@
 ####################################### MODULES ########################################
 from __future__ import annotations
 
+import logging
 from importlib import import_module
+from logging import info
 from os import makedirs
 from os.path import isdir, isfile, join
 from pprint import pprint
@@ -41,6 +43,12 @@ class Pipeline:
             wip_directory, file_ok=False, directory_ok=True
         )
         self.verbosity = validate_int(verbosity, min_value=0)
+        if self.verbosity == 1:
+            logging.basicConfig(level=logging.WARNING)
+        elif self.verbosity == 1:
+            logging.basicConfig(level=logging.INFO)
+        elif self.verbosity == 2:
+            logging.basicConfig(level=logging.DEBUG)
 
         # Load configuration
         stage_modules = [
@@ -93,7 +101,7 @@ class Pipeline:
         source = self.pipeline[0]
 
         for infile in source:
-            print()
+            info(f"{self}: '{infile}' processing started")
             image = PipeImage(infile)
 
             # Create image working directory
@@ -109,9 +117,8 @@ class Pipeline:
             # TODO: Should be handled within source, to support archive sources
             image_backup = join(image_directory, image.filename)
             if not isfile(image_backup):
-                if self.verbosity >= 1:
-                    print(f"Copying '{image.full_path}' to '{image_backup}'")
                 copyfile(image.full_path, image_backup)
+                info(f"{self}: '{image.full_path}' copied to '{image_backup}'")
 
             # Flow into pipeline
             self.run_route(pipeline=self.pipeline[1:], image=image, infile=image_backup)
@@ -164,17 +171,18 @@ class Pipeline:
         elif isinstance(stage, Processor):
             return self.build_processor(stage, pipeline_conf)
         elif isinstance(stage, Sorter):
-            return self.build_sorter(stage, stage_conf)
+            return self.build_sorter(stage, stage_conf, pipeline_conf)
         elif isinstance(stage, Splitter):
             return self.build_splitter(stage, stage_conf, pipeline_conf)
         else:
             raise ValueError()
 
-    def build_sorter(self, stage, stage_conf):
+    def build_sorter(self, stage, stage_conf, pipeline_conf):
         pipeline = [{stage: {}}]
 
         for outlet in filter(lambda o: o in stage_conf, stage.outlets):
             pipeline[0][stage][outlet] = self.build_route(stage_conf.pop(outlet))
+        pipeline.extend(self.build_route(pipeline_conf))
 
         return pipeline
 
@@ -207,8 +215,8 @@ class Pipeline:
         )
         if not isfile(outfile):
             stage(outfile=outfile, **kwargs)
-        elif self.verbosity >= 1:
-            print(f"'{outfile}' already exists")
+        else:
+            info(f"{self}: '{outfile}' already exists")
 
         return self.run_route(image=image, infile=outfile, **kwargs)
 
@@ -217,17 +225,20 @@ class Pipeline:
             self.wip_directory, image.name, image.get_outfile(infile, stage.suffix)
         )
         if not isfile(outfile):
-            stage(infile=infile, outfile=outfile, verbosity=self.verbosity)
-        elif self.verbosity >= 1:
-            print(f"'{outfile}' already exists")
+            stage(infile=infile, outfile=outfile)
+        else:
+            info(f"{self}: '{outfile}' already exists")
 
         return self.run_route(image=image, infile=outfile, **kwargs)
 
-    def run_sorter(self, stage, stage_pipeline, infile, **kwargs):
+    def run_sorter(self, stage, stage_pipeline, infile, pipeline, **kwargs):
         outlet_name = stage(infile=infile, verbosity=self.verbosity)
-        kwargs["pipeline"] = stage_pipeline.get(outlet_name, [])
 
-        return self.run_route(infile=infile, **kwargs)
+        outfile = self.run_route(
+            infile=infile, pipeline=stage_pipeline.get(outlet_name, []), **kwargs
+        )
+
+        return self.run_route(infile=outfile, pipeline=pipeline, **kwargs)
 
     def run_splitter(self, stage, stage_pipeline, image, infile, **kwargs):
         outfiles = {
@@ -242,8 +253,8 @@ class Pipeline:
         for outfile in outfiles.values():
             if not isfile(outfile):
                 to_run = True
-            elif self.verbosity >= 1:
-                print(f"'{outfile}' already exists")
+            else:
+                info(f"{self}: '{outfile}' already exists")
         if to_run:
             stage(infile=infile, verbosity=self.verbosity, **outfiles)
 
@@ -263,11 +274,11 @@ class Pipeline:
 
     def run_route(self, pipeline, **kwargs):
         if pipeline is None:
-            return
+            return kwargs.get("infile", None)
         elif not isinstance(pipeline, List):
             raise ValueError()
         elif len(pipeline) == 0:
-            return
+            return kwargs.get("infile", None)
 
         if isinstance(pipeline[0], Stage):
             kwargs["stage"], kwargs["stage_pipeline"] = pipeline[0], None

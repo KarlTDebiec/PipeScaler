@@ -32,10 +32,8 @@ class Processor(Stage, CLTool):
         else:
             self.suffix = self.name
 
-    def __call__(
-        self, infile: str, outfile: str, verbosity: int = 1, **kwargs: Any
-    ) -> None:
-        self.process_file(infile, outfile, verbosity=verbosity, **kwargs)
+    def __call__(self, infile: str, outfile: str) -> None:
+        self.process_file(infile, outfile)
 
     # endregion
 

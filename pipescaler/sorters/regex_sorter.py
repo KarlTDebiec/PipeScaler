@@ -10,8 +10,9 @@
 from __future__ import annotations
 
 import re
+from logging import info
 from os.path import basename, dirname
-from typing import Any
+from typing import Any, List
 
 from pipescaler.core import Sorter
 
@@ -24,17 +25,19 @@ class RegexSorter(Sorter):
     def __init__(self, regex: str, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
+        # Store configuration
         self.regex = re.compile(regex)
 
-    def __call__(self, infile: str, verbosity: int = 1, **kwargs: Any) -> str:
+    def __call__(self, infile: str) -> str:
+        # Identify image
         name = basename(dirname(infile))
+
+        # Sort image
         if self.regex.match(name):
-            if verbosity >= 1:
-                print(f"'{name}' matches {self.regex.pattern}")
+            info(f"{self}: '{name}' matches '{self.regex.pattern}'")
             return "matched"
         else:
-            if verbosity >= 1:
-                print(f"'{name}' does not match {self.regex.pattern}")
+            info(f"{self}: '{name}' does not match '{self.regex.pattern}'")
             return "unmatched"
 
     # endregion
@@ -42,7 +45,7 @@ class RegexSorter(Sorter):
     # region Properties
 
     @property
-    def outlets(self):
+    def outlets(self) -> List[str]:
         return ["matched", "unmatched"]
 
     # endregion

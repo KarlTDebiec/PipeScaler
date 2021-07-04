@@ -9,6 +9,7 @@
 ####################################### MODULES ########################################
 from __future__ import annotations
 
+from logging import info
 from typing import Any
 
 import numpy as np
@@ -22,12 +23,18 @@ class NormalMerger(Merger):
 
     # region Builtins
 
-    def __call__(self, outfile: str, verbosity: int = 1, **kwargs: Any) -> None:
+    def __call__(self, outfile: str, **kwargs: Any) -> None:
         infiles = {k: kwargs.get(k) for k in self.inlets}
 
-        r_datum = np.array(Image.open(infiles["r"]).convert("L"), np.float) - 128
-        g_datum = np.array(Image.open(infiles["g"]).convert("L"), np.float) - 128
-        b_datum = np.array(Image.open(infiles["b"]).convert("L"), np.float) - 128
+        # Read images
+        r = Image.open(infiles["r"]).convert("L")
+        g = Image.open(infiles["g"]).convert("L")
+        b = Image.open(infiles["b"]).convert("L")
+
+        # Merge images
+        r_datum = np.array(r, np.float) - 128
+        g_datum = np.array(g, np.float) - 128
+        b_datum = np.array(b, np.float) - 128
 
         b_datum[b_datum < 0] = 0
         mag = np.sqrt(r_datum ** 2 + g_datum ** 2 + b_datum ** 2)
@@ -42,9 +49,9 @@ class NormalMerger(Merger):
         rgb_datum[:, :, 2] = b_datum
         rgb_image = Image.fromarray(rgb_datum)
 
-        if verbosity >= 1:
-            print(f"Saving rgb to '{outfile}'")
+        # Write image
         rgb_image.save(outfile)
+        info(f"'{self}: '{outfile}' saved")
 
     # endregion
 

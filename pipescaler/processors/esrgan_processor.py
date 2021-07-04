@@ -22,6 +22,7 @@ from __future__ import annotations
 import collections
 from argparse import ArgumentParser
 from functools import partial
+from logging import info, warning
 from typing import Any
 
 import numpy as np
@@ -34,7 +35,6 @@ from pipescaler.core import Processor
 
 ####################################### CLASSES ########################################
 class ESRGANProcessor(Processor):
-    """"""
 
     # region Classes
 
@@ -166,8 +166,6 @@ class ESRGANProcessor(Processor):
 
         # Store configuration
         self.model_infile = validate_input_path(model_infile)
-        # TODO: Check if CUDA works
-        # TODO: Fail if not enough memory
         self.device = device
 
         self.upscaler = ESRGANProcessor.RRDBNetUpscaler(
@@ -182,16 +180,9 @@ class ESRGANProcessor(Processor):
 
     # endregion
 
-    def __call__(
-        self, infile: str, outfile: str, verbosity: int = 1, **kwargs: Any
-    ) -> None:
+    def __call__(self, infile: str, outfile: str) -> None:
         self.process_file(
-            infile,
-            outfile,
-            verbosity=verbosity,
-            upscaler=self.upscaler,
-            cpu_upscaler=self.cpu_upscaler,
-            **kwargs,
+            infile, outfile, upscaler=self.upscaler, cpu_upscaler=self.cpu_upscaler
         )
 
     # region Class Methods
@@ -242,9 +233,7 @@ class ESRGANProcessor(Processor):
         return state_dict, scale_index
 
     @classmethod
-    def process_file(
-        cls, infile: str, outfile: str, verbosity=1, **kwargs: Any
-    ) -> None:
+    def process_file(cls, infile: str, outfile: str, **kwargs: Any) -> None:
         upscaler = kwargs.get("upscaler")
         cpu_upscaler = kwargs.get("cpu_upscaler")
 
@@ -256,17 +245,18 @@ class ESRGANProcessor(Processor):
             output_datum = upscaler.upscale(input_datum)
         except RuntimeError as e:
             if cpu_upscaler is not None:
-                if verbosity >= 1:
-                    print(
-                        f"CUDA ESRGAN upscaler raised an exception: {e}; trying CPU upscaler"
-                    )
+                warning(
+                    f"{cls}: CUDA ESRGAN upscaler raised exception: '{e}'; "
+                    f"trying CPU upscaler"
+                )
                 output_datum = cpu_upscaler.upscale(input_datum)
+            else:
+                raise e
+        output_image = Image.fromarray(output_datum)
 
         # Write image
-        output_image = Image.fromarray(output_datum)
-        if verbosity >= 1:
-            print(f"Saving resized image to '{outfile}'")
         output_image.save(outfile)
+        info(f"{cls}: '{outfile}' saved")
 
     # endregion
 

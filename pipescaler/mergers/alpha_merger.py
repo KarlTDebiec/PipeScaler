@@ -9,6 +9,7 @@
 ####################################### MODULES ########################################
 from __future__ import annotations
 
+from logging import info
 from typing import Any
 
 import numpy as np
@@ -22,19 +23,22 @@ class AlphaMerger(Merger):
 
     # region Builtins
 
-    def __call__(self, outfile: str, verbosity: int = 1, **kwargs: Any) -> None:
+    def __call__(self, outfile: str, **kwargs: Any) -> None:
         infiles = {k: kwargs.get(k) for k in self.inlets}
 
+        # Read images
         rgb_datum = np.array(Image.open(infiles["rgb"]).convert("RGB"))
         a_datum = np.array(Image.open(infiles["a"]).convert("L"))
 
+        # Merge images
         rgba_datum = np.zeros((rgb_datum.shape[0], rgb_datum.shape[1], 4), np.uint8)
         rgba_datum[:, :, :3] = rgb_datum
         rgba_datum[:, :, 3] = a_datum
         rgba_image = Image.fromarray(rgba_datum)
-        if verbosity >= 1:
-            print(f"Saving rgba to '{outfile}'")
+
+        # Write image
         rgba_image.save(outfile)
+        info(f"'{self}: '{outfile}' saved")
 
     # endregion
 

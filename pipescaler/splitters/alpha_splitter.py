@@ -9,6 +9,7 @@
 ####################################### MODULES ########################################
 from __future__ import annotations
 
+from logging import info
 from typing import Any, Dict
 
 import numpy as np
@@ -22,18 +23,23 @@ class AlphaSplitter(Splitter):
 
     # region Builtins
 
-    def __call__(
-        self, infile: str, verbosity: int = 1, **kwargs: Any
-    ) -> Dict[str, str]:
+    def __call__(self, infile: str, **kwargs: Any) -> Dict[str, str]:
         outfiles = {k: kwargs.get(k) for k in self.outlets}
 
+        # Read image
         rgba = Image.open(infile)
-        if verbosity >= 1:
-            print(f"Saving rgb to '{outfiles['rgb']}'")
-        Image.fromarray(np.array(rgba)[:, :, :3]).save(outfiles["rgb"])
-        if verbosity >= 1:
-            print(f"Saving alpha to '{outfiles['a']}'")
-        Image.fromarray(np.array(rgba)[:, :, 3]).save(outfiles["a"])
+        if rgba.mode != "RGBA":
+            raise ValueError()
+
+        # Split images
+        rgb = Image.fromarray(np.array(rgba)[:, :, :3])
+        a = Image.fromarray(np.array(rgba)[:, :, 3])
+
+        # Write images
+        rgb.save(outfiles["rgb"])
+        info(f"{self}: '{outfiles['rgb']}' saved")
+        a.save(outfiles["a"])
+        info(f"{self}: '{outfiles['a']}' saved")
 
         return outfiles
 

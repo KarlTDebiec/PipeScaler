@@ -11,6 +11,7 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
+from logging import info
 from typing import Any
 
 from PIL import Image, ImageColor
@@ -34,16 +35,9 @@ class ModeProcessor(Processor):
         self.mode = validate_str(mode, self.modes)
         self.background_color = ImageColor.getrgb(background_color)  # TODO: Validate
 
-    def __call__(
-        self, infile: str, outfile: str, verbosity: int = 1, **kwargs: Any
-    ) -> None:
+    def __call__(self, infile: str, outfile: str) -> None:
         self.process_file(
-            infile,
-            outfile,
-            verbosity=verbosity,
-            mode=self.mode,
-            background_color=self.background_color,
-            **kwargs,
+            infile, outfile, mode=self.mode, background_color=self.background_color
         )
 
     # endregion
@@ -78,13 +72,14 @@ class ModeProcessor(Processor):
         return parser
 
     @classmethod
-    def process_file(
-        cls, infile: str, outfile: str, verbosity: int = 1, **kwargs: Any
-    ) -> None:
+    def process_file(cls, infile: str, outfile: str, **kwargs: Any) -> None:
         mode = kwargs.get("mode", "RGB").upper()
         background_color = kwargs.get("background_color", ImageColor.getrgb("#000000"))
+
+        # Read image
         input_image = Image.open(infile)
 
+        # Convert image
         if input_image.mode == mode:
             output_image = input_image
         else:
@@ -97,10 +92,9 @@ class ModeProcessor(Processor):
             elif mode == "L":
                 output_image = output_image.convert("L")
 
-        # Save image
-        if verbosity >= 1:
-            print(f"Saving {mode} image to '{outfile}'")
+        # Write image
         output_image.save(outfile)
+        info(f"{cls}: '{outfile}' saved")
 
     # endregion
 

@@ -11,6 +11,7 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
+from logging import info
 from typing import Any
 
 import numpy as np
@@ -38,15 +39,8 @@ class ResizeProcessor(Processor):
         self.scale = validate_float(scale, min_value=0)
         self.resample = validate_str(resample, options=self.resample_methods.keys())
 
-    def __call__(self, infile: str, outfile: str, verbosity: int = 1, **kwargs) -> None:
-        self.process_file(
-            infile,
-            outfile,
-            verbosity=verbosity,
-            scale=self.scale,
-            resample=self.resample,
-            **kwargs,
-        )
+    def __call__(self, infile: str, outfile: str) -> None:
+        self.process_file(infile, outfile, scale=self.scale, resample=self.resample)
 
     # endregion
 
@@ -80,20 +74,19 @@ class ResizeProcessor(Processor):
         return parser
 
     @classmethod
-    def process_file(
-        cls, infile: str, outfile: str, verbosity: int = 1, **kwargs
-    ) -> None:
+    def process_file(cls, infile: str, outfile: str, **kwargs) -> None:
         scale = kwargs.get("scale", 2)
         resample = cls.resample_methods[kwargs.get("resample", "lanczos")]
 
-        # Load and scale image
+        # Read image
         input_image = Image.open(infile)
+
+        # Scale image
         size = (
             int(np.round(input_image.size[0] * scale)),
             int(np.round(input_image.size[1] * scale)),
         )
         output_image = input_image.convert("RGB").resize(size, resample=resample)
-
         # Combine R, G, and B from RGB with A from RGBA
         # TODO: Check why this is done, perhaps color is dropped for transparent pixels?
         if input_image.mode == "RGBA":
@@ -103,10 +96,9 @@ class ResizeProcessor(Processor):
             merged_data[:, :, 3] = np.array(rgba_image)[:, :, 3]
             output_image = Image.fromarray(merged_data)
 
-        # Save image
-        if verbosity >= 1:
-            print(f"Saving resized image to '{outfile}'")
+        # Write image
         output_image.save(outfile)
+        info(f"{cls}: '{outfile}' saved")
 
     # endregion
 

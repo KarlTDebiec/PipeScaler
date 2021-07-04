@@ -9,7 +9,8 @@
 ####################################### MODULES ########################################
 from __future__ import annotations
 
-from typing import Any
+from logging import info
+from typing import Any, List
 
 from PIL import Image
 
@@ -21,19 +22,20 @@ class ModeSorter(Sorter):
 
     # region Builtins
 
-    def __call__(self, infile: str, verbosity: int = 1, **kwargs: Any) -> str:
+    def __call__(self, infile: str) -> str:
+
+        # Read image
         image = Image.open(infile)
+
+        # Sort image
         if image.mode == "RGBA":
-            if verbosity >= 1:
-                print(f"'{infile}' is 'rgba'")
+            info(f"{self}: '{infile}' matches 'RGBA'")
             return "rgba"
         elif image.mode == "RGB":
-            if verbosity >= 1:
-                print(f"'{infile}' is 'rgb'")
+            info(f"{self}: {infile}' matches 'RGB'")
             return "rgb"
         elif image.mode == "L":
-            if verbosity >= 1:
-                print(f"'{infile}' is 'l'")
+            info(f"{self}: {infile}' matches 'L'")
             return "l"
         else:
             raise ValueError()
@@ -43,7 +45,7 @@ class ModeSorter(Sorter):
     # region Properties
 
     @property
-    def outlets(self):
+    def outlets(self) -> List[str]:
         return ["rgba", "rgb", "l"]
 
     # endregion
