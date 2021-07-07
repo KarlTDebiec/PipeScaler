@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/processors/copy_file_processor.py
+#   pipescaler/termini/copy_file_terminus.py
 #
 #   Copyright (C) 2020-2021 Karl T Debiec
 #   All rights reserved.
@@ -10,15 +10,16 @@
 ####################################### MODULES ########################################
 from __future__ import annotations
 
+from logging import info
 from shutil import copyfile
 from typing import Any
 
 from pipescaler.common import validate_output_path
-from pipescaler.core import Processor
+from pipescaler.core import Terminus
 
 
 ####################################### CLASSES ########################################
-class CopyFileProcessor(Processor):
+class CopyFileTerminus(Terminus):
 
     # region Builtins
 
@@ -32,22 +33,11 @@ class CopyFileProcessor(Processor):
 
     # endregion
 
-    # region Properties
-
-    @property
-    def outlets(self):
-        return []
-
-    # endregion
-
     # region Class Methods
 
     @classmethod
-    def process_file(
-        cls, infile: str, outfile: str, verbosity: int = 1, **kwargs
-    ) -> None:
-        if verbosity >= 1:
-            print(f"Copying image from '{infile}' to '{outfile}'")
+    def process_file(cls, infile: str, outfile: str, **kwargs) -> None:
         copyfile(infile, outfile)
+        info(f"{cls}: '{outfile}' saved")
 
     # endregion

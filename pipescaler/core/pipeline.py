@@ -13,7 +13,7 @@ import logging
 from importlib import import_module
 from logging import info, warning
 from os import makedirs
-from os.path import isdir, isfile, join
+from os.path import basename, isdir, isfile, join, splitext
 from pprint import pformat
 from shutil import copyfile
 from typing import Any, Dict, List, Union
@@ -29,6 +29,7 @@ from pipescaler.core import (
     Sorter,
     Splitter,
     Stage,
+    Terminus,
     UnsupportedPlatformError,
 )
 
@@ -61,7 +62,14 @@ class Pipeline:
         # Load configuration
         stage_modules = [
             import_module(f"pipescaler.{package}")
-            for package in ["mergers", "processors", "sorters", "sources", "splitters"]
+            for package in [
+                "mergers",
+                "processors",
+                "sorters",
+                "sources",
+                "splitters",
+                "termini",
+            ]
         ]
 
         # Initialize stages
@@ -157,7 +165,7 @@ class Pipeline:
 
         return pipeline
 
-    def build_processor(self, stage, pipeline_conf):
+    def build_processor(self, stage, stage_conf, pipeline_conf):
         pipeline = [stage]
         pipeline.extend(self.build_route(pipeline_conf))
 
@@ -172,8 +180,7 @@ class Pipeline:
             return []
 
         if isinstance(pipeline_conf[0], str):
-            stage_name = pipeline_conf.pop(0)
-            stage_conf = None
+            stage_name, stage_conf = pipeline_conf.pop(0), None
         elif isinstance(pipeline_conf[0], dict):
             stage_name, stage_conf = next(iter(pipeline_conf.pop(0).items()))
         else:
@@ -183,11 +190,13 @@ class Pipeline:
         if isinstance(stage, Merger):
             return self.build_merger(stage, stage_conf, pipeline_conf)
         elif isinstance(stage, Processor):
-            return self.build_processor(stage, pipeline_conf)
+            return self.build_processor(stage, stage_conf, pipeline_conf)
         elif isinstance(stage, Sorter):
             return self.build_sorter(stage, stage_conf, pipeline_conf)
         elif isinstance(stage, Splitter):
             return self.build_splitter(stage, stage_conf, pipeline_conf)
+        elif isinstance(stage, Terminus):
+            return self.build_terminus(stage, stage_conf, pipeline_conf)
         else:
             raise ValueError()
 
@@ -213,6 +222,11 @@ class Pipeline:
             for outlet in filter(lambda o: o in stage_conf, stage.outlets):
                 pipeline[0][stage][outlet] = self.build_route(stage_conf.pop(outlet))
         pipeline.extend(self.build_route(pipeline_conf))
+
+        return pipeline
+
+    def build_terminus(self, stage, stage_conf, pipeline_conf):
+        pipeline = [stage]
 
         return pipeline
 
@@ -254,10 +268,12 @@ class Pipeline:
 
     def run_sorter(self, stage, stage_pipeline, infile, pipeline, **kwargs):
         outlet_name = stage(infile=infile)
+        if outlet_name is None and "default" in stage_pipeline:
+            outlet_pipeline = stage_pipeline.get("default")
+        else:
+            outlet_pipeline = stage_pipeline.get(outlet_name, [])
 
-        outfile = self.run_route(
-            infile=infile, pipeline=stage_pipeline.get(outlet_name, []), **kwargs
-        )
+        outfile = self.run_route(infile=infile, pipeline=outlet_pipeline, **kwargs)
 
         return self.run_route(infile=outfile, pipeline=pipeline, **kwargs)
 
@@ -335,7 +351,20 @@ class Pipeline:
             return self.run_sorter(**kwargs)
         elif isinstance(kwargs["stage"], Splitter):
             return self.run_splitter(**kwargs)
+        elif isinstance(kwargs["stage"], Terminus):
+            return self.run_terminus(**kwargs)
         else:
             raise ValueError()
+
+    def run_terminus(self, stage, image, infile, **kwargs):
+        outfile = (
+            f"{join(stage.output_directory, image.name)}{splitext(basename(infile))[1]}"
+        )
+        if not isfile(outfile):
+            stage(infile=infile, outfile=outfile)
+        else:
+            info(f"{self}: '{outfile}' already exists")
+
+        return outfile
 
     # endregion

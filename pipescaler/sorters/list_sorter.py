@@ -27,8 +27,8 @@ class ListSorter(Sorter):
         super().__init__(**kwargs)
 
         # Store configuration
-        self._outlets = list(outlets.keys())
-        self._outlets_by_filename = {}
+        self.outlets = list(outlets.keys())
+        self.outlets_by_filename = {}
 
         # Organize downstream outlets
         for outlet in self.outlets:
@@ -37,15 +37,12 @@ class ListSorter(Sorter):
                 outlet_conf_dir = validate_input_path(
                     outlet_conf, directory_ok=True, file_ok=False
                 )
-                if isdir(outlet_conf_dir):
-                    for infile in listdir(outlet_conf_dir):
-                        name = splitext(basename(infile)[0])
-                        self._outlets_by_filename[name] = outlet
-                else:
-                    raise ValueError()
+                for infile in listdir(outlet_conf_dir):
+                    name = splitext(basename(infile)[0])
+                    self.outlets_by_filename[name] = outlet
             elif isinstance(outlet_conf, list):
                 for name in outlet_conf:
-                    self._outlets_by_filename[name] = outlet
+                    self.outlets_by_filename[name] = outlet
 
     def __call__(self, infile: str) -> str:
         # Identify image
@@ -58,17 +55,5 @@ class ListSorter(Sorter):
         else:
             info(f"{self}: '{name}' does not match")
         return outlet
-
-    # endregion
-
-    # region Properties
-
-    @property
-    def outlets(self) -> List[str]:
-        return self._outlets
-
-    @property
-    def outlets_by_filename(self) -> Dict[str, str]:
-        return self._outlets_by_filename
 
     # endregion

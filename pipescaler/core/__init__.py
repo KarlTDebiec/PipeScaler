@@ -18,6 +18,7 @@ from pipescaler.core.processor import Processor
 from pipescaler.core.sorter import Sorter
 from pipescaler.core.source import Source
 from pipescaler.core.splitter import Splitter
+from pipescaler.core.terminus import Terminus
 
 from pipescaler.core.exceptions import UnsupportedPlatformError
 from pipescaler.core.pipe_image import PipeImage
@@ -36,4 +37,5 @@ __all__: List[str] = [
     "Source",
     "Splitter",
     "Stage",
+    "Terminus",
 ]
