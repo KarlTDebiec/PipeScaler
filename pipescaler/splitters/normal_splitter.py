@@ -30,10 +30,13 @@ class NormalSplitter(Splitter):
         rgb = Image.open(infile)
 
         # Split image
-        r = Image.fromarray(np.array(rgb)[:, :, 0])
-        g = Image.fromarray(np.array(rgb)[:, :, 1])
-        b = Image.fromarray(np.array(rgb)[:, :, 2])
-        # TODO: Should this spread out blue channel from 128-255 to 0-255?
+        r_datum = np.array(rgb)[:, :, 0]
+        g_datum = np.array(rgb)[:, :, 1]
+        b_datum = np.array(rgb)[:, :, 2]
+        b_datum = ((b_datum.astype(np.float) - 128) * 2).astype(np.uint8)
+        r = Image.fromarray(r_datum)
+        g = Image.fromarray(g_datum)
+        b = Image.fromarray(b_datum)
 
         # Write images
         r.save(outfiles["r"])
