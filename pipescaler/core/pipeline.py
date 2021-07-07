@@ -14,7 +14,7 @@ from importlib import import_module
 from logging import info
 from os import makedirs
 from os.path import isdir, isfile, join
-from pprint import pprint
+from pprint import pformat
 from shutil import copyfile
 from typing import Any, Dict, List, Union
 
@@ -45,9 +45,9 @@ class Pipeline:
         self.verbosity = validate_int(verbosity, min_value=0)
         if self.verbosity == 1:
             logging.basicConfig(level=logging.WARNING)
-        elif self.verbosity == 1:
-            logging.basicConfig(level=logging.INFO)
         elif self.verbosity == 2:
+            logging.basicConfig(level=logging.INFO)
+        elif self.verbosity == 3:
             logging.basicConfig(level=logging.DEBUG)
 
         # Load configuration
@@ -87,13 +87,11 @@ class Pipeline:
         else:
             raise KeyError()
         self.pipeline = self.build_source(stage, pipeline)
-        if self.verbosity >= 1:
-            pprint(self.pipeline)
+        info(f"{self}: {pformat(self.pipeline)}")
 
         # Initialize directory
         if not isdir(self.wip_directory):
-            if self.verbosity >= 1:
-                print(f"Creating directory '{self.wip_directory}'")
+            info(f"{self}: '{self.wip_directory}' created")
             makedirs(self.wip_directory)
 
     def __call__(self, **kwargs: Any) -> None:
@@ -210,7 +208,10 @@ class Pipeline:
             self.wip_directory,
             image.name,
             image.get_outfile(
-                kwargs[stage.inlets[0]], stage.suffix, stage.trim_suffixes
+                kwargs[stage.inlets[0]],
+                stage.suffix,
+                stage.trim_suffixes,
+                stage.extension,
             ),
         )
         if not isfile(outfile):
@@ -222,7 +223,11 @@ class Pipeline:
 
     def run_processor(self, stage, image, infile, **kwargs):
         outfile = join(
-            self.wip_directory, image.name, image.get_outfile(infile, stage.suffix)
+            self.wip_directory,
+            image.name,
+            image.get_outfile(
+                infile, stage.suffix, stage.trim_suffixes, stage.extension
+            ),
         )
         if not isfile(outfile):
             stage(infile=infile, outfile=outfile)
@@ -232,7 +237,7 @@ class Pipeline:
         return self.run_route(image=image, infile=outfile, **kwargs)
 
     def run_sorter(self, stage, stage_pipeline, infile, pipeline, **kwargs):
-        outlet_name = stage(infile=infile, verbosity=self.verbosity)
+        outlet_name = stage(infile=infile)
 
         outfile = self.run_route(
             infile=infile, pipeline=stage_pipeline.get(outlet_name, []), **kwargs
@@ -245,7 +250,12 @@ class Pipeline:
             outlet: join(
                 self.wip_directory,
                 image.name,
-                image.get_outfile(infile, stage.suffixes[outlet]),
+                image.get_outfile(
+                    infile,
+                    stage.suffixes[outlet],
+                    stage.trim_suffixes,
+                    stage.extension,
+                ),
             )
             for outlet in stage.outlets
         }

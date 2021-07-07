@@ -38,7 +38,7 @@ class Merger(Stage, ABC):
         else:
             self.trim_suffixes = self.inlets
 
-    def __call__(self, outfile: str, verbosity: int = 1, **kwargs: Any) -> None:
+    def __call__(self, outfile: str) -> None:
         raise NotImplementedError()
 
     # endregion

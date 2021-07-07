@@ -15,6 +15,8 @@ from typing import Any, Optional
 
 ####################################### CLASSES ########################################
 class Stage(ABC):
+    trim_suffixes = None
+    extension = "png"
 
     # region Builtins
 

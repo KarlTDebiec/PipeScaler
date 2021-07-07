@@ -20,7 +20,7 @@ class Sorter(Stage, ABC):
 
     # region Builtins
 
-    def __call__(self, infile: str, verbosity: int = 1, **kwargs: Any) -> str:
+    def __call__(self, infile: str) -> str:
         raise NotImplementedError()
 
     # endregion

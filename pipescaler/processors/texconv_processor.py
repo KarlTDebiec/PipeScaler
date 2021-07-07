@@ -24,6 +24,7 @@ from pipescaler.core import Processor, UnsupportedPlatformError
 
 ####################################### CLASSES ########################################
 class TexconvProcessor(Processor):
+    extension = "dds"
 
     # region Builtins
 
@@ -47,7 +48,7 @@ class TexconvProcessor(Processor):
                 "TexconvProcessor is only supported on Windows"
             )
         if not which("texconv.exe"):
-            raise ExecutableNotFoundError("texcov.exe executable not found in PATH")
+            raise ExecutableNotFoundError("texconv.exe executable not found in PATH")
         self.process_file(
             infile,
             outfile,

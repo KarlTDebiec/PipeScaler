@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from argparse import ArgumentParser
-from typing import Any, Optional
+from typing import Any, List, Optional
 
 from pipescaler.common import CLTool
 from pipescaler.core.stage import Stage
@@ -40,11 +40,11 @@ class Processor(Stage, CLTool):
     # region Properties
 
     @property
-    def inlets(self):
+    def inlets(self) -> List[str]:
         return ["inlet"]
 
     @property
-    def outlets(self):
+    def outlets(self) -> List[str]:
         return ["outlet"]
 
     # endregion
@@ -80,9 +80,7 @@ class Processor(Stage, CLTool):
 
     @classmethod
     @abstractmethod
-    def process_file(
-        cls, inlet: str, outfile: str, verbosity: int = 1, **kwargs: Any
-    ) -> None:
+    def process_file(cls, inlet: str, outfile: str, **kwargs: Any) -> None:
         raise NotImplementedError()
 
     # endregion
