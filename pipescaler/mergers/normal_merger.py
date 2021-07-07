@@ -34,7 +34,7 @@ class NormalMerger(Merger):
         # Merge images
         r_datum = np.array(r, np.float) - 128
         g_datum = np.array(g, np.float) - 128
-        b_datum = np.array(b, np.float) - 128
+        b_datum = np.array(b, np.float) / 2
 
         b_datum[b_datum < 0] = 0
         mag = np.sqrt(r_datum ** 2 + g_datum ** 2 + b_datum ** 2)
