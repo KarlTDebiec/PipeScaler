@@ -1,16 +1,9 @@
 TODO:
 - Reorganization
-  - [ ] ESRGANProcessor
-- Enhancements
-  - [ ] Check OS when running OS-specific processors
-    - [x] TexConvProcessor
-    - [ ] automator
-  - [ ] Check if executables exist in `__init__`
-    - [x] TexConvProcessor
-    - [ ] pngquant
-    - [ ] xbrzscale
-    - [ ] waifu
-    - [ ] potrace
+  - CopyFileProcessor
+  - Track outfiles and purge at the end
+
 - Notes:
   - Don't use a property unless you cannot do the initialization in __init__
   - Don't write a setter unless you need to set the value outside of __init__
+``

@@ -131,10 +131,10 @@ class Pipeline:
                 self.run_route(
                     pipeline=self.pipeline[1:], image=image, infile=image_backup
                 )
-            except UnsupportedPlatformError as e:
+            except UnsupportedPlatformError as error:
                 warning(
                     f"{self}: While processing '{image.name}', encountered "
-                    f"UnsupportedPlatformError '{e}', continuing on to next image"
+                    f"UnsupportedPlatformError '{error}', continuing on to next image"
                 )
 
     def __repr__(self) -> str:
@@ -285,17 +285,29 @@ class Pipeline:
             stage(infile=infile, verbosity=self.verbosity, **outfiles)
 
         downstream_inlets = {}
+        unsupported_platform_error = None
         for outlet_name in stage.outlets:
             outfile = outfiles[outlet_name]
             outlet_pipeline = stage_pipeline.get(outlet_name, [])
-            nay = self.run_route(pipeline=outlet_pipeline, image=image, infile=outfile)
+            try:
+                outlet_output = self.run_route(
+                    pipeline=outlet_pipeline, image=image, infile=outfile
+                )
+                if isinstance(outlet_output, dict):
+                    downstream_inlets.update(outlet_output)
+                else:
+                    raise ValueError()
+            except UnsupportedPlatformError as error:
+                warning(
+                    f"{self}: While processing '{image.name}', encountered "
+                    f"UnsupportedPlatformError '{error}', continuing on to next outlet"
+                )
+                unsupported_platform_error = error
+                continue
+        if unsupported_platform_error is not None:
+            raise unsupported_platform_error
 
-            if isinstance(nay, dict):
-                downstream_inlets.update(nay)
-            else:
-                raise ValueError()
         kwargs.update(downstream_inlets)
-
         return self.run_route(image=image, **kwargs)
 
     def run_route(self, pipeline, **kwargs):
