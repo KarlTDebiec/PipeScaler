@@ -95,7 +95,7 @@ class AutomatorProcessor(Processor):
 
             # Write image
             copyfile(tempfile, outfile)
-            info(f"{cls}: 'outfile' saved")
+            info(f"{cls}: '{outfile}' saved")
 
     # endregion
 
