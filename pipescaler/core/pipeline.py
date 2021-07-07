@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import logging
 from importlib import import_module
-from logging import info
+from logging import info, warning
 from os import makedirs
 from os.path import isdir, isfile, join
 from pprint import pformat
@@ -22,7 +22,15 @@ from pipescaler.common import (
     validate_int,
     validate_output_path,
 )
-from pipescaler.core import Merger, PipeImage, Processor, Sorter, Splitter, Stage
+from pipescaler.core import (
+    Merger,
+    PipeImage,
+    Processor,
+    Sorter,
+    Splitter,
+    Stage,
+    UnsupportedPlatformError,
+)
 
 
 ####################################### CLASSES ########################################
@@ -119,7 +127,15 @@ class Pipeline:
                 info(f"{self}: '{image.full_path}' copied to '{image_backup}'")
 
             # Flow into pipeline
-            self.run_route(pipeline=self.pipeline[1:], image=image, infile=image_backup)
+            try:
+                self.run_route(
+                    pipeline=self.pipeline[1:], image=image, infile=image_backup
+                )
+            except UnsupportedPlatformError as e:
+                warning(
+                    f"{self}: While processing '{image.name}', encountered "
+                    f"UnsupportedPlatformError '{e}', continuing on to next image"
+                )
 
     def __repr__(self) -> str:
         return self.__class__.__name__.lower()

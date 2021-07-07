@@ -11,18 +11,19 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
-from os.path import isfile, join, split
+from logging import debug, info
+from os.path import join, split
 from shutil import copyfile
 from subprocess import Popen
+from sys import platform
 from typing import Any
 
 from pipescaler.common import (
     package_root,
     temporary_filename,
     validate_input_path,
-    validate_output_path,
 )
-from pipescaler.core import PipeImage, Processor
+from pipescaler.core import Processor, UnsupportedPlatformError
 
 
 ####################################### CLASSES ########################################
@@ -41,27 +42,12 @@ class AutomatorProcessor(Processor):
             default_directory=join(*split(package_root), "data", "workflows"),
         )
 
-        # Prepare description
-        desc = f"{self.name} {self.__class__.__name__} ({self.workflow})"
-        if self.downstream_stages is not None:
-            if len(self.downstream_stages) >= 2:
-                for stage in self.downstream_stages[:-1]:
-                    desc += f"\n ├─ {stage}"
-            desc += f"\n └─ {self.downstream_stages[-1]}"
-        self.desc = desc
-
-    # endregion
-
-    # region Methods
-
-    def process_file_from_pipeline(self, image: PipeImage) -> None:
-        infile = image.last
-        outfile = validate_output_path(self.pipeline.get_outfile(image, self.suffix))
-        if not isfile(outfile):
-            self.process_file(
-                infile, outfile, self.pipeline.verbosity, workflow=self.workflow
+    def __call__(self, infile: str, outfile: str) -> None:
+        if platform != "darwin":
+            raise UnsupportedPlatformError(
+                "AutomatorProcessor is only supported on macOS"
             )
-        image.log(self.name, outfile)
+        self.process_file(infile, outfile, workflow=self.workflow)
 
     # endregion
 
@@ -78,7 +64,8 @@ class AutomatorProcessor(Processor):
         Returns:
             parser (ArgumentParser): Argument parser
         """
-        parser = super().construct_argparser(description=__doc__.strip(), **kwargs)
+        description = kwargs.get("description", __doc__.strip())
+        parser = super().construct_argparser(description=description, **kwargs)
 
         # Operations
         parser.add_argument(
@@ -94,28 +81,21 @@ class AutomatorProcessor(Processor):
         return parser
 
     @classmethod
-    def process_file(
-        cls, infile: str, outfile: str, verbosity: int = 1, **kwargs: Any
-    ) -> None:
+    def process_file(cls, infile: str, outfile: str, **kwargs: Any) -> None:
         workflow = kwargs.pop("workflow")
 
         with temporary_filename(".png") as tempfile:
+            # Stage image
             copyfile(infile, tempfile)
+
+            # Run automator script
             command = f"automator -i {tempfile} {workflow}"
-            if verbosity >= 2:
-                print(command)
+            debug(command)
             Popen(command, shell=True, close_fds=True).wait()
+
+            # Write image
             copyfile(tempfile, outfile)
-
-    @classmethod
-    def process_file_from_cl(cls, infile: str, outfile: str, **kwargs: Any) -> None:
-        infile = validate_input_path(infile)
-        outfile = validate_output_path(outfile)
-        workflow = validate_input_path(
-            kwargs.pop("workflow"), file_ok=False, directory_ok=True
-        )
-
-        cls.process_file(infile, outfile, workflow=workflow, **kwargs)
+            info(f"{cls}: 'outfile' saved")
 
     # endregion
 

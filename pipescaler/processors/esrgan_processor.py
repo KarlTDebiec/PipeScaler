@@ -166,16 +166,28 @@ class ESRGANProcessor(Processor):
 
         # Store configuration
         self.model_infile = validate_input_path(model_infile)
-        self.device = device
 
-        self.upscaler = ESRGANProcessor.RRDBNetUpscaler(
-            self.model_infile, torch.device(self.device)
-        )
-        if self.device == "cuda":
-            self.cpu_upscaler = ESRGANProcessor.RRDBNetUpscaler(
-                self.model_infile, torch.device("cpu")
-            )
+        if device == "cuda":
+            try:
+                self.upscaler = ESRGANProcessor.RRDBNetUpscaler(
+                    self.model_infile, torch.device(device)
+                )
+                self.cpu_upscaler = ESRGANProcessor.RRDBNetUpscaler(
+                    self.model_infile, torch.device("cpu")
+                )
+            except AssertionError as e:
+                warning(
+                    f"{self}: CUDA ESRGAN upscaler raised exception: '{e}'; "
+                    f"trying CPU upscaler"
+                )
+                self.upscaler = ESRGANProcessor.RRDBNetUpscaler(
+                    self.model_infile, torch.device("cpu")
+                )
+                self.cpu_upscaler = None
         else:
+            self.upscaler = ESRGANProcessor.RRDBNetUpscaler(
+                self.model_infile, torch.device(device)
+            )
             self.cpu_upscaler = None
 
     # endregion
