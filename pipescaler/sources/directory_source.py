@@ -9,20 +9,21 @@
 ####################################### MODULES ########################################
 from __future__ import annotations
 
-from os import listdir
-from typing import Any
+from typing import Any, List, Union
 
 from pipescaler.common import validate_input_path
-from pipescaler.core import Source
+from pipescaler.core import Source, parse_file_list
 
 
 ####################################### CLASSES ########################################
 class DirectorySource(Source):
-    skip_files = [".DS_Store"]
+    exclusions = {".DS_Store"}
 
     # region Builtins
 
-    def __init__(self, directory: str, **kwargs: Any) -> None:
+    def __init__(
+        self, directory: str, exclusions: Union[str, List[str]] = None, **kwargs: Any
+    ) -> None:
         super().__init__(**kwargs)
 
         # Store configuration
@@ -30,15 +31,15 @@ class DirectorySource(Source):
             directory, file_ok=False, directory_ok=True
         )
 
-    def __iter__(self):
-        filenames = [
-            validate_input_path(f, default_directory=self.directory)
-            for f in listdir(self.directory)
-            if f not in self.skip_files
-        ]
+        # Store list of filenames
+        filenames = parse_file_list(self.directory, True, exclusions)
+        filenames -= self.exclusions
+        filenames = list(filenames)
         filenames.sort(key=self.sort)
+        self.filenames = filenames
 
-        for filename in filenames:
+    def __iter__(self):
+        for filename in self.filenames:
             yield filename
 
     # endregion

@@ -10,12 +10,10 @@
 from __future__ import annotations
 
 from logging import info
-from os import listdir
-from os.path import basename, dirname, isdir, splitext
+from os.path import basename, dirname
 from typing import Any, Dict, List
 
-from pipescaler.common import validate_input_path
-from pipescaler.core import Sorter
+from pipescaler.core import Sorter, parse_file_list
 
 
 ####################################### CLASSES ########################################
@@ -27,22 +25,13 @@ class ListSorter(Sorter):
         super().__init__(**kwargs)
 
         # Store configuration
-        self.outlets = list(outlets.keys())
+        self._outlets = list(outlets.keys())
         self.outlets_by_filename = {}
 
         # Organize downstream outlets
         for outlet in self.outlets:
-            outlet_conf = outlets[outlet]
-            if isinstance(outlet_conf, str):
-                outlet_conf_dir = validate_input_path(
-                    outlet_conf, directory_ok=True, file_ok=False
-                )
-                for infile in listdir(outlet_conf_dir):
-                    name = splitext(basename(infile)[0])
-                    self.outlets_by_filename[name] = outlet
-            elif isinstance(outlet_conf, list):
-                for name in outlet_conf:
-                    self.outlets_by_filename[name] = outlet
+            for filename in parse_file_list(outlets.get(outlet, [])):
+                self.outlets_by_filename[filename] = outlet
 
     def __call__(self, infile: str) -> str:
         # Identify image
@@ -55,5 +44,13 @@ class ListSorter(Sorter):
         else:
             info(f"{self}: '{name}' does not match")
         return outlet
+
+    # endregion
+
+    # region Properties
+
+    @property
+    def outlets(self):
+        return self._outlets
 
     # endregion
