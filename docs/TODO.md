@@ -1,7 +1,6 @@
 TODO:
 
 - Reorganization
-  - Allow source to exclude files from list or directories
     - Track wip files and purge at the end
 - Notes:
     - Don't use a property unless you cannot do the initialization in __init__

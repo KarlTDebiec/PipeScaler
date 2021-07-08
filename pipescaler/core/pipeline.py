@@ -124,7 +124,7 @@ class Pipeline:
             )
             if not isdir(image_directory):
                 if self.verbosity >= 1:
-                    print(f"Creating directory '{image_directory}'")
+                    info(f"{self}: '{image_directory}' created")
                 makedirs(image_directory)
 
             # Backup original image to working directory
