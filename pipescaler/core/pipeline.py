@@ -205,6 +205,8 @@ class Pipeline:
 
         for outlet in filter(lambda o: o in stage_conf, stage.outlets):
             pipeline[0][stage][outlet] = self.build_route(stage_conf.pop(outlet))
+        if "default" in stage_conf:
+            pipeline[0][stage]["default"] = self.build_route(stage_conf.pop("default"))
         pipeline.extend(self.build_route(pipeline_conf))
 
         return pipeline
@@ -311,8 +313,8 @@ class Pipeline:
                 )
                 if isinstance(outlet_output, dict):
                     downstream_inlets.update(outlet_output)
-                else:
-                    raise ValueError()
+                # else:
+                #     raise ValueError()
             except UnsupportedPlatformError as error:
                 warning(
                     f"{self}: While processing '{image.name}', encountered "
