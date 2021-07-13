@@ -98,15 +98,15 @@ class TexconvProcessor(Processor):
             tempfile = join(temp_directory, basename(infile))
             copyfile(infile, tempfile)
 
-            # Convert image
-            command = f"texconv.exe"
+            # Process image
+            command = "texconv.exe"
             if sepalpha:
-                command = f"{command} -sepalpha"
+                command += f" -sepalpha"
             if filetype:
-                command = f"{command} -ft {filetype}"
+                command += f" -ft {filetype}"
             if format:
-                command = f"{command} -f {format}"
-            command = f"{command} -o {temp_directory} {tempfile}"
+                command += f" -f {format}"
+            command += f" -o {temp_directory} {tempfile}"
             debug(f"{cls}: {command}")
             Popen(command, shell=True, close_fds=True).wait()
 

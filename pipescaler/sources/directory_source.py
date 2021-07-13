@@ -25,6 +25,9 @@ class DirectorySource(Source):
         self, directory: str, exclusions: Union[str, List[str]] = None, **kwargs: Any
     ) -> None:
         super().__init__(**kwargs)
+        if exclusions is None:
+            exclusions = set()
+        exclusions |= self.exclusions
 
         # Store configuration
         self.directory = validate_input_path(
@@ -33,7 +36,6 @@ class DirectorySource(Source):
 
         # Store list of filenames
         filenames = parse_file_list(self.directory, True, exclusions)
-        filenames -= self.exclusions
         filenames = list(filenames)
         filenames.sort(key=self.sort)
         self.filenames = filenames

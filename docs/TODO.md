@@ -1,7 +1,32 @@
 TODO:
 
-- Reorganization
-    - Track wip files and purge at the end
+- Reorganization:
+    - Allow DirectorySource to purge files matching a configured regex
+    - Track wip files and purge extra after run
+    - Improve logging output of class methods
+    - Processors
+        - [x] AutomatorProcessor
+        - [x] ESRGANProcessor
+        - [x] ModeProcessor
+        - [ ] PngquantProcessor
+        - [ ] PotraceProcessor
+        - [x] ResizeProcessor
+        - [ ] SideChannelProcessor
+        - [x] TexconvProcessor
+        - [ ] WaifuProcessor
+        - [x] XbrzProcessor
+- Documentation
+  - Processors
+    - [ ] AutomatorProcessor
+    - [ ] ESRGANProcessor
+    - [ ] ModeProcessor
+    - [ ] PngquantProcessor
+    - [ ] PotraceProcessor
+    - [ ] ResizeProcessor
+    - [ ] SideChannelProcessor
+    - [ ] TexconvProceessor
+    - [ ] WaifuProcessor
+    - [ ] XbrzProcessor
 - Notes:
     - Don't use a property unless you cannot do the initialization in __init__
     - Don't write a setter unless you need to set the value outside of __init__

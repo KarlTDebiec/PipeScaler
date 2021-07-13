@@ -85,12 +85,13 @@ class AutomatorProcessor(Processor):
         workflow = kwargs.pop("workflow")
 
         with temporary_filename(".png") as tempfile:
+
             # Stage image
             copyfile(infile, tempfile)
 
             # Run automator script
             command = f"automator -i {tempfile} {workflow}"
-            debug(command)
+            debug(f"{cls}: {command}")
             Popen(command, shell=True, close_fds=True).wait()
 
             # Write image
