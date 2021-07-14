@@ -42,7 +42,7 @@ class ListSorter(Sorter):
         if outlet is not None:
             info(f"{self}: '{name}' matches '{outlet}'")
         else:
-            info(f"{self}: '{name}' does not match")
+            info(f"{self}: '{name}' does not match any outlet")
         return outlet
 
     # endregion

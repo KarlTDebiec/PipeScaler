@@ -359,9 +359,7 @@ class Pipeline:
             raise ValueError()
 
     def run_terminus(self, stage, image, infile, **kwargs):
-        outfile = (
-            f"{join(stage.output_directory, image.name)}{splitext(basename(infile))[1]}"
-        )
+        outfile = f"{join(stage.directory, image.name)}{splitext(basename(infile))[1]}"
         if not isfile(outfile):
             stage(infile=infile, outfile=outfile)
         else:

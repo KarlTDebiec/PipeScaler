@@ -12,12 +12,13 @@ from __future__ import annotations
 
 from argparse import ArgumentParser
 from logging import debug, info
+from platform import win32_ver
 from shutil import which
 from subprocess import Popen
 from typing import Any
 
 from pipescaler.common import ExecutableNotFoundError, validate_int
-from pipescaler.core import Processor
+from pipescaler.core import Processor, UnsupportedPlatformError
 
 
 ####################################### CLASSES ########################################
@@ -48,6 +49,8 @@ class XbrzProcessor(Processor):
             infile (str): Input file
             outfile (str): Output file
         """
+        if any(win32_ver()):
+            raise UnsupportedPlatformError("XbrzProcessor is not supported on Windows")
         if not which("xbrzscale"):
             raise ExecutableNotFoundError("xbrzscale executable not found in PATH")
         self.process_file(infile, outfile, scale=self.scale)

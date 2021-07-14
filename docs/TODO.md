@@ -1,22 +1,38 @@
 TODO:
 
-- Reorganization:
-    - Allow DirectorySource to purge files matching a configured regex
-    - Track wip files and purge extra after run
-    - Improve logging output of class methods
-    - Processors
-        - [x] AutomatorProcessor
-        - [x] ESRGANProcessor
-        - [x] ModeProcessor
-        - [ ] PngquantProcessor
-        - [ ] PotraceProcessor
-        - [x] ResizeProcessor
-        - [ ] SideChannelProcessor
-        - [x] TexconvProcessor
-        - [ ] WaifuProcessor
-        - [x] XbrzProcessor
-- Documentation
-  - Processors
+- Improvements
+    - [x] CopyTerminus - Purge files
+    - [x] AlphaSorter
+    - [ ] Pipeline - Track wip files and purge extra after run
+    - [ ] DirectorySource - purge files matching a configured regex
+    - [ ] Processors - Improve logging output of class methods
+- Update Processors
+    - [x] AutomatorProcessor
+    - [x] ESRGANProcessor
+    - [x] ModeProcessor
+    - [ ] PngquantProcessor
+    - [ ] PotraceProcessor
+    - [x] ResizeProcessor
+    - [ ] SideChannelProcessor
+    - [x] TexconvProcessor
+    - [ ] WaifuProcessor
+        - [ ] Unix
+        - [ ] Windows
+    - [x] XbrzProcessor
+        - [ ] Unix
+        - [ ] Windows
+- Update Documentation
+    - [ ] AutomatorProcessor
+    - [ ] ESRGANProcessor
+    - [ ] ModeProcessor
+    - [ ] PngquantProcessor
+    - [ ] PotraceProcessor
+    - [ ] ResizeProcessor
+    - [ ] SideChannelProcessor
+    - [ ] TexconvProceessor
+    - [ ] WaifuProcessor
+    - [ ] XbrzProcessor
+- Testing
     - [ ] AutomatorProcessor
     - [ ] ESRGANProcessor
     - [ ] ModeProcessor

@@ -20,16 +20,15 @@ Provides two improvements over running waifu2x directly:
 from __future__ import annotations
 
 from argparse import ArgumentParser
+from logging import debug, info
 from os import remove
-from os.path import isfile
 from subprocess import Popen
 from tempfile import NamedTemporaryFile
 from typing import Any
 
 from PIL import Image
 
-from pipescaler.common import validate_output_path
-from pipescaler.core import PipeImage, Processor
+from pipescaler.core import Processor
 
 
 ####################################### CLASSES ########################################
@@ -48,35 +47,18 @@ class WaifuProcessor(Processor):
         self.denoise = denoise
         self.suffix = f"waifu-{self.imagetype}-{self.scale}-{self.denoise}"
 
-        # Prepare description
-        desc = (
-            f"{self.name} {self.__class__.__name__} (imagetype={self.imagetype}, "
-            f"scale={self.scale}, denoise={self.denoise})"
-        )
-        if self.downstream_stages is not None:
-            if len(self.downstream_stages) >= 2:
-                for stage in self.downstream_stages[:-1]:
-                    desc += f"\n ├─ {stage}"
-            desc += f"\n └─ {self.downstream_stages[-1]}"
-        self.desc = desc
-
     # endregion
 
     # region Methods
 
-    def process_file_from_pipeline(self, image: PipeImage) -> None:
-        infile = image.last
-        outfile = validate_output_path(self.pipeline.get_outfile(image, self.suffix))
-        if not isfile(outfile):
-            self.process_file(
-                infile,
-                outfile,
-                self.pipeline.verbosity,
-                imagetype=self.imagetype,
-                scale=self.scale,
-                denoise=self.denoise,
-            )
-        image.log(self.name, outfile)
+    def __call__(self, infile: str, outfile: str) -> None:
+        self.process_file(
+            infile,
+            outfile,
+            imagetype=self.imagetype,
+            scale=self.scale,
+            denoise=self.denoise,
+        )
 
     # endregion
 
@@ -119,9 +101,7 @@ class WaifuProcessor(Processor):
         return parser
 
     @classmethod
-    def process_file(
-        cls, infile: str, outfile: str, verbosity: int = 1, **kwargs: Any
-    ) -> None:
+    def process_file(cls, infile: str, outfile: str, **kwargs: Any) -> None:
         imagetype = kwargs.get("imagetype", "a")
         scale = kwargs.get("scale", 2)
         denoise = kwargs.get("denoise", 1)
@@ -161,8 +141,7 @@ class WaifuProcessor(Processor):
             f'-i "{tempfile.name}" '
             f'-o "{outfile}"'
         )
-        if verbosity >= 2:
-            print(command)
+        debug(command)
         Popen(command, shell=True, close_fds=True).wait()
 
         # Load processed image and crop back to original content
@@ -176,6 +155,7 @@ class WaifuProcessor(Processor):
         )
         remove(tempfile.name)
         reflected.save(outfile)
+        info(f"{cls}: '{outfile}' saved")
 
     # endregion
 
