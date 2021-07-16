@@ -22,17 +22,24 @@ from __future__ import annotations
 from argparse import ArgumentParser
 from logging import debug, info
 from os import remove
+from platform import win32_ver
 from subprocess import Popen
 from tempfile import NamedTemporaryFile
 from typing import Any
 
 from PIL import Image
 
+from pipescaler.common import (
+    validate_executable,
+    validate_int,
+    validate_str,
+)
 from pipescaler.core import Processor
 
 
 ####################################### CLASSES ########################################
 class WaifuProcessor(Processor):
+    models = {"windows": ["a"], "unix": ["a", "p"]}
 
     # region Builtins
 
@@ -42,16 +49,23 @@ class WaifuProcessor(Processor):
         super().__init__(**kwargs)
 
         # Store configuration
-        self.imagetype = imagetype
-        self.scale = scale
-        self.denoise = denoise
-        self.suffix = f"waifu-{self.imagetype}-{self.scale}-{self.denoise}"
+        self.imagetype = validate_str(
+            imagetype,
+            self.models["windows"] if any(win32_ver()) else self.models["unix"],
+        )
+        self.scale = validate_int(scale, min_value=1, max_value=2)
+        self.denoise = validate_int(denoise, min_value=0, max_value=4)
 
     # endregion
 
     # region Methods
 
     def __call__(self, infile: str, outfile: str) -> None:
+        if any(win32_ver()):
+            validate_executable("waifu2x-caffe-cui.exe")
+        else:
+            validate_executable("waifu2x")
+
         self.process_file(
             infile,
             outfile,
@@ -80,7 +94,9 @@ class WaifuProcessor(Processor):
             "--type",
             default="a",
             dest="imagetype",
-            type=str,
+            type=cls.str_arg(
+                cls.models["windows"] if any(win32_ver()) else cls.models["unix"],
+            ),
             help="image type - a for anime, p for photo, (default: " "%(default)s)",
         )
         parser.add_argument(
@@ -102,6 +118,10 @@ class WaifuProcessor(Processor):
 
     @classmethod
     def process_file(cls, infile: str, outfile: str, **kwargs: Any) -> None:
+        if any(win32_ver()):
+            executable = validate_executable("waifu2x-caffe-cui.exe")
+        else:
+            executable = validate_executable("waifu2x")
         imagetype = kwargs.get("imagetype", "a")
         scale = kwargs.get("scale", 2)
         denoise = kwargs.get("denoise", 1)
@@ -133,14 +153,14 @@ class WaifuProcessor(Processor):
         tempfile.close()
 
         # Process using waifu
-        command = (
-            f"waifu2x "
-            f"-t {imagetype} "
-            f"-s {scale} "
-            f"-n {denoise} "
-            f'-i "{tempfile.name}" '
-            f'-o "{outfile}"'
-        )
+        command = f"{executable} -p gpu "
+        if not any(win32_ver()):
+            command += f"-t {imagetype} "
+        command += f"-s {scale} "
+        command += f"-n {denoise} "
+        command += f'-i "{tempfile.name}" '
+        command += f'-o "{outfile}"'
+
         debug(command)
         Popen(command, shell=True, close_fds=True).wait()
 
