@@ -30,12 +30,14 @@ class DirectorySource(Source):
         exclusions |= self.exclusions
 
         # Store configuration
-        self.directory = validate_input_path(
-            directory, file_ok=False, directory_ok=True
-        )
+        if isinstance(directory, str):
+            directory = [directory]
+        self.directories = [
+            validate_input_path(d, file_ok=False, directory_ok=True) for d in directory
+        ]
 
         # Store list of filenames
-        filenames = parse_file_list(self.directory, True, exclusions)
+        filenames = parse_file_list(self.directories, True, exclusions)
         filenames = list(filenames)
         filenames.sort(key=self.sort)
         self.filenames = filenames

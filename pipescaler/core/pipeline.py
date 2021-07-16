@@ -10,9 +10,10 @@
 from __future__ import annotations
 
 import logging
+from glob import glob
 from importlib import import_module
 from logging import info, warning
-from os import makedirs
+from os import listdir, makedirs, remove, rmdir
 from os.path import basename, isdir, isfile, join, splitext
 from pprint import pformat
 from shutil import copyfile
@@ -44,6 +45,7 @@ class Pipeline:
         wip_directory: str,
         stages: Dict[str, Dict[str, Dict[str, Any]]],
         pipeline: List[Union[str, Dict[str, Any]]],
+        purge_wip: bool = False,
         verbosity: int = 1,
     ) -> None:
 
@@ -58,6 +60,7 @@ class Pipeline:
             logging.basicConfig(level=logging.INFO)
         elif self.verbosity == 3:
             logging.basicConfig(level=logging.DEBUG)
+        self.purge_wip = purge_wip
 
         # Load configuration
         stage_modules = [
@@ -109,11 +112,12 @@ class Pipeline:
         if not isdir(self.wip_directory):
             info(f"{self}: '{self.wip_directory}' created")
             makedirs(self.wip_directory)
+        self.wip_files = set()
 
     def __call__(self, **kwargs: Any) -> None:
         """Performs operations."""
-        source = self.pipeline[0]
 
+        source = self.pipeline[0]
         for infile in source:
             info(f"{self}: '{infile}' processing started")
             image = PipeImage(infile)
@@ -133,6 +137,7 @@ class Pipeline:
             if not isfile(image_backup):
                 copyfile(image.full_path, image_backup)
                 info(f"{self}: '{image.full_path}' copied to '{image_backup}'")
+            self.log_wip_file(image_backup)
 
             # Flow into pipeline
             try:
@@ -144,6 +149,16 @@ class Pipeline:
                     f"{self}: While processing '{image.name}', encountered "
                     f"UnsupportedPlatformError '{error}', continuing on to next image"
                 )
+
+        if self.purge_wip:
+            for wip_file in glob(f"{self.wip_directory}/**/*"):
+                if wip_file not in self.wip_files:
+                    remove(wip_file)
+                    info(f"{self}: '{wip_file}' removed")
+            for wip_subdirectory in glob(f"{self.wip_directory}/*"):
+                if len(listdir(wip_subdirectory)) == 0:
+                    rmdir(wip_subdirectory)
+                    info(f"{self}: '{wip_subdirectory}' removed")
 
     def __repr__(self) -> str:
         return self.__class__.__name__.lower()
@@ -232,6 +247,9 @@ class Pipeline:
 
         return pipeline
 
+    def log_wip_file(self, wip_filename):
+        self.wip_files.add(wip_filename)
+
     def run_merger(self, stage, stage_pipeline, image, **kwargs):
         if isinstance(stage_pipeline, str):
             return {stage_pipeline: kwargs["infile"]}
@@ -250,6 +268,7 @@ class Pipeline:
             stage(outfile=outfile, **kwargs)
         else:
             info(f"{self}: '{outfile}' already exists")
+        self.log_wip_file(outfile)
 
         return self.run_route(image=image, infile=outfile, **kwargs)
 
@@ -265,6 +284,7 @@ class Pipeline:
             stage(infile=infile, outfile=outfile)
         else:
             info(f"{self}: '{outfile}' already exists")
+        self.log_wip_file(outfile)
 
         return self.run_route(image=image, infile=outfile, **kwargs)
 
@@ -301,6 +321,8 @@ class Pipeline:
                 info(f"{self}: '{outfile}' already exists")
         if to_run:
             stage(infile=infile, verbosity=self.verbosity, **outfiles)
+        for outfile in outfiles.values():
+            self.log_wip_file(outfile)
 
         downstream_inlets = {}
         unsupported_platform_error = None

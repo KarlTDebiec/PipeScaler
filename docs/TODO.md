@@ -3,9 +3,12 @@ TODO:
 - Improvements
     - [x] CopyTerminus - Purge files
     - [x] AlphaSorter
-    - [ ] Pipeline - Track wip files and purge extra after run
-    - [ ] DirectorySource - purge files matching a configured regex
+    - [x] Pipeline - Track wip files and purge extra after run
+    - [ ] ListSorter - Alert if files are mapped to multiple outlets
     - [ ] Processors - Improve logging output of class methods
+    - [ ] WaifuProcessor - Move mirroring to general function
+    - [ ] AppleScriptProcessor - Implement
+    - [ ] Common - Move platform support validation to validate_executable
 - Update Processors
     - [x] AutomatorProcessor
     - [x] ESRGANProcessor
@@ -29,7 +32,7 @@ TODO:
     - [ ] PotraceProcessor
     - [ ] ResizeProcessor
     - [ ] SideChannelProcessor
-    - [ ] TexconvProceessor
+    - [ ] TexconvProcessor
     - [ ] WaifuProcessor
     - [ ] XbrzProcessor
 - Testing

@@ -19,7 +19,7 @@ from subprocess import Popen
 from tempfile import TemporaryDirectory
 from typing import Any, Optional
 
-from pipescaler.common import ExecutableNotFoundError
+from pipescaler.common import ExecutableNotFoundError, validate_executable
 from pipescaler.core import Processor, UnsupportedPlatformError
 
 
@@ -48,8 +48,7 @@ class TexconvProcessor(Processor):
             raise UnsupportedPlatformError(
                 "TexconvProcessor is only supported on Windows"
             )
-        if not which("texconv.exe"):
-            raise ExecutableNotFoundError("texconv.exe executable not found in PATH")
+        validate_executable("texconv.exe")
         self.process_file(
             infile,
             outfile,
