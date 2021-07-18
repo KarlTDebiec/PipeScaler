@@ -39,7 +39,7 @@ class DirectorySource(Source):
         # Store list of filenames
         filenames = parse_file_list(self.directories, True, exclusions)
         filenames = list(filenames)
-        filenames.sort(key=self.sort)
+        filenames.sort(key=self.sort, reverse=True)
         self.filenames = filenames
 
     def __iter__(self):

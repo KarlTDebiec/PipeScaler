@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from typing import List
 
+from pipescaler.processors.apple_script_processor import AppleScriptProcessor
 from pipescaler.processors.automator_processor import AutomatorProcessor
 from pipescaler.processors.esrgan_processor import ESRGANProcessor
 from pipescaler.processors.pngquant_processor import PngquantProcessor
@@ -25,6 +26,7 @@ from pipescaler.processors.mode_processor import ModeProcessor
 
 ######################################### ALL ##########################################
 __all__: List[str] = [
+    "AppleScriptProcessor",
     "AutomatorProcessor",
     "ESRGANProcessor",
     "ModeProcessor",
