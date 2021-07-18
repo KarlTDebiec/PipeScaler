@@ -17,7 +17,7 @@ from pipescaler.core import Source, parse_file_list
 
 ####################################### CLASSES ########################################
 class DirectorySource(Source):
-    exclusions = {".DS_Store"}
+    exclusions = {".DS_Store", "desktop"}
 
     # region Builtins
 
@@ -25,6 +25,7 @@ class DirectorySource(Source):
         self, directory: str, exclusions: Union[str, List[str]] = None, **kwargs: Any
     ) -> None:
         super().__init__(**kwargs)
+
         if exclusions is None:
             exclusions = set()
         exclusions |= self.exclusions

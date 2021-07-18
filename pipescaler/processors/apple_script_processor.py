@@ -22,7 +22,6 @@ from pipescaler.common import (
     package_root,
     temporary_filename,
     validate_input_path,
-    validate_str,
 )
 from pipescaler.core import Processor, UnsupportedPlatformError
 
@@ -86,7 +85,6 @@ class AppleScriptProcessor(Processor):
         args = kwargs.get("args", "")
 
         with temporary_filename(".png") as tempfile:
-
             # Stage image
             copyfile(infile, tempfile)
 

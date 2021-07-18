@@ -9,8 +9,9 @@
 ####################################### MODULES ########################################
 from __future__ import annotations
 
-from logging import info
+from logging import info, warning
 from os.path import basename, dirname
+from pprint import pformat
 from typing import Any, Dict, List
 
 from pipescaler.core import Sorter, parse_file_list
@@ -29,9 +30,23 @@ class ListSorter(Sorter):
         self.outlets_by_filename = {}
 
         # Organize downstream outlets
+        duplicates = {}
         for outlet in self.outlets:
             for filename in parse_file_list(outlets.get(outlet, [])):
-                self.outlets_by_filename[filename] = outlet
+                if filename in self.outlets_by_filename:
+                    duplicates[filename] = duplicates.get(
+                        filename, [self.outlets_by_filename[filename]]
+                    ) + [outlet]
+                else:
+                    self.outlets_by_filename[filename] = outlet
+        if len(duplicates) != 0:
+            sorted_duplicates = {
+                key: sorted(duplicates[key]) for key in sorted(list(duplicates.keys()))
+            }
+            warning(
+                f"{self}: multiple outlets specified for the following filenames: "
+                f"{pformat(sorted_duplicates)}"
+            )
 
     def __call__(self, infile: str) -> str:
         # Identify image

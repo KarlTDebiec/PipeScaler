@@ -4,10 +4,10 @@ TODO:
     - [x] CopyTerminus - Purge files
     - [x] AlphaSorter
     - [x] Pipeline - Track wip files and purge extra after run
-    - [ ] ListSorter - Alert if files are mapped to multiple outlets
+    - [x] AppleScriptProcessor - Implement
+    - [x] ListSorter - Warn if files are mapped to multiple outlets
     - [ ] Processors - Improve logging output of class methods
     - [ ] WaifuProcessor - Move mirroring to general function
-    - [ ] AppleScriptProcessor - Implement
     - [ ] Common - Move platform support validation to validate_executable
 - Update Processors
     - [x] AutomatorProcessor
