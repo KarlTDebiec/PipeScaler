@@ -6,8 +6,14 @@ TODO:
     - [x] Pipeline - Track wip files and purge extra after run
     - [x] AppleScriptProcessor - Implement
     - [x] ListSorter - Warn if files are mapped to multiple outlets
-    - [ ] Processors - Improve logging output of class methods
+    - [x] ExpandProcessor - Implement
+    - [x] CropProcessor - Implement
+    - [x] SideChannelProcessor - Implement
     - [ ] WaifuProcessor - Move mirroring to general function
+    - [ ] Processors - Improve logging output of class methods
+    - [ ] Repeater - Implement base class
+    - [ ] ScaleRepeater - Implement, read in yaml text file
+    - [ ] CopyProcessor - Improve purging; could compare files and only copy over if necessary
     - [ ] Common - Move platform support validation to validate_executable
 - Update Processors
     - [x] AutomatorProcessor

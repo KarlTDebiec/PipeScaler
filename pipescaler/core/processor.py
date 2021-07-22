@@ -80,7 +80,7 @@ class Processor(Stage, CLTool):
 
     @classmethod
     @abstractmethod
-    def process_file(cls, inlet: str, outfile: str, **kwargs: Any) -> None:
+    def process_file(cls, infile: str, outfile: str, **kwargs: Any) -> None:
         raise NotImplementedError()
 
     # endregion

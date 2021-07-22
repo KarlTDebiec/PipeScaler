@@ -13,10 +13,52 @@ from os import listdir
 from os.path import basename, splitext
 from typing import List, Optional, Set, Union
 
+from PIL import Image
+
 from pipescaler.common import NotAFileError, validate_input_path
 
 
 ###################################### FUNCTIONS #######################################
+def crop_image(
+    image: Image.Image, left: int = 0, top: int = 0, right: int = 0, bottom: int = 0
+) -> Image.Image:
+    cropped = image.crop((left, top, image.size[0] - right, image.size[1] - bottom))
+
+    return cropped
+
+
+def expand_image(
+    image: Image.Image,
+    left: int = 0,
+    top: int = 0,
+    right: int = 0,
+    bottom: int = 0,
+    min_size: int = 1,
+) -> Image.Image:
+    w, h = image.size
+    new_w = max(min_size, left + w + right)
+    new_h = max(min_size, top + h + bottom)
+
+    transposed_h = image.transpose(Image.FLIP_LEFT_RIGHT)
+    transposed_v = image.transpose(Image.FLIP_TOP_BOTTOM)
+    transposed_hv = transposed_h.transpose(Image.FLIP_TOP_BOTTOM)
+
+    expanded = Image.new(image.mode, (new_w, new_h))
+    x = expanded.size[0] // 2
+    y = expanded.size[1] // 2
+    expanded.paste(image, (x - w // 2, y - h // 2))
+    expanded.paste(transposed_h, (x + w // 2, y - h // 2))
+    expanded.paste(transposed_h, (x - w - w // 2, y - h // 2))
+    expanded.paste(transposed_v, (x - w // 2, y - h - h // 2))
+    expanded.paste(transposed_v, (x - w // 2, y + h // 2))
+    expanded.paste(transposed_hv, (x + w // 2, y - h - h // 2))
+    expanded.paste(transposed_hv, (x - w - w // 2, y - h - h // 2))
+    expanded.paste(transposed_hv, (x - w - w // 2, y + h // 2))
+    expanded.paste(transposed_hv, (x + w // 2, y + h // 2))
+
+    return expanded
+
+
 def parse_file_list(
     files: Optional[Union[str, List[str]]],
     full_paths: bool = False,

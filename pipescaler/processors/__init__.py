@@ -13,7 +13,10 @@ from typing import List
 
 from pipescaler.processors.apple_script_processor import AppleScriptProcessor
 from pipescaler.processors.automator_processor import AutomatorProcessor
+from pipescaler.processors.crop_processor import CropProcessor
 from pipescaler.processors.esrgan_processor import ESRGANProcessor
+from pipescaler.processors.expand_processor import ExpandProcessor
+from pipescaler.processors.mode_processor import ModeProcessor
 from pipescaler.processors.pngquant_processor import PngquantProcessor
 from pipescaler.processors.potrace_processor import PotraceProcessor
 from pipescaler.processors.resize_processor import ResizeProcessor
@@ -22,13 +25,14 @@ from pipescaler.processors.texconv_processor import TexconvProcessor
 from pipescaler.processors.threshold_processor import ThresholdProcessor
 from pipescaler.processors.waifu_processor import WaifuProcessor
 from pipescaler.processors.xbrz_processor import XbrzProcessor
-from pipescaler.processors.mode_processor import ModeProcessor
 
 ######################################### ALL ##########################################
 __all__: List[str] = [
     "AppleScriptProcessor",
     "AutomatorProcessor",
+    "CropProcessor",
     "ESRGANProcessor",
+    "ExpandProcessor",
     "ModeProcessor",
     "PotraceProcessor",
     "PngquantProcessor",
