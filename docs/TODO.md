@@ -9,11 +9,13 @@ TODO:
     - [x] ExpandProcessor - Implement
     - [x] CropProcessor - Implement
     - [x] SideChannelProcessor - Implement
+    - [ ] Check if GigaPixelAI output is RGB or RGBA
     - [ ] WaifuProcessor - Move mirroring to general function
     - [ ] Processors - Improve logging output of class methods
     - [ ] Repeater - Implement base class
     - [ ] ScaleRepeater - Implement, read in yaml text file
     - [ ] CopyProcessor - Improve purging; could compare files and only copy over if necessary
+    - [ ] GrayscaleSorter - Implement
     - [ ] Common - Move platform support validation to validate_executable
 - Update Processors
     - [x] AutomatorProcessor
