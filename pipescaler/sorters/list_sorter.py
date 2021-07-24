@@ -19,6 +19,7 @@ from pipescaler.core import Sorter, parse_file_list
 
 ####################################### CLASSES ########################################
 class ListSorter(Sorter):
+    exclusions = {".DS_Store", "desktop"}
 
     # region Builtins
 
@@ -32,7 +33,9 @@ class ListSorter(Sorter):
         # Organize downstream outlets
         duplicates = {}
         for outlet in self.outlets:
-            for filename in parse_file_list(outlets.get(outlet, [])):
+            for filename in parse_file_list(
+                outlets.get(outlet, []), False, self.exclusions
+            ):
                 if filename in self.outlets_by_filename:
                     duplicates[filename] = duplicates.get(
                         filename, [self.outlets_by_filename[filename]]

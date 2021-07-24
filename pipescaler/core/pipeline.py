@@ -220,10 +220,13 @@ class Pipeline:
     def build_sorter(self, stage, stage_conf, pipeline_conf):
         pipeline = [{stage: {}}]
 
-        for outlet in filter(lambda o: o in stage_conf, stage.outlets):
-            pipeline[0][stage][outlet] = self.build_route(stage_conf.pop(outlet))
-        if "default" in stage_conf:
-            pipeline[0][stage]["default"] = self.build_route(stage_conf.pop("default"))
+        if stage_conf is not None:
+            for outlet in filter(lambda o: o in stage_conf, stage.outlets):
+                pipeline[0][stage][outlet] = self.build_route(stage_conf.pop(outlet))
+            if "default" in stage_conf:
+                pipeline[0][stage]["default"] = self.build_route(
+                    stage_conf.pop("default")
+                )
         pipeline.extend(self.build_route(pipeline_conf))
 
         return pipeline
