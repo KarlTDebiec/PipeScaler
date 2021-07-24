@@ -22,7 +22,10 @@ class DirectorySource(Source):
     # region Builtins
 
     def __init__(
-        self, directory: str, exclusions: Union[str, List[str]] = None, **kwargs: Any
+        self,
+        directory: Union[str, List[str]],
+        exclusions: Union[str, List[str]] = None,
+        **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
 

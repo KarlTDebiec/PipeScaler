@@ -31,6 +31,7 @@ class TexconvProcessor(Processor):
 
     def __init__(
         self,
+        mipmaps: bool = False,
         sepalpha: bool = False,
         filetype: Optional[str] = None,
         format: Optional[str] = None,
@@ -39,6 +40,7 @@ class TexconvProcessor(Processor):
         super().__init__(**kwargs)
 
         # Store configuration
+        self.mipmaps = mipmaps
         self.sepalpha = sepalpha
         self.filetype = filetype
         self.format = format
@@ -52,6 +54,7 @@ class TexconvProcessor(Processor):
         self.process_file(
             infile,
             outfile,
+            mipmaps=self.mipmaps,
             sepalpha=self.sepalpha,
             filetype=self.filetype,
             format=self.format,
@@ -73,6 +76,9 @@ class TexconvProcessor(Processor):
         parser = super().construct_argparser(description=description, **kwargs)
 
         parser.add_argument(
+            "--mipmaps", action="store_true", help="generate mipmaps",
+        )
+        parser.add_argument(
             "--sepalpha",
             action="store_true",
             help="resize/generate mips alpha channel separately from color channels",
@@ -88,6 +94,7 @@ class TexconvProcessor(Processor):
 
     @classmethod
     def process_file(cls, infile: str, outfile: str, **kwargs: Any) -> None:
+        mipmaps = kwargs.get("mipmaps", False)
         sepalpha = kwargs.get("sepalpha", False)
         filetype = kwargs.get("filetype")
         format = kwargs.get("format")
@@ -99,8 +106,11 @@ class TexconvProcessor(Processor):
 
             # Process image
             command = "texconv.exe"
-            if sepalpha:
-                command += f" -sepalpha"
+            if mipmaps:
+                if sepalpha:
+                    command += f" -sepalpha"
+            else:
+                command += f" -m 1"
             if filetype:
                 command += f" -ft {filetype}"
             if format:

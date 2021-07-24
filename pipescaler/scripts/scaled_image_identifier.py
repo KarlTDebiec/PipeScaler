@@ -10,269 +10,227 @@
 ####################################### MODULES ########################################
 from __future__ import annotations
 
+import logging
 from argparse import ArgumentParser
-from os import R_OK, W_OK, access, getcwd, listdir
-from os.path import basename, dirname, exists, expandvars, isdir, isfile, join, splitext
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from logging import info
+from os.path import basename, splitext
+from pprint import pprint
+from shutil import move
+from typing import Any, List, Optional, Union
 
 import numpy as np
 import yaml
 from PIL import Image
 from skimage.metrics import structural_similarity as ssim
+import itertools
 
-from pipescaler.common import CLTool
-
+from pipescaler.common import (
+    CLTool,
+    validate_float,
+    validate_input_path,
+    validate_output_path,
+)
 
 ####################################### CLASSES ########################################
+from pipescaler.core import parse_file_list
+
+
 class ScaledImageIdentifier(CLTool):
+    exclusions = {".DS_Store", "desktop"}
 
     # region Builtins
 
     def __init__(
         self,
-        dump_directory: str,
-        skip: Optional[Union[List[str], str]] = None,
-        infile: Optional[str] = None,
+        input_directory: Union[str, List[str]],
+        outfile: str,
+        infile: str = None,
+        output_directory: Optional[str] = None,
         threshold: float = 0.9,
-        outfile: Optional[str] = None,
-        concat_directory: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
 
+        if self.verbosity == 1:
+            logging.basicConfig(level=logging.WARNING)
+        elif self.verbosity == 2:
+            logging.basicConfig(level=logging.INFO)
+        elif self.verbosity >= 3:
+            logging.basicConfig(level=logging.DEBUG)
+
         # Input
-        self.dump_directory = dump_directory
-        if skip is not None:
-            skip_files: Set[str] = set()
-            for s in skip:
-                if not exists(s):
-                    raise ValueError()
-                if isfile(s):
-                    with open(s, "r") as f:
-                        skip_files = skip_files.union(
-                            set(yaml.load(f, Loader=yaml.SafeLoader))
-                        )
-                elif isdir(s):
-                    skip_files = skip_files.union(
-                        set([splitext(f)[0] for f in listdir(s)])
-                    )
-                else:
-                    raise ValueError()
-            self.skip_files = skip_files
         if infile is not None:
-            with open(infile, "r") as f:
-                self.known_scaled = yaml.load(f, Loader=yaml.SafeLoader)
+            with open(validate_input_path(infile), "r") as f:
+                self.scalesets = yaml.load(f, Loader=yaml.SafeLoader)
+            pprint(self.scalesets)
+        else:
+            self.scalesets = {}
+
+        if isinstance(input_directory, str):
+            input_directory = [input_directory]
+        input_directories = [
+            validate_input_path(d, file_ok=False, directory_ok=True)
+            for d in input_directory
+        ]
+        filenames = parse_file_list(input_directories, True, self.exclusions)
+        self.filenames = {splitext(basename(f))[0]: f for f in filenames}
 
         # Operations
-        self.threshold = threshold
+        self.threshold = validate_float(threshold, min_value=0, max_value=1)
 
         # Output
-        if outfile is not None:
-            self.outfile = outfile
-        self.concat_directory = concat_directory
+        self.outfile = validate_output_path(outfile)
+        if output_directory is not None:
+            self.output_directory = validate_output_path(
+                output_directory, file_ok=False, directory_ok=True
+            )
+        else:
+            self.output_directory = None
 
-    def __call__(self, **kwargs: Any) -> None:
-
-        # Load assigned images
-        large_to_small: Dict[str, List[Tuple[str, float]]] = {}
-        small_to_large = {}
-        for large, scaled in self.known_scaled.items():
-            large_to_small[large] = []
-            for scale, smalls in scaled.items():
-                if not isinstance(smalls, list):
-                    smalls = [smalls]
-                for small in smalls:
-                    small_to_large[small] = (large, scale)
-                    large_to_small[large].append((small, scale))
-        self.skip_files = self.skip_files.union(small_to_large.keys())
-
-        # Construct dictionary of sizes to dictionaries of images
-        data: Dict[Tuple[int, ...], Dict[str, np.ndarray]] = {}
-        thumb_data: Dict[str, np.ndarray] = {}
-        for infile in listdir(self.dump_directory):
-            name, ext = splitext(infile)
-            if infile == ".DS_Store" or name in self.skip_files:
-                continue
-            image = Image.open(f"{self.dump_directory}/{name}{ext}")
+    def load_data_and_thumbnails(self):
+        data = {}
+        thumbnails = {}
+        for filename in self.filenames.values():
+            # Store full size data
+            name = splitext(basename(filename))[0]
+            image = Image.open(filename)
             size = image.size
             if size not in data:
                 data[size] = {}
             data[size][name] = np.array(image)
-            thumb_scale = max(8.0 / size[0], 8.0 / size[1])
-            thumb_size = tuple([int(size[0] * thumb_scale), int(size[1] * thumb_scale)])
-            thumb_data[name] = np.array(
-                image.resize(thumb_size, resample=Image.LANCZOS)
+
+            # Store thumbnail
+            thumbnail_size = self.get_thumbnail_size(size)
+            if thumbnail_size not in thumbnails:
+                thumbnails[thumbnail_size] = {}
+            thumbnails[thumbnail_size][name] = np.array(
+                image.resize(thumbnail_size, resample=Image.LANCZOS)
             )
 
-        # Loop over sizes from largest to smallest
-        for size in list(reversed(sorted(data.keys()))):
-            print(f"{size}: {len(data[size])}")
-            for scale in [0.5, 0.25, 0.125, 0.0625]:
-                scaled_size: Tuple[int, ...] = tuple(
-                    [int(size[0] * scale), int(size[1] * scale)]
-                )
-                if scaled_size in data:
-                    print(f"    {scaled_size}: {len(data[scaled_size])}")
+        self.data = data
+        self.thumbnails = thumbnails
 
-            # Loop over images at this size
-            i = 0
-            for large_name, large_datum in data[size].items():
-                print(large_name)
-                large_thumb_datum = thumb_data[large_name]
+    def quit(self):
+        with open(self.outfile, "w") as outfile:
+            yaml.dump(self.scalesets, outfile)
+        info(f"Saved to {self.outfile}")
 
-                # Loop over scales from largest to smallest
-                for scale in [0.5, 0.25, 0.125, 0.0625]:
-                    scaled_size = tuple([int(size[0] * scale), int(size[1] * scale)])
-                    if scaled_size not in data:
-                        continue
-                    scaled_datum = np.array(
-                        Image.fromarray(large_datum).resize(
-                            scaled_size, resample=Image.LANCZOS
+    def review_image(self, original_name, original_size):
+        original = self.data[original_size][original_name]
+        thumbnail_size = self.get_thumbnail_size(original_size)
+        original_thumbnail = self.thumbnails[thumbnail_size][original_name]
+
+        # Loop over scales from largest to smallest
+        for scale in [0.5, 0.25, 0.125, 0.0625]:
+            size = tuple(
+                [int(original_size[0] * scale), int(original_size[1] * scale),]
+            )
+            if size not in self.data:
+                continue
+            scaled = self.get_scaled(original, size)
+
+            # Loop over images of this size
+            for small_name, small in self.data[size].items():
+                small_thumbnail = self.thumbnails[thumbnail_size][small_name]
+                score = ssim(original_thumbnail, small_thumbnail, multichannel=True)
+                if score < self.threshold / 2:
+                    continue
+
+                # Check full size
+                score = ssim(scaled, small, multichannel=True)
+                if score > self.threshold:
+                    info(f"{original_name}, {small_name}, {score}")
+                    self.concatenate_images(original, small).show()
+                    confirmation = input("Rescale pair? (y/n): ")
+                    if confirmation.lower().startswith("y"):
+                        if original_name not in self.scalesets:
+                            self.scalesets[original_name] = {}
+                        self.scalesets[original_name][scale] = small_name
+                        pprint(self.scalesets[original_name])
+                        move(self.filenames[small_name], self.output_directory)
+                        info(
+                            f"{self.filenames[small_name]} moved to "
+                            f"{self.output_directory}"
                         )
-                    )
-
-                    # Loop over images of this size
-                    for small_name, small_datum in data[scaled_size].items():
-                        if scaled_datum.shape != small_datum.shape:
-                            continue
-
-                        # Check thumbnail
-                        # embed()
-                        small_thumb_datum = thumb_data[small_name]
-                        score = ssim(
-                            large_thumb_datum, small_thumb_datum, multichannel=True
-                        )
-                        if score < self.threshold / 2:
-                            continue
-
-                        # Check full size
-                        score = ssim(scaled_datum, small_datum, multichannel=True)
-                        if score > self.threshold:
-                            print(
-                                f"        {i:4d} {large_name} "
-                                f"{small_name} {scale:6.4f} {score:4.2f}"
-                            )
-                            Image.fromarray(large_datum).show()
-                            Image.fromarray(small_datum).show()
-                i += 1
-
-    # endregion
-
-    # region Properties
 
     @property
-    def concat_directory(self) -> Optional[str]:
-        """str: Directory to which to write concatenated image files"""
-        if not hasattr(self, "concat_directory"):
-            self._concat_directory: Optional[str] = None
-        return self._concat_directory
-
-    @concat_directory.setter
-    def concat_directory(self, value: Optional[str]) -> None:
-        if value is not None:
-            if not isinstance(value, str):
-                raise ValueError(f"'{value}' is of type '{type(value)}', not " f"str")
-            value = expandvars(value)
-            if not exists(value):
-                raise ValueError(f"'{value}' does not exist")
-            if not isdir(value):
-                raise ValueError(f"'{value}' exists but is not a directory")
-            if not access(value, W_OK):
-                raise ValueError(f"'{value}' exists but cannot be written")
-        self._concat_directory = value
+    def known_originals(self):
+        return set(self.scalesets.keys())
 
     @property
-    def dump_directory(self) -> str:
-        """str: Directory from which to load image files"""
-        return self._dump_directory
+    def known_scaled(self):
+        return set(
+            itertools.chain.from_iterable([v.values() for v in self.scalesets.values()])
+        )
 
-    @dump_directory.setter
-    def dump_directory(self, value: str) -> None:
-        if not isinstance(value, str):
-            raise ValueError(f"'{value}' is of type '{type(value)}', not str")
-        value = expandvars(value)
-        if not exists(value):
-            raise ValueError(f"'{value}' does not exist")
-        if not isdir(value):
-            raise ValueError(f"'{value}' exists but is not a directory")
-        if not access(value, R_OK):
-            raise ValueError(f"'{value}' exists but cannot be read")
-        self._dump_directory = value
-
-    @property
-    def known_scaled(self) -> Dict[str, Dict[float, Union[str, List[str]]]]:
-        """Dict[float, Union[str, List[str]]]]: known scaled relationships."""
-        if not hasattr(self, "_known_scaled"):
-            self._known_scaled: Dict[str, Dict[float, Union[str, List[str]]]] = {}
-        return self._known_scaled
-
-    @known_scaled.setter
-    def known_scaled(
-        self, value: Dict[str, Dict[float, Union[str, List[str]]]]
-    ) -> None:
-        self._known_scaled = value
-
-    @property
-    def outfile(self) -> Optional[str]:
-        """Optional[str]: Directory from which to load image files"""
-        if not hasattr(self, "outfile"):
-            self._outfile: Optional[str] = None
-        return self._outfile
-
-    @outfile.setter
-    def outfile(self, value: str) -> None:
-        if value is not None:
-            if not isinstance(value, str):
-                raise ValueError(f"'{value}' is of type '{type(value)}', not " f"str")
-            value = expandvars(value)
-            directory = dirname(value)
-            if directory == "":
-                directory = getcwd()
-            value = join(directory, basename(value))
-            if exists(value):
-                if not isfile(value):
-                    raise ValueError(f"'{value}' exists but is not a file")
-                if not access(value, W_OK):
-                    raise ValueError(f"'{value}' exists but cannot be written")
+    @classmethod
+    def concatenate_images(cls, *args):
+        images = []
+        size = None
+        thumbnail_size = None
+        for arg in args:
+            if isinstance(arg, Image.Image):
+                image = arg
+            elif isinstance(arg, np.ndarray):
+                image = Image.fromarray(arg)
             else:
-                if not exists(directory):
-                    raise ValueError(f"'{directory}' does not exist")
-                if not isdir(directory):
-                    raise ValueError(f"'{directory}' exists but is not a " f"directory")
-                if not access(directory, W_OK):
-                    raise ValueError(f"'{directory}' exists but cannot be " f"written")
-        self._outfile = value
+                raise ValueError()
 
-    @property
-    def skip_files(self) -> Set[str]:
-        """Set[str]: Files to skip if found in dump directory"""
-        if not hasattr(self, "_skip_files"):
-            self._skip_files: Set[str] = set()
-        return self._skip_files
+            if size is None:
+                size = image.size
+                thumbnail_size = cls.get_thumbnail_size(size)
+            elif cls.get_thumbnail_size(image.size) != thumbnail_size:
+                raise ValueError()
 
-    @skip_files.setter
-    def skip_files(self, value: Set[str]) -> None:
-        self._skip_files = value
+            images.append(image)
 
-    @property
-    def threshold(self) -> float:
-        """
-        float: Threshold structural similarity above which images are
-        considered to match
-        """
-        return self._threshold
+        concatenated = Image.new("RGBA", (size[0] * len(images), size[1]))
+        for i, image in enumerate(images):
+            if image.size == size:
+                concatenated.paste(image, (size[0] * i, 0))
+            else:
+                concatenated.paste(
+                    image.resize(size, resample=Image.NEAREST), (size[0] * i, 0)
+                )
+        return concatenated
 
-    @threshold.setter
-    def threshold(self, value: float) -> None:
+    @staticmethod
+    def get_thumbnail_size(size):
+        thumbnail_scale = max(8.0 / size[0], 8.0 / size[1])
+        thumbnail_size = tuple(
+            [int(size[0] * thumbnail_scale), int(size[1] * thumbnail_scale)]
+        )
+
+        return thumbnail_size
+
+    @staticmethod
+    def get_scaled(datum, size):
+        return np.array(Image.fromarray(datum).resize(size, resample=Image.LANCZOS))
+
+    def __call__(self, **kwargs: Any) -> None:
+
+        self.load_data_and_thumbnails()
+
+        from IPython import embed
+
+        embed()
         try:
-            value = float(value)
-        except ValueError:
-            raise ValueError(f"'{value}' is of type '{type(value)}', not " f"float")
-        if value < 0:
-            raise ValueError(f"'{value}' is less than minimum value of 0.0")
-        elif value > 1:
-            raise ValueError(f"'{value}' is greater than maximum value of 1.0")
-        self._threshold = value
+            # Loop over sizes from largest to smallest
+            for size in list(reversed(sorted(self.data.keys()))):
+                info(f"Reviewing {len(self.data[size])} images of {size}")
+
+                # Loop over images at this size
+                for name in self.data[size].keys():
+                    if "_m_" not in name:
+                        continue
+                    self.review_image(name, size)
+
+        # Move file
+
+        except EOFError:
+            self.quit()
+        finally:
+            self.quit()
 
     # endregion
 
@@ -294,58 +252,40 @@ class ScaledImageIdentifier(CLTool):
         # Input
         parser_input = parser.add_argument_group("input arguments")
         parser_input.add_argument(
-            "-d",
-            "--dump",
-            dest="dump_directory",
-            metavar="DIR",
-            required=True,
-            type=cls.indir_argument(),
-            help="input directory from which to read images",
-        )
-        parser_input.add_argument(
-            "-s",
-            "--skip",
-            metavar="FILE|DIR",
-            nargs="+",
-            type=cls.indir_or_infile_argument(),
-            help="input file(s) from which to read lists of files to skip, or "
-            "input directories whose contained filenames should be "
-            "skipped",
-        )
-        parser_input.add_argument(
-            "-i",
             "--infile",
-            metavar="FILE",
             type=cls.input_path_arg(),
-            help="input yaml file from which to read known scaled file "
-            "relationships",
+            help="input yaml file from which to read scaled file relationships",
+        )
+        parser_input.add_argument(
+            "--input_directory",
+            nargs="+",
+            type=cls.input_path_arg(file_ok=True, directory_ok=True),
+            help="input directories from which to read images",
         )
 
         # Operations
         parser_ops = parser.add_argument_group("operation arguments")
         parser_ops.add_argument(
-            "-t",
             "--threshold",
             default=0.9,
-            type=cls.float_arg(0, 1),
-            help="threshold",
+            type=cls.float_arg(min_value=0, max_value=1),
+            help="structural similarity index measure (SSIM) threshold "
+            "(default: %(default)f)",
         )
 
         # Output
         parser_output = parser.add_argument_group("output arguments")
         parser_output.add_argument(
-            "-o",
             "--outfile",
-            metavar="FILE",
+            required=True,
             type=cls.output_path_arg(),
-            help="output yaml file to which to write scaled file " "relationships",
+            help="output yaml file to which to write scaled file relationships",
         )
         parser_output.add_argument(
-            "-c",
-            "--concat",
-            metavar="FILE",
-            type=cls.outdir_argument(),
-            help="output directory to which to write concatenated images",
+            "--output_directory",
+            required=False,
+            type=cls.output_path_arg(file_ok=False, directory_ok=True),
+            help="output directory to which to move scaled images",
         )
 
         return parser

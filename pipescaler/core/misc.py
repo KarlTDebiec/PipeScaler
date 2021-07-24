@@ -62,7 +62,7 @@ def expand_image(
 def parse_file_list(
     files: Optional[Union[str, List[str]]],
     full_paths: bool = False,
-    exclusions: Optional[Union[str, List[str]]] = None,
+    exclusions: Optional[Union[str, List[str], Set[str]]] = None,
 ) -> Set[str]:
     # Prepare exclusion set
     exclusions_set = set()

@@ -20,7 +20,11 @@ from pipescaler.core.splitter import Splitter
 from pipescaler.core.terminus import Terminus
 
 from pipescaler.core.exceptions import UnsupportedPlatformError
-from pipescaler.core.misc import crop_image, expand_image, parse_file_list
+from pipescaler.core.misc import (
+    crop_image,
+    expand_image,
+    parse_file_list,
+)
 from pipescaler.core.pipe_image import PipeImage
 from pipescaler.core.pipeline import Pipeline
 

@@ -189,7 +189,9 @@ class Pipeline:
     def build_route(self, pipeline_conf):
         if pipeline_conf is None:
             return []
-        elif not isinstance(pipeline_conf, List):
+        if isinstance(pipeline_conf, str):
+            pipeline_conf = [pipeline_conf]
+        if not isinstance(pipeline_conf, List):
             raise ValueError()
         elif len(pipeline_conf) == 0:
             return []
