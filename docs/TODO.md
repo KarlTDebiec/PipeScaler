@@ -1,22 +1,15 @@
 TODO:
 
 - Improvements
-    - [x] CopyTerminus - Purge files
-    - [x] AlphaSorter
-    - [x] Pipeline - Track wip files and purge extra after run
-    - [x] AppleScriptProcessor - Implement
-    - [x] ListSorter - Warn if files are mapped to multiple outlets
-    - [x] ExpandProcessor - Implement
-    - [x] CropProcessor - Implement
-    - [x] SideChannelProcessor - Implement
     - [ ] Check if GigaPixelAI output is RGB or RGBA
     - [ ] WaifuProcessor - Move mirroring to general function
     - [ ] Processors - Improve logging output of class methods
     - [ ] Repeater - Implement base class
     - [ ] ScaleRepeater - Implement, read in yaml text file
     - [ ] CopyProcessor - Improve purging; could compare files and only copy over if necessary
-    - [ ] GrayscaleSorter - Implement
     - [ ] Common - Move platform support validation to validate_executable
+    - [ ] XbrzProcessor - Suppress output
+    - [ ] TexconvProcessor - Suppress output
 - Update Processors
     - [x] AutomatorProcessor
     - [x] ESRGANProcessor
@@ -24,13 +17,13 @@ TODO:
     - [ ] PngquantProcessor
     - [ ] PotraceProcessor
     - [x] ResizeProcessor
-    - [ ] SideChannelProcessor
+    - [x] SideChannelProcessor
     - [x] TexconvProcessor
-    - [ ] WaifuProcessor
-        - [ ] Unix
-        - [ ] Windows
+    - [x] WaifuProcessor
+        - [x] Unix
+        - [x] Windows
     - [x] XbrzProcessor
-        - [ ] Unix
+        - [x] Unix
         - [ ] Windows
 - Update Documentation
     - [ ] AutomatorProcessor

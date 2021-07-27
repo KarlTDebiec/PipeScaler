@@ -211,9 +211,6 @@ class ScaledImageIdentifier(CLTool):
 
         self.load_data_and_thumbnails()
 
-        from IPython import embed
-
-        embed()
         try:
             # Loop over sizes from largest to smallest
             for size in list(reversed(sorted(self.data.keys()))):
@@ -221,8 +218,8 @@ class ScaledImageIdentifier(CLTool):
 
                 # Loop over images at this size
                 for name in self.data[size].keys():
-                    if "_m_" not in name:
-                        continue
+                    # if "_m_" not in name:
+                    #     continue
                     self.review_image(name, size)
 
         # Move file

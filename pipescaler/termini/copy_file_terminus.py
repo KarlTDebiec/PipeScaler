@@ -10,8 +10,10 @@
 ####################################### MODULES ########################################
 from __future__ import annotations
 
+from hashlib import md5
 from logging import info
 from os import remove
+from os.path import isfile
 from shutil import copyfile
 from typing import Any
 
@@ -45,6 +47,11 @@ class CopyFileTerminus(Terminus):
 
     @classmethod
     def process_file(cls, infile: str, outfile: str, **kwargs) -> None:
+        if isfile(outfile):
+            infile_md5sum = md5(open(infile, "rb").read()).hexdigest()
+            outfile_md5sum = md5(open(outfile, "rb").read()).hexdigest()
+            if infile_md5sum == outfile_md5sum:
+                pass
         copyfile(infile, outfile)
         info(f"{cls}: '{outfile}' saved")
 

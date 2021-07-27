@@ -36,6 +36,9 @@ from pipescaler.core import (
 
 
 ####################################### CLASSES ########################################
+from pipescaler.core.exceptions import TerminusReached
+
+
 class Pipeline:
 
     # region Builtins
@@ -144,6 +147,8 @@ class Pipeline:
                 self.run_route(
                     pipeline=self.pipeline[1:], image=image, infile=image_backup
                 )
+            except TerminusReached:
+                continue
             except UnsupportedPlatformError as error:
                 warning(
                     f"{self}: While processing '{image.name}', encountered "
@@ -392,6 +397,6 @@ class Pipeline:
         else:
             info(f"{self}: '{outfile}' already exists")
 
-        return outfile
+        raise TerminusReached(outfile)
 
     # endregion
