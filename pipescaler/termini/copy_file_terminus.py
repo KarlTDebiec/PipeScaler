@@ -12,8 +12,8 @@ from __future__ import annotations
 
 from hashlib import md5
 from logging import info
-from os import remove
-from os.path import isfile
+from os import makedirs, remove
+from os.path import exists, isfile
 from shutil import copyfile
 from typing import Any
 
@@ -35,6 +35,9 @@ class CopyFileTerminus(Terminus):
         self.directory = validate_output_path(
             output_directory, file_ok=False, directory_ok=True
         )
+        # TODO: Move to validate_output_path
+        if not exists(self.directory):
+            makedirs(self.directory)
 
         if purge:
             for filename in parse_file_list(self.directory, True):

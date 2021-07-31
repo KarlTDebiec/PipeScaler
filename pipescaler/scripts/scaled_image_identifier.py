@@ -21,6 +21,7 @@ from typing import Any, List, Optional, Union
 
 import numpy as np
 import yaml
+from IPython import embed
 from PIL import Image
 from skimage.metrics import structural_similarity as ssim
 
@@ -61,6 +62,8 @@ class ScaledImageIdentifier(CLTool):
         if infile is not None:
             with open(validate_input_path(infile), "r") as f:
                 self.scalesets = yaml.load(f, Loader=yaml.SafeLoader)
+            if self.scalesets is None:
+                self.scalesets = {}
             pprint(self.scalesets)
         else:
             self.scalesets = {}
@@ -86,6 +89,45 @@ class ScaledImageIdentifier(CLTool):
         else:
             self.output_directory = None
 
+    def __call__(self, **kwargs: Any) -> None:
+
+        self.load_data_and_thumbnails()
+
+        try:
+            # Loop over sizes from largest to smallest
+            for size in list(reversed(sorted(self.data.keys()))):
+                print(f"Reviewing {len(self.data[size])} images of {size}")
+
+                # Loop over images at this size
+                for name in self.data[size].keys():
+                    print(f"Reviewing {name}")
+                    # if "_m_" not in name:
+                    #     continue
+                    self.review_image(name, size)
+
+        # Move file
+
+        except EOFError as e:
+            self.quit()
+        except KeyboardInterrupt as e:
+            self.quit()
+
+    # region Properties
+
+    @property
+    def known_originals(self):
+        return set(self.scalesets.keys())
+
+    @property
+    def known_scaled(self):
+        return set(
+            itertools.chain.from_iterable([[w for w in v.values() if not isinstance(w, list)] for  v in self.scalesets.values()])
+        )
+
+    # endregion
+
+    # region Methods
+
     def load_data_and_thumbnails(self):
         data = {}
         thumbnails = {}
@@ -110,12 +152,17 @@ class ScaledImageIdentifier(CLTool):
         self.thumbnails = thumbnails
 
     def quit(self):
+        # pprint(self.scalesets)
         with open(self.outfile, "w") as outfile:
             yaml.dump(self.scalesets, outfile)
-        info(f"Saved to {self.outfile}")
+        print(f"Saved to {self.outfile}")
+        exit()
 
     def review_image(self, original_name, original_size):
-        original = self.data[original_size][original_name]
+        if original_name in self.known_scaled:
+            return
+
+        original_datum = self.data[original_size][original_name]
         thumbnail_size = self.get_thumbnail_size(original_size)
         original_thumbnail = self.thumbnails[thumbnail_size][original_name]
 
@@ -126,41 +173,58 @@ class ScaledImageIdentifier(CLTool):
             )
             if size not in self.data:
                 continue
-            scaled = self.get_scaled(original, size)
+            scaled = self.get_scaled(original_datum, size)
 
             # Loop over images of this size
-            for small_name, small in self.data[size].items():
+            for small_name, small_datum in self.data[size].items():
+                if original_name in self.scalesets:
+                    if scale in self.scalesets[original_name]:
+                        if self.scalesets[original_name][scale] == small_name:
+                            move(self.filenames[small_name], self.output_directory)
+                            print(
+                                f"{self.filenames[small_name]} moved to "
+                                f"{self.output_directory}"
+                            )
+                            continue
+                    if "rejected" in self.scalesets[original_name]:
+                        if small_name in self.scalesets[original_name]["rejected"]:
+                            continue
+
+                # Compare thumbnails, then full-sized images
                 small_thumbnail = self.thumbnails[thumbnail_size][small_name]
                 score = ssim(original_thumbnail, small_thumbnail, multichannel=True)
                 if score < self.threshold / 2:
                     continue
+                score = ssim(scaled, small_datum, multichannel=True)
 
-                # Check full size
-                score = ssim(scaled, small, multichannel=True)
+                # Assess match
                 if score > self.threshold:
-                    info(f"{original_name}, {small_name}, {score}")
-                    self.concatenate_images(original, small).show()
-                    confirmation = input("Rescale pair? (y/n): ")
-                    if confirmation.lower().startswith("y"):
+                    print(f"{original_name}, {small_name}, {score}")
+                    self.concatenate_images(original_datum, small_datum).show()
+                    confirmation = input("Rescale pair? (y/n): ").lower()
+                    if confirmation.startswith("y"):
                         if original_name not in self.scalesets:
                             self.scalesets[original_name] = {}
                         self.scalesets[original_name][scale] = small_name
                         pprint(self.scalesets[original_name])
                         move(self.filenames[small_name], self.output_directory)
-                        info(
+                        print(
                             f"{self.filenames[small_name]} moved to "
                             f"{self.output_directory}"
                         )
+                    elif confirmation.startswith("n"):
+                        if original_name not in self.scalesets:
+                            self.scalesets[original_name] = {}
+                        if "rejected" not in self.scalesets[original_name]:
+                            self.scalesets[original_name]["rejected"] = []
+                        self.scalesets[original_name]["rejected"].append(small_name)
+                        pprint(self.scalesets[original_name])
+                    elif confirmation.startswith("e"):
+                        embed()
+                    elif confirmation.startswith("q"):
+                        self.quit()
 
-    @property
-    def known_originals(self):
-        return set(self.scalesets.keys())
-
-    @property
-    def known_scaled(self):
-        return set(
-            itertools.chain.from_iterable([v.values() for v in self.scalesets.values()])
-        )
+    # region Class Methods
 
     @classmethod
     def concatenate_images(cls, *args):
@@ -192,45 +256,6 @@ class ScaledImageIdentifier(CLTool):
                     image.resize(size, resample=Image.NEAREST), (size[0] * i, 0)
                 )
         return concatenated
-
-    @staticmethod
-    def get_thumbnail_size(size):
-        thumbnail_scale = max(8.0 / size[0], 8.0 / size[1])
-        thumbnail_size = tuple(
-            [int(size[0] * thumbnail_scale), int(size[1] * thumbnail_scale)]
-        )
-
-        return thumbnail_size
-
-    @staticmethod
-    def get_scaled(datum, size):
-        return np.array(Image.fromarray(datum).resize(size, resample=Image.LANCZOS))
-
-    def __call__(self, **kwargs: Any) -> None:
-
-        self.load_data_and_thumbnails()
-
-        try:
-            # Loop over sizes from largest to smallest
-            for size in list(reversed(sorted(self.data.keys()))):
-                info(f"Reviewing {len(self.data[size])} images of {size}")
-
-                # Loop over images at this size
-                for name in self.data[size].keys():
-                    # if "_m_" not in name:
-                    #     continue
-                    self.review_image(name, size)
-
-        # Move file
-
-        except EOFError:
-            self.quit()
-        finally:
-            self.quit()
-
-    # endregion
-
-    # region Class Methods
 
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
@@ -285,6 +310,23 @@ class ScaledImageIdentifier(CLTool):
         )
 
         return parser
+
+    # endregion
+
+    # region Status Methods
+
+    @staticmethod
+    def get_scaled(datum, size):
+        return np.array(Image.fromarray(datum).resize(size, resample=Image.LANCZOS))
+
+    @staticmethod
+    def get_thumbnail_size(size):
+        thumbnail_scale = max(8.0 / size[0], 8.0 / size[1])
+        thumbnail_size = tuple(
+            [int(size[0] * thumbnail_scale), int(size[1] * thumbnail_scale)]
+        )
+
+        return thumbnail_size
 
     # endregion
 
