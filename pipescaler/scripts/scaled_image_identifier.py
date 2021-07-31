@@ -10,6 +10,7 @@
 ####################################### MODULES ########################################
 from __future__ import annotations
 
+import itertools
 import logging
 from argparse import ArgumentParser
 from logging import info
@@ -22,7 +23,6 @@ import numpy as np
 import yaml
 from PIL import Image
 from skimage.metrics import structural_similarity as ssim
-import itertools
 
 from pipescaler.common import (
     CLTool,
@@ -30,24 +30,23 @@ from pipescaler.common import (
     validate_input_path,
     validate_output_path,
 )
-
-####################################### CLASSES ########################################
 from pipescaler.core import parse_file_list
 
 
+####################################### CLASSES ########################################
 class ScaledImageIdentifier(CLTool):
     exclusions = {".DS_Store", "desktop"}
 
     # region Builtins
 
     def __init__(
-        self,
-        input_directory: Union[str, List[str]],
-        outfile: str,
-        infile: str = None,
-        output_directory: Optional[str] = None,
-        threshold: float = 0.9,
-        **kwargs: Any,
+            self,
+            input_directory: Union[str, List[str]],
+            outfile: str,
+            infile: str = None,
+            output_directory: Optional[str] = None,
+            threshold: float = 0.9,
+            **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
 
@@ -123,7 +122,7 @@ class ScaledImageIdentifier(CLTool):
         # Loop over scales from largest to smallest
         for scale in [0.5, 0.25, 0.125, 0.0625]:
             size = tuple(
-                [int(original_size[0] * scale), int(original_size[1] * scale),]
+                [int(original_size[0] * scale), int(original_size[1] * scale), ]
             )
             if size not in self.data:
                 continue
@@ -267,7 +266,7 @@ class ScaledImageIdentifier(CLTool):
             default=0.9,
             type=cls.float_arg(min_value=0, max_value=1),
             help="structural similarity index measure (SSIM) threshold "
-            "(default: %(default)f)",
+                 "(default: %(default)f)",
         )
 
         # Output

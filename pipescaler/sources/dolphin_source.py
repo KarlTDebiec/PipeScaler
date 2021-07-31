@@ -34,6 +34,5 @@ class DolphinSource(DirectorySource):
         else:
             raise ValueError()
         width, height = size.split("x")
-        return int(f"1{int(width):04d}{int(height):04d}{int(code, 16):022d}")
 
     # endregion
