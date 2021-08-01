@@ -49,8 +49,6 @@ class XbrzProcessor(Processor):
             infile (str): Input file
             outfile (str): Output file
         """
-        if any(win32_ver()):
-            raise UnsupportedPlatformError("XbrzProcessor is not supported on Windows")
         if not which("xbrzscale"):
             raise ExecutableNotFoundError("xbrzscale executable not found in PATH")
         self.process_file(infile, outfile, scale=self.scale)
@@ -93,7 +91,7 @@ class XbrzProcessor(Processor):
         scale = validate_int(kwargs.get("scale", 2), 2, 6)
 
         # Scale image
-        command = f"xbrzscale {scale} '{infile}' '{outfile}'"
+        command = f"xbrzscale {scale} {infile} {outfile}"
         debug(f"{cls}: {command}")
         Popen(command, shell=True, close_fds=True).wait()
         info(f"{cls}: '{outfile}' saved")
