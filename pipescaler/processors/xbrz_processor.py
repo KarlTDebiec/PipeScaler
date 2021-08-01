@@ -11,14 +11,15 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
-from logging import debug, info
-from platform import win32_ver
-from shutil import which
-from subprocess import Popen
+from logging import info
 from typing import Any
 
-from pipescaler.common import ExecutableNotFoundError, validate_int
-from pipescaler.core import Processor, UnsupportedPlatformError
+import numpy as np
+import xbrz
+from PIL import Image
+
+from pipescaler.common import validate_int
+from pipescaler.core import Processor
 
 
 ####################################### CLASSES ########################################
@@ -35,6 +36,7 @@ class XbrzProcessor(Processor):
         """
         super().__init__(**kwargs)
 
+        # Store configuration
         self.scale = validate_int(scale, 2, 6)
 
     # endregion
@@ -49,8 +51,6 @@ class XbrzProcessor(Processor):
             infile (str): Input file
             outfile (str): Output file
         """
-        if not which("xbrzscale"):
-            raise ExecutableNotFoundError("xbrzscale executable not found in PATH")
         self.process_file(infile, outfile, scale=self.scale)
 
     # endregion
@@ -90,10 +90,21 @@ class XbrzProcessor(Processor):
         """
         scale = validate_int(kwargs.get("scale", 2), 2, 6)
 
-        # Scale image
-        command = f"xbrzscale {scale} {infile} {outfile}"
-        debug(f"{cls}: {command}")
-        Popen(command, shell=True, close_fds=True).wait()
+        # Read image
+        input_image = Image.open(infile)
+        mode = input_image.mode
+
+        # Process image
+        if mode in ("RGB", "L"):
+            input_image = input_image.convert("RGBA")
+        output_image = xbrz.scale_pillow(input_image, scale)
+        if mode in ("RGB", "L"):
+            output_image = Image.fromarray(np.array(output_image)[:, :, :3])
+        if mode == "L":
+            output_image = output_image.convert("L")
+
+        # Write image
+        output_image.save(outfile)
         info(f"{cls}: '{outfile}' saved")
 
     # endregion

@@ -252,7 +252,7 @@ class ESRGANProcessor(Processor):
         # Read image
         input_datum = np.array(Image.open(infile).convert("RGB"))
 
-        # Run model
+        # Process image
         try:
             output_datum = upscaler.upscale(input_datum)
         except RuntimeError as e:

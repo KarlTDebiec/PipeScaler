@@ -10,7 +10,6 @@
 from __future__ import annotations
 
 from logging import info
-from os.path import basename, splitext
 from typing import Any, List
 
 import numpy as np
@@ -37,10 +36,12 @@ class GrayscaleSorter(Sorter):
     def __call__(self, infile: str) -> str:
         # Read image
         image = Image.open(infile)
-        name = splitext(basename(infile))[0]
 
         # Sort image
-        if image.mode in ("RGBA", "RGB"):
+        if image.mode == "RGBA":
+            info(f"{self}: {infile}' matches 'rgba'")
+            return "rgba"
+        elif image.mode == "RGB":
             rgb = np.array(image)[:, :, :3].astype(np.int)
             l = np.array(Image.fromarray(np.array(image)[:, :, :3]).convert("L"))
             diff = np.abs(rgb.transpose() - l.transpose())
@@ -62,6 +63,6 @@ class GrayscaleSorter(Sorter):
 
     @property
     def outlets(self) -> List[str]:
-        return ["drop_rgb", "keep_rgb", "no_rgb"]
+        return ["drop_rgb", "keep_rgb", "no_rgb", "rgba"]
 
     # endregion

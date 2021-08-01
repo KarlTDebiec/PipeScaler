@@ -41,7 +41,7 @@ class AlphaSorter(Sorter):
                 info(f"{self}: '{infile}' matches 'drop_alpha'")
                 return "drop_alpha"
             else:
-                info(f"{self}: '{infile}' matches 'drop_alpha'")
+                info(f"{self}: '{infile}' matches 'keep_alpha'")
                 return "keep_alpha"
         elif image.mode in ("RGB", "L"):
             info(f"{self}: {infile}' matches 'no_alpha'")

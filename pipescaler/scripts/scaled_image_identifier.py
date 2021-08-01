@@ -207,6 +207,9 @@ class ScaledImageIdentifier(CLTool):
                             self.scalesets[original_name] = {}
                         self.scalesets[original_name][scale] = small_name
                         pprint(self.scalesets[original_name])
+                        with open(self.outfile, "w") as outfile:
+                            yaml.dump(self.scalesets, outfile)
+                        print(f"Saved to {self.outfile}")
                         move(self.filenames[small_name], self.output_directory)
                         print(
                             f"{self.filenames[small_name]} moved to "
@@ -219,6 +222,9 @@ class ScaledImageIdentifier(CLTool):
                             self.scalesets[original_name]["rejected"] = []
                         self.scalesets[original_name]["rejected"].append(small_name)
                         pprint(self.scalesets[original_name])
+                        with open(self.outfile, "w") as outfile:
+                            yaml.dump(self.scalesets, outfile)
+                        print(f"Saved to {self.outfile}")
                     elif confirmation.startswith("e"):
                         embed()
                     elif confirmation.startswith("q"):

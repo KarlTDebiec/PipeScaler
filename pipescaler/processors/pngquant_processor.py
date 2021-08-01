@@ -10,11 +10,13 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
+from logging import info
 from os.path import isfile
-from shutil import copyfile
+from shutil import copyfile, which
 from subprocess import Popen
 from typing import Any
 
+from pipescaler.common import ExecutableNotFoundError, validate_int
 from pipescaler.core import Processor
 
 
@@ -24,41 +26,32 @@ class PngquantProcessor(Processor):
     # region Builtins
 
     def __init__(
-        self,
-        quality: int = 100,
-        speed: int = 1,
-        floyd_steinberg: bool = True,
-        **kwargs: Any,
+            self,
+            quality: int = 100,
+            speed: int = 1,
+            floyd_steinberg: bool = True,
+            **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
 
-        self.quality = quality
-        self.speed = speed
+        # Store configuration
+        self.quality = validate_int(quality, 1, 100)
+        self.speed = validate_int(speed, 1, 100)
         self.floyd_steinberg = floyd_steinberg
 
-    # endregion
+    def __call__(self, infile: str, outfile: str) -> None:
+        """
+        Scales infile by self.scale and writes the resulting image to outfile.
 
-    # region Properties
-
-    @property
-    def desc(self) -> str:
-        """str: Description"""
-        if not hasattr(self, "_desc"):
-            if self.floyd_steinberg:
-                return f"pngquant-{self.quality}-{self.speed}-fs"
-            else:
-                return f"pngquant-{self.quality}-{self.speed}"
-        return self._desc
-
-    # endregion
-
-    # region Methods
-
-    def process_file_from_pipeline(self, infile: str, outfile: str) -> None:
+        Arguments:
+            infile (str): Input file
+            outfile (str): Output file
+        """
+        if not which("pngquant"):
+            raise ExecutableNotFoundError("pngquant executable not found in PATH")
         self.process_file(
             infile,
             outfile,
-            self.pipeline.verbosity,
             quality=self.quality,
             speed=self.speed,
             floyd_steinberg=self.floyd_steinberg,
@@ -66,28 +59,31 @@ class PngquantProcessor(Processor):
 
     # endregion
 
+    # region Class Methods
+
     @classmethod
-    def construct_argparser(cls) -> ArgumentParser:
+    def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
         Constructs argument parser.
 
         Returns:
             parser (ArgumentParser): Argument parser
         """
-        parser = super().construct_argparser(description=__doc__)
+        description = kwargs.get("description", __doc__.strip())
+        parser = super().construct_argparser(description=description, **kwargs)
 
         parser.add_argument(
             "--quality",
             default="100",
-            type=int,
+            type=cls.int_arg(1, 100),
             help="minimum quality below which output image will not be saved, "
-            "and maximum quality above which fewer colors will be used, "
-            "(1-100, default: %(default)s)",
+                 "and maximum quality above which fewer colors will be used, "
+                 "(1-100, default: %(default)s)",
         )
         parser.add_argument(
             "--speed",
             default=1,
-            type=int,
+            type=cls.int_arg(1, 100),
             help="speed/quality balance (1-100, default: %(default)s)",
         )
         parser.add_argument(
@@ -101,24 +97,26 @@ class PngquantProcessor(Processor):
 
     @classmethod
     def process_file(
-        cls, infile: str, outfile: str, verbosity: int = 1, **kwargs: Any
+            cls, infile: str, outfile: str, **kwargs: Any
     ) -> None:
         quality = kwargs.get("quality", 100)
         speed = kwargs.get("speed", 1)
         floyd_steinberg = kwargs.get("floyd_steinberg", True)
 
-        command = f"pngquant " f"--force " f"--quality {quality} " f"--speed {speed} "
+        # Scale image
+        command = f"pngquant --skip-if-larger --force"
+        command += f" --quality {quality}"
+        command += f" --speed {speed}"
         if not floyd_steinberg:
-            command = f"{command} --nofs"
-        command = f"{command} --output {outfile} {infile} "
-
-        if verbosity >= 1:
-            print(command)
+            command += f" --nofs"
+        command += f" --output {outfile} {infile} "
         Popen(command, shell=True, close_fds=True).wait()
-
         # pngquant may not save outfile if it is too large or low quality
         if not isfile(outfile):
             copyfile(infile, outfile)
+        info(f"{cls}: '{outfile}' saved")
+
+    # endregion
 
 
 ######################################### MAIN #########################################
