@@ -1,52 +1,71 @@
 TODO:
 
-- Improvements
-    - [ ] Check if GigaPixelAI output is RGB or RGBA
+- New Feature
+    - [ ] Make processor available as an endpoint that can be POSTed to
+    - [ ] Blocks of stages
+    - [ ] Pass image and metadata as a whole object, not just infiles and outfiles
+- New Stage
+    - [ ] SolidColorSorter - Detect if an image is a solid color
+    - [ ] SolidColorProcessor - Make an image one solid color, and optionally scale it
+    - [ ] CopySplitter - Just send image down own or more outlets
+    - [ ] MatchHistogramMerger - Use skimage.transform.match_histograms to match color
+- Improvement
+    - [ ] ColorToAlphaSplitter - Create Processor that can fill in alpha
     - [ ] WaifuProcessor - Move mirroring to general function
+    - [ ] WaifuProcessor - Switch for command-line application to Python library
     - [ ] Processors - Improve logging output of class methods
-    - [ ] Repeater - Implement base class
     - [ ] ScaleRepeater - Implement, read in yaml text file
     - [ ] CopyProcessor - Improve purging; could compare files and only copy over if necessary
+    - [ ] PngquantProcessor - Use Pillow's support
     - [ ] Common - Move platform support validation to validate_executable
-    - [ ] XbrzProcessor - Suppress output
     - [ ] TexconvProcessor - Suppress output
-- Update Processors
-    - [x] AutomatorProcessor
-    - [x] ESRGANProcessor
-    - [x] ModeProcessor
-    - [ ] PngquantProcessor
-    - [ ] PotraceProcessor
-    - [x] ResizeProcessor
-    - [x] SideChannelProcessor
-    - [x] TexconvProcessor
-    - [x] WaifuProcessor
-        - [x] Unix
-        - [x] Windows
-    - [x] XbrzProcessor
-        - [x] Unix
-        - [ ] Windows
+    - [ ] Set up requirements.txt and create my own conda environment creation script
+    - [ ] Move to Python 3.9 minimum
+    - [ ] LA mode support
+- Update 
+    - Processors
+        - [ ] PotraceProcessor
+    - Sorters
+        - [ ] SizeSorter
+    - Sources
+        - [ ] TexModSource
 - Update Documentation
-    - [ ] AutomatorProcessor
-    - [ ] ESRGANProcessor
-    - [ ] ModeProcessor
-    - [ ] PngquantProcessor
-    - [ ] PotraceProcessor
-    - [ ] ResizeProcessor
-    - [ ] SideChannelProcessor
-    - [ ] TexconvProcessor
-    - [ ] WaifuProcessor
-    - [ ] XbrzProcessor
-- Testing
-    - [ ] AutomatorProcessor
-    - [ ] ESRGANProcessor
-    - [ ] ModeProcessor
-    - [ ] PngquantProcessor
-    - [ ] PotraceProcessor
-    - [ ] ResizeProcessor
-    - [ ] SideChannelProcessor
-    - [ ] TexconvProceessor
-    - [ ] WaifuProcessor
-    - [ ] XbrzProcessor
+    - Mergers
+        - [ ] AlphaMerger
+        - [ ] ColorToAlphaMerger
+        - [ ] NormalMerger
+    - Processors
+        - [ ] AppleScriptProcessor
+        - [ ] AutomatorProcessor
+        - [ ] CropProcessor
+        - [ ] ESRGANProcessor
+        - [ ] ExpandProcessor
+        - [ ] ModeProcessor
+        - [ ] PngquantProcessor
+        - [ ] PotraceProcessor
+        - [ ] ResizeProcessor
+        - [ ] SideChannelProcessor
+        - [ ] TexconvProcessor
+        - [ ] WaifuProcessor
+        - [ ] XbrzProcessor
+    - Sorters
+        - [ ] AlphaSorter
+        - [ ] GrayscaleSorter
+        - [ ] ListSorter
+        - [ ] ModeSorter
+        - [ ] RegexSorter
+        - [ ] SizeSorter
+    - Sources
+        - [ ] CitraSource
+        - [ ] DirectorySource
+        - [ ] DolphinSource
+        - [ ] TexModSource
+    - Splitters
+        - [ ] AlphaSplitter
+        - [ ] ColorToAlphaSplitter
+        - [ ] NormalSplitter
+    - Termini
+        - [ ] CopyFileTerminus
 - Notes:
     - Don't use a property unless you cannot do the initialization in __init__
     - Don't write a setter unless you need to set the value outside of __init__
