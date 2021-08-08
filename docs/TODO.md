@@ -11,8 +11,8 @@ TODO:
     - [ ] MatchHistogramMerger - Use skimage.transform.match_histograms to match color
 - Improvement
     - [ ] ColorToAlphaSplitter - Create Processor that can fill in alpha
-    - [ ] WaifuProcessor - Move mirroring to general function
-    - [ ] WaifuProcessor - Switch for command-line application to Python library
+    - [x] WaifuProcessor - Move mirroring to general function
+    - [x] WaifuProcessor - Switch for command-line application to Python library
     - [ ] Processors - Improve logging output of class methods
     - [ ] ScaleRepeater - Implement, read in yaml text file
     - [ ] CopyProcessor - Improve purging; could compare files and only copy over if necessary

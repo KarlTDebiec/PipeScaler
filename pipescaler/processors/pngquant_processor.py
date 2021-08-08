@@ -26,11 +26,11 @@ class PngquantProcessor(Processor):
     # region Builtins
 
     def __init__(
-            self,
-            quality: int = 100,
-            speed: int = 1,
-            floyd_steinberg: bool = True,
-            **kwargs: Any,
+        self,
+        quality: int = 100,
+        speed: int = 1,
+        floyd_steinberg: bool = True,
+        **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
 
@@ -77,8 +77,8 @@ class PngquantProcessor(Processor):
             default="100",
             type=cls.int_arg(1, 100),
             help="minimum quality below which output image will not be saved, "
-                 "and maximum quality above which fewer colors will be used, "
-                 "(1-100, default: %(default)s)",
+            "and maximum quality above which fewer colors will be used, "
+            "(1-100, default: %(default)s)",
         )
         parser.add_argument(
             "--speed",
@@ -96,9 +96,7 @@ class PngquantProcessor(Processor):
         return parser
 
     @classmethod
-    def process_file(
-            cls, infile: str, outfile: str, **kwargs: Any
-    ) -> None:
+    def process_file(cls, infile: str, outfile: str, **kwargs: Any) -> None:
         quality = kwargs.get("quality", 100)
         speed = kwargs.get("speed", 1)
         floyd_steinberg = kwargs.get("floyd_steinberg", True)

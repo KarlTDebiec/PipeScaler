@@ -36,8 +36,10 @@ class SideChannelProcessor(Processor):
         for filename in parse_file_list(self.directory, full_paths=True):
             filename_base, filename_extension = splitext(basename(filename))
             if clean_suffix is not None and filename_base.endswith(clean_suffix):
-                filename_base = filename_base[:-len(clean_suffix)]
-                clean_filename = join(self.directory, f"{filename_base}{filename_extension}")
+                filename_base = filename_base[: -len(clean_suffix)]
+                clean_filename = join(
+                    self.directory, f"{filename_base}{filename_extension}"
+                )
                 move(filename, clean_filename)
                 info(f"{self}: '{filename}' renamed to '{clean_filename}'")
                 filename = clean_filename

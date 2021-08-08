@@ -6,72 +6,92 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""
-Processes an image using waifu.
-
-Requires the macOS version of waifu2x (https://github.com/imxieyi/waifu2x-mac)
-in the executor's path.
-
-Provides two improvements over running waifu2x directly:
-1. If image is below waifu2x's minimum size, expands canvas.
-2. Eliminates edge effects by reflecting image around edges.
-"""
+""""""
 ####################################### MODULES ########################################
 from __future__ import annotations
 
 from argparse import ArgumentParser
-from logging import debug, info
-from os import remove
-from platform import win32_ver
-from subprocess import Popen
-from tempfile import NamedTemporaryFile
+from inspect import getfile
+from logging import info
+from os.path import dirname, join
 from typing import Any
 
+import chainer
+import numpy as np
 from PIL import Image
+from waifu2x.reconstruct import blockwise
+from waifu2x.srcnn import archs
 
 from pipescaler.common import (
-    validate_executable,
     validate_int,
     validate_str,
 )
-from pipescaler.core import Processor
+from pipescaler.core import Processor, crop_image, expand_image
+
+###################################### VARIABLES #######################################
+model_architectures = {k.lower(): v for k, v in archs.items()}
 
 
 ####################################### CLASSES ########################################
 class WaifuProcessor(Processor):
-    models = {"windows": ["a"], "unix": ["a", "p"]}
+    architectures = {"resnet10", "upconv7", "upresnet10", "vgg7"}
 
     # region Builtins
 
     def __init__(
-        self, imagetype: str = "a", scale: int = 2, denoise: int = 1, **kwargs: Any
+        self,
+        architecture: str = "upconv7",
+        denoise: int = 1,
+        scale: int = 2,
+        device: str = "cuda",
+        **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
 
         # Store configuration
-        self.imagetype = validate_str(
-            imagetype,
-            self.models["windows"] if any(win32_ver()) else self.models["unix"],
-        )
+        self.architecture = validate_str(architecture, self.architectures)
         self.scale = validate_int(scale, min_value=1, max_value=2)
         self.denoise = validate_int(denoise, min_value=0, max_value=4)
+        if device == "cuda":
+            chainer.backends.cuda.get_device_from_id(0).use()
+
+        # Load model(s)
+        model_directory = join(
+            dirname(getfile(blockwise)), "models", self.architecture.lower()
+        )
+        if self.architecture in ("resnet10", "vgg7"):
+            model_1_infile = join(
+                model_directory, f"anime_style_noise{self.denoise}_rgb.npz"
+            )
+            self.model_1 = model_architectures[self.architecture](3)
+            chainer.serializers.load_npz(model_1_infile, self.model_1)
+            if self.scale == 2:
+                model_2_infile = join(
+                    model_directory, f"anime_style_noise{self.denoise}_scale_rgb.npz"
+                )
+                self.model_2 = model_architectures[self.architecture](3)
+                chainer.serializers.load_npz(model_2_infile, self.model_2)
+            else:
+                self.model_2 = None
+        else:
+            model_1_infile = join(
+                model_directory, f"anime_style_noise{self.denoise}_scale_rgb.npz"
+            )
+            self.model_1 = model_architectures[self.architecture](3)
+            chainer.serializers.load_npz(model_1_infile, self.model_1)
+            self.model_2 = None
 
     # endregion
 
     # region Methods
 
     def __call__(self, infile: str, outfile: str) -> None:
-        if any(win32_ver()):
-            validate_executable("waifu2x-caffe-cui.exe")
-        else:
-            validate_executable("waifu2x")
-
         self.process_file(
             infile,
             outfile,
-            imagetype=self.imagetype,
+            model_1=self.model_1,
+            model_2=self.model_2,
             scale=self.scale,
-            denoise=self.denoise,
         )
 
     # endregion
@@ -91,13 +111,25 @@ class WaifuProcessor(Processor):
 
         # Operations
         parser.add_argument(
-            "--type",
-            default="a",
-            dest="imagetype",
-            type=cls.str_arg(
-                cls.models["windows"] if any(win32_ver()) else cls.models["unix"],
-            ),
-            help="image type - a for anime, p for photo, (default: " "%(default)s)",
+            "--architecture",
+            default="upconv7",
+            dest="architecture",
+            type=cls.str_arg(cls.architectures),
+            help=f"model architecture, (options: {cls.architectures}, default: "
+            "%(default)s)",
+        )
+        parser.add_argument(
+            "--denoise",
+            default=1,
+            dest="denoise",
+            type=cls.int_arg(min_value=0, max_value=3),
+            help="denoise level (0-4, default: %(default)s)",
+        )
+        parser.add_argument(
+            "--device",
+            default="cuda",
+            type=cls.str_arg(options=["cpu", "cuda"]),
+            help="device (default: %(default)s)",
         )
         parser.add_argument(
             "--scale",
@@ -106,75 +138,45 @@ class WaifuProcessor(Processor):
             type=cls.int_arg(min_value=1, max_value=2),
             help="scale factor (1 or 2, default: %(default)s)",
         )
-        parser.add_argument(
-            "--denoise",
-            default=1,
-            dest="denoise",
-            type=cls.int_arg(min_value=0, max_value=4),
-            help="denoise level (0-4, default: %(default)s)",
-        )
 
         return parser
 
     @classmethod
     def process_file(cls, infile: str, outfile: str, **kwargs: Any) -> None:
-        if any(win32_ver()):
-            executable = validate_executable("waifu2x-caffe-cui.exe")
-        else:
-            executable = validate_executable("waifu2x")
-        imagetype = kwargs.get("imagetype", "a")
-        scale = kwargs.get("scale", 2)
-        denoise = kwargs.get("denoise", 1)
+        model_1 = kwargs.get("model_1")
+        model_2 = kwargs.get("model_2")
+        scale = kwargs.get("scale")
 
-        # Prepare temporary image with reflections and minimum size of 200x200
-        image = Image.open(infile)
-        if image.mode == "L":
-            image = image.convert("RGB")
-        w, h = image.size
-        transposed_h = image.transpose(Image.FLIP_LEFT_RIGHT)
-        transposed_v = image.transpose(Image.FLIP_TOP_BOTTOM)
-        transposed_hv = transposed_h.transpose(Image.FLIP_TOP_BOTTOM)
-        reflected = Image.new(
-            image.mode, (max(200, int(w * 1.5)), max(200, int(h * 1.5)))
+        # Read image
+        input_image = Image.open(infile).convert("RGB")
+        expanded_image = expand_image(input_image, 8, 8, 8, 8)
+        expanded_datum = np.array(expanded_image)
+
+        # Process image
+        waifued_datum = blockwise(expanded_datum, model_1, 128, 16)
+        waifued_datum = np.clip(waifued_datum, 0, 1) * 255
+        if model_2 is not None:
+            waifued_datum = blockwise(waifued_datum, model_2, 128, 16)
+            waifued_datum = np.clip(waifued_datum, 0, 1) * 255
+        waifued_image = Image.fromarray(waifued_datum.astype(np.uint8))
+        crop_scale = waifued_datum.shape[0] / expanded_datum.shape[0]
+        cropped_image = crop_image(
+            waifued_image,
+            8 * crop_scale,
+            8 * crop_scale,
+            8 * crop_scale,
+            8 * crop_scale,
         )
-        x = reflected.size[0] // 2
-        y = reflected.size[1] // 2
-        reflected.paste(image, (x - w // 2, y - h // 2))
-        reflected.paste(transposed_h, (x + w // 2, y - h // 2))
-        reflected.paste(transposed_h, (x - w - w // 2, y - h // 2))
-        reflected.paste(transposed_v, (x - w // 2, y - h - h // 2))
-        reflected.paste(transposed_v, (x - w // 2, y + h // 2))
-        reflected.paste(transposed_hv, (x + w // 2, y - h - h // 2))
-        reflected.paste(transposed_hv, (x - w - w // 2, y - h - h // 2))
-        reflected.paste(transposed_hv, (x - w - w // 2, y + h // 2))
-        reflected.paste(transposed_hv, (x + w // 2, y + h // 2))
-        tempfile = NamedTemporaryFile(delete=False, suffix=".png")
-        reflected.save(tempfile)
-        tempfile.close()
-
-        # Process using waifu
-        command = f"{executable} -p gpu "
-        if not any(win32_ver()):
-            command += f"-t {imagetype} "
-        command += f"-s {scale} "
-        command += f"-n {denoise} "
-        command += f'-i "{tempfile.name}" '
-        command += f'-o "{outfile}"'
-
-        debug(command)
-        Popen(command, shell=True, close_fds=True).wait()
-
-        # Load processed image and crop back to original content
-        reflected = Image.open(outfile).crop(
-            (
-                (x - w // 2) * scale,
-                (y - h // 2) * scale,
-                (x + w // 2) * scale,
-                (y + h // 2) * scale,
+        if cropped_image.size != (
+            input_image.size[0] * scale,
+            input_image.size[1] * scale,
+        ):
+            cropped_image = cropped_image.resize(
+                input_image.size * scale, resample=Image.LANCZOS
             )
-        )
-        remove(tempfile.name)
-        reflected.save(outfile)
+
+        # Write image
+        cropped_image.save(outfile)
         info(f"{cls}: '{outfile}' saved")
 
     # endregion

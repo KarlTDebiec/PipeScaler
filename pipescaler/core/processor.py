@@ -73,10 +73,12 @@ class Processor(Stage, CLTool):
 
     @classmethod
     def main(cls) -> None:
-        """Parses and validates arguments, passes them to process_file."""
+        """Parses arguments, initializes processor, and processes file."""
         parser = cls.construct_argparser()
         kwargs = vars(parser.parse_args())
-        cls.process_file(**kwargs)
+        infile = kwargs.pop("infile")
+        outfile = kwargs.pop("outfile")
+        cls(**kwargs)(infile, outfile)
 
     @classmethod
     @abstractmethod

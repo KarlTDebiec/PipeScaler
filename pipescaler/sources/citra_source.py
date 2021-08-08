@@ -9,6 +9,7 @@
 ####################################### MODULES ########################################
 from __future__ import annotations
 
+from logging import error
 from os.path import basename, splitext
 
 from pipescaler.sources.directory_source import DirectorySource
@@ -23,6 +24,11 @@ class CitraSource(DirectorySource):
     def sort(filename):
         _, size, code, _ = splitext(basename(filename))[0].split("_")
         width, height = size.split("x")
-        return int(f"1{int(width):04d}{int(height):04d}{int(code, 16):022d}")
+
+        try:
+            return int(f"1{int(width):04d}{int(height):04d}{int(code, 16):022d}")
+        except ValueError as e:
+            error(f"Error encountered while sorting {filename}")
+            raise e
 
     # endregion

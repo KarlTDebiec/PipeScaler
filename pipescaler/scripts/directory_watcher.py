@@ -14,13 +14,12 @@ import logging
 import re
 from argparse import ArgumentParser
 from os import remove
-from os.path import basename, splitext
+from os.path import basename, isfile, splitext
 from shutil import copy, move
 from time import sleep
 from typing import Any, Dict, List
 
 import yaml
-from IPython import embed
 
 from pipescaler.common import (
     CLTool,
@@ -29,19 +28,24 @@ from pipescaler.common import (
 )
 from pipescaler.core import parse_file_list
 
+
 ####################################### CLASSES ########################################
 class DirectoryWatcher(CLTool):
     exclusions = {".DS_Store", "desktop"}
 
     # region Builtins
 
-    def __init__(self,
-                 copy_directory: str,
-                 input_directory: str,
-                 known_directory: str,
-                 move_directory: str,
-                 rules: List[Dict[str,str]],
-                 **kwargs: Any) -> None:
+    def __init__(
+        self,
+        copy_directory: str,
+        input_directory: str,
+        known_directory: str,
+        known_filenames_list: str,
+        move_directory: str,
+        purge_directory: str,
+        rules: List[Dict[str, str]],
+        **kwargs: Any,
+    ) -> None:
         """
         Initializes.
 
@@ -58,20 +62,32 @@ class DirectoryWatcher(CLTool):
             logging.basicConfig(level=logging.DEBUG)
 
         # Input
-        self.input_directory = validate_input_path(input_directory,
-                                                   file_ok=False, directory_ok=True)
+        self.input_directory = validate_input_path(
+            input_directory, file_ok=False, directory_ok=True
+        )
         self.known_filenames = parse_file_list(known_directory)
+        self.known_filenames_file = validate_input_path(known_filenames_list)
+        purge_filenames = parse_file_list(purge_directory)
+        for filename in purge_filenames:
+            if isfile(f"{self.input_directory}/{filename}.png"):
+                remove(f"{self.input_directory}/{filename}.png")
+                print(f"'{filename}' purged")
+            if isfile(f"{purge_directory}/{filename}.png"):
+                remove(f"{purge_directory}/{filename}.png")
+                print(f"'{filename}' removed from purge directory")
 
         # Operations
         self.rules = [{re.compile(next(iter(r))): r[next(iter(r))]} for r in rules]
 
         # Output
-        self.copy_directory = validate_output_path(copy_directory,
-                                                     file_ok=False, directory_ok=True)
+        self.copy_directory = validate_output_path(
+            copy_directory, file_ok=False, directory_ok=True
+        )
         for filename in parse_file_list(self.copy_directory, full_paths=True):
             remove(filename)
-        self.move_directory = validate_output_path(move_directory,
-                                                   file_ok=False, directory_ok=True)
+        self.move_directory = validate_output_path(
+            move_directory, file_ok=False, directory_ok=True
+        )
 
     def __call__(self, *args, **kwargs):
         filenames = parse_file_list(self.input_directory, False)
@@ -79,6 +95,13 @@ class DirectoryWatcher(CLTool):
         filenames.sort(key=self.sort, reverse=True)
         for filename in filenames:
             self.review_file(filename)
+
+        known_filenames = parse_file_list(self.known_filenames_file)
+        known_filenames |= parse_file_list(self.input_directory, False)
+        known_filenames = sorted(list(known_filenames))
+        with open(self.known_filenames_file, "w") as outfile:
+            yaml.dump(known_filenames, outfile)
+            print(f"'{self.known_filenames_file}' updated")
 
         self.watch_dump_directory()
 
@@ -97,10 +120,16 @@ class DirectoryWatcher(CLTool):
                     return
                 elif action == "copy":
                     print(f"'{filename}' copied to '{self.copy_directory}'")
-                    copy(f"{self.input_directory}/{filename}.png", f"{self.copy_directory}/{filename}.png")
+                    copy(
+                        f"{self.input_directory}/{filename}.png",
+                        f"{self.copy_directory}/{filename}.png",
+                    )
                     return
                 elif action == "move":
-                    move(f"{self.input_directory}/{filename}.png", f"{self.move_directory}/{filename}.png")
+                    move(
+                        f"{self.input_directory}/{filename}.png",
+                        f"{self.move_directory}/{filename}.png",
+                    )
                     print(f"'{filename}' moved to '{self.move_directory}'")
                     return
                 elif action == "remove":
@@ -109,7 +138,10 @@ class DirectoryWatcher(CLTool):
                     return
 
         print(f"'{filename}' copied to '{self.copy_directory}'")
-        copy(f"{self.input_directory}/{filename}.png", f"{self.copy_directory}/{filename}.png")
+        copy(
+            f"{self.input_directory}/{filename}.png",
+            f"{self.copy_directory}/{filename}.png",
+        )
         return
 
     def watch_dump_directory(self):
@@ -120,7 +152,6 @@ class DirectoryWatcher(CLTool):
             raise e
 
         class FileCreatedEventHandler(FileSystemEventHandler):
-
             def __init__(self, host) -> None:
                 self.host = host
 
@@ -192,6 +223,7 @@ class DirectoryWatcher(CLTool):
             raise ValueError()
         width, height = size.split("x")
         return int(f"1{int(width):04d}{int(height):04d}{int(code, 16):022d}")
+
 
 ######################################### MAIN #########################################
 if __name__ == "__main__":

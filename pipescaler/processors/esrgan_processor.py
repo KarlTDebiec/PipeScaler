@@ -166,7 +166,6 @@ class ESRGANProcessor(Processor):
 
         # Store configuration
         self.model_infile = validate_input_path(model_infile)
-
         if device == "cuda":
             try:
                 self.upscaler = ESRGANProcessor.RRDBNetUpscaler(

@@ -13,7 +13,6 @@ from __future__ import annotations
 import itertools
 import logging
 from argparse import ArgumentParser
-from logging import info
 from os.path import basename, splitext
 from pprint import pprint
 from shutil import move
@@ -41,13 +40,13 @@ class ScaledImageIdentifier(CLTool):
     # region Builtins
 
     def __init__(
-            self,
-            input_directory: Union[str, List[str]],
-            outfile: str,
-            infile: str = None,
-            output_directory: Optional[str] = None,
-            threshold: float = 0.9,
-            **kwargs: Any,
+        self,
+        input_directory: Union[str, List[str]],
+        outfile: str,
+        infile: str = None,
+        output_directory: Optional[str] = None,
+        threshold: float = 0.9,
+        **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
 
@@ -121,7 +120,12 @@ class ScaledImageIdentifier(CLTool):
     @property
     def known_scaled(self):
         return set(
-            itertools.chain.from_iterable([[w for w in v.values() if not isinstance(w, list)] for  v in self.scalesets.values()])
+            itertools.chain.from_iterable(
+                [
+                    [w for w in v.values() if not isinstance(w, list)]
+                    for v in self.scalesets.values()
+                ]
+            )
         )
 
     # endregion
@@ -169,7 +173,7 @@ class ScaledImageIdentifier(CLTool):
         # Loop over scales from largest to smallest
         for scale in [0.5, 0.25, 0.125, 0.0625]:
             size = tuple(
-                [int(original_size[0] * scale), int(original_size[1] * scale), ]
+                [int(original_size[0] * scale), int(original_size[1] * scale),]
             )
             if size not in self.data:
                 continue
@@ -297,7 +301,7 @@ class ScaledImageIdentifier(CLTool):
             default=0.9,
             type=cls.float_arg(min_value=0, max_value=1),
             help="structural similarity index measure (SSIM) threshold "
-                 "(default: %(default)f)",
+            "(default: %(default)f)",
         )
 
         # Output
