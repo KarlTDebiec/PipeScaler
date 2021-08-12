@@ -18,7 +18,7 @@ from os.path import basename, isfile, splitext
 from shutil import copy, move
 from time import sleep
 from typing import Any, Dict, List
-
+from logging import debug, info
 import yaml
 
 from pipescaler.common import (
@@ -71,10 +71,10 @@ class DirectoryWatcher(CLTool):
         for filename in purge_filenames:
             if isfile(f"{self.input_directory}/{filename}.png"):
                 remove(f"{self.input_directory}/{filename}.png")
-                print(f"'{filename}' purged")
+                info(f"'{filename}' purged")
             if isfile(f"{purge_directory}/{filename}.png"):
                 remove(f"{purge_directory}/{filename}.png")
-                print(f"'{filename}' removed from purge directory")
+                info(f"'{filename}' removed from purge directory")
 
         # Operations
         self.rules = [{re.compile(next(iter(r))): r[next(iter(r))]} for r in rules]
@@ -94,55 +94,54 @@ class DirectoryWatcher(CLTool):
         filenames = list(filenames)
         filenames.sort(key=self.sort, reverse=True)
         for filename in filenames:
-            self.review_file(filename)
+            self.process_file(filename)
 
         known_filenames = parse_file_list(self.known_filenames_file)
         known_filenames |= parse_file_list(self.input_directory, False)
-        known_filenames = sorted(list(known_filenames))
         with open(self.known_filenames_file, "w") as outfile:
-            yaml.dump(known_filenames, outfile)
+            for filename in sorted(list(known_filenames)):
+                if self.check_file(filename) in ("known", "copy"):
+                    outfile.write(f"{filename}\n")
             print(f"'{self.known_filenames_file}' updated")
 
         self.watch_dump_directory()
 
-    def review_file(self, filename):
+    def check_file(self, filename):
 
         if filename in self.known_filenames:
-            # print(f"'{filename}' known")
-            return
+            return "known"
 
         for rule in self.rules:
             regex = next(iter(rule))
             action = rule[next(iter(rule))]
             if regex.match(filename):
-                if action == "ignore":
-                    print(f"'{filename}' ignored")
-                    return
-                elif action == "copy":
-                    print(f"'{filename}' copied to '{self.copy_directory}'")
-                    copy(
-                        f"{self.input_directory}/{filename}.png",
-                        f"{self.copy_directory}/{filename}.png",
-                    )
-                    return
-                elif action == "move":
-                    move(
-                        f"{self.input_directory}/{filename}.png",
-                        f"{self.move_directory}/{filename}.png",
-                    )
-                    print(f"'{filename}' moved to '{self.move_directory}'")
-                    return
-                elif action == "remove":
-                    remove(f"{self.input_directory}/{filename}.png")
-                    print(f"'{filename}' deleted")
-                    return
+                return action
 
-        print(f"'{filename}' copied to '{self.copy_directory}'")
-        copy(
-            f"{self.input_directory}/{filename}.png",
-            f"{self.copy_directory}/{filename}.png",
-        )
-        return
+        return "copy"
+
+    def process_file(self, filename):
+        status = self.check_file(filename)
+        if status == "known":
+            debug(f"'{filename}' known")
+        elif status == "ignore":
+            debug(f"'{filename}' ignored")
+        elif status == "copy":
+            copy(
+                f"{self.input_directory}/{filename}.png",
+                f"{self.copy_directory}/{filename}.png",
+            )
+            info(f"'{filename}' copied to '{self.copy_directory}'")
+        elif status == "move":
+            move(
+                f"{self.input_directory}/{filename}.png",
+                f"{self.move_directory}/{filename}.png",
+            )
+            info(f"'{filename}' moved to '{self.move_directory}'")
+        elif status == "remove":
+            remove(f"{self.input_directory}/{filename}.png")
+            info(f"'{filename}' deleted")
+        else:
+            raise ValueError()
 
     def watch_dump_directory(self):
         try:
@@ -157,7 +156,7 @@ class DirectoryWatcher(CLTool):
 
             def on_created(self, event):
                 filename = splitext(basename(event.key[1]))[0]
-                self.host.review_file(filename)
+                self.host.process_file(filename)
 
         event_handler = FileCreatedEventHandler(self)
         observer = Observer()
