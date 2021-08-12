@@ -392,11 +392,7 @@ class Pipeline:
 
     def run_terminus(self, stage, image, infile, **kwargs):
         outfile = f"{join(stage.directory, image.name)}{splitext(basename(infile))[1]}"
-        if not isfile(outfile):
-            stage(infile=infile, outfile=outfile)
-        else:
-            info(f"{self}: '{outfile}' already exists")
-
+        stage(infile=infile, outfile=outfile)
         raise TerminusReached(outfile)
 
     # endregion

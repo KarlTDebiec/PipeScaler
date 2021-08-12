@@ -54,8 +54,12 @@ class CopyFileTerminus(Terminus):
             infile_md5sum = md5(open(infile, "rb").read()).hexdigest()
             outfile_md5sum = md5(open(outfile, "rb").read()).hexdigest()
             if infile_md5sum == outfile_md5sum:
-                pass
-        copyfile(infile, outfile)
-        info(f"{cls}: '{outfile}' saved")
+                info(f"{cls}: '{outfile}' unchanged; not overwritten")
+            else:
+                copyfile(infile, outfile)
+                info(f"{cls}: '{outfile}' changed; overwritten")
+        else:
+            copyfile(infile, outfile)
+            info(f"{cls}: '{outfile}' saved")
 
     # endregion
