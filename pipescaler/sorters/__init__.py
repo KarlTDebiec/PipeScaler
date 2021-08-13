@@ -17,6 +17,7 @@ from pipescaler.sorters.list_sorter import ListSorter
 from pipescaler.sorters.regex_sorter import RegexSorter
 from pipescaler.sorters.grayscale_sorter import GrayscaleSorter
 from pipescaler.sorters.size_sorter import SizeSorter
+from pipescaler.sorters.solid_color_sorter import SolidColorSorter
 
 
 ######################################### ALL ##########################################
@@ -27,4 +28,5 @@ __all__: List[str] = [
     "ModeSorter",
     "RegexSorter",
     "SizeSorter",
+    "SolidColorSorter",
 ]

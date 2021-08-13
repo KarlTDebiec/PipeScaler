@@ -162,6 +162,13 @@ class ESRGANProcessor(Processor):
     # region Builtins
 
     def __init__(self, model_infile: str, device: str = "cuda", **kwargs: Any) -> None:
+        """
+        Validates and stores static configuration.
+
+        Arguments:
+            model_infile (str): Path to model infile
+            device (str): Device on which to compute
+        """
         super().__init__(**kwargs)
 
         # Store configuration
@@ -191,10 +198,47 @@ class ESRGANProcessor(Processor):
 
     # endregion
 
-    def __call__(self, infile: str, outfile: str) -> None:
-        self.process_file(
-            infile, outfile, upscaler=self.upscaler, cpu_upscaler=self.cpu_upscaler
-        )
+    # region Methods
+
+    def process_file(self, infile: str, outfile: str) -> None:
+        """
+        Processes infile and writes the resulting output to outfile.
+
+        Arguments:
+            infile (str): Input file
+            outfile (str): Output file
+        """
+
+        # Read image
+        input_image = Image.open(infile)
+        if input_image.mode == "RGB":
+            input_datum = np.array(input_image)
+        elif input_image.mode == "L":
+            input_datum = np.array(input_image.convert("RGB"))
+        else:
+            raise ValueError()
+
+        # Process image
+        try:
+            output_datum = self.upscaler.upscale(input_datum)
+        except RuntimeError as e:
+            if self.cpu_upscaler is not None:
+                warning(
+                    f"{self}: CUDA ESRGAN upscaler raised exception: '{e}'; "
+                    f"trying CPU upscaler"
+                )
+                output_datum = self.cpu_upscaler.upscale(input_datum)
+            else:
+                raise e
+        output_image = Image.fromarray(output_datum)
+        if input_image.mode == "L":
+            output_image = output_image.convert("L")
+
+        # Write image
+        output_image.save(outfile)
+        info(f"{self}: '{outfile}' saved")
+
+    # endregion
 
     # region Class Methods
 
@@ -242,32 +286,6 @@ class ESRGANProcessor(Processor):
             scale_index = cls.get_scale_index(state_dict)
 
         return state_dict, scale_index
-
-    @classmethod
-    def process_file(cls, infile: str, outfile: str, **kwargs: Any) -> None:
-        upscaler = kwargs.get("upscaler")
-        cpu_upscaler = kwargs.get("cpu_upscaler")
-
-        # Read image
-        input_datum = np.array(Image.open(infile).convert("RGB"))
-
-        # Process image
-        try:
-            output_datum = upscaler.upscale(input_datum)
-        except RuntimeError as e:
-            if cpu_upscaler is not None:
-                warning(
-                    f"{cls}: CUDA ESRGAN upscaler raised exception: '{e}'; "
-                    f"trying CPU upscaler"
-                )
-                output_datum = cpu_upscaler.upscale(input_datum)
-            else:
-                raise e
-        output_image = Image.fromarray(output_datum)
-
-        # Write image
-        output_image.save(outfile)
-        info(f"{cls}: '{outfile}' saved")
 
     # endregion
 

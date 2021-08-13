@@ -24,6 +24,13 @@ class Processor(Stage, CLTool):
     # region Builtins
 
     def __init__(self, suffix: Optional[str] = None, **kwargs: Any) -> None:
+        """
+        Validates and stores static configuration.
+
+        Arguments:
+            suffix (Optional[str]): suffix to append to images
+            kwargs (Any): Additional keyword arguments
+        """
         super().__init__(**kwargs)
 
         # Store configuration
@@ -33,6 +40,13 @@ class Processor(Stage, CLTool):
             self.suffix = self.name
 
     def __call__(self, infile: str, outfile: str) -> None:
+        """
+        Processes infile and writes the resulting output to outfile.
+
+        Arguments:
+            infile (str): Input file
+            outfile (str): Output file
+        """
         self.process_file(infile, outfile)
 
     # endregion
@@ -46,6 +60,14 @@ class Processor(Stage, CLTool):
     @property
     def outlets(self) -> List[str]:
         return ["outlet"]
+
+    # endregion
+
+    # region Methods
+
+    @abstractmethod
+    def process_file(cls, infile: str, outfile: str) -> None:
+        raise NotImplementedError()
 
     # endregion
 
@@ -79,10 +101,5 @@ class Processor(Stage, CLTool):
         infile = kwargs.pop("infile")
         outfile = kwargs.pop("outfile")
         cls(**kwargs)(infile, outfile)
-
-    @classmethod
-    @abstractmethod
-    def process_file(cls, infile: str, outfile: str, **kwargs: Any) -> None:
-        raise NotImplementedError()
 
     # endregion

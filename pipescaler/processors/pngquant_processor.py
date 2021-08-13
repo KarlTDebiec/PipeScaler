@@ -6,17 +6,18 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+""""""
 ####################################### MODULES ########################################
 from __future__ import annotations
 
 from argparse import ArgumentParser
-from logging import info
+from logging import debug, info
 from os.path import isfile
-from shutil import copyfile, which
-from subprocess import Popen
+from shutil import copyfile
+from subprocess import PIPE, Popen
 from typing import Any
 
-from pipescaler.common import ExecutableNotFoundError, validate_int
+from pipescaler.common import validate_executable, validate_int
 from pipescaler.core import Processor
 
 
@@ -32,6 +33,15 @@ class PngquantProcessor(Processor):
         floyd_steinberg: bool = True,
         **kwargs: Any,
     ) -> None:
+        """
+        Validates and stores static configuration.
+
+        Arguments:
+        quality (int): minimum quality below which output image will not be saved, and
+          maximum quality above which fewer colors will be used
+        speed (int): speed/quality balance
+        floyd_steinberg (bool): disable Floyd-Steinberg dithering
+        """
         super().__init__(**kwargs)
 
         # Store configuration
@@ -41,21 +51,46 @@ class PngquantProcessor(Processor):
 
     def __call__(self, infile: str, outfile: str) -> None:
         """
-        Scales infile by self.scale and writes the resulting image to outfile.
+        Processes infile and writes the resulting output to outfile.
 
         Arguments:
             infile (str): Input file
             outfile (str): Output file
         """
-        if not which("pngquant"):
-            raise ExecutableNotFoundError("pngquant executable not found in PATH")
-        self.process_file(
-            infile,
-            outfile,
-            quality=self.quality,
-            speed=self.speed,
-            floyd_steinberg=self.floyd_steinberg,
-        )
+        validate_executable("pngquant")
+        super().__call__(infile, outfile)
+
+    # endregion
+
+    # region Methods
+
+    def process_file(self, infile: str, outfile: str) -> None:
+        """
+        Loads image, processes it using pngquant, and saves resulting output
+
+        Arguments:
+            infile (str): Input file
+            outfile (str): Output file
+        """
+
+        # Process image
+        command = f"pngquant --skip-if-larger --force"
+        command += f" --quality {self.quality}"
+        command += f" --speed {self.speed}"
+        if not self.floyd_steinberg:
+            command += f" --nofs"
+        command += f" --output {outfile} {infile} "
+        debug(f"{self}: {command}")
+        child = Popen(command, shell=True, close_fds=True, stdout=PIPE, stderr=PIPE)
+        exitcode = child.wait(10)
+        if exitcode == 98:
+            # pngquant may not save outfile if it is too large or low quality
+            copyfile(infile, outfile)
+        elif exitcode != 0:
+            raise ValueError()  # TODO: Provide useful output
+
+        # Write image
+        info(f"{self}: '{outfile}' saved")
 
     # endregion
 
@@ -94,25 +129,6 @@ class PngquantProcessor(Processor):
         )
 
         return parser
-
-    @classmethod
-    def process_file(cls, infile: str, outfile: str, **kwargs: Any) -> None:
-        quality = kwargs.get("quality", 100)
-        speed = kwargs.get("speed", 1)
-        floyd_steinberg = kwargs.get("floyd_steinberg", True)
-
-        # Scale image
-        command = f"pngquant --skip-if-larger --force"
-        command += f" --quality {quality}"
-        command += f" --speed {speed}"
-        if not floyd_steinberg:
-            command += f" --nofs"
-        command += f" --output {outfile} {infile} "
-        Popen(command, shell=True, close_fds=True).wait()
-        # pngquant may not save outfile if it is too large or low quality
-        if not isfile(outfile):
-            copyfile(infile, outfile)
-        info(f"{cls}: '{outfile}' saved")
 
     # endregion
 

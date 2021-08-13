@@ -24,7 +24,9 @@ from pipescaler.processors.side_channel_processor import SideChannelProcessor
 from pipescaler.processors.texconv_processor import TexconvProcessor
 from pipescaler.processors.threshold_processor import ThresholdProcessor
 from pipescaler.processors.waifu_processor import WaifuProcessor
+from pipescaler.processors.waifu_external_processor import WaifuExternalProcessor
 from pipescaler.processors.xbrz_processor import XbrzProcessor
+from pipescaler.processors.solid_color_processor import SolidColorProcessor
 
 ######################################### ALL ##########################################
 __all__: List[str] = [
@@ -38,8 +40,10 @@ __all__: List[str] = [
     "PngquantProcessor",
     "ResizeProcessor",
     "SideChannelProcessor",
+    "SolidColorProcessor",
     "TexconvProcessor",
     "ThresholdProcessor",
     "WaifuProcessor",
+    "WaifuExternalProcessor",
     "XbrzProcessor",
 ]

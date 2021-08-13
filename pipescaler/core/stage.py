@@ -23,6 +23,14 @@ class Stage(ABC):
     def __init__(
         self, name: Optional[str] = None, desc: Optional[str] = None, **kwargs: Any
     ) -> None:
+        """
+        Validates and stores static configuration.
+
+        Arguments:
+            name (Optional[str]): Name of stage
+            desc (Optional[str]): Description of stage
+            kwargs (Any): Additional keyword arguments
+        """
         if name is not None:
             self.name = name
         else:

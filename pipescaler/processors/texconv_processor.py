@@ -15,7 +15,7 @@ from logging import debug, info
 from os.path import basename, join
 from platform import win32_ver
 from shutil import copyfile, which
-from subprocess import Popen
+from subprocess import PIPE, Popen
 from tempfile import TemporaryDirectory
 from typing import Any, Optional
 
@@ -37,6 +37,17 @@ class TexconvProcessor(Processor):
         format: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Validates and stores static configuration.
+
+        Arguments:
+        mipmaps (bool): whether or not to generate mipmaps
+        sepalpha (bool): whether or not to generate mips alpha channel separately from
+          color channels
+        filetype (Optional[str]): output file type
+        format (Optional[str]): output format
+        kwargs (Any): Additional keyword arguments
+        """
         super().__init__(**kwargs)
 
         # Store configuration
@@ -46,19 +57,59 @@ class TexconvProcessor(Processor):
         self.format = format
 
     def __call__(self, infile: str, outfile: str) -> None:
+        """
+        Processes infile and writes the resulting output to outfile.
+
+        Arguments:
+            infile (str): Input file
+            outfile (str): Output file
+        """
         if not any(win32_ver()):
             raise UnsupportedPlatformError(
                 "TexconvProcessor is only supported on Windows"
             )
         validate_executable("texconv.exe")
-        self.process_file(
-            infile,
-            outfile,
-            mipmaps=self.mipmaps,
-            sepalpha=self.sepalpha,
-            filetype=self.filetype,
-            format=self.format,
-        )
+        super().__call__(infile, outfile)
+
+    # endregion
+
+    # region Methods
+
+    def process_file(self, infile: str, outfile: str) -> None:
+        """
+        Loads image, converts it using texconv, and saves resulting output
+
+        Arguments:
+            infile (str): Input file
+            outfile (str): Output file
+        """
+
+        with TemporaryDirectory() as temp_directory:
+            # Stage image
+            tempfile = join(temp_directory, basename(infile))
+            copyfile(infile, tempfile)
+
+            # Process image
+            command = "texconv.exe"
+            if self.mipmaps:
+                if self.sepalpha:
+                    command += f" -sepalpha"
+            else:
+                command += f" -m 1"
+            if self.filetype:
+                command += f" -ft {self.filetype}"
+            if self.format:
+                command += f" -f {self.format}"
+            command += f" -o {temp_directory} {tempfile}"
+            debug(f"{self}: {command}")
+            child = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)
+            exitcode = child.wait(10)
+            if exitcode != 0:
+                raise ValueError()  # TODO: Provide useful output
+
+            # Write image
+            copyfile(f"{tempfile[:-4]}.dds", outfile)  # TODO: Handle filetypes
+            info(f"{self}: '{outfile}' saved")
 
     # endregion
 
@@ -81,47 +132,18 @@ class TexconvProcessor(Processor):
         parser.add_argument(
             "--sepalpha",
             action="store_true",
-            help="resize/generate mips alpha channel separately from color channels",
+            help="generate mips alpha channel separately from color channels",
         )
         parser.add_argument(
             "--filetype", type=str, help="output file type",
         )
         parser.add_argument(
-            "--format", type=str, help="output format",
+            "--format", default="BC7_UNORM", type=str, help="output format",
         )
 
         return parser
 
-    @classmethod
-    def process_file(cls, infile: str, outfile: str, **kwargs: Any) -> None:
-        mipmaps = kwargs.get("mipmaps", False)
-        sepalpha = kwargs.get("sepalpha", False)
-        filetype = kwargs.get("filetype")
-        format = kwargs.get("format")
-
-        with TemporaryDirectory() as temp_directory:
-            # Stage image
-            tempfile = join(temp_directory, basename(infile))
-            copyfile(infile, tempfile)
-
-            # Process image
-            command = "texconv.exe"
-            if mipmaps:
-                if sepalpha:
-                    command += f" -sepalpha"
-            else:
-                command += f" -m 1"
-            if filetype:
-                command += f" -ft {filetype}"
-            if format:
-                command += f" -f {format}"
-            command += f" -o {temp_directory} {tempfile}"
-            debug(f"{cls}: {command}")
-            Popen(command, shell=True, close_fds=True).wait()
-
-            # Write image
-            copyfile(f"{tempfile[:-4]}.dds", outfile)
-            info(f"{cls}: '{outfile}' saved")
+    # endregion
 
 
 ######################################### MAIN #########################################

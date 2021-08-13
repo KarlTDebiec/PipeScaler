@@ -11,8 +11,7 @@ TODO:
     - [ ] MatchHistogramMerger - Use skimage.transform.match_histograms to match color
 - Improvement
     - [ ] ColorToAlphaSplitter - Create Processor that can fill in alpha
-    - [x] WaifuProcessor - Move mirroring to general function
-    - [x] WaifuProcessor - Switch for command-line application to Python library
+    - [ ] WaifuExternalProcessor - Move mirroring to general function
     - [ ] Processors - Improve logging output of class methods
     - [ ] ScaleRepeater - Implement, read in yaml text file
     - [ ] CopyProcessor - Improve purging; could compare files and only copy over if necessary
@@ -24,11 +23,28 @@ TODO:
     - [ ] LA mode support
 - Update 
     - Processors
+        - [ ] CropProcessor
+            - [x] Documentation
+            - [ ] Testing
+            - [x] Mode support
+        - [ ] ExpandProcessor
+            - [x] Documentation
+            - [ ] Testing
+            - [x] Mode support
+        - [ ] ModeProcessor
+            - [x] Documentation
+            - [ ] Testing
+            - [x] Mode support
         - [ ] PotraceProcessor
+        - [ ] XbrzProcessor
+            - [x] Documentation
+            - [x] Testing
+            - [x] Mode support
     - Sorters
         - [ ] SizeSorter
     - Sources
         - [ ] TexModSource
+        -
 - Update Documentation
     - Mergers
         - [ ] AlphaMerger
@@ -37,10 +53,7 @@ TODO:
     - Processors
         - [ ] AppleScriptProcessor
         - [ ] AutomatorProcessor
-        - [ ] CropProcessor
         - [ ] ESRGANProcessor
-        - [ ] ExpandProcessor
-        - [ ] ModeProcessor
         - [ ] PngquantProcessor
         - [ ] PotraceProcessor
         - [ ] ResizeProcessor

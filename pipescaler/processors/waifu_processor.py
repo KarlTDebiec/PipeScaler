@@ -46,6 +46,15 @@ class WaifuProcessor(Processor):
         device: str = "cuda",
         **kwargs: Any,
     ) -> None:
+        """
+        Validates and stores static configuration.
+
+        Arguments:
+            architecture (str): Model architecture
+            denoise (int): Level of denoising to apply
+            scale (int): Output image scale
+            device (str): Device on which to compute
+        """
         super().__init__(**kwargs)
 
         # Store configuration
@@ -66,9 +75,7 @@ class WaifuProcessor(Processor):
             self.model_1 = model_architectures[self.architecture](3)
             chainer.serializers.load_npz(model_1_infile, self.model_1)
             if self.scale == 2:
-                model_2_infile = join(
-                    model_directory, f"anime_style_noise{self.denoise}_scale_rgb.npz"
-                )
+                model_2_infile = join(model_directory, f"anime_style_scale_rgb.npz")
                 self.model_2 = model_architectures[self.architecture](3)
                 chainer.serializers.load_npz(model_2_infile, self.model_2)
             else:
@@ -85,14 +92,53 @@ class WaifuProcessor(Processor):
 
     # region Methods
 
-    def __call__(self, infile: str, outfile: str) -> None:
-        self.process_file(
-            infile,
-            outfile,
-            model_1=self.model_1,
-            model_2=self.model_2,
-            scale=self.scale,
+    def process_file(self, infile: str, outfile: str) -> None:
+        """
+        Loads image, processes it, and saves resulting output
+
+        Arguments:
+            infile (str): Input file
+            outfile (str): Output file
+        """
+        # Read image
+        input_image = Image.open(infile)
+        if input_image.mode == "RGB":
+            expanded_image = expand_image(input_image, 8, 8, 8, 8)
+        elif input_image.mode == "L":
+            expanded_image = expand_image(input_image.convert("RGB"), 8, 8, 8, 8)
+        else:
+            raise ValueError()
+        expanded_datum = np.array(expanded_image)
+
+        # Process image
+        waifued_datum = blockwise(expanded_datum, self.model_1, 128, 16)
+        waifued_datum = np.clip(waifued_datum, 0, 1) * 255
+        if self.model_2 is not None:
+            waifued_datum = blockwise(waifued_datum, self.model_2, 128, 16)
+            waifued_datum = np.clip(waifued_datum, 0, 1) * 255
+        waifued_image = Image.fromarray(waifued_datum.astype(np.uint8))
+        crop_scale = waifued_datum.shape[0] / expanded_datum.shape[0]
+        cropped_image = crop_image(
+            waifued_image,
+            8 * crop_scale,
+            8 * crop_scale,
+            8 * crop_scale,
+            8 * crop_scale,
         )
+        if cropped_image.size != (
+            input_image.size[0] * self.scale,
+            input_image.size[1] * self.scale,
+        ):
+            cropped_image = cropped_image.resize(
+                (input_image.size[0] * self.scale, input_image.size[1] * self.scale),
+                resample=Image.LANCZOS,
+            )
+        if input_image.mode == "L":
+            cropped_image = cropped_image.convert("L")
+
+        # Write image
+        cropped_image.save(outfile)
+        info(f"{self}: '{outfile}' saved")
 
     # endregion
 
@@ -126,58 +172,20 @@ class WaifuProcessor(Processor):
             help="denoise level (0-4, default: %(default)s)",
         )
         parser.add_argument(
-            "--device",
-            default="cuda",
-            type=cls.str_arg(options=["cpu", "cuda"]),
-            help="device (default: %(default)s)",
-        )
-        parser.add_argument(
             "--scale",
             default=2,
             dest="scale",
             type=cls.int_arg(min_value=1, max_value=2),
             help="scale factor (1 or 2, default: %(default)s)",
         )
+        parser.add_argument(
+            "--device",
+            default="cuda",
+            type=cls.str_arg(options=["cpu", "cuda"]),
+            help="device (default: %(default)s)",
+        )
 
         return parser
-
-    @classmethod
-    def process_file(cls, infile: str, outfile: str, **kwargs: Any) -> None:
-        model_1 = kwargs.get("model_1")
-        model_2 = kwargs.get("model_2")
-        scale = kwargs.get("scale")
-
-        # Read image
-        input_image = Image.open(infile).convert("RGB")
-        expanded_image = expand_image(input_image, 8, 8, 8, 8)
-        expanded_datum = np.array(expanded_image)
-
-        # Process image
-        waifued_datum = blockwise(expanded_datum, model_1, 128, 16)
-        waifued_datum = np.clip(waifued_datum, 0, 1) * 255
-        if model_2 is not None:
-            waifued_datum = blockwise(waifued_datum, model_2, 128, 16)
-            waifued_datum = np.clip(waifued_datum, 0, 1) * 255
-        waifued_image = Image.fromarray(waifued_datum.astype(np.uint8))
-        crop_scale = waifued_datum.shape[0] / expanded_datum.shape[0]
-        cropped_image = crop_image(
-            waifued_image,
-            8 * crop_scale,
-            8 * crop_scale,
-            8 * crop_scale,
-            8 * crop_scale,
-        )
-        if cropped_image.size != (
-            input_image.size[0] * scale,
-            input_image.size[1] * scale,
-        ):
-            cropped_image = cropped_image.resize(
-                input_image.size * scale, resample=Image.LANCZOS
-            )
-
-        # Write image
-        cropped_image.save(outfile)
-        info(f"{cls}: '{outfile}' saved")
 
     # endregion
 

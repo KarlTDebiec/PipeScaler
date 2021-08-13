@@ -22,23 +22,53 @@ from pipescaler.core import Processor
 
 ####################################### CLASSES ########################################
 class ModeProcessor(Processor):
-    modes = ["RGBA", "RGB", "L"]
+    modes = ["RGBA", "RGB", "LA", "L"]
 
     # region Builtins
 
     def __init__(
         self, mode: str = "RGB", background_color: str = "#000000", **kwargs: Any,
     ) -> None:
+        """
+        Validates and stores static configuration.
+
+        Arguments:
+            mode (str): Output mode, default=RGB
+            background_color (str): Background color of image
+        """
         super().__init__(**kwargs)
 
         # Store configuration
         self.mode = validate_str(mode, self.modes)
         self.background_color = ImageColor.getrgb(background_color)  # TODO: Validate
 
-    def __call__(self, infile: str, outfile: str) -> None:
-        self.process_file(
-            infile, outfile, mode=self.mode, background_color=self.background_color
-        )
+    # endregion
+
+    # region Methods
+
+    def process_file(self, infile: str, outfile: str) -> None:
+        """
+        Converts infile mode and writes the resulting output to outfile.
+
+        Arguments:
+            infile (str): Input file
+            outfile (str): Output file
+        """
+        # Read image
+        input_image = Image.open(infile)
+
+        # Convert image
+        if input_image.mode == self.mode:
+            output_image = input_image
+        else:
+            output_image = Image.new("RGBA", input_image.size, self.background_color)
+            output_image.paste(input_image)
+            if self.mode != "RGBA":
+                output_image = output_image.convert(self.mode)
+
+        # Write image
+        output_image.save(outfile)
+        info(f"{self}: '{outfile}' saved")
 
     # endregion
 
@@ -60,41 +90,17 @@ class ModeProcessor(Processor):
             "--mode",
             default="rgba",
             type=cls.str_arg(options=cls.modes),
-            help="image mode ('RGBA', 'RGB', or 'L', default: %(default)s)",
+            help="image mode ('RGBA', 'RGB', 'LA', or 'L', default: %(default)s)",
         )
         parser.add_argument(
             "--background_color",
             default="#000000",
             type=str,
-            help="background color (default: %(default)s)",
+            help="background color of output image; only relevant if input image is "
+            "RGBA or LA (default: %(default)s)",
         )
 
         return parser
-
-    @classmethod
-    def process_file(cls, infile: str, outfile: str, **kwargs: Any) -> None:
-        mode = kwargs.get("mode", "RGB").upper()
-        background_color = kwargs.get("background_color", ImageColor.getrgb("#000000"))
-
-        # Read image
-        input_image = Image.open(infile)
-
-        # Convert image
-        if input_image.mode == mode:
-            output_image = input_image
-        else:
-            output_image = Image.new("RGBA", input_image.size, background_color)
-            output_image.paste(input_image)
-            if mode == "RGBA":
-                pass
-            elif mode == "RGB":
-                output_image = output_image.convert("RGB")
-            elif mode == "L":
-                output_image = output_image.convert("L")
-
-        # Write image
-        output_image.save(outfile)
-        info(f"{cls}: '{outfile}' saved")
 
     # endregion
 

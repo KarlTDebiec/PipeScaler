@@ -33,14 +33,79 @@ class ResizeProcessor(Processor):
     # region Builtins
 
     def __init__(self, scale: float, resample: str = "lanczos", **kwargs: Any) -> None:
+        """
+        Validates and stores static configuration.
+
+        Arguments:
+            scale (float): Output image scale relative to input image
+            resample (str): Resample algorithm
+        """
         super().__init__(**kwargs)
 
         # Store configuration
         self.scale = validate_float(scale, min_value=0)
-        self.resample = validate_str(resample, options=self.resample_methods.keys())
+        self.resample = self.resample_methods[
+            validate_str(resample, options=self.resample_methods.keys())
+        ]
 
-    def __call__(self, infile: str, outfile: str) -> None:
-        self.process_file(infile, outfile, scale=self.scale, resample=self.resample)
+    # endregion
+
+    # region Methods
+
+    def process_file(self, infile: str, outfile: str) -> None:
+        """
+        Rescales infile and writes the resulting output to outfile.
+
+        Arguments:
+            infile (str): Input file
+            outfile (str): Output file
+        """
+
+        # Read image
+        input_image = Image.open(infile)
+        input_datum = np.array(input_image)
+
+        # Scale image
+        size = (
+            round(input_image.size[0] * self.scale),
+            round(input_image.size[1] * self.scale),
+        )
+        if input_image.mode == "RGBA":
+            rgba_datum = np.zeros((size[1], size[0], 4), np.uint8)
+            rgba_datum[:, :, :3] = np.array(
+                Image.fromarray(input_datum[:, :, :3]).resize(
+                    size, resample=self.resample
+                )
+            )
+            rgba_datum[:, :, 3] = np.array(
+                Image.fromarray(input_datum[:, :, 3]).resize(
+                    size, resample=self.resample
+                )
+            )
+            output_image = Image.fromarray(rgba_datum)
+        elif input_image.mode == "RGB":
+            output_image = input_image.resize(size, resample=self.resample)
+        elif input_image.mode == "LA":
+            la_datum = np.zeros((size[1], size[0], 2), np.uint8)
+            la_datum[:, :, 0] = np.array(
+                Image.fromarray(input_datum[:, :, 0]).resize(
+                    size, resample=self.resample
+                )
+            )
+            la_datum[:, :, 1] = np.array(
+                Image.fromarray(input_datum[:, :, 1]).resize(
+                    size, resample=self.resample
+                )
+            )
+            output_image = Image.fromarray(la_datum)
+        elif input_image.mode == "L":
+            output_image = input_image.resize(size, resample=self.resample)
+        else:
+            raise ValueError()
+
+        # Write image
+        output_image.save(outfile)
+        info(f"{self}: '{outfile}' saved")
 
     # endregion
 
@@ -72,33 +137,6 @@ class ResizeProcessor(Processor):
         )
 
         return parser
-
-    @classmethod
-    def process_file(cls, infile: str, outfile: str, **kwargs) -> None:
-        scale = kwargs.get("scale", 2)
-        resample = cls.resample_methods[kwargs.get("resample", "lanczos")]
-
-        # Read image
-        input_image = Image.open(infile)
-
-        # Scale image
-        size = (
-            int(np.round(input_image.size[0] * scale)),
-            int(np.round(input_image.size[1] * scale)),
-        )
-        output_image = input_image.convert("RGB").resize(size, resample=resample)
-        # Combine R, G, and B from RGB with A from RGBA
-        # TODO: Check why this is done, perhaps color is dropped for transparent pixels?
-        if input_image.mode == "RGBA":
-            rgba_image = input_image.resize(size, resample=resample)
-            merged_data = np.zeros((size[1], size[0], 4), np.uint8)
-            merged_data[:, :, :3] = np.array(output_image)
-            merged_data[:, :, 3] = np.array(rgba_image)[:, :, 3]
-            output_image = Image.fromarray(merged_data)
-
-        # Write image
-        output_image.save(outfile)
-        info(f"{cls}: '{outfile}' saved")
 
     # endregion
 

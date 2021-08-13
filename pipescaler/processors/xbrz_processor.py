@@ -51,7 +51,44 @@ class XbrzProcessor(Processor):
             infile (str): Input file
             outfile (str): Output file
         """
-        self.process_file(infile, outfile, scale=self.scale)
+        self.process_file(infile, outfile)
+
+    # endregion
+
+    # region Methods
+
+    def process_file(self, infile: str, outfile: str) -> None:
+        """
+        Scales infile and writes the resulting output to outfile.
+
+        Arguments:
+            infile (str): Input file
+            outfile (str): Output file
+        """
+
+        # Read image
+        input_image = Image.open(infile)
+        mode = input_image.mode
+
+        # Process image
+        if mode in ("RGB", "LA", "L"):
+            input_image = input_image.convert("RGBA")
+        output_image = xbrz.scale_pillow(input_image, self.scale)
+        if mode == "RGBA":
+            pass
+        elif mode == "RGB":
+            output_image = Image.fromarray(np.array(output_image)[:, :, :3])
+        elif mode == "LA":
+            output_image = output_image.convert("LA")
+        elif mode == "L":
+            output_image = Image.fromarray(np.array(output_image)[:, :, :3])
+            output_image = output_image.convert("L")
+        else:
+            raise ValueError()
+
+        # Write image
+        output_image.save(outfile)
+        info(f"{self}: '{outfile}' saved")
 
     # endregion
 
@@ -77,35 +114,6 @@ class XbrzProcessor(Processor):
         )
 
         return parser
-
-    @classmethod
-    def process_file(cls, infile: str, outfile: str, **kwargs: Any) -> None:
-        """
-        Scales infile by scale and writes the resulting image to outfile.
-
-        Arguments:
-            infile (str): Input file
-            outfile (str): Output file
-            scale (int): Factor by which to scale image
-        """
-        scale = validate_int(kwargs.get("scale", 2), 2, 6)
-
-        # Read image
-        input_image = Image.open(infile)
-        mode = input_image.mode
-
-        # Process image
-        if mode in ("RGB", "L"):
-            input_image = input_image.convert("RGBA")
-        output_image = xbrz.scale_pillow(input_image, scale)
-        if mode in ("RGB", "L"):
-            output_image = Image.fromarray(np.array(output_image)[:, :, :3])
-        if mode == "L":
-            output_image = output_image.convert("L")
-
-        # Write image
-        output_image.save(outfile)
-        info(f"{cls}: '{outfile}' saved")
 
     # endregion
 
