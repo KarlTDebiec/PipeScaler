@@ -17,7 +17,7 @@ from os import remove
 from os.path import basename, isfile, splitext
 from shutil import copy, move
 from time import sleep
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 from logging import debug, info
 import yaml
 
@@ -40,10 +40,11 @@ class DirectoryWatcher(CLTool):
         copy_directory: str,
         input_directory: str,
         known_directory: str,
-        known_filenames_list: str,
         move_directory: str,
         purge_directory: str,
         rules: List[Dict[str, str]],
+        known_infile: Optional[str] = None,
+        known_outfile: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -65,8 +66,17 @@ class DirectoryWatcher(CLTool):
         self.input_directory = validate_input_path(
             input_directory, file_ok=False, directory_ok=True
         )
+
         self.known_filenames = parse_file_list(known_directory)
-        self.known_filenames_file = validate_input_path(known_filenames_list)
+        if known_infile is not None:
+            self.known_filenames |= parse_file_list(known_infile)
+        if known_outfile is not None:
+            known_outfile = validate_output_path(known_outfile)
+            with open(known_outfile, "w") as outfile:
+                for filename in sorted(list(self.known_filenames)):
+                    outfile.write(f"{filename}\n")
+                print(f"'{known_outfile}' updated with {len(self.known_filenames)}")
+
         purge_filenames = parse_file_list(purge_directory)
         for filename in purge_filenames:
             if isfile(f"{self.input_directory}/{filename}.png"):
@@ -95,14 +105,6 @@ class DirectoryWatcher(CLTool):
         filenames.sort(key=self.sort, reverse=True)
         for filename in filenames:
             self.process_file(filename)
-
-        known_filenames = parse_file_list(self.known_filenames_file)
-        known_filenames |= parse_file_list(self.input_directory, False)
-        with open(self.known_filenames_file, "w") as outfile:
-            for filename in sorted(list(known_filenames)):
-                if self.check_file(filename) in ("known", "copy"):
-                    outfile.write(f"{filename}\n")
-            print(f"'{self.known_filenames_file}' updated")
 
         self.watch_dump_directory()
 
