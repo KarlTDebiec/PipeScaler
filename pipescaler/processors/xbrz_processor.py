@@ -68,23 +68,22 @@ class XbrzProcessor(Processor):
 
         # Read image
         input_image = Image.open(infile)
-        mode = input_image.mode
-
-        # Process image
-        if mode in ("RGB", "LA", "L"):
-            input_image = input_image.convert("RGBA")
-        output_image = xbrz.scale_pillow(input_image, self.scale)
-        if mode == "RGBA":
-            pass
-        elif mode == "RGB":
-            output_image = Image.fromarray(np.array(output_image)[:, :, :3])
-        elif mode == "LA":
-            output_image = output_image.convert("LA")
-        elif mode == "L":
-            output_image = Image.fromarray(np.array(output_image)[:, :, :3])
-            output_image = output_image.convert("L")
+        if input_image.mode == "RGBA":
+            rgba_image = input_image
+        elif input_image.mode in ("RGB", "LA", "L"):
+            rgba_image = input_image.convert("RGBA")
         else:
             raise ValueError()
+
+        # Process image
+        output_image = xbrz.scale_pillow(rgba_image, self.scale)
+        if input_image.mode == "RGB":
+            output_image = Image.fromarray(np.array(output_image)[:, :, :3])
+        elif input_image.mode == "LA":
+            output_image = output_image.convert("LA")
+        elif input_image.mode == "L":
+            output_image = Image.fromarray(np.array(output_image)[:, :, :3])
+            output_image = output_image.convert("L")
 
         # Write image
         output_image.save(outfile)

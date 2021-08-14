@@ -11,7 +11,7 @@ from inspect import getfile
 from os import getcwd
 from os.path import getsize, join
 from platform import win32_ver
-from subprocess import Popen
+from subprocess import PIPE, Popen
 
 import pytest
 from PIL import Image
@@ -78,8 +78,8 @@ def infile(request):
 
 ######################################## TESTS #########################################
 def test_help(processor: Processor) -> None:
-    command = f"python {getfile(processor)} -h"
-    child = Popen(command, shell=True)
+    command = f"coverage run {getfile(processor)} -h"
+    child = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)
     exitcode = child.wait()
     if exitcode != 0:
         raise ValueError()
@@ -89,10 +89,10 @@ def test_crop(infile: str) -> None:
     with temporary_filename(".png") as outfile:
         input_image = Image.open(infile)
 
-        command = f"python {getfile(CropProcessor)} -vv "
+        command = f"coverage run {getfile(CropProcessor)} "
         command += " --pixels 4 4 4 4"
         command += f" {infile} {outfile}"
-        child = Popen(command, shell=True)
+        child = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)
         exitcode = child.wait()
         assert exitcode == 0
 
@@ -121,10 +121,10 @@ def test_esrgan(infile: str, model_infile: str) -> None:
     with temporary_filename(".png") as outfile:
         input_image = Image.open(infile)
 
-        command = f"python {getfile(ESRGANProcessor)} -vv"
+        command = f"coverage run {getfile(ESRGANProcessor)}"
         command += f" --model {model_infile}"
         command += f" {infile} {outfile}"
-        child = Popen(command, shell=True)
+        child = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)
         exitcode = child.wait()
         assert exitcode == 0
 
@@ -136,10 +136,10 @@ def test_expand(infile: str) -> None:
     with temporary_filename(".png") as outfile:
         input_image = Image.open(infile)
 
-        command = f"python {getfile(ExpandProcessor)} -vv"
+        command = f"coverage run {getfile(ExpandProcessor)}"
         command += " --pixels 4 4 4 4"
         command += f" {infile} {outfile}"
-        child = Popen(command, shell=True)
+        child = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)
         exitcode = child.wait()
         assert exitcode == 0
 
@@ -147,13 +147,49 @@ def test_expand(infile: str) -> None:
             assert input_image.mode == output_image.mode
 
 
+@pytest.mark.parametrize(
+    ("infile", "mode"),
+    [
+        (infiles["L"], "L"),
+        (infiles["L"], "LA"),
+        (infiles["L"], "RGB"),
+        (infiles["L"], "RGBA"),
+        (infiles["LA"], "L"),
+        (infiles["LA"], "LA"),
+        (infiles["LA"], "RGB"),
+        (infiles["LA"], "RGBA"),
+        (infiles["RGB"], "L"),
+        (infiles["RGB"], "LA"),
+        (infiles["RGB"], "RGB"),
+        (infiles["RGB"], "RGBA"),
+        (infiles["RGBA"], "L"),
+        (infiles["RGBA"], "LA"),
+        (infiles["RGBA"], "RGB"),
+        (infiles["RGBA"], "RGBA"),
+    ],
+)
+def test_mode(infile: str, mode: str) -> None:
+    with temporary_filename(".png") as outfile:
+        input_image = Image.open(infile)
+
+        command = f"coverage run {getfile(ModeProcessor)}"
+        command += f" --mode {mode}"
+        command += f" {infile} {outfile}"
+        child = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)
+        exitcode = child.wait()
+        assert exitcode == 0
+
+        with Image.open(outfile) as output_image:
+            assert output_image.mode == mode
+
+
 def test_pngquant(infile: str) -> None:
     with temporary_filename(".png") as outfile:
         input_image = Image.open(infile)
 
-        command = f"python {getfile(PngquantProcessor)} -vv"
+        command = f"coverage run {getfile(PngquantProcessor)}"
         command += f" {infile} {outfile}"
-        child = Popen(command, shell=True)
+        child = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)
         exitcode = child.wait()
         assert exitcode == 0
 
@@ -167,10 +203,10 @@ def test_resize(infile: str) -> None:
     with temporary_filename(".png") as outfile:
         input_image = Image.open(infile)
 
-        command = f"python {getfile(ResizeProcessor)} -vv"
+        command = f"coverage run {getfile(ResizeProcessor)}"
         command += " --scale 2"
         command += f" {infile} {outfile}"
-        child = Popen(command, shell=True)
+        child = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)
         exitcode = child.wait()
         assert exitcode == 0
 
@@ -184,9 +220,9 @@ def test_solid_color(infile: str) -> None:
     with temporary_filename(".png") as outfile:
         input_image = Image.open(infile)
 
-        command = f"python {getfile(SolidColorProcessor)} -vv"
+        command = f"coverage run {getfile(SolidColorProcessor)}"
         command += f" {infile} {outfile}"
-        child = Popen(command, shell=True)
+        child = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)
         exitcode = child.wait()
         assert exitcode == 0
 
@@ -200,9 +236,9 @@ def test_texconv(infile: str) -> None:
     with temporary_filename(".png") as outfile:
         input_image = Image.open(infile)
 
-        command = f"python {getfile(TexconvProcessor)} -vv"
+        command = f"coverage run {getfile(TexconvProcessor)}"
         command += f" {infile} {outfile}"
-        child = Popen(command, shell=True)
+        child = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)
         exitcode = child.wait()
         assert exitcode == 0
 
@@ -237,12 +273,12 @@ def test_waifu(infile: str, architecture: str, denoise: int, scale: int) -> None
     with temporary_filename(".png") as outfile:
         input_image = Image.open(infile)
 
-        command = f"python {getfile(WaifuProcessor)} -vv"
+        command = f"coverage run {getfile(WaifuProcessor)}"
         command += f" --architecture {architecture}"
         command += f" --denoise {denoise}"
         command += f" --scale {scale}"
         command += f" {infile} {outfile}"
-        child = Popen(command, shell=True)
+        child = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)
         exitcode = child.wait()
         assert exitcode == 0
 
@@ -265,12 +301,12 @@ def test_waifu_external(infile: str, imagetype: str, denoise: int, scale: int) -
     with temporary_filename(".png") as outfile:
         input_image = Image.open(infile)
 
-        command = f"python {getfile(WaifuExternalProcessor)} -vv"
+        command = f"coverage run {getfile(WaifuExternalProcessor)}"
         command += f" --type {imagetype}"
         command += f" --denoise {denoise}"
         command += f" --scale {scale}"
         command += f" {infile} {outfile}"
-        child = Popen(command, shell=True)
+        child = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)
         exitcode = child.wait()
         assert exitcode == 0
 
@@ -284,9 +320,9 @@ def test_xbrz(infile: str) -> None:
     with temporary_filename(".png") as outfile:
         input_image = Image.open(infile)
 
-        command = f"python {getfile(XbrzProcessor)} -vv"
+        command = f"coverage run {getfile(XbrzProcessor)}"
         command += f" {infile} {outfile}"
-        child = Popen(command, shell=True)
+        child = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)
         exitcode = child.wait()
         assert exitcode == 0
 

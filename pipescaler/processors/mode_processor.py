@@ -88,7 +88,7 @@ class ModeProcessor(Processor):
         # Operations
         parser.add_argument(
             "--mode",
-            default="rgba",
+            default="RGBA",
             type=cls.str_arg(options=cls.modes),
             help="image mode ('RGBA', 'RGB', 'LA', or 'L', default: %(default)s)",
         )
