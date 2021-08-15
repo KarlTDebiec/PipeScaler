@@ -13,12 +13,27 @@ from os import listdir
 from os.path import basename, splitext
 from typing import List, Optional, Set, Union
 
+import numpy as np
 from PIL import Image
 
 from pipescaler.common import NotAFileError, validate_input_path
 
 
 ###################################### FUNCTIONS #######################################
+def remove_palette_from_image(image: Image.Image):
+    pal = np.reshape(image.getpalette(), (-1, 3))
+    if np.all(pal[:, 0] == pal[:, 1]) and np.all(pal[:, 0] == pal[:, 2]):
+        if "transparency" in image.info:
+            return image.convert("LA")
+        else:
+            return image.convert("L")
+    else:
+        if "transparency" in image.info:
+            return image.convert("RGBA")
+        else:
+            return image.convert("RGB")
+
+
 def crop_image(
     image: Image.Image, left: int = 0, top: int = 0, right: int = 0, bottom: int = 0
 ) -> Image.Image:

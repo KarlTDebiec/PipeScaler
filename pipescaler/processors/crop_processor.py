@@ -55,10 +55,14 @@ class CropProcessor(Processor):
 
         # Read image
         image = Image.open(infile)
+        if (
+            image.size[0] < self.left + self.right
+            or image.size[1] < self.top + self.bottom
+        ):
+            raise ValueError()
 
         # Expand image
         cropped = crop_image(image, self.left, self.top, self.right, self.bottom)
-        # TODO: Validate that size is viable
 
         # Write image
         cropped.save(outfile)

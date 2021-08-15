@@ -39,11 +39,10 @@ class Terminus(Stage, CLTool):
 
     # endregion
 
-    # region Class Methods
+    # region Methods
 
-    @classmethod
     @abstractmethod
-    def process_file(cls, inlet: str, outfile: str, **kwargs: Any) -> None:
+    def process_file(cls, inlet: str, outfile: str) -> None:
         raise NotImplementedError()
 
     # endregion

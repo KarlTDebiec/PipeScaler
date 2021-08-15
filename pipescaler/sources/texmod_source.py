@@ -14,7 +14,7 @@ from pipescaler.core import Source
 
 
 ####################################### CLASSES ########################################
-class TexModSource(Source):
+class TexmodSource(Source):
 
     # region Static Methods
 

@@ -14,7 +14,7 @@ from typing import List
 from pipescaler.sources.citra_source import CitraSource
 from pipescaler.sources.directory_source import DirectorySource
 from pipescaler.sources.dolphin_source import DolphinSource
-from pipescaler.sources.texmod_source import TexModSource
+from pipescaler.sources.texmod_source import TexmodSource
 
 ######################################### ALL ##########################################
-__all__: List[str] = ["CitraSource", "DirectorySource", "DolphinSource", "TexModSource"]
+__all__: List[str] = ["CitraSource", "DirectorySource", "DolphinSource", "TexmodSource"]

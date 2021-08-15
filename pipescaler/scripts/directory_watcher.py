@@ -13,12 +13,13 @@ from __future__ import annotations
 import logging
 import re
 from argparse import ArgumentParser
+from logging import debug, info
 from os import remove
 from os.path import basename, isfile, splitext
 from shutil import copy, move
 from time import sleep
 from typing import Any, Dict, List, Optional
-from logging import debug, info
+
 import yaml
 
 from pipescaler.common import (
@@ -39,12 +40,12 @@ class DirectoryWatcher(CLTool):
         self,
         copy_directory: str,
         input_directory: str,
-        known_directory: str,
+        classified_directories: str,
         move_directory: str,
-        purge_directory: str,
         rules: List[Dict[str, str]],
-        known_infile: Optional[str] = None,
-        known_outfile: Optional[str] = None,
+        observed_filenames_infile: Optional[str] = None,
+        observed_filenames_outfile: Optional[str] = None,
+        purge_directory: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -67,24 +68,26 @@ class DirectoryWatcher(CLTool):
             input_directory, file_ok=False, directory_ok=True
         )
 
-        self.known_filenames = parse_file_list(known_directory)
-        if known_infile is not None:
-            self.known_filenames |= parse_file_list(known_infile)
-        if known_outfile is not None:
-            known_outfile = validate_output_path(known_outfile)
-            with open(known_outfile, "w") as outfile:
-                for filename in sorted(list(self.known_filenames)):
-                    outfile.write(f"{filename}\n")
-                print(f"'{known_outfile}' updated with {len(self.known_filenames)}")
+        self.classified_filenames = parse_file_list(classified_directories)
 
-        purge_filenames = parse_file_list(purge_directory)
-        for filename in purge_filenames:
-            if isfile(f"{self.input_directory}/{filename}.png"):
-                remove(f"{self.input_directory}/{filename}.png")
-                info(f"'{filename}' purged")
-            if isfile(f"{purge_directory}/{filename}.png"):
-                remove(f"{purge_directory}/{filename}.png")
-                info(f"'{filename}' removed from purge directory")
+        if purge_directory is not None:
+            self.purge_directory = validate_input_path(
+                purge_directory, file_ok=False, directory_ok=True
+            )
+        else:
+            self.purge_directory = None
+
+        if observed_filenames_infile is not None:
+            self.observed_filenames = parse_file_list(observed_filenames_infile)
+        else:
+            self.observed_filenames = set()
+
+        if observed_filenames_outfile is not None:
+            self.observed_filenames_outfile = validate_output_path(
+                observed_filenames_outfile
+            )
+        else:
+            self.observed_filenames_outfile = None
 
         # Operations
         self.rules = [{re.compile(next(iter(r))): r[next(iter(r))]} for r in rules]
@@ -93,37 +96,31 @@ class DirectoryWatcher(CLTool):
         self.copy_directory = validate_output_path(
             copy_directory, file_ok=False, directory_ok=True
         )
-        for filename in parse_file_list(self.copy_directory, full_paths=True):
-            remove(filename)
         self.move_directory = validate_output_path(
             move_directory, file_ok=False, directory_ok=True
         )
 
     def __call__(self, *args, **kwargs):
-        filenames = parse_file_list(self.input_directory, False)
-        filenames = list(filenames)
-        filenames.sort(key=self.sort, reverse=True)
-        for filename in filenames:
-            self.process_file(filename)
 
-        self.watch_dump_directory()
+        # Prepare to run
+        self.purge_copy_directory()
+        self.purge_purge_directory()
 
-    def check_file(self, filename):
+        # Run on existing files
+        self.process_existing_files_in_input_directory()
+        self.write_observed_filenames_to_outfile()
 
-        if filename in self.known_filenames:
-            return "known"
+        # Watch for new files
+        self.watch_new_files_in_input_directory()
 
-        for rule in self.rules:
-            regex = next(iter(rule))
-            action = rule[next(iter(rule))]
-            if regex.match(filename):
-                return action
+    # endregion
 
-        return "copy"
+    # region Methods
 
-    def process_file(self, filename):
-        status = self.check_file(filename)
+    def perform_operation_for_filename(self, filename):
+        status = self.select_operation_for_filename(filename)
         if status == "known":
+            self.observed_filenames.add(filename)
             debug(f"'{filename}' known")
         elif status == "ignore":
             debug(f"'{filename}' ignored")
@@ -145,7 +142,42 @@ class DirectoryWatcher(CLTool):
         else:
             raise ValueError()
 
-    def watch_dump_directory(self):
+    def process_existing_files_in_input_directory(self):
+        filenames = parse_file_list(self.input_directory, False)
+        filenames = list(filenames)
+        filenames.sort(reverse=True)
+        for filename in filenames:
+            self.perform_operation_for_filename(filename)
+
+    def purge_copy_directory(self):
+        for filename in parse_file_list(self.copy_directory, full_paths=True):
+            remove(filename)
+
+    def purge_purge_directory(self):
+        if self.purge_directory is not None:
+            purge_filenames = parse_file_list(self.purge_directory)
+            for filename in purge_filenames:
+                if isfile(f"{self.input_directory}/{filename}.png"):
+                    remove(f"{self.input_directory}/{filename}.png")
+                    info(f"'{filename}' purged")
+                if isfile(f"{self.purge_directory}/{filename}.png"):
+                    remove(f"{self.purge_directory}/{filename}.png")
+                    info(f"'{filename}' removed from purge directory")
+
+    def select_operation_for_filename(self, filename):
+
+        if filename in self.classified_filenames:
+            return "known"
+
+        for rule in self.rules:
+            regex = next(iter(rule))
+            action = rule[next(iter(rule))]
+            if regex.match(filename):
+                return action
+
+        return "copy"
+
+    def watch_new_files_in_input_directory(self):
         try:
             from watchdog.events import FileSystemEventHandler
             from watchdog.observers import Observer
@@ -158,7 +190,7 @@ class DirectoryWatcher(CLTool):
 
             def on_created(self, event):
                 filename = splitext(basename(event.key[1]))[0]
-                self.host.process_file(filename)
+                self.host.perform_operation_for_filename(filename)
 
         event_handler = FileCreatedEventHandler(self)
         observer = Observer()
@@ -170,6 +202,16 @@ class DirectoryWatcher(CLTool):
         except KeyboardInterrupt:
             observer.stop()
         observer.join()
+
+    def write_observed_filenames_to_outfile(self):
+        if self.observed_filenames_outfile is not None:
+            with open(self.observed_filenames_outfile, "w") as outfile:
+                for filename in sorted(list(self.observed_filenames)):
+                    outfile.write(f"{filename}\n")
+                print(
+                    f"'{self.observed_filenames_outfile}' updated with "
+                    f"{len(self.observed_filenames)} filenames"
+                )
 
     # endregion
 
@@ -207,23 +249,6 @@ class DirectoryWatcher(CLTool):
         tool()
 
     # endregion
-
-    @staticmethod
-    def sort(filename):
-        components = splitext(basename(filename))[0].split("_")
-        if len(components) == 4:
-            size = components[1]
-            code = components[2]
-        elif len(components) == 5:
-            size = components[1]
-            code = components[3]
-        elif len(components) == 6:
-            size = components[1]
-            code = components[3]
-        else:
-            raise ValueError()
-        width, height = size.split("x")
-        return int(f"1{int(width):04d}{int(height):04d}{int(code, 16):022d}")
 
 
 ######################################### MAIN #########################################

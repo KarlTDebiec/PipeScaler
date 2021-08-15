@@ -32,7 +32,11 @@ from pipescaler.common import (
     validate_int,
     validate_str,
 )
-from pipescaler.core import Processor
+from pipescaler.core import (
+    Processor,
+    UnsupportedImageModeError,
+    remove_palette_from_image,
+)
 
 
 ####################################### CLASSES ########################################
@@ -102,12 +106,17 @@ class WaifuExternalProcessor(Processor):
 
         # Read image
         input_image = Image.open(infile)
+        if input_image.mode == "P":
+            input_image = remove_palette_from_image(input_image)
         if input_image.mode == "RGB":
             temp_image = input_image
         elif input_image.mode == "L":
             temp_image = input_image.convert("RGB")
         else:
-            raise ValueError()
+            raise UnsupportedImageModeError(
+                f"Image mode '{input_image.mode}' of image '{infile}'"
+                f" is not supported by {type(self)}"
+            )
         tempfile = NamedTemporaryFile(delete=False, suffix=".png")
         if self.expand:
             w, h = temp_image.size

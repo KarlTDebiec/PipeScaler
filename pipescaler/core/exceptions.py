@@ -13,3 +13,7 @@ class TerminusReached(Exception):
 
 class UnsupportedPlatformError(OSError):
     pass
+
+
+class UnsupportedImageModeError(Exception):
+    pass

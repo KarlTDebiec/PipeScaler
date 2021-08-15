@@ -15,7 +15,11 @@ from typing import Any, Dict
 import numpy as np
 from PIL import Image
 
-from pipescaler.core import Splitter
+from pipescaler.core import (
+    Splitter,
+    UnsupportedImageModeError,
+    remove_palette_from_image,
+)
 
 
 ####################################### CLASSES ########################################
@@ -27,24 +31,32 @@ class NormalSplitter(Splitter):
         outfiles = {k: kwargs.get(k) for k in self.outlets}
 
         # Read image
-        rgb = Image.open(infile)
+        input_image = Image.open(infile)
+        if input_image.mode == "P":
+            input_image = remove_palette_from_image(input_image)
+        if input_image.mode != "RGB":
+            raise UnsupportedImageModeError(
+                f"Image mode '{input_image.mode}' of image '{infile}'"
+                f" is not supported by {type(self)}"
+            )
 
         # Split image
-        r_datum = np.array(rgb)[:, :, 0]
-        g_datum = np.array(rgb)[:, :, 1]
-        b_datum = np.array(rgb)[:, :, 2]
-        b_datum = ((b_datum.astype(np.float) - 128) * 2).astype(np.uint8)
-        r = Image.fromarray(r_datum)
-        g = Image.fromarray(g_datum)
-        b = Image.fromarray(b_datum)
+        x_datum = np.array(input_image)[:, :, 0]
+        y_datum = np.array(input_image)[:, :, 1]
+        z_datum = np.clip(
+            (np.array(input_image)[:, :, 2].astype(np.float) - 128) * 2, 0, 255
+        ).astype(np.uint8)
+        x_image = Image.fromarray(x_datum)
+        y_image = Image.fromarray(y_datum)
+        z_image = Image.fromarray(z_datum)
 
         # Write images
-        r.save(outfiles["r"])
-        info(f"'{self}: '{outfiles['r']}' saved")
-        g.save(outfiles["g"])
-        info(f"'{self}: '{outfiles['g']}' saved")
-        b.save(outfiles["b"])
-        info(f"'{self}: '{outfiles['b']}' saved")
+        x_image.save(outfiles["x"])
+        info(f"'{self}: '{outfiles['x']}' saved")
+        y_image.save(outfiles["y"])
+        info(f"'{self}: '{outfiles['y']}' saved")
+        z_image.save(outfiles["z"])
+        info(f"'{self}: '{outfiles['z']}' saved")
 
         return outfiles
 
@@ -54,6 +66,6 @@ class NormalSplitter(Splitter):
 
     @property
     def outlets(self):
-        return ["r", "g", "b"]
+        return ["x", "y", "z"]
 
     # endregion

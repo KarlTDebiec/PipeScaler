@@ -18,7 +18,11 @@ import numpy as np
 from PIL import Image
 
 from pipescaler.common import validate_float, validate_str
-from pipescaler.core import Processor
+from pipescaler.core import (
+    Processor,
+    UnsupportedImageModeError,
+    remove_palette_from_image,
+)
 
 
 ####################################### CLASSES ########################################
@@ -63,6 +67,8 @@ class ResizeProcessor(Processor):
 
         # Read image
         input_image = Image.open(infile)
+        if input_image.mode == "P":
+            input_image = remove_palette_from_image(input_image)
         input_datum = np.array(input_image)
 
         # Scale image
@@ -101,7 +107,10 @@ class ResizeProcessor(Processor):
         elif input_image.mode == "L":
             output_image = input_image.resize(size, resample=self.resample)
         else:
-            raise ValueError()
+            raise UnsupportedImageModeError(
+                f"Image mode '{input_image.mode}' of image '{infile}'"
+                f" is not supported by {type(self)}"
+            )
 
         # Write image
         output_image.save(outfile)

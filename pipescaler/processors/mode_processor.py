@@ -17,7 +17,7 @@ from typing import Any
 from PIL import Image, ImageColor
 
 from pipescaler.common import validate_str
-from pipescaler.core import Processor
+from pipescaler.core import Processor, remove_palette_from_image
 
 
 ####################################### CLASSES ########################################
@@ -56,6 +56,8 @@ class ModeProcessor(Processor):
         """
         # Read image
         input_image = Image.open(infile)
+        if input_image.mode == "P":
+            full_space_image = remove_palette_from_image(input_image)
 
         # Convert image
         if input_image.mode == self.mode:

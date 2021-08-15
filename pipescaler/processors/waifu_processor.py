@@ -26,7 +26,13 @@ from pipescaler.common import (
     validate_int,
     validate_str,
 )
-from pipescaler.core import Processor, crop_image, expand_image
+from pipescaler.core import (
+    Processor,
+    UnsupportedImageModeError,
+    crop_image,
+    expand_image,
+    remove_palette_from_image,
+)
 
 ###################################### VARIABLES #######################################
 model_architectures = {k.lower(): v for k, v in archs.items()}
@@ -102,12 +108,17 @@ class WaifuProcessor(Processor):
         """
         # Read image
         input_image = Image.open(infile)
+        if input_image.mode == "P":
+            input_image = remove_palette_from_image(input_image)
         if input_image.mode == "RGB":
             expanded_image = expand_image(input_image, 8, 8, 8, 8)
         elif input_image.mode == "L":
             expanded_image = expand_image(input_image.convert("RGB"), 8, 8, 8, 8)
         else:
-            raise ValueError()
+            raise UnsupportedImageModeError(
+                f"Image mode '{input_image.mode}' of image '{infile}'"
+                f" is not supported by {type(self)}"
+            )
         expanded_datum = np.array(expanded_image)
 
         # Process image

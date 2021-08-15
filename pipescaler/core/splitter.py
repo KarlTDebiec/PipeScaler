@@ -31,7 +31,7 @@ class Splitter(Stage, ABC):
         else:
             self.suffixes = {outlet: outlet for outlet in self.outlets}
 
-    def __call__(self, infile: str) -> Dict[str, str]:
+    def __call__(self, infile: str, **kwargs: Any) -> Dict[str, str]:
         raise NotImplementedError()
 
     # endregion

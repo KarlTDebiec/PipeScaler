@@ -15,7 +15,11 @@ from typing import Any, Dict
 import numpy as np
 from PIL import Image
 
-from pipescaler.core import Splitter
+from pipescaler.core import (
+    Splitter,
+    UnsupportedImageModeError,
+    remove_palette_from_image,
+)
 
 
 ####################################### CLASSES ########################################
@@ -27,19 +31,28 @@ class AlphaSplitter(Splitter):
         outfiles = {k: kwargs.get(k) for k in self.outlets}
 
         # Read image
-        rgba = Image.open(infile)
-        if rgba.mode != "RGBA":
-            raise ValueError()
+        input_image = Image.open(infile)
+        if input_image.mode == "P":
+            input_image = remove_palette_from_image(input_image)
+        if input_image.mode not in ("LA", "RGBA"):
+            raise UnsupportedImageModeError(
+                f"Image mode '{input_image.mode}' of image '{infile}'"
+                f" is not supported by {type(self)}"
+            )
 
-        # Split images
-        rgb = Image.fromarray(np.array(rgba)[:, :, :3])
-        a = Image.fromarray(np.array(rgba)[:, :, 3])
+        # Split image
+        if input_image.mode == "LA":
+            color_image = Image.fromarray(np.array(input_image)[:, :, 0])
+            alpha_image = Image.fromarray(np.array(input_image)[:, :, 1])
+        else:
+            color_image = Image.fromarray(np.array(input_image)[:, :, :3])
+            alpha_image = Image.fromarray(np.array(input_image)[:, :, 3])
 
         # Write images
-        rgb.save(outfiles["rgb"])
-        info(f"{self}: '{outfiles['rgb']}' saved")
-        a.save(outfiles["a"])
-        info(f"{self}: '{outfiles['a']}' saved")
+        color_image.save(outfiles["color"])
+        info(f"{self}: '{outfiles['color']}' saved")
+        alpha_image.save(outfiles["alpha"])
+        info(f"{self}: '{outfiles['alpha']}' saved")
 
         return outfiles
 
@@ -49,6 +62,6 @@ class AlphaSplitter(Splitter):
 
     @property
     def outlets(self):
-        return ["rgb", "a"]
+        return ["color", "alpha"]
 
     # endregion

@@ -31,12 +31,11 @@ from pipescaler.core import (
     Splitter,
     Stage,
     Terminus,
+    TerminusReached,
     UnsupportedPlatformError,
 )
 
-
 ####################################### CLASSES ########################################
-from pipescaler.core.exceptions import TerminusReached
 
 
 class Pipeline:

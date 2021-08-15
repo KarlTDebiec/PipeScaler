@@ -19,7 +19,11 @@ import xbrz
 from PIL import Image
 
 from pipescaler.common import validate_int
-from pipescaler.core import Processor
+from pipescaler.core import (
+    Processor,
+    UnsupportedImageModeError,
+    remove_palette_from_image,
+)
 
 
 ####################################### CLASSES ########################################
@@ -68,12 +72,17 @@ class XbrzProcessor(Processor):
 
         # Read image
         input_image = Image.open(infile)
+        if input_image.mode == "P":
+            input_image = remove_palette_from_image(input_image)
         if input_image.mode == "RGBA":
             rgba_image = input_image
         elif input_image.mode in ("RGB", "LA", "L"):
             rgba_image = input_image.convert("RGBA")
         else:
-            raise ValueError()
+            raise UnsupportedImageModeError(
+                f"Image mode '{input_image.mode}' of image '{infile}'"
+                f" is not supported by {type(self)}"
+            )
 
         # Process image
         output_image = xbrz.scale_pillow(rgba_image, self.scale)

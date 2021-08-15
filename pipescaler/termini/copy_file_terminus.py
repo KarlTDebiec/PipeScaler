@@ -26,18 +26,17 @@ class CopyFileTerminus(Terminus):
 
     # region Builtins
 
-    def __init__(
-        self, output_directory: str, purge: bool = False, **kwargs: Any
-    ) -> None:
+    def __init__(self, directory: str, purge: bool = False, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
         # Store configuration
         self.directory = validate_output_path(
-            output_directory, file_ok=False, directory_ok=True
+            directory, file_ok=False, directory_ok=True
         )
         # TODO: Move to validate_output_path
         if not exists(self.directory):
             makedirs(self.directory)
+            info(f"{self}: '{self.directory}' created")
 
         if purge:
             for filename in parse_file_list(self.directory, True):
@@ -46,20 +45,19 @@ class CopyFileTerminus(Terminus):
 
     # endregion
 
-    # region Class Methods
+    # region Methods
 
-    @classmethod
-    def process_file(cls, infile: str, outfile: str, **kwargs) -> None:
+    def process_file(self, infile: str, outfile: str, **kwargs) -> None:
         if isfile(outfile):
             infile_md5sum = md5(open(infile, "rb").read()).hexdigest()
             outfile_md5sum = md5(open(outfile, "rb").read()).hexdigest()
             if infile_md5sum == outfile_md5sum:
-                info(f"{cls}: '{outfile}' unchanged; not overwritten")
+                info(f"{self}: '{outfile}' unchanged; not overwritten")
             else:
                 copyfile(infile, outfile)
-                info(f"{cls}: '{outfile}' changed; overwritten")
+                info(f"{self}: '{outfile}' changed; overwritten")
         else:
             copyfile(infile, outfile)
-            info(f"{cls}: '{outfile}' saved")
+            info(f"{self}: '{outfile}' saved")
 
     # endregion
