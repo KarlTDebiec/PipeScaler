@@ -27,6 +27,8 @@ from pipescaler.core.exceptions import (
 from pipescaler.core.misc import (
     crop_image,
     expand_image,
+    gaussian_smooth_image,
+    normal_map_from_heightmap,
     parse_file_list,
     remove_palette_from_image,
 )
@@ -49,6 +51,8 @@ __all__: List[str] = [
     "UnsupportedPlatformError",
     "crop_image",
     "expand_image",
+    "gaussian_smooth_image",
+    "normal_map_from_heightmap",
     "parse_file_list",
     "remove_palette_from_image",
 ]

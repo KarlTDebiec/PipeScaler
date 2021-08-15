@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/processors/expand_processor.py
+#   pipescaler/processors/height_to_normal_processor.py
 #
 #   Copyright (C) 2020-2021 Karl T Debiec
 #   All rights reserved.
@@ -12,32 +12,42 @@ from __future__ import annotations
 
 from argparse import ArgumentParser
 from logging import info
-from typing import Any, Tuple
+from typing import Any, Optional, Tuple
 
 from PIL import Image
 
-from pipescaler.common import validate_ints
-from pipescaler.core import Processor, expand_image
+from pipescaler.common import validate_float
+from pipescaler.core import (
+    Processor,
+    UnsupportedImageModeError,
+    crop_image,
+    expand_image,
+    gaussian_smooth_image,
+    normal_map_from_heightmap,
+    remove_palette_from_image,
+)
 
 
 ####################################### CLASSES ########################################
-class ExpandProcessor(Processor):
+class HeightToNormalProcessor(Processor):
 
     # region Builtins
 
-    def __init__(self, pixels: Tuple[int], **kwargs: Any) -> None:
+    def __init__(self, sigma: Optional[int] = None, **kwargs: Any) -> None:
         """
         Validates and stores static configuration.
 
         Arguments:
-            pixels (Tuple[int]): Number of pixels to add to left, top, right, and bottom
+            pixels (Tuple[int]): Number of pixels to remove from left, top, right, and
+              bottom
         """
         super().__init__(**kwargs)
 
         # Store configuration
-        self.left, self.top, self.right, self.bottom = validate_ints(
-            pixels, length=4, min_value=0
-        )
+        if sigma is not None:
+            self.sigma = validate_float(sigma, min_value=0)
+        else:
+            self.sigma = None
 
     # endregion
 
@@ -54,11 +64,22 @@ class ExpandProcessor(Processor):
 
         # Read image
         input_image = Image.open(infile)
+        if input_image.mode == "P":
+            input_image = remove_palette_from_image(input_image)
+        if input_image.mode != "L":
+            raise UnsupportedImageModeError(
+                f"Image mode '{input_image.mode}' of image '{infile}'"
+                f" is not supported by {type(self)}"
+            )
 
-        # Expand image
-        output_image = expand_image(
-            input_image, self.left, self.top, self.right, self.bottom
-        )
+        # Process image
+        expanded_image = expand_image(input_image, 8, 8, 8, 8)
+        if self.sigma is not None:
+            smoothed_image = gaussian_smooth_image(expanded_image, self.sigma)
+            normal_image = normal_map_from_heightmap(smoothed_image)
+        else:
+            normal_image = normal_map_from_heightmap(expanded_image)
+        output_image = crop_image(normal_image, 8, 8, 8, 8)
 
         # Write image
         output_image.save(outfile)
@@ -81,13 +102,11 @@ class ExpandProcessor(Processor):
 
         # Operations
         parser.add_argument(
-            "--pixels",
-            default=(0, 0, 0, 0),
-            metavar=("LEFT", "TOP", "RIGHT", "BOTTOM"),
-            nargs=4,
-            type=cls.int_arg(0),
-            help="number of pixels to add to left, top, right, and bottom "
-            "(default: %(default)s)",
+            "--sigma",
+            default=None,
+            type=cls.float_arg(min_value=0),
+            help="Gaussian smoothing to apply to image before calculating normal map"
+            " (default: %(default)s)",
         )
 
         return parser
@@ -97,4 +116,4 @@ class ExpandProcessor(Processor):
 
 ######################################### MAIN #########################################
 if __name__ == "__main__":
-    ExpandProcessor.main()
+    HeightToNormalProcessor.main()

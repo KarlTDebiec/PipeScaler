@@ -54,18 +54,20 @@ class CropProcessor(Processor):
         """
 
         # Read image
-        image = Image.open(infile)
+        input_image = Image.open(infile)
         if (
-            image.size[0] < self.left + self.right
-            or image.size[1] < self.top + self.bottom
+            input_image.size[0] < self.left + self.right
+            or input_image.size[1] < self.top + self.bottom
         ):
             raise ValueError()
 
         # Expand image
-        cropped = crop_image(image, self.left, self.top, self.right, self.bottom)
+        output_image = crop_image(
+            input_image, self.left, self.top, self.right, self.bottom
+        )
 
         # Write image
-        cropped.save(outfile)
+        output_image.save(outfile)
         info(f"{self}: '{outfile}' saved")
 
     # endregion

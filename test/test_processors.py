@@ -13,6 +13,7 @@ from os.path import getsize, join
 from platform import win32_ver
 from subprocess import PIPE, Popen
 
+import numpy as np
 import pytest
 from PIL import Image
 
@@ -27,6 +28,7 @@ from pipescaler.processors import (
     CropProcessor,
     ESRGANProcessor,
     ExpandProcessor,
+    HeightToNormalProcessor,
     ModeProcessor,
     PngquantProcessor,
     ResizeProcessor,
@@ -67,6 +69,7 @@ xfail = pytest.mark.xfail
         CropProcessor,
         ESRGANProcessor,
         ExpandProcessor,
+        HeightToNormalProcessor,
         ModeProcessor,
         PngquantProcessor,
         ResizeProcessor,
@@ -169,6 +172,40 @@ def test_expand(infile: str) -> None:
             assert input_image.mode == output_image.mode
             assert output_image.size[0] == input_image.size[0] + 4 + 4
             assert output_image.size[1] == input_image.size[1] + 4 + 4
+
+
+@pytest.mark.parametrize(
+    ("infile", "sigma"),
+    [
+        (infiles["L"], 0.5),
+        (infiles["L"], 1.0),
+        pytest.param(infiles["LA"], 1.0, marks=xfail),
+        (infiles["P_L"], 1.0),
+        pytest.param(infiles["P_LA"], 1.0, marks=xfail),
+        pytest.param(infiles["P_RGB"], 1.0, marks=xfail),
+        pytest.param(infiles["P_RGBA"], 1.0, marks=xfail),
+        pytest.param(infiles["RGB"], 1.0, marks=xfail),
+        pytest.param(infiles["RGBA"], 1.0, marks=xfail),
+    ],
+)
+def test_height_to_normal(infile: str, sigma: float) -> None:
+    with temporary_filename(".png") as outfile:
+        input_image = Image.open(infile)
+
+        command = (
+            f"coverage run {getfile(HeightToNormalProcessor)}"
+            f" --sigma {sigma}"
+            f" {infile} {outfile}"
+        )
+        child = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)
+        exitcode = child.wait()
+        assert exitcode == 0
+
+        with Image.open(outfile) as output_image:
+            output_datum = np.array(output_image)
+            assert output_image.mode == "RGB"
+            assert output_image.size == input_image.size
+            assert np.min(output_datum[:, :, 2] >= 128)
 
 
 @pytest.mark.parametrize(

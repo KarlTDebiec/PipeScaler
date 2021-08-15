@@ -170,7 +170,6 @@ class WaifuProcessor(Processor):
         parser.add_argument(
             "--architecture",
             default="upconv7",
-            dest="architecture",
             type=cls.str_arg(cls.architectures),
             help=f"model architecture, (options: {cls.architectures}, default: "
             "%(default)s)",
@@ -178,14 +177,12 @@ class WaifuProcessor(Processor):
         parser.add_argument(
             "--denoise",
             default=1,
-            dest="denoise",
             type=cls.int_arg(min_value=0, max_value=3),
             help="denoise level (0-4, default: %(default)s)",
         )
         parser.add_argument(
             "--scale",
             default=2,
-            dest="scale",
             type=cls.int_arg(min_value=1, max_value=2),
             help="scale factor (1 or 2, default: %(default)s)",
         )
