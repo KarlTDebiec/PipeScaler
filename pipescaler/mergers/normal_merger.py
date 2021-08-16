@@ -15,7 +15,7 @@ from typing import Any
 import numpy as np
 from PIL import Image
 
-from pipescaler.core import Merger
+from pipescaler.core import Merger, UnsupportedImageModeError, remove_palette_from_image
 
 
 ####################################### CLASSES ########################################
@@ -27,30 +27,47 @@ class NormalMerger(Merger):
         infiles = {k: kwargs.get(k) for k in self.inlets}
 
         # Read images
-        r = Image.open(infiles["r"]).convert("L")
-        g = Image.open(infiles["g"]).convert("L")
-        b = Image.open(infiles["b"]).convert("L")
+        x_image = Image.open(infiles["x"])
+        if x_image.mode == "P":
+            x_image = remove_palette_from_image(x_image)
+        if x_image.mode != "L":
+            raise UnsupportedImageModeError(
+                f"Image mode '{x_image.mode}' of image '{infiles['x']}'"
+                f" is not supported by {type(self)}"
+            )
+        y_image = Image.open(infiles["y"])
+        if y_image.mode == "P":
+            y_image = remove_palette_from_image(y_image)
+        if y_image.mode != "L":
+            raise UnsupportedImageModeError(
+                f"Image mode '{y_image.mode}' of image '{infiles['y']}'"
+                f" is not supported by {type(self)}"
+            )
+        z_image = Image.open(infiles["z"])
+        if z_image.mode == "P":
+            z_image = remove_palette_from_image(z_image)
+        if z_image.mode != "L":
+            raise UnsupportedImageModeError(
+                f"Image mode '{z_image.mode}' of image '{infiles['z']}'"
+                f" is not supported by {type(self)}"
+            )
 
         # Merge images
-        r_datum = np.array(r, np.float) - 128
-        g_datum = np.array(g, np.float) - 128
-        b_datum = np.array(b, np.float) / 2
-
-        b_datum[b_datum < 0] = 0
-        mag = np.sqrt(r_datum ** 2 + g_datum ** 2 + b_datum ** 2)
-        r_datum = (((r_datum / mag) * 128) + 128).astype(np.uint8)
-        g_datum = (((g_datum / mag) * 128) + 128).astype(np.uint8)
-        b_datum = (((b_datum / mag) * 128) + 128).astype(np.uint8)
-        b_datum[b_datum == 0] = 255
-
-        rgb_datum = np.zeros((r_datum.shape[0], r_datum.shape[1], 3), np.uint8)
-        rgb_datum[:, :, 0] = r_datum
-        rgb_datum[:, :, 1] = g_datum
-        rgb_datum[:, :, 2] = b_datum
-        rgb_image = Image.fromarray(rgb_datum)
+        x_datum = np.clip(np.array(x_image, float) - 128, -128, 127)
+        y_datum = np.clip(np.array(y_image, float) - 128, -128, 127)
+        z_datum = np.clip(np.array(z_image, float) / 2, 0, 127)
+        magnitude = np.sqrt(x_datum ** 2 + y_datum ** 2 + z_datum ** 2)
+        x_datum = np.clip(((x_datum / magnitude) * 128) + 128, 0, 255).astype(np.uint8)
+        y_datum = np.clip(((y_datum / magnitude) * 128) + 128, 0, 255).astype(np.uint8)
+        z_datum = np.clip(((z_datum / magnitude) * 128) + 128, 0, 255).astype(np.uint8)
+        output_datum = np.zeros((*x_datum.shape, 3), np.uint8)
+        output_datum[:, :, 0] = x_datum
+        output_datum[:, :, 1] = y_datum
+        output_datum[:, :, 2] = z_datum
+        output_image = Image.fromarray(output_datum)
 
         # Write image
-        rgb_image.save(outfile)
+        output_image.save(outfile)
         info(f"'{self}: '{outfile}' saved")
 
     # endregion
@@ -59,6 +76,6 @@ class NormalMerger(Merger):
 
     @property
     def inlets(self):
-        return ["r", "g", "b"]
+        return ["x", "y", "z"]
 
     # endregion

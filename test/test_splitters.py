@@ -28,6 +28,10 @@ infiles = {
         "P_RGB.png",
         "P_RGBA.png",
         "RGB.png",
+        "RGB_magenta.png",
+        "RGB_magenta_alpha.png",
+        "RGB_magenta_color.png",
+        "RGB_normal.png",
         "RGBA.png",
     ]
 }
@@ -54,16 +58,17 @@ def infile(request):
     ],
 )
 def test_alpha_splitter(infile: str) -> None:
-    input_image = Image.open(infile)
-    if input_image.mode == "P":
-        expected_color_mode = remove_palette_from_image(input_image).mode.rstrip("A")
-    else:
-        expected_color_mode = input_image.mode.rstrip("A")
-
-    splitter = AlphaSplitter()
-
     with temporary_filename(".png") as color_outfile:
         with temporary_filename(".png") as alpha_outfile:
+            input_image = Image.open(infile)
+            if input_image.mode == "P":
+                expected_color_mode = remove_palette_from_image(
+                    input_image
+                ).mode.rstrip("A")
+            else:
+                expected_color_mode = input_image.mode.rstrip("A")
+
+            splitter = AlphaSplitter()
             splitter(infile, color=color_outfile, alpha=alpha_outfile)
 
             with Image.open(color_outfile) as color_image:
@@ -85,16 +90,16 @@ def test_alpha_splitter(infile: str) -> None:
         (infiles["P_RGB"]),
         pytest.param(infiles["P_RGBA"], marks=xfail(raises=UnsupportedImageModeError)),
         (infiles["RGB"]),
+        (infiles["RGB_MAGENTA"]),
         pytest.param(infiles["RGBA"], marks=xfail(raises=UnsupportedImageModeError)),
     ],
 )
 def test_color_to_alpha_splitter(infile: str) -> None:
-    input_image = Image.open(infile)
-
-    splitter = ColorToAlphaSplitter(alpha_color=[255, 0, 255])
-
     with temporary_filename(".png") as color_outfile:
         with temporary_filename(".png") as alpha_outfile:
+            input_image = Image.open(infile)
+
+            splitter = ColorToAlphaSplitter(alpha_color=[255, 0, 255])
             splitter(infile, color=color_outfile, alpha=alpha_outfile)
 
             with Image.open(color_outfile) as color_image:
@@ -116,17 +121,17 @@ def test_color_to_alpha_splitter(infile: str) -> None:
         (infiles["P_RGB"]),
         pytest.param(infiles["P_RGBA"], marks=xfail(raises=UnsupportedImageModeError)),
         (infiles["RGB"]),
+        (infiles["RGB_NORMAL"]),
         pytest.param(infiles["RGBA"], marks=xfail(raises=UnsupportedImageModeError)),
     ],
 )
 def test_normal_splitter(infile: str) -> None:
-    input_image = Image.open(infile)
-
-    splitter = NormalSplitter()
-
     with temporary_filename(".png") as x_outfile:
         with temporary_filename(".png") as y_outfile:
             with temporary_filename(".png") as z_outfile:
+                input_image = Image.open(infile)
+
+                splitter = NormalSplitter()
                 splitter(infile, x=x_outfile, y=y_outfile, z=z_outfile)
 
                 with Image.open(x_outfile) as x_image:

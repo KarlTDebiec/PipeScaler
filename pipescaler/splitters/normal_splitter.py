@@ -41,10 +41,11 @@ class NormalSplitter(Splitter):
             )
 
         # Split image
-        x_datum = np.array(input_image)[:, :, 0]
-        y_datum = np.array(input_image)[:, :, 1]
+        input_datum = np.array(input_image)
+        x_datum = input_datum[:, :, 0]
+        y_datum = input_datum[:, :, 1]
         z_datum = np.clip(
-            (np.array(input_image)[:, :, 2].astype(np.float) - 128) * 2, 0, 255
+            (input_datum[:, :, 2].astype(float) - 128) * 2, 0, 255
         ).astype(np.uint8)
         x_image = Image.fromarray(x_datum)
         y_image = Image.fromarray(y_datum)

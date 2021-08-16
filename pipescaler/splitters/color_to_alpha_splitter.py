@@ -47,14 +47,12 @@ class ColorToAlphaSplitter(Splitter):
             )
 
         # Split image
-        color_datum = np.array(input_image)
-        alpha_datum = (
-            np.ones((color_datum.shape[0], color_datum.shape[1]), np.uint8) * 255
-        )
+        input_datum = np.array(input_image)
+        color_datum = np.copy(input_datum)
+        alpha_datum = np.zeros(input_datum.shape[:-1], np.uint8)
         transparent_pixels = (color_datum == self.alpha_color).all(axis=2)
-        color_datum[transparent_pixels, :] = 0
-        # TODO: Implement smart fill
-        alpha_datum[transparent_pixels] = 0
+        color_datum[transparent_pixels, :] = 0  # TODO: Implement smart fill
+        alpha_datum[transparent_pixels] = 255
         color_image = Image.fromarray(color_datum)
         alpha_image = Image.fromarray(alpha_datum)
 

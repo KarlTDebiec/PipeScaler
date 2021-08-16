@@ -41,12 +41,11 @@ class AlphaSplitter(Splitter):
             )
 
         # Split image
-        if input_image.mode == "LA":
-            color_image = Image.fromarray(np.array(input_image)[:, :, 0])
-            alpha_image = Image.fromarray(np.array(input_image)[:, :, 1])
-        else:
-            color_image = Image.fromarray(np.array(input_image)[:, :, :3])
-            alpha_image = Image.fromarray(np.array(input_image)[:, :, 3])
+        input_datum = np.array(input_image)
+        color_datum = np.squeeze(input_datum[:, :, :-1])
+        alpha_datum = input_datum[:, :, -1]
+        color_image = Image.fromarray(color_datum)
+        alpha_image = Image.fromarray(alpha_datum)
 
         # Write images
         color_image.save(outfiles["color"])

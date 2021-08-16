@@ -15,7 +15,7 @@ from typing import Any
 import numpy as np
 from PIL import Image
 
-from pipescaler.core import Merger
+from pipescaler.core import Merger, UnsupportedImageModeError, remove_palette_from_image
 
 
 ####################################### CLASSES ########################################
@@ -23,7 +23,7 @@ class ColorToAlphaMerger(Merger):
 
     # region Builtins
 
-    def __init__(self, alpha_color: str, **kwargs: Any) -> None:
+    def __init__(self, alpha_color: Any, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
         # Store configuration
@@ -33,18 +33,33 @@ class ColorToAlphaMerger(Merger):
         infiles = {k: kwargs.get(k) for k in self.inlets}
 
         # Read images
-        rgb = Image.open(infiles["rgb"]).convert("RGB")
-        a = Image.open(infiles["a"]).convert("L")
+        color_image = Image.open(infiles["color"])
+        if color_image.mode == "P":
+            color_image = remove_palette_from_image(color_image)
+        if color_image.mode != "RGB":
+            raise UnsupportedImageModeError(
+                f"Image mode '{color_image.mode}' of image '{infiles['color']}'"
+                f" is not supported by {type(self)}"
+            )
+        alpha_image = Image.open(infiles["alpha"])
+        if alpha_image.mode == "P":
+            alpha_image = remove_palette_from_image(alpha_image)
+        if alpha_image.mode != "L":
+            raise UnsupportedImageModeError(
+                f"Image mode '{alpha_image.mode}' of image '{infiles['alpha']}'"
+                f" is not supported by {type(self)}"
+            )
 
         # Merge images
-        rgb_datum = np.array(rgb)
-        a_datum = np.array(a)
-        transparent_pixels = a_datum == 255
-        rgb_datum[transparent_pixels] = self.alpha_color
-        rgb = Image.fromarray(rgb_datum)
+        color_datum = np.array(color_image)
+        alpha_datum = np.array(alpha_image)
+        transparent_pixels = alpha_datum == 255
+        output_datum = np.copy(color_datum)
+        output_datum[transparent_pixels] = self.alpha_color
+        output_image = Image.fromarray(output_datum)
 
         # Write image
-        rgb.save(outfile)
+        output_image.save(outfile)
         info(f"'{self}: '{outfile}' saved")
 
     # endregion
@@ -53,6 +68,6 @@ class ColorToAlphaMerger(Merger):
 
     @property
     def inlets(self):
-        return ["rgb", "a"]
+        return ["color", "alpha"]
 
     # endregion
