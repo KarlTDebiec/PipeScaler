@@ -48,10 +48,11 @@ class AlphaMerger(Merger):
         color_datum = np.array(color_image)
         alpha_datum = np.array(alpha_image)
         if color_image.mode == "L":
-            output_datum = np.zeros((*color_datum.shape[:-1], 2), np.uint8)
+            output_datum = np.zeros((*color_datum.shape, 2), np.uint8)
+            output_datum[:, :, 0] = color_datum
         else:
             output_datum = np.zeros((*color_datum.shape[:-1], 4), np.uint8)
-        output_datum[:, :, :-1] = color_datum
+            output_datum[:, :, :-1] = color_datum
         output_datum[:, :, -1] = alpha_datum
         output_image = Image.fromarray(output_datum)
 

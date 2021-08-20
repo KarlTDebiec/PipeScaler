@@ -8,8 +8,7 @@
 #   BSD license. See the LICENSE file for details.
 ####################################### MODULES ########################################
 from inspect import getfile
-from os import getcwd
-from os.path import getsize, join
+from os.path import getsize
 from platform import win32_ver
 from subprocess import PIPE, Popen
 
@@ -23,8 +22,6 @@ from pipescaler.core import (
     remove_palette_from_image,
 )
 from pipescaler.processors import (
-    AppleScriptProcessor,
-    AutomatorProcessor,
     CropProcessor,
     ESRGANProcessor,
     ExpandProcessor,
@@ -32,7 +29,6 @@ from pipescaler.processors import (
     ModeProcessor,
     PngquantProcessor,
     ResizeProcessor,
-    SideChannelProcessor,
     SolidColorProcessor,
     TexconvProcessor,
     WaifuExternalProcessor,
@@ -40,54 +36,15 @@ from pipescaler.processors import (
     XbrzProcessor,
 )
 
-###################################### VARIABLES #######################################
-infiles = {
-    f[:-4].upper(): join(getcwd(), "data", "infiles", f)
-    for f in [
-        "L.png",
-        "LA.png",
-        "P_L.png",
-        "P_LA.png",
-        "P_RGB.png",
-        "P_RGBA.png",
-        "RGB.png",
-        "RGBA.png",
-    ]
-}
-esrgan = {
-    f[:-4]: join(getcwd(), "data", "models", f)
-    for f in ["1x_BC1-smooth2.pth", "RRDB_ESRGAN_x4.pth", "RRDB_ESRGAN_x4_old_arch.pth"]
-}
-xfail = pytest.mark.xfail
-
-
-####################################### FIXTURES #######################################
-@pytest.fixture(
-    params=[
-        AppleScriptProcessor,
-        AutomatorProcessor,
-        CropProcessor,
-        ESRGANProcessor,
-        ExpandProcessor,
-        HeightToNormalProcessor,
-        ModeProcessor,
-        PngquantProcessor,
-        ResizeProcessor,
-        SideChannelProcessor,
-        SolidColorProcessor,
-        TexconvProcessor,
-        WaifuProcessor,
-        WaifuExternalProcessor,
-        XbrzProcessor,
-    ]
+# noinspection PyUnresolvedReferences
+from shared import (
+    infiles,
+    processor,
+    infile,
+    esrgan,
+    xfail_assertion,
+    xfail_unsupported_mode,
 )
-def processor(request):
-    return request.param
-
-
-@pytest.fixture(params=infiles.keys())
-def infile(request):
-    return infiles[request.param]
 
 
 ######################################## TESTS #########################################
@@ -122,15 +79,15 @@ def test_crop(infile: str) -> None:
     ("infile", "model_infile", "scale"),
     [
         (infiles["L"], esrgan["1x_BC1-smooth2"], 1),
-        (infiles["P_L"], esrgan["1x_BC1-smooth2"], 1),
-        (infiles["P_RGB"], esrgan["1x_BC1-smooth2"], 1),
+        (infiles["PL"], esrgan["1x_BC1-smooth2"], 1),
+        (infiles["PRGB"], esrgan["1x_BC1-smooth2"], 1),
         (infiles["RGB"], esrgan["1x_BC1-smooth2"], 1),
         (infiles["RGB"], esrgan["RRDB_ESRGAN_x4"], 4),
         (infiles["RGB"], esrgan["RRDB_ESRGAN_x4_old_arch"], 4),
-        pytest.param(infiles["LA"], esrgan["1x_BC1-smooth2"], 1, marks=xfail),
-        pytest.param(infiles["P_LA"], esrgan["1x_BC1-smooth2"], 1, marks=xfail),
-        pytest.param(infiles["P_RGBA"], esrgan["1x_BC1-smooth2"], 1, marks=xfail),
-        pytest.param(infiles["RGBA"], esrgan["1x_BC1-smooth2"], 1, marks=xfail),
+        xfail_assertion(infiles["LA"], esrgan["1x_BC1-smooth2"], 1),
+        xfail_assertion(infiles["PLA"], esrgan["1x_BC1-smooth2"], 1),
+        xfail_assertion(infiles["PRGBA"], esrgan["1x_BC1-smooth2"], 1),
+        xfail_assertion(infiles["RGBA"], esrgan["1x_BC1-smooth2"], 1),
     ],
 )
 def test_esrgan(infile: str, model_infile: str, scale: int) -> None:
@@ -179,13 +136,13 @@ def test_expand(infile: str) -> None:
     [
         (infiles["L"], 0.5),
         (infiles["L"], 1.0),
-        pytest.param(infiles["LA"], 1.0, marks=xfail),
-        (infiles["P_L"], 1.0),
-        pytest.param(infiles["P_LA"], 1.0, marks=xfail),
-        pytest.param(infiles["P_RGB"], 1.0, marks=xfail),
-        pytest.param(infiles["P_RGBA"], 1.0, marks=xfail),
-        pytest.param(infiles["RGB"], 1.0, marks=xfail),
-        pytest.param(infiles["RGBA"], 1.0, marks=xfail),
+        xfail_assertion(infiles["LA"], 1.0),
+        (infiles["PL"], 1.0),
+        xfail_assertion(infiles["PLA"], 1.0),
+        xfail_assertion(infiles["PRGB"], 1.0),
+        xfail_assertion(infiles["PRGBA"], 1.0),
+        xfail_assertion(infiles["RGB"], 1.0),
+        xfail_assertion(infiles["RGBA"], 1.0),
     ],
 )
 def test_height_to_normal(infile: str, sigma: float) -> None:
@@ -219,22 +176,22 @@ def test_height_to_normal(infile: str, sigma: float) -> None:
         (infiles["LA"], "LA"),
         (infiles["LA"], "RGB"),
         (infiles["LA"], "RGBA"),
-        (infiles["P_L"], "L"),
-        (infiles["P_L"], "LA"),
-        (infiles["P_L"], "RGB"),
-        (infiles["P_L"], "RGBA"),
-        (infiles["P_LA"], "L"),
-        (infiles["P_LA"], "LA"),
-        (infiles["P_LA"], "RGB"),
-        (infiles["P_LA"], "RGBA"),
-        (infiles["P_RGB"], "L"),
-        (infiles["P_RGB"], "LA"),
-        (infiles["P_RGB"], "RGB"),
-        (infiles["P_RGB"], "RGBA"),
-        (infiles["P_RGBA"], "L"),
-        (infiles["P_RGBA"], "LA"),
-        (infiles["P_RGBA"], "RGB"),
-        (infiles["P_RGBA"], "RGBA"),
+        (infiles["PL"], "L"),
+        (infiles["PL"], "LA"),
+        (infiles["PL"], "RGB"),
+        (infiles["PL"], "RGBA"),
+        (infiles["PLA"], "L"),
+        (infiles["PLA"], "LA"),
+        (infiles["PLA"], "RGB"),
+        (infiles["PLA"], "RGBA"),
+        (infiles["PRGB"], "L"),
+        (infiles["PRGB"], "LA"),
+        (infiles["PRGB"], "RGB"),
+        (infiles["PRGB"], "RGBA"),
+        (infiles["PRGBA"], "L"),
+        (infiles["PRGBA"], "LA"),
+        (infiles["PRGBA"], "RGB"),
+        (infiles["PRGBA"], "RGBA"),
         (infiles["RGB"], "L"),
         (infiles["RGB"], "LA"),
         (infiles["RGB"], "RGB"),
@@ -340,8 +297,8 @@ def test_texconv(infile: str) -> None:
     ("infile", "architecture", "denoise", "scale"),
     [
         (infiles["L"], "resnet10", 0, 2),
-        (infiles["P_L"], "resnet10", 0, 2),
-        (infiles["P_RGB"], "resnet10", 0, 2),
+        (infiles["PL"], "resnet10", 0, 2),
+        (infiles["PRGB"], "resnet10", 0, 2),
         (infiles["RGB"], "resnet10", 0, 2,),
         (infiles["RGB"], "upconv7", 0, 2,),
         (infiles["RGB"], "upresnet10", 0, 2,),
@@ -350,10 +307,10 @@ def test_texconv(infile: str) -> None:
         (infiles["RGB"], "upconv7", 1, 2,),
         (infiles["RGB"], "upresnet10", 2, 2,),
         (infiles["RGB"], "vgg7", 3, 2,),
-        pytest.param(infiles["LA"], "resnet10", 0, 2, marks=xfail,),
-        pytest.param(infiles["P_LA"], "resnet10", 0, 2, marks=xfail,),
-        pytest.param(infiles["P_RGBA"], "resnet10", 0, 2, marks=xfail,),
-        pytest.param(infiles["RGBA"], "resnet10", 0, 2, marks=xfail,),
+        xfail_assertion(infiles["LA"], "resnet10", 0, 2),
+        xfail_assertion(infiles["PLA"], "resnet10", 0, 2),
+        xfail_assertion(infiles["PRGBA"], "resnet10", 0, 2),
+        xfail_assertion(infiles["RGBA"], "resnet10", 0, 2),
     ],
 )
 def test_waifu(infile: str, architecture: str, denoise: int, scale: int) -> None:
@@ -385,14 +342,14 @@ def test_waifu(infile: str, architecture: str, denoise: int, scale: int) -> None
     ("infile", "imagetype", "denoise", "scale"),
     [
         (infiles["L"], "a", 0, 2),
-        (infiles["P_L"], "a", 0, 2),
-        (infiles["P_RGB"], "a", 0, 2),
+        (infiles["PL"], "a", 0, 2),
+        (infiles["PRGB"], "a", 0, 2),
         (infiles["RGB"], "a", 0, 2,),
         (infiles["RGB"], "a", 3, 2,),
-        pytest.param(infiles["LA"], "a", 0, 2, marks=xfail),
-        pytest.param(infiles["P_LA"], "a", 0, 2, marks=xfail),
-        pytest.param(infiles["P_RGBA"], "a", 0, 2, marks=xfail),
-        pytest.param(infiles["RGBA"], "a", 0, 2, marks=xfail),
+        xfail_assertion(infiles["LA"], "a", 0, 2),
+        xfail_assertion(infiles["PLA"], "a", 0, 2),
+        xfail_assertion(infiles["PRGBA"], "a", 0, 2),
+        xfail_assertion(infiles["RGBA"], "a", 0, 2),
     ],
 )
 def test_waifu_external(infile: str, imagetype: str, denoise: int, scale: int) -> None:

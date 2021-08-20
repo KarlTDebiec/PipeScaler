@@ -7,54 +7,26 @@
 #   This software may be modified and distributed under the terms of the
 #   BSD license. See the LICENSE file for details.
 ####################################### MODULES ########################################
-from os import getcwd
-from os.path import join
 
 import pytest
 from PIL import Image
 
 from pipescaler.common import temporary_filename
-from pipescaler.core import UnsupportedImageModeError, remove_palette_from_image
+from pipescaler.core import remove_palette_from_image
 from pipescaler.splitters import AlphaSplitter, ColorToAlphaSplitter, NormalSplitter
-
-###################################### VARIABLES #######################################
-infiles = {
-    f[:-4].upper(): join(getcwd(), "data", "infiles", f)
-    for f in [
-        "L.png",
-        "LA.png",
-        "P_L.png",
-        "P_LA.png",
-        "P_RGB.png",
-        "P_RGBA.png",
-        "RGB.png",
-        "RGB_magenta.png",
-        "RGB_magenta_alpha.png",
-        "RGB_magenta_color.png",
-        "RGB_normal.png",
-        "RGBA.png",
-    ]
-}
-xfail = pytest.mark.xfail
-
-####################################### FIXTURES #######################################
-@pytest.fixture(params=infiles.keys())
-def infile(request):
-    return infiles[request.param]
+from shared import infiles, xfail_unsupported_mode
 
 
 ######################################## TESTS #########################################
 @pytest.mark.parametrize(
     ("infile"),
     [
-        pytest.param(infiles["L"], marks=xfail(raises=UnsupportedImageModeError)),
         (infiles["LA"]),
-        pytest.param(infiles["P_L"], marks=xfail(raises=UnsupportedImageModeError)),
-        (infiles["P_LA"]),
-        pytest.param(infiles["P_RGB"], marks=xfail(raises=UnsupportedImageModeError)),
-        (infiles["P_RGBA"]),
-        pytest.param(infiles["RGB"], marks=xfail(raises=UnsupportedImageModeError)),
         (infiles["RGBA"]),
+        (infiles["PLA"]),
+        (infiles["PRGBA"]),
+        xfail_unsupported_mode(infiles["L"]),
+        xfail_unsupported_mode(infiles["RGB"]),
     ],
 )
 def test_alpha_splitter(infile: str) -> None:
@@ -83,15 +55,12 @@ def test_alpha_splitter(infile: str) -> None:
 @pytest.mark.parametrize(
     ("infile"),
     [
-        pytest.param(infiles["L"], marks=xfail(raises=UnsupportedImageModeError)),
-        pytest.param(infiles["LA"], marks=xfail(raises=UnsupportedImageModeError)),
-        pytest.param(infiles["P_L"], marks=xfail(raises=UnsupportedImageModeError)),
-        pytest.param(infiles["P_LA"], marks=xfail(raises=UnsupportedImageModeError)),
-        (infiles["P_RGB"]),
-        pytest.param(infiles["P_RGBA"], marks=xfail(raises=UnsupportedImageModeError)),
+        (infiles["RGB_magenta"]),
         (infiles["RGB"]),
-        (infiles["RGB_MAGENTA"]),
-        pytest.param(infiles["RGBA"], marks=xfail(raises=UnsupportedImageModeError)),
+        (infiles["PRGB"]),
+        xfail_unsupported_mode(infiles["L"]),
+        xfail_unsupported_mode(infiles["LA"]),
+        xfail_unsupported_mode(infiles["RGBA"]),
     ],
 )
 def test_color_to_alpha_splitter(infile: str) -> None:
@@ -114,15 +83,12 @@ def test_color_to_alpha_splitter(infile: str) -> None:
 @pytest.mark.parametrize(
     ("infile"),
     [
-        pytest.param(infiles["L"], marks=xfail(raises=UnsupportedImageModeError)),
-        pytest.param(infiles["LA"], marks=xfail(raises=UnsupportedImageModeError)),
-        pytest.param(infiles["P_L"], marks=xfail(raises=UnsupportedImageModeError)),
-        pytest.param(infiles["P_LA"], marks=xfail(raises=UnsupportedImageModeError)),
-        (infiles["P_RGB"]),
-        pytest.param(infiles["P_RGBA"], marks=xfail(raises=UnsupportedImageModeError)),
+        (infiles["RGB_normal"]),
         (infiles["RGB"]),
-        (infiles["RGB_NORMAL"]),
-        pytest.param(infiles["RGBA"], marks=xfail(raises=UnsupportedImageModeError)),
+        (infiles["PRGB"]),
+        xfail_unsupported_mode(infiles["L"]),
+        xfail_unsupported_mode(infiles["LA"]),
+        xfail_unsupported_mode(infiles["RGBA"]),
     ],
 )
 def test_normal_splitter(infile: str) -> None:
