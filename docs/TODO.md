@@ -1,4 +1,5 @@
 TODO:
+- [ ] Overwrite flags for every individual stage
 - [ ] Improvement: Testing - parallelize
 - [ ] Feature: Make processor available as an endpoint that can be POSTed to
 - [ ] Feature: Blocks of stages
@@ -6,7 +7,6 @@ TODO:
 - [ ] Feature: Script to bootstrap new projects
 - [ ] Stage: CopySplitter - Just send image down own or more outlets
 - [ ] Stage: ColorMatchMerger - Use skimage.transform.match_histograms to match color
-- [ ] Improvement: ColorToAlphaSplitter - Create Processor that can fill in alpha
 - [ ] Improvement: WaifuExternalProcessor - Move mirroring to general function
 - [ ] Improvement: CopyProcessor - Improve purging; could compare files and only copy over if necessary
 - [ ] Improvement: PngquantProcessor - Use Pillow's palette support

@@ -17,6 +17,7 @@ from typing import Any
 import numpy as np
 from PIL import Image
 
+from pipescaler.common import validate_float
 from pipescaler.core import (
     Processor,
     UnsupportedImageModeError,
@@ -26,6 +27,16 @@ from pipescaler.core import (
 
 ####################################### CLASSES ########################################
 class SolidColorProcessor(Processor):
+
+    # region Builtins
+
+    def __init__(self, scale: float = 1, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+
+        # Store configuration
+        self.scale = validate_float(scale)
+
+    # endregion
 
     # region Methods
 
@@ -55,7 +66,11 @@ class SolidColorProcessor(Processor):
                 f"Image mode '{input_image.mode}' of image '{infile}'"
                 f" is not supported by {type(self)}"
             )
-        output_image = Image.new(input_image.mode, input_image.size, color)
+        output_image = Image.new(
+            input_image.mode,
+            (input_image.size[0] * self.scale, input_image.size[1] * self.scale),
+            color,
+        )
 
         # Write image
         output_image.save(outfile)
