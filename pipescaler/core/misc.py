@@ -22,10 +22,18 @@ from pipescaler.common import NotAFileError, validate_input_path
 
 ###################################### FUNCTIONS #######################################
 def remove_palette_from_image(image: Image.Image):
-    pal = np.reshape(image.getpalette(), (-1, 3))
-    if np.all(pal[:, 0] == pal[:, 1]) and np.all(pal[:, 0] == pal[:, 2]):
+    palette = np.reshape(image.getpalette(), (-1, 3))
+
+    # Within paletted images with transparency, full transparent pixels have their RGB
+    #   values set to (72, 112, 76), a shade of green. Exclude this shade from
+    #   consideration
+    palette[np.equal(palette, [71, 112, 76]).all(axis=1)] = 0
+
+    if np.all(palette[:, 0] == palette[:, 1]) and np.all(
+        palette[:, 0] == palette[:, 2]
+    ):
         if "transparency" in image.info:
-            return image.convert("LA")
+            return image.convert("RGBA").convert("LA")
         else:
             return image.convert("L")
     else:

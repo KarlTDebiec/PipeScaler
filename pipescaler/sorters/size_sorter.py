@@ -9,11 +9,11 @@
 ####################################### MODULES ########################################
 from __future__ import annotations
 
-from typing import Any, Generator, List, Optional, Union
+from typing import Any, Dict, List
 
-import numpy as np
 from PIL import Image
 
+from pipescaler.common import validate_int
 from pipescaler.core import Sorter
 
 
@@ -21,52 +21,27 @@ from pipescaler.core import Sorter
 class SizeSorter(Sorter):
 
     # region Builtins
-    def __init__(
-            self,
-            cutoff: int = 16,
-            downstream_pipes_for_small: Optional[Union[str, List[str]]] = None,
-            downstream_pipes_for_large: Optional[Union[str, List[str]]] = None,
-            **kwargs: Any,
-    ) -> None:
+    def __init__(self, cutoff: int = 32, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
-        self.cutoff = cutoff
-        self.desc = str(cutoff)
+        # Store configuration
+        self.cutoff = validate_int(cutoff, min_value=1)
 
-        if isinstance(downstream_pipes_for_small, str):
-            downstream_pipes_for_small = [downstream_pipes_for_small]
-        self.downstream_pipes_for_small = downstream_pipes_for_small
+    def __call__(self, infile: str) -> str:
+        # Read image
+        image = Image.open(infile)
 
-        if isinstance(downstream_pipes_for_large, str):
-            downstream_pipes_for_large = [downstream_pipes_for_large]
-        self.downstream_pipes_for_large = downstream_pipes_for_large
-
-    def __call__(self) -> Generator[str, str, None]:
-        while True:
-            infile: str = yield  # type: ignore
-            if self.is_small(infile):
-                if self.pipeline.verbosity >= 2:
-                    print(f"{self}: small {infile}")
-                if self.downstream_pipes_for_small is not None:
-                    for pipe in self.downstream_pipes_for_small:
-                        self.pipeline.pipes[pipe].send(infile)
-            else:
-                if self.pipeline.verbosity >= 2:
-                    print(f"{self}: large {infile}")
-                if self.downstream_pipes_for_large is not None:
-                    for pipe in self.downstream_pipes_for_large:
-                        self.pipeline.pipes[pipe].send(infile)
+        if image.size[0] < self.cutoff or image.size[1] < self.cutoff:
+            return "less_than"
+        else:
+            return "greater_than_or_equal_to"
 
     # endregion
 
-    # region Methods
+    # region Properties
 
-    def is_small(self, infile: str) -> bool:
-        data = np.array(Image.open(infile))
-
-        if min(data.shape[:2]) <= self.cutoff:
-            return True
-        else:
-            return False
+    @property
+    def outlets(self):
+        return ["less_than", "greater_than_or_equal_to"]
 
     # endregion

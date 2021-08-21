@@ -14,7 +14,7 @@ from typing import Any, List
 
 from PIL import Image
 
-from pipescaler.core import Sorter
+from pipescaler.core import Sorter, UnsupportedImageModeError, remove_palette_from_image
 
 
 ####################################### CLASSES ########################################
@@ -26,6 +26,8 @@ class ModeSorter(Sorter):
 
         # Read image
         image = Image.open(infile)
+        if image.mode == "P":
+            image = remove_palette_from_image(image)
 
         # Sort image
         if image.mode == "RGBA":
@@ -34,11 +36,17 @@ class ModeSorter(Sorter):
         elif image.mode == "RGB":
             info(f"{self}: {infile}' matches 'RGB'")
             return "rgb"
+        elif image.mode == "LA":
+            info(f"{self}: {infile}' matches 'LA'")
+            return "la"
         elif image.mode == "L":
             info(f"{self}: {infile}' matches 'L'")
             return "l"
         else:
-            raise ValueError()
+            raise UnsupportedImageModeError(
+                f"Image mode '{image.mode}' of image '{infile}'"
+                f" is not supported by {type(self)}"
+            )
 
     # endregion
 
@@ -46,6 +54,6 @@ class ModeSorter(Sorter):
 
     @property
     def outlets(self) -> List[str]:
-        return ["rgba", "rgb", "l"]
+        return ["rgba", "rgb", "la", "l"]
 
     # endregion

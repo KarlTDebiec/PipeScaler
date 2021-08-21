@@ -52,7 +52,6 @@ esrgan = {
     f[:-4]: join(getcwd(), "data", "models", f)
     for f in ["1x_BC1-smooth2.pth", "RRDB_ESRGAN_x4.pth", "RRDB_ESRGAN_x4_old_arch.pth"]
 }
-
 infiles = {
     splitext(f[-1])[0]: join(dirname(package_root), "test", "data", "infiles", *f)
     for f in [
@@ -64,10 +63,20 @@ infiles = {
         ("basic", "PRGBA.png"),
         ("basic", "RGB.png"),
         ("basic", "RGBA.png"),
-        ("novel", "PRGB_magenta.png"),
-        ("novel", "PRGB_normal.png"),
+        ("extra", "L_LA.png"),
+        ("extra", "RGB_RGBA.png"),
+        ("novel", "L_solid.png"),
+        ("novel", "LA_solid.png"),
         ("novel", "RGB_magenta.png"),
         ("novel", "RGB_normal.png"),
+        ("novel", "RGB_solid.png"),
+        ("novel", "RGBA_solid.png"),
+        ("novel", "PL_solid.png"),
+        ("novel", "PLA_solid.png"),
+        ("novel", "PRGB_magenta.png"),
+        ("novel", "PRGB_normal.png"),
+        ("novel", "PRGB_solid.png"),
+        ("novel", "PRGBA_solid.png"),
         ("split", "LA_alpha_L.png"),
         ("split", "LA_alpha_PL.png"),
         ("split", "LA_color_L.png"),
@@ -88,6 +97,10 @@ infiles = {
         ("split", "RGBA_color_RGB.png"),
     ]
 }
+infile_subfolders = {
+    subfolder: join(dirname(package_root), "test", "data", "infiles", subfolder)
+    for subfolder in ["basic", "extra", "novel", "split"]
+}
 scripts = {
     f: join(package_root, "scripts", f)
     for f in [
@@ -102,6 +115,7 @@ xfail_assertion = partial(pytest.param, marks=pytest.mark.xfail(raises=Assertion
 xfail_unsupported_mode = partial(
     pytest.param, marks=pytest.mark.xfail(raises=UnsupportedImageModeError)
 )
+xfail_value = partial(pytest.param, marks=pytest.mark.xfail(raises=ValueError))
 
 
 ####################################### FIXTURES #######################################

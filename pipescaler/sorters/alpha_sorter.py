@@ -16,7 +16,7 @@ import numpy as np
 from PIL import Image
 
 from pipescaler.common import validate_int
-from pipescaler.core import Sorter
+from pipescaler.core import Sorter, UnsupportedImageModeError, remove_palette_from_image
 
 
 ####################################### CLASSES ########################################
@@ -33,10 +33,12 @@ class AlphaSorter(Sorter):
     def __call__(self, infile: str) -> str:
         # Read image
         image = Image.open(infile)
+        if image.mode == "P":
+            image = remove_palette_from_image(image)
 
         # Sort image
-        if image.mode == "RGBA":
-            alpha = np.array(image)[:, :, 3]
+        if image.mode in ("LA", "RGBA"):
+            alpha = np.array(image)[:, :, -1]
             if alpha.min() >= self.threshold:
                 info(f"{self}: '{infile}' matches 'drop_alpha'")
                 return "drop_alpha"
@@ -47,7 +49,10 @@ class AlphaSorter(Sorter):
             info(f"{self}: {infile}' matches 'no_alpha'")
             return "no_alpha"
         else:
-            raise ValueError()
+            raise UnsupportedImageModeError(
+                f"Image mode '{image.mode}' of image '{infile}'"
+                f" is not supported by {type(self)}"
+            )
 
     # endregion
 

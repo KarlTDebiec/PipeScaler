@@ -23,9 +23,7 @@ class ListSorter(Sorter):
 
     # region Builtins
 
-    def __init__(
-        self, outlets: Dict[str, List[str]], clean_suffix: str = None, **kwargs: Any
-    ) -> None:
+    def __init__(self, outlets: Dict[str, List[str]], **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
         # Store configuration

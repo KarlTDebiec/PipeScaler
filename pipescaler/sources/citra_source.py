@@ -22,10 +22,9 @@ class CitraSource(DirectorySource):
 
     @staticmethod
     def sort(filename):
-        _, size, code, _ = splitext(basename(filename))[0].split("_")
-        width, height = size.split("x")
-
         try:
+            _, size, code, _ = splitext(basename(filename))[0].split("_")
+            width, height = size.split("x")
             return int(f"1{int(width):04d}{int(height):04d}{int(code, 16):022d}")
         except ValueError as e:
             error(f"Error encountered while sorting {filename}")

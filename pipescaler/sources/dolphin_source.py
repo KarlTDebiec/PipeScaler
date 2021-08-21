@@ -22,20 +22,21 @@ class DolphinSource(DirectorySource):
 
     @staticmethod
     def sort(filename):
-        components = splitext(basename(filename))[0].split("_")
-        if len(components) == 4:
-            size = components[1]
-            code = components[2]
-        elif len(components) == 5:
-            size = components[1]
-            code = components[3]
-        elif len(components) == 6:
-            size = components[1]
-            code = components[3]
-        else:
-            raise ValueError()
-        width, height = size.split("x")
         try:
+            components = splitext(basename(filename))[0].split("_")
+            if len(components) == 4:
+                size = components[1]
+                code = components[2]
+            elif len(components) == 5:
+                size = components[1]
+                code = components[3]
+            elif len(components) == 6:
+                size = components[1]
+                code = components[3]
+            else:
+                raise ValueError()
+            width, height = size.split("x")
+
             return int(f"1{int(width):04d}{int(height):04d}{int(code, 16):022d}")
         except ValueError as e:
             error(f"Error encountered while sorting {filename}")

@@ -1,4 +1,6 @@
 [run]
 data_file = coverage.coverage
 concurrency = multiprocessing
-omit = test*.py
+omit =
+    test*.py
+    coverage.coverage.*

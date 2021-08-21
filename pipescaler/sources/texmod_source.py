@@ -9,17 +9,23 @@
 ####################################### MODULES ########################################
 from __future__ import annotations
 
+from logging import error
+
 from pipescaler.common import get_name
-from pipescaler.core import Source
+from pipescaler.sources import DirectorySource
 
 
 ####################################### CLASSES ########################################
-class TexmodSource(Source):
+class TexmodSource(DirectorySource):
 
     # region Static Methods
 
     @staticmethod
     def sort(filename):
-        return int(f"1{int(get_name(filename)[2:10], 16):022d}")
+        try:
+            return int(f"1{int(get_name(filename)[2:10], 16):022d}")
+        except ValueError as e:
+            error(f"Error encountered while sorting {filename}")
+            raise e
 
     # endregion
