@@ -9,6 +9,7 @@
 ####################################### MODULES ########################################
 from __future__ import annotations
 
+from logging import info
 from typing import Any, Dict, List
 
 from PIL import Image
@@ -32,8 +33,13 @@ class SizeSorter(Sorter):
         image = Image.open(infile)
 
         if image.size[0] < self.cutoff or image.size[1] < self.cutoff:
+            info(f"{self}: {infile}'s smallest dimension is less than{self.cutoff}")
             return "less_than"
         else:
+            info(
+                f"{self}: {infile}'s smallest dimension is greater than or equal to"
+                f" {self.cutoff}"
+            )
             return "greater_than_or_equal_to"
 
     # endregion

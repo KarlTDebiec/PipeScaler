@@ -10,10 +10,11 @@
 from __future__ import annotations
 
 from logging import info
-from os import makedirs
-from os.path import basename, dirname, exists, join, splitext
+from os.path import basename, dirname, join, splitext
 from shutil import copyfile, move
 from typing import Any
+
+from PIL import Image
 
 from pipescaler.common import validate_input_path
 from pipescaler.core import Processor, parse_file_list
@@ -24,11 +25,17 @@ class SideChannelProcessor(Processor):
 
     # region Builtins
 
-    def __init__(self, directory: str, clean_suffix: str = None, **kwargs: Any) -> None:
+    def __init__(
+        self,
+        directory: str,
+        clean_suffix: str = None,
+        match_input_mode: bool = True,
+        **kwargs: Any,
+    ) -> None:
         super().__init__(**kwargs)
 
         # Store configuration
-        # TODO: Create if it does not exist
+        # TODO: Create directory it does not exist
         self.directory = validate_input_path(
             directory, file_ok=False, directory_ok=True
         )
@@ -44,16 +51,28 @@ class SideChannelProcessor(Processor):
                 info(f"{self}: '{filename}' renamed to '{clean_filename}'")
                 filename = clean_filename
             self.side_files[filename_base] = filename
+        self.match_input_mode = match_input_mode
 
-    def __call__(self, infile: str, outfile: str) -> None:
-        self.process_file(infile, outfile, side_files=self.side_files)
+    # endregion
 
-    @classmethod
-    def process_file(cls, infile: str, outfile: str, **kwargs: Any) -> None:
-        side_files = kwargs.get("side_files", {})
-        infile_base = basename(dirname(infile))
-        if infile_base in side_files:
-            copyfile(side_files[infile_base], outfile)
-            info(f"{cls}: '{outfile}' saved")
-        else:
+    # region Methods
+
+    def process_file(self, infile: str, outfile: str) -> None:
+        try:
+            side_file = self.side_files[basename(dirname(infile))]
+            if self.match_input_mode:
+                input_image = Image.open(infile)
+                side_image = Image.open(side_file)
+                if side_image.mode != input_image.mode:
+                    side_image = side_image.convert(input_image.mode)
+                    side_image.save(side_file)
+                    info(f"{self}: '{side_file}' updated to mode {side_image.mode}")
+                side_image.save(outfile)
+            else:
+                copyfile(side_file, outfile)
+            info(f"{self}: '{outfile}' saved")
+
+        except KeyError:
             raise FileNotFoundError()
+
+    # endregion

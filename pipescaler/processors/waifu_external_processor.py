@@ -21,7 +21,7 @@ from argparse import ArgumentParser
 from logging import debug, info
 from os import remove
 from platform import win32_ver
-from subprocess import Popen
+from subprocess import PIPE, Popen
 from tempfile import NamedTemporaryFile
 from typing import Any
 
@@ -117,6 +117,7 @@ class WaifuExternalProcessor(Processor):
                 f"Image mode '{input_image.mode}' of image '{infile}'"
                 f" is not supported by {type(self)}"
             )
+
         tempfile = NamedTemporaryFile(delete=False, suffix=".png")
         if self.expand:
             w, h = temp_image.size
@@ -151,7 +152,7 @@ class WaifuExternalProcessor(Processor):
         command += f' -i "{tempfile.name}"'
         command += f' -o "{outfile}"'
         debug(command)
-        child = Popen(command, shell=True, close_fds=True)
+        child = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)
         exitcode = child.wait(600)
         if exitcode != 0:
             raise ValueError()  # TODO: Provide useful output

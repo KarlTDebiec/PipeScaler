@@ -1,84 +1,14 @@
 TODO:
-
-- New Feature
-    - [ ] Make processor available as an endpoint that can be POSTed to
-    - [ ] Blocks of stages
-    - [ ] Pass image and metadata as a whole object, not just infiles and outfiles
-- New Stage
-    - [ ] SolidColorSorter - Detect if an image is a solid color
-    - [ ] SolidColorProcessor - Make an image one solid color, and optionally scale it
-    - [ ] CopySplitter - Just send image down own or more outlets
-    - [ ] MatchHistogramMerger - Use skimage.transform.match_histograms to match color
-- Improvement
-    - [ ] ColorToAlphaSplitter - Create Processor that can fill in alpha
-    - [ ] WaifuExternalProcessor - Move mirroring to general function
-    - [ ] Processors - Improve logging output of class methods
-    - [ ] ScaleRepeater - Implement, read in yaml text file
-    - [ ] CopyProcessor - Improve purging; could compare files and only copy over if necessary
-    - [ ] PngquantProcessor - Use Pillow's support
-    - [ ] Common - Move platform support validation to validate_executable
-    - [ ] TexconvProcessor - Suppress output
-    - [ ] Set up requirements.txt and create my own conda environment creation script
-    - [ ] Move to Python 3.9 minimum
-    - [ ] LA mode support
-- Update 
-    - Processors
-        - [ ] CropProcessor
-            - [x] Documentation
-            - [ ] Testing
-            - [x] Mode support
-        - [ ] ExpandProcessor
-            - [x] Documentation
-            - [ ] Testing
-            - [x] Mode support
-        - [ ] ModeProcessor
-            - [x] Documentation
-            - [ ] Testing
-            - [x] Mode support
-        - [ ] PotraceProcessor
-        - [ ] XbrzProcessor
-            - [x] Documentation
-            - [x] Testing
-            - [x] Mode support
-    - Sorters
-        - [ ] SizeSorter
-    - Sources
-        - [ ] TexModSource
-        -
-- Update Documentation
-    - Mergers
-        - [ ] AlphaMerger
-        - [ ] ColorToAlphaMerger
-        - [ ] NormalMerger
-    - Processors
-        - [ ] AppleScriptProcessor
-        - [ ] AutomatorProcessor
-        - [ ] ESRGANProcessor
-        - [ ] PngquantProcessor
-        - [ ] PotraceProcessor
-        - [ ] ResizeProcessor
-        - [ ] SideChannelProcessor
-        - [ ] TexconvProcessor
-        - [ ] WaifuProcessor
-        - [ ] XbrzProcessor
-    - Sorters
-        - [ ] AlphaSorter
-        - [ ] GrayscaleSorter
-        - [ ] ListSorter
-        - [ ] ModeSorter
-        - [ ] RegexSorter
-        - [ ] SizeSorter
-    - Sources
-        - [ ] CitraSource
-        - [ ] DirectorySource
-        - [ ] DolphinSource
-        - [ ] TexModSource
-    - Splitters
-        - [ ] AlphaSplitter
-        - [ ] ColorToAlphaSplitter
-        - [ ] NormalSplitter
-    - Termini
-        - [ ] CopyFileTerminus
-- Notes:
-    - Don't use a property unless you cannot do the initialization in __init__
-    - Don't write a setter unless you need to set the value outside of __init__
+- [ ] Improvement: Testing - parallelize
+- [ ] Feature: Make processor available as an endpoint that can be POSTed to
+- [ ] Feature: Blocks of stages
+- [ ] Feature: Pass image and metadata as a whole object, not just infiles and outfiles
+- [ ] Feature: Script to bootstrap new projects
+- [ ] Stage: CopySplitter - Just send image down own or more outlets
+- [ ] Stage: ColorMatchMerger - Use skimage.transform.match_histograms to match color
+- [ ] Improvement: ColorToAlphaSplitter - Create Processor that can fill in alpha
+- [ ] Improvement: WaifuExternalProcessor - Move mirroring to general function
+- [ ] Improvement: CopyProcessor - Improve purging; could compare files and only copy over if necessary
+- [ ] Improvement: PngquantProcessor - Use Pillow's palette support
+- [ ] Improvement: Common - Move platform support validation to validate_executable
+- [ ] Improvement: Testing - Split processor standard and command-line tests
