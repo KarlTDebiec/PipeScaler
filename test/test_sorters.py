@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license. See the LICENSE file for details.
-####################################### MODULES ########################################
+""""""
 from typing import Dict, List
 
 import pytest
@@ -23,7 +23,6 @@ from pipescaler.sorters import (
 from shared import infile_subfolders, infiles
 
 
-######################################## TESTS #########################################
 @pytest.mark.parametrize(
     ("infile", "outlet"),
     [
@@ -62,7 +61,7 @@ def test_grayscale_sorter(infile: str, outlet: str) -> None:
     assert sorter(infile) == outlet
 
 
-@pytest.mark.parametrize(("outlets"), [(infile_subfolders)])
+@pytest.mark.parametrize("outlets", [infile_subfolders])
 def test_list_sorter(outlets: Dict[str, List[str]]) -> None:
     sorter = ListSorter(outlets)
 
@@ -106,7 +105,7 @@ def test_regex_sorter(regex: str, infile: str, outlet: str) -> None:
         (256, infiles["L"], "less_than"),
     ],
 )
-def test_size_sorter(cutoff: str, infile: str, outlet: str) -> None:
+def test_size_sorter(cutoff: int, infile: str, outlet: str) -> None:
     sorter = SizeSorter(cutoff)
     assert sorter(infile) == outlet
 
