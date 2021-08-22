@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license. See the LICENSE file for details.
-####################################### MODULES ########################################
+""""""
 from functools import partial
 from os import getcwd
 from os.path import dirname, join, splitext
@@ -33,19 +33,17 @@ from pipescaler.processors import (
 from pipescaler.common import package_root
 from pipescaler.core import UnsupportedImageModeError
 
-###################################### VARIABLES #######################################
-
 alt_infiles = {
-    splitext(f[-1])[0]: join(dirname(package_root), "test", "data", "infiles", "alt", f)
+    splitext(f)[0]: join(dirname(package_root), "test", "data", "infiles", "alt", f)
     for f in [
         "L.png",
         "LA.png",
+        "RGB.png",
+        "RGBA.png",
         "PL.png",
         "PLA.png",
         "PRGB.png",
         "PRGBA.png",
-        "RGB.png",
-        "RGBA.png",
     ]
 }
 esrgan = {
@@ -118,7 +116,6 @@ xfail_unsupported_mode = partial(
 xfail_value = partial(pytest.param, marks=pytest.mark.xfail(raises=ValueError))
 
 
-####################################### FIXTURES #######################################
 @pytest.fixture(params=infiles.keys())
 def infile(request):
     return infiles[request.param]

@@ -6,18 +6,21 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license. See the LICENSE file for details.
-####################################### MODULES ########################################
-
+""""""
 import pytest
 from PIL import Image
 
 from pipescaler.common import temporary_filename
 from pipescaler.core import remove_palette_from_image
-from pipescaler.mergers import AlphaMerger, ColorToAlphaMerger, NormalMerger
-from shared import infiles, xfail_unsupported_mode
+from pipescaler.mergers import (
+    AlphaMerger,
+    ColorMatchMerger,
+    ColorToAlphaMerger,
+    NormalMerger,
+)
+from shared import alt_infiles, infiles, xfail_unsupported_mode
 
 
-######################################## TESTS #########################################
 @pytest.mark.parametrize(
     ("color", "alpha"),
     [
@@ -47,6 +50,35 @@ def test_alpha_merger(color: str, alpha: str) -> None:
             else:
                 assert output_image.mode == "RGBA"
             assert output_image.size == color_image.size
+
+
+@pytest.mark.parametrize(
+    ("reference", "target"),
+    [
+        (alt_infiles["L"], infiles["L"]),
+        (alt_infiles["LA"], infiles["LA"]),
+        (alt_infiles["RGB"], infiles["RGB"]),
+        (alt_infiles["RGBA"], infiles["RGBA"]),
+        (alt_infiles["PL"], infiles["PL"]),
+        (alt_infiles["PLA"], infiles["PLA"]),
+        (alt_infiles["PRGB"], infiles["PRGB"]),
+        (alt_infiles["PRGBA"], infiles["PRGBA"]),
+    ],
+)
+def test_color_match_merger(reference: str, target: str):
+    with temporary_filename(".png") as outfile:
+        reference_image = Image.open(reference)
+        target_image = Image.open(target)
+        if target_image.mode == "P":
+            expected_output_mode = remove_palette_from_image(target_image).mode
+        else:
+            expected_output_mode = target_image.mode
+
+        merger = ColorMatchMerger()
+        merger(reference=reference, target=target, outfile=outfile)
+        with Image.open(outfile) as output_image:
+            assert output_image.mode == expected_output_mode
+            assert output_image.size == target_image.size
 
 
 @pytest.mark.parametrize(

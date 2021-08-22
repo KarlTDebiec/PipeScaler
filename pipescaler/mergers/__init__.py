@@ -6,14 +6,19 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-####################################### MODULES ########################################
+""""""
 from __future__ import annotations
 
 from typing import List
 
 from pipescaler.mergers.alpha_merger import AlphaMerger
+from pipescaler.mergers.color_match_merger import ColorMatchMerger
 from pipescaler.mergers.color_to_alpha_merger import ColorToAlphaMerger
 from pipescaler.mergers.normal_merger import NormalMerger
 
-######################################### ALL ##########################################
-__all__: List[str] = ["AlphaMerger", "ColorToAlphaMerger", "NormalMerger"]
+__all__: List[str] = [
+    "AlphaMerger",
+    "ColorMatchMerger",
+    "ColorToAlphaMerger",
+    "NormalMerger",
+]

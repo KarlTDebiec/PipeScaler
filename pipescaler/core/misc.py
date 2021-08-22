@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-####################################### MODULES ########################################
+""""""
 from __future__ import annotations
 
 from os import listdir
@@ -20,27 +20,34 @@ from scipy.ndimage import convolve
 from pipescaler.common import NotAFileError, validate_input_path
 
 
-###################################### FUNCTIONS #######################################
 def remove_palette_from_image(image: Image.Image):
     palette = np.reshape(image.getpalette(), (-1, 3))
-
-    # Within paletted images with transparency, full transparent pixels have their RGB
-    #   values set to (72, 112, 76), a shade of green. Exclude this shade from
-    #   consideration
-    palette[np.equal(palette, [71, 112, 76]).all(axis=1)] = 0
-
-    if np.all(palette[:, 0] == palette[:, 1]) and np.all(
-        palette[:, 0] == palette[:, 2]
-    ):
-        if "transparency" in image.info:
+    non_grayscale_colors = set(
+        np.where(
+            np.logical_or(
+                palette[:, 0] != palette[:, 1], palette[:, 1] != palette[:, 2]
+            )
+        )[0]
+    )
+    if "transparency" in image.info:
+        datum = np.array(image)
+        fully_transparent_colors = set(
+            np.where(np.array(list(image.info["transparency"])) == 0)[0]
+        )
+        pixels_per_non_grayscale_color = np.array(
+            [
+                (datum == color).sum()
+                for color in non_grayscale_colors - fully_transparent_colors
+            ]
+        )
+        if pixels_per_non_grayscale_color.sum() == 0:
             return image.convert("RGBA").convert("LA")
         else:
-            return image.convert("L")
-    else:
-        if "transparency" in image.info:
             return image.convert("RGBA")
-        else:
-            return image.convert("RGB")
+    elif len(non_grayscale_colors) == 0:
+        return image.convert("L")
+    else:
+        return image.convert("RGB")
 
 
 def crop_image(
