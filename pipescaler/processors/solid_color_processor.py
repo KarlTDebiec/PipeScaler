@@ -68,7 +68,10 @@ class SolidColorProcessor(Processor):
             )
         output_image = Image.new(
             input_image.mode,
-            (input_image.size[0] * self.scale, input_image.size[1] * self.scale),
+            (
+                int(round(input_image.size[0] * self.scale)),
+                int(round(input_image.size[1] * self.scale)),
+            ),
             color,
         )
 
