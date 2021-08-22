@@ -7,12 +7,10 @@
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
 """"""
-####################################### MODULES ########################################
 from __future__ import annotations
 
 from argparse import ArgumentParser
 from logging import debug, info
-from os.path import isfile
 from shutil import copyfile
 from subprocess import PIPE, Popen
 from typing import Any
@@ -21,7 +19,6 @@ from pipescaler.common import validate_executable, validate_int
 from pipescaler.core import Processor
 
 
-####################################### CLASSES ########################################
 class PngquantProcessor(Processor):
 
     # region Builtins
@@ -66,7 +63,7 @@ class PngquantProcessor(Processor):
 
     def process_file(self, infile: str, outfile: str) -> None:
         """
-        Loads image, processes it using pngquant, and saves resulting output
+        Loads image, processes it using pngquant, and saves resulting output.
 
         Arguments:
             infile (str): Input file
@@ -133,6 +130,5 @@ class PngquantProcessor(Processor):
     # endregion
 
 
-######################################### MAIN #########################################
 if __name__ == "__main__":
     PngquantProcessor.main()

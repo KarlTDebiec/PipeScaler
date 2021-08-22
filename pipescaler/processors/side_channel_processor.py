@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-####################################### MODULES ########################################
+""""""
 from __future__ import annotations
 
 from logging import info
@@ -20,7 +20,6 @@ from pipescaler.common import validate_input_path
 from pipescaler.core import Processor, parse_file_list
 
 
-####################################### CLASSES ########################################
 class SideChannelProcessor(Processor):
 
     # region Builtins

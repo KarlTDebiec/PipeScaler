@@ -7,7 +7,6 @@
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
 """"""
-####################################### MODULES ########################################
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -20,7 +19,6 @@ from pipescaler.common import validate_str
 from pipescaler.core import Processor, remove_palette_from_image
 
 
-####################################### CLASSES ########################################
 class ModeProcessor(Processor):
     modes = ["RGBA", "RGB", "LA", "L"]
 
@@ -107,6 +105,5 @@ class ModeProcessor(Processor):
     # endregion
 
 
-######################################### MAIN #########################################
 if __name__ == "__main__":
     ModeProcessor.main()

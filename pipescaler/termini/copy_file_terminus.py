@@ -7,7 +7,6 @@
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
 """"""
-####################################### MODULES ########################################
 from __future__ import annotations
 
 from hashlib import md5
@@ -21,7 +20,6 @@ from pipescaler.common import validate_output_path
 from pipescaler.core import Terminus, parse_file_list
 
 
-####################################### CLASSES ########################################
 class CopyFileTerminus(Terminus):
 
     # region Builtins

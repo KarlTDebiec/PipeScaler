@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-####################################### MODULES ########################################
+""""""
 from __future__ import annotations
 
 from typing import List
@@ -29,7 +29,6 @@ from pipescaler.processors.waifu_external_processor import WaifuExternalProcesso
 from pipescaler.processors.waifu_processor import WaifuProcessor
 from pipescaler.processors.xbrz_processor import XbrzProcessor
 
-######################################### ALL ##########################################
 __all__: List[str] = [
     "AppleScriptProcessor",
     "AutomatorProcessor",

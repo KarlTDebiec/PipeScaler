@@ -16,7 +16,6 @@ Adapted from ESRGAN (https://github.com/xinntao/ESRGAN) and Colab-ESRGAN
 `Apache 2.0 License
 (https://raw.githubusercontent.com/xinntao/ESRGAN/master/LICENSE).
 """
-####################################### MODULES ########################################
 from __future__ import annotations
 
 import collections
@@ -37,7 +36,6 @@ from pipescaler.core import (
 )
 
 
-####################################### CLASSES ########################################
 class ESRGANProcessor(Processor):
     # region Classes
 
@@ -367,6 +365,5 @@ class ESRGANProcessor(Processor):
     # endregion
 
 
-######################################### MAIN #########################################
 if __name__ == "__main__":
     ESRGANProcessor.main()

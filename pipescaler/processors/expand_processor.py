@@ -7,7 +7,6 @@
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
 """"""
-####################################### MODULES ########################################
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -20,7 +19,6 @@ from pipescaler.common import validate_ints
 from pipescaler.core import Processor, expand_image
 
 
-####################################### CLASSES ########################################
 class ExpandProcessor(Processor):
 
     # region Builtins
@@ -95,6 +93,5 @@ class ExpandProcessor(Processor):
     # endregion
 
 
-######################################### MAIN #########################################
 if __name__ == "__main__":
     ExpandProcessor.main()

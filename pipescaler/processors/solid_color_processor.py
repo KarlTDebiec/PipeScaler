@@ -7,7 +7,6 @@
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
 """"""
-####################################### MODULES ########################################
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -25,7 +24,6 @@ from pipescaler.core import (
 )
 
 
-####################################### CLASSES ########################################
 class SolidColorProcessor(Processor):
 
     # region Builtins
@@ -42,8 +40,8 @@ class SolidColorProcessor(Processor):
 
     def process_file(self, infile: str, outfile: str, **kwargs: Any) -> None:
         """
-        Calculates average color of infile and writes new image of equivalent size and
-        mode to outfile.
+        Calculates average color of infile and writes new image of equivalent
+        size and mode to outfile.
 
         Arguments:
             infile (str): Input file
@@ -107,6 +105,5 @@ class SolidColorProcessor(Processor):
     # endregion
 
 
-######################################### MAIN #########################################
 if __name__ == "__main__":
     SolidColorProcessor.main()

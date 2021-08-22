@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-####################################### MODULES ########################################
+""""""
 from __future__ import annotations
 
 from logging import info, warning
@@ -17,7 +17,6 @@ from typing import Any, Dict, List
 from pipescaler.core import Sorter, parse_file_list
 
 
-####################################### CLASSES ########################################
 class ListSorter(Sorter):
     exclusions = {".DS_Store", "desktop"}
 

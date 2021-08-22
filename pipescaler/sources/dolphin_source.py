@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-####################################### MODULES ########################################
+""""""
 from __future__ import annotations
 
 from logging import error
@@ -15,7 +15,6 @@ from os.path import basename, splitext
 from pipescaler.sources.directory_source import DirectorySource
 
 
-####################################### CLASSES ########################################
 class DolphinSource(DirectorySource):
 
     # region Static Methods

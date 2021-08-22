@@ -6,14 +6,13 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license. See the LICENSE file for details.
-####################################### MODULES ########################################
+""""""
 from subprocess import Popen
 
 # noinspection PyUnresolvedReferences
 from shared import script
 
 
-######################################## TESTS #########################################
 def test_help(script: str) -> None:
     command = f"coverage run {script} -h"
     child = Popen(command, shell=True)

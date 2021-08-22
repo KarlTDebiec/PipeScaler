@@ -7,23 +7,21 @@
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
 """"""
-####################################### MODULES ########################################
 from __future__ import annotations
 
 from argparse import ArgumentParser
 from logging import debug, info
 from os.path import basename, join
 from platform import win32_ver
-from shutil import copyfile, which
+from shutil import copyfile
 from subprocess import PIPE, Popen
 from tempfile import TemporaryDirectory
 from typing import Any, Optional
 
-from pipescaler.common import ExecutableNotFoundError, validate_executable
+from pipescaler.common import validate_executable
 from pipescaler.core import Processor, UnsupportedPlatformError
 
 
-####################################### CLASSES ########################################
 class TexconvProcessor(Processor):
     extension = "dds"
 
@@ -77,7 +75,7 @@ class TexconvProcessor(Processor):
 
     def process_file(self, infile: str, outfile: str) -> None:
         """
-        Loads image, converts it using texconv, and saves resulting output
+        Loads image, converts it using texconv, and saves resulting output.
 
         Arguments:
             infile (str): Input file
@@ -146,6 +144,5 @@ class TexconvProcessor(Processor):
     # endregion
 
 
-######################################### MAIN #########################################
 if __name__ == "__main__":
     TexconvProcessor.main()

@@ -7,7 +7,6 @@
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
 """"""
-####################################### MODULES ########################################
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -26,7 +25,6 @@ from pipescaler.common import (
 )
 
 
-####################################### CLASSES ########################################
 class APNGCreator(CLTool):
 
     # region Builtins
@@ -166,6 +164,5 @@ class APNGCreator(CLTool):
     # endregion
 
 
-######################################### MAIN #########################################
 if __name__ == "__main__":
     APNGCreator.main()

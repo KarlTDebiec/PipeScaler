@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license. See the LICENSE file for details.
-####################################### MODULES ########################################
+""""""
 from os.path import join
 from tempfile import TemporaryDirectory
 
@@ -14,7 +14,6 @@ from pipescaler.termini import CopyFileTerminus
 from shared import alt_infiles, infiles
 
 
-######################################## TESTS #########################################
 def test_copy_file_terminus() -> None:
     with TemporaryDirectory() as output_directory:
         terminus = CopyFileTerminus(directory=output_directory)

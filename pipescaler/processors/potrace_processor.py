@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-####################################### MODULES ########################################
+""""""
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -18,7 +18,6 @@ from typing import Any
 from pipescaler.core import Processor
 
 
-####################################### CLASSES ########################################
 class PotraceProcessor(Processor):
 
     # region Builtins
@@ -142,6 +141,5 @@ class PotraceProcessor(Processor):
     # endregion
 
 
-######################################### MAIN #########################################
 if __name__ == "__main__":
     PotraceProcessor.main()

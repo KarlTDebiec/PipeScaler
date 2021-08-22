@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-####################################### MODULES ########################################
+""""""
 from os import walk
 from os.path import join
 from typing import List
@@ -14,7 +14,6 @@ from typing import List
 from setuptools import find_packages, setup
 
 
-###################################### FUNCTIONS #######################################
 def get_package_data(directory: str) -> List[str]:
     paths = []
     for (path, directories, filenames) in walk(directory):
@@ -23,7 +22,6 @@ def get_package_data(directory: str) -> List[str]:
     return paths
 
 
-######################################### MAIN #########################################
 setup(
     name="pipescaler",
     version="0.1",

@@ -7,17 +7,15 @@
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
 """"""
-####################################### MODULES ########################################
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import Any, List
+from typing import List
 
 from pipescaler.common import CLTool
 from pipescaler.core.stage import Stage
 
 
-####################################### CLASSES ########################################
 class Terminus(Stage, CLTool):
 
     # region Builtins
