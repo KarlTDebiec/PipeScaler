@@ -7,7 +7,6 @@
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
 """"""
-####################################### MODULES ########################################
 from __future__ import annotations
 
 import itertools
@@ -33,7 +32,6 @@ from pipescaler.common import (
 from pipescaler.core import parse_file_list
 
 
-####################################### CLASSES ########################################
 class ScaledImageIdentifier(CLTool):
     exclusions = {".DS_Store", "desktop"}
 
@@ -341,6 +339,5 @@ class ScaledImageIdentifier(CLTool):
     # endregion
 
 
-######################################### MAIN #########################################
 if __name__ == "__main__":
     ScaledImageIdentifier.main()

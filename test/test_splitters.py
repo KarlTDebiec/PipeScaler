@@ -6,7 +6,6 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license. See the LICENSE file for details.
-####################################### MODULES ########################################
 
 import pytest
 from PIL import Image
@@ -17,7 +16,6 @@ from pipescaler.splitters import AlphaSplitter, ColorToAlphaSplitter, NormalSpli
 from shared import infiles, xfail_unsupported_mode
 
 
-######################################## TESTS #########################################
 @pytest.mark.parametrize(
     ("infile"),
     [

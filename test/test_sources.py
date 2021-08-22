@@ -6,14 +6,13 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license. See the LICENSE file for details.
-####################################### MODULES ########################################
+""""""
 import pytest
 
 from pipescaler.sources import CitraSource, DirectorySource, DolphinSource, TexmodSource
 from shared import infile_subfolders, xfail_value
 
 
-######################################## TESTS #########################################
 @pytest.mark.parametrize(
     ("directory"),
     [

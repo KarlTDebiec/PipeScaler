@@ -8,13 +8,13 @@
 #   BSD license.
 """
 Processes an image using waifu.
+
 Requires the macOS version of waifu2x (https://github.com/imxieyi/waifu2x-mac)
 in the executor's path.
 Provides two improvements over running waifu2x directly:
 1. If image is below waifu2x's minimum size, expands canvas.
 2. Eliminates edge effects by reflecting image around edges.
 """
-####################################### MODULES ########################################
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -39,7 +39,6 @@ from pipescaler.core import (
 )
 
 
-####################################### CLASSES ########################################
 class WaifuExternalProcessor(Processor):
     models = {"windows": ["a"], "unix": ["a", "p"]}
 
@@ -93,7 +92,7 @@ class WaifuExternalProcessor(Processor):
 
     def process_file(self, infile: str, outfile: str) -> None:
         """
-        Loads image, processes it, and saves resulting output
+        Loads image, processes it, and saves resulting output.
 
         Arguments:
             infile (str): Input file
@@ -184,6 +183,7 @@ class WaifuExternalProcessor(Processor):
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
         Constructs argument parser.
+
         Returns:
             parser (ArgumentParser): Argument parser
         """
@@ -220,6 +220,5 @@ class WaifuExternalProcessor(Processor):
     # endregion
 
 
-######################################### MAIN #########################################
 if __name__ == "__main__":
     WaifuExternalProcessor.main()

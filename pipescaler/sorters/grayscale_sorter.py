@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-####################################### MODULES ########################################
+""""""
 from __future__ import annotations
 
 from logging import info
@@ -19,7 +19,6 @@ from pipescaler.common import validate_float, validate_int
 from pipescaler.core import Sorter, UnsupportedImageModeError, remove_palette_from_image
 
 
-####################################### CLASSES ########################################
 class GrayscaleSorter(Sorter):
 
     # region Builtins

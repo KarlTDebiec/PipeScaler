@@ -7,7 +7,6 @@
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
 """"""
-####################################### MODULES ########################################
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -34,11 +33,9 @@ from pipescaler.core import (
     remove_palette_from_image,
 )
 
-###################################### VARIABLES #######################################
 model_architectures = {k.lower(): v for k, v in archs.items()}
 
 
-####################################### CLASSES ########################################
 class WaifuProcessor(Processor):
     architectures = {"resnet10", "upconv7", "upresnet10", "vgg7"}
 
@@ -100,7 +97,7 @@ class WaifuProcessor(Processor):
 
     def process_file(self, infile: str, outfile: str) -> None:
         """
-        Loads image, processes it, and saves resulting output
+        Loads image, processes it, and saves resulting output.
 
         Arguments:
             infile (str): Input file
@@ -198,6 +195,5 @@ class WaifuProcessor(Processor):
     # endregion
 
 
-######################################### MAIN #########################################
 if __name__ == "__main__":
     WaifuProcessor.main()

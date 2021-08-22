@@ -7,7 +7,6 @@
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
 """"""
-####################################### MODULES ########################################
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -20,7 +19,6 @@ from pipescaler.common import validate_ints
 from pipescaler.core import Processor, crop_image
 
 
-####################################### CLASSES ########################################
 class CropProcessor(Processor):
 
     # region Builtins
@@ -101,6 +99,5 @@ class CropProcessor(Processor):
     # endregion
 
 
-######################################### MAIN #########################################
 if __name__ == "__main__":
     CropProcessor.main()

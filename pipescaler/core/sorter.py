@@ -6,16 +6,14 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-####################################### MODULES ########################################
+""""""
 from __future__ import annotations
 
 from abc import ABC
-from typing import Any
 
 from pipescaler.core.stage import Stage
 
 
-####################################### CLASSES ########################################
 class Sorter(Stage, ABC):
 
     # region Builtins

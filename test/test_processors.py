@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license. See the LICENSE file for details.
-####################################### MODULES ########################################
+""""""
 from inspect import getfile
 from os.path import getsize
 from platform import win32_ver
@@ -47,7 +47,6 @@ from shared import (
 )
 
 
-######################################## TESTS #########################################
 def test_help(processor: Processor) -> None:
     command = f"coverage run {getfile(processor)} -h"
     child = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)

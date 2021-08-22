@@ -7,7 +7,6 @@
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
 """"""
-####################################### MODULES ########################################
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -26,7 +25,6 @@ from pipescaler.common import (
 from pipescaler.core import Processor, UnsupportedPlatformError
 
 
-####################################### CLASSES ########################################
 class AutomatorProcessor(Processor):
 
     # region Builtins
@@ -101,6 +99,5 @@ class AutomatorProcessor(Processor):
     # endregion
 
 
-######################################### MAIN #########################################
 if __name__ == "__main__":
     AutomatorProcessor.main()

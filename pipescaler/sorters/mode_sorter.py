@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-####################################### MODULES ########################################
+""""""
 from __future__ import annotations
 
 from logging import info
@@ -17,7 +17,6 @@ from PIL import Image
 from pipescaler.core import Sorter, UnsupportedImageModeError, remove_palette_from_image
 
 
-####################################### CLASSES ########################################
 class ModeSorter(Sorter):
 
     # region Builtins

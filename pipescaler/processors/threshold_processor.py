@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-####################################### MODULES ########################################
+""""""
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -19,7 +19,6 @@ from PIL import Image
 from pipescaler.core import Processor
 
 
-####################################### CLASSES ########################################
 class ThresholdProcessor(Processor):
 
     # region Builtins
@@ -127,6 +126,5 @@ class ThresholdProcessor(Processor):
     # endregion
 
 
-######################################### MAIN #########################################
 if __name__ == "__main__":
     ThresholdProcessor.main()

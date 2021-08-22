@@ -7,7 +7,6 @@
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
 """"""
-####################################### MODULES ########################################
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -25,7 +24,6 @@ from pipescaler.core import (
 )
 
 
-####################################### CLASSES ########################################
 class ResizeProcessor(Processor):
     resample_methods = {
         "bicubic": Image.BICUBIC,
@@ -150,6 +148,5 @@ class ResizeProcessor(Processor):
     # endregion
 
 
-######################################### MAIN #########################################
 if __name__ == "__main__":
     ResizeProcessor.main()

@@ -7,7 +7,6 @@
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
 """"""
-####################################### MODULES ########################################
 from __future__ import annotations
 
 import logging
@@ -30,7 +29,6 @@ from pipescaler.common import (
 from pipescaler.core import parse_file_list
 
 
-####################################### CLASSES ########################################
 class DirectoryWatcher(CLTool):
     exclusions = {".DS_Store", "desktop"}
 
@@ -251,6 +249,5 @@ class DirectoryWatcher(CLTool):
     # endregion
 
 
-######################################### MAIN #########################################
 if __name__ == "__main__":
     DirectoryWatcher.main()
