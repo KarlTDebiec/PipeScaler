@@ -10,25 +10,27 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any, Generator, Optional
-
-from pipescaler.core.pipe_image import PipeImage
-from pipescaler.core.pipeline import Pipeline
+from typing import Any, Optional
 
 
 ####################################### CLASSES ########################################
 class Stage(ABC):
+    trim_suffixes = None
+    extension = "png"
 
     # region Builtins
 
     def __init__(
-        self,
-        pipeline: Pipeline,
-        name: Optional[str] = None,
-        desc: Optional[str] = None,
-        **kwargs: Any
+        self, name: Optional[str] = None, desc: Optional[str] = None, **kwargs: Any
     ) -> None:
-        self.pipeline = pipeline
+        """
+        Validates and stores static configuration.
+
+        Arguments:
+            name (Optional[str]): Name of stage
+            desc (Optional[str]): Description of stage
+            kwargs (Any): Additional keyword arguments
+        """
         if name is not None:
             self.name = name
         else:
@@ -38,14 +40,24 @@ class Stage(ABC):
         else:
             self.desc = self.name
 
-    @abstractmethod
-    def __call__(self) -> Generator[PipeImage, PipeImage, None]:
-        raise NotImplementedError()
-
     def __repr__(self) -> str:
         return self.desc
 
     def __str__(self) -> str:
         return self.name
+
+    # endregion
+
+    # region Properties
+
+    @property
+    @abstractmethod
+    def inlets(self):
+        raise NotImplementedError()
+
+    @property
+    @abstractmethod
+    def outlets(self):
+        raise NotImplementedError()
 
     # endregion

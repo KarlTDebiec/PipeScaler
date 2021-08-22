@@ -6,69 +6,114 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+""""""
 ####################################### MODULES ########################################
 from __future__ import annotations
 
 from argparse import ArgumentParser
-from os.path import basename, isfile, join
+from logging import debug, info
+from os.path import basename, join
 from platform import win32_ver
 from shutil import copyfile, which
-from subprocess import Popen
+from subprocess import PIPE, Popen
 from tempfile import TemporaryDirectory
 from typing import Any, Optional
 
-from pipescaler.common import ExecutableNotFoundError, validate_output_path
-from pipescaler.core import PipeImage, UnsupportedPlatformError, Processor
+from pipescaler.common import ExecutableNotFoundError, validate_executable
+from pipescaler.core import Processor, UnsupportedPlatformError
 
 
 ####################################### CLASSES ########################################
 class TexconvProcessor(Processor):
+    extension = "dds"
 
     # region Builtins
 
     def __init__(
         self,
+        mipmaps: bool = False,
         sepalpha: bool = False,
         filetype: Optional[str] = None,
         format: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Validates and stores static configuration.
 
+        Arguments:
+        mipmaps (bool): whether or not to generate mipmaps
+        sepalpha (bool): whether or not to generate mips alpha channel separately from
+          color channels
+        filetype (Optional[str]): output file type
+        format (Optional[str]): output format
+        kwargs (Any): Additional keyword arguments
+        """
         super().__init__(**kwargs)
 
+        # Store configuration
+        self.mipmaps = mipmaps
         self.sepalpha = sepalpha
         self.filetype = filetype
         self.format = format
-        self.desc = self.name
+
+    def __call__(self, infile: str, outfile: str) -> None:
+        """
+        Processes infile and writes the resulting output to outfile.
+
+        Arguments:
+            infile (str): Input file
+            outfile (str): Output file
+        """
+        if not any(win32_ver()):
+            raise UnsupportedPlatformError(
+                "TexconvProcessor is only supported on Windows"
+            )
+        validate_executable("texconv.exe")
+        super().__call__(infile, outfile)
 
     # endregion
 
     # region Methods
 
-    def process_file_in_pipeline(self, image: PipeImage) -> None:
-        if not any(win32_ver()):
-            raise UnsupportedPlatformError(
-                "TexconvProcessor may only be used on Windows"
-            )
-        if not which("texconv.exe"):
-            raise ExecutableNotFoundError("texcov.exe executable not found in PATH")
+    def process_file(self, infile: str, outfile: str) -> None:
+        """
+        Loads image, converts it using texconv, and saves resulting output
 
-        infile = image.last
-        outfile = validate_output_path(
-            self.pipeline.get_outfile(image, self.suffix, extension="dds")
-        )
-        if not isfile(outfile):
-            self.process_file(
-                infile,
-                outfile,
-                self.pipeline.verbosity,
-                sepalpha=self.sepalpha,
-                filetype=self.filetype,
-                format=self.format,
-            )
-        image.log(self.name, outfile)
+        Arguments:
+            infile (str): Input file
+            outfile (str): Output file
+        """
+
+        with TemporaryDirectory() as temp_directory:
+            # Stage image
+            tempfile = join(temp_directory, basename(infile))
+            copyfile(infile, tempfile)
+
+            # Process image
+            command = "texconv.exe"
+            if self.mipmaps:
+                if self.sepalpha:
+                    command += f" -sepalpha"
+            else:
+                command += f" -m 1"
+            if self.filetype:
+                command += f" -ft {self.filetype}"
+            if self.format:
+                command += f" -f {self.format}"
+            command += f" -o {temp_directory} {tempfile}"
+            debug(f"{self}: {command}")
+            child = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)
+            exitcode = child.wait(10)
+            if exitcode != 0:
+                raise ValueError()  # TODO: Provide useful output
+
+            # Write image
+            copyfile(f"{tempfile[:-4]}.dds", outfile)  # TODO: Handle filetypes
+            info(f"{self}: '{outfile}' saved")
 
     # endregion
+
+    # region Class Methods
 
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
@@ -82,42 +127,23 @@ class TexconvProcessor(Processor):
         parser = super().construct_argparser(description=description, **kwargs)
 
         parser.add_argument(
+            "--mipmaps", action="store_true", help="generate mipmaps",
+        )
+        parser.add_argument(
             "--sepalpha",
             action="store_true",
-            help="resize/generate mips alpha channel separately from color channels",
+            help="generate mips alpha channel separately from color channels",
         )
         parser.add_argument(
             "--filetype", type=str, help="output file type",
         )
         parser.add_argument(
-            "--format", type=str, help="output format",
+            "--format", default="BC7_UNORM", type=str, help="output format",
         )
 
         return parser
 
-    @classmethod
-    def process_file(
-        cls, infile: str, outfile: str, verbosity: int = 1, **kwargs: Any
-    ) -> None:
-        sepalpha = kwargs.get("sepalpha", False)
-        filetype = kwargs.get("filetype")
-        format = kwargs.get("format")
-
-        with TemporaryDirectory() as temp_directory:
-            tempfile = join(temp_directory, basename(infile))
-            copyfile(infile, tempfile)
-            command = f"texconv.exe"
-            if sepalpha:
-                command = f"{command} -sepalpha"
-            if filetype:
-                command = f"{command} -ft {filetype}"
-            if format:
-                command = f"{command} -f {format}"
-            command = f"{command} -o {temp_directory} {tempfile}"
-            if verbosity >= 2:
-                print(command)
-            Popen(command, shell=True, close_fds=True).wait()
-            copyfile(f"{tempfile[:-4]}.dds", outfile)
+    # endregion
 
 
 ######################################### MAIN #########################################

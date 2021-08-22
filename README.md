@@ -12,9 +12,11 @@ old and new architectures) and wraps around the external tools
 [Pixelmator](https://www.pixelmator.com/pro/),
 [potrace](http://potrace.sourceforge.net),
 [pngquant](http://potrace.sourceforge.net),
+[texconv](https://github.com/microsoft/DirectXTex/releases),
 [waifu2x](https://github.com/nagadomi/waifu2x), and
 [xbrzcale](https://github.com/atheros/xbrzscale).
 
 Pipescaler may be used with any collection of images, and is currently optimized for
-working with texture images dumped by [Citra](https://citra-emu.org) and
+working with texture images dumped by [Citra](https://citra-emu.org),
+[Dolphin](https://dolphin-emu.org/) and
 [TexMod](https://www.moddb.com/downloads/texmod4).

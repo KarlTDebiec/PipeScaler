@@ -22,21 +22,23 @@ from __future__ import annotations
 import collections
 from argparse import ArgumentParser
 from functools import partial
-from os.path import basename, isfile
+from logging import info, warning
 from typing import Any
 
 import numpy as np
 import torch
 from PIL import Image
 
-from pipescaler.common import validate_input_path, validate_output_path
-from pipescaler.core import PipeImage, Processor
+from pipescaler.common import validate_input_path
+from pipescaler.core import (
+    Processor,
+    UnsupportedImageModeError,
+    remove_palette_from_image,
+)
 
 
 ####################################### CLASSES ########################################
 class ESRGANProcessor(Processor):
-    """"""
-
     # region Classes
 
     class ResidualDenseBlock5C(torch.nn.Module):
@@ -162,74 +164,115 @@ class ESRGANProcessor(Processor):
 
     # region Builtins
 
-    def __init__(self, model_infile: str, device: str = "cpu", **kwargs: Any) -> None:
+    def __init__(self, model_infile: str, device: str = "cuda", **kwargs: Any) -> None:
+        """
+        Validates and stores static configuration.
+
+        Arguments:
+            model_infile (str): Path to model infile
+            device (str): Device on which to compute
+        """
         super().__init__(**kwargs)
 
-        self.model_infile = model_infile
-        self.device = device
-
-        self._upscaler = ESRGANProcessor.RRDBNetUpscaler(
-            self.model_infile, torch.device(self.device)
-        )
-
-        desc = f"{self.name} {self.__class__.__name__} (model={basename(self.model_infile)})"
-        if self.downstream_stages is not None:
-            if len(self.downstream_stages) >= 2:
-                for stage in self.downstream_stages[:-1]:
-                    desc += f"\n ├─ {stage}"
-            desc += f"\n └─ {self.downstream_stages[-1]}"
-        self.desc = desc
-
-    # endregion
-
-    # region Properties
-
-    @property
-    def model_infile(self) -> str:
-        """str: Path to model infile"""
-        if not hasattr(self, "_model_infile"):
-            raise ValueError()
-        return self._model_infile
-
-    @model_infile.setter
-    def model_infile(self, value: str) -> None:
-        self._model_infile = validate_input_path(value)
-
-    @property
-    def upscaler(self):
-        if not hasattr(self, "_upscaler"):
-            raise ValueError()
-        return self._upscaler
+        # Store configuration
+        self.model_infile = validate_input_path(model_infile)
+        if device == "cuda":
+            try:
+                self.upscaler = ESRGANProcessor.RRDBNetUpscaler(
+                    self.model_infile, torch.device(device)
+                )
+                self.cpu_upscaler = ESRGANProcessor.RRDBNetUpscaler(
+                    self.model_infile, torch.device("cpu")
+                )
+            except AssertionError as e:
+                warning(
+                    f"{self}: CUDA ESRGAN upscaler raised exception: '{e}'; "
+                    f"trying CPU upscaler"
+                )
+                self.upscaler = ESRGANProcessor.RRDBNetUpscaler(
+                    self.model_infile, torch.device("cpu")
+                )
+                self.cpu_upscaler = None
+        else:
+            self.upscaler = ESRGANProcessor.RRDBNetUpscaler(
+                self.model_infile, torch.device(device)
+            )
+            self.cpu_upscaler = None
 
     # endregion
 
     # region Methods
 
-    def process_file_in_pipeline(self, image: PipeImage) -> None:
-        infile = validate_input_path(image.last)
-        outfile = validate_output_path(self.pipeline.get_outfile(image, self.suffix))
-        if not isfile(outfile):
-            self.process_file(
-                infile,
-                outfile,
-                verbosity=self.pipeline.verbosity,
-                upscaler=self.upscaler,
+    def process_file(self, infile: str, outfile: str) -> None:
+        """
+        Processes infile and writes the resulting output to outfile.
+
+        Arguments:
+            infile (str): Input file
+            outfile (str): Output file
+        """
+
+        # Read image
+        input_image = Image.open(infile)
+        if input_image.mode == "P":
+            full_space_image = remove_palette_from_image(input_image)
+            if full_space_image.mode == "RGB":
+                output_mode = "RGB"
+                input_datum = np.array(full_space_image)
+            elif full_space_image.mode == "L":
+                output_mode = "L"
+                input_datum = np.array(full_space_image.convert("RGB"))
+            else:
+                raise UnsupportedImageModeError(
+                    f"Image mode '{full_space_image.mode}' of paletted image '{infile}'"
+                    f" is not supported by {type(self)}"
+                )
+        elif input_image.mode == "RGB":
+            output_mode = "RGB"
+            input_datum = np.array(input_image)
+        elif input_image.mode == "L":
+            output_mode = "L"
+            input_datum = np.array(input_image.convert("RGB"))
+        else:
+            raise UnsupportedImageModeError(
+                f"Image mode '{input_image.mode}' of image '{infile}'"
+                f" is not supported by {type(self)}"
             )
-        image.log(self.name, outfile)
+
+        # Process image
+        try:
+            output_datum = self.upscaler.upscale(input_datum)
+        except RuntimeError as e:
+            if self.cpu_upscaler is not None:
+                warning(
+                    f"{self}: CUDA ESRGAN upscaler raised exception: '{e}'; "
+                    f"trying CPU upscaler"
+                )
+                output_datum = self.cpu_upscaler.upscale(input_datum)
+            else:
+                raise e
+        output_image = Image.fromarray(output_datum)
+        if output_mode == "L":
+            output_image = output_image.convert("L")
+
+        # Write image
+        output_image.save(outfile)
+        info(f"{self}: '{outfile}' saved")
 
     # endregion
 
     # region Class Methods
 
     @classmethod
-    def construct_argparser(cls) -> ArgumentParser:
+    def construct_argparser(cls, **kwargs) -> ArgumentParser:
         """
         Constructs argument parser.
 
         Returns:
             parser (ArgumentParser): Argument parser
         """
-        parser = super().construct_argparser(description=__doc__.strip())
+        description = kwargs.get("description", __doc__.strip())
+        parser = super().construct_argparser(description=description, **kwargs)
 
         # Input
         parser.add_argument(
@@ -242,7 +285,10 @@ class ESRGANProcessor(Processor):
 
         # Operations
         parser.add_argument(
-            "--device", default="cpu", type=str, help="device (default: %(default)s)"
+            "--device",
+            default="cuda",
+            type=cls.str_arg(options=["cpu", "cuda"]),
+            help="device (default: %(default)s)",
         )
 
         return parser
@@ -261,31 +307,6 @@ class ESRGANProcessor(Processor):
             scale_index = cls.get_scale_index(state_dict)
 
         return state_dict, scale_index
-
-    @classmethod
-    def process_file(
-        cls, infile: str, outfile: str, verbosity=1, **kwargs: Any
-    ) -> None:
-        upscaler = kwargs.get("upscaler")
-
-        # Read image
-        input_datum = np.array(Image.open(infile).convert("RGB"))
-
-        # Run model
-        output_datum = upscaler.upscale(input_datum)
-
-        # Write image
-        output_image = Image.fromarray(output_datum)
-        output_image.save(outfile)
-
-    @classmethod
-    def process_file_from_cl(cls, infile: str, outfile: str, **kwargs):
-        infile = validate_input_path(infile)
-        outfile = validate_output_path(outfile)
-        model_infile = validate_input_path(kwargs.get("model_infile"))
-        device = kwargs.get("device")
-        upscaler = ESRGANProcessor.RRDBNetUpscaler(model_infile, torch.device(device))
-        cls.process_file(infile, outfile, upscaler=upscaler, **kwargs)
 
     # endregion
 

@@ -9,14 +9,17 @@
 ####################################### MODULES ########################################
 from __future__ import annotations
 
-from os.path import isfile
-from typing import Any, Generator, Optional
+from logging import info
+from typing import Any, Dict
 
 import numpy as np
 from PIL import Image
 
-from pipescaler.common import validate_output_path
-from pipescaler.core import PipeImage, Splitter
+from pipescaler.core import (
+    Splitter,
+    UnsupportedImageModeError,
+    remove_palette_from_image,
+)
 
 
 ####################################### CLASSES ########################################
@@ -24,68 +27,132 @@ class AlphaSplitter(Splitter):
 
     # region Builtins
 
-    def __init__(
-        self,
-        downstream_stages_for_rgb: Optional[str] = None,
-        downstream_stages_for_a: Optional[str] = None,
-        **kwargs: Any,
-    ) -> None:
+    def __init__(self, smart_fill: bool = False, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
         # Store configuration
-        if isinstance(downstream_stages_for_rgb, str):
-            downstream_stages_for_rgb = [downstream_stages_for_rgb]
-        self.downstream_stages_for_rgb = downstream_stages_for_rgb
-        if isinstance(downstream_stages_for_a, str):
-            downstream_stages_for_a = [downstream_stages_for_a]
-        self.downstream_stages_for_a = downstream_stages_for_a
+        self.smart_fill = smart_fill
 
-        # Prepare description
-        desc = f"{self.name} {self.__class__.__name__}"
-        if self.downstream_stages_for_rgb is not None:
-            desc += f"\n ├─ RGB"
-            if len(self.downstream_stages_for_rgb) >= 2:
-                for stage in self.downstream_stages_for_rgb[:-1]:
-                    desc += f"\n │  ├─ {stage}"
-            desc += f"\n │  └─ {self.downstream_stages_for_rgb[-1]}"
-        if self.downstream_stages_for_a is not None:
-            desc += f"\n └─ A"
-            if len(self.downstream_stages_for_a) >= 2:
-                for stage in self.downstream_stages_for_a[:-1]:
-                    desc += f"\n    ├─ {stage}"
-            desc += f"\n    └─ {self.downstream_stages_for_a[-1]}"
-        self.desc = desc
+    def __call__(self, infile: str, **kwargs: Any) -> Dict[str, str]:
+        outfiles = {k: kwargs.get(k) for k in self.outlets}
 
-    def __call__(self) -> Generator[PipeImage, PipeImage, None]:
-        while True:
-            image = yield
-            if self.pipeline.verbosity >= 2:
-                print(f"  {self}")
-            if image.mode == "RGBA":
-                rgba = Image.open(image.last)
-                rgb_outfile = validate_output_path(
-                    self.pipeline.get_outfile(image, "RGB")
-                )
-                a_outfile = validate_output_path(self.pipeline.get_outfile(image, "A"))
+        # Read image
+        input_image = Image.open(infile)
+        if input_image.mode == "P":
+            input_image = remove_palette_from_image(input_image)
+        if input_image.mode not in ("LA", "RGBA"):
+            raise UnsupportedImageModeError(
+                f"Image mode '{input_image.mode}' of image '{infile}'"
+                f" is not supported by {type(self)}"
+            )
 
-                if not isfile(rgb_outfile):
-                    if self.pipeline.verbosity >= 3:
-                        print(f"    saving RGB to '{rgb_outfile}'")
-                    Image.fromarray(np.array(rgba)[:, :, :3]).save(rgb_outfile)
-                image.log(self.name, rgb_outfile)
-                if self.downstream_stages_for_rgb is not None:
-                    for pipe in self.downstream_stages_for_rgb:
-                        self.pipeline.stages[pipe].send(image)
+        # Split image
+        input_datum = np.array(input_image)
+        color_datum = np.squeeze(input_datum[:, :, :-1])
+        alpha_datum = input_datum[:, :, -1]
+        if self.smart_fill:
+            color_datum[alpha_datum == 0] = [255, 0, 255]
+            while True:
+                try:
+                    color_datum = self.run_iter(color_datum, [255, 0, 255])
+                except StopIteration:
+                    break
+        color_image = Image.fromarray(color_datum)
+        alpha_image = Image.fromarray(alpha_datum)
 
-                if not isfile(a_outfile):
-                    if self.pipeline.verbosity >= 3:
-                        print(f"    saving alpha to '{a_outfile}'")
-                    Image.fromarray(np.array(rgba)[:, :, 3]).save(a_outfile)
-                image.log(self.name, a_outfile)
-                if self.downstream_stages_for_a is not None:
-                    for pipe in self.downstream_stages_for_a:
-                        self.pipeline.stages[pipe].send(image)
-            else:
-                raise ValueError()
+        # Write images
+        color_image.save(outfiles["color"])
+        info(f"{self}: '{outfiles['color']}' saved")
+        alpha_image.save(outfiles["alpha"])
+        info(f"{self}: '{outfiles['alpha']}' saved")
+
+        return outfiles
+
+    # endregion
+
+    # region Properties
+
+    @property
+    def outlets(self):
+        return ["color", "alpha"]
+
+    # endregion
+
+    # region Class Methods
+
+    @classmethod
+    def run_iter(cls, color_datum: np.ndarray, alpha_color):
+
+        # Identify transparent pixels in image
+        transparent_pixels = (color_datum == alpha_color).all(axis=2)
+        if transparent_pixels.sum() == 0:
+            raise StopIteration
+
+        # count the number of opaque pixels adjacent to each pixel in image
+        adjacent_opaque_pixels = cls.adjacent_opaque_pixels(transparent_pixels)
+
+        # Disregard the number of of adjacent opaque pixels for pixels that are themselves opaque
+        adjacent_opaque_pixels[np.logical_not(transparent_pixels)] = 0
+
+        # Identify pixels who have the max number of adjacent opaque pixels
+        pixels_to_fill = np.logical_and(
+            transparent_pixels, adjacent_opaque_pixels == adjacent_opaque_pixels.max(),
+        )
+
+        # Calculate the color of pixels to fill
+        sum_of_adjacent_opaque_pixels = cls.sum_of_adjacent_opaque_pixels(
+            color_datum, transparent_pixels
+        )
+        colors_of_pixels_to_fill = np.round(
+            sum_of_adjacent_opaque_pixels[pixels_to_fill] / adjacent_opaque_pixels.max()
+        ).astype(np.uint8)
+
+        # Set colors and return
+        color_datum[pixels_to_fill] = colors_of_pixels_to_fill
+        return color_datum
+
+    # endregion
+
+    # region Static Methods
+
+    @staticmethod
+    def adjacent_opaque_pixels(transparent_pixels):
+        adjacent_opaque_pixels = np.zeros(transparent_pixels.shape, int)
+        adjacent_opaque_pixels[:-1, :-1] += 1
+        adjacent_opaque_pixels[:, :-1] += 1
+        adjacent_opaque_pixels[1:, :-1] += 1
+        adjacent_opaque_pixels[:-1, :] += 1
+        adjacent_opaque_pixels[1:, :] += 1
+        adjacent_opaque_pixels[:-1, 1:] += 1
+        adjacent_opaque_pixels[:, 1:] += 1
+        adjacent_opaque_pixels[1:, 1:] += 1
+
+        adjacent_opaque_pixels[:-1, :-1] -= transparent_pixels[1:, 1:]
+        adjacent_opaque_pixels[:, :-1] -= transparent_pixels[:, 1:]
+        adjacent_opaque_pixels[1:, :-1] -= transparent_pixels[:-1, 1:]
+        adjacent_opaque_pixels[:-1, :] -= transparent_pixels[1:, :]
+        adjacent_opaque_pixels[1:, :] -= transparent_pixels[:-1, :]
+        adjacent_opaque_pixels[:-1, 1:] -= transparent_pixels[1:, :-1]
+        adjacent_opaque_pixels[:, 1:] -= transparent_pixels[:, :-1]
+        adjacent_opaque_pixels[1:, 1:] -= transparent_pixels[:-1, :-1]
+
+        return adjacent_opaque_pixels
+
+    @staticmethod
+    def sum_of_adjacent_opaque_pixels(color_datum, transparent_pixels):
+        weighted_color_datum = np.copy(color_datum)
+        weighted_color_datum[transparent_pixels] = 0
+
+        sum_of_adjacent_opaque_pixels = np.zeros(color_datum.shape, int)
+        sum_of_adjacent_opaque_pixels[:-1, :-1] += weighted_color_datum[1:, 1:]
+        sum_of_adjacent_opaque_pixels[:, :-1] += weighted_color_datum[:, 1:]
+        sum_of_adjacent_opaque_pixels[1:, :-1] += weighted_color_datum[:-1, 1:]
+        sum_of_adjacent_opaque_pixels[:-1, :] += weighted_color_datum[1:, :]
+        sum_of_adjacent_opaque_pixels[1:, :] += weighted_color_datum[:-1, :]
+        sum_of_adjacent_opaque_pixels[:-1, 1:] += weighted_color_datum[1:, :-1]
+        sum_of_adjacent_opaque_pixels[:, 1:] += weighted_color_datum[:, :-1]
+        sum_of_adjacent_opaque_pixels[1:, 1:] += weighted_color_datum[:-1, :-1]
+
+        return sum_of_adjacent_opaque_pixels
 
     # endregion

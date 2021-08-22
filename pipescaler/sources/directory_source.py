@@ -9,11 +9,48 @@
 ####################################### MODULES ########################################
 from __future__ import annotations
 
-from pipescaler.core import Source
+from typing import Any, List, Union
+
+from pipescaler.common import validate_input_path
+from pipescaler.core import Source, parse_file_list
 
 
 ####################################### CLASSES ########################################
 class DirectorySource(Source):
+    exclusions = {".DS_Store", "desktop"}
+
+    # region Builtins
+
+    def __init__(
+        self,
+        directory: Union[str, List[str]],
+        exclusions: Union[str, List[str]] = None,
+        **kwargs: Any,
+    ) -> None:
+        super().__init__(**kwargs)
+
+        if exclusions is None:
+            exclusions = set()
+        exclusions |= self.exclusions
+
+        # Store configuration
+        if isinstance(directory, str):
+            directory = [directory]
+        self.directories = [
+            validate_input_path(d, file_ok=False, directory_ok=True) for d in directory
+        ]
+
+        # Store list of filenames
+        filenames = parse_file_list(self.directories, True, exclusions)
+        filenames = list(filenames)
+        filenames.sort(key=self.sort, reverse=True)
+        self.filenames = filenames
+
+    def __iter__(self):
+        for filename in self.filenames:
+            yield filename
+
+    # endregion
 
     # region Static Methods
 

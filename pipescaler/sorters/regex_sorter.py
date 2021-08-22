@@ -10,7 +10,9 @@
 from __future__ import annotations
 
 import re
-from typing import Any, Generator, List, Optional, Union
+from logging import info
+from os.path import basename, dirname
+from typing import Any, List
 
 from pipescaler.core import Sorter
 
@@ -20,56 +22,30 @@ class RegexSorter(Sorter):
 
     # region Builtins
 
-    def __init__(
-        self,
-        regex: str,
-        downstream_stages_for_matched: Optional[Union[str, List[str]]] = None,
-        downstream_stages_for_unmatched: Optional[Union[str, List[str]]] = None,
-        **kwargs: Any,
-    ) -> None:
+    def __init__(self, regex: str, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
+        # Store configuration
         self.regex = re.compile(regex)
 
-        if isinstance(downstream_stages_for_matched, str):
-            downstream_stages_for_matched = [downstream_stages_for_matched]
-        self.downstream_stages_for_matched = downstream_stages_for_matched
+    def __call__(self, infile: str) -> str:
+        # Identify image
+        name = basename(dirname(infile))
 
-        if isinstance(downstream_stages_for_unmatched, str):
-            downstream_stages_for_unmatched = [downstream_stages_for_unmatched]
-        self.downstream_stages_for_unmatched = downstream_stages_for_unmatched
+        # Sort image
+        if self.regex.match(name):
+            info(f"{self}: '{name}' matches '{self.regex.pattern}'")
+            return "matched"
+        else:
+            info(f"{self}: '{name}' does not match '{self.regex.pattern}'")
+            return "unmatched"
 
-        desc = f"{self.name} {self.__class__.__name__}"
-        if self.downstream_stages_for_matched is not None:
-            desc += f"\n ├─ MATCH"
-            if len(self.downstream_stages_for_matched) >= 2:
-                for stage in self.downstream_stages_for_matched[:-1]:
-                    desc += f"\n │  ├─ {stage}"
-            desc += f"\n │  └─ {self.downstream_stages_for_matched[-1]}"
-        if self.downstream_stages_for_unmatched is not None:
-            desc += f"\n └─ UNMATCH"
-            if len(self.downstream_stages_for_unmatched) >= 2:
-                for stage in self.downstream_stages_for_unmatched[:-1]:
-                    desc += f"\n    ├─ {stage}"
-            desc += f"\n    └─ {self.downstream_stages_for_unmatched[-1]}"
-        self.desc = desc
+    # endregion
 
-    def __call__(self) -> Generator[str, str, None]:
-        while True:
-            image = yield  # type: ignore
-            if self.pipeline.verbosity >= 2:
-                print(f"{self} processing: {image.name}")
-            if self.regex.match(image.name):
-                if self.pipeline.verbosity >= 2:
-                    print(f"{self}: match {image.name}")
-                if self.downstream_stages_for_matched is not None:
-                    for pipe in self.downstream_stages_for_matched:
-                        self.pipeline.stages[pipe].send(image)
-            else:
-                if self.pipeline.verbosity >= 2:
-                    print(f"{self}: unmatch {image.name}")
-                if self.downstream_stages_for_unmatched is not None:
-                    for pipe in self.downstream_stages_for_unmatched:
-                        self.pipeline.stages[pipe].send(image)
+    # region Properties
+
+    @property
+    def outlets(self) -> List[str]:
+        return ["matched", "unmatched"]
 
     # endregion

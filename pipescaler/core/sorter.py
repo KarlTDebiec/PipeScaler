@@ -10,10 +10,25 @@
 from __future__ import annotations
 
 from abc import ABC
+from typing import Any
 
 from pipescaler.core.stage import Stage
 
 
 ####################################### CLASSES ########################################
 class Sorter(Stage, ABC):
-    pass
+
+    # region Builtins
+
+    def __call__(self, infile: str) -> str:
+        raise NotImplementedError()
+
+    # endregion
+
+    # region Properties
+
+    @property
+    def inlets(self):
+        return ["inlet"]
+
+    # endregion

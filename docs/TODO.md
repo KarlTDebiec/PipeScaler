@@ -1,36 +1,14 @@
 TODO:
-- [x] ModeProcessor
-- [ ] Check OS when running OS-specific processors
-    - [x] texconv
-    - [ ] automator
-- [ ] Check if executables exist in `__init__`
-    - [x] texconv
-    - [ ] pngquant
-    - [ ] xbrzscale
-    - [ ] waifu
-    - [ ] potrace
-- [ ] Try CUDA and fall back to CPU if necessary
-- [ ] Clean up path separators
-  - [x] Path validation
-  - [x] CopyProcessor
-
-Backlog:
-- [ ] AlphaSplitter/AlphaMerger: Option to keep RGBA for both and stack
-- [ ] WaifuPixelmator2XProcessor: Remove
-- [ ] SideChannelProcessor: Alternative downstream stages for unmatched
-- [ ] common: Review documentation
-- [ ] AppleScriptProcessor for Pixelmator
-- [ ] Splitters/Mergers: size
-- [ ] Processors: Consistent handling of verbosity
-- [ ] Processors: Command-line support for all
-- [ ] Processors: Do not regenerate objects each call in pipeline
-- [ ] Processors: Check if necessary executables exist
-- [ ] Processors: Consider if specular maps could be handled better
-- [ ] CI: Run black
-- [ ] CI: Run mypy
-- [ ] CI: Documentation coverage
-- [ ] CI: Waifu on Linux (without CUDA?)
-
-Notes:
-- Don't use a property unless you cannot do the initialization in __init__
-- Don't write a setter unless you need to set the value outside of __init__
+- [ ] Overwrite flags for every individual stage
+- [ ] Improvement: Testing - parallelize
+- [ ] Feature: Make processor available as an endpoint that can be POSTed to
+- [ ] Feature: Blocks of stages
+- [ ] Feature: Pass image and metadata as a whole object, not just infiles and outfiles
+- [ ] Feature: Script to bootstrap new projects
+- [ ] Stage: CopySplitter - Just send image down own or more outlets
+- [ ] Stage: ColorMatchMerger - Use skimage.transform.match_histograms to match color
+- [ ] Improvement: WaifuExternalProcessor - Move mirroring to general function
+- [ ] Improvement: CopyProcessor - Improve purging; could compare files and only copy over if necessary
+- [ ] Improvement: PngquantProcessor - Use Pillow's palette support
+- [ ] Improvement: Common - Move platform support validation to validate_executable
+- [ ] Improvement: Testing - Split processor standard and command-line tests

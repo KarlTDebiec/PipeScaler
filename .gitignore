@@ -8,5 +8,6 @@ __pycache__
 build
 dist
 pipescaler.egg-info
-test/htmlcov
-test/models
+test/coverage.coverage.*
+test/coverage.xml
+test/data/models

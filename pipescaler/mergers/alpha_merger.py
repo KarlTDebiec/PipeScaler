@@ -9,14 +9,13 @@
 ####################################### MODULES ########################################
 from __future__ import annotations
 
-from os.path import isfile
-from typing import Any, Generator, List, Optional, Union
+from logging import info
+from typing import Any
 
 import numpy as np
 from PIL import Image
 
-from pipescaler.common import get_name, validate_output_path
-from pipescaler.core import Merger, PipeImage
+from pipescaler.core import Merger, UnsupportedImageModeError, remove_palette_from_image
 
 
 ####################################### CLASSES ########################################
@@ -24,54 +23,49 @@ class AlphaMerger(Merger):
 
     # region Builtins
 
-    def __init__(
-        self, downstream_stages: Optional[Union[str, List[str]]] = None, **kwargs: Any,
-    ) -> None:
-        super().__init__(**kwargs)
+    def __call__(self, outfile: str, **kwargs: Any) -> None:
+        infiles = {k: kwargs.get(k) for k in self.inlets}
 
-        # Store configuration
-        if isinstance(downstream_stages, str):
-            downstream_stages = [downstream_stages]
-        self.downstream_stages = downstream_stages
-
-        # Prepare description
-        desc = f"{self.name} {self.__class__.__name__}"
-        if self.downstream_stages is not None:
-            if len(self.downstream_stages) >= 2:
-                for stage in self.downstream_stages[:-1]:
-                    desc += f"\n ├─ {stage}"
-            desc += f"\n └─ {self.downstream_stages[-1]}"
-        self.desc = desc
-
-    def __call__(self) -> Generator[PipeImage, PipeImage, None]:
-        while True:
-            image = yield
-            rgb_infile = image.last
-            image = yield
-            a_infile = image.last
-            stages = get_name(image.last).split("_")
-            if "A" in stages:
-                rstrip = "_".join(stages[stages.index("A") :])
-            else:
-                rstrip = "_".join(stages[stages.index("RGB") :])
-            rgb_datum = np.array(Image.open(rgb_infile))
-            a_datum = np.array(Image.open(a_infile).convert("L"))
-            outfile = validate_output_path(
-                self.pipeline.get_outfile(image, "merge-RGBA", rstrip=rstrip)
+        # Read images
+        color_image = Image.open(infiles["color"])
+        if color_image.mode == "P":
+            color_image = remove_palette_from_image(color_image)
+        if color_image.mode not in ("L", "RGB"):
+            raise UnsupportedImageModeError(
+                f"Image mode '{color_image.mode}' of image '{infiles['color']}'"
+                f" is not supported by {type(self)}"
             )
-            if not isfile(outfile):
-                if self.pipeline.verbosity >= 2:
-                    print(f"{self} merging: {image.name}")
-                rgba_datum = np.zeros(
-                    (rgb_datum.shape[0], rgb_datum.shape[1], 4), np.uint8
-                )
-                rgba_datum[:, :, :3] = rgb_datum
-                rgba_datum[:, :, 3] = a_datum
-                rgba_image = Image.fromarray(rgba_datum)
-                rgba_image.save(outfile)
-            image.log(self.name, outfile)
-            if self.downstream_stages is not None:
-                for pipe in self.downstream_stages:
-                    self.pipeline.stages[pipe].send(image)
+        alpha_image = Image.open(infiles["alpha"])
+        if alpha_image.mode == "P":
+            alpha_image = remove_palette_from_image(alpha_image)
+        if alpha_image.mode != "L":
+            raise UnsupportedImageModeError(
+                f"Image mode '{alpha_image.mode}' of image '{infiles['alpha']}'"
+                f" is not supported by {type(self)}"
+            )
+
+        # Merge images
+        color_datum = np.array(color_image)
+        alpha_datum = np.array(alpha_image)
+        if color_image.mode == "L":
+            output_datum = np.zeros((*color_datum.shape, 2), np.uint8)
+            output_datum[:, :, 0] = color_datum
+        else:
+            output_datum = np.zeros((*color_datum.shape[:-1], 4), np.uint8)
+            output_datum[:, :, :-1] = color_datum
+        output_datum[:, :, -1] = alpha_datum
+        output_image = Image.fromarray(output_datum)
+
+        # Write image
+        output_image.save(outfile)
+        info(f"'{self}: '{outfile}' saved")
+
+    # endregion
+
+    # region Properties
+
+    @property
+    def inlets(self):
+        return ["color", "alpha"]
 
     # endregion

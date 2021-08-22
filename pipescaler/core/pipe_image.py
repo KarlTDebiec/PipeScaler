@@ -9,11 +9,12 @@
 ####################################### MODULES ########################################
 from __future__ import annotations
 
-from typing import Tuple
+from os.path import basename, splitext
+from typing import List, Optional, Tuple
 
 from PIL import Image
 
-from pipescaler.common import get_ext, get_name, validate_input_path
+from pipescaler.common import validate_input_path
 
 
 ####################################### CLASSES ########################################
@@ -22,15 +23,14 @@ class PipeImage:
     # region Builtins
 
     def __init__(self, infile: str) -> None:
-        self.infile = validate_input_path(infile)
-        self.name = get_name(self.infile)
-        self.ext = get_ext(self.infile)
+        self.full_path = validate_input_path(infile)
+        self.filename = basename(self.full_path)
+        self.name = splitext(basename(self.filename))[0]
+        self.ext = splitext(basename(self.filename))[1].strip(".")
 
-        image = Image.open(self.infile)
+        image = Image.open(self.full_path)
         self.mode: str = image.mode
         self.shape: Tuple[int] = image.size
-
-        self.history = []
 
     def __repr__(self) -> str:
         return self.name
@@ -40,27 +40,32 @@ class PipeImage:
 
     # endregion
 
-    # region Properties
-
-    @property
-    def image(self) -> Image:
-        return Image.open(self.last)
-
-    @property
-    def last(self) -> str:
-        if len(self.history) >= 1:
-            return self.history[-1][1]
-        else:
-            return self.infile
-
-    # endregion
-
     # region Methods
 
-    def log(self, stage_name: str, outfile: str):
-        self.history.append((stage_name, outfile))
+    def get_outfile(
+        self,
+        infile: str,
+        suffix: str,
+        trim_suffixes: Optional[List[str]] = None,
+        extension="png",
+    ) -> str:
+        prefix = splitext(basename(infile))[0]
+        if prefix.startswith(self.name):
+            prefix = prefix[len(self.name) :]
+
+        if trim_suffixes is not None:
+            for trim_suffix in trim_suffixes:
+                if trim_suffix in prefix:
+                    prefix = prefix[: prefix.rindex(trim_suffix)]
+                    break
+            prefix = prefix.rstrip("_")
+
+        outfile = f"{prefix}_{suffix}.{extension}"
+        outfile = outfile.lstrip("_")
+
+        return outfile
 
     def show(self):
-        self.image.show()
+        Image.open(self.full_path).show()
 
     # endregion

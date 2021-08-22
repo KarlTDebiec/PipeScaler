@@ -6,74 +6,107 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+""""""
 ####################################### MODULES ########################################
 from __future__ import annotations
 
-from os.path import isfile
-from typing import Any, List, Optional, Union
+from argparse import ArgumentParser
+from logging import info
+from typing import Any
 
-import numpy as np
 from PIL import Image, ImageColor
 
-from pipescaler.common import validate_output_path
-from pipescaler.core import PipeImage, Processor
+from pipescaler.common import validate_str
+from pipescaler.core import Processor, remove_palette_from_image
 
 
 ####################################### CLASSES ########################################
 class ModeProcessor(Processor):
+    modes = ["RGBA", "RGB", "LA", "L"]
 
     # region Builtins
 
     def __init__(
-        self, mode: str = "RGB", background_color="#000000", **kwargs: Any,
+        self, mode: str = "RGB", background_color: str = "#000000", **kwargs: Any,
     ) -> None:
+        """
+        Validates and stores static configuration.
 
+        Arguments:
+            mode (str): Output mode, default=RGB
+            background_color (str): Background color of image
+        """
         super().__init__(**kwargs)
 
-        self.mode = mode
-        self.background_color = ImageColor.getrgb(background_color)
-        self.desc = f"{self.name}_{mode}"
+        # Store configuration
+        self.mode = validate_str(mode, self.modes)
+        self.background_color = ImageColor.getrgb(background_color)  # TODO: Validate
 
     # endregion
 
     # region Methods
 
-    def process_file_in_pipeline(self, image: PipeImage) -> None:
-        infile = image.last
-        outfile = validate_output_path(self.pipeline.get_outfile(image, self.suffix))
-        if not isfile(outfile):
-            self.process_file(
-                infile,
-                outfile,
-                self.pipeline.verbosity,
-                mode=self.mode,
-                background_color=self.background_color,
-            )
-        image.log(self.name, outfile)
+    def process_file(self, infile: str, outfile: str) -> None:
+        """
+        Converts infile mode and writes the resulting output to outfile.
+
+        Arguments:
+            infile (str): Input file
+            outfile (str): Output file
+        """
+        # Read image
+        input_image = Image.open(infile)
+        if input_image.mode == "P":
+            full_space_image = remove_palette_from_image(input_image)
+
+        # Convert image
+        if input_image.mode == self.mode:
+            output_image = input_image
+        else:
+            output_image = Image.new("RGBA", input_image.size, self.background_color)
+            output_image.paste(input_image)
+            if self.mode != "RGBA":
+                output_image = output_image.convert(self.mode)
+
+        # Write image
+        output_image.save(outfile)
+        info(f"{self}: '{outfile}' saved")
 
     # endregion
 
     # region Class Methods
 
     @classmethod
-    def process_file(
-        cls, infile: str, outfile: str, verbosity: int = 1, **kwargs: Any
-    ) -> None:
-        mode = kwargs.get("mode", "RGB").upper()
-        background_color = kwargs.get("background_color", ImageColor.getrgb("#000000"))
-        input_image = Image.open(infile)
+    def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
+        """
+        Constructs argument parser.
 
-        if input_image.mode == mode:
-            input_image.save(outfile)
-        else:
-            output_image = Image.new("RGBA", input_image.size, background_color)
-            output_image.paste(input_image)
-            if mode == "RGBA":
-                pass
-            elif mode == "RGB":
-                output_image = output_image.convert("RGB")
-            elif mode == "L":
-                output_image = output_image.convert("L")
-        output_image.save(outfile)
+        Returns:
+            parser (ArgumentParser): Argument parser
+        """
+        description = kwargs.get("description", __doc__.strip())
+        parser = super().construct_argparser(description=description, **kwargs)
+
+        # Operations
+        parser.add_argument(
+            "--mode",
+            default="RGBA",
+            type=cls.str_arg(options=cls.modes),
+            help="image mode ('RGBA', 'RGB', 'LA', or 'L', default: %(default)s)",
+        )
+        parser.add_argument(
+            "--background_color",
+            default="#000000",
+            type=str,
+            help="background color of output image; only relevant if input image is "
+            "RGBA or LA (default: %(default)s)",
+        )
+
+        return parser
 
     # endregion
+
+
+######################################### MAIN #########################################
+if __name__ == "__main__":
+    ModeProcessor.main()

@@ -10,10 +10,43 @@
 from __future__ import annotations
 
 from abc import ABC
+from typing import Any, Dict, Optional
 
 from pipescaler.core.stage import Stage
 
 
 ####################################### CLASSES ########################################
 class Merger(Stage, ABC):
-    pass
+
+    # region Builtins
+
+    def __init__(
+        self,
+        suffix: Optional[str] = None,
+        trim_suffixes: Optional[Dict[str, str]] = None,
+        **kwargs: Any
+    ) -> None:
+        super().__init__(**kwargs)
+
+        # Store configuration
+        if suffix is not None:
+            self.suffix = suffix
+        else:
+            self.suffix = "merge"
+        if trim_suffixes is not None:
+            self.trim_suffixes = trim_suffixes
+        else:
+            self.trim_suffixes = self.inlets
+
+    def __call__(self, outfile: str) -> None:
+        raise NotImplementedError()
+
+    # endregion
+
+    # region Properties
+
+    @property
+    def outlets(self):
+        return ["outlet"]
+
+    # endregion

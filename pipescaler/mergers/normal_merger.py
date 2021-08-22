@@ -9,14 +9,13 @@
 ####################################### MODULES ########################################
 from __future__ import annotations
 
-from os.path import isfile
-from typing import Any, Generator, List, Optional, Union
+from logging import info
+from typing import Any
 
 import numpy as np
 from PIL import Image
 
-from pipescaler.common import get_name, validate_output_path
-from pipescaler.core import Merger, PipeImage
+from pipescaler.core import Merger, UnsupportedImageModeError, remove_palette_from_image
 
 
 ####################################### CLASSES ########################################
@@ -24,61 +23,59 @@ class NormalMerger(Merger):
 
     # region Builtins
 
-    def __init__(
-            self, downstream_stages: Optional[Union[str, List[str]]] = None,
-            **kwargs: Any
-    ) -> None:
-        super().__init__(**kwargs)
+    def __call__(self, outfile: str, **kwargs: Any) -> None:
+        infiles = {k: kwargs.get(k) for k in self.inlets}
 
-        # Store configuration
-        if isinstance(downstream_stages, str):
-            downstream_stages = [downstream_stages]
-        self.downstream_stages = downstream_stages
-
-        # Prepare description
-        desc = f"{self.name} {self.__class__.__name__}"
-        if self.downstream_stages is not None:
-            if len(self.downstream_stages) >= 2:
-                for stage in self.downstream_stages[:-1]:
-                    desc += f"\n ├─ {stage}"
-            desc += f"\n └─ {self.downstream_stages[-1]}"
-        self.desc = desc
-
-    def __call__(self) -> Generator[PipeImage, PipeImage, None]:
-        while True:
-            image = yield
-            r_infile = image.last
-            image = yield
-            g_infile = image.last
-            image = yield
-            b_infile = image.last
-            stages = get_name(image.last).split("_")
-            rstrip = "_" + "_".join(stages[stages.index("B"):])
-            outfile = validate_output_path(
-                self.pipeline.get_outfile(image, "merge-RGB", rstrip=rstrip)
+        # Read images
+        x_image = Image.open(infiles["x"])
+        if x_image.mode == "P":
+            x_image = remove_palette_from_image(x_image)
+        if x_image.mode != "L":
+            raise UnsupportedImageModeError(
+                f"Image mode '{x_image.mode}' of image '{infiles['x']}'"
+                f" is not supported by {type(self)}"
+            )
+        y_image = Image.open(infiles["y"])
+        if y_image.mode == "P":
+            y_image = remove_palette_from_image(y_image)
+        if y_image.mode != "L":
+            raise UnsupportedImageModeError(
+                f"Image mode '{y_image.mode}' of image '{infiles['y']}'"
+                f" is not supported by {type(self)}"
+            )
+        z_image = Image.open(infiles["z"])
+        if z_image.mode == "P":
+            z_image = remove_palette_from_image(z_image)
+        if z_image.mode != "L":
+            raise UnsupportedImageModeError(
+                f"Image mode '{z_image.mode}' of image '{infiles['z']}'"
+                f" is not supported by {type(self)}"
             )
 
-            if not isfile(outfile):
-                if self.pipeline.verbosity >= 2:
-                    print(f"    merging: {image.name}")
-                r_datum = np.array(Image.open(r_infile).convert("L"), np.float) - 128
-                g_datum = np.array(Image.open(g_infile).convert("L"), np.float) - 128
-                b_datum = np.array(Image.open(b_infile).convert("L"), np.float) - 128
-                b_datum[b_datum < 0] = 0
-                mag = np.sqrt(r_datum ** 2 + g_datum ** 2 + b_datum ** 2)
-                r_datum = (((r_datum / mag) * 128) + 128).astype(np.uint8)
-                g_datum = (((g_datum / mag) * 128) + 128).astype(np.uint8)
-                b_datum = (((b_datum / mag) * 128) + 128).astype(np.uint8)
-                b_datum[b_datum == 0] = 255
-                rgb_datum = np.zeros((r_datum.shape[0], r_datum.shape[1], 3), np.uint8)
-                rgb_datum[:, :, 0] = r_datum
-                rgb_datum[:, :, 1] = g_datum
-                rgb_datum[:, :, 2] = b_datum
-                rgb_image = Image.fromarray(rgb_datum)
-                rgb_image.save(outfile)
-            image.log(self.name, outfile)
-            if self.downstream_stages is not None:
-                for pipe in self.downstream_stages:
-                    self.pipeline.stages[pipe].send(image)
+        # Merge images
+        x_datum = np.clip(np.array(x_image, float) - 128, -128, 127)
+        y_datum = np.clip(np.array(y_image, float) - 128, -128, 127)
+        z_datum = np.clip(np.array(z_image, float) / 2, 0, 127)
+        magnitude = np.sqrt(x_datum ** 2 + y_datum ** 2 + z_datum ** 2)
+        x_datum = np.clip(((x_datum / magnitude) * 128) + 128, 0, 255).astype(np.uint8)
+        y_datum = np.clip(((y_datum / magnitude) * 128) + 128, 0, 255).astype(np.uint8)
+        z_datum = np.clip(((z_datum / magnitude) * 128) + 128, 0, 255).astype(np.uint8)
+        output_datum = np.zeros((*x_datum.shape, 3), np.uint8)
+        output_datum[:, :, 0] = x_datum
+        output_datum[:, :, 1] = y_datum
+        output_datum[:, :, 2] = z_datum
+        output_image = Image.fromarray(output_datum)
+
+        # Write image
+        output_image.save(outfile)
+        info(f"'{self}: '{outfile}' saved")
+
+    # endregion
+
+    # region Properties
+
+    @property
+    def inlets(self):
+        return ["x", "y", "z"]
 
     # endregion

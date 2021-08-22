@@ -1,2 +1,6 @@
 [run]
-parallel = true
+data_file = coverage.coverage
+concurrency = multiprocessing
+omit =
+    test*.py
+    coverage.coverage.*
