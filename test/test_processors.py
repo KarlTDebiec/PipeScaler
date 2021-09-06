@@ -35,6 +35,7 @@ from shared import (
     esrgan_models,
     expected_output_mode,
     infiles,
+    skip_if_ci,
     xfail_if_not_windows,
     xfail_unsupported_mode,
 )
@@ -141,12 +142,14 @@ def test_crop(infile: str, crop_processor: CropProcessor) -> None:
 @pytest.mark.parametrize(
     ("infile", "esrgan_processor"),
     [
-        (infiles["L"], {"model_infile": esrgan_models["1x_BC1-smooth2"]}),
-        (infiles["PL"], {"model_infile": esrgan_models["1x_BC1-smooth2"]}),
-        (infiles["PRGB"], {"model_infile": esrgan_models["1x_BC1-smooth2"]}),
+        skip_if_ci(infiles["L"], {"model_infile": esrgan_models["1x_BC1-smooth2"]}),
+        skip_if_ci(infiles["PL"], {"model_infile": esrgan_models["1x_BC1-smooth2"]}),
+        skip_if_ci(infiles["PRGB"], {"model_infile": esrgan_models["1x_BC1-smooth2"]}),
         (infiles["RGB"], {"model_infile": esrgan_models["1x_BC1-smooth2"]}),
-        (infiles["RGB"], {"model_infile": esrgan_models["RRDB_ESRGAN_x4"]}),
-        (infiles["RGB"], {"model_infile": esrgan_models["RRDB_ESRGAN_x4_old_arch"]}),
+        skip_if_ci(infiles["RGB"], {"model_infile": esrgan_models["RRDB_ESRGAN_x4"]}),
+        skip_if_ci(
+            infiles["RGB"], {"model_infile": esrgan_models["RRDB_ESRGAN_x4_old_arch"]}
+        ),
         xfail_unsupported_mode(
             infiles["LA"], {"model_infile": esrgan_models["1x_BC1-smooth2"]}
         ),
@@ -336,6 +339,9 @@ def test_solid_color(infile: str, solid_color_processor: SolidColorProcessor) ->
             assert len(output_image.getcolors()) == 1
 
 
+@pytest.mark.skipif(
+    getenv("CONTINUOUS_INTEGRATION") is not None, reason="Skip when running in CI"
+)
 @pytest.mark.parametrize(
     ("infile", "texconv_processor"),
     [
