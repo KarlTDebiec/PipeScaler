@@ -343,7 +343,9 @@ def test_solid_color(infile: str, solid_color_processor: SolidColorProcessor) ->
     getenv("CONTINUOUS_INTEGRATION") is not None, reason="Skip when running in CI"
 )
 @pytest.mark.xfail(
-    platform != "win32", raises=UnsupportedPlatformError, reason="Only supported on Windows"
+    platform != "win32",
+    raises=UnsupportedPlatformError,
+    reason="Only supported on Windows",
 )
 @pytest.mark.parametrize(
     ("infile", "texconv_processor"),
