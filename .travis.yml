@@ -15,4 +15,4 @@ before-install:
   - echo $PYTHONPATH
 script:
   - cd ${TRAVIS_BUILD_DIR}/test
-  - pytest --cov=../pipescaler --cov-report xml
+  - pytest --cov=../pipescaler --cov-report term ./test_scripts.py
