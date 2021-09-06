@@ -1,7 +1,9 @@
+numba==0.53.1
 numpy==1.20.3
 Pillow==8.3.1
 pytest==6.2.4
 pytest-cov==2.12.1
+scikit-image==0.18.1
 scipy==1.6.2
 torch==1.9.0
 waifu2x==2021
