@@ -6,4 +6,4 @@ before-install:
   - export PYTHONPATH="${TRAVIS_BUILD_DIR}:${PATH}"
 script:
   - cd ${TRAVIS_BUILD_DIR}/test
-  - pytest -v --cov=${TRAVIS_BUILD_DIR}/pipescaler --cov-report term
+  - pytest -v --cov=pipescaler --cov-report term
