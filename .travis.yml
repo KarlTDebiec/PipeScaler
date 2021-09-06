@@ -4,15 +4,10 @@ os:
 cache: pip
 python:
   - "3.8"
-# services:
-#   - xvfb
 before-install:
-#   - sudo apt-get update
-#   - sudo apt -y install imagemagick libsdl2-dev libsdl2-image-dev pngquant potrace
-#   - sudo apt -y install libsnappy-dev libgraphicsmagick1-dev luarocks libssl-dev
 #   - bash -ex ${TRAVIS_BUILD_DIR}/test/scripts/download_models.sh
   - export PYTHONPATH="${TRAVIS_BUILD_DIR}:${PATH}"
   - echo $PYTHONPATH
 script:
   - cd ${TRAVIS_BUILD_DIR}/test
-  - pytest --cov=../pipescaler --cov-report term ./test_processor_cl.py
+  - pytest --cov=../pipescaler --cov-report term ./test_processors_cl.py
