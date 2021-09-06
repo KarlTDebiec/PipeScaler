@@ -38,10 +38,10 @@ from pipescaler.processors import (
 
 # noinspection PyUnresolvedReferences
 from shared import (
+    esrgan,
+    infile,
     infiles,
     processor,
-    infile,
-    esrgan,
     xfail_assertion,
     xfail_unsupported_mode,
 )
@@ -55,13 +55,26 @@ def test_help(processor: Processor) -> None:
         raise ValueError()
 
 
-def test_crop(infile: str) -> None:
+@pytest.mark.parametrize(
+    ("infile", "pixels"),
+    [
+        (infiles["L"], 4),
+        (infiles["LA"], 4),
+        (infiles["RGB"], 4),
+        (infiles["RGBA"], 4),
+        (infiles["PL"], 4),
+        (infiles["PLA"], 4),
+        (infiles["PRGB"], 4),
+        (infiles["PRGBA"], 4),
+    ],
+)
+def test_crop(infile: str, pixels: int) -> None:
     with temporary_filename(".png") as outfile:
         input_image = Image.open(infile)
 
         command = (
             f"coverage run {getfile(CropProcessor)} "
-            " --pixels 4 4 4 4"
+            f" --pixels {pixels} {pixels} {pixels} {pixels}"
             f" {infile} {outfile}"
         )
         child = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)
@@ -74,6 +87,7 @@ def test_crop(infile: str) -> None:
             assert output_image.size[1] == input_image.size[1] - 4 - 4
 
 
+@pytest.mark.serial
 @pytest.mark.parametrize(
     ("infile", "model_infile", "scale"),
     [
@@ -111,13 +125,26 @@ def test_esrgan(infile: str, model_infile: str, scale: int) -> None:
             assert output_image.size[1] == input_image.size[1] * scale
 
 
-def test_expand(infile: str) -> None:
+@pytest.mark.parametrize(
+    ("infile", "pixels"),
+    [
+        (infiles["L"], 4),
+        (infiles["LA"], 4),
+        (infiles["RGB"], 4),
+        (infiles["RGBA"], 4),
+        (infiles["PL"], 4),
+        (infiles["PLA"], 4),
+        (infiles["PRGB"], 4),
+        (infiles["PRGBA"], 4),
+    ],
+)
+def test_expand(infile: str, pixels: int) -> None:
     with temporary_filename(".png") as outfile:
         input_image = Image.open(infile)
 
         command = (
             f"coverage run {getfile(ExpandProcessor)}"
-            " --pixels 4 4 4 4"
+            f" --pixels {pixels} {pixels} {pixels} {pixels}"
             f" {infile} {outfile}"
         )
         child = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)
@@ -175,10 +202,6 @@ def test_height_to_normal(infile: str, sigma: float) -> None:
         (infiles["LA"], "LA"),
         (infiles["LA"], "RGB"),
         (infiles["LA"], "RGBA"),
-        (infiles["PL"], "RGBA"),
-        (infiles["PLA"], "RGBA"),
-        (infiles["PRGB"], "RGBA"),
-        (infiles["PRGBA"], "RGBA"),
         (infiles["RGB"], "L"),
         (infiles["RGB"], "LA"),
         (infiles["RGB"], "RGB"),
@@ -187,6 +210,10 @@ def test_height_to_normal(infile: str, sigma: float) -> None:
         (infiles["RGBA"], "LA"),
         (infiles["RGBA"], "RGB"),
         (infiles["RGBA"], "RGBA"),
+        (infiles["PL"], "RGBA"),
+        (infiles["PLA"], "RGBA"),
+        (infiles["PRGB"], "RGBA"),
+        (infiles["PRGBA"], "RGBA"),
     ],
 )
 def test_mode(infile: str, mode: str) -> None:
@@ -207,6 +234,19 @@ def test_mode(infile: str, mode: str) -> None:
             assert output_image.mode == mode
 
 
+@pytest.mark.parametrize(
+    "infile",
+    [
+        (infiles["L"]),
+        (infiles["LA"]),
+        (infiles["RGB"]),
+        (infiles["RGBA"]),
+        (infiles["PL"]),
+        (infiles["PLA"]),
+        (infiles["PRGB"]),
+        (infiles["PRGBA"]),
+    ],
+)
 def test_pngquant(infile: str) -> None:
     with temporary_filename(".png") as outfile:
         input_image = Image.open(infile)
@@ -222,6 +262,19 @@ def test_pngquant(infile: str) -> None:
             assert getsize(outfile) <= getsize(infile)
 
 
+@pytest.mark.parametrize(
+    "infile",
+    [
+        (infiles["L"]),
+        (infiles["LA"]),
+        (infiles["RGB"]),
+        (infiles["RGBA"]),
+        (infiles["PL"]),
+        (infiles["PLA"]),
+        (infiles["PRGB"]),
+        (infiles["PRGBA"]),
+    ],
+)
 def test_resize(infile: str) -> None:
     with temporary_filename(".png") as outfile:
         input_image = Image.open(infile)
@@ -244,6 +297,19 @@ def test_resize(infile: str) -> None:
             assert output_image.size[1] == input_image.size[1] * 2
 
 
+@pytest.mark.parametrize(
+    "infile",
+    [
+        (infiles["L"]),
+        (infiles["LA"]),
+        (infiles["RGB"]),
+        (infiles["RGBA"]),
+        (infiles["PL"]),
+        (infiles["PLA"]),
+        (infiles["PRGB"]),
+        (infiles["PRGBA"]),
+    ],
+)
 def test_solid_color(infile: str) -> None:
     with temporary_filename(".png") as outfile:
         input_image = Image.open(infile)
@@ -264,6 +330,19 @@ def test_solid_color(infile: str) -> None:
             assert len(output_image.getcolors()) == 1
 
 
+@pytest.mark.parametrize(
+    "infile",
+    [
+        (infiles["L"]),
+        (infiles["LA"]),
+        (infiles["RGB"]),
+        (infiles["RGBA"]),
+        (infiles["PL"]),
+        (infiles["PLA"]),
+        (infiles["PRGB"]),
+        (infiles["PRGBA"]),
+    ],
+)
 @pytest.mark.skipif(not any(win32_ver()), reason="Processor only supported on Windows")
 def test_texconv(infile: str) -> None:
     with temporary_filename(".png") as outfile:
@@ -280,6 +359,7 @@ def test_texconv(infile: str) -> None:
             assert output_image.size[1] == input_image.size[1]
 
 
+@pytest.mark.serial
 @pytest.mark.parametrize(
     ("infile", "architecture", "denoise", "scale"),
     [
@@ -325,6 +405,7 @@ def test_waifu(infile: str, architecture: str, denoise: int, scale: int) -> None
             assert output_image.size[1] == input_image.size[1] * scale
 
 
+@pytest.mark.serial
 @pytest.mark.parametrize(
     ("infile", "imagetype", "denoise", "scale"),
     [
@@ -364,6 +445,19 @@ def test_waifu_external(infile: str, imagetype: str, denoise: int, scale: int) -
             assert output_image.size[1] == input_image.size[1] * scale
 
 
+@pytest.mark.parametrize(
+    "infile",
+    [
+        (infiles["L"]),
+        (infiles["LA"]),
+        (infiles["RGB"]),
+        (infiles["RGBA"]),
+        (infiles["PL"]),
+        (infiles["PLA"]),
+        (infiles["PRGB"]),
+        (infiles["PRGBA"]),
+    ],
+)
 def test_xbrz(infile: str) -> None:
     with temporary_filename(".png") as outfile:
         input_image = Image.open(infile)

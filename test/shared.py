@@ -13,6 +13,8 @@ from os.path import dirname, join, splitext
 
 import pytest
 
+from pipescaler.common import package_root
+from pipescaler.core import UnsupportedImageModeError
 from pipescaler.processors import (
     AppleScriptProcessor,
     AutomatorProcessor,
@@ -30,8 +32,6 @@ from pipescaler.processors import (
     WaifuProcessor,
     XbrzProcessor,
 )
-from pipescaler.common import package_root
-from pipescaler.core import UnsupportedImageModeError
 
 alt_infiles = {
     splitext(f)[0]: join(dirname(package_root), "test", "data", "infiles", "alt", f)
