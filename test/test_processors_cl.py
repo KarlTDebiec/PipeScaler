@@ -135,8 +135,7 @@ def test_solid_color(infile: str, args: str) -> None:
 
 
 @pytest.mark.parametrize(
-    ("infile", "args"),
-    [(infiles["RGB"], "-h"), xfail_if_not_windows(infiles["RGB"], ""),],
+    ("infile", "args"), [(infiles["RGB"], "-h"), skip_if_ci(infiles["RGB"], ""),],
 )
 def test_texconv(infile: str, args: str) -> None:
     run_processor_on_command_line(TexconvProcessor, args, infile)

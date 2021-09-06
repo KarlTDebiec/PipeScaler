@@ -97,21 +97,13 @@ scripts = {
         "scaled_image_identifier.py",
     ]
 }
-
-
-def expected_output_mode(input_image: Image.Image):
-    if input_image.mode == "P":
-        return remove_palette_from_image(input_image).mode
-    else:
-        return input_image.mode
-
-
 skip_if_ci = partial(
     pytest.param,
     marks=pytest.mark.skipif(
-        getenv("CONTINUOUS_INTEGRATION"), reason="Skip when running in CI"
+        getenv("CONTINUOUS_INTEGRATION") is not None, reason="Skip when running in CI"
     ),
 )
+xfail_assertion = partial(pytest.param, marks=pytest.mark.xfail(raises=AssertionError))
 xfail_if_not_windows = partial(
     pytest.param,
     marks=pytest.mark.xfail(
@@ -120,7 +112,6 @@ xfail_if_not_windows = partial(
         reason="Only supported on Windows",
     ),
 )
-xfail_assertion = partial(pytest.param, marks=pytest.mark.xfail(raises=AssertionError))
 xfail_unsupported_mode = partial(
     pytest.param, marks=pytest.mark.xfail(raises=UnsupportedImageModeError)
 )
@@ -135,3 +126,10 @@ def infile(request):
 @pytest.fixture(params=scripts.keys())
 def script(request):
     return scripts[request.param]
+
+
+def expected_output_mode(input_image: Image.Image):
+    if input_image.mode == "P":
+        return remove_palette_from_image(input_image).mode
+    else:
+        return input_image.mode
