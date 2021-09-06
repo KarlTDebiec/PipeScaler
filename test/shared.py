@@ -108,7 +108,7 @@ def expected_output_mode(input_image: Image.Image):
 
 skip_if_ci = partial(
     pytest.param,
-    mark=pytest.mark.skipif(
+    marks=pytest.mark.skipif(
         getenv("CONTINUOUS_INTEGRATION"), reason="Skip when running in CI"
     ),
 )
