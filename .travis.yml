@@ -1,24 +1,8 @@
 language: python
-os:
-  - linux
+os: linux
 cache: pip
-python:
-  - "3.8"
-services:
-  - xvfb
+python: 3.8
 before-install:
-  - pip install -r requirements.txt
-  - sudo apt-get update
-  - sudo apt -y install imagemagick libsdl2-dev libsdl2-image-dev pngquant potrace
-  - sudo apt -y install libsnappy-dev libgraphicsmagick1-dev luarocks libssl-dev
-  - bash -ex ${TRAVIS_BUILD_DIR}/test/scripts/download_models.sh
-  - bash -ex ${TRAVIS_BUILD_DIR}/test/scripts/install_xbrzscale.sh
-  - export PATH="${TRAVIS_BUILD_DIR}/xbrzscale:${PATH}"
-  - export PYTHONPATH="${TRAVIS_BUILD_DIR}:${PATH}"
-#install:
-#    - python setup.py install
+  - export PYTHONPATH="${TRAVIS_BUILD_DIR}:${PYTHONPATH}"
 script:
-  - cd ${TRAVIS_BUILD_DIR}/test && pytest test.py --cov=${TRAVIS_BUILD_DIR} --cov-report=term --cov-report html -vs
-after-success:
-  - bash -ex ${TRAVIS_BUILD_DIR}/test/scripts/encode_coverage.sh
-  - cd ${TRAVIS_BUILD_DIR}/test && coveralls
+  - pytest -v --cov=pipescaler --cov-report term test/

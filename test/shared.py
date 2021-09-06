@@ -8,14 +8,19 @@
 #   BSD license. See the LICENSE file for details.
 """"""
 from functools import partial
-from os import getcwd
+from os import getcwd, getenv
 from os.path import dirname, join, splitext
+from platform import platform
 
 import pytest
 from PIL import Image
 
 from pipescaler.common import package_root
-from pipescaler.core import UnsupportedImageModeError, remove_palette_from_image
+from pipescaler.core import (
+    UnsupportedImageModeError,
+    UnsupportedPlatformError,
+    remove_palette_from_image,
+)
 
 alt_infiles = {
     splitext(f)[0]: join(dirname(package_root), "test", "data", "infiles", "alt", f)
@@ -92,16 +97,21 @@ scripts = {
         "scaled_image_identifier.py",
     ]
 }
-
-
-def expected_output_mode(input_image: Image.Image):
-    if input_image.mode == "P":
-        return remove_palette_from_image(input_image).mode
-    else:
-        return input_image.mode
-
-
+skip_if_ci = partial(
+    pytest.param,
+    marks=pytest.mark.skipif(
+        getenv("CONTINUOUS_INTEGRATION") is not None, reason="Skip when running in CI"
+    ),
+)
 xfail_assertion = partial(pytest.param, marks=pytest.mark.xfail(raises=AssertionError))
+xfail_if_not_windows = partial(
+    pytest.param,
+    marks=pytest.mark.xfail(
+        platform == "win32",
+        raises=UnsupportedPlatformError,
+        reason="Only supported on Windows",
+    ),
+)
 xfail_unsupported_mode = partial(
     pytest.param, marks=pytest.mark.xfail(raises=UnsupportedImageModeError)
 )
@@ -116,3 +126,10 @@ def infile(request):
 @pytest.fixture(params=scripts.keys())
 def script(request):
     return scripts[request.param]
+
+
+def expected_output_mode(input_image: Image.Image):
+    if input_image.mode == "P":
+        return remove_palette_from_image(input_image).mode
+    else:
+        return input_image.mode

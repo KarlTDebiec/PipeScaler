@@ -35,7 +35,9 @@ from pipescaler.processors import (
 from shared import (
     esrgan_models,
     infiles,
+    skip_if_ci,
     xfail_assertion,
+    xfail_if_not_windows,
     xfail_unsupported_mode,
 )
 
@@ -83,7 +85,7 @@ def test_crop(infile: str, args: str) -> None:
     ("infile", "args"),
     [
         (infiles["RGB"], "-h"),
-        (infiles["RGB"], f"--model {esrgan_models['1x_BC1-smooth2']}"),
+        skip_if_ci(infiles["RGB"], f"--model {esrgan_models['1x_BC1-smooth2']}"),
     ],
 )
 def test_esrgan(infile: str, args: str) -> None:
@@ -112,7 +114,7 @@ def test_mode(infile: str, args: str) -> None:
 
 
 @pytest.mark.parametrize(
-    ("infile", "args"), [(infiles["RGB"], "-h"), (infiles["RGB"], ""),],
+    ("infile", "args"), [(infiles["RGB"], "-h"), skip_if_ci(infiles["RGB"], ""),],
 )
 def test_pngquant(infile: str, args: str) -> None:
     run_processor_on_command_line(PngquantProcessor, args, infile)
@@ -133,7 +135,7 @@ def test_solid_color(infile: str, args: str) -> None:
 
 
 @pytest.mark.parametrize(
-    ("infile", "args"), [(infiles["RGB"], "-h"), (infiles["RGB"], ""),],
+    ("infile", "args"), [(infiles["RGB"], "-h"), skip_if_ci(infiles["RGB"], ""),],
 )
 def test_texconv(infile: str, args: str) -> None:
     run_processor_on_command_line(TexconvProcessor, args, infile)
@@ -144,7 +146,7 @@ def test_texconv(infile: str, args: str) -> None:
     ("infile", "args"),
     [
         (infiles["RGB"], "-h"),
-        (infiles["RGB"], f" --architecture resnet10 --denoise 0 --scale 2"),
+        skip_if_ci(infiles["RGB"], f" --architecture resnet10 --denoise 0 --scale 2"),
     ],
 )
 def test_waifu(infile: str, args: str) -> None:
@@ -154,7 +156,10 @@ def test_waifu(infile: str, args: str) -> None:
 @pytest.mark.serial
 @pytest.mark.parametrize(
     ("infile", "args"),
-    [(infiles["RGB"], "-h"), (infiles["RGB"], f" --type a --denoise 0 --scale 2")],
+    [
+        (infiles["RGB"], "-h"),
+        skip_if_ci(infiles["RGB"], f" --type a --denoise 0 --scale 2"),
+    ],
 )
 def test_waifu_external(infile: str, args: str) -> None:
     run_processor_on_command_line(WaifuExternalProcessor, args, infile)
