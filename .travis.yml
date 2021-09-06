@@ -3,6 +3,6 @@ os: linux
 cache: pip
 python: 3.8
 before-install:
-  - export PYTHONPATH="${TRAVIS_BUILD_DIR}:${PATH}"
+  - export PYTHONPATH="${TRAVIS_BUILD_DIR}:${PYTHONPATH}"
 script:
   - pytest -v --cov=pipescaler --cov-report term test/
