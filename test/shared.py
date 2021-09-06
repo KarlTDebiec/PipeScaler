@@ -8,7 +8,7 @@
 #   BSD license. See the LICENSE file for details.
 """"""
 from functools import partial
-from os import getcwd
+from os import getcwd, getenv
 from os.path import dirname, join, splitext
 from platform import platform
 
@@ -106,6 +106,12 @@ def expected_output_mode(input_image: Image.Image):
         return input_image.mode
 
 
+skip_if_ci = partial(
+    pytest.param,
+    mark=pytest.mark.skipif(
+        getenv("CONTINUOUS_INTEGRATION"), reason="Skip when running in CI"
+    ),
+)
 xfail_if_not_windows = partial(
     pytest.param,
     marks=pytest.mark.xfail(
