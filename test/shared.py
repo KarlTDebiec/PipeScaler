@@ -12,26 +12,10 @@ from os import getcwd
 from os.path import dirname, join, splitext
 
 import pytest
+from PIL import Image
 
 from pipescaler.common import package_root
-from pipescaler.core import UnsupportedImageModeError
-from pipescaler.processors import (
-    AppleScriptProcessor,
-    AutomatorProcessor,
-    CropProcessor,
-    ESRGANProcessor,
-    ExpandProcessor,
-    HeightToNormalProcessor,
-    ModeProcessor,
-    PngquantProcessor,
-    ResizeProcessor,
-    SideChannelProcessor,
-    SolidColorProcessor,
-    TexconvProcessor,
-    WaifuExternalProcessor,
-    WaifuProcessor,
-    XbrzProcessor,
-)
+from pipescaler.core import UnsupportedImageModeError, remove_palette_from_image
 
 alt_infiles = {
     splitext(f)[0]: join(dirname(package_root), "test", "data", "infiles", "alt", f)
@@ -46,7 +30,7 @@ alt_infiles = {
         "PRGBA.png",
     ]
 }
-esrgan = {
+esrgan_models = {
     f[:-4]: join(getcwd(), "data", "models", f)
     for f in ["1x_BC1-smooth2.pth", "RRDB_ESRGAN_x4.pth", "RRDB_ESRGAN_x4_old_arch.pth"]
 }
@@ -109,6 +93,14 @@ scripts = {
     ]
 }
 
+
+def expected_output_mode(input_image: Image.Image):
+    if input_image.mode == "P":
+        return remove_palette_from_image(input_image).mode
+    else:
+        return input_image.mode
+
+
 xfail_assertion = partial(pytest.param, marks=pytest.mark.xfail(raises=AssertionError))
 xfail_unsupported_mode = partial(
     pytest.param, marks=pytest.mark.xfail(raises=UnsupportedImageModeError)
@@ -119,29 +111,6 @@ xfail_value = partial(pytest.param, marks=pytest.mark.xfail(raises=ValueError))
 @pytest.fixture(params=infiles.keys())
 def infile(request):
     return infiles[request.param]
-
-
-@pytest.fixture(
-    params=[
-        AppleScriptProcessor,
-        AutomatorProcessor,
-        CropProcessor,
-        ESRGANProcessor,
-        ExpandProcessor,
-        HeightToNormalProcessor,
-        ModeProcessor,
-        PngquantProcessor,
-        ResizeProcessor,
-        SideChannelProcessor,
-        SolidColorProcessor,
-        TexconvProcessor,
-        WaifuProcessor,
-        WaifuExternalProcessor,
-        XbrzProcessor,
-    ]
-)
-def processor(request):
-    return request.param
 
 
 @pytest.fixture(params=scripts.keys())

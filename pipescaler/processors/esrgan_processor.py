@@ -196,6 +196,7 @@ class ESRGANProcessor(Processor):
                 self.model_infile, torch.device(device)
             )
             self.cpu_upscaler = None
+        # TODO: Determine output scale and store as self.scale
 
     # endregion
 
