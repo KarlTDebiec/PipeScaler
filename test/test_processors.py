@@ -34,6 +34,7 @@ from shared import (
     esrgan_models,
     expected_output_mode,
     infiles,
+    xfail_if_not_windows,
     xfail_unsupported_mode,
 )
 
@@ -331,14 +332,14 @@ def test_solid_color(infile: str, solid_color_processor: SolidColorProcessor) ->
 @pytest.mark.parametrize(
     ("infile", "texconv_processor"),
     [
-        (infiles["L"], {}),
-        (infiles["LA"], {}),
-        (infiles["RGB"], {}),
-        (infiles["RGBA"], {}),
-        (infiles["PL"], {}),
-        (infiles["PLA"], {}),
-        (infiles["PRGB"], {}),
-        (infiles["PRGBA"], {}),
+        xfail_if_not_windows(infiles["L"], {}),
+        xfail_if_not_windows(infiles["LA"], {}),
+        xfail_if_not_windows(infiles["RGB"], {}),
+        xfail_if_not_windows(infiles["RGBA"], {}),
+        xfail_if_not_windows(infiles["PL"], {}),
+        xfail_if_not_windows(infiles["PLA"], {}),
+        xfail_if_not_windows(infiles["PRGB"], {}),
+        xfail_if_not_windows(infiles["PRGBA"], {}),
     ],
     indirect=["texconv_processor"],
 )

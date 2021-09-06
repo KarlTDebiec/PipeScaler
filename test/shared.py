@@ -10,12 +10,17 @@
 from functools import partial
 from os import getcwd
 from os.path import dirname, join, splitext
+from platform import platform
 
 import pytest
 from PIL import Image
 
 from pipescaler.common import package_root
-from pipescaler.core import UnsupportedImageModeError, remove_palette_from_image
+from pipescaler.core import (
+    UnsupportedImageModeError,
+    UnsupportedPlatformError,
+    remove_palette_from_image,
+)
 
 alt_infiles = {
     splitext(f)[0]: join(dirname(package_root), "test", "data", "infiles", "alt", f)
@@ -101,6 +106,14 @@ def expected_output_mode(input_image: Image.Image):
         return input_image.mode
 
 
+xfail_if_not_windows = partial(
+    pytest.param,
+    marks=pytest.mark.xfail(
+        platform == "win32",
+        raises=UnsupportedPlatformError,
+        reason="Only supported on Windows",
+    ),
+)
 xfail_assertion = partial(pytest.param, marks=pytest.mark.xfail(raises=AssertionError))
 xfail_unsupported_mode = partial(
     pytest.param, marks=pytest.mark.xfail(raises=UnsupportedImageModeError)
