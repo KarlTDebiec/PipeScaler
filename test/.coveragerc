@@ -2,3 +2,5 @@
 data_file = coverage.coverage
 concurrency = multiprocessing
 parallel = True
+omit =
+    /home/*/virtualenv
