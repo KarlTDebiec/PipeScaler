@@ -31,8 +31,8 @@ class TexconvProcessor(Processor):
         self,
         mipmaps: bool = False,
         sepalpha: bool = False,
-        filetype: Optional[str] = None,
-        format: Optional[str] = None,
+        filetype: Optional[str] = "DDS",
+        format: Optional[str] = "BC7_UNORM",
         **kwargs: Any,
     ) -> None:
         """
