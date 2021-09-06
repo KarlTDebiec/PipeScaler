@@ -1,13 +1,9 @@
 language: python
-os:
-  - linux
+os: linux
 cache: pip
-python:
-  - "3.8"
+python: 3.8
 before-install:
-#   - bash -ex ${TRAVIS_BUILD_DIR}/test/scripts/download_models.sh
   - export PYTHONPATH="${TRAVIS_BUILD_DIR}:${PATH}"
-  - echo $PYTHONPATH
 script:
   - cd ${TRAVIS_BUILD_DIR}/test
-  - pytest -v --cov=../pipescaler --cov-report term
+  - pytest -v --cov=${TRAVIS_BUILD_DIR}/pipescaler --cov-report term

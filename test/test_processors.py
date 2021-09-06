@@ -142,14 +142,12 @@ def test_crop(infile: str, crop_processor: CropProcessor) -> None:
 @pytest.mark.parametrize(
     ("infile", "esrgan_processor"),
     [
-        skip_if_ci(infiles["L"], {"model_infile": esrgan_models["1x_BC1-smooth2"]}),
-        skip_if_ci(infiles["PL"], {"model_infile": esrgan_models["1x_BC1-smooth2"]}),
-        skip_if_ci(infiles["PRGB"], {"model_infile": esrgan_models["1x_BC1-smooth2"]}),
+        (infiles["L"], {"model_infile": esrgan_models["1x_BC1-smooth2"]}),
+        (infiles["PL"], {"model_infile": esrgan_models["1x_BC1-smooth2"]}),
+        (infiles["PRGB"], {"model_infile": esrgan_models["1x_BC1-smooth2"]}),
         (infiles["RGB"], {"model_infile": esrgan_models["1x_BC1-smooth2"]}),
-        skip_if_ci(infiles["RGB"], {"model_infile": esrgan_models["RRDB_ESRGAN_x4"]}),
-        skip_if_ci(
-            infiles["RGB"], {"model_infile": esrgan_models["RRDB_ESRGAN_x4_old_arch"]}
-        ),
+        (infiles["RGB"], {"model_infile": esrgan_models["RRDB_ESRGAN_x4"]}),
+        (infiles["RGB"], {"model_infile": esrgan_models["RRDB_ESRGAN_x4_old_arch"]}),
         xfail_unsupported_mode(
             infiles["LA"], {"model_infile": esrgan_models["1x_BC1-smooth2"]}
         ),
