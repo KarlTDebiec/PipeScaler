@@ -7,6 +7,7 @@
 #   This software may be modified and distributed under the terms of the
 #   BSD license. See the LICENSE file for details.
 """"""
+from os import getenv
 from os.path import getsize
 
 import numpy as np
@@ -134,6 +135,9 @@ def test_crop(infile: str, crop_processor: CropProcessor) -> None:
 
 
 @pytest.mark.serial
+@pytest.mark.skipif(
+    getenv("CONTINUOUS_INTEGRATION") is not None, reason="Skip when running in CI"
+)
 @pytest.mark.parametrize(
     ("infile", "esrgan_processor"),
     [
@@ -255,6 +259,9 @@ def test_mode(infile: str, mode_processor: ModeProcessor) -> None:
             assert output_image.mode == mode_processor.mode
 
 
+@pytest.mark.skipif(
+    getenv("CONTINUOUS_INTEGRATION") is not None, reason="Skip when running in CI"
+)
 @pytest.mark.parametrize(
     ("infile", "pngquant_processor"),
     [
@@ -353,6 +360,9 @@ def test_texconv(infile: str, texconv_processor: TexconvProcessor) -> None:
 
 
 @pytest.mark.serial
+@pytest.mark.skipif(
+    getenv("CONTINUOUS_INTEGRATION") is not None, reason="Skip when running in CI"
+)
 @pytest.mark.parametrize(
     ("infile", "waifu_processor"),
     [
@@ -395,6 +405,9 @@ def test_waifu(infile: str, waifu_processor: WaifuProcessor) -> None:
 
 
 @pytest.mark.serial
+@pytest.mark.skipif(
+    getenv("CONTINUOUS_INTEGRATION") is not None, reason="Skip when running in CI"
+)
 @pytest.mark.parametrize(
     ("infile", "waifu_external_processor"),
     [

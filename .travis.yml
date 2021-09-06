@@ -10,4 +10,4 @@ before-install:
   - echo $PYTHONPATH
 script:
   - cd ${TRAVIS_BUILD_DIR}/test
-  - pytest --cov=../pipescaler --cov-report term ./test_processors_cl.py
+  - pytest --cov=../pipescaler --cov-report term ./test_processors.py
