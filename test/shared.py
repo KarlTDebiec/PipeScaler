@@ -107,7 +107,7 @@ xfail_assertion = partial(pytest.param, marks=pytest.mark.xfail(raises=Assertion
 xfail_if_not_windows = partial(
     pytest.param,
     marks=pytest.mark.xfail(
-        platform != "win32",
+        platform == "win32",
         raises=UnsupportedPlatformError,
         reason="Only supported on Windows",
     ),
