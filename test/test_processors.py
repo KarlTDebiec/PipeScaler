@@ -375,7 +375,7 @@ def test_texconv(infile: str, texconv_processor: TexconvProcessor) -> None:
     getenv("CONTINUOUS_INTEGRATION") is not None, reason="Skip when running in CI"
 )
 @pytest.mark.xfail(
-    platform == "darwin", raises=UnsupportedPlatformError, reason="Unsupported on macOS"
+    platform == "darwin", raises=RuntimeError, reason="Unsupported on macOS"
 )
 @pytest.mark.parametrize(
     ("infile", "waifu_processor"),
