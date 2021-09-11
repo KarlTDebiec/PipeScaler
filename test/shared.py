@@ -10,7 +10,7 @@
 from functools import partial
 from os import getcwd, getenv
 from os.path import dirname, join, splitext
-from platform import platform
+from platform import mac_ver, win32_ver
 
 import pytest
 from PIL import Image
@@ -103,11 +103,63 @@ skip_if_ci = partial(
         getenv("CONTINUOUS_INTEGRATION") is not None, reason="Skip when running in CI"
     ),
 )
+skip_if_ci_xfail_assertion_if_mac = partial(
+    pytest.param,
+    marks=[
+        pytest.mark.skipif(
+            getenv("CONTINUOUS_INTEGRATION") is not None,
+            reason="Skip when running in CI",
+        ),
+        pytest.mark.xfail(
+            any(mac_ver()), raises=AssertionError, reason="Not supported on macOS",
+        ),
+    ],
+)
+skip_if_ci_xfail_assertion_if_not_windows = partial(
+    pytest.param,
+    marks=[
+        pytest.mark.skipif(
+            getenv("CONTINUOUS_INTEGRATION") is not None,
+            reason="Skip when running in CI",
+        ),
+        pytest.mark.xfail(
+            not any(win32_ver()),
+            raises=AssertionError,
+            reason="Only supported on Windows",
+        ),
+    ],
+)
 xfail_assertion = partial(pytest.param, marks=pytest.mark.xfail(raises=AssertionError))
+xfail_assertion_if_mac = partial(
+    pytest.param,
+    marks=[
+        pytest.mark.xfail(
+            any(mac_ver()), raises=AssertionError, reason="Not supported on macOS",
+        ),
+    ],
+)
+xfail_assertion_if_not_windows = partial(
+    pytest.param,
+    marks=[
+        pytest.mark.xfail(
+            not any(win32_ver()),
+            raises=AssertionError,
+            reason="Only supported on Windows",
+        )
+    ],
+)
+xfail_if_mac = partial(
+    pytest.param,
+    marks=pytest.mark.xfail(
+        any(mac_ver()),
+        raises=UnsupportedPlatformError,
+        reason="Not supported on macOS",
+    ),
+)
 xfail_if_not_windows = partial(
     pytest.param,
     marks=pytest.mark.xfail(
-        platform != "win32",
+        not any(win32_ver()),
         raises=UnsupportedPlatformError,
         reason="Only supported on Windows",
     ),
