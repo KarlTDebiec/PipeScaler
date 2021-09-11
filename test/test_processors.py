@@ -9,7 +9,7 @@
 """"""
 from os import getenv
 from os.path import getsize
-from sys import platform
+from platform import mac_ver, win32_ver
 
 import numpy as np
 import pytest
@@ -343,7 +343,7 @@ def test_solid_color(infile: str, solid_color_processor: SolidColorProcessor) ->
     getenv("CONTINUOUS_INTEGRATION") is not None, reason="Skip when running in CI"
 )
 @pytest.mark.xfail(
-    platform != "win32",
+    not any(win32_ver()),
     raises=UnsupportedPlatformError,
     reason="Only supported on Windows",
 )
@@ -374,9 +374,7 @@ def test_texconv(infile: str, texconv_processor: TexconvProcessor) -> None:
 @pytest.mark.skipif(
     getenv("CONTINUOUS_INTEGRATION") is not None, reason="Skip when running in CI"
 )
-@pytest.mark.xfail(
-    platform == "darwin", raises=RuntimeError, reason="Unsupported on macOS"
-)
+@pytest.mark.xfail(any(mac_ver()), raises=RuntimeError, reason="Unsupported on macOS")
 @pytest.mark.parametrize(
     ("infile", "waifu_processor"),
     [
