@@ -36,6 +36,8 @@ from shared import (
     esrgan_models,
     infiles,
     skip_if_ci,
+    skip_if_ci_xfail_assertion_if_mac,
+    skip_if_ci_xfail_assertion_if_not_windows,
     xfail_assertion,
     xfail_if_not_windows,
     xfail_unsupported_mode,
@@ -128,14 +130,18 @@ def test_resize(infile: str, args: str) -> None:
 
 
 @pytest.mark.parametrize(
-    ("infile", "args"), [(infiles["RGB"], "-h"), (infiles["RGB"], ""),],
+    ("infile", "args"), [(infiles["RGB"], "-h"), (infiles["RGB"], "")],
 )
 def test_solid_color(infile: str, args: str) -> None:
     run_processor_on_command_line(SolidColorProcessor, args, infile)
 
 
 @pytest.mark.parametrize(
-    ("infile", "args"), [(infiles["RGB"], "-h"), skip_if_ci(infiles["RGB"], ""),],
+    ("infile", "args"),
+    [
+        (infiles["RGB"], "-h"),
+        skip_if_ci_xfail_assertion_if_not_windows(infiles["RGB"], ""),
+    ],
 )
 def test_texconv(infile: str, args: str) -> None:
     run_processor_on_command_line(TexconvProcessor, args, infile)
@@ -146,7 +152,9 @@ def test_texconv(infile: str, args: str) -> None:
     ("infile", "args"),
     [
         (infiles["RGB"], "-h"),
-        skip_if_ci(infiles["RGB"], f" --architecture resnet10 --denoise 0 --scale 2"),
+        skip_if_ci_xfail_assertion_if_mac(
+            infiles["RGB"], f" --architecture resnet10 --denoise 0 --scale 2"
+        ),
     ],
 )
 def test_waifu(infile: str, args: str) -> None:

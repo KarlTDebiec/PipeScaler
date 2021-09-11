@@ -101,7 +101,7 @@ class WaifuExternalProcessor(Processor):
         if any(win32_ver()):
             executable = validate_executable("waifu2x-caffe-cui.exe")
         else:
-            executable = validate_executable("waifu2x")
+            executable = validate_executable("/usr/local/bin/waifu2x")
 
         # Read image
         input_image = Image.open(infile)

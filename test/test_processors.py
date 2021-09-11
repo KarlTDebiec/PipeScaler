@@ -9,12 +9,14 @@
 """"""
 from os import getenv
 from os.path import getsize
+from platform import mac_ver, win32_ver
 
 import numpy as np
 import pytest
 from PIL import Image
 
 from pipescaler.common import temporary_filename
+from pipescaler.core import UnsupportedPlatformError
 from pipescaler.processors import (
     CropProcessor,
     ESRGANProcessor,
@@ -340,17 +342,22 @@ def test_solid_color(infile: str, solid_color_processor: SolidColorProcessor) ->
 @pytest.mark.skipif(
     getenv("CONTINUOUS_INTEGRATION") is not None, reason="Skip when running in CI"
 )
+@pytest.mark.xfail(
+    not any(win32_ver()),
+    raises=UnsupportedPlatformError,
+    reason="Only supported on Windows",
+)
 @pytest.mark.parametrize(
     ("infile", "texconv_processor"),
     [
-        xfail_if_not_windows(infiles["L"], {}),
-        xfail_if_not_windows(infiles["LA"], {}),
-        xfail_if_not_windows(infiles["RGB"], {}),
-        xfail_if_not_windows(infiles["RGBA"], {}),
-        xfail_if_not_windows(infiles["PL"], {}),
-        xfail_if_not_windows(infiles["PLA"], {}),
-        xfail_if_not_windows(infiles["PRGB"], {}),
-        xfail_if_not_windows(infiles["PRGBA"], {}),
+        (infiles["L"], {}),
+        (infiles["LA"], {}),
+        (infiles["RGB"], {}),
+        (infiles["RGBA"], {}),
+        (infiles["PL"], {}),
+        (infiles["PLA"], {}),
+        (infiles["PRGB"], {}),
+        (infiles["PRGBA"], {}),
     ],
     indirect=["texconv_processor"],
 )
@@ -367,6 +374,7 @@ def test_texconv(infile: str, texconv_processor: TexconvProcessor) -> None:
 @pytest.mark.skipif(
     getenv("CONTINUOUS_INTEGRATION") is not None, reason="Skip when running in CI"
 )
+@pytest.mark.xfail(any(mac_ver()), raises=RuntimeError, reason="Unsupported on macOS")
 @pytest.mark.parametrize(
     ("infile", "waifu_processor"),
     [
