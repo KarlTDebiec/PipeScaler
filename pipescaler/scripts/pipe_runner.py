@@ -39,36 +39,47 @@ class PipeRunner(CLTool):
             environ[key] = normpath(expandvars(value))
 
         # Parse stages from external file
-        conf["stages"] = self.parse_stages(conf.get("stages", {}))
+        conf["stages"] = self.insert_subfiles(conf.get("stages", {}))
+
+        # Parse blocks
+        blocks = self.insert_subfiles(conf.pop("blocks", {}))
 
         # Pass on fully-parsed conf to Pipeline to initialize
+        conf["pipeline"] = self.insert_blocks(conf.pop("pipeline"), blocks)
         self.pipeline = Pipeline(**conf)
 
     def __call__(self) -> None:
         self.pipeline()
 
-    def parse_stages(self, input_stages):
-        output_stages = {}
-        for stage_name, stage_conf in input_stages.items():
-            if isinstance(stage_conf, str):
-                with open(validate_input_path(stage_conf), "r") as f:
-                    stage_conf = yaml.load(f, Loader=yaml.SafeLoader)
-                sub_stages = self.parse_stages(stage_conf)
-                for sub_stage_name, sub_stage_conf in sub_stages.items():
-                    if sub_stage_name not in output_stages:
-                        output_stages[sub_stage_name] = sub_stage_conf
-                    else:
-                        raise KeyError(
-                            f"Stage name '{stage_name}' specified multiple times"
-                        )
-            elif isinstance(stage_conf, dict):
-                if stage_name not in output_stages:
-                    output_stages[stage_name] = stage_conf
+    def insert_blocks(self, input, blocks):
+        if isinstance(input, dict):
+            if len(input) == 1 and next(iter(input)) == "block":
+                return blocks[input["block"]]
+            else:
+                for key in input:
+                    input[key] = self.insert_blocks(input[key], blocks)
+        elif isinstance(input, list):
+            for i, yat in enumerate(input):
+                input[i] = self.insert_blocks(yat, blocks)
+        return input
+
+    def insert_subfiles(self, input):
+        output = {}
+        for key, value in input.items():
+            if isinstance(value, str):
+                with open(validate_input_path(value), "r") as f:
+                    subfile = self.insert_subfiles(yaml.load(f, Loader=yaml.SafeLoader))
+                    for sub_key, sub_value in subfile.items():
+                        if sub_key not in output:
+                            output[sub_key] = sub_value
+                        else:
+                            raise KeyError(f"'{sub_key}' specified multiple times")
+            elif isinstance(value, dict) or isinstance(value, list):
+                if key not in output:
+                    output[key] = value
                 else:
-                    raise KeyError(
-                        f"Stage name '{stage_name}' specified multiple times"
-                    )
-        return output_stages
+                    raise KeyError(f"'{key}' specified multiple times")
+        return output
 
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
