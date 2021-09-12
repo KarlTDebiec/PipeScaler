@@ -34,9 +34,8 @@ class SideChannelProcessor(Processor):
         super().__init__(**kwargs)
 
         # Store configuration
-        # TODO: Create directory it does not exist
         self.directory = validate_input_path(
-            directory, file_ok=False, directory_ok=True
+            directory, file_ok=False, directory_ok=True, create_directory=True
         )
         self.side_files = {}
         for filename in parse_file_list(self.directory, full_paths=True):
