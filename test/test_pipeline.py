@@ -88,6 +88,9 @@ def test_pipeline(
         )
         environ["OUTPUT_DIRECTORY"] = output_directory
         pipeline = Pipeline(
-            wip_directory=wip_directory, stages=stages, pipeline=pipeline
+            wip_directory=wip_directory,
+            stages=stages,
+            pipeline=pipeline,
+            purge_wip=True,
         )
         pipeline()
