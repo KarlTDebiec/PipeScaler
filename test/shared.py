@@ -36,7 +36,7 @@ alt_infiles = {
     ]
 }
 esrgan_models = {
-    f[:-4]: join(getcwd(), "data", "models", f)
+    f[:-4]: join(dirname(package_root), "test", "data", "models", f)
     for f in ["1x_BC1-smooth2.pth", "RRDB_ESRGAN_x4.pth", "RRDB_ESRGAN_x4_old_arch.pth"]
 }
 infiles = {

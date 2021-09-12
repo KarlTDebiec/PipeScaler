@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   test_merges.py
+#   test_mergers.py
 #
 #   Copyright (C) 2020-2021 Karl T Debiec
 #   All rights reserved.

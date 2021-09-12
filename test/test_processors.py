@@ -9,7 +9,7 @@
 """"""
 from os import getenv
 from os.path import getsize
-from platform import mac_ver, win32_ver
+from platform import win32_ver
 
 import numpy as np
 import pytest
@@ -374,7 +374,6 @@ def test_texconv(infile: str, texconv_processor: TexconvProcessor) -> None:
 @pytest.mark.skipif(
     getenv("CONTINUOUS_INTEGRATION") is not None, reason="Skip when running in CI"
 )
-@pytest.mark.xfail(any(mac_ver()), raises=RuntimeError, reason="Unsupported on macOS")
 @pytest.mark.parametrize(
     ("infile", "waifu_processor"),
     [
