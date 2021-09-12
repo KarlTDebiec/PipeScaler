@@ -16,9 +16,6 @@ from pipescaler.core.stage import Stage
 
 
 class Merger(Stage, ABC):
-
-    Builtins
-
     def __init__(
         self,
         suffix: Optional[str] = None,

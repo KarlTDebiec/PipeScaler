@@ -10,7 +10,7 @@
 from __future__ import annotations
 
 from logging import info
-from typing import Any, Dict, List
+from typing import Any
 
 from PIL import Image
 
