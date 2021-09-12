@@ -10,6 +10,7 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
+from copy import deepcopy
 from os import environ
 from os.path import expandvars, normpath
 from typing import Any
@@ -43,24 +44,35 @@ class PipeRunner(CLTool):
 
         # Parse blocks
         blocks = self.insert_subfiles(conf.pop("blocks", {}))
+        blocks = self.insert_blocks(blocks, blocks)
 
-        # Pass on fully-parsed conf to Pipeline to initialize
-        conf["pipeline"] = self.insert_blocks(conf.pop("pipeline"), blocks)
+        # Parse pipeline and pass on to Pipeline
+        pipeline = conf.pop("pipeline")
+        pipeline = self.insert_blocks(pipeline, blocks)
+        conf["pipeline"] = pipeline
+
         self.pipeline = Pipeline(**conf)
 
     def __call__(self) -> None:
         self.pipeline()
 
     def insert_blocks(self, input, blocks):
+        # TODO: Make this readable, most likely by creating output fresh
         if isinstance(input, dict):
             if len(input) == 1 and next(iter(input)) == "block":
-                return blocks[input["block"]]
+                return deepcopy(blocks[input["block"]])
             else:
                 for key in input:
                     input[key] = self.insert_blocks(input[key], blocks)
         elif isinstance(input, list):
-            for i, yat in enumerate(input):
-                input[i] = self.insert_blocks(yat, blocks)
+            output = []
+            for yat in input:
+                new_stuff = self.insert_blocks(yat, blocks)
+                if isinstance(new_stuff, list):
+                    output.extend(new_stuff)
+                else:
+                    output.append(new_stuff)
+            input = output
         return input
 
     def insert_subfiles(self, input):
