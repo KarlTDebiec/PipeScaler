@@ -92,10 +92,10 @@ class DirectoryWatcher(CLTool):
 
         # Output
         self.copy_directory = validate_output_path(
-            copy_directory, file_ok=False, directory_ok=True
+            copy_directory, file_ok=False, directory_ok=True, create_directory=True
         )
         self.move_directory = validate_output_path(
-            move_directory, file_ok=False, directory_ok=True
+            move_directory, file_ok=False, directory_ok=True, create_directory=True
         )
 
     def __call__(self, *args, **kwargs):
