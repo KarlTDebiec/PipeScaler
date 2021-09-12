@@ -33,9 +33,6 @@ from pipescaler.core import (
 
 
 class Pipeline:
-
-    # region Builtins
-
     def __init__(
         self,
         wip_directory: str,
@@ -46,7 +43,7 @@ class Pipeline:
 
         # Store configuration
         self.wip_directory = validate_output_path(
-            wip_directory, file_ok=False, directory_ok=True
+            wip_directory, file_ok=False, directory_ok=True, create_directory=True
         )
         self.purge_wip = purge_wip
 
@@ -156,10 +153,6 @@ class Pipeline:
 
     def __str__(self) -> str:
         return self.__class__.__name__.lower()
-
-    # endregion
-
-    # region Methods
 
     def build_merger(self, stage, inlet, pipeline_conf):
         if inlet is not None:
@@ -380,5 +373,3 @@ class Pipeline:
         outfile = f"{join(stage.directory, image.name)}{splitext(basename(infile))[1]}"
         stage(infile=infile, outfile=outfile)
         raise TerminusReached(outfile)
-
-    # endregion

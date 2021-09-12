@@ -10,6 +10,8 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
+from os import environ
+from os.path import expandvars, normpath
 from typing import Any
 
 import yaml
@@ -19,9 +21,6 @@ from pipescaler.core.pipeline import Pipeline
 
 
 class PipeRunner(CLTool):
-
-    # region Builtins
-
     def __init__(self, conf_file: str, **kwargs: Any) -> None:
         """
         Initializes.
@@ -34,14 +33,42 @@ class PipeRunner(CLTool):
         # Input
         with open(validate_input_path(conf_file), "r") as f:
             conf = yaml.load(f, Loader=yaml.SafeLoader)
-        self.pipeline = Pipeline(verbosity=self.verbosity, **conf)
+
+        # Set environment variables
+        for key, value in conf.pop("environment", {}).items():
+            environ[key] = normpath(expandvars(value))
+
+        # Parse stages from external file
+        conf["stages"] = self.parse_stages(conf.get("stages", {}))
+
+        # Pass on fully-parsed conf to Pipeline to initialize
+        self.pipeline = Pipeline(**conf)
 
     def __call__(self) -> None:
         self.pipeline()
 
-    # endregion
-
-    # region Class Methods
+    def parse_stages(self, input_stages):
+        output_stages = {}
+        for stage_name, stage_conf in input_stages.items():
+            if isinstance(stage_conf, str):
+                with open(validate_input_path(stage_conf), "r") as f:
+                    stage_conf = yaml.load(f, Loader=yaml.SafeLoader)
+                sub_stages = self.parse_stages(stage_conf)
+                for sub_stage_name, sub_stage_conf in sub_stages.items():
+                    if sub_stage_name not in output_stages:
+                        output_stages[sub_stage_name] = sub_stage_conf
+                    else:
+                        raise KeyError(
+                            f"Stage name '{stage_name}' specified multiple times"
+                        )
+            elif isinstance(stage_conf, dict):
+                if stage_name not in output_stages:
+                    output_stages[stage_name] = stage_conf
+                else:
+                    raise KeyError(
+                        f"Stage name '{stage_name}' specified multiple times"
+                    )
+        return output_stages
 
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
@@ -60,8 +87,6 @@ class PipeRunner(CLTool):
         )
 
         return parser
-
-    # endregion
 
 
 if __name__ == "__main__":
