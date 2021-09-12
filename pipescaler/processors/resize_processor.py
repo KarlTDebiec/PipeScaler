@@ -32,8 +32,6 @@ class ResizeProcessor(Processor):
         "nearest": Image.NEAREST,
     }
 
-    # region Builtins
-
     def __init__(self, scale: float, resample: str = "lanczos", **kwargs: Any) -> None:
         """
         Validates and stores static configuration.
@@ -49,10 +47,6 @@ class ResizeProcessor(Processor):
         self.resample = self.resample_methods[
             validate_str(resample, options=self.resample_methods.keys())
         ]
-
-    # endregion
-
-    # region Methods
 
     def process_file(self, infile: str, outfile: str) -> None:
         """
@@ -114,10 +108,6 @@ class ResizeProcessor(Processor):
         output_image.save(outfile)
         info(f"{self}: '{outfile}' saved")
 
-    # endregion
-
-    # region Class Methods
-
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
@@ -144,8 +134,6 @@ class ResizeProcessor(Processor):
         )
 
         return parser
-
-    # endregion
 
 
 if __name__ == "__main__":

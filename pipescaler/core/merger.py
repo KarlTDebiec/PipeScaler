@@ -17,7 +17,7 @@ from pipescaler.core.stage import Stage
 
 class Merger(Stage, ABC):
 
-    # region Builtins
+    Builtins
 
     def __init__(
         self,
@@ -40,12 +40,6 @@ class Merger(Stage, ABC):
     def __call__(self, outfile: str) -> None:
         raise NotImplementedError()
 
-    # endregion
-
-    # region Properties
-
     @property
     def outlets(self):
         return ["outlet"]
-
-    # endregion

@@ -37,8 +37,6 @@ from pipescaler.core import (
 
 
 class ESRGANProcessor(Processor):
-    # region Classes
-
     class ResidualDenseBlock5C(torch.nn.Module):
         def __init__(self, nf=64, gc=32, bias=True):
             super().__init__()
@@ -158,10 +156,6 @@ class ESRGANProcessor(Processor):
 
             return output_datum
 
-    # endregion
-
-    # region Builtins
-
     def __init__(self, model_infile: str, device: str = "cuda", **kwargs: Any) -> None:
         """
         Validates and stores static configuration.
@@ -197,10 +191,6 @@ class ESRGANProcessor(Processor):
             )
             self.cpu_upscaler = None
         # TODO: Determine output scale and store as self.scale
-
-    # endregion
-
-    # region Methods
 
     def process_file(self, infile: str, outfile: str) -> None:
         """
@@ -258,10 +248,6 @@ class ESRGANProcessor(Processor):
         output_image.save(outfile)
         info(f"{self}: '{outfile}' saved")
 
-    # endregion
-
-    # region Class Methods
-
     @classmethod
     def construct_argparser(cls, **kwargs) -> ArgumentParser:
         """
@@ -306,10 +292,6 @@ class ESRGANProcessor(Processor):
             scale_index = cls.get_scale_index(state_dict)
 
         return state_dict, scale_index
-
-    # endregion
-
-    # region Static Methods
 
     @staticmethod
     def build_old_keymap(n_upscale):
@@ -362,8 +344,6 @@ class ESRGANProcessor(Processor):
                 max_index = max(max_index, int(k[6:-7]))
 
         return max_index
-
-    # endregion
 
 
 if __name__ == "__main__":

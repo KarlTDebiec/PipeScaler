@@ -26,9 +26,6 @@ from pipescaler.core import (
 
 
 class XbrzProcessor(Processor):
-
-    # region Builtins
-
     def __init__(self, scale: int = 4, **kwargs: Any) -> None:
         """
         Validates and stores static configuration.
@@ -41,10 +38,6 @@ class XbrzProcessor(Processor):
         # Store configuration
         self.scale = validate_int(scale, 2, 6)
 
-    # endregion
-
-    # region Methods
-
     def __call__(self, infile: str, outfile: str) -> None:
         """
         Scales infile by self.scale and writes the resulting image to outfile.
@@ -54,10 +47,6 @@ class XbrzProcessor(Processor):
             outfile (str): Output file
         """
         self.process_file(infile, outfile)
-
-    # endregion
-
-    # region Methods
 
     def process_file(self, infile: str, outfile: str) -> None:
         """
@@ -96,10 +85,6 @@ class XbrzProcessor(Processor):
         output_image.save(outfile)
         info(f"{self}: '{outfile}' saved")
 
-    # endregion
-
-    # region Class Methods
-
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
@@ -120,8 +105,6 @@ class XbrzProcessor(Processor):
         )
 
         return parser
-
-    # endregion
 
 
 if __name__ == "__main__":

@@ -20,9 +20,6 @@ from pipescaler.core import Processor, crop_image
 
 
 class CropProcessor(Processor):
-
-    # region Builtins
-
     def __init__(self, pixels: Tuple[int], **kwargs: Any) -> None:
         """
         Validates and stores static configuration.
@@ -37,10 +34,6 @@ class CropProcessor(Processor):
         self.left, self.top, self.right, self.bottom = validate_ints(
             pixels, length=4, min_value=0
         )
-
-    # endregion
-
-    # region Methods
 
     def process_file(self, infile: str, outfile: str) -> None:
         """
@@ -68,10 +61,6 @@ class CropProcessor(Processor):
         output_image.save(outfile)
         info(f"{self}: '{outfile}' saved")
 
-    # endregion
-
-    # region Class Methods
-
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
@@ -95,8 +84,6 @@ class CropProcessor(Processor):
         )
 
         return parser
-
-    # endregion
 
 
 if __name__ == "__main__":

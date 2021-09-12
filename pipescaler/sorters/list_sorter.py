@@ -20,8 +20,6 @@ from pipescaler.core import Sorter, parse_file_list
 class ListSorter(Sorter):
     exclusions = {".DS_Store", "desktop"}
 
-    # region Builtins
-
     def __init__(self, outlets: Dict[str, List[str]], **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
@@ -62,12 +60,6 @@ class ListSorter(Sorter):
             info(f"{self}: '{name}' does not match any outlet")
         return outlet
 
-    # endregion
-
-    # region Properties
-
     @property
     def outlets(self):
         return self._outlets
-
-    # endregion

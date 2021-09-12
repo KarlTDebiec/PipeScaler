@@ -16,9 +16,6 @@ from pipescaler.sources.directory_source import DirectorySource
 
 
 class DolphinSource(DirectorySource):
-
-    # region Static Methods
-
     @staticmethod
     def sort(filename):
         try:
@@ -40,5 +37,3 @@ class DolphinSource(DirectorySource):
         except ValueError as e:
             error(f"Error encountered while sorting {filename}")
             raise e
-
-    # endregion

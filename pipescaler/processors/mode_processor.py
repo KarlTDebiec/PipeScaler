@@ -22,8 +22,6 @@ from pipescaler.core import Processor, remove_palette_from_image
 class ModeProcessor(Processor):
     modes = ["RGBA", "RGB", "LA", "L"]
 
-    # region Builtins
-
     def __init__(
         self, mode: str = "RGB", background_color: str = "#000000", **kwargs: Any,
     ) -> None:
@@ -39,10 +37,6 @@ class ModeProcessor(Processor):
         # Store configuration
         self.mode = validate_str(mode, self.modes)
         self.background_color = ImageColor.getrgb(background_color)  # TODO: Validate
-
-    # endregion
-
-    # region Methods
 
     def process_file(self, infile: str, outfile: str) -> None:
         """
@@ -69,10 +63,6 @@ class ModeProcessor(Processor):
         # Write image
         output_image.save(outfile)
         info(f"{self}: '{outfile}' saved")
-
-    # endregion
-
-    # region Class Methods
 
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
@@ -101,8 +91,6 @@ class ModeProcessor(Processor):
         )
 
         return parser
-
-    # endregion
 
 
 if __name__ == "__main__":

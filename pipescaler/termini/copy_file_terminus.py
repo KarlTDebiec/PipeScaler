@@ -21,9 +21,6 @@ from pipescaler.core import Terminus, parse_file_list
 
 
 class CopyFileTerminus(Terminus):
-
-    # region Builtins
-
     def __init__(self, directory: str, purge: bool = False, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
@@ -37,10 +34,6 @@ class CopyFileTerminus(Terminus):
                 remove(filename)
                 info(f"{self}: '{filename}' removed")
 
-    # endregion
-
-    # region Methods
-
     def process_file(self, infile: str, outfile: str, **kwargs) -> None:
         if isfile(outfile):
             infile_md5sum = md5(open(infile, "rb").read()).hexdigest()
@@ -53,5 +46,3 @@ class CopyFileTerminus(Terminus):
         else:
             copyfile(infile, outfile)
             info(f"{self}: '{outfile}' saved")
-
-    # endregion

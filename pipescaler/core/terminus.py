@@ -17,15 +17,8 @@ from pipescaler.core.stage import Stage
 
 
 class Terminus(Stage, CLTool):
-
-    # region Builtins
-
     def __call__(self, infile: str, outfile: str) -> None:
         self.process_file(infile, outfile)
-
-    # endregion
-
-    # region Properties
 
     @property
     def inlets(self) -> List[str]:
@@ -35,12 +28,6 @@ class Terminus(Stage, CLTool):
     def outlets(self) -> List[str]:
         return []
 
-    # endregion
-
-    # region Methods
-
     @abstractmethod
     def process_file(cls, inlet: str, outfile: str) -> None:
         raise NotImplementedError()
-
-    # endregion

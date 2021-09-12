@@ -20,9 +20,6 @@ from pipescaler.core import Sorter, UnsupportedImageModeError, remove_palette_fr
 
 
 class AlphaSorter(Sorter):
-
-    # region Builtins
-
     def __init__(self, threshold: int = 255, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
@@ -53,12 +50,6 @@ class AlphaSorter(Sorter):
                 f" is not supported by {type(self)}"
             )
 
-    # endregion
-
-    # region Properties
-
     @property
     def outlets(self) -> List[str]:
         return ["drop_alpha", "keep_alpha", "no_alpha"]
-
-    # endregion

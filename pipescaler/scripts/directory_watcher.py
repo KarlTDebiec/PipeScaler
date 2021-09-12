@@ -32,8 +32,6 @@ from pipescaler.core import parse_file_list
 class DirectoryWatcher(CLTool):
     exclusions = {".DS_Store", "desktop"}
 
-    # region Builtins
-
     def __init__(
         self,
         copy_directory: str,
@@ -110,10 +108,6 @@ class DirectoryWatcher(CLTool):
 
         # Watch for new files
         self.watch_new_files_in_input_directory()
-
-    # endregion
-
-    # region Methods
 
     def perform_operation_for_filename(self, filename):
         status = self.select_operation_for_filename(filename)
@@ -211,10 +205,6 @@ class DirectoryWatcher(CLTool):
                     f"{len(self.observed_filenames)} filenames"
                 )
 
-    # endregion
-
-    # region Class Methods
-
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
@@ -245,8 +235,6 @@ class DirectoryWatcher(CLTool):
 
         tool = cls(**{**kwargs, **conf})
         tool()
-
-    # endregion
 
 
 if __name__ == "__main__":

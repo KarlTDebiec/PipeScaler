@@ -28,9 +28,6 @@ from pipescaler.core import (
 
 
 class HeightToNormalProcessor(Processor):
-
-    # region Builtins
-
     def __init__(self, sigma: Optional[int] = None, **kwargs: Any) -> None:
         """
         Validates and stores static configuration.
@@ -46,10 +43,6 @@ class HeightToNormalProcessor(Processor):
             self.sigma = validate_float(sigma, min_value=0)
         else:
             self.sigma = None
-
-    # endregion
-
-    # region Methods
 
     def process_file(self, infile: str, outfile: str) -> None:
         """
@@ -83,10 +76,6 @@ class HeightToNormalProcessor(Processor):
         output_image.save(outfile)
         info(f"{self}: '{outfile}' saved")
 
-    # endregion
-
-    # region Class Methods
-
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
@@ -108,8 +97,6 @@ class HeightToNormalProcessor(Processor):
         )
 
         return parser
-
-    # endregion
 
 
 if __name__ == "__main__":

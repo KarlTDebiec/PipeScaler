@@ -16,9 +16,6 @@ from pipescaler.sources.directory_source import DirectorySource
 
 
 class CitraSource(DirectorySource):
-
-    # region Static Methods
-
     @staticmethod
     def sort(filename):
         try:
@@ -28,5 +25,3 @@ class CitraSource(DirectorySource):
         except ValueError as e:
             error(f"Error encountered while sorting {filename}")
             raise e
-
-    # endregion

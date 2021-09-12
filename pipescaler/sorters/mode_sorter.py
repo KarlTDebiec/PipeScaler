@@ -18,9 +18,6 @@ from pipescaler.core import Sorter, UnsupportedImageModeError, remove_palette_fr
 
 
 class ModeSorter(Sorter):
-
-    # region Builtins
-
     def __call__(self, infile: str) -> str:
 
         # Read image
@@ -47,12 +44,6 @@ class ModeSorter(Sorter):
                 f" is not supported by {type(self)}"
             )
 
-    # endregion
-
-    # region Properties
-
     @property
     def outlets(self) -> List[str]:
         return ["rgba", "rgb", "la", "l"]
-
-    # endregion

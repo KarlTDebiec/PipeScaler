@@ -26,9 +26,6 @@ from pipescaler.core import Processor, UnsupportedPlatformError
 
 
 class AppleScriptProcessor(Processor):
-
-    # region Builtins
-
     def __init__(self, script: str, args: str = "", **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
@@ -45,10 +42,6 @@ class AppleScriptProcessor(Processor):
                 "AppleScriptProcessor is only supported on macOS"
             )
         self.process_file(infile, outfile, script=self.script, args=self.args)
-
-    # endregion
-
-    # region Class Methods
 
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
@@ -94,8 +87,6 @@ class AppleScriptProcessor(Processor):
             # Write image
             copyfile(tempfile, outfile)
             info(f"{cls}: '{outfile}' saved")
-
-    # endregion
 
 
 if __name__ == "__main__":

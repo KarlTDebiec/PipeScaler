@@ -17,8 +17,6 @@ class Stage(ABC):
     trim_suffixes = None
     extension = "png"
 
-    # region Builtins
-
     def __init__(
         self, name: Optional[str] = None, desc: Optional[str] = None, **kwargs: Any
     ) -> None:
@@ -45,10 +43,6 @@ class Stage(ABC):
     def __str__(self) -> str:
         return self.name
 
-    # endregion
-
-    # region Properties
-
     @property
     @abstractmethod
     def inlets(self):
@@ -58,5 +52,3 @@ class Stage(ABC):
     @abstractmethod
     def outlets(self):
         raise NotImplementedError()
-
-    # endregion

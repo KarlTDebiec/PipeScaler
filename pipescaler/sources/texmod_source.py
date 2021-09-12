@@ -16,9 +16,6 @@ from pipescaler.sources import DirectorySource
 
 
 class TexmodSource(DirectorySource):
-
-    # region Static Methods
-
     @staticmethod
     def sort(filename):
         try:
@@ -26,5 +23,3 @@ class TexmodSource(DirectorySource):
         except ValueError as e:
             error(f"Error encountered while sorting {filename}")
             raise e
-
-    # endregion

@@ -19,8 +19,6 @@ from pipescaler.core import Sorter
 
 
 class SizeSorter(Sorter):
-
-    # region Builtins
     def __init__(self, cutoff: int = 32, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
@@ -41,12 +39,6 @@ class SizeSorter(Sorter):
             )
             return "greater_than_or_equal_to"
 
-    # endregion
-
-    # region Properties
-
     @property
     def outlets(self):
         return ["less_than", "greater_than_or_equal_to"]
-
-    # endregion

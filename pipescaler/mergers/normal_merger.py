@@ -19,9 +19,6 @@ from pipescaler.core import Merger, UnsupportedImageModeError, remove_palette_fr
 
 
 class NormalMerger(Merger):
-
-    # region Builtins
-
     def __call__(self, outfile: str, **kwargs: Any) -> None:
         infiles = {k: kwargs.get(k) for k in self.inlets}
 
@@ -69,12 +66,6 @@ class NormalMerger(Merger):
         output_image.save(outfile)
         info(f"'{self}: '{outfile}' saved")
 
-    # endregion
-
-    # region Properties
-
     @property
     def inlets(self):
         return ["x", "y", "z"]
-
-    # endregion

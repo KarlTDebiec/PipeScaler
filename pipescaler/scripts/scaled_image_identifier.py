@@ -35,8 +35,6 @@ from pipescaler.core import parse_file_list
 class ScaledImageIdentifier(CLTool):
     exclusions = {".DS_Store", "desktop"}
 
-    # region Builtins
-
     def __init__(
         self,
         input_directory: Union[str, List[str]],
@@ -109,8 +107,6 @@ class ScaledImageIdentifier(CLTool):
         except KeyboardInterrupt as e:
             self.quit()
 
-    # region Properties
-
     @property
     def known_originals(self):
         return set(self.scalesets.keys())
@@ -125,10 +121,6 @@ class ScaledImageIdentifier(CLTool):
                 ]
             )
         )
-
-    # endregion
-
-    # region Methods
 
     def load_data_and_thumbnails(self):
         data = {}
@@ -232,8 +224,6 @@ class ScaledImageIdentifier(CLTool):
                     elif confirmation.startswith("q"):
                         self.quit()
 
-    # region Class Methods
-
     @classmethod
     def concatenate_images(cls, *args):
         images = []
@@ -319,10 +309,6 @@ class ScaledImageIdentifier(CLTool):
 
         return parser
 
-    # endregion
-
-    # region Status Methods
-
     @staticmethod
     def get_scaled(datum, size):
         return np.array(Image.fromarray(datum).resize(size, resample=Image.LANCZOS))
@@ -335,8 +321,6 @@ class ScaledImageIdentifier(CLTool):
         )
 
         return thumbnail_size
-
-    # endregion
 
 
 if __name__ == "__main__":

@@ -20,9 +20,6 @@ from pipescaler.core import Processor
 
 
 class PngquantProcessor(Processor):
-
-    # region Builtins
-
     def __init__(
         self,
         quality: int = 100,
@@ -57,10 +54,6 @@ class PngquantProcessor(Processor):
         validate_executable("pngquant")
         super().__call__(infile, outfile)
 
-    # endregion
-
-    # region Methods
-
     def process_file(self, infile: str, outfile: str) -> None:
         """
         Loads image, processes it using pngquant, and saves resulting output.
@@ -88,10 +81,6 @@ class PngquantProcessor(Processor):
 
         # Write image
         info(f"{self}: '{outfile}' saved")
-
-    # endregion
-
-    # region Class Methods
 
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
@@ -126,8 +115,6 @@ class PngquantProcessor(Processor):
         )
 
         return parser
-
-    # endregion
 
 
 if __name__ == "__main__":

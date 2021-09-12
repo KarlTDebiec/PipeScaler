@@ -25,18 +25,11 @@ from pipescaler.core import (
 
 
 class SolidColorProcessor(Processor):
-
-    # region Builtins
-
     def __init__(self, scale: float = 1, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
         # Store configuration
         self.scale = validate_float(scale)
-
-    # endregion
-
-    # region Methods
 
     def process_file(self, infile: str, outfile: str, **kwargs: Any) -> None:
         """
@@ -77,10 +70,6 @@ class SolidColorProcessor(Processor):
         output_image.save(outfile)
         info(f"{self}: '{outfile}' saved")
 
-    # endregion
-
-    # region Class Methods
-
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
@@ -101,8 +90,6 @@ class SolidColorProcessor(Processor):
         )
 
         return parser
-
-    # endregion
 
 
 if __name__ == "__main__":
