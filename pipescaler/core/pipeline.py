@@ -9,7 +9,6 @@
 """"""
 from __future__ import annotations
 
-import logging
 from glob import glob
 from importlib import import_module
 from logging import info, warning
@@ -19,10 +18,7 @@ from pprint import pformat
 from shutil import copyfile
 from typing import Any, Dict, List, Union
 
-from pipescaler.common import (
-    validate_int,
-    validate_output_path,
-)
+from pipescaler.common import validate_output_path
 from pipescaler.core import (
     Merger,
     PipeImage,
@@ -46,20 +42,12 @@ class Pipeline:
         stages: Dict[str, Dict[str, Dict[str, Any]]],
         pipeline: List[Union[str, Dict[str, Any]]],
         purge_wip: bool = False,
-        verbosity: int = 1,
     ) -> None:
 
         # Store configuration
         self.wip_directory = validate_output_path(
             wip_directory, file_ok=False, directory_ok=True
         )
-        self.verbosity = validate_int(verbosity, min_value=0)
-        if self.verbosity == 1:
-            logging.basicConfig(level=logging.WARNING)
-        elif self.verbosity == 2:
-            logging.basicConfig(level=logging.INFO)
-        elif self.verbosity == 3:
-            logging.basicConfig(level=logging.DEBUG)
         self.purge_wip = purge_wip
 
         # Load configuration
@@ -89,7 +77,7 @@ class Pipeline:
                 except AttributeError:
                     continue
             if stage_cls is None:
-                raise AttributeError(f"Class '{stage_cls_name}' not found")
+                raise KeyError(f"Class '{stage_cls_name}' not found")
 
             # Get stage's configuration
             stage_args = stage_conf.get(stage_cls_name)
@@ -100,11 +88,13 @@ class Pipeline:
             self.stages[stage_name] = stage_cls(name=stage_name, **stage_args)
 
         # Initialize pipeline
+        if len(pipeline) == 0:
+            raise ValueError("Pipeline must contain at least one stage")
         stage_name = pipeline.pop(0)
         if stage_name in self.stages:
             stage = self.stages[stage_name]
         else:
-            raise KeyError()
+            raise KeyError(f"Stage {stage_name} referenced by pipeline does not exist")
         self.pipeline = self.build_source(stage, pipeline)
         info(f"{self}: {pformat(self.pipeline)}")
 
@@ -127,8 +117,7 @@ class Pipeline:
                 join(self.wip_directory, image.name), file_ok=False, directory_ok=True
             )
             if not isdir(image_directory):
-                if self.verbosity >= 1:
-                    info(f"{self}: '{image_directory}' created")
+                info(f"{self}: '{image_directory}' created")
                 makedirs(image_directory)
 
             # Backup original image to working directory
@@ -327,7 +316,7 @@ class Pipeline:
             else:
                 info(f"{self}: '{outfile}' already exists")
         if to_run:
-            stage(infile=infile, verbosity=self.verbosity, **outfiles)
+            stage(infile=infile, **outfiles)
         for outfile in outfiles.values():
             self.log_wip_file(outfile)
 
