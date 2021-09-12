@@ -19,9 +19,6 @@ from pipescaler.core import Processor
 
 
 class PotraceProcessor(Processor):
-
-    # region Builtins
-
     def __init__(
         self,
         blacklevel: float = 0.3,
@@ -35,10 +32,6 @@ class PotraceProcessor(Processor):
         self.alphamax = alphamax
         self.opttolerance = opttolerance
 
-    # endregion
-
-    # region Properties
-
     @property
     def desc(self) -> str:
         """str: Description"""
@@ -49,10 +42,6 @@ class PotraceProcessor(Processor):
             )
         return self._desc
 
-    # endregion
-
-    # region Methods
-
     def process_file_from_pipeline(self, infile: str, outfile: str) -> None:
         self.process_file(
             infile,
@@ -62,10 +51,6 @@ class PotraceProcessor(Processor):
             alphamax=self.alphamax,
             opttolerance=self.opttolerance,
         )
-
-    # endregion
-
-    # region Class Methods
 
     @classmethod
     def construct_argparser(cls) -> ArgumentParser:
@@ -137,8 +122,6 @@ class PotraceProcessor(Processor):
         # Clean up
         remove(bmpfile.name)
         remove(svgfile.name)
-
-    # endregion
 
 
 if __name__ == "__main__":

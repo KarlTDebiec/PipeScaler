@@ -39,8 +39,6 @@ model_architectures = {k.lower(): v for k, v in archs.items()}
 class WaifuProcessor(Processor):
     architectures = {"resnet10", "upconv7", "upresnet10", "vgg7"}
 
-    # region Builtins
-
     def __init__(
         self,
         architecture: str = "upconv7",
@@ -90,10 +88,6 @@ class WaifuProcessor(Processor):
             self.model_1 = model_architectures[self.architecture](3)
             chainer.serializers.load_npz(model_1_infile, self.model_1)
             self.model_2 = None
-
-    # endregion
-
-    # region Methods
 
     def process_file(self, infile: str, outfile: str) -> None:
         """
@@ -148,10 +142,6 @@ class WaifuProcessor(Processor):
         cropped_image.save(outfile)
         info(f"{self}: '{outfile}' saved")
 
-    # endregion
-
-    # region Class Methods
-
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
@@ -191,8 +181,6 @@ class WaifuProcessor(Processor):
         )
 
         return parser
-
-    # endregion
 
 
 if __name__ == "__main__":

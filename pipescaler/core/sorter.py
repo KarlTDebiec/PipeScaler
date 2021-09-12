@@ -15,18 +15,9 @@ from pipescaler.core.stage import Stage
 
 
 class Sorter(Stage, ABC):
-
-    # region Builtins
-
     def __call__(self, infile: str) -> str:
         raise NotImplementedError()
-
-    # endregion
-
-    # region Properties
 
     @property
     def inlets(self):
         return ["inlet"]
-
-    # endregion

@@ -21,9 +21,6 @@ from pipescaler.core import Processor, parse_file_list
 
 
 class SideChannelProcessor(Processor):
-
-    # region Builtins
-
     def __init__(
         self,
         directory: str,
@@ -51,10 +48,6 @@ class SideChannelProcessor(Processor):
             self.side_files[filename_base] = filename
         self.match_input_mode = match_input_mode
 
-    # endregion
-
-    # region Methods
-
     def process_file(self, infile: str, outfile: str) -> None:
         try:
             side_file = self.side_files[basename(dirname(infile))]
@@ -72,5 +65,3 @@ class SideChannelProcessor(Processor):
 
         except KeyError:
             raise FileNotFoundError()
-
-    # endregion

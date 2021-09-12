@@ -44,9 +44,6 @@ from shared import (
 )
 
 
-# region Functions
-
-
 def run_processor_on_command_line(processor: Any, args: str, infile: str):
     with temporary_filename(".png") as outfile:
         command = f"coverage run {getfile(processor)} {args} {infile} {outfile}"
@@ -54,11 +51,6 @@ def run_processor_on_command_line(processor: Any, args: str, infile: str):
         exitcode = child.wait()
 
         assert exitcode == 0
-
-
-# endregion
-
-# region Tests
 
 
 @pytest.mark.parametrize(
@@ -178,6 +170,3 @@ def test_waifu_external(infile: str, args: str) -> None:
 )
 def test_xbrz(infile: str, args: str) -> None:
     run_processor_on_command_line(XbrzProcessor, args, infile)
-
-
-# endregion

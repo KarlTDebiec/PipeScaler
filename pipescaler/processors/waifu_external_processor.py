@@ -42,8 +42,6 @@ from pipescaler.core import (
 class WaifuExternalProcessor(Processor):
     models = {"windows": ["a"], "unix": ["a", "p"]}
 
-    # region Builtins
-
     def __init__(
         self,
         imagetype: str = "a",
@@ -85,10 +83,6 @@ class WaifuExternalProcessor(Processor):
         else:
             validate_executable("waifu2x")
         super().__call__(infile, outfile)
-
-    # endregion
-
-    # region Methods
 
     def process_file(self, infile: str, outfile: str) -> None:
         """
@@ -175,10 +169,6 @@ class WaifuExternalProcessor(Processor):
         waifued_image.save(outfile)
         info(f"{self}: '{outfile}' saved")
 
-    # endregion
-
-    # region Class Methods
-
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
@@ -216,8 +206,6 @@ class WaifuExternalProcessor(Processor):
         )
 
         return parser
-
-    # endregion
 
 
 if __name__ == "__main__":

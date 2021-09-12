@@ -23,9 +23,6 @@ from pipescaler.core import (
 
 
 class ColorToAlphaSplitter(Splitter):
-
-    # region Builtins
-
     def __init__(
         self, alpha_color: Any, smart_fill: bool = True, **kwargs: Any
     ) -> None:
@@ -75,17 +72,9 @@ class ColorToAlphaSplitter(Splitter):
 
         return outfiles
 
-    # endregion
-
-    # region Properties
-
     @property
     def outlets(self):
         return ["color", "alpha"]
-
-    # endregion
-
-    # region Class Methods
 
     @classmethod
     def run_iter(cls, color_datum: np.ndarray, alpha_color):
@@ -117,10 +106,6 @@ class ColorToAlphaSplitter(Splitter):
         # Set colors and return
         color_datum[pixels_to_fill] = colors_of_pixels_to_fill
         return color_datum
-
-    # endregion
-
-    # region Static Methods
 
     @staticmethod
     def adjacent_opaque_pixels(transparent_pixels):
@@ -161,5 +146,3 @@ class ColorToAlphaSplitter(Splitter):
         sum_of_adjacent_opaque_pixels[1:, 1:] += weighted_color_datum[:-1, :-1]
 
         return sum_of_adjacent_opaque_pixels
-
-    # endregion

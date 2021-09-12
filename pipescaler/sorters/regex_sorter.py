@@ -18,9 +18,6 @@ from pipescaler.core import Sorter
 
 
 class RegexSorter(Sorter):
-
-    # region Builtins
-
     def __init__(self, regex: str, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
@@ -39,12 +36,6 @@ class RegexSorter(Sorter):
             info(f"{self}: '{name}' does not match '{self.regex.pattern}'")
             return "unmatched"
 
-    # endregion
-
-    # region Properties
-
     @property
     def outlets(self) -> List[str]:
         return ["matched", "unmatched"]
-
-    # endregion

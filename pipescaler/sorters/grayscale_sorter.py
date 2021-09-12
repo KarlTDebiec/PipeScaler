@@ -20,9 +20,6 @@ from pipescaler.core import Sorter, UnsupportedImageModeError, remove_palette_fr
 
 
 class GrayscaleSorter(Sorter):
-
-    # region Builtins
-
     def __init__(
         self, mean_threshold: float = 1, max_threshold: float = 10, **kwargs: Any
     ) -> None:
@@ -58,12 +55,6 @@ class GrayscaleSorter(Sorter):
                 f" is not supported by {type(self)}"
             )
 
-    # endregion
-
-    # region Properties
-
     @property
     def outlets(self) -> List[str]:
         return ["drop_rgb", "keep_rgb", "no_rgb"]
-
-    # endregion

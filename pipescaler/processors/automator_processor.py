@@ -26,9 +26,6 @@ from pipescaler.core import Processor, UnsupportedPlatformError
 
 
 class AutomatorProcessor(Processor):
-
-    # region Builtins
-
     def __init__(self, workflow: str, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
@@ -46,10 +43,6 @@ class AutomatorProcessor(Processor):
                 "AutomatorProcessor is only supported on macOS"
             )
         self.process_file(infile, outfile, workflow=self.workflow)
-
-    # endregion
-
-    # region Class Methods
 
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
@@ -95,8 +88,6 @@ class AutomatorProcessor(Processor):
             # Write image
             copyfile(tempfile, outfile)
             info(f"{cls}: '{outfile}' saved")
-
-    # endregion
 
 
 if __name__ == "__main__":

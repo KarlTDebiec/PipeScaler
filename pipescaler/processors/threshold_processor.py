@@ -20,9 +20,6 @@ from pipescaler.core import Processor
 
 
 class ThresholdProcessor(Processor):
-
-    # region Builtins
-
     def __init__(
         self, threshold: int = 128, denoise: bool = False, **kwargs: Any
     ) -> None:
@@ -30,10 +27,6 @@ class ThresholdProcessor(Processor):
 
         self.threshold = threshold
         self.denoise = denoise
-
-    # endregion
-
-    # region Properties
 
     @property
     def desc(self) -> str:
@@ -45,10 +38,6 @@ class ThresholdProcessor(Processor):
                 return f"threshold-{self.threshold}"
         return self._desc
 
-    # endregion
-
-    # region Methods
-
     def process_file_from_pipeline(self, infile: str, outfile: str) -> None:
         self.process_file(
             infile,
@@ -57,10 +46,6 @@ class ThresholdProcessor(Processor):
             threshold=self.threshold,
             denoise=self.denoise,
         )
-
-    # endregion
-
-    # region Class Methods
 
     @classmethod
     def construct_argparser(cls) -> ArgumentParser:
@@ -105,10 +90,6 @@ class ThresholdProcessor(Processor):
 
         output_image.save(outfile)
 
-    # endregion
-
-    # region Static Methods
-
     @no_type_check
     @staticmethod
     @nb.jit(nopython=True, nogil=True, cache=True, fastmath=True)
@@ -122,8 +103,6 @@ class ThresholdProcessor(Processor):
                 else:
                     if (slc == 255).sum() < 4:
                         data[y, x] = 0
-
-    # endregion
 
 
 if __name__ == "__main__":

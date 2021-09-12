@@ -8,7 +8,7 @@
 #   BSD license. See the LICENSE file for details.
 """"""
 from functools import partial
-from os import getcwd, getenv
+from os import getenv
 from os.path import dirname, join, splitext
 from platform import mac_ver, win32_ver
 

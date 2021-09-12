@@ -23,9 +23,6 @@ from pipescaler.core import (
 
 
 class NormalSplitter(Splitter):
-
-    # region Builtins
-
     def __call__(self, infile: str, **kwargs: Any) -> Dict[str, str]:
         outfiles = {k: kwargs.get(k) for k in self.outlets}
 
@@ -60,12 +57,6 @@ class NormalSplitter(Splitter):
 
         return outfiles
 
-    # endregion
-
-    # region Properties
-
     @property
     def outlets(self):
         return ["x", "y", "z"]
-
-    # endregion

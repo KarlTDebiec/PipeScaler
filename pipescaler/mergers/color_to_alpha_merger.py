@@ -19,9 +19,6 @@ from pipescaler.core import Merger, UnsupportedImageModeError, remove_palette_fr
 
 
 class ColorToAlphaMerger(Merger):
-
-    # region Builtins
-
     def __init__(self, alpha_color: Any, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
@@ -61,12 +58,6 @@ class ColorToAlphaMerger(Merger):
         output_image.save(outfile)
         info(f"'{self}: '{outfile}' saved")
 
-    # endregion
-
-    # region Properties
-
     @property
     def inlets(self):
         return ["color", "alpha"]
-
-    # endregion

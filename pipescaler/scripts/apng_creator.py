@@ -26,9 +26,6 @@ from pipescaler.common import (
 
 
 class APNGCreator(CLTool):
-
-    # region Builtins
-
     def __init__(
         self,
         infiles: List[str],
@@ -104,10 +101,6 @@ class APNGCreator(CLTool):
         for tempfile in tempfiles:
             remove(tempfile.name)
 
-    # endregion
-
-    # region Class Methods
-
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
@@ -160,8 +153,6 @@ class APNGCreator(CLTool):
         )
 
         return parser
-
-    # endregion
 
 
 if __name__ == "__main__":

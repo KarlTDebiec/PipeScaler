@@ -18,9 +18,6 @@ from pipescaler.core.stage import Stage
 
 
 class Processor(Stage, CLTool):
-
-    # region Builtins
-
     def __init__(self, suffix: Optional[str] = None, **kwargs: Any) -> None:
         """
         Validates and stores static configuration.
@@ -47,10 +44,6 @@ class Processor(Stage, CLTool):
         """
         self.process_file(infile, outfile)
 
-    # endregion
-
-    # region Properties
-
     @property
     def inlets(self) -> List[str]:
         return ["inlet"]
@@ -59,17 +52,9 @@ class Processor(Stage, CLTool):
     def outlets(self) -> List[str]:
         return ["outlet"]
 
-    # endregion
-
-    # region Methods
-
     @abstractmethod
     def process_file(cls, infile: str, outfile: str) -> None:
         raise NotImplementedError()
-
-    # endregion
-
-    # region Class Methods
 
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
@@ -99,5 +84,3 @@ class Processor(Stage, CLTool):
         infile = kwargs.pop("infile")
         outfile = kwargs.pop("outfile")
         cls(**kwargs)(infile, outfile)
-
-    # endregion

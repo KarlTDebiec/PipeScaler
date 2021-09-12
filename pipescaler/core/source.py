@@ -15,15 +15,8 @@ from pipescaler.core import Stage
 
 
 class Source(Stage):
-
-    # region Builtins
-
     def __iter__(self):
         raise NotImplementedError()
-
-    # endregion
-
-    # region Properties
 
     @property
     def inlets(self):
@@ -33,13 +26,7 @@ class Source(Stage):
     def outlets(self):
         return ["default"]
 
-    # endregion
-
-    # region Static Methods
-
     @staticmethod
     @abstractmethod
     def sort(filename):
         raise NotImplementedError()
-
-    # endregion

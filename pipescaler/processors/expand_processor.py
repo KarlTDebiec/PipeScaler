@@ -20,9 +20,6 @@ from pipescaler.core import Processor, expand_image
 
 
 class ExpandProcessor(Processor):
-
-    # region Builtins
-
     def __init__(self, pixels: Tuple[int], **kwargs: Any) -> None:
         """
         Validates and stores static configuration.
@@ -36,10 +33,6 @@ class ExpandProcessor(Processor):
         self.left, self.top, self.right, self.bottom = validate_ints(
             pixels, length=4, min_value=0
         )
-
-    # endregion
-
-    # region Methods
 
     def process_file(self, infile: str, outfile: str) -> None:
         """
@@ -61,10 +54,6 @@ class ExpandProcessor(Processor):
         # Write image
         output_image.save(outfile)
         info(f"{self}: '{outfile}' saved")
-
-    # endregion
-
-    # region Class Methods
 
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
@@ -89,8 +78,6 @@ class ExpandProcessor(Processor):
         )
 
         return parser
-
-    # endregion
 
 
 if __name__ == "__main__":

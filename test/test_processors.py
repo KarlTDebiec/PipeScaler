@@ -43,9 +43,6 @@ from shared import (
 )
 
 
-# region Fixtures
-
-
 @pytest.fixture()
 def crop_processor(request) -> CropProcessor:
     return CropProcessor(**request.param)
@@ -104,11 +101,6 @@ def waifu_external_processor(request) -> WaifuExternalProcessor:
 @pytest.fixture()
 def xbrz_processor(request) -> XbrzProcessor:
     return XbrzProcessor(**request.param)
-
-
-# endregion
-
-# region Tests
 
 
 @pytest.mark.parametrize(
@@ -480,6 +472,3 @@ def test_xbrz(infile: str, xbrz_processor: XbrzProcessor) -> None:
                 input_image.size[0] * xbrz_processor.scale,
                 input_image.size[1] * xbrz_processor.scale,
             )
-
-
-# endregion

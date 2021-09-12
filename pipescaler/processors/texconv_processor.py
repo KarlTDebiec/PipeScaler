@@ -25,8 +25,6 @@ from pipescaler.core import Processor, UnsupportedPlatformError
 class TexconvProcessor(Processor):
     extension = "dds"
 
-    # region Builtins
-
     def __init__(
         self,
         mipmaps: bool = False,
@@ -69,10 +67,6 @@ class TexconvProcessor(Processor):
         validate_executable("texconv.exe")
         super().__call__(infile, outfile)
 
-    # endregion
-
-    # region Methods
-
     def process_file(self, infile: str, outfile: str) -> None:
         """
         Loads image, converts it using texconv, and saves resulting output.
@@ -109,10 +103,6 @@ class TexconvProcessor(Processor):
             copyfile(f"{tempfile[:-4]}.dds", outfile)  # TODO: Handle filetypes
             info(f"{self}: '{outfile}' saved")
 
-    # endregion
-
-    # region Class Methods
-
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
@@ -140,8 +130,6 @@ class TexconvProcessor(Processor):
         )
 
         return parser
-
-    # endregion
 
 
 if __name__ == "__main__":

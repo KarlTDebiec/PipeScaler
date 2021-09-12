@@ -18,9 +18,6 @@ from pipescaler.common import validate_input_path
 
 
 class PipeImage:
-
-    # region Builtins
-
     def __init__(self, infile: str) -> None:
         self.full_path = validate_input_path(infile)
         self.filename = basename(self.full_path)
@@ -36,10 +33,6 @@ class PipeImage:
 
     def __str__(self) -> str:
         return self.name
-
-    # endregion
-
-    # region Methods
 
     def get_outfile(
         self,
@@ -66,5 +59,3 @@ class PipeImage:
 
     def show(self):
         Image.open(self.full_path).show()
-
-    # endregion

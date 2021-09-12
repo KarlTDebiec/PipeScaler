@@ -18,8 +18,6 @@ from pipescaler.core import Source, parse_file_list
 class DirectorySource(Source):
     exclusions = {".DS_Store", "desktop"}
 
-    # region Builtins
-
     def __init__(
         self,
         directory: Union[str, List[str]],
@@ -49,12 +47,6 @@ class DirectorySource(Source):
         for filename in self.filenames:
             yield filename
 
-    # endregion
-
-    # region Static Methods
-
     @staticmethod
     def sort(filename):
         return "".join([f"{ord(c):03d}" for c in filename.lower()])
-
-    # endregion

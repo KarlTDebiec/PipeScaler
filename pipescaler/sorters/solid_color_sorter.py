@@ -20,9 +20,6 @@ from pipescaler.core import Sorter, UnsupportedImageModeError, remove_palette_fr
 
 
 class SolidColorSorter(Sorter):
-
-    # region Builtins
-
     def __init__(
         self, mean_threshold: float = 1, max_threshold: float = 10, **kwargs: Any
     ) -> None:
@@ -58,12 +55,6 @@ class SolidColorSorter(Sorter):
             info(f"{self}: '{infile}' matches 'not_solid'")
             return "not_solid"
 
-    # endregion
-
-    # region Properties
-
     @property
     def outlets(self) -> List[str]:
         return ["not_solid", "solid"]
-
-    # endregion

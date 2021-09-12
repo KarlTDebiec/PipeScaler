@@ -16,9 +16,6 @@ from pipescaler.core.stage import Stage
 
 
 class Splitter(Stage, ABC):
-
-    # region Builtins
-
     def __init__(
         self, suffixes: Optional[Dict[str, str]] = None, **kwargs: Any
     ) -> None:
@@ -33,12 +30,6 @@ class Splitter(Stage, ABC):
     def __call__(self, infile: str, **kwargs: Any) -> Dict[str, str]:
         raise NotImplementedError()
 
-    # endregion
-
-    # region Properties
-
     @property
     def inlets(self):
         return ["infile"]
-
-    # endregion
