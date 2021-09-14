@@ -13,8 +13,8 @@ import logging
 import re
 from argparse import ArgumentParser
 from logging import debug, info
-from os import remove
-from os.path import basename, isfile, splitext
+from os import environ, remove
+from os.path import basename, expandvars, isfile, normpath, splitext
 from shutil import copy, move
 from time import sleep
 from typing import Any, Dict, List, Optional
@@ -68,7 +68,7 @@ class DirectoryWatcher(CLTool):
 
         if purge_directory is not None:
             self.purge_directory = validate_input_path(
-                purge_directory, file_ok=False, directory_ok=True
+                purge_directory, file_ok=False, directory_ok=True, create_directory=True
             )
         else:
             self.purge_directory = None
@@ -232,6 +232,10 @@ class DirectoryWatcher(CLTool):
         conf_file = kwargs.pop("conf_file")
         with open(validate_input_path(conf_file), "r") as f:
             conf = yaml.load(f, Loader=yaml.SafeLoader)
+
+        # Set environment variables
+        for key, value in conf.pop("environment", {}).items():
+            environ[key] = normpath(expandvars(value))
 
         tool = cls(**{**kwargs, **conf})
         tool()
