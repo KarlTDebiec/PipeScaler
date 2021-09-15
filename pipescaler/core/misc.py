@@ -17,7 +17,7 @@ import numpy as np
 from PIL import Image
 from scipy.ndimage import convolve
 
-from pipescaler.common import NotAFileError, validate_input_path
+from pipescaler.common import DirectoryNotFoundError, NotAFileError, validate_input_path
 
 
 def remove_palette_from_image(image: Image.Image):
@@ -186,7 +186,7 @@ def parse_file_list(
                         files_set.add(file)
                     else:
                         files_set.add(splitext(basename(file))[0])
-        except FileNotFoundError:
+        except (FileNotFoundError, DirectoryNotFoundError):
             files_set.add(file)
 
     files_set -= exclusions_set
