@@ -13,8 +13,8 @@ import logging
 import re
 from argparse import ArgumentParser
 from logging import debug, info
-from os import environ, remove
-from os.path import basename, expandvars, isfile, normpath, splitext
+from os import environ, makedirs, remove, rmdir
+from os.path import basename, expandvars, isdir, isfile, normpath, splitext
 from shutil import copy, move
 from time import sleep
 from typing import Any, Dict, List, Optional
@@ -23,6 +23,7 @@ import yaml
 
 from pipescaler.common import (
     CLTool,
+    DirectoryNotFoundError,
     validate_input_path,
     validate_output_path,
 )
@@ -67,9 +68,12 @@ class DirectoryWatcher(CLTool):
         self.classified_filenames = parse_file_list(classified_directories)
 
         if purge_directory is not None:
-            self.purge_directory = validate_input_path(
-                purge_directory, file_ok=False, directory_ok=True, create_directory=True
-            )
+            try:
+                self.purge_directory = validate_input_path(
+                    purge_directory, file_ok=False, directory_ok=True
+                )
+            except DirectoryNotFoundError:
+                self.purge_directory = None
         else:
             self.purge_directory = None
 
@@ -90,10 +94,10 @@ class DirectoryWatcher(CLTool):
 
         # Output
         self.copy_directory = validate_output_path(
-            copy_directory, file_ok=False, directory_ok=True, create_directory=True
+            copy_directory, file_ok=False, directory_ok=True
         )
         self.move_directory = validate_output_path(
-            move_directory, file_ok=False, directory_ok=True, create_directory=True
+            move_directory, file_ok=False, directory_ok=True
         )
 
     def __call__(self, *args, **kwargs):
@@ -117,12 +121,18 @@ class DirectoryWatcher(CLTool):
         elif status == "ignore":
             debug(f"'{filename}' ignored")
         elif status == "copy":
+            if not isdir(self.copy_directory):
+                makedirs(self.copy_directory)
+                info(f"'{self.copy_directory}' created")
             copy(
                 f"{self.input_directory}/{filename}.png",
                 f"{self.copy_directory}/{filename}.png",
             )
             info(f"'{filename}' copied to '{self.copy_directory}'")
         elif status == "move":
+            if not isdir(self.move_directory):
+                makedirs(self.move_directory)
+                info(f"'{self.move_directory}' created")
             move(
                 f"{self.input_directory}/{filename}.png",
                 f"{self.move_directory}/{filename}.png",
@@ -142,8 +152,9 @@ class DirectoryWatcher(CLTool):
             self.perform_operation_for_filename(filename)
 
     def purge_copy_directory(self):
-        for filename in parse_file_list(self.copy_directory, full_paths=True):
-            remove(filename)
+        if isdir(self.copy_directory):
+            for filename in parse_file_list(self.copy_directory, full_paths=True):
+                remove(filename)
 
     def purge_purge_directory(self):
         if self.purge_directory is not None:
@@ -155,6 +166,8 @@ class DirectoryWatcher(CLTool):
                 if isfile(f"{self.purge_directory}/{filename}.png"):
                     remove(f"{self.purge_directory}/{filename}.png")
                     info(f"'{filename}' removed from purge directory")
+            rmdir(self.purge_directory)
+            info(f"'{self.purge_directory}' removed")
 
     def select_operation_for_filename(self, filename):
 
