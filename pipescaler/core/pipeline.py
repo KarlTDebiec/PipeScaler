@@ -16,7 +16,7 @@ from os import listdir, makedirs, remove, rmdir
 from os.path import basename, isdir, isfile, join, splitext
 from pprint import pformat
 from shutil import copyfile
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 from pipescaler.common import validate_output_path
 from pipescaler.core import (
@@ -24,6 +24,7 @@ from pipescaler.core import (
     PipeImage,
     Processor,
     Sorter,
+    Source,
     Splitter,
     Stage,
     Terminus,
@@ -154,85 +155,198 @@ class Pipeline:
     def __str__(self) -> str:
         return self.__class__.__name__.lower()
 
-    def build_merger(self, stage, inlet, pipeline_conf):
-        if inlet is not None:
-            pipeline = [{stage: inlet}]
-        else:
+    def build_merger(
+        self,
+        stage: Merger,
+        stage_conf: Optional[str],
+        downstream_pipeline_conf: List[Union[str, Dict[str, Any]]],
+    ) -> List[Union[Stage, Dict[Stage, Any]]]:
+        """
+        Builds a merger and its downstream pipeline.
+
+        Args:
+            stage: Stage being built
+            stage_conf: Configuration of this stage
+            downstream_pipeline_conf: Configuration of downstream pipeline
+
+        Returns:
+             Pipeline including this stage and those downstream
+        """
+        if stage_conf is None:
             pipeline = [stage]
+        elif isinstance(stage_conf, str):
+            pipeline = [{stage: stage_conf}]
+        else:
+            raise ValueError()
 
-        pipeline.extend(self.build_route(pipeline_conf))
+        pipeline.extend(self.build_route(downstream_pipeline_conf))
 
         return pipeline
 
-    def build_processor(self, stage, stage_conf, pipeline_conf):
+    def build_processor(
+        self,
+        stage: Processor,
+        stage_conf: None,
+        downstream_pipeline_conf: List[Union[str, Dict[str, Any]]],
+    ) -> List[Union[Stage, Dict[Stage, Any]]]:
+        """
+        Builds a Processor and its downstream pipeline.
+
+        Args:
+            stage: Stage being built
+            stage_conf: Configuration of this stage
+            downstream_pipeline_conf: Configuration of downstream pipeline
+
+        Returns:
+             Pipeline including this stage and those downstream
+        """
         pipeline = [stage]
-        pipeline.extend(self.build_route(pipeline_conf))
+        if stage_conf is not None:
+            raise ValueError()
+
+        pipeline.extend(self.build_route(downstream_pipeline_conf))
 
         return pipeline
 
-    def build_route(self, pipeline_conf):
-        if pipeline_conf is None:
+    def build_route(
+        self, downstream_pipeline_conf: List[Union[str, Dict[str, Any]]]
+    ) -> List[Union[Stage, Dict[Stage, Any]]]:
+        """
+        Builds a downstream pipeline.
+
+        Args:
+            downstream_pipeline_conf: Configuration of downstream pipeline
+
+        Returns:
+            Downstream pipeline
+        """
+        if downstream_pipeline_conf is None:
             return []
-        if isinstance(pipeline_conf, str):
-            pipeline_conf = [pipeline_conf]
-        if not isinstance(pipeline_conf, List):
+        if isinstance(downstream_pipeline_conf, str):
+            downstream_pipeline_conf = [downstream_pipeline_conf]
+        if not isinstance(downstream_pipeline_conf, List):
             raise ValueError()
-        elif len(pipeline_conf) == 0:
+        elif len(downstream_pipeline_conf) == 0:
             return []
 
-        if isinstance(pipeline_conf[0], str):
-            stage_name, stage_conf = pipeline_conf.pop(0), None
-        elif isinstance(pipeline_conf[0], dict):
-            stage_name, stage_conf = next(iter(pipeline_conf.pop(0).items()))
+        if isinstance(downstream_pipeline_conf[0], str):
+            stage_name, stage_conf = downstream_pipeline_conf.pop(0), None
+        elif isinstance(downstream_pipeline_conf[0], dict):
+            stage_name, stage_conf = next(iter(downstream_pipeline_conf.pop(0).items()))
         else:
             raise ValueError()
+
         stage = self.stages[stage_name]
-
         if isinstance(stage, Merger):
-            return self.build_merger(stage, stage_conf, pipeline_conf)
+            return self.build_merger(stage, stage_conf, downstream_pipeline_conf)
         elif isinstance(stage, Processor):
-            return self.build_processor(stage, stage_conf, pipeline_conf)
+            return self.build_processor(stage, stage_conf, downstream_pipeline_conf)
         elif isinstance(stage, Sorter):
-            return self.build_sorter(stage, stage_conf, pipeline_conf)
+            return self.build_sorter(stage, stage_conf, downstream_pipeline_conf)
         elif isinstance(stage, Splitter):
-            return self.build_splitter(stage, stage_conf, pipeline_conf)
+            return self.build_splitter(stage, stage_conf, downstream_pipeline_conf)
         elif isinstance(stage, Terminus):
-            return self.build_terminus(stage, stage_conf, pipeline_conf)
+            return self.build_terminus(stage, stage_conf, downstream_pipeline_conf)
         else:
             raise ValueError()
 
-    def build_sorter(self, stage, stage_conf, pipeline_conf):
-        pipeline = [{stage: {}}]
+    def build_sorter(
+        self,
+        stage: Sorter,
+        stage_conf: Optional[Dict[str, Any]],
+        downstream_pipeline_conf: List[Union[str, Dict[str, Any]]],
+    ) -> List[Union[Stage, Dict[Stage, Any]]]:
+        """
+        Builds a Sorter and its downstream pipeline.
 
-        if stage_conf is not None:
+        Args:
+            stage: Stage being built
+            stage_conf: Configuration of this stage
+            downstream_pipeline_conf: Configuration of downstream pipeline
+
+        Returns:
+            Pipeline including this stage and those downstream
+        """
+        pipeline = [{stage: {}}]
+        if isinstance(stage_conf, dict):
             for outlet in filter(lambda o: o in stage_conf, stage.outlets):
                 pipeline[0][stage][outlet] = self.build_route(stage_conf.pop(outlet))
             if "default" in stage_conf:
                 pipeline[0][stage]["default"] = self.build_route(
                     stage_conf.pop("default")
                 )
-        pipeline.extend(self.build_route(pipeline_conf))
+        elif stage_conf is not None:
+            raise ValueError()
+
+        pipeline.extend(self.build_route(downstream_pipeline_conf))
 
         return pipeline
 
-    def build_source(self, stage, pipeline_conf):
+    def build_source(
+        self, stage: Source, downstream_pipeline_conf: List[Union[str, Dict[str, Any]]]
+    ) -> List[Union[Stage, Dict[Stage, Any]]]:
+        """
+        Builds a Source stage and its downstream pipeline.
+
+        Args:
+            stage: Stage being built
+            downstream_pipeline_conf: Configuration of downstream pipeline
+
+        Returns:
+             Pipeline including this stage and those downstream
+        """
         pipeline = [stage]
-        pipeline.extend(self.build_route(pipeline_conf))
+        pipeline.extend(self.build_route(downstream_pipeline_conf))
 
         return pipeline
 
-    def build_splitter(self, stage, stage_conf, pipeline_conf):
-        pipeline = [{stage: {}}]
+    def build_splitter(
+        self,
+        stage: Splitter,
+        stage_conf: Optional[Dict[str, Any]],
+        downstream_pipeline_conf: List[Union[str, Dict[str, Any]]],
+    ) -> List[Union[Stage, Dict[Stage, Any]]]:
+        """
+        Builds a Splitter and its downstream pipeline.
 
-        if stage_conf is not None:
+        Args:
+            stage: Stage being built
+            stage_conf: Configuration of this stage
+            downstream_pipeline_conf: Configuration of downstream pipeline
+
+        Returns:
+             Pipeline including this stage and those downstream
+        """
+        pipeline = [{stage: {}}]
+        if isinstance(stage_conf, dict):
             for outlet in filter(lambda o: o in stage_conf, stage.outlets):
                 pipeline[0][stage][outlet] = self.build_route(stage_conf.pop(outlet))
-        pipeline.extend(self.build_route(pipeline_conf))
+        elif stage_conf is not None:
+            raise ValueError()
+
+        pipeline.extend(self.build_route(downstream_pipeline_conf))
 
         return pipeline
 
-    def build_terminus(self, stage, stage_conf, pipeline_conf):
+    def build_terminus(
+        self, stage: Terminus, stage_conf: None, downstream_pipeline_conf: List[Any],
+    ) -> List[Union[Stage, Dict[Stage, Any]]]:
+        """
+        Builds a Terminus and its downstream pipeline.
+
+        Args:
+            stage: Stage being built
+            stage_conf: Configuration of this stage
+            downstream_pipeline_conf: Configuration of downstream pipeline
+
+        Returns:
+             Pipeline including this stage and those downstream
+        """
         pipeline = [stage]
+        if stage_conf is not None:
+            raise ValueError()
+        if downstream_pipeline_conf != []:
+            raise ValueError()
 
         return pipeline
 
