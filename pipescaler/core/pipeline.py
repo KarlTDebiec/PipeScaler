@@ -129,7 +129,9 @@ class Pipeline:
             # Flow into pipeline
             try:
                 self.run_route(
-                    pipeline=self.pipeline[1:], image=image, infile=image_backup
+                    downstream_pipeline=self.pipeline[1:],
+                    image=image,
+                    infile=image_backup,
                 )
             except TerminusReached:
                 continue
@@ -353,7 +355,43 @@ class Pipeline:
     def log_wip_file(self, wip_filename):
         self.wip_files.add(wip_filename)
 
-    def run_merger(self, stage, stage_pipeline, image, **kwargs):
+    def run_route(
+        self, downstream_pipeline: List[Union[Stage, Dict[Stage, Any]]], **kwargs: Any
+    ):
+        if downstream_pipeline is None:
+            return kwargs.get("infile", None)
+        elif not isinstance(downstream_pipeline, List):
+            raise ValueError()
+        elif len(downstream_pipeline) == 0:
+            return kwargs.get("infile", None)
+
+        if isinstance(downstream_pipeline[0], Stage):
+            kwargs["stage"], kwargs["stage_pipeline"] = downstream_pipeline[0], None
+        elif isinstance(downstream_pipeline[0], dict):
+            kwargs["stage"], kwargs["stage_pipeline"] = next(
+                iter(downstream_pipeline[0].items())
+            )
+        else:
+            raise ValueError()
+
+        kwargs["pipeline"] = downstream_pipeline[1:]
+
+        if isinstance(kwargs["stage"], Merger):
+            return self.run_merger(**kwargs)
+        elif isinstance(kwargs["stage"], Processor):
+            return self.run_processor(**kwargs)
+        elif isinstance(kwargs["stage"], Sorter):
+            return self.run_sorter(**kwargs)
+        elif isinstance(kwargs["stage"], Splitter):
+            return self.run_splitter(**kwargs)
+        elif isinstance(kwargs["stage"], Terminus):
+            return self.run_terminus(**kwargs)
+        else:
+            raise ValueError()
+
+    def run_merger(
+        self, stage: Merger, stage_pipeline, image: PipeImage, **kwargs: Any
+    ):
         if isinstance(stage_pipeline, str):
             return {stage_pipeline: kwargs["infile"]}
 
@@ -375,7 +413,9 @@ class Pipeline:
 
         return self.run_route(image=image, infile=outfile, **kwargs)
 
-    def run_processor(self, stage, image, infile, **kwargs):
+    def run_processor(
+        self, stage: Processor, image: PipeImage, infile: str, **kwargs: Any
+    ):
         outfile = join(
             self.wip_directory,
             image.name,
@@ -391,18 +431,29 @@ class Pipeline:
 
         return self.run_route(image=image, infile=outfile, **kwargs)
 
-    def run_sorter(self, stage, stage_pipeline, infile, pipeline, **kwargs):
+    def run_sorter(
+        self, stage: Sorter, stage_pipeline, infile: str, pipeline, **kwargs: Any
+    ):
         outlet_name = stage(infile=infile)
         if outlet_name is None and "default" in stage_pipeline:
             outlet_pipeline = stage_pipeline.get("default")
         else:
             outlet_pipeline = stage_pipeline.get(outlet_name, [])
 
-        outfile = self.run_route(infile=infile, pipeline=outlet_pipeline, **kwargs)
+        outfile = self.run_route(
+            infile=infile, downstream_pipeline=outlet_pipeline, **kwargs
+        )
 
-        return self.run_route(infile=outfile, pipeline=pipeline, **kwargs)
+        return self.run_route(infile=outfile, downstream_pipeline=pipeline, **kwargs)
 
-    def run_splitter(self, stage, stage_pipeline, image, infile, **kwargs):
+    def run_splitter(
+        self,
+        stage: Splitter,
+        stage_pipeline,
+        image: PipeImage,
+        infile: str,
+        **kwargs: Any,
+    ):
         outfiles = {
             outlet: join(
                 self.wip_directory,
@@ -434,7 +485,7 @@ class Pipeline:
             outlet_pipeline = stage_pipeline.get(outlet_name, [])
             try:
                 outlet_output = self.run_route(
-                    pipeline=outlet_pipeline, image=image, infile=outfile
+                    downstream_pipeline=outlet_pipeline, image=image, infile=outfile
                 )
                 if isinstance(outlet_output, dict):
                     downstream_inlets.update(outlet_output)
@@ -453,37 +504,9 @@ class Pipeline:
         kwargs.update(downstream_inlets)
         return self.run_route(image=image, **kwargs)
 
-    def run_route(self, pipeline, **kwargs):
-        if pipeline is None:
-            return kwargs.get("infile", None)
-        elif not isinstance(pipeline, List):
-            raise ValueError()
-        elif len(pipeline) == 0:
-            return kwargs.get("infile", None)
-
-        if isinstance(pipeline[0], Stage):
-            kwargs["stage"], kwargs["stage_pipeline"] = pipeline[0], None
-        elif isinstance(pipeline[0], dict):
-            kwargs["stage"], kwargs["stage_pipeline"] = next(iter(pipeline[0].items()))
-        else:
-            raise ValueError()
-
-        kwargs["pipeline"] = pipeline[1:]
-
-        if isinstance(kwargs["stage"], Merger):
-            return self.run_merger(**kwargs)
-        elif isinstance(kwargs["stage"], Processor):
-            return self.run_processor(**kwargs)
-        elif isinstance(kwargs["stage"], Sorter):
-            return self.run_sorter(**kwargs)
-        elif isinstance(kwargs["stage"], Splitter):
-            return self.run_splitter(**kwargs)
-        elif isinstance(kwargs["stage"], Terminus):
-            return self.run_terminus(**kwargs)
-        else:
-            raise ValueError()
-
-    def run_terminus(self, stage, image, infile, **kwargs):
+    def run_terminus(
+        self, stage: Terminus, image: PipeImage, infile: str, **kwargs: Any
+    ):
         outfile = f"{join(stage.directory, image.name)}{splitext(basename(infile))[1]}"
         stage(infile=infile, outfile=outfile)
         raise TerminusReached(outfile)

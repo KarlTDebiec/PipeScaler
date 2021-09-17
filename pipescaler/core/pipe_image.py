@@ -56,6 +56,3 @@ class PipeImage:
         outfile = outfile.lstrip("_")
 
         return outfile
-
-    def show(self):
-        Image.open(self.full_path).show()
