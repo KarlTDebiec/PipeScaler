@@ -19,14 +19,16 @@ from pipescaler.common import validate_input_path
 
 class PipeImage:
     def __init__(self, infile: str) -> None:
-        self.full_path = validate_input_path(infile)
-        self.filename = basename(self.full_path)
-        self.name = splitext(basename(self.filename))[0]
-        self.ext = splitext(basename(self.filename))[1].strip(".")
+        self.orig_full_path = validate_input_path(infile)
+        self.orig_filename = basename(self.orig_full_path)
+        self.name = splitext(basename(self.orig_filename))[0]
+        self.current_full_path = self.orig_full_path
+        self.current_filename = basename(self.current_full_path)
+        self.current_prefix = None
 
-        image = Image.open(self.full_path)
-        self.mode: str = image.mode
-        self.shape: Tuple[int] = image.size
+        with Image.open(self.orig_full_path) as image:
+            self.mode: str = image.mode
+            self.shape: Tuple[int] = image.size
 
     def __repr__(self) -> str:
         return self.name
@@ -40,7 +42,7 @@ class PipeImage:
         suffix: str,
         trim_suffixes: Optional[List[str]] = None,
         extension="png",
-    ) -> str:
+    ) -> PipeImage:
         prefix = splitext(basename(infile))[0]
         if prefix.startswith(self.name):
             prefix = prefix[len(self.name) :]

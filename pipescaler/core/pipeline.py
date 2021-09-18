@@ -120,10 +120,10 @@ class Pipeline:
 
             # Backup original image to working directory
             # TODO: Should be handled within source, to support archive sources
-            image_backup = join(image_directory, image.filename)
+            image_backup = join(image_directory, image.orig_filename)
             if not isfile(image_backup):
-                copyfile(image.full_path, image_backup)
-                info(f"{self}: '{image.full_path}' copied to '{image_backup}'")
+                copyfile(image.orig_full_path, image_backup)
+                info(f"{self}: '{image.orig_full_path}' copied to '{image_backup}'")
             self.log_wip_file(image_backup)
 
             # Flow into pipeline
