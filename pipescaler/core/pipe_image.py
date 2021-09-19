@@ -9,20 +9,18 @@
 """"""
 from __future__ import annotations
 
-from os.path import basename, dirname, splitext
-from typing import List, Optional, Tuple
+from os.path import basename, dirname, join, splitext
+from typing import List, Optional
 
-from PIL import Image
-
-from pipescaler.common import validate_input_path
+from pipescaler.common import validate_output_path
 
 
 class PipeImage:
     def __init__(self, path: str, parent: PipeImage = None) -> None:
-        self.full_path = validate_input_path(path)
+        self.full_path = validate_output_path(path)
         self.directory = dirname(self.full_path)
-        self.filename = basename(self.full_path)
-        self.extension = splitext(basename(self.filename))[1].lstrip(".")
+        self.filename = splitext(basename(self.full_path))[0]
+        self.extension = splitext(basename(self.full_path))[1].lstrip(".")
 
         self.parent = parent
         if self.parent is None:
@@ -54,4 +52,6 @@ class PipeImage:
                     break
             filename = filename.rstrip("_")
 
-        return PipeImage(f"{filename}_{suffix}.{extension}".lstrip("_"), self)
+        return PipeImage(
+            join(directory, f"{filename}_{suffix}.{extension}".lstrip("_")), self
+        )
