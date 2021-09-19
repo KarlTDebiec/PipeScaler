@@ -13,10 +13,10 @@ from glob import glob
 from importlib import import_module
 from logging import info, warning
 from os import listdir, makedirs, remove, rmdir
-from os.path import basename, isdir, isfile, join, splitext
+from os.path import basename, isdir, isfile, join
 from pprint import pformat
 from shutil import copyfile
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 from pipescaler.common import validate_output_path
 from pipescaler.core import (
@@ -24,6 +24,7 @@ from pipescaler.core import (
     PipeImage,
     Processor,
     Sorter,
+    Source,
     Splitter,
     Stage,
     Terminus,
@@ -107,34 +108,37 @@ class Pipeline:
         source = self.pipeline[0]
         for infile in source:
             info(f"{self}: '{infile}' processing started")
-            image = PipeImage(infile)
+            source_image = PipeImage(infile)
 
             # Create image working directory
             image_directory = validate_output_path(
-                join(self.wip_directory, image.name), file_ok=False, directory_ok=True
+                join(self.wip_directory, source_image.name),
+                file_ok=False,
+                directory_ok=True,
+                create_directory=True,
             )
-            if not isdir(image_directory):
-                info(f"{self}: '{image_directory}' created")
-                makedirs(image_directory)
 
             # Backup original image to working directory
             # TODO: Should be handled within source, to support archive sources
-            image_backup = join(image_directory, image.filename)
-            if not isfile(image_backup):
-                copyfile(image.full_path, image_backup)
-                info(f"{self}: '{image.full_path}' copied to '{image_backup}'")
-            self.log_wip_file(image_backup)
+            image_backup = PipeImage(
+                join(image_directory, basename(source_image.full_path)), source_image
+            )
+            if not isfile(image_backup.full_path):
+                copyfile(source_image.full_path, image_backup.full_path)
+                info(
+                    f"{self}: '{source_image.full_path}' "
+                    f"copied to '{image_backup.full_path}'"
+                )
+            self.log_wip_file(image_backup.full_path)
 
             # Flow into pipeline
             try:
-                self.run_route(
-                    pipeline=self.pipeline[1:], image=image, infile=image_backup
-                )
+                self.run_route(self.pipeline[1:], image_backup)
             except TerminusReached:
                 continue
             except UnsupportedPlatformError as error:
                 warning(
-                    f"{self}: While processing '{image.name}', encountered "
+                    f"{self}: While processing '{source_image.name}', encountered "
                     f"UnsupportedPlatformError '{error}', continuing on to next image"
                 )
 
@@ -154,23 +158,72 @@ class Pipeline:
     def __str__(self) -> str:
         return self.__class__.__name__.lower()
 
-    def build_merger(self, stage, inlet, pipeline_conf):
-        if inlet is not None:
-            pipeline = [{stage: inlet}]
-        else:
+    def build_merger(
+        self,
+        stage: Merger,
+        stage_conf: Optional[Union[str, Dict[str, Any]]],
+        downstream_pipeline_conf: List[Union[str, Dict[str, Any]]],
+    ) -> List[Union[Stage, Dict[Stage, Any]]]:
+        """
+        Builds a merger and its downstream pipeline.
+
+        Args:
+            stage: Stage being built
+            stage_conf: Configuration of this stage
+            downstream_pipeline_conf: Configuration of pipeline downstream from stage
+
+        Returns:
+             Pipeline including this stage and those downstream
+        """
+        if stage_conf is None:
             pipeline = [stage]
+        elif isinstance(stage_conf, str):
+            pipeline = [{stage: stage_conf}]
+        else:
+            raise ValueError()
 
-        pipeline.extend(self.build_route(pipeline_conf))
+        pipeline.extend(self.build_route(downstream_pipeline_conf))
 
         return pipeline
 
-    def build_processor(self, stage, stage_conf, pipeline_conf):
+    def build_processor(
+        self,
+        stage: Processor,
+        stage_conf: Optional[Union[str, Dict[str, Any]]],
+        downstream_pipeline_conf: List[Union[str, Dict[str, Any]]],
+    ) -> List[Union[Stage, Dict[Stage, Any]]]:
+        """
+        Builds a Processor and its downstream pipeline.
+
+        Args:
+            stage: Stage being built
+            stage_conf: Configuration of this stage
+            downstream_pipeline_conf: Configuration of pipeline downstream from stage
+
+        Returns:
+             Pipeline including this stage and those downstream
+        """
         pipeline = [stage]
-        pipeline.extend(self.build_route(pipeline_conf))
+        if stage_conf is not None:
+            raise ValueError()
+
+        pipeline.extend(self.build_route(downstream_pipeline_conf))
 
         return pipeline
 
-    def build_route(self, pipeline_conf):
+    def build_route(
+        self, pipeline_conf: List[Union[str, Dict[str, Any]]]
+    ) -> List[Union[Stage, Dict[Stage, Any]]]:
+        """
+        Builds a downstream pipeline.
+
+        Args:
+            pipeline_conf: Configuration of pipeline
+
+        Returns:
+            Pipeline
+        """
+        # Organize pipeline configuration
         if pipeline_conf is None:
             return []
         if isinstance(pipeline_conf, str):
@@ -180,14 +233,16 @@ class Pipeline:
         elif len(pipeline_conf) == 0:
             return []
 
+        # Identify stage and stage-specific configuration from pipeline conf
         if isinstance(pipeline_conf[0], str):
             stage_name, stage_conf = pipeline_conf.pop(0), None
         elif isinstance(pipeline_conf[0], dict):
             stage_name, stage_conf = next(iter(pipeline_conf.pop(0).items()))
         else:
             raise ValueError()
-        stage = self.stages[stage_name]
 
+        # Build stage, providing it stage and downstream pipeline configuration
+        stage = self.stages[stage_name]
         if isinstance(stage, Merger):
             return self.build_merger(stage, stage_conf, pipeline_conf)
         elif isinstance(stage, Processor):
@@ -201,175 +256,382 @@ class Pipeline:
         else:
             raise ValueError()
 
-    def build_sorter(self, stage, stage_conf, pipeline_conf):
-        pipeline = [{stage: {}}]
+    def build_sorter(
+        self,
+        stage: Sorter,
+        stage_conf: Optional[Union[str, Dict[str, Any]]],
+        downstream_pipeline_conf: List[Union[str, Dict[str, Any]]],
+    ) -> List[Union[Stage, Dict[Stage, Any]]]:
+        """
+        Builds a Sorter and its downstream pipeline.
 
-        if stage_conf is not None:
+        Args:
+            stage: Stage being built
+            stage_conf: Configuration of this stage
+            downstream_pipeline_conf: Configuration of pipeline downstream from stage
+
+        Returns:
+            Pipeline including this stage and those downstream
+        """
+        pipeline = [{stage: {}}]
+        if isinstance(stage_conf, dict):
             for outlet in filter(lambda o: o in stage_conf, stage.outlets):
                 pipeline[0][stage][outlet] = self.build_route(stage_conf.pop(outlet))
             if "default" in stage_conf:
                 pipeline[0][stage]["default"] = self.build_route(
                     stage_conf.pop("default")
                 )
-        pipeline.extend(self.build_route(pipeline_conf))
+        elif stage_conf is not None:
+            raise ValueError()
+
+        pipeline.extend(self.build_route(downstream_pipeline_conf))
 
         return pipeline
 
-    def build_source(self, stage, pipeline_conf):
+    def build_source(
+        self, stage: Source, downstream_pipeline_conf: List[Union[str, Dict[str, Any]]]
+    ) -> List[Union[Stage, Dict[Stage, Any]]]:
+        """
+        Builds a Source stage and its downstream pipeline.
+
+        Args:
+            stage: Stage being built
+            downstream_pipeline_conf: Configuration of pipeline downstream from stage
+
+        Returns:
+             Pipeline including this stage and those downstream
+        """
         pipeline = [stage]
-        pipeline.extend(self.build_route(pipeline_conf))
+        pipeline.extend(self.build_route(downstream_pipeline_conf))
 
         return pipeline
 
-    def build_splitter(self, stage, stage_conf, pipeline_conf):
-        pipeline = [{stage: {}}]
+    def build_splitter(
+        self,
+        stage: Splitter,
+        stage_conf: Optional[Union[str, Dict[str, Any]]],
+        downstream_pipeline_conf: List[Union[str, Dict[str, Any]]],
+    ) -> List[Union[Stage, Dict[Stage, Any]]]:
+        """
+        Builds a Splitter and its downstream pipeline.
 
-        if stage_conf is not None:
+        Args:
+            stage: Stage being built
+            stage_conf: Configuration of this stage
+            downstream_pipeline_conf: Configuration of pipeline downstream from stage
+
+        Returns:
+             Pipeline including this stage and those downstream
+        """
+        pipeline = [{stage: {}}]
+        if isinstance(stage_conf, dict):
             for outlet in filter(lambda o: o in stage_conf, stage.outlets):
                 pipeline[0][stage][outlet] = self.build_route(stage_conf.pop(outlet))
-        pipeline.extend(self.build_route(pipeline_conf))
+        elif stage_conf is not None:
+            raise ValueError()
+
+        pipeline.extend(self.build_route(downstream_pipeline_conf))
 
         return pipeline
 
-    def build_terminus(self, stage, stage_conf, pipeline_conf):
+    def build_terminus(
+        self,
+        stage: Terminus,
+        stage_conf: Optional[Union[str, Dict[str, Any]]],
+        downstream_pipeline_conf: List[Union[str, Dict[str, Any]]],
+    ) -> List[Union[Stage, Dict[Stage, Any]]]:
+        """
+        Builds a Terminus and its downstream pipeline.
+
+        Args:
+            stage: Stage being built
+            stage_conf: Configuration of this stage
+            downstream_pipeline_conf: Configuration of pipeline downstream from stage
+
+        Returns:
+             Pipeline including this stage and those downstream
+        """
         pipeline = [stage]
+        if stage_conf is not None:
+            raise ValueError()
+        if downstream_pipeline_conf != []:
+            raise ValueError()
 
         return pipeline
 
     def log_wip_file(self, wip_filename):
         self.wip_files.add(wip_filename)
 
-    def run_merger(self, stage, stage_pipeline, image, **kwargs):
+    def run_merger(
+        self,
+        stage: Merger,
+        stage_pipeline: Optional[Union[Stage, Dict[Union[Stage, str], Any]]],
+        downstream_pipeline: List[Union[Stage, Dict[Stage, Any]]],
+        input: Union[PipeImage, Dict[str, PipeImage]],
+    ):
+        """
+        Runs input images through a Merger and routes output image into
+        downstream pipeline.
+
+        Args:
+            stage: Merger to run
+            stage_pipeline: Either 1) name of inlet into with input image should flow
+              once all inlets are satisfied in upstream splitter, or 2) None, indicating
+              that all inlets should be satisfied and Merger is ready to run
+            downstream_pipeline: Pipeline downstream from stage
+            input: Input images; keys are inlet names and values are images
+
+        Returns:
+            Output of downstream pipeline
+        """
         if isinstance(stage_pipeline, str):
-            return {stage_pipeline: kwargs["infile"]}
+            return {stage_pipeline: input}
 
-        outfile = join(
-            self.wip_directory,
-            image.name,
-            image.get_outfile(
-                kwargs[stage.inlets[0]],
-                stage.suffix,
-                stage.trim_suffixes,
-                stage.extension,
-            ),
+        # Prepare output image
+        first_input = next(iter(input.values()))
+        output = first_input.get_child(
+            directory=join(self.wip_directory, first_input.name),
+            suffix=stage.suffix,
+            trim_suffixes=stage.trim_suffixes,
+            extension=stage.extension,
         )
-        if not isfile(outfile):
-            stage(outfile=outfile, **kwargs)
+
+        # Check if output image exists, and if not, run stage
+        if not isfile(output.full_path):
+            stage(
+                outfile=output.full_path,
+                **{inlet: input.full_path for inlet, input in input.items()},
+            )
         else:
-            info(f"{self}: '{outfile}' already exists")
-        self.log_wip_file(outfile)
+            info(f"{self}: '{output.full_path}' already exists")
+        self.log_wip_file(output.full_path)
 
-        return self.run_route(image=image, infile=outfile, **kwargs)
+        # Route merged image to downstream pipeline
+        return self.run_route(downstream_pipeline, output)
 
-    def run_processor(self, stage, image, infile, **kwargs):
-        outfile = join(
-            self.wip_directory,
-            image.name,
-            image.get_outfile(
-                infile, stage.suffix, stage.trim_suffixes, stage.extension
-            ),
+    def run_processor(
+        self,
+        stage: Processor,
+        stage_pipeline: Optional[Union[Stage, Dict[Union[Stage, str], Any]]],
+        downstream_pipeline: List[Union[Stage, Dict[Stage, Any]]],
+        input: Union[PipeImage, Dict[str, PipeImage]],
+    ):
+        """
+        Runs input image through a Processor and routes output image into
+        downstream pipeline.
+
+        Args:
+            stage: Stage to run
+            stage_pipeline: Pipeline of this stage
+            downstream_pipeline: Pipeline downstream from this stage
+            input: Input image
+
+        Returns:
+            Output of downstream pipeline
+        """
+        if stage_pipeline is not None:
+            raise ValueError()
+        if not isinstance(input, PipeImage):
+            raise ValueError()
+
+        # Prepare output image
+        output = input.get_child(
+            directory=join(self.wip_directory, input.name),
+            suffix=stage.suffix,
+            trim_suffixes=stage.trim_suffixes,
+            extension=stage.extension,
         )
-        if not isfile(outfile):
-            stage(infile=infile, outfile=outfile)
+
+        # Check if output image exists, and if not, run processor
+        if not isfile(output.full_path):
+            stage(input.full_path, output.full_path)
         else:
-            info(f"{self}: '{outfile}' already exists")
-        self.log_wip_file(outfile)
+            info(f"{self}: '{output.full_path}' already exists")
+        self.log_wip_file(output.full_path)
 
-        return self.run_route(image=image, infile=outfile, **kwargs)
+        # Route output image to downstream pipeline
+        return self.run_route(downstream_pipeline, output)
 
-    def run_sorter(self, stage, stage_pipeline, infile, pipeline, **kwargs):
-        outlet_name = stage(infile=infile)
-        if outlet_name is None and "default" in stage_pipeline:
+    def run_route(
+        self,
+        pipeline: List[Union[Stage, Dict[Stage, Any]]],
+        input: Union[PipeImage, Dict[str, PipeImage]],
+    ):
+        """
+        Routes input to downstream pipeline.
+
+        Args:
+            pipeline: Pipeline to route to
+            input: Input image(s)
+
+        Returns:
+            Output of downstream pipeline
+        """
+        if pipeline is None or (isinstance(pipeline, list) and len(pipeline) == 0):
+            return input
+        elif not isinstance(pipeline, list):
+            raise ValueError()
+
+        # Identify stage and stage-specific configuration from pipeline conf
+        if isinstance(pipeline[0], Stage):
+            stage, stage_pipeline = pipeline[0], None
+        elif isinstance(pipeline[0], dict):
+            stage, stage_pipeline = next(iter(pipeline[0].items()))
+        else:
+            raise ValueError()
+
+        if isinstance(stage, Merger):
+            return self.run_merger(stage, stage_pipeline, pipeline[1:], input)
+        elif isinstance(stage, Processor):
+            return self.run_processor(stage, stage_pipeline, pipeline[1:], input)
+        elif isinstance(stage, Sorter):
+            return self.run_sorter(stage, stage_pipeline, pipeline[1:], input)
+        elif isinstance(stage, Splitter):
+            return self.run_splitter(stage, stage_pipeline, pipeline[1:], input)
+        elif isinstance(stage, Terminus):
+            return self.run_terminus(stage, stage_pipeline, pipeline[1:], input)
+        else:
+            raise ValueError()
+
+    def run_sorter(
+        self,
+        stage: Sorter,
+        stage_pipeline: Optional[Union[Stage, Dict[Union[Stage, str], Any]]],
+        downstream_pipeline: List[Union[Stage, Dict[Stage, Any]]],
+        input: Union[PipeImage, Dict[str, PipeImage]],
+    ):
+        """
+        Runs input image through an outlet pipeline selected by a Sorter, then
+        runs output image of that outlet pipeline through a further downstream
+        pipeline.
+
+        Args:
+            stage: Stage to run
+            stage_pipeline: Pipeline of stage
+            downstream_pipeline: Pipeline downstream from stage
+            input: Input image
+
+        Returns:
+            Output of downstream pipeline
+        """
+        if not isinstance(input, PipeImage):
+            raise ValueError()
+
+        # Determine into which outlet input_image should flow
+        outlet = stage(infile=input.full_path)
+        if outlet is None and "default" in stage_pipeline:
             outlet_pipeline = stage_pipeline.get("default")
         else:
-            outlet_pipeline = stage_pipeline.get(outlet_name, [])
+            outlet_pipeline = stage_pipeline.get(outlet, [])
 
-        outfile = self.run_route(infile=infile, pipeline=outlet_pipeline, **kwargs)
+        # Route image into appropriate outlet
+        output = self.run_route(outlet_pipeline, input)
 
-        return self.run_route(infile=outfile, pipeline=pipeline, **kwargs)
+        # Route output of outlet to downstream pipeline
+        return self.run_route(downstream_pipeline, output)
 
-    def run_splitter(self, stage, stage_pipeline, image, infile, **kwargs):
-        outfiles = {
-            outlet: join(
-                self.wip_directory,
-                image.name,
-                image.get_outfile(
-                    infile,
-                    stage.suffixes[outlet],
-                    stage.trim_suffixes,
-                    stage.extension,
-                ),
+    def run_splitter(
+        self,
+        stage: Splitter,
+        stage_pipeline: Optional[Union[Stage, Dict[Union[Stage, str], Any]]],
+        downstream_pipeline: List[Union[Stage, Dict[Stage, Any]]],
+        input: Union[PipeImage, Dict[str, PipeImage]],
+    ):
+        """
+        Runs an input image through a Splitter, and each output image through
+        the Splitter's associated outlet pipeline. Collects the outputs of each
+        outlet pipeline, and routes all of them into downstream pipeline.
+
+        Args:
+            stage: Splitter to run
+            stage_pipeline: Pipelines of this Splitter
+            downstream_pipeline: Pipeline downstream from this splitter
+            input: Input image
+
+        Returns:
+            Output of downstream pipeline
+        """
+        if not isinstance(input, PipeImage):
+            raise ValueError()
+
+        # Prepare output images
+        outputs = {
+            outlet: input.get_child(
+                directory=join(self.wip_directory, input.name),
+                suffix=stage.suffixes[outlet],
+                trim_suffixes=stage.trim_suffixes,
+                extension=stage.extension,
             )
             for outlet in stage.outlets
         }
+
+        # Check if all output images, and if not, run splitter
         to_run = False
-        for outfile in outfiles.values():
-            if not isfile(outfile):
+        for output in outputs.values():
+            if not isfile(output.full_path):
                 to_run = True
             else:
-                info(f"{self}: '{outfile}' already exists")
+                info(f"{self}: '{output.full_path}' already exists")
         if to_run:
-            stage(infile=infile, **outfiles)
-        for outfile in outfiles.values():
-            self.log_wip_file(outfile)
+            stage(
+                infile=input.full_path,
+                **{outlet: output.full_path for outlet, output in outputs.items()},
+            )
+        for output in outputs.values():
+            self.log_wip_file(output.full_path)
 
-        downstream_inlets = {}
+        # Route each output image through its downstream pipeline
+        downstream_input = {}
         unsupported_platform_error = None
-        for outlet_name in stage.outlets:
-            outfile = outfiles[outlet_name]
-            outlet_pipeline = stage_pipeline.get(outlet_name, [])
+        for outlet in stage.outlets:
+            outlet_input = outputs[outlet]
+            outlet_pipeline = stage_pipeline.get(outlet, [])
             try:
-                outlet_output = self.run_route(
-                    pipeline=outlet_pipeline, image=image, infile=outfile
-                )
+                outlet_output = self.run_route(outlet_pipeline, outlet_input)
                 if isinstance(outlet_output, dict):
-                    downstream_inlets.update(outlet_output)
-                # else:
-                #     raise ValueError()
+                    downstream_input.update(outlet_output)
+                else:
+                    raise ValueError()
             except UnsupportedPlatformError as error:
                 warning(
-                    f"{self}: While processing '{image.name}', encountered "
-                    f"UnsupportedPlatformError '{error}', continuing on to next outlet"
+                    f"{self}: While processing '{outlet_input.name}', "
+                    f"encountered  UnsupportedPlatformError '{error}', continuing on "
+                    f"to next outlet before raising"
                 )
                 unsupported_platform_error = error
                 continue
         if unsupported_platform_error is not None:
             raise unsupported_platform_error
 
-        kwargs.update(downstream_inlets)
-        return self.run_route(image=image, **kwargs)
+        # Route output images to downstream pipeline
+        return self.run_route(downstream_pipeline, downstream_input)
 
-    def run_route(self, pipeline, **kwargs):
-        if pipeline is None:
-            return kwargs.get("infile", None)
-        elif not isinstance(pipeline, List):
+    def run_terminus(
+        self,
+        stage: Terminus,
+        stage_pipeline: Optional[Union[Stage, Dict[Union[Stage, str], Any]]],
+        downstream_pipeline: List[Union[Stage, Dict[Stage, Any]]],
+        input: Union[PipeImage, Dict[str, PipeImage]],
+    ) -> None:
+        """
+        Runs input image through a Terminus.
+
+        Args:
+            stage: Stage to run
+            stage_pipeline: Pipeline of this stage
+            downstream_pipeline: Pipeline downstream from this stage
+            input: Input image
+
+        Raises:
+            TerminusReached: Terminus has been run successfully
+        """
+        if stage_pipeline is not None:
             raise ValueError()
-        elif len(pipeline) == 0:
-            return kwargs.get("infile", None)
-
-        if isinstance(pipeline[0], Stage):
-            kwargs["stage"], kwargs["stage_pipeline"] = pipeline[0], None
-        elif isinstance(pipeline[0], dict):
-            kwargs["stage"], kwargs["stage_pipeline"] = next(iter(pipeline[0].items()))
-        else:
+        if downstream_pipeline != []:
             raise ValueError()
-
-        kwargs["pipeline"] = pipeline[1:]
-
-        if isinstance(kwargs["stage"], Merger):
-            return self.run_merger(**kwargs)
-        elif isinstance(kwargs["stage"], Processor):
-            return self.run_processor(**kwargs)
-        elif isinstance(kwargs["stage"], Sorter):
-            return self.run_sorter(**kwargs)
-        elif isinstance(kwargs["stage"], Splitter):
-            return self.run_splitter(**kwargs)
-        elif isinstance(kwargs["stage"], Terminus):
-            return self.run_terminus(**kwargs)
-        else:
+        if not isinstance(input, PipeImage):
             raise ValueError()
 
-    def run_terminus(self, stage, image, infile, **kwargs):
-        outfile = f"{join(stage.directory, image.name)}{splitext(basename(infile))[1]}"
-        stage(infile=infile, outfile=outfile)
+        outfile = f"{join(stage.directory, input.name)}.{input.extension}"
+        stage(input.full_path, outfile)
         raise TerminusReached(outfile)

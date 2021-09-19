@@ -10,7 +10,7 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from pipescaler.core.stage import Stage
 
@@ -19,7 +19,7 @@ class Merger(Stage, ABC):
     def __init__(
         self,
         suffix: Optional[str] = None,
-        trim_suffixes: Optional[Dict[str, str]] = None,
+        trim_suffixes: Optional[List[str]] = None,
         **kwargs: Any
     ) -> None:
         super().__init__(**kwargs)
@@ -34,9 +34,9 @@ class Merger(Stage, ABC):
         else:
             self.trim_suffixes = self.inlets
 
-    def __call__(self, outfile: str) -> None:
+    def __call__(self, outfile: str, **kwargs: Any) -> None:
         raise NotImplementedError()
 
     @property
-    def outlets(self):
+    def outlets(self) -> List[str]:
         return ["outlet"]

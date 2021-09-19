@@ -10,7 +10,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any, Optional
+from typing import Any, List, Optional
 
 
 class Stage(ABC):
@@ -45,10 +45,10 @@ class Stage(ABC):
 
     @property
     @abstractmethod
-    def inlets(self):
+    def inlets(self) -> List[str]:
         raise NotImplementedError()
 
     @property
     @abstractmethod
-    def outlets(self):
+    def outlets(self) -> List[str]:
         raise NotImplementedError()

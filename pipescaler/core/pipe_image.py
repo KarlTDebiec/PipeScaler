@@ -9,24 +9,24 @@
 """"""
 from __future__ import annotations
 
-from os.path import basename, splitext
-from typing import List, Optional, Tuple
+from os.path import basename, dirname, join, splitext
+from typing import List, Optional
 
-from PIL import Image
-
-from pipescaler.common import validate_input_path
+from pipescaler.common import validate_output_path
 
 
 class PipeImage:
-    def __init__(self, infile: str) -> None:
-        self.full_path = validate_input_path(infile)
-        self.filename = basename(self.full_path)
-        self.name = splitext(basename(self.filename))[0]
-        self.ext = splitext(basename(self.filename))[1].strip(".")
+    def __init__(self, path: str, parent: PipeImage = None) -> None:
+        self.full_path = validate_output_path(path)
+        self.directory = dirname(self.full_path)
+        self.filename = splitext(basename(self.full_path))[0]
+        self.extension = splitext(basename(self.full_path))[1].lstrip(".")
 
-        image = Image.open(self.full_path)
-        self.mode: str = image.mode
-        self.shape: Tuple[int] = image.size
+        self.parent = parent
+        if self.parent is None:
+            self.name = splitext(basename(self.filename))[0]
+        else:
+            self.name = self.parent.name
 
     def __repr__(self) -> str:
         return self.name
@@ -34,28 +34,24 @@ class PipeImage:
     def __str__(self) -> str:
         return self.name
 
-    def get_outfile(
+    def get_child(
         self,
-        infile: str,
+        directory: str,
         suffix: str,
         trim_suffixes: Optional[List[str]] = None,
         extension="png",
-    ) -> str:
-        prefix = splitext(basename(infile))[0]
-        if prefix.startswith(self.name):
-            prefix = prefix[len(self.name) :]
+    ) -> PipeImage:
+        filename = self.filename
+        if filename.startswith(self.name):
+            filename = filename[len(self.name) :]
 
         if trim_suffixes is not None:
             for trim_suffix in trim_suffixes:
-                if trim_suffix in prefix:
-                    prefix = prefix[: prefix.rindex(trim_suffix)]
+                if trim_suffix in filename:
+                    prefix = filename[: filename.rindex(trim_suffix)]
                     break
-            prefix = prefix.rstrip("_")
+            filename = filename.rstrip("_")
 
-        outfile = f"{prefix}_{suffix}.{extension}"
-        outfile = outfile.lstrip("_")
-
-        return outfile
-
-    def show(self):
-        Image.open(self.full_path).show()
+        return PipeImage(
+            join(directory, f"{filename}_{suffix}.{extension}".lstrip("_")), self
+        )
