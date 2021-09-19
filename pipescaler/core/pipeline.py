@@ -13,7 +13,7 @@ from glob import glob
 from importlib import import_module
 from logging import info, warning
 from os import listdir, makedirs, remove, rmdir
-from os.path import isdir, isfile, join
+from os.path import basename, isdir, isfile, join
 from pprint import pformat
 from shutil import copyfile
 from typing import Any, Dict, List, Optional, Union
@@ -121,7 +121,7 @@ class Pipeline:
             # Backup original image to working directory
             # TODO: Should be handled within source, to support archive sources
             image_backup = PipeImage(
-                join(image_directory, source_image.filename), source_image
+                join(image_directory, basename(source_image.full_path)), source_image
             )
             if not isfile(image_backup.full_path):
                 copyfile(source_image.full_path, image_backup.full_path)
@@ -211,7 +211,7 @@ class Pipeline:
 
         Args:
             stage: Stage being built
-            downstream_pipeline_conf: Configuration of downstream pipeline
+            downstream_pipeline_conf: Configuration of pipeline downstream from stage
 
         Returns:
              Pipeline including this stage and those downstream
@@ -233,7 +233,7 @@ class Pipeline:
         Args:
             stage: Stage being built
             stage_conf: Configuration of this stage
-            downstream_pipeline_conf: Configuration of downstream pipeline
+            downstream_pipeline_conf: Configuration of pipeline downstream from stage
 
         Returns:
              Pipeline including this stage and those downstream
@@ -261,7 +261,7 @@ class Pipeline:
         Args:
             stage: Stage being built
             stage_conf: Configuration of this stage
-            downstream_pipeline_conf: Configuration of downstream pipeline
+            downstream_pipeline_conf: Configuration of pipeline downstream from stage
 
         Returns:
              Pipeline including this stage and those downstream
@@ -286,7 +286,7 @@ class Pipeline:
         Args:
             stage: Stage being built
             stage_conf: Configuration of this stage
-            downstream_pipeline_conf: Configuration of downstream pipeline
+            downstream_pipeline_conf: Configuration of pipeline downstream from stage
 
         Returns:
             Pipeline including this stage and those downstream
@@ -318,7 +318,7 @@ class Pipeline:
         Args:
             stage: Stage being built
             stage_conf: Configuration of this stage
-            downstream_pipeline_conf: Configuration of downstream pipeline
+            downstream_pipeline_conf: Configuration of pipeline downstream from stage
 
         Returns:
              Pipeline including this stage and those downstream
@@ -346,7 +346,7 @@ class Pipeline:
         Args:
             stage: Stage being built
             stage_conf: Configuration of this stage
-            downstream_pipeline_conf: Configuration of downstream pipeline
+            downstream_pipeline_conf: Configuration of pipeline downstream from stage
 
         Returns:
              Pipeline including this stage and those downstream
@@ -367,6 +367,16 @@ class Pipeline:
         pipeline: List[Union[Stage, Dict[Stage, Any]]],
         input: Union[PipeImage, Dict[str, PipeImage]],
     ):
+        """
+        Routes input to downstream pipeline.
+
+        Args:
+            pipeline: Pipeline to route to
+            input: Input image(s)
+
+        Returns:
+            Output of downstream pipeline
+        """
         if pipeline is None or (isinstance(pipeline, list) and len(pipeline) == 0):
             return input
         elif not isinstance(pipeline, list):
@@ -400,6 +410,19 @@ class Pipeline:
         downstream_pipeline: List[Union[Stage, Dict[Stage, Any]]],
         input: Union[PipeImage, Dict[str, PipeImage]],
     ):
+        """
+        Runs input images through a Merger and routes output image into
+        downstream pipeline.
+
+        Args:
+            stage: Stage to run
+            stage_pipeline: Pipeline of stage
+            downstream_pipeline: Pipeline downstream from stage
+            input: Input images; keys are inlet names and values are images
+
+        Returns:
+            Output of downstream pipeline
+        """
         if isinstance(stage_pipeline, str):
             return {stage_pipeline: input}
 
@@ -432,6 +455,19 @@ class Pipeline:
         downstream_pipeline: List[Union[Stage, Dict[Stage, Any]]],
         input: Union[PipeImage, Dict[str, PipeImage]],
     ):
+        """
+        Runs input image through a Processor and routes output image into
+        downstream pipeline.
+
+        Args:
+            stage: Stage to run
+            stage_pipeline: Pipeline of this stage
+            downstream_pipeline: Pipeline downstream from this stage
+            input: Input image
+
+        Returns:
+            Output of downstream pipeline
+        """
         if stage_pipeline is not None:
             raise ValueError()
         if not isinstance(input, PipeImage):
@@ -462,6 +498,20 @@ class Pipeline:
         downstream_pipeline: List[Union[Stage, Dict[Stage, Any]]],
         input: Union[PipeImage, Dict[str, PipeImage]],
     ):
+        """
+        Runs input image through an outlet pipeline selected by a Sorter, then
+        runs output image of that outlet pipeline through a further downstream
+        pipeline.
+
+        Args:
+            stage: Stage to run
+            stage_pipeline: Pipeline of stage
+            downstream_pipeline: Pipeline downstream from stage
+            input: Input image
+
+        Returns:
+            Output of downstream pipeline
+        """
         if not isinstance(input, PipeImage):
             raise ValueError()
 
@@ -485,6 +535,20 @@ class Pipeline:
         downstream_pipeline: List[Union[Stage, Dict[Stage, Any]]],
         input: Union[PipeImage, Dict[str, PipeImage]],
     ):
+        """
+        Runs an input image through a Splitter, and each output image through
+        the Splitter's associated outlet pipeline. Collects the outputs of each
+        outlet pipeline, and routes all of them into downstream pipeline.
+
+        Args:
+            stage: Splitter to run
+            stage_pipeline: Pipelines of this Splitter
+            downstream_pipeline: Pipeline downstream from this splitter
+            input: Input image
+
+        Returns:
+            Output of downstream pipeline
+        """
         if not isinstance(input, PipeImage):
             raise ValueError()
 
@@ -546,7 +610,19 @@ class Pipeline:
         stage_pipeline: Optional[Union[Stage, Dict[Union[Stage, str], Any]]],
         downstream_pipeline: List[Union[Stage, Dict[Stage, Any]]],
         input: Union[PipeImage, Dict[str, PipeImage]],
-    ):
+    ) -> None:
+        """
+        Runs input image through a Terminus.
+
+        Args:
+            stage: Stage to run
+            stage_pipeline: Pipeline of this stage
+            downstream_pipeline: Pipeline downstream from this stage
+            input: Input image
+
+        Raises:
+            TerminusReached: Terminus has been run successfully
+        """
         if stage_pipeline is not None:
             raise ValueError()
         if downstream_pipeline != []:
