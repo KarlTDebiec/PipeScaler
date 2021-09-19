@@ -108,11 +108,13 @@ class Pipeline:
         source = self.pipeline[0]
         for infile in source:
             info(f"{self}: '{infile}' processing started")
-            image = PipeImage(infile)
+            source_image = PipeImage(infile)
 
             # Create image working directory
             image_directory = validate_output_path(
-                join(self.wip_directory, image.name), file_ok=False, directory_ok=True
+                join(self.wip_directory, source_image.name),
+                file_ok=False,
+                directory_ok=True,
             )
             if not isdir(image_directory):
                 info(f"{self}: '{image_directory}' created")
@@ -120,22 +122,25 @@ class Pipeline:
 
             # Backup original image to working directory
             # TODO: Should be handled within source, to support archive sources
-            image_backup = join(image_directory, image.filename)
-            if not isfile(image_backup):
-                copyfile(image.full_path, image_backup)
-                info(f"{self}: '{image.full_path}' copied to '{image_backup}'")
-            self.log_wip_file(image_backup)
+            image_backup = PipeImage(
+                join(image_directory, source_image.filename), source_image
+            )
+            if not isfile(image_backup.full_path):
+                copyfile(source_image.full_path, image_backup.full_path)
+                info(
+                    f"{self}: '{source_image.full_path}' "
+                    f"copied to '{image_backup.full_path}'"
+                )
+            self.log_wip_file(image_backup.full_path)
 
             # Flow into pipeline
             try:
-                self.run_route(
-                    pipeline=self.pipeline[1:], image=image, infile=image_backup,
-                )
+                self.run_route(self.pipeline[1:], image_backup)
             except TerminusReached:
                 continue
             except UnsupportedPlatformError as error:
                 warning(
-                    f"{self}: While processing '{image.name}', encountered "
+                    f"{self}: While processing '{source_image.name}', encountered "
                     f"UnsupportedPlatformError '{error}', continuing on to next image"
                 )
 
