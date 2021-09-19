@@ -158,69 +158,6 @@ class Pipeline:
     def __str__(self) -> str:
         return self.__class__.__name__.lower()
 
-    def build_route(
-        self, pipeline_conf: List[Union[str, Dict[str, Any]]]
-    ) -> List[Union[Stage, Dict[Stage, Any]]]:
-        """
-        Builds a downstream pipeline.
-
-        Args:
-            pipeline_conf: Configuration of pipeline
-
-        Returns:
-            Pipeline
-        """
-        # Organize pipeline configuration
-        if pipeline_conf is None:
-            return []
-        if isinstance(pipeline_conf, str):
-            pipeline_conf = [pipeline_conf]
-        if not isinstance(pipeline_conf, List):
-            raise ValueError()
-        elif len(pipeline_conf) == 0:
-            return []
-
-        # Identify stage and stage-specific configuration from pipeline conf
-        if isinstance(pipeline_conf[0], str):
-            stage_name, stage_conf = pipeline_conf.pop(0), None
-        elif isinstance(pipeline_conf[0], dict):
-            stage_name, stage_conf = next(iter(pipeline_conf.pop(0).items()))
-        else:
-            raise ValueError()
-
-        # Build stage, providing it stage and downstream pipeline configuration
-        stage = self.stages[stage_name]
-        if isinstance(stage, Merger):
-            return self.build_merger(stage, stage_conf, pipeline_conf)
-        elif isinstance(stage, Processor):
-            return self.build_processor(stage, stage_conf, pipeline_conf)
-        elif isinstance(stage, Sorter):
-            return self.build_sorter(stage, stage_conf, pipeline_conf)
-        elif isinstance(stage, Splitter):
-            return self.build_splitter(stage, stage_conf, pipeline_conf)
-        elif isinstance(stage, Terminus):
-            return self.build_terminus(stage, stage_conf, pipeline_conf)
-        else:
-            raise ValueError()
-
-    def build_source(
-        self, stage: Source, downstream_pipeline_conf: List[Union[str, Dict[str, Any]]]
-    ) -> List[Union[Stage, Dict[Stage, Any]]]:
-        """
-        Builds a Source stage and its downstream pipeline.
-
-        Args:
-            stage: Stage being built
-            downstream_pipeline_conf: Configuration of pipeline downstream from stage
-
-        Returns:
-             Pipeline including this stage and those downstream
-        """
-        pipeline = [stage]
-        pipeline.extend(self.build_route(downstream_pipeline_conf))
-
-        return pipeline
-
     def build_merger(
         self,
         stage: Merger,
@@ -274,6 +211,51 @@ class Pipeline:
 
         return pipeline
 
+    def build_route(
+        self, pipeline_conf: List[Union[str, Dict[str, Any]]]
+    ) -> List[Union[Stage, Dict[Stage, Any]]]:
+        """
+        Builds a downstream pipeline.
+
+        Args:
+            pipeline_conf: Configuration of pipeline
+
+        Returns:
+            Pipeline
+        """
+        # Organize pipeline configuration
+        if pipeline_conf is None:
+            return []
+        if isinstance(pipeline_conf, str):
+            pipeline_conf = [pipeline_conf]
+        if not isinstance(pipeline_conf, List):
+            raise ValueError()
+        elif len(pipeline_conf) == 0:
+            return []
+
+        # Identify stage and stage-specific configuration from pipeline conf
+        if isinstance(pipeline_conf[0], str):
+            stage_name, stage_conf = pipeline_conf.pop(0), None
+        elif isinstance(pipeline_conf[0], dict):
+            stage_name, stage_conf = next(iter(pipeline_conf.pop(0).items()))
+        else:
+            raise ValueError()
+
+        # Build stage, providing it stage and downstream pipeline configuration
+        stage = self.stages[stage_name]
+        if isinstance(stage, Merger):
+            return self.build_merger(stage, stage_conf, pipeline_conf)
+        elif isinstance(stage, Processor):
+            return self.build_processor(stage, stage_conf, pipeline_conf)
+        elif isinstance(stage, Sorter):
+            return self.build_sorter(stage, stage_conf, pipeline_conf)
+        elif isinstance(stage, Splitter):
+            return self.build_splitter(stage, stage_conf, pipeline_conf)
+        elif isinstance(stage, Terminus):
+            return self.build_terminus(stage, stage_conf, pipeline_conf)
+        else:
+            raise ValueError()
+
     def build_sorter(
         self,
         stage: Sorter,
@@ -302,6 +284,24 @@ class Pipeline:
         elif stage_conf is not None:
             raise ValueError()
 
+        pipeline.extend(self.build_route(downstream_pipeline_conf))
+
+        return pipeline
+
+    def build_source(
+        self, stage: Source, downstream_pipeline_conf: List[Union[str, Dict[str, Any]]]
+    ) -> List[Union[Stage, Dict[Stage, Any]]]:
+        """
+        Builds a Source stage and its downstream pipeline.
+
+        Args:
+            stage: Stage being built
+            downstream_pipeline_conf: Configuration of pipeline downstream from stage
+
+        Returns:
+             Pipeline including this stage and those downstream
+        """
+        pipeline = [stage]
         pipeline.extend(self.build_route(downstream_pipeline_conf))
 
         return pipeline
@@ -362,47 +362,6 @@ class Pipeline:
     def log_wip_file(self, wip_filename):
         self.wip_files.add(wip_filename)
 
-    def run_route(
-        self,
-        pipeline: List[Union[Stage, Dict[Stage, Any]]],
-        input: Union[PipeImage, Dict[str, PipeImage]],
-    ):
-        """
-        Routes input to downstream pipeline.
-
-        Args:
-            pipeline: Pipeline to route to
-            input: Input image(s)
-
-        Returns:
-            Output of downstream pipeline
-        """
-        if pipeline is None or (isinstance(pipeline, list) and len(pipeline) == 0):
-            return input
-        elif not isinstance(pipeline, list):
-            raise ValueError()
-
-        # Identify stage and stage-specific configuration from pipeline conf
-        if isinstance(pipeline[0], Stage):
-            stage, stage_pipeline = pipeline[0], None
-        elif isinstance(pipeline[0], dict):
-            stage, stage_pipeline = next(iter(pipeline[0].items()))
-        else:
-            raise ValueError()
-
-        if isinstance(stage, Merger):
-            return self.run_merger(stage, stage_pipeline, pipeline[1:], input)
-        elif isinstance(stage, Processor):
-            return self.run_processor(stage, stage_pipeline, pipeline[1:], input)
-        elif isinstance(stage, Sorter):
-            return self.run_sorter(stage, stage_pipeline, pipeline[1:], input)
-        elif isinstance(stage, Splitter):
-            return self.run_splitter(stage, stage_pipeline, pipeline[1:], input)
-        elif isinstance(stage, Terminus):
-            return self.run_terminus(stage, stage_pipeline, pipeline[1:], input)
-        else:
-            raise ValueError()
-
     def run_merger(
         self,
         stage: Merger,
@@ -415,8 +374,10 @@ class Pipeline:
         downstream pipeline.
 
         Args:
-            stage: Stage to run
-            stage_pipeline: Pipeline of stage
+            stage: Merger to run
+            stage_pipeline: Either 1) name of inlet into with input image should flow
+              once all inlets are satisfied in upstream splitter, or 2) None, indicating
+              that all inlets should be satisfied and Merger is ready to run
             downstream_pipeline: Pipeline downstream from stage
             input: Input images; keys are inlet names and values are images
 
@@ -490,6 +451,47 @@ class Pipeline:
 
         # Route output image to downstream pipeline
         return self.run_route(downstream_pipeline, output)
+
+    def run_route(
+        self,
+        pipeline: List[Union[Stage, Dict[Stage, Any]]],
+        input: Union[PipeImage, Dict[str, PipeImage]],
+    ):
+        """
+        Routes input to downstream pipeline.
+
+        Args:
+            pipeline: Pipeline to route to
+            input: Input image(s)
+
+        Returns:
+            Output of downstream pipeline
+        """
+        if pipeline is None or (isinstance(pipeline, list) and len(pipeline) == 0):
+            return input
+        elif not isinstance(pipeline, list):
+            raise ValueError()
+
+        # Identify stage and stage-specific configuration from pipeline conf
+        if isinstance(pipeline[0], Stage):
+            stage, stage_pipeline = pipeline[0], None
+        elif isinstance(pipeline[0], dict):
+            stage, stage_pipeline = next(iter(pipeline[0].items()))
+        else:
+            raise ValueError()
+
+        if isinstance(stage, Merger):
+            return self.run_merger(stage, stage_pipeline, pipeline[1:], input)
+        elif isinstance(stage, Processor):
+            return self.run_processor(stage, stage_pipeline, pipeline[1:], input)
+        elif isinstance(stage, Sorter):
+            return self.run_sorter(stage, stage_pipeline, pipeline[1:], input)
+        elif isinstance(stage, Splitter):
+            return self.run_splitter(stage, stage_pipeline, pipeline[1:], input)
+        elif isinstance(stage, Terminus):
+            return self.run_terminus(stage, stage_pipeline, pipeline[1:], input)
+        else:
+            raise ValueError()
 
     def run_sorter(
         self,
