@@ -14,6 +14,7 @@ from subprocess import PIPE, Popen
 from typing import Any
 
 from PIL import Image
+from PIL.ImageOps import invert
 from reportlab.graphics.renderPM import drawToFile
 from svglib.svglib import svg2rlg
 
@@ -28,6 +29,7 @@ from pipescaler.core import (
 class PotraceExternalProcessor(Processor):
     def __init__(
         self,
+        invert: float = False,
         blacklevel: float = 0.3,
         alphamax: float = 1.34,
         opttolerance: float = 0.2,
@@ -36,6 +38,7 @@ class PotraceExternalProcessor(Processor):
     ) -> None:
         super().__init__(**kwargs)
 
+        self.invert = invert
         self.blacklevel = validate_float(blacklevel, min_value=0)
         self.alphamax = validate_float(alphamax, min_value=0)
         self.opttolerance = validate_float(opttolerance, min_value=0)
@@ -57,7 +60,10 @@ class PotraceExternalProcessor(Processor):
             with temporary_filename(".svg") as svgfile:
                 with temporary_filename(".png") as pngfile:
                     # Convert to bmp
-                    input_image.save(bmpfile)
+                    if self.invert:
+                        invert(input_image).save(bmpfile)
+                    else:
+                        input_image.save(bmpfile)
 
                     # Trace
                     command = (
@@ -92,6 +98,8 @@ class PotraceExternalProcessor(Processor):
 
                     # Convert mode
                     output_image = Image.open(pngfile).convert("L")
+                    if self.invert:
+                        output_image = invert(output_image)
 
         # Write image
         output_image.save(outfile)
@@ -106,6 +114,11 @@ class PotraceExternalProcessor(Processor):
         """
         parser = super().construct_argparser(description=__doc__)
 
+        parser.add_argument(
+            "--invert",
+            action="store_true",
+            help="invert image before tracing, and revert afterwards",
+        )
         parser.add_argument(
             "--blacklevel",
             default=0.3,
