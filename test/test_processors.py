@@ -27,6 +27,7 @@ from pipescaler.processors import (
     ResizeProcessor,
     SolidColorProcessor,
     TexconvProcessor,
+    ThresholdProcessor,
     WaifuExternalProcessor,
     WaifuProcessor,
     XbrzProcessor,
@@ -86,6 +87,11 @@ def solid_color_processor(request) -> SolidColorProcessor:
 @pytest.fixture()
 def texconv_processor(request) -> TexconvProcessor:
     return TexconvProcessor(**request.param)
+
+
+@pytest.fixture()
+def threshold_processor(request) -> ThresholdProcessor:
+    return ThresholdProcessor(**request.param)
 
 
 @pytest.fixture()
@@ -360,6 +366,32 @@ def test_texconv(infile: str, texconv_processor: TexconvProcessor) -> None:
         with Image.open(infile) as input_image, Image.open(outfile) as output_image:
             assert output_image.mode == "RGBA"
             assert output_image.size == input_image.size
+
+
+@pytest.mark.parametrize(
+    ("infile", "threshold_processor"),
+    [
+        (infiles["L"], {}),
+        (infiles["L"], {"denoise": True}),
+        xfail_unsupported_mode(infiles["LA"], {}),
+        (infiles["PL"], {}),
+        xfail_unsupported_mode(infiles["PLA"], {}),
+        xfail_unsupported_mode(infiles["PRGB"], {}),
+        xfail_unsupported_mode(infiles["PRGBA"], {}),
+        xfail_unsupported_mode(infiles["RGB"], {}),
+        xfail_unsupported_mode(infiles["RGBA"], {}),
+    ],
+    indirect=["threshold_processor"],
+)
+def test_threshold(infile: str, threshold_processor: ThresholdProcessor) -> None:
+    with temporary_filename(".png") as outfile:
+        threshold_processor(infile, outfile)
+
+        with Image.open(infile) as input_image, Image.open(outfile) as output_image:
+            output_datum = np.array(output_image)
+            assert output_image.mode == "L"
+            assert output_image.size == input_image.size
+            assert np.logical_or(output_datum == 0, output_datum == 255).all()
 
 
 @pytest.mark.serial

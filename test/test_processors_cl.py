@@ -26,6 +26,7 @@ from pipescaler.processors import (
     ResizeProcessor,
     SolidColorProcessor,
     TexconvProcessor,
+    ThresholdProcessor,
     WaifuExternalProcessor,
     WaifuProcessor,
     XbrzProcessor,
@@ -137,6 +138,13 @@ def test_solid_color(infile: str, args: str) -> None:
 )
 def test_texconv(infile: str, args: str) -> None:
     run_processor_on_command_line(TexconvProcessor, args, infile)
+
+
+@pytest.mark.parametrize(
+    ("infile", "args"), [(infiles["RGB"], "-h"), (infiles["L"], "")],
+)
+def test_threshold(infile: str, args: str) -> None:
+    run_processor_on_command_line(ThresholdProcessor, args, infile)
 
 
 @pytest.mark.serial
