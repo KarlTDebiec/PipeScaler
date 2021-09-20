@@ -16,7 +16,11 @@ import numba as nb
 import numpy as np
 from PIL import Image
 
-from pipescaler.core import Processor
+from pipescaler.core import (
+    Processor,
+    UnsupportedImageModeError,
+    remove_palette_from_image,
+)
 
 
 class ThresholdProcessor(Processor):
@@ -28,24 +32,24 @@ class ThresholdProcessor(Processor):
         self.threshold = threshold
         self.denoise = denoise
 
-    @property
-    def desc(self) -> str:
-        """str: Description"""
-        if not hasattr(self, "_desc"):
-            if self.denoise:
-                return f"threshold-{self.threshold}-{self.denoise}"
-            else:
-                return f"threshold-{self.threshold}"
-        return self._desc
+    def process_file(self, infile: str, outfile: str) -> None:
+        # Read image
+        input_image = Image.open(infile)
+        if input_image.mode == "P":
+            input_image = remove_palette_from_image(input_image)
+        if input_image.mode != "L":
+            raise UnsupportedImageModeError(
+                f"Image mode '{input_image.mode}' of image '{infile}'"
+                f" is not supported by {type(self)}"
+            )
 
-    def process_file_from_pipeline(self, infile: str, outfile: str) -> None:
-        self.process_file(
-            infile,
-            outfile,
-            self.pipeline.verbosity,
-            threshold=self.threshold,
-            denoise=self.denoise,
-        )
+        output_image = input_image.point(lambda p: p > self.threshold and 255)
+        if self.denoise:
+            output_data = np.array(output_image)
+            self.denoise_data(output_data)
+            output_image = Image.fromarray(output_data)
+        output_image = output_image.convert("L")
+        output_image.save(outfile)
 
     @classmethod
     def construct_argparser(cls) -> ArgumentParser:
@@ -73,22 +77,6 @@ class ThresholdProcessor(Processor):
         )
 
         return parser
-
-    @classmethod
-    def process_file(
-        cls, infile: str, outfile: str, verbosity: int = 1, **kwargs: Any
-    ) -> None:
-        threshold = kwargs.get("threshold")
-        denoise = kwargs.get("denoise")
-        input_image = Image.open(infile)
-
-        output_image = input_image.convert("L").point(lambda p: p > threshold and 255)
-        if denoise:
-            output_data = np.array(output_image)
-            cls.denoise_data(output_data)
-            output_image = Image.fromarray(output_data)
-
-        output_image.save(outfile)
 
     @no_type_check
     @staticmethod
