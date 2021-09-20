@@ -43,12 +43,15 @@ class ThresholdProcessor(Processor):
                 f" is not supported by {type(self)}"
             )
 
+        # Process image
         output_image = input_image.point(lambda p: p > self.threshold and 255)
         if self.denoise:
             output_data = np.array(output_image)
             self.denoise_data(output_data)
             output_image = Image.fromarray(output_data)
         output_image = output_image.convert("L")
+
+        # Write image
         output_image.save(outfile)
 
     @classmethod
@@ -70,7 +73,7 @@ class ThresholdProcessor(Processor):
         )
         parser.add_argument(
             "--denoise",
-            default=True,
+            default=False,
             type=bool,
             help="Flip color of pixels bordered by less than 5 pixels of "
             "the same color",
