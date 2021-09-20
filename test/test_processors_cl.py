@@ -23,6 +23,7 @@ from pipescaler.processors import (
     HeightToNormalProcessor,
     ModeProcessor,
     PngquantProcessor,
+    PotraceExternalProcessor,
     ResizeProcessor,
     SolidColorProcessor,
     TexconvProcessor,
@@ -106,6 +107,13 @@ def test_height_to_normal(infile: str, args: str) -> None:
 )
 def test_mode(infile: str, args: str) -> None:
     run_processor_on_command_line(ModeProcessor, args, infile)
+
+
+@pytest.mark.parametrize(
+    ("infile", "args"), [(infiles["RGB"], "-h"), skip_if_ci(infiles["L"], "")],
+)
+def test_potrace_external(infile: str, args: str) -> None:
+    run_processor_on_command_line(PotraceExternalProcessor, args, infile)
 
 
 @pytest.mark.parametrize(

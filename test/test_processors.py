@@ -24,6 +24,7 @@ from pipescaler.processors import (
     HeightToNormalProcessor,
     ModeProcessor,
     PngquantProcessor,
+    PotraceExternalProcessor,
     ResizeProcessor,
     SolidColorProcessor,
     TexconvProcessor,
@@ -67,6 +68,11 @@ def height_to_normal_processor(request) -> HeightToNormalProcessor:
 @pytest.fixture()
 def mode_processor(request) -> ModeProcessor:
     return ModeProcessor(**request.param)
+
+
+@pytest.fixture()
+def potrace_external_processor(request) -> PotraceExternalProcessor:
+    return PotraceExternalProcessor(**request.param)
 
 
 @pytest.fixture()
@@ -285,6 +291,35 @@ def test_pngquant(infile: str, pngquant_processor: PngquantProcessor) -> None:
             assert output_image.mode in (input_image.mode, "P")
             assert output_image.size == input_image.size
             assert getsize(outfile) <= getsize(infile)
+
+
+@pytest.mark.parametrize(
+    ("infile", "potrace_external_processor"),
+    [
+        (infiles["L"], {}),
+        (infiles["L"], {"scale": 2}),
+        xfail_unsupported_mode(infiles["LA"], {}),
+        (infiles["PL"], {}),
+        xfail_unsupported_mode(infiles["PLA"], {}),
+        xfail_unsupported_mode(infiles["PRGB"], {}),
+        xfail_unsupported_mode(infiles["PRGBA"], {}),
+        xfail_unsupported_mode(infiles["RGB"], {}),
+        xfail_unsupported_mode(infiles["RGBA"], {}),
+    ],
+    indirect=["potrace_external_processor"],
+)
+def test_potrace_external(
+    infile: str, potrace_external_processor: PotraceExternalProcessor
+) -> None:
+    with temporary_filename(".png") as outfile:
+        potrace_external_processor(infile, outfile)
+
+        with Image.open(infile) as input_image, Image.open(outfile) as output_image:
+            assert output_image.mode == "L"
+            assert output_image.size == (
+                input_image.size[0] * potrace_external_processor.scale,
+                input_image.size[1] * potrace_external_processor.scale,
+            )
 
 
 @pytest.mark.parametrize(

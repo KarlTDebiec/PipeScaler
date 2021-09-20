@@ -97,7 +97,14 @@ class TexconvProcessor(Processor):
             child = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)
             exitcode = child.wait(10)
             if exitcode != 0:
-                raise ValueError()  # TODO: Provide useful output
+                out, err = child.communicate()
+                raise ValueError(
+                    f"Texconv subprocess failed;\n\n"
+                    f"STDOUT\n"
+                    f"{out.decode('utf8')}\n\n"
+                    f"STDERR\n"
+                    f"{err.decode('utf8')}"
+                )
 
             # Write image
             copyfile(f"{tempfile[:-4]}.dds", outfile)  # TODO: Handle filetypes
