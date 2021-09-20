@@ -7,6 +7,7 @@ pytest-cov==2.12.1
 PyYAML==5.4.1
 scikit-image==0.18.1
 scipy==1.6.2
+svglib==1.1.0
 torch==1.9.0
 waifu2x==2021
 watchdog==2.1.3

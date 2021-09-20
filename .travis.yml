@@ -3,6 +3,8 @@ os: linux
 cache: pip
 python: 3.8
 before-install:
+  - sudo apt update
+  - sudo apt -y install potrace
   - export PYTHONPATH="${TRAVIS_BUILD_DIR}:${PYTHONPATH}"
 script:
   - pytest -v --cov=pipescaler --cov-report term test/
