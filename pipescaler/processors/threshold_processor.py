@@ -20,6 +20,7 @@ from pipescaler.core import (
     Processor,
     UnsupportedImageModeError,
     remove_palette_from_image,
+    validate_image,
 )
 
 
@@ -34,14 +35,7 @@ class ThresholdProcessor(Processor):
 
     def process_file(self, infile: str, outfile: str) -> None:
         # Read image
-        input_image = Image.open(infile)
-        if input_image.mode == "P":
-            input_image = remove_palette_from_image(input_image)
-        if input_image.mode != "L":
-            raise UnsupportedImageModeError(
-                f"Image mode '{input_image.mode}' of image '{infile}'"
-                f" is not supported by {type(self)}"
-            )
+        input_image, input_mode = validate_image(infile, ["L"])
 
         # Process image
         output_image = input_image.point(lambda p: p > self.threshold and 255)

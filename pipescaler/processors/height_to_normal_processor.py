@@ -24,6 +24,7 @@ from pipescaler.core import (
     gaussian_smooth_image,
     normal_map_from_heightmap,
     remove_palette_from_image,
+    validate_image,
 )
 
 
@@ -54,14 +55,7 @@ class HeightToNormalProcessor(Processor):
         """
 
         # Read image
-        input_image = Image.open(infile)
-        if input_image.mode == "P":
-            input_image = remove_palette_from_image(input_image)
-        if input_image.mode != "L":
-            raise UnsupportedImageModeError(
-                f"Image mode '{input_image.mode}' of image '{infile}'"
-                f" is not supported by {type(self)}"
-            )
+        input_image, input_mode = validate_image(infile, ["L"])
 
         # Process image
         expanded_image = expand_image(input_image, 8, 8, 8, 8)
