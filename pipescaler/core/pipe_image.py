@@ -24,7 +24,7 @@ class PipeImage:
 
         self.parent = parent
         if self.parent is None:
-            self.name = splitext(basename(self.filename))[0]
+            self.name = self.filename
         else:
             self.name = self.parent.name
 
