@@ -37,6 +37,8 @@ model_architectures = {k.lower(): v for k, v in archs.items()}
 
 
 class WaifuProcessor(Processor):
+    """Upscales and/or denoises using [waifu2x](https://github.com/nagadomi/waifu2x)."""
+
     architectures = {"resnet10", "upconv7", "upresnet10", "vgg7"}
 
     def __init__(
@@ -150,7 +152,7 @@ class WaifuProcessor(Processor):
         Returns:
             parser (ArgumentParser): Argument parser
         """
-        description = kwargs.get("description", __doc__.strip())
+        description = kwargs.get("description", cls.__doc__.strip())
         parser = super().construct_argparser(description=description, **kwargs)
 
         # Operations

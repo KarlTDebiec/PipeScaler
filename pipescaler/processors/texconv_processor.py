@@ -23,6 +23,8 @@ from pipescaler.core import Processor, UnsupportedPlatformError
 
 
 class TexconvProcessor(Processor):
+    """Converts using [Texconv](https://github.com/microsoft/DirectXTex)"""
+
     extension = "dds"
 
     def __init__(

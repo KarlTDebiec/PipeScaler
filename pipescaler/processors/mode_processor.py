@@ -20,6 +20,8 @@ from pipescaler.core import Processor, remove_palette_from_image
 
 
 class ModeProcessor(Processor):
+    """Converts mode between RGBA, RGB, LA, and L."""
+
     modes = ["RGBA", "RGB", "LA", "L"]
 
     def __init__(
@@ -72,7 +74,7 @@ class ModeProcessor(Processor):
         Returns:
             parser (ArgumentParser): Argument parser
         """
-        description = kwargs.get("description", __doc__.strip())
+        description = kwargs.get("description", cls.__doc__.strip())
         parser = super().construct_argparser(description=description, **kwargs)
 
         # Operations

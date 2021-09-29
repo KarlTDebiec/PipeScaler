@@ -6,16 +6,6 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""
-Processes an image using ESRGAN.
-
-Supports both old and new architecture models
-
-Adapted from ESRGAN (https://github.com/xinntao/ESRGAN) and Colab-ESRGAN
-(https://github.com/styler00dollar/Colab-ESRGAN), both licensed under the
-`Apache 2.0 License
-(https://raw.githubusercontent.com/xinntao/ESRGAN/master/LICENSE).
-"""
 from __future__ import annotations
 
 import collections
@@ -37,6 +27,17 @@ from pipescaler.core import (
 
 
 class ESRGANProcessor(Processor):
+    """
+    Upscales and/or denoises using [ESRGAN](https://github.com/xinntao/ESRGAN).
+
+    Supports both old and new architecture models
+
+    Adapted from ESRGAN (https://github.com/xinntao/ESRGAN) and Colab-ESRGAN
+    (https://github.com/styler00dollar/Colab-ESRGAN), both licensed under the
+    `Apache 2.0 License
+    (https://raw.githubusercontent.com/xinntao/ESRGAN/master/LICENSE).
+    """
+
     class ResidualDenseBlock5C(torch.nn.Module):
         def __init__(self, nf=64, gc=32, bias=True):
             super().__init__()
@@ -256,7 +257,7 @@ class ESRGANProcessor(Processor):
         Returns:
             parser (ArgumentParser): Argument parser
         """
-        description = kwargs.get("description", __doc__.strip())
+        description = kwargs.get("description", cls.__doc__.strip())
         parser = super().construct_argparser(description=description, **kwargs)
 
         # Input

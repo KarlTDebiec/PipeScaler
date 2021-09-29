@@ -28,6 +28,8 @@ from pipescaler.core import (
 
 
 class HeightToNormalProcessor(Processor):
+    """Converts a height map to a normal map."""
+
     def __init__(self, sigma: Optional[int] = None, **kwargs: Any) -> None:
         """
         Validates and stores static configuration.
@@ -84,7 +86,7 @@ class HeightToNormalProcessor(Processor):
         Returns:
             parser (ArgumentParser): Argument parser
         """
-        description = kwargs.get("description", __doc__.strip())
+        description = kwargs.get("description", cls.__doc__.strip())
         parser = super().construct_argparser(description=description, **kwargs)
 
         # Operations
