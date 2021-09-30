@@ -6,10 +6,10 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-""""""
 from __future__ import annotations
 
 from argparse import ArgumentParser
+from inspect import cleandoc
 from logging import info
 from typing import Any, List, Optional, Tuple
 
@@ -27,6 +27,8 @@ from pipescaler.core import (
 
 
 class XbrzProcessor(Processor):
+    """Upscales image using [xbrz](https://github.com/ioistired/xbrz.py)."""
+
     def __init__(self, scale: int = 4, **kwargs: Any) -> None:
         """
         Validates and stores static configuration.
@@ -82,10 +84,13 @@ class XbrzProcessor(Processor):
         """
         Constructs argument parser.
 
+        Args:
+            kwargs (Any): Additional keyword arguments
+
         Returns:
             parser (ArgumentParser): Argument parser
         """
-        description = kwargs.get("description", __doc__.strip())
+        description = kwargs.get("description", cleandoc(cls.__doc__))
         parser = super().construct_argparser(description=description, **kwargs)
 
         # Input

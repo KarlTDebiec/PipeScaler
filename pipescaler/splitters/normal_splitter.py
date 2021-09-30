@@ -23,6 +23,8 @@ from pipescaler.core import (
 
 
 class NormalSplitter(Splitter):
+    """Splits a normal map image into separate x, y, and z images."""
+
     def __call__(self, infile: str, **kwargs: Any) -> Dict[str, str]:
         outfiles = {k: kwargs.get(k) for k in self.outlets}
 

@@ -16,6 +16,8 @@ from pipescaler.sources import DirectorySource
 
 
 class TexmodSource(DirectorySource):
+    """Yields images dumped by [TexMod](https://www.moddb.com/downloads/texmod4)."""
+
     @staticmethod
     def sort(filename):
         try:

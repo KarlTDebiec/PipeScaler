@@ -20,6 +20,8 @@ from pipescaler.core import Merger, validate_image
 
 
 class ColorMatchMerger(Merger):
+    """Matches an image's color histogram to that of a reference image."""
+
     def __call__(self, outfile: str, **kwargs: Any) -> None:
         infiles = {k: kwargs.get(k) for k in self.inlets}
 

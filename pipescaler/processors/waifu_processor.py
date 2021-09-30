@@ -10,7 +10,7 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
-from inspect import getfile
+from inspect import cleandoc, getfile
 from logging import info
 from os.path import dirname, join
 from typing import Any
@@ -37,6 +37,10 @@ model_architectures = {k.lower(): v for k, v in archs.items()}
 
 
 class WaifuProcessor(Processor):
+    """
+    Upscales and/or denoises image using [waifu2x](https://github.com/nagadomi/waifu2x).
+    """
+
     architectures = {"resnet10", "upconv7", "upresnet10", "vgg7"}
 
     def __init__(
@@ -147,10 +151,13 @@ class WaifuProcessor(Processor):
         """
         Constructs argument parser.
 
+        Args:
+            kwargs (Any): Additional keyword arguments
+
         Returns:
             parser (ArgumentParser): Argument parser
         """
-        description = kwargs.get("description", __doc__.strip())
+        description = kwargs.get("description", cleandoc(cls.__doc__))
         parser = super().construct_argparser(description=description, **kwargs)
 
         # Operations

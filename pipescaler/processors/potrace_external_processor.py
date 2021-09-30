@@ -10,6 +10,7 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
+from inspect import cleandoc
 from subprocess import PIPE, Popen
 from typing import Any
 
@@ -28,6 +29,11 @@ from pipescaler.core import (
 
 
 class PotraceExternalProcessor(Processor):
+    """
+    Traces image using [Potrace](http://potrace.sourceforge.net/) and re-rasterizes,
+    optionally resizing.
+    """
+
     def __init__(
         self,
         invert: float = False,
@@ -99,14 +105,18 @@ class PotraceExternalProcessor(Processor):
         output_image.save(outfile)
 
     @classmethod
-    def construct_argparser(cls) -> ArgumentParser:
+    def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
         Constructs argument parser.
+
+        Args:
+            kwargs (Any): Additional keyword arguments
 
         Returns:
             parser (ArgumentParser): Argument parser
         """
-        parser = super().construct_argparser(description=__doc__)
+        description = kwargs.get("description", cleandoc(cls.__doc__))
+        parser = super().construct_argparser(description=description, **kwargs)
 
         parser.add_argument(
             "--invert",

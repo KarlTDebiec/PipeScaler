@@ -19,6 +19,8 @@ from pipescaler.core import Merger, UnsupportedImageModeError, remove_palette_fr
 
 
 class NormalMerger(Merger):
+    """Merges x, y, and z images into a single normal map image."""
+
     def __call__(self, outfile: str, **kwargs: Any) -> None:
         infiles = {k: kwargs.get(k) for k in self.inlets}
 

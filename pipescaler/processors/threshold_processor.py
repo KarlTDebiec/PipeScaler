@@ -6,10 +6,10 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-""""""
 from __future__ import annotations
 
 from argparse import ArgumentParser
+from inspect import cleandoc
 from typing import Any, no_type_check
 
 import numba as nb
@@ -25,6 +25,8 @@ from pipescaler.core import (
 
 
 class ThresholdProcessor(Processor):
+    """Converts image to black and white using threshold, optionally denoising."""
+
     def __init__(
         self, threshold: int = 128, denoise: bool = False, **kwargs: Any
     ) -> None:
@@ -49,14 +51,18 @@ class ThresholdProcessor(Processor):
         output_image.save(outfile)
 
     @classmethod
-    def construct_argparser(cls) -> ArgumentParser:
+    def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
         Constructs argument parser.
+
+        Args:
+            kwargs (Any): Additional keyword arguments
 
         Returns:
             parser (ArgumentParser): Argument parser
         """
-        parser = super().construct_argparser(description=__doc__)
+        description = kwargs.get("description", cleandoc(cls.__doc__))
+        parser = super().construct_argparser(description=description, **kwargs)
 
         parser.add_argument(
             "--threshold",

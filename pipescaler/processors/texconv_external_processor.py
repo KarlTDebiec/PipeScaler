@@ -1,15 +1,15 @@
 #!/usr/bin/env python
-#   pipescaler/processors/texconv_processor.py
+#   pipescaler/processors/texconv_external_processor.py
 #
 #   Copyright (C) 2020-2021 Karl T Debiec
 #   All rights reserved.
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-""""""
 from __future__ import annotations
 
 from argparse import ArgumentParser
+from inspect import cleandoc
 from logging import debug, info
 from os.path import basename, join
 from platform import win32_ver
@@ -22,7 +22,12 @@ from pipescaler.common import validate_executable
 from pipescaler.core import Processor, UnsupportedPlatformError
 
 
-class TexconvProcessor(Processor):
+class TexconvExternalProcessor(Processor):
+    """
+    Compresses image using
+    [Texconv](https://github.com/Microsoft/DirectXTex/wiki/Texconv).
+    """
+
     extension = "dds"
 
     def __init__(
@@ -115,10 +120,13 @@ class TexconvProcessor(Processor):
         """
         Constructs argument parser.
 
+        Args:
+            kwargs (Any): Additional keyword arguments
+
         Returns:
             parser (ArgumentParser): Argument parser
         """
-        description = kwargs.get("description", __doc__.strip())
+        description = kwargs.get("description", cleandoc(cls.__doc__))
         parser = super().construct_argparser(description=description, **kwargs)
 
         parser.add_argument(
@@ -140,4 +148,4 @@ class TexconvProcessor(Processor):
 
 
 if __name__ == "__main__":
-    TexconvProcessor.main()
+    TexconvExternalProcessor.main()

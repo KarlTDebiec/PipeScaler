@@ -6,10 +6,10 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-""""""
 from __future__ import annotations
 
 from argparse import ArgumentParser
+from inspect import cleandoc
 from logging import info
 from typing import Any
 
@@ -25,6 +25,11 @@ from pipescaler.core import (
 
 
 class ResizeProcessor(Processor):
+    """
+    Resizes image canvas using bicubic, bilinear, lanczos, or nearest-neighbor
+    interpolation.
+    """
+
     resample_methods = {
         "bicubic": Image.BICUBIC,
         "bilinear": Image.BILINEAR,
@@ -113,10 +118,13 @@ class ResizeProcessor(Processor):
         """
         Constructs argument parser.
 
+        Args:
+            kwargs (Any): Additional keyword arguments
+
         Returns:
             parser (ArgumentParser): Argument parser
         """
-        description = kwargs.get("description", __doc__.strip())
+        description = kwargs.get("description", cleandoc(cls.__doc__))
         parser = super().construct_argparser(description=description, **kwargs)
 
         # Operations

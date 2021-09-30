@@ -6,18 +6,10 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""
-Processes an image using waifu.
-
-Requires the macOS version of waifu2x (https://github.com/imxieyi/waifu2x-mac)
-in the executor's path.
-Provides two improvements over running waifu2x directly:
-1. If image is below waifu2x's minimum size, expands canvas.
-2. Eliminates edge effects by reflecting image around edges.
-"""
 from __future__ import annotations
 
 from argparse import ArgumentParser
+from inspect import cleandoc
 from logging import debug, info
 from os import remove
 from platform import win32_ver
@@ -40,6 +32,22 @@ from pipescaler.core import (
 
 
 class WaifuExternalProcessor(Processor):
+    """
+    Upscales and/or denoises image using [waifu2x](https://github.com/nagadomi/waifu2x).
+
+    On Windows, requires [waifu2x-caffe](https://github.com/lltcggie/waifu2x-caffe) in
+    the executor's path.
+
+    On Linux, support is untested but likely achievable with minimal effort.
+
+    On macOS, requires [waifu2x-mac](https://github.com/imxieyi/waifu2x-mac) in the
+    executor's path.
+
+    Provides two improvements over running waifu2x directly:
+    1. If image is below waifu2x's minimum size, expands canvas.
+    2. Eliminates edge effects by reflecting image around edges.
+    """
+
     models = {"windows": ["a"], "unix": ["a", "p"]}
 
     def __init__(
@@ -174,10 +182,13 @@ class WaifuExternalProcessor(Processor):
         """
         Constructs argument parser.
 
+        Args:
+            kwargs (Any): Additional keyword arguments
+
         Returns:
             parser (ArgumentParser): Argument parser
         """
-        description = kwargs.get("description", __doc__.strip())
+        description = kwargs.get("description", cleandoc(cls.__doc__))
         parser = super().construct_argparser(description=description, **kwargs)
 
         # Operations

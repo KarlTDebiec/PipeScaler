@@ -23,11 +23,11 @@ from pipescaler.processors import (
     ExpandProcessor,
     HeightToNormalProcessor,
     ModeProcessor,
-    PngquantProcessor,
+    PngquantExternalProcessor,
     PotraceExternalProcessor,
     ResizeProcessor,
     SolidColorProcessor,
-    TexconvProcessor,
+    TexconvExternalProcessor,
     ThresholdProcessor,
     WaifuExternalProcessor,
     WaifuProcessor,
@@ -76,8 +76,8 @@ def potrace_external_processor(request) -> PotraceExternalProcessor:
 
 
 @pytest.fixture()
-def pngquant_processor(request) -> PngquantProcessor:
-    return PngquantProcessor(**request.param)
+def pngquant_processor(request) -> PngquantExternalProcessor:
+    return PngquantExternalProcessor(**request.param)
 
 
 @pytest.fixture()
@@ -91,8 +91,8 @@ def solid_color_processor(request) -> SolidColorProcessor:
 
 
 @pytest.fixture()
-def texconv_processor(request) -> TexconvProcessor:
-    return TexconvProcessor(**request.param)
+def texconv_processor(request) -> TexconvExternalProcessor:
+    return TexconvExternalProcessor(**request.param)
 
 
 @pytest.fixture()
@@ -283,7 +283,7 @@ def test_mode(infile: str, mode_processor: ModeProcessor) -> None:
     ],
     indirect=["pngquant_processor"],
 )
-def test_pngquant(infile: str, pngquant_processor: PngquantProcessor) -> None:
+def test_pngquant(infile: str, pngquant_processor: PngquantExternalProcessor) -> None:
     with temporary_filename(".png") as outfile:
         pngquant_processor(infile, outfile)
 
@@ -394,7 +394,7 @@ def test_solid_color(infile: str, solid_color_processor: SolidColorProcessor) ->
     ],
     indirect=["texconv_processor"],
 )
-def test_texconv(infile: str, texconv_processor: TexconvProcessor) -> None:
+def test_texconv(infile: str, texconv_processor: TexconvExternalProcessor) -> None:
     with temporary_filename(".png") as outfile:
         texconv_processor(infile, outfile)
 
