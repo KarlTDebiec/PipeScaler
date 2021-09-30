@@ -27,7 +27,7 @@ from pipescaler.processors import (
     PotraceExternalProcessor,
     ResizeProcessor,
     SolidColorProcessor,
-    TexconvProcessor,
+    TexconvExternalProcessor,
     ThresholdProcessor,
     WaifuExternalProcessor,
     WaifuProcessor,
@@ -91,8 +91,8 @@ def solid_color_processor(request) -> SolidColorProcessor:
 
 
 @pytest.fixture()
-def texconv_processor(request) -> TexconvProcessor:
-    return TexconvProcessor(**request.param)
+def texconv_processor(request) -> TexconvExternalProcessor:
+    return TexconvExternalProcessor(**request.param)
 
 
 @pytest.fixture()
@@ -394,7 +394,7 @@ def test_solid_color(infile: str, solid_color_processor: SolidColorProcessor) ->
     ],
     indirect=["texconv_processor"],
 )
-def test_texconv(infile: str, texconv_processor: TexconvProcessor) -> None:
+def test_texconv(infile: str, texconv_processor: TexconvExternalProcessor) -> None:
     with temporary_filename(".png") as outfile:
         texconv_processor(infile, outfile)
 

@@ -21,7 +21,7 @@ from pipescaler.core import Processor, remove_palette_from_image
 
 
 class ModeProcessor(Processor):
-    """Converts image mode."""
+    """Converts mode of image."""
 
     modes = ["RGBA", "RGB", "LA", "L"]
 

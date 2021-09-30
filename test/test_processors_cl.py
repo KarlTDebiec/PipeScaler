@@ -26,7 +26,7 @@ from pipescaler.processors import (
     PotraceExternalProcessor,
     ResizeProcessor,
     SolidColorProcessor,
-    TexconvProcessor,
+    TexconvExternalProcessor,
     ThresholdProcessor,
     WaifuExternalProcessor,
     WaifuProcessor,
@@ -145,7 +145,7 @@ def test_solid_color(infile: str, args: str) -> None:
     ],
 )
 def test_texconv(infile: str, args: str) -> None:
-    run_processor_on_command_line(TexconvProcessor, args, infile)
+    run_processor_on_command_line(TexconvExternalProcessor, args, infile)
 
 
 @pytest.mark.parametrize(

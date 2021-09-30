@@ -18,7 +18,7 @@ from pipescaler.core import Sorter, parse_file_list
 
 
 class ListSorter(Sorter):
-    """Sorts based on filename using a set of configured lists."""
+    """Sorts image based on filename using a set of configured lists."""
 
     exclusions = {".DS_Store", "desktop"}
 

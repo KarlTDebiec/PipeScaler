@@ -18,7 +18,7 @@ from pipescaler.core import Sorter, UnsupportedImageModeError, remove_palette_fr
 
 
 class ModeSorter(Sorter):
-    """Sorts based on mode."""
+    """Sorts image based on mode."""
 
     def __call__(self, infile: str) -> str:
 

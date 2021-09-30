@@ -23,7 +23,7 @@ from pipescaler.processors.potrace_external_processor import PotraceExternalProc
 from pipescaler.processors.resize_processor import ResizeProcessor
 from pipescaler.processors.side_channel_processor import SideChannelProcessor
 from pipescaler.processors.solid_color_processor import SolidColorProcessor
-from pipescaler.processors.texconv_processor import TexconvProcessor
+from pipescaler.processors.texconv_external_processor import TexconvExternalProcessor
 from pipescaler.processors.threshold_processor import ThresholdProcessor
 from pipescaler.processors.waifu_external_processor import WaifuExternalProcessor
 from pipescaler.processors.waifu_processor import WaifuProcessor
@@ -42,7 +42,7 @@ __all__: List[str] = [
     "ResizeProcessor",
     "SideChannelProcessor",
     "SolidColorProcessor",
-    "TexconvProcessor",
+    "TexconvExternalProcessor",
     "ThresholdProcessor",
     "WaifuProcessor",
     "WaifuExternalProcessor",

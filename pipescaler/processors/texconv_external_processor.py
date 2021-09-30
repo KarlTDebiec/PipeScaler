@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/processors/texconv_processor.py
+#   pipescaler/processors/texconv_external_processor.py
 #
 #   Copyright (C) 2020-2021 Karl T Debiec
 #   All rights reserved.
@@ -22,7 +22,7 @@ from pipescaler.common import validate_executable
 from pipescaler.core import Processor, UnsupportedPlatformError
 
 
-class TexconvProcessor(Processor):
+class TexconvExternalProcessor(Processor):
     """
     Compresses image using
     [Texconv](https://github.com/Microsoft/DirectXTex/wiki/Texconv).
@@ -148,4 +148,4 @@ class TexconvProcessor(Processor):
 
 
 if __name__ == "__main__":
-    TexconvProcessor.main()
+    TexconvExternalProcessor.main()
