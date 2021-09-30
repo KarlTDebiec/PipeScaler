@@ -17,20 +17,20 @@ PipeScaler includes the following image sources:
 * [TexmodSource](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/sources/texmod_source.py) - Yields images dumped by [TexMod](https://www.moddb.com/downloads/texmod4).
 
 PipeScaler includes the following image processors:
-* [AppleScriptProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/apple_script_processor.py)
-* [AutomatorProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/automator_processor.py)
-* [CropProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/crop_processor.py)
+* [AppleScriptProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/apple_script_processor.py) - Runs through an [AppleScript](https://developer.apple.com/library/archive/documentation/AppleScript/Conceptual/AppleScriptLangGuide/introduction/ASLR_intro.html); for example using [Pixelmator Pro](https://www.pixelmator.com/support/guide/pixelmator-pro/1270/).
+* [AutomatorProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/automator_processor.py) - Runs through an [Automator QuickAction](https://support.apple.com/guide/automator/welcome/mac); for example using [Pixelmator Pro](https://www.pixelmator.com/support/guide/pixelmator-pro/1270/).
+* [CropProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/crop_processor.py) - Crops canvas.
 * [ESRGANProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/esrgan_processor.py) - Upscales and/or denoises using [ESRGAN](https://github.com/xinntao/ESRGAN).
-* [ExpandProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/expand_processor.py)
+* [ExpandProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/expand_processor.py) - Expands canvas.
 * [HeightToNormalProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/height_to_normal_processor.py) - Converts a height map to a normal map.
 * [ModeProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/mode_processor.py) - Converts mode between RGBA, RGB, LA, and L.
-* [PotraceExternalProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/potrace_external_processor.py)
-* [PngquantProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/pngquant_processor.py)
-* [ResizeProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/resize_processor.py)
-* [SideChannelProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/side_channel_processor.py)
-* [SolidColorProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/solid_color_processor.py)
-* [TexconvProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/texconv_processor.py) - Converts using [Texconv](https://github.com/microsoft/DirectXTex)
-* [ThresholdProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/threshold_processor.py)
+* [PotraceExternalProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/potrace_external_processor.py) - Traces using [Potrace](http://potrace.sourceforge.net/) and re-rasterizes, optionally resizing.
+* [PngquantExternalProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/pngquant_external_processor.py) - Compresses palette using [pngquant](https://pngquant.org/)
+* [ResizeProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/resize_processor.py) - Resizes canvas.
+* [SideChannelProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/side_channel_processor.py) - Replaces image with an alternative from a directory.
+* [SolidColorProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/solid_color_processor.py) - Sets entire canvas to average color, optionally resizing.
+* [TexconvProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/texconv_processor.py) - Compresses to DDS using [Texconv](https://github.com/microsoft/DirectXTex)
+* [ThresholdProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/threshold_processor.py) - Converts to black and white using threshold, optionally denoising.
 * [WaifuProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/waifu_processor.py) - Upscales and/or denoises using [waifu2x](https://github.com/nagadomi/waifu2x).
 * [WaifuExternalProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/waifu_external_processor.py) - Upscales and/or denoises using [waifu2x](https://github.com/nagadomi/waifu2x).
 * [XbrzProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/xbrz_processor.py) - Upscales using [xbrz](https://github.com/ioistired/xbrz.py).
@@ -57,4 +57,3 @@ PipeScaler includes the following image sorters:
 
 PipeScaler includes the following image termini:
 * [CopyFileTerminus](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/termini/copy_file_terminus.py)
-

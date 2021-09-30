@@ -10,7 +10,7 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
-I'lfrom inspect import cleandoc, getfile
+from inspect import cleandoc, getfile
 from logging import info
 from os.path import dirname, join
 from typing import Any
