@@ -22,7 +22,7 @@ from pipescaler.processors import (
     ExpandProcessor,
     HeightToNormalProcessor,
     ModeProcessor,
-    PngquantProcessor,
+    PngquantExternalProcessor,
     PotraceExternalProcessor,
     ResizeProcessor,
     SolidColorProcessor,
@@ -120,7 +120,7 @@ def test_potrace_external(infile: str, args: str) -> None:
     ("infile", "args"), [(infiles["RGB"], "-h"), skip_if_ci(infiles["RGB"], ""),],
 )
 def test_pngquant(infile: str, args: str) -> None:
-    run_processor_on_command_line(PngquantProcessor, args, infile)
+    run_processor_on_command_line(PngquantExternalProcessor, args, infile)
 
 
 @pytest.mark.parametrize(

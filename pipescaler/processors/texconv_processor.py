@@ -6,10 +6,10 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-""""""
 from __future__ import annotations
 
 from argparse import ArgumentParser
+from inspect import cleandoc
 from logging import debug, info
 from os.path import basename, join
 from platform import win32_ver
@@ -23,7 +23,7 @@ from pipescaler.core import Processor, UnsupportedPlatformError
 
 
 class TexconvProcessor(Processor):
-    """Converts using [Texconv](https://github.com/microsoft/DirectXTex)"""
+    """Compresses to DDS using [Texconv](https://github.com/microsoft/DirectXTex)"""
 
     extension = "dds"
 
@@ -120,7 +120,7 @@ class TexconvProcessor(Processor):
         Returns:
             parser (ArgumentParser): Argument parser
         """
-        description = kwargs.get("description", __doc__.strip())
+        description = kwargs.get("description", cleandoc(cls.__doc__))
         parser = super().construct_argparser(description=description, **kwargs)
 
         parser.add_argument(

@@ -8,7 +8,7 @@
 #   BSD license.
 """Updates readme."""
 import re
-from inspect import getfile
+from inspect import cleandoc, getfile
 from os.path import dirname, join, splitext
 from pathlib import Path
 
@@ -34,7 +34,7 @@ def get_stage_descriptions(module):
         if doc is None:
             section += f"* [{name}]({link})\n"
         else:
-            doc_lines = [l.strip() for l in processor.__doc__.strip().split("\n")]
+            doc_lines = cleandoc(processor.__doc__).split("\n")
             try:
                 doc_head = " ".join(line for line in doc_lines[: doc_lines.index("")])
             except ValueError:
@@ -44,10 +44,11 @@ def get_stage_descriptions(module):
 
 
 if __name__ == "__main__":
-    modules = {
-        re.compile(f"^.*{splitext(module.__name__)[-1].lstrip('.')}:$"): module
-        for module in [mergers, processors, sorters, sources, splitters, termini]
-    }
+    modules = {}
+    for module in [mergers, processors, sorters, sources, splitters, termini]:
+        module_name = splitext(module.__name__)[-1].lstrip(".")
+        regex = re.compile(r"(startText)(.+)((?:\n.+)+)(endText)", re.MULTILINE)
+        modules[regex] = module
 
     readme_filename = validate_input_path(join(dirname(package_root), "README.md"))
     with open(readme_filename, "r") as readme:

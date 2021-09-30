@@ -10,6 +10,7 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
+from inspect import cleandoc
 from logging import info
 from typing import Any
 
@@ -25,6 +26,8 @@ from pipescaler.core import (
 
 
 class SolidColorProcessor(Processor):
+    """Sets entire canvas to average color, optionally resizing."""
+
     def __init__(self, scale: float = 1, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
@@ -78,7 +81,7 @@ class SolidColorProcessor(Processor):
         Returns:
             parser (ArgumentParser): Argument parser
         """
-        description = kwargs.get("description", __doc__.strip())
+        description = kwargs.get("description", cleandoc(cls.__doc__))
         parser = super().construct_argparser(description=description, **kwargs)
 
         # Operations

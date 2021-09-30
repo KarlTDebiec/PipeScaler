@@ -4,16 +4,11 @@
 [![Code Style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![License: BSD 3-Clause](https://img.shields.io/badge/license-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 
-PipeScaler is a package for processing collections of images with a focus on increasing
-resolution. Users define a pipeline of image sorters, processors, splitters, and mergers
-to apply different operations to images in a collection depending on their contents.
-Pipescaler has integrated support for [ESRGAN](https://github.com/xinntao/ESRGAN) (both
-old and new architectures) and wraps around the external tools
-[Pixelmator](https://www.pixelmator.com/pro/),
-[potrace](http://potrace.sourceforge.net),
-[pngquant](http://potrace.sourceforge.net),
-[texconv](https://github.com/microsoft/DirectXTex/releases), and
-[waifu2x](https://github.com/nagadomi/waifu2x).
+PipeScaler is a package for processing collections of images with a focus on improving
+quality and increasing resolution. Users define a pipeline in which image flow from a
+source through a series of sorters, processors, splitters, and mergers into a terminus.
+Intermediate images along the pipeline are stored to allow processing to be tracked,
+and stopped and resumed.
 
 PipeScaler includes the following image sources:
 * [CitraSource](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/sources/citra_source.py) - Yields images dumped by [Citra](https://citra-emu.org).

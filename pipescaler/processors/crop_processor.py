@@ -6,10 +6,10 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-""""""
 from __future__ import annotations
 
 from argparse import ArgumentParser
+from inspect import cleandoc
 from logging import info
 from typing import Any, Tuple
 
@@ -20,6 +20,8 @@ from pipescaler.core import Processor, crop_image
 
 
 class CropProcessor(Processor):
+    """Crops canvas."""
+
     def __init__(self, pixels: Tuple[int], **kwargs: Any) -> None:
         """
         Validates and stores static configuration.
@@ -69,7 +71,7 @@ class CropProcessor(Processor):
         Returns:
             parser (ArgumentParser): Argument parser
         """
-        description = kwargs.get("description", __doc__.strip())
+        description = kwargs.get("description", cleandoc(cls.__doc__))
         parser = super().construct_argparser(description=description, **kwargs)
 
         # Operations

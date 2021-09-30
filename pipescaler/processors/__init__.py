@@ -18,7 +18,7 @@ from pipescaler.processors.esrgan_processor import ESRGANProcessor
 from pipescaler.processors.expand_processor import ExpandProcessor
 from pipescaler.processors.height_to_normal_processor import HeightToNormalProcessor
 from pipescaler.processors.mode_processor import ModeProcessor
-from pipescaler.processors.pngquant_processor import PngquantProcessor
+from pipescaler.processors.pngquant_external_processor import PngquantExternalProcessor
 from pipescaler.processors.potrace_external_processor import PotraceExternalProcessor
 from pipescaler.processors.resize_processor import ResizeProcessor
 from pipescaler.processors.side_channel_processor import SideChannelProcessor
@@ -38,7 +38,7 @@ __all__: List[str] = [
     "HeightToNormalProcessor",
     "ModeProcessor",
     "PotraceExternalProcessor",
-    "PngquantProcessor",
+    "PngquantExternalProcessor",
     "ResizeProcessor",
     "SideChannelProcessor",
     "SolidColorProcessor",
