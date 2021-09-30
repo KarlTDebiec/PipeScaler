@@ -29,7 +29,7 @@ from pipescaler.core import (
 
 class PotraceExternalProcessor(Processor):
     """
-    Traces using [Potrace](http://potrace.sourceforge.net/) and re-rasterizes,
+    Traces image using [Potrace](http://potrace.sourceforge.net/) and re-rasterizes,
     optionally resizing.
     """
 

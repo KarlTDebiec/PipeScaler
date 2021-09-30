@@ -21,7 +21,7 @@ from pipescaler.core import Processor, parse_file_list
 
 
 class SideChannelProcessor(Processor):
-    """Replaces image with an alternative from a directory."""
+    """Replaces image with an alternative sourced from a defined directory."""
 
     def __init__(
         self,

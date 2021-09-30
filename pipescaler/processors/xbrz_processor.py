@@ -26,7 +26,7 @@ from pipescaler.core import (
 
 
 class XbrzProcessor(Processor):
-    """Upscales using [xbrz](https://github.com/ioistired/xbrz.py)."""
+    """Upscales image using [xbrz](https://github.com/ioistired/xbrz.py)."""
 
     def __init__(self, scale: int = 4, **kwargs: Any) -> None:
         """

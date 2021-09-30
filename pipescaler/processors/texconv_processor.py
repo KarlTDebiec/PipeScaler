@@ -23,7 +23,10 @@ from pipescaler.core import Processor, UnsupportedPlatformError
 
 
 class TexconvProcessor(Processor):
-    """Compresses to DDS format using [Texconv](https://github.com/microsoft/DirectXTex)"""
+    """
+    Compresses image using
+    [Texconv](https://github.com/Microsoft/DirectXTex/wiki/Texconv).
+    """
 
     extension = "dds"
 

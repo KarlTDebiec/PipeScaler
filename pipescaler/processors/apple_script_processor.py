@@ -27,9 +27,10 @@ from pipescaler.core import Processor, UnsupportedPlatformError
 
 class AppleScriptProcessor(Processor):
     """
-    Runs through an
+    Runs image through an
     [AppleScript](https://developer.apple.com/library/archive/documentation/AppleScript/Conceptual/AppleScriptLangGuide/introduction/ASLR_intro.html);
-    for example using [Pixelmator Pro](https://www.pixelmator.com/support/guide/pixelmator-pro/1270/).
+    for example using
+    [Pixelmator Pro](https://www.pixelmator.com/support/guide/pixelmator-pro/1270/).
     """
 
     def __init__(self, script: str, args: str = "", **kwargs: Any) -> None:

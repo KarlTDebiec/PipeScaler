@@ -25,7 +25,10 @@ from pipescaler.core import (
 
 
 class ResizeProcessor(Processor):
-    """Resizes canvas."""
+    """
+    Resizes image canvas using bicubic, bilinear, lanczos, or nearest-neighbor
+    interpolation.
+    """
 
     resample_methods = {
         "bicubic": Image.BICUBIC,

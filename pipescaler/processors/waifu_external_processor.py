@@ -33,7 +33,7 @@ from pipescaler.core import (
 
 class WaifuExternalProcessor(Processor):
     """
-    Upscales and/or denoises using [waifu2x](https://github.com/nagadomi/waifu2x).
+    Upscales and/or denoises image using [waifu2x](https://github.com/nagadomi/waifu2x).
 
     On Windows, requires [waifu2x-caffe](https://github.com/lltcggie/waifu2x-caffe) in
     the executor's path.

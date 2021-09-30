@@ -19,7 +19,7 @@ from pipescaler.core import Merger, UnsupportedImageModeError, remove_palette_fr
 
 
 class AlphaMerger(Merger):
-    """Merges alpha and color channels."""
+    """Merges alpha and color images into a single image with transparency."""
 
     def __call__(self, outfile: str, **kwargs: Any) -> None:
         infiles = {k: kwargs.get(k) for k in self.inlets}

@@ -20,7 +20,7 @@ from pipescaler.core import Processor, expand_image
 
 
 class ExpandProcessor(Processor):
-    """Expands canvas."""
+    """Expands image canvas."""
 
     def __init__(self, pixels: Tuple[int], **kwargs: Any) -> None:
         """

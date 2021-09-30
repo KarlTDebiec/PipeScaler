@@ -24,7 +24,7 @@ from pipescaler.core import (
 
 
 class ThresholdProcessor(Processor):
-    """Converts to black and white using threshold, optionally denoising."""
+    """Converts image to black and white using threshold, optionally denoising."""
 
     def __init__(
         self, threshold: int = 128, denoise: bool = False, **kwargs: Any

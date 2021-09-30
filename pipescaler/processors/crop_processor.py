@@ -20,7 +20,7 @@ from pipescaler.core import Processor, crop_image
 
 
 class CropProcessor(Processor):
-    """Crops canvas."""
+    """Crops image canvas."""
 
     def __init__(self, pixels: Tuple[int], **kwargs: Any) -> None:
         """

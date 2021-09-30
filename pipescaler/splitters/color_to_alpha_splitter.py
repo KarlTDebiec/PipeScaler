@@ -23,7 +23,10 @@ from pipescaler.core import (
 
 
 class ColorToAlphaSplitter(Splitter):
-    """Splits alpha and color channels, treating a defined color as transparent."""
+    """
+    Splits image with transparency into separate alpha and color images, treating a
+    defined color as transparent.
+    """
 
     def __init__(
         self, alpha_color: Any, smart_fill: bool = True, **kwargs: Any

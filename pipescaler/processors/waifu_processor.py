@@ -37,7 +37,9 @@ model_architectures = {k.lower(): v for k, v in archs.items()}
 
 
 class WaifuProcessor(Processor):
-    """Upscales and/or denoises using [waifu2x](https://github.com/nagadomi/waifu2x)."""
+    """
+    Upscales and/or denoises image using [waifu2x](https://github.com/nagadomi/waifu2x).
+    """
 
     architectures = {"resnet10", "upconv7", "upresnet10", "vgg7"}
 

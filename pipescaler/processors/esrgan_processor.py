@@ -29,9 +29,8 @@ from pipescaler.core import (
 
 class ESRGANProcessor(Processor):
     """
-    Upscales and/or denoises using [ESRGAN](https://github.com/xinntao/ESRGAN).
-
-    Supports both old and new architecture models
+    Upscales and/or denoises image using [ESRGAN](https://github.com/xinntao/ESRGAN);
+    supports both old and new architecture models.
 
     Adapted from ESRGAN (https://github.com/xinntao/ESRGAN) and Colab-ESRGAN
     (https://github.com/styler00dollar/Colab-ESRGAN), both licensed under the

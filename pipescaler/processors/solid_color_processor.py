@@ -26,7 +26,7 @@ from pipescaler.core import (
 
 
 class SolidColorProcessor(Processor):
-    """Sets entire canvas to its average color, optionally resizing."""
+    """Sets entire image canvas to its average color, optionally resizing canvas."""
 
     def __init__(self, scale: float = 1, **kwargs: Any) -> None:
         super().__init__(**kwargs)
