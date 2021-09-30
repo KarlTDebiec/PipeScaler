@@ -19,6 +19,8 @@ from pipescaler.core import Sorter
 
 
 class SizeSorter(Sorter):
+    """Sorts based on canvas size."""
+
     def __init__(self, cutoff: int = 32, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 

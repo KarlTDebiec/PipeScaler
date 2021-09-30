@@ -23,6 +23,8 @@ from pipescaler.core import (
 
 
 class AlphaSplitter(Splitter):
+    """Splits alpha and color channels."""
+
     def __init__(self, smart_fill: bool = False, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 

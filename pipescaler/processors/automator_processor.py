@@ -82,7 +82,6 @@ class AutomatorProcessor(Processor):
         workflow = kwargs.pop("workflow")
 
         with temporary_filename(".png") as tempfile:
-
             # Stage image
             copyfile(infile, tempfile)
 

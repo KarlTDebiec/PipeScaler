@@ -21,7 +21,7 @@ from pipescaler.core import Processor
 
 
 class PngquantExternalProcessor(Processor):
-    """Compresses palette using [pngquant](https://pngquant.org/)"""
+    """Compresses palette using [pngquant](https://pngquant.org/)."""
 
     def __init__(
         self,
@@ -89,6 +89,9 @@ class PngquantExternalProcessor(Processor):
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
         Constructs argument parser.
+
+        Args:
+            kwargs (Any): Additional keyword arguments
 
         Returns:
             parser (ArgumentParser): Argument parser

@@ -18,6 +18,8 @@ from pipescaler.core import Sorter
 
 
 class RegexSorter(Sorter):
+    """Sorts based on filename using a regular expression."""
+
     def __init__(self, regex: str, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 

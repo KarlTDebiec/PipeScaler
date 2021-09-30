@@ -11,6 +11,7 @@ from __future__ import annotations
 import collections
 from argparse import ArgumentParser
 from functools import partial
+from inspect import cleandoc
 from logging import info, warning
 from typing import Any
 
@@ -250,14 +251,17 @@ class ESRGANProcessor(Processor):
         info(f"{self}: '{outfile}' saved")
 
     @classmethod
-    def construct_argparser(cls, **kwargs) -> ArgumentParser:
+    def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
         Constructs argument parser.
+
+        Args:
+            kwargs (Any): Additional keyword arguments
 
         Returns:
             parser (ArgumentParser): Argument parser
         """
-        description = kwargs.get("description", cls.__doc__.strip())
+        description = kwargs.get("description", cleandoc(cls.__doc__))
         parser = super().construct_argparser(description=description, **kwargs)
 
         # Input

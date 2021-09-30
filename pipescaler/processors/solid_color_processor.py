@@ -26,7 +26,7 @@ from pipescaler.core import (
 
 
 class SolidColorProcessor(Processor):
-    """Sets entire canvas to average color, optionally resizing."""
+    """Sets entire canvas to its average color, optionally resizing."""
 
     def __init__(self, scale: float = 1, **kwargs: Any) -> None:
         super().__init__(**kwargs)
@@ -77,6 +77,9 @@ class SolidColorProcessor(Processor):
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
         Constructs argument parser.
+
+        Args:
+            kwargs (Any): Additional keyword arguments
 
         Returns:
             parser (ArgumentParser): Argument parser

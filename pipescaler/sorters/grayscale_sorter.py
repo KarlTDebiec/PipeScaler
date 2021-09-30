@@ -20,6 +20,8 @@ from pipescaler.core import Sorter, UnsupportedImageModeError, remove_palette_fr
 
 
 class GrayscaleSorter(Sorter):
+    """Sorts by presence and use of color."""
+
     def __init__(
         self, mean_threshold: float = 1, max_threshold: float = 10, **kwargs: Any
     ) -> None:

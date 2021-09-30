@@ -23,7 +23,7 @@ from pipescaler.core import Processor, UnsupportedPlatformError
 
 
 class TexconvProcessor(Processor):
-    """Compresses to DDS using [Texconv](https://github.com/microsoft/DirectXTex)"""
+    """Compresses to DDS format using [Texconv](https://github.com/microsoft/DirectXTex)"""
 
     extension = "dds"
 
@@ -116,6 +116,9 @@ class TexconvProcessor(Processor):
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
         Constructs argument parser.
+
+        Args:
+            kwargs (Any): Additional keyword arguments
 
         Returns:
             parser (ArgumentParser): Argument parser
