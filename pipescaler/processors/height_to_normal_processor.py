@@ -10,6 +10,7 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
+from inspect import cleandoc
 from logging import info
 from typing import Any, Optional, Tuple
 
@@ -28,6 +29,8 @@ from pipescaler.core import (
 
 
 class HeightToNormalProcessor(Processor):
+    """Converts height map image to a normal map image."""
+
     def __init__(self, sigma: Optional[int] = None, **kwargs: Any) -> None:
         """
         Validates and stores static configuration.
@@ -81,10 +84,13 @@ class HeightToNormalProcessor(Processor):
         """
         Constructs argument parser.
 
+        Args:
+            kwargs (Any): Additional keyword arguments
+
         Returns:
             parser (ArgumentParser): Argument parser
         """
-        description = kwargs.get("description", __doc__.strip())
+        description = kwargs.get("description", cleandoc(cls.__doc__))
         parser = super().construct_argparser(description=description, **kwargs)
 
         # Operations

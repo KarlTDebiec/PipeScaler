@@ -6,21 +6,12 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""
-Processes an image using ESRGAN.
-
-Supports both old and new architecture models
-
-Adapted from ESRGAN (https://github.com/xinntao/ESRGAN) and Colab-ESRGAN
-(https://github.com/styler00dollar/Colab-ESRGAN), both licensed under the
-`Apache 2.0 License
-(https://raw.githubusercontent.com/xinntao/ESRGAN/master/LICENSE).
-"""
 from __future__ import annotations
 
 import collections
 from argparse import ArgumentParser
 from functools import partial
+from inspect import cleandoc
 from logging import info, warning
 from typing import Any
 
@@ -37,6 +28,16 @@ from pipescaler.core import (
 
 
 class ESRGANProcessor(Processor):
+    """
+    Upscales and/or denoises image using [ESRGAN](https://github.com/xinntao/ESRGAN);
+    supports old and new architectures.
+
+    Adapted from ESRGAN (https://github.com/xinntao/ESRGAN) and Colab-ESRGAN
+    (https://github.com/styler00dollar/Colab-ESRGAN), both licensed under the
+    `Apache 2.0 License
+    (https://raw.githubusercontent.com/xinntao/ESRGAN/master/LICENSE).
+    """
+
     class ResidualDenseBlock5C(torch.nn.Module):
         def __init__(self, nf=64, gc=32, bias=True):
             super().__init__()
@@ -249,14 +250,17 @@ class ESRGANProcessor(Processor):
         info(f"{self}: '{outfile}' saved")
 
     @classmethod
-    def construct_argparser(cls, **kwargs) -> ArgumentParser:
+    def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
         Constructs argument parser.
+
+        Args:
+            kwargs (Any): Additional keyword arguments
 
         Returns:
             parser (ArgumentParser): Argument parser
         """
-        description = kwargs.get("description", __doc__.strip())
+        description = kwargs.get("description", cleandoc(cls.__doc__))
         parser = super().construct_argparser(description=description, **kwargs)
 
         # Input

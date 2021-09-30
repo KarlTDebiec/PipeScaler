@@ -20,6 +20,8 @@ from pipescaler.core import Sorter, UnsupportedImageModeError, remove_palette_fr
 
 
 class AlphaSorter(Sorter):
+    """Sorts image based on presence and use of alpha channel."""
+
     def __init__(self, threshold: int = 255, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 

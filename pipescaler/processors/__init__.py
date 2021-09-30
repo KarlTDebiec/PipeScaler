@@ -18,12 +18,12 @@ from pipescaler.processors.esrgan_processor import ESRGANProcessor
 from pipescaler.processors.expand_processor import ExpandProcessor
 from pipescaler.processors.height_to_normal_processor import HeightToNormalProcessor
 from pipescaler.processors.mode_processor import ModeProcessor
-from pipescaler.processors.pngquant_processor import PngquantProcessor
+from pipescaler.processors.pngquant_external_processor import PngquantExternalProcessor
 from pipescaler.processors.potrace_external_processor import PotraceExternalProcessor
 from pipescaler.processors.resize_processor import ResizeProcessor
 from pipescaler.processors.side_channel_processor import SideChannelProcessor
 from pipescaler.processors.solid_color_processor import SolidColorProcessor
-from pipescaler.processors.texconv_processor import TexconvProcessor
+from pipescaler.processors.texconv_external_processor import TexconvExternalProcessor
 from pipescaler.processors.threshold_processor import ThresholdProcessor
 from pipescaler.processors.waifu_external_processor import WaifuExternalProcessor
 from pipescaler.processors.waifu_processor import WaifuProcessor
@@ -37,12 +37,12 @@ __all__: List[str] = [
     "ExpandProcessor",
     "HeightToNormalProcessor",
     "ModeProcessor",
+    "PngquantExternalProcessor",
     "PotraceExternalProcessor",
-    "PngquantProcessor",
     "ResizeProcessor",
     "SideChannelProcessor",
     "SolidColorProcessor",
-    "TexconvProcessor",
+    "TexconvExternalProcessor",
     "ThresholdProcessor",
     "WaifuProcessor",
     "WaifuExternalProcessor",

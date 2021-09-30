@@ -16,6 +16,8 @@ from pipescaler.sources.directory_source import DirectorySource
 
 
 class CitraSource(DirectorySource):
+    """Yields images dumped by [Citra](https://citra-emu.org)."""
+
     @staticmethod
     def sort(filename):
         try:

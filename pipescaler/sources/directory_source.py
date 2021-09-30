@@ -16,6 +16,8 @@ from pipescaler.core import Source, parse_file_list
 
 
 class DirectorySource(Source):
+    """Yields images from a directory."""
+
     exclusions = {".DS_Store", "desktop"}
 
     def __init__(

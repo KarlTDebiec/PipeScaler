@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/processors/pngquant_processor.py
+#   pipescaler/processors/pngquant_external_processor.py
 #
 #   Copyright (C) 2020-2021 Karl T Debiec
 #   All rights reserved.
@@ -10,6 +10,7 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
+from inspect import cleandoc
 from logging import debug, info
 from shutil import copyfile
 from subprocess import PIPE, Popen
@@ -19,7 +20,9 @@ from pipescaler.common import validate_executable, validate_int
 from pipescaler.core import Processor
 
 
-class PngquantProcessor(Processor):
+class PngquantExternalProcessor(Processor):
+    """Compresses image palette using [pngquant](https://pngquant.org/)."""
+
     def __init__(
         self,
         quality: int = 100,
@@ -87,10 +90,13 @@ class PngquantProcessor(Processor):
         """
         Constructs argument parser.
 
+        Args:
+            kwargs (Any): Additional keyword arguments
+
         Returns:
             parser (ArgumentParser): Argument parser
         """
-        description = kwargs.get("description", __doc__.strip())
+        description = kwargs.get("description", cleandoc(cls.__doc__))
         parser = super().construct_argparser(description=description, **kwargs)
 
         parser.add_argument(
@@ -118,4 +124,4 @@ class PngquantProcessor(Processor):
 
 
 if __name__ == "__main__":
-    PngquantProcessor.main()
+    PngquantExternalProcessor.main()

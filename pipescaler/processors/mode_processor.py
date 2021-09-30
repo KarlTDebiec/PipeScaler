@@ -10,6 +10,7 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
+from inspect import cleandoc
 from logging import info
 from typing import Any
 
@@ -20,6 +21,8 @@ from pipescaler.core import Processor, remove_palette_from_image
 
 
 class ModeProcessor(Processor):
+    """Converts mode of image."""
+
     modes = ["RGBA", "RGB", "LA", "L"]
 
     def __init__(
@@ -69,10 +72,13 @@ class ModeProcessor(Processor):
         """
         Constructs argument parser.
 
+        Args:
+            kwargs (Any): Additional keyword arguments
+
         Returns:
             parser (ArgumentParser): Argument parser
         """
-        description = kwargs.get("description", __doc__.strip())
+        description = kwargs.get("description", cleandoc(cls.__doc__))
         parser = super().construct_argparser(description=description, **kwargs)
 
         # Operations
