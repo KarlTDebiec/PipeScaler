@@ -5,17 +5,20 @@
 [![License: BSD 3-Clause](https://img.shields.io/badge/license-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 
 PipeScaler is a package for processing collections of images with a focus on improving
-quality and increasing resolution. Users define a pipeline in which image flow from a
+quality and increasing resolution. Users define a pipeline in which images flow from a
 source through a series of sorters, processors, splitters, and mergers into a terminus.
 Intermediate images along the pipeline are stored to allow processing to be tracked,
-and stopped and resumed.
+and stopped and resumed. Pipelines are configured using yaml, including reusable stages
+and blocks of stages.
 
-PipeScaler includes the following image sources:
+Sources feed images sequentially into the downstream pipeline. PipeScaler includes the
+following image sources:
 * [CitraSource](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/sources/citra_source.py) - Yields images dumped by [Citra](https://citra-emu.org).
 * [DirectorySource](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/sources/directory_source.py) - Yields images from a directory.
 * [DolphinSource](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/sources/dolphin_source.py) - Yields images dumped by [Dolphin](https://dolphin-emu.org/).
 * [TexmodSource](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/sources/texmod_source.py) - Yields images dumped by [TexMod](https://www.moddb.com/downloads/texmod4).
 
+Processors perform operations to an image, yielding a modified downstream image.
 PipeScaler includes the following image processors:
 * [AppleScriptProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/apple_script_processor.py) - Runs through an [AppleScript](https://developer.apple.com/library/archive/documentation/AppleScript/Conceptual/AppleScriptLangGuide/introduction/ASLR_intro.html); for example using [Pixelmator Pro](https://www.pixelmator.com/support/guide/pixelmator-pro/1270/).
 * [AutomatorProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/automator_processor.py) - Runs through an [Automator QuickAction](https://support.apple.com/guide/automator/welcome/mac); for example using [Pixelmator Pro](https://www.pixelmator.com/support/guide/pixelmator-pro/1270/).
@@ -35,18 +38,21 @@ PipeScaler includes the following image processors:
 * [WaifuExternalProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/waifu_external_processor.py) - Upscales and/or denoises using [waifu2x](https://github.com/nagadomi/waifu2x).
 * [XbrzProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/xbrz_processor.py) - Upscales using [xbrz](https://github.com/ioistired/xbrz.py).
 
-PipeScaler includes the following image splitters:
+Splitters separate one image into two or more downstream images. PipeScaler includes the
+following image splitters:
 * [AlphaSplitter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/splitters/alpha_splitter.py) - Splits alpha and color channels.
 * [ColorToAlphaSplitter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/splitters/color_to_alpha_splitter.py) - Splits alpha and color channels, treating a defined color as transparent.
 * [NormalSplitter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/splitters/normal_splitter.py) - Splits a normal map into x, y, and z channels.
 
-PipeScaler includes the following image mergers:
+Mergers combine two or more images into a downstream single image. PipeScaler includes
+the following image mergers:
 * [AlphaMerger](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/mergers/alpha_merger.py) - Merges alpha and color channels.
 * [ColorMatchMerger](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/mergers/color_match_merger.py) - Matches color histogram to a reference image.
 * [ColorToAlphaMerger](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/mergers/color_to_alpha_merger.py) - Merges alpha and color channels, treating a defined color as transparent.
 * [NormalMerger](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/mergers/normal_merger.py) - Merges x, y, and z channels into a normal map.
 
-PipeScaler includes the following image sorters:
+Sorters direct images through different sections of a pipeline. PipeScaler includes the
+following image sorters:
 * [AlphaSorter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/sorters/alpha_sorter.py) - Sorts by presence and use of alpha channel.
 * [GrayscaleSorter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/sorters/grayscale_sorter.py) - Sorts by presence and use of color.
 * [ListSorter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/sorters/list_sorter.py) - Sorts based on filename using a set of configured lists.
@@ -55,5 +61,6 @@ PipeScaler includes the following image sorters:
 * [SizeSorter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/sorters/size_sorter.py) - Sorts based on canvas size.
 * [SolidColorSorter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/sorters/solid_color_sorter.py) - Sorts based on presence of multiple colors.
 
-PipeScaler includes the following image termini:
+Termini perform final operations on images. PipeScaler includes the following image
+termini:
 * [CopyFileTerminus](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/termini/copy_file_terminus.py) - Copies files to an output directory.
