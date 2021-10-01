@@ -24,7 +24,7 @@ class NormalSplitter(Splitter):
         outfiles = {k: kwargs.get(k) for k in self.outlets}
 
         # Read image
-        input_image = validate_image(infile, "RBG")
+        input_image = validate_image(infile, "RGB")
 
         # Split image
         input_datum = np.array(input_image)

@@ -30,7 +30,7 @@ class AlphaSplitter(Splitter):
         outfiles = {k: kwargs.get(k) for k in self.outlets}
 
         # Read image
-        input_image = validate_image(infile, ["LA", "RBGA"])
+        input_image = validate_image(infile, ["LA", "RGBA"])
 
         # Split image
         input_datum = np.array(input_image)

@@ -28,7 +28,7 @@ class ColorMatchMerger(Merger):
         reference_image = validate_image(
             infiles["reference"], ["L", "LA", "RGB", "RGBA"]
         )
-        input_image = validate_image(infiles["image"], ["L", "LA", "RGB", "RGBA"])
+        input_image = validate_image(infiles["input"], ["L", "LA", "RGB", "RGBA"])
         if reference_image.mode != input_image.mode:
             raise ValueError(
                 f"Image mode '{reference_image.mode}' of image '{infiles['reference']}'"

@@ -6,7 +6,6 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-""""""
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -53,7 +52,7 @@ class SolidColorProcessor(Processor):
             color = tuple(np.rint(input_datum.mean(axis=(0, 1))).astype(np.uint8))
         else:
             color = round(input_datum.mean())
-        output_image = Image.new(size, color,)
+        output_image = Image.new(input_image.mode, size, color)
 
         # Write image
         output_image.save(outfile)

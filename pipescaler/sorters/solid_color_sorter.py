@@ -32,7 +32,7 @@ class SolidColorSorter(Sorter):
     def __call__(self, infile: str) -> str:
 
         # Read image
-        image = validate_image(infile, ["L", "LA", "RGB", "RBGA"])
+        image = validate_image(infile, ["L", "LA", "RGB", "RGBA"])
         datum = np.array(image)
 
         # Sort image

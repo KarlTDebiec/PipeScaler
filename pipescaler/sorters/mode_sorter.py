@@ -20,7 +20,7 @@ class ModeSorter(Sorter):
     def __call__(self, infile: str) -> str:
 
         # Read image
-        image = validate_image(infile, ["L", "LA", "RGB", "RBGA"])
+        image = validate_image(infile, ["L", "LA", "RGB", "RGBA"])
 
         # Sort image
         if image.mode == "RGBA":
