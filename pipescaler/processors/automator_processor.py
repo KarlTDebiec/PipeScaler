@@ -18,7 +18,6 @@ from sys import platform
 from typing import Any
 
 from pipescaler.common import package_root, temporary_filename, validate_input_path
-
 from pipescaler.core import Processor, UnsupportedPlatformError
 
 
