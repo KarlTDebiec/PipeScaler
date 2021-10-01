@@ -9,8 +9,8 @@
 """"""
 from __future__ import annotations
 
-from abc import ABC
-from typing import Any, Dict, List, Optional
+from abc import ABC, abstractmethod
+from typing import Any, List, Optional
 
 from pipescaler.core.stage import Stage
 
@@ -34,6 +34,7 @@ class Merger(Stage, ABC):
         else:
             self.trim_suffixes = self.inlets
 
+    @abstractmethod
     def __call__(self, outfile: str, **kwargs: Any) -> None:
         raise NotImplementedError()
 

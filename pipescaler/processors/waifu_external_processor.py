@@ -19,16 +19,8 @@ from typing import Any
 
 from PIL import Image
 
-from pipescaler.common import (
-    validate_executable,
-    validate_int,
-    validate_str,
-)
-from pipescaler.core import (
-    Processor,
-    UnsupportedImageModeError,
-    remove_palette_from_image,
-)
+from pipescaler.common import validate_executable, validate_int, validate_str
+from pipescaler.core import Processor, validate_image_and_convert_mode
 
 
 class WaifuExternalProcessor(Processor):
@@ -106,31 +98,22 @@ class WaifuExternalProcessor(Processor):
             executable = validate_executable("/usr/local/bin/waifu2x")
 
         # Read image
-        input_image = Image.open(infile)
-        if input_image.mode == "P":
-            input_image = remove_palette_from_image(input_image)
-        if input_image.mode == "RGB":
-            temp_image = input_image
-        elif input_image.mode == "L":
-            temp_image = input_image.convert("RGB")
-        else:
-            raise UnsupportedImageModeError(
-                f"Image mode '{input_image.mode}' of image '{infile}'"
-                f" is not supported by {type(self)}"
-            )
+        input_image, input_mode = validate_image_and_convert_mode(
+            infile, ["L", "RGB"], "RGB"
+        )
 
         tempfile = NamedTemporaryFile(delete=False, suffix=".png")
         if self.expand:
-            w, h = temp_image.size
-            transposed_h = temp_image.transpose(Image.FLIP_LEFT_RIGHT)
-            transposed_v = temp_image.transpose(Image.FLIP_TOP_BOTTOM)
-            transposed_hv = temp_image.transpose(Image.FLIP_TOP_BOTTOM)
+            w, h = input_image.size
+            transposed_h = input_image.transpose(Image.FLIP_LEFT_RIGHT)
+            transposed_v = input_image.transpose(Image.FLIP_TOP_BOTTOM)
+            transposed_hv = input_image.transpose(Image.FLIP_TOP_BOTTOM)
             reflected = Image.new(
-                temp_image.mode, (max(200, int(w * 1.5)), max(200, int(h * 1.5)))
+                "RGB", (max(200, int(w * 1.5)), max(200, int(h * 1.5)))
             )
             x = reflected.size[0] // 2
             y = reflected.size[1] // 2
-            reflected.paste(temp_image, (x - w // 2, y - h // 2))
+            reflected.paste(input_image, (x - w // 2, y - h // 2))
             reflected.paste(transposed_h, (x + w // 2, y - h // 2))
             reflected.paste(transposed_h, (x - w - w // 2, y - h // 2))
             reflected.paste(transposed_v, (x - w // 2, y - h - h // 2))
@@ -141,7 +124,7 @@ class WaifuExternalProcessor(Processor):
             reflected.paste(transposed_hv, (x + w // 2, y + h // 2))
             reflected.save(tempfile)
         else:
-            temp_image.save(tempfile)
+            input_image.save(tempfile)
         tempfile.close()
 
         # Process using waifu
@@ -170,7 +153,7 @@ class WaifuExternalProcessor(Processor):
                     (y + h // 2) * self.scale,
                 )
             )
-        if input_image.mode == "L":
+        if input_mode == "L":
             waifued_image = waifued_image.convert("L")
 
         # Write image

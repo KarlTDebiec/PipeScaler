@@ -49,12 +49,12 @@ class CropProcessor(Processor):
         # Read image
         input_image = Image.open(infile)
         if (
-            input_image.size[0] < self.left + self.right
-            or input_image.size[1] < self.top + self.bottom
+            input_image.size[0] < self.left + self.right + 1
+            or input_image.size[1] < self.top + self.bottom + 1
         ):
             raise ValueError()
 
-        # Expand image
+        # Process image
         output_image = crop_image(
             input_image, self.left, self.top, self.right, self.bottom
         )

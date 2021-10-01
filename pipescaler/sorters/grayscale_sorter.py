@@ -6,7 +6,6 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-""""""
 from __future__ import annotations
 
 from logging import info
@@ -16,7 +15,7 @@ import numpy as np
 from PIL import Image
 
 from pipescaler.common import validate_float, validate_int
-from pipescaler.core import Sorter, UnsupportedImageModeError, remove_palette_from_image
+from pipescaler.core import Sorter, validate_image
 
 
 class GrayscaleSorter(Sorter):
@@ -33,9 +32,7 @@ class GrayscaleSorter(Sorter):
 
     def __call__(self, infile: str) -> str:
         # Read image
-        image = Image.open(infile)
-        if image.mode == "P":
-            image = remove_palette_from_image(image)
+        image = validate_image(infile, ["L", "LA", "RGB", "RBGA"])
 
         # Sort image
         if image.mode in ("RGB", "RGBA"):
@@ -48,14 +45,9 @@ class GrayscaleSorter(Sorter):
             else:
                 info(f"{self}: '{infile}' matches 'keep_rgb'")
                 return "keep_rgb"
-        elif image.mode in ("L", "LA"):
+        else:
             info(f"{self}: {infile}' matches 'no_rgb'")
             return "no_rgb"
-        else:
-            raise UnsupportedImageModeError(
-                f"Image mode '{image.mode}' of image '{infile}'"
-                f" is not supported by {type(self)}"
-            )
 
     @property
     def outlets(self) -> List[str]:

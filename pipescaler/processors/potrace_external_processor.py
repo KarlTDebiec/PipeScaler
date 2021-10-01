@@ -20,12 +20,7 @@ from reportlab.graphics.renderPM import drawToFile
 from svglib.svglib import svg2rlg
 
 from pipescaler.common import temporary_filename, validate_float
-from pipescaler.core import (
-    Processor,
-    UnsupportedImageModeError,
-    remove_palette_from_image,
-    validate_image,
-)
+from pipescaler.core import Processor, validate_image
 
 
 class PotraceExternalProcessor(Processor):
@@ -53,9 +48,9 @@ class PotraceExternalProcessor(Processor):
 
     def process_file(self, infile: str, outfile: str):
         # Read image
-        input_image, input_mode = validate_image(infile, ["L"])
+        input_image = validate_image(infile, "L")
 
-        # Trace image
+        # Process image
         with temporary_filename(".bmp") as bmpfile:
             with temporary_filename(".svg") as svgfile:
                 with temporary_filename(".png") as pngfile:
@@ -127,7 +122,7 @@ class PotraceExternalProcessor(Processor):
             "--blacklevel",
             default=0.3,
             type=cls.float_arg(min_value=0),
-            help="black/white cutoff in input file (0.0-1.0, default: " "%(default)s)",
+            help="black/white cutoff in input file (0.0-1.0, default: %(default)s)",
         )
         parser.add_argument(
             "--alphamax",

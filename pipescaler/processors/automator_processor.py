@@ -17,11 +17,8 @@ from subprocess import Popen
 from sys import platform
 from typing import Any
 
-from pipescaler.common import (
-    package_root,
-    temporary_filename,
-    validate_input_path,
-)
+from pipescaler.common import package_root, temporary_filename, validate_input_path
+
 from pipescaler.core import Processor, UnsupportedPlatformError
 
 
@@ -86,7 +83,7 @@ class AutomatorProcessor(Processor):
             # Stage image
             copyfile(infile, tempfile)
 
-            # Run automator script
+            # Process image
             command = f"automator -i {tempfile} {workflow}"
             debug(f"{cls}: {command}")
             Popen(command, shell=True, close_fds=True).wait()

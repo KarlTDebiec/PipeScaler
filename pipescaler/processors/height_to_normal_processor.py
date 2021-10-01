@@ -6,7 +6,6 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-""""""
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -14,17 +13,13 @@ from inspect import cleandoc
 from logging import info
 from typing import Any, Optional, Tuple
 
-from PIL import Image
-
 from pipescaler.common import validate_float
 from pipescaler.core import (
     Processor,
-    UnsupportedImageModeError,
     crop_image,
     expand_image,
     gaussian_smooth_image,
     normal_map_from_heightmap,
-    remove_palette_from_image,
     validate_image,
 )
 
@@ -58,7 +53,7 @@ class HeightToNormalProcessor(Processor):
         """
 
         # Read image
-        input_image, input_mode = validate_image(infile, ["L"])
+        input_image = validate_image(infile, "L")
 
         # Process image
         expanded_image = expand_image(input_image, 8, 8, 8, 8)
@@ -92,8 +87,8 @@ class HeightToNormalProcessor(Processor):
             "--sigma",
             default=None,
             type=cls.float_arg(min_value=0),
-            help="Gaussian smoothing to apply to image before calculating normal map"
-            " (default: %(default)s)",
+            help="Gaussian smoothing to apply to image before calculating normal map "
+            "(default: %(default)s)",
         )
 
         return parser

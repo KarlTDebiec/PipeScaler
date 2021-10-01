@@ -6,7 +6,6 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-""""""
 from __future__ import annotations
 
 from logging import info
@@ -15,7 +14,7 @@ from typing import Any
 import numpy as np
 from PIL import Image
 
-from pipescaler.core import Merger, UnsupportedImageModeError, remove_palette_from_image
+from pipescaler.core import Merger, validate_image
 
 
 class NormalMerger(Merger):
@@ -25,30 +24,9 @@ class NormalMerger(Merger):
         infiles = {k: kwargs.get(k) for k in self.inlets}
 
         # Read images
-        x_image = Image.open(infiles["x"])
-        if x_image.mode == "P":
-            x_image = remove_palette_from_image(x_image)
-        if x_image.mode != "L":
-            raise UnsupportedImageModeError(
-                f"Image mode '{x_image.mode}' of image '{infiles['x']}'"
-                f" is not supported by {type(self)}"
-            )
-        y_image = Image.open(infiles["y"])
-        if y_image.mode == "P":
-            y_image = remove_palette_from_image(y_image)
-        if y_image.mode != "L":
-            raise UnsupportedImageModeError(
-                f"Image mode '{y_image.mode}' of image '{infiles['y']}'"
-                f" is not supported by {type(self)}"
-            )
-        z_image = Image.open(infiles["z"])
-        if z_image.mode == "P":
-            z_image = remove_palette_from_image(z_image)
-        if z_image.mode != "L":
-            raise UnsupportedImageModeError(
-                f"Image mode '{z_image.mode}' of image '{infiles['z']}'"
-                f" is not supported by {type(self)}"
-            )
+        x_image = validate_image(infiles["x"], "L")
+        y_image = validate_image(infiles["y"], "L")
+        z_image = validate_image(infiles["z"], "L")
 
         # Merge images
         x_datum = np.clip(np.array(x_image, float) - 128, -128, 127)

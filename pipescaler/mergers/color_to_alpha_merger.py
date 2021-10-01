@@ -6,7 +6,6 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-""""""
 from __future__ import annotations
 
 from logging import info
@@ -15,7 +14,7 @@ from typing import Any
 import numpy as np
 from PIL import Image
 
-from pipescaler.core import Merger, UnsupportedImageModeError, remove_palette_from_image
+from pipescaler.core import Merger, validate_image
 
 
 class ColorToAlphaMerger(Merger):
@@ -34,22 +33,8 @@ class ColorToAlphaMerger(Merger):
         infiles = {k: kwargs.get(k) for k in self.inlets}
 
         # Read images
-        color_image = Image.open(infiles["color"])
-        if color_image.mode == "P":
-            color_image = remove_palette_from_image(color_image)
-        if color_image.mode != "RGB":
-            raise UnsupportedImageModeError(
-                f"Image mode '{color_image.mode}' of image '{infiles['color']}'"
-                f" is not supported by {type(self)}"
-            )
-        alpha_image = Image.open(infiles["alpha"])
-        if alpha_image.mode == "P":
-            alpha_image = remove_palette_from_image(alpha_image)
-        if alpha_image.mode != "L":
-            raise UnsupportedImageModeError(
-                f"Image mode '{alpha_image.mode}' of image '{infiles['alpha']}'"
-                f" is not supported by {type(self)}"
-            )
+        color_image = validate_image(infiles["color"], ["RGB"])
+        alpha_image = validate_image(infiles["alpha"], "L")
 
         # Merge images
         color_datum = np.array(color_image)

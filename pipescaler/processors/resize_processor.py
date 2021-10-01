@@ -21,6 +21,7 @@ from pipescaler.core import (
     Processor,
     UnsupportedImageModeError,
     remove_palette_from_image,
+    validate_image,
 )
 
 
@@ -63,51 +64,34 @@ class ResizeProcessor(Processor):
         """
 
         # Read image
-        input_image = Image.open(infile)
-        if input_image.mode == "P":
-            input_image = remove_palette_from_image(input_image)
+        input_image = validate_image(infile, ["L", "LA", "RGB", "RGBA"])
         input_datum = np.array(input_image)
 
-        # Scale image
+        # Process image
         size = (
             round(input_image.size[0] * self.scale),
             round(input_image.size[1] * self.scale),
         )
         if input_image.mode == "RGBA":
             rgba_datum = np.zeros((size[1], size[0], 4), np.uint8)
-            rgba_datum[:, :, :3] = np.array(
-                Image.fromarray(input_datum[:, :, :3]).resize(
-                    size, resample=self.resample
-                )
-            )
-            rgba_datum[:, :, 3] = np.array(
-                Image.fromarray(input_datum[:, :, 3]).resize(
-                    size, resample=self.resample
-                )
-            )
+            rgb_image = Image.fromarray(input_datum[:, :, :3])
+            rgb_image = rgb_image.resize(size, resample=self.resample)
+            rgba_datum[:, :, :3] = np.array(rgb_image)
+            a_image = Image.fromarray(input_datum[:, :, 3])
+            a_image = a_image.resize(size, resample=self.resample)
+            rgba_datum[:, :, 3] = np.array(a_image)
             output_image = Image.fromarray(rgba_datum)
-        elif input_image.mode == "RGB":
-            output_image = input_image.resize(size, resample=self.resample)
         elif input_image.mode == "LA":
             la_datum = np.zeros((size[1], size[0], 2), np.uint8)
-            la_datum[:, :, 0] = np.array(
-                Image.fromarray(input_datum[:, :, 0]).resize(
-                    size, resample=self.resample
-                )
-            )
-            la_datum[:, :, 1] = np.array(
-                Image.fromarray(input_datum[:, :, 1]).resize(
-                    size, resample=self.resample
-                )
-            )
+            l_image = Image.fromarray(input_datum[:, :, 0])
+            l_image = l_image.resize(size, resample=self.resample)
+            la_datum[:, :, 0] = np.array(l_image)
+            a_image = Image.fromarray(input_datum[:, :, 1])
+            a_image = a_image.resize(size, resample=self.resample)
+            la_datum[:, :, 1] = np.array(a_image)
             output_image = Image.fromarray(la_datum)
-        elif input_image.mode == "L":
-            output_image = input_image.resize(size, resample=self.resample)
         else:
-            raise UnsupportedImageModeError(
-                f"Image mode '{input_image.mode}' of image '{infile}'"
-                f" is not supported by {type(self)}"
-            )
+            output_image = input_image.resize(size, resample=self.resample)
 
         # Write image
         output_image.save(outfile)

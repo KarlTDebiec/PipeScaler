@@ -21,16 +21,12 @@ from PIL import Image
 from waifu2x.reconstruct import blockwise
 from waifu2x.srcnn import archs
 
-from pipescaler.common import (
-    validate_int,
-    validate_str,
-)
+from pipescaler.common import validate_int, validate_str
 from pipescaler.core import (
     Processor,
-    UnsupportedImageModeError,
     crop_image,
     expand_image,
-    remove_palette_from_image,
+    validate_image_and_convert_mode,
 )
 
 model_architectures = {k.lower(): v for k, v in archs.items()}
@@ -102,18 +98,10 @@ class WaifuProcessor(Processor):
             outfile (str): Output file
         """
         # Read image
-        input_image = Image.open(infile)
-        if input_image.mode == "P":
-            input_image = remove_palette_from_image(input_image)
-        if input_image.mode == "RGB":
-            expanded_image = expand_image(input_image, 8, 8, 8, 8)
-        elif input_image.mode == "L":
-            expanded_image = expand_image(input_image.convert("RGB"), 8, 8, 8, 8)
-        else:
-            raise UnsupportedImageModeError(
-                f"Image mode '{input_image.mode}' of image '{infile}'"
-                f" is not supported by {type(self)}"
-            )
+        input_image, input_mode = validate_image_and_convert_mode(
+            infile, ["L", "RGB"], "RGB"
+        )
+        expanded_image = expand_image(input_image, 8, 8, 8, 8)
         expanded_datum = np.array(expanded_image)
 
         # Process image
@@ -139,7 +127,7 @@ class WaifuProcessor(Processor):
                 (input_image.size[0] * self.scale, input_image.size[1] * self.scale),
                 resample=Image.LANCZOS,
             )
-        if input_image.mode == "L":
+        if input_mode == "L":
             cropped_image = cropped_image.convert("L")
 
         # Write image

@@ -6,7 +6,6 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-""""""
 from __future__ import annotations
 
 from logging import info
@@ -26,33 +25,29 @@ class ColorMatchMerger(Merger):
         infiles = {k: kwargs.get(k) for k in self.inlets}
 
         # Read images
-        reference_image, reference_image_mode = validate_image(
+        reference_image = validate_image(
             infiles["reference"], ["L", "LA", "RGB", "RGBA"]
         )
-        target_image, target_image_mode = validate_image(
-            infiles["target"], ["L", "LA", "RGB", "RGBA"]
-        )
-        if reference_image_mode != target_image_mode:
+        input_image = validate_image(infiles["image"], ["L", "LA", "RGB", "RGBA"])
+        if reference_image.mode != input_image.mode:
             raise ValueError(
                 f"Image mode '{reference_image.mode}' of image '{infiles['reference']}'"
-                f" does not match mode '{target_image.mode}' of image"
-                f" '{infiles['target']}'"
+                f" does not match mode '{input_image.mode}' of image"
+                f" '{infiles['input']}'"
             )
 
         # Merge images
         reference_datum = np.array(reference_image)
-        target_datum = np.array(target_image)
-        if reference_image_mode == "L":
-            output_datum = np.clip(
-                match_histograms(target_datum, reference_datum), 0, 255,
-            ).astype(np.uint8)
+        input_datum = np.array(input_image)
+        if reference_image.mode == "L":
+            output_datum = match_histograms(
+                input_datum, reference_datum, multichannel=False
+            )
         else:
-            output_datum = np.clip(
-                match_histograms(target_datum, reference_datum, multichannel=True),
-                0,
-                255,
-            ).astype(np.uint8)
-        output_image = Image.fromarray(output_datum)
+            output_datum = match_histograms(
+                input_datum, reference_datum, multichannel=True
+            )
+        output_image = Image.fromarray(np.clip(output_datum, 0, 255,).astype(np.uint8))
 
         # Write image
         output_image.save(outfile)
@@ -60,4 +55,4 @@ class ColorMatchMerger(Merger):
 
     @property
     def inlets(self):
-        return ["reference", "target"]
+        return ["reference", "input"]

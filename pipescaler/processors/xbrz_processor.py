@@ -11,7 +11,7 @@ from __future__ import annotations
 from argparse import ArgumentParser
 from inspect import cleandoc
 from logging import info
-from typing import Any, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 import xbrz
@@ -20,9 +20,7 @@ from PIL import Image
 from pipescaler.common import validate_int
 from pipescaler.core import (
     Processor,
-    UnsupportedImageModeError,
-    remove_palette_from_image,
-    validate_image,
+    validate_image_and_convert_mode,
 )
 
 
@@ -61,7 +59,7 @@ class XbrzProcessor(Processor):
         """
 
         # Read image
-        input_image, input_mode = validate_image(
+        input_image, input_mode = validate_image_and_convert_mode(
             infile, ["L", "LA", "RGB", "RGBA"], "RGBA"
         )
 

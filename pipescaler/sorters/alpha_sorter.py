@@ -6,17 +6,15 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-""""""
 from __future__ import annotations
 
 from logging import info
 from typing import Any, List
 
 import numpy as np
-from PIL import Image
 
 from pipescaler.common import validate_int
-from pipescaler.core import Sorter, UnsupportedImageModeError, remove_palette_from_image
+from pipescaler.core import Sorter, UnsupportedImageModeError, validate_image
 
 
 class AlphaSorter(Sorter):
@@ -30,9 +28,7 @@ class AlphaSorter(Sorter):
 
     def __call__(self, infile: str) -> str:
         # Read image
-        image = Image.open(infile)
-        if image.mode == "P":
-            image = remove_palette_from_image(image)
+        image = validate_image(infile, ["L", "LA", "RGB", "RBGA"])
 
         # Sort image
         if image.mode in ("LA", "RGBA"):
@@ -43,7 +39,7 @@ class AlphaSorter(Sorter):
             else:
                 info(f"{self}: '{infile}' matches 'keep_alpha'")
                 return "keep_alpha"
-        elif image.mode in ("RGB", "L"):
+        elif image.mode in ("L", "RGB"):
             info(f"{self}: {infile}' matches 'no_alpha'")
             return "no_alpha"
         else:

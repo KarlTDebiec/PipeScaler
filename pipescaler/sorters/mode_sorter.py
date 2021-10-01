@@ -6,15 +6,12 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-""""""
 from __future__ import annotations
 
 from logging import info
 from typing import List
 
-from PIL import Image
-
-from pipescaler.core import Sorter, UnsupportedImageModeError, remove_palette_from_image
+from pipescaler.core import Sorter, validate_image
 
 
 class ModeSorter(Sorter):
@@ -23,9 +20,7 @@ class ModeSorter(Sorter):
     def __call__(self, infile: str) -> str:
 
         # Read image
-        image = Image.open(infile)
-        if image.mode == "P":
-            image = remove_palette_from_image(image)
+        image = validate_image(infile, ["L", "LA", "RGB", "RBGA"])
 
         # Sort image
         if image.mode == "RGBA":
@@ -37,14 +32,9 @@ class ModeSorter(Sorter):
         elif image.mode == "LA":
             info(f"{self}: {infile}' matches 'LA'")
             return "la"
-        elif image.mode == "L":
+        else:
             info(f"{self}: {infile}' matches 'L'")
             return "l"
-        else:
-            raise UnsupportedImageModeError(
-                f"Image mode '{image.mode}' of image '{infile}'"
-                f" is not supported by {type(self)}"
-            )
 
     @property
     def outlets(self) -> List[str]:

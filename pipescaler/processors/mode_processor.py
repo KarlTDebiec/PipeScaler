@@ -17,13 +17,13 @@ from typing import Any
 from PIL import Image, ImageColor
 
 from pipescaler.common import validate_str
-from pipescaler.core import Processor, remove_palette_from_image
+from pipescaler.core import Processor, validate_image
 
 
 class ModeProcessor(Processor):
     """Converts mode of image."""
 
-    modes = ["RGBA", "RGB", "LA", "L"]
+    modes = ["L", "LA", "RGB", "RGBA"]
 
     def __init__(
         self, mode: str = "RGB", background_color: str = "#000000", **kwargs: Any,
@@ -50,11 +50,9 @@ class ModeProcessor(Processor):
             outfile (str): Output file
         """
         # Read image
-        input_image = Image.open(infile)
-        if input_image.mode == "P":
-            full_space_image = remove_palette_from_image(input_image)
+        input_image = validate_image(infile, ["L", "LA", "RGB", "RGBA"])
 
-        # Convert image
+        # Process image
         if input_image.mode == self.mode:
             output_image = input_image
         else:
