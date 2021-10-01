@@ -75,7 +75,7 @@ class PngquantExternalProcessor(Processor):
             command += f" --nofs"
         command += f" --output {outfile} {infile} "
         debug(f"{self}: {command}")
-        with Popen(command.split(), stdout=PIPE, stderr=PIPE) as child:
+        with Popen(command, shell=True, stdout=PIPE, stderr=PIPE) as child:
             exitcode = child.wait(600)
             if exitcode == 98:
                 # pngquant may not save outfile if it is too large or low quality

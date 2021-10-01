@@ -136,7 +136,7 @@ class WaifuExternalProcessor(Processor):
         command += f' -i "{tempfile.name}"'
         command += f' -o "{outfile}"'
         debug(command)
-        with Popen(command.split(), stdout=PIPE, stderr=PIPE) as child:
+        with Popen(command, shell=True, stdout=PIPE, stderr=PIPE) as child:
             exitcode = child.wait(600)
             if exitcode != 0:
                 out, err = child.communicate()

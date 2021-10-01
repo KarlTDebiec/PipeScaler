@@ -7,12 +7,11 @@
 #   This software may be modified and distributed under the terms of the
 #   BSD license. See the LICENSE file for details.
 from inspect import getfile
-from subprocess import PIPE, Popen
 from typing import Any
 
 import pytest
 
-from pipescaler.common import temporary_filename
+from pipescaler.common import run_command, temporary_filename
 from pipescaler.processors import (
     AppleScriptExternalProcessor,
     AutomatorExternalProcessor,
@@ -48,9 +47,7 @@ from shared import (
 def run_processor_on_command_line(processor: Any, args: str, infile: str):
     with temporary_filename(".png") as outfile:
         command = f"coverage run {getfile(processor)} {args} {infile} {outfile}"
-        child = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)
-        exitcode = child.wait()
-
+        exitcode, stdout, stderr = run_command(command)
         assert exitcode == 0
 
 

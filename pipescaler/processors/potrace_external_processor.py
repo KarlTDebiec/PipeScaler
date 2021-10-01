@@ -68,7 +68,7 @@ class PotraceExternalProcessor(Processor):
                         f" -O {self.opttolerance}"
                         f" -o {svgfile}"
                     )
-                    with Popen(command.split(), stdout=PIPE, stderr=PIPE) as child:
+                    with Popen(command, shell=True, stdout=PIPE, stderr=PIPE) as child:
                         exitcode = child.wait(600)
                         if exitcode != 0:
                             out, err = child.communicate()

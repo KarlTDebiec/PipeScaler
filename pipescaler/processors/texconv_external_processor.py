@@ -99,7 +99,7 @@ class TexconvExternalProcessor(Processor):
                 command += f" -f {self.format}"
             command += f" -o {temp_directory} {tempfile}"
             debug(f"{self}: {command}")
-            with Popen(command.split(), stdout=PIPE, stderr=PIPE) as child:
+            with Popen(command, shell=True, stdout=PIPE, stderr=PIPE) as child:
                 exitcode = child.wait(600)
                 if exitcode != 0:
                     out, err = child.communicate()
