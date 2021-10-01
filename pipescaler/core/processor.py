@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from argparse import ArgumentParser
+from inspect import cleandoc
 from typing import Any, List, Optional
 
 from pipescaler.common import CLTool
@@ -17,6 +18,8 @@ from pipescaler.core.stage import Stage
 
 
 class Processor(Stage, CLTool):
+    """Base class for processors"""
+
     def __init__(self, suffix: Optional[str] = None, **kwargs: Any) -> None:
         """
         Validates and stores static configuration.
@@ -64,9 +67,9 @@ class Processor(Stage, CLTool):
             kwargs (Any): Additional keyword arguments
 
         Returns:
-            ArgumentParser: Argument parser
+            parser (ArgumentParser): Argument parser
         """
-        description = kwargs.pop("description", __doc__.strip())
+        description = kwargs.pop("description", cleandoc(cls.__doc__))
         parser = super().construct_argparser(description=description, **kwargs)
 
         # Input

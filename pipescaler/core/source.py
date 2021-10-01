@@ -14,6 +14,8 @@ from pipescaler.core import Stage
 
 
 class Source(Stage):
+    """Base class for sources."""
+
     def __iter__(self):
         raise NotImplementedError()
 

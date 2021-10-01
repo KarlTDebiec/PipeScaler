@@ -15,6 +15,8 @@ from pipescaler.core.stage import Stage
 
 
 class Splitter(Stage, ABC):
+    """Base class for splitters."""
+
     def __init__(
         self, suffixes: Optional[Dict[str, str]] = None, **kwargs: Any
     ) -> None:

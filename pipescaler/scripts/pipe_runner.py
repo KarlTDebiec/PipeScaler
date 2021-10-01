@@ -101,7 +101,7 @@ class PipeRunner(CLTool):
         Returns:
             ArgumentParser: Argument parser
         """
-        description = kwargs.get("description", __doc__.strip())
+        description = kwargs.pop("description", __doc__.strip())
         parser = super().construct_argparser(description=description, **kwargs)
 
         # Input

@@ -13,6 +13,8 @@ from typing import Any, List, Optional
 
 
 class Stage(ABC):
+    """Base class for stages."""
+
     trim_suffixes = None
     extension = "png"
 
