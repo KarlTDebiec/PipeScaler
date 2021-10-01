@@ -66,20 +66,29 @@ class PngquantExternalProcessor(Processor):
         """
 
         # Process image
-        command = f"pngquant --skip-if-larger --force"
-        command += f" --quality {self.quality}"
-        command += f" --speed {self.speed}"
+        command = (
+            f"pngquant --skip-if-larger --force"
+            f" --quality {self.quality}"
+            f" --speed {self.speed}"
+        )
         if not self.floyd_steinberg:
             command += f" --nofs"
         command += f" --output {outfile} {infile} "
         debug(f"{self}: {command}")
-        child = Popen(command, shell=True, close_fds=True, stdout=PIPE, stderr=PIPE)
-        exitcode = child.wait(10)
-        if exitcode == 98:
-            # pngquant may not save outfile if it is too large or low quality
-            copyfile(infile, outfile)
-        elif exitcode != 0:
-            raise ValueError()  # TODO: Provide useful output
+        with Popen(command.split(), stdout=PIPE, stderr=PIPE) as child:
+            exitcode = child.wait(600)
+            if exitcode == 98:
+                # pngquant may not save outfile if it is too large or low quality
+                copyfile(infile, outfile)
+            elif exitcode != 0:
+                out, err = child.communicate()
+                raise ValueError(
+                    f"subprocess failed with exit code {exitcode};\n\n"
+                    f"STDOUT:\n"
+                    f"{out.decode('utf8')}\n\n"
+                    f"STDERR:\n"
+                    f"{err.decode('utf8')}"
+                )
 
         # Write image
         info(f"{self}: '{outfile}' saved")

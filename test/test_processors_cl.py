@@ -14,8 +14,8 @@ import pytest
 
 from pipescaler.common import temporary_filename
 from pipescaler.processors import (
-    AppleScriptProcessor,
-    AutomatorProcessor,
+    AppleScriptExternalProcessor,
+    AutomatorExternalProcessor,
     CropProcessor,
     ESRGANProcessor,
     ExpandProcessor,
@@ -57,15 +57,15 @@ def run_processor_on_command_line(processor: Any, args: str, infile: str):
 @pytest.mark.parametrize(
     ("infile", "args"), [(infiles["RGB"], "-h")],
 )
-def test_apple_script(infile: str, args: str) -> None:
-    run_processor_on_command_line(AppleScriptProcessor, args, infile)
+def test_apple_script_external(infile: str, args: str) -> None:
+    run_processor_on_command_line(AppleScriptExternalProcessor, args, infile)
 
 
 @pytest.mark.parametrize(
     ("infile", "args"), [(infiles["RGB"], "-h")],
 )
-def test_automator(infile: str, args: str) -> None:
-    run_processor_on_command_line(AutomatorProcessor, args, infile)
+def test_automator_external(infile: str, args: str) -> None:
+    run_processor_on_command_line(AutomatorExternalProcessor, args, infile)
 
 
 @pytest.mark.parametrize(
@@ -118,7 +118,7 @@ def test_potrace_external(infile: str, args: str) -> None:
 @pytest.mark.parametrize(
     ("infile", "args"), [(infiles["RGB"], "-h"), skip_if_ci(infiles["RGB"], ""),],
 )
-def test_pngquant(infile: str, args: str) -> None:
+def test_pngquant_external(infile: str, args: str) -> None:
     run_processor_on_command_line(PngquantExternalProcessor, args, infile)
 
 
@@ -143,7 +143,7 @@ def test_solid_color(infile: str, args: str) -> None:
         skip_if_ci_xfail_assertion_if_not_windows(infiles["RGB"], ""),
     ],
 )
-def test_texconv(infile: str, args: str) -> None:
+def test_texconv_external(infile: str, args: str) -> None:
     run_processor_on_command_line(TexconvExternalProcessor, args, infile)
 
 

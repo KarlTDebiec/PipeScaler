@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/processors/apple_script_processor.py
+#   pipescaler/processors/automator_external_processor.py
 #
 #   Copyright (C) 2020-2021 Karl T Debiec
 #   All rights reserved.
@@ -21,30 +21,31 @@ from pipescaler.common import package_root, temporary_filename, validate_input_p
 from pipescaler.core import Processor, UnsupportedPlatformError
 
 
-class AppleScriptProcessor(Processor):
+class AutomatorExternalProcessor(Processor):
     """
-    Runs image through an
-    [AppleScript](https://developer.apple.com/library/archive/documentation/AppleScript/Conceptual/AppleScriptLangGuide/introduction/ASLR_intro.html);
-    for example using
+    Applies an
+    [Automator QuickAction](https://support.apple.com/guide/automator/welcome/mac) to an
+    image; for example using
     [Pixelmator Pro](https://www.pixelmator.com/support/guide/pixelmator-pro/1270/).
     """
 
-    def __init__(self, script: str, args: str = "", **kwargs: Any) -> None:
+    def __init__(self, workflow: str, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
         # Store configuration
-        self.script = validate_input_path(
-            script if script.endswith(".scpt") else f"{script}.scpt",
-            default_directory=join(*split(package_root), "data", "scripts"),
+        self.workflow = validate_input_path(
+            workflow if workflow.endswith(".workflow") else f"{workflow}.workflow",
+            file_ok=False,
+            directory_ok=True,
+            default_directory=join(*split(package_root), "data", "workflows"),
         )
-        self.args = args
 
     def __call__(self, infile: str, outfile: str) -> None:
         if platform != "darwin":
             raise UnsupportedPlatformError(
-                "AppleScriptProcessor is only supported on macOS"
+                "AutomatorProcessor is only supported on macOS"
             )
-        self.process_file(infile, outfile, script=self.script, args=self.args)
+        self.process_file(infile, outfile, workflow=self.workflow)
 
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
@@ -62,28 +63,27 @@ class AppleScriptProcessor(Processor):
 
         # Operations
         parser.add_argument(
-            "--script",
+            "--workflow",
             type=cls.input_path_arg(
                 file_ok=False,
                 directory_ok=True,
-                default_directory=join(*split(package_root), "data", "scripts"),
+                default_directory=join(*split(package_root), "data", "workflows"),
             ),
-            help="path to script",
+            help="path to workflow",
         )
 
         return parser
 
     @classmethod
     def process_file(cls, infile: str, outfile: str, **kwargs: Any) -> None:
-        script = kwargs.pop("script")
-        args = kwargs.get("args", "")
+        workflow = kwargs.pop("workflow")
 
         with temporary_filename(".png") as tempfile:
             # Stage image
             copyfile(infile, tempfile)
 
             # Process image
-            command = f'osascript "{script}" "{tempfile}" {args}'
+            command = f"automator -i {tempfile} {workflow}"
             debug(f"{cls}: {command}")
             Popen(command, shell=True, close_fds=True).wait()
 
@@ -93,4 +93,4 @@ class AppleScriptProcessor(Processor):
 
 
 if __name__ == "__main__":
-    AppleScriptProcessor.main()
+    AutomatorExternalProcessor.main()

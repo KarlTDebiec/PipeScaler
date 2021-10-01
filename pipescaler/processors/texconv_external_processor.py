@@ -99,17 +99,17 @@ class TexconvExternalProcessor(Processor):
                 command += f" -f {self.format}"
             command += f" -o {temp_directory} {tempfile}"
             debug(f"{self}: {command}")
-            child = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)
-            exitcode = child.wait(10)
-            if exitcode != 0:
-                out, err = child.communicate()
-                raise ValueError(
-                    f"Texconv subprocess failed;\n\n"
-                    f"STDOUT\n"
-                    f"{out.decode('utf8')}\n\n"
-                    f"STDERR\n"
-                    f"{err.decode('utf8')}"
-                )
+            with Popen(command.split(), stdout=PIPE, stderr=PIPE) as child:
+                exitcode = child.wait(600)
+                if exitcode != 0:
+                    out, err = child.communicate()
+                    raise ValueError(
+                        f"subprocess failed with exit code {exitcode};\n\n"
+                        f"STDOUT:\n"
+                        f"{out.decode('utf8')}\n\n"
+                        f"STDERR:\n"
+                        f"{err.decode('utf8')}"
+                    )
 
             # Write image
             copyfile(f"{tempfile[:-4]}.dds", outfile)  # TODO: Handle filetypes

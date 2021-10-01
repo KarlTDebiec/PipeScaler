@@ -10,8 +10,12 @@ from __future__ import annotations
 
 from typing import List
 
-from pipescaler.processors.apple_script_processor import AppleScriptProcessor
-from pipescaler.processors.automator_processor import AutomatorProcessor
+from pipescaler.processors.apple_script_external_processor import (
+    AppleScriptExternalProcessor,
+)
+from pipescaler.processors.automator_external_processor import (
+    AutomatorExternalProcessor,
+)
 from pipescaler.processors.crop_processor import CropProcessor
 from pipescaler.processors.esrgan_processor import ESRGANProcessor
 from pipescaler.processors.expand_processor import ExpandProcessor
@@ -29,8 +33,8 @@ from pipescaler.processors.waifu_processor import WaifuProcessor
 from pipescaler.processors.xbrz_processor import XbrzProcessor
 
 __all__: List[str] = [
-    "AppleScriptProcessor",
-    "AutomatorProcessor",
+    "AppleScriptExternalProcessor",
+    "AutomatorExternalProcessor",
     "CropProcessor",
     "ESRGANProcessor",
     "ExpandProcessor",

@@ -136,10 +136,17 @@ class WaifuExternalProcessor(Processor):
         command += f' -i "{tempfile.name}"'
         command += f' -o "{outfile}"'
         debug(command)
-        child = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)
-        exitcode = child.wait(600)
-        if exitcode != 0:
-            raise ValueError()  # TODO: Provide useful output
+        with Popen(command.split(), stdout=PIPE, stderr=PIPE) as child:
+            exitcode = child.wait(600)
+            if exitcode != 0:
+                out, err = child.communicate()
+                raise ValueError(
+                    f"subprocess failed with exit code {exitcode};\n\n"
+                    f"STDOUT:\n"
+                    f"{out.decode('utf8')}\n\n"
+                    f"STDERR:\n"
+                    f"{err.decode('utf8')}"
+                )
 
         # Load processed image and crop back to original content
         waifued_image = Image.open(outfile)
