@@ -10,7 +10,6 @@ from __future__ import annotations
 
 from argparse import ArgumentParser
 from inspect import cleandoc
-from subprocess import PIPE, Popen
 from typing import Any
 
 from PIL import Image
@@ -18,7 +17,7 @@ from PIL.ImageOps import invert
 from reportlab.graphics.renderPM import drawToFile
 from svglib.svglib import svg2rlg
 
-from pipescaler.common import temporary_filename, validate_float
+from pipescaler.common import run_command, temporary_filename, validate_float
 from pipescaler.core import Processor, validate_image
 
 
@@ -68,17 +67,7 @@ class PotraceExternalProcessor(Processor):
                         f" -O {self.opttolerance}"
                         f" -o {svgfile}"
                     )
-                    with Popen(command, shell=True, stdout=PIPE, stderr=PIPE) as child:
-                        exitcode = child.wait(600)
-                        if exitcode != 0:
-                            out, err = child.communicate()
-                            raise ValueError(
-                                f"subprocess failed with exit code {exitcode};\n\n"
-                                f"STDOUT:\n"
-                                f"{out.decode('utf8')}\n\n"
-                                f"STDERR:\n"
-                                f"{err.decode('utf8')}"
-                            )
+                    run_command(command)
 
                     # Scale
                     traced_drawing = svg2rlg(svgfile)

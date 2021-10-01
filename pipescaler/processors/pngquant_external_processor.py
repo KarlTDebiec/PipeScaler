@@ -12,10 +12,9 @@ from argparse import ArgumentParser
 from inspect import cleandoc
 from logging import debug, info
 from shutil import copyfile
-from subprocess import PIPE, Popen
 from typing import Any
 
-from pipescaler.common import validate_executable, validate_int
+from pipescaler.common import run_command, validate_executable, validate_int
 from pipescaler.core import Processor
 
 
@@ -75,20 +74,10 @@ class PngquantExternalProcessor(Processor):
             command += f" --nofs"
         command += f" --output {outfile} {infile} "
         debug(f"{self}: {command}")
-        with Popen(command, shell=True, stdout=PIPE, stderr=PIPE) as child:
-            exitcode = child.wait(600)
-            if exitcode == 98:
-                # pngquant may not save outfile if it is too large or low quality
-                copyfile(infile, outfile)
-            elif exitcode != 0:
-                out, err = child.communicate()
-                raise ValueError(
-                    f"subprocess failed with exit code {exitcode};\n\n"
-                    f"STDOUT:\n"
-                    f"{out.decode('utf8')}\n\n"
-                    f"STDERR:\n"
-                    f"{err.decode('utf8')}"
-                )
+        exitcode, stdout, stderr = run_command(command, acceptable_exitcodes=[0, 98])
+        if exitcode == 98:
+            # pngquant may not save outfile if it is too large or low quality
+            copyfile(infile, outfile)
 
         # Write image
         info(f"{self}: '{outfile}' saved")
