@@ -7,8 +7,10 @@
 #   This software may be modified and distributed under the terms of the
 #   BSD license. See the LICENSE file for details.
 
-# noinspection PyUnresolvedReferences
 from pipescaler.common import run_command
+
+# noinspection PyUnresolvedReferences
+from shared import script
 
 
 def test_help(script: str) -> None:
