@@ -6,7 +6,6 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-""""""
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -96,7 +95,7 @@ class PngquantExternalProcessor(Processor):
         Returns:
             parser (ArgumentParser): Argument parser
         """
-        description = kwargs.get("description", cleandoc(cls.__doc__))
+        description = kwargs.pop("description", cleandoc(cls.__doc__))
         parser = super().construct_argparser(description=description, **kwargs)
 
         parser.add_argument(

@@ -6,7 +6,6 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-""""""
 from __future__ import annotations
 
 from hashlib import md5
@@ -36,7 +35,7 @@ class CopyFileTerminus(Terminus):
                 remove(filename)
                 info(f"{self}: '{filename}' removed")
 
-    def process_file(self, infile: str, outfile: str, **kwargs) -> None:
+    def process_file(self, infile: str, outfile: str) -> None:
         if isfile(outfile):
             infile_md5sum = md5(open(infile, "rb").read()).hexdigest()
             outfile_md5sum = md5(open(outfile, "rb").read()).hexdigest()

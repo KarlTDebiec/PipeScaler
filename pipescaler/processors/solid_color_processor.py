@@ -6,7 +6,6 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-""""""
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -18,11 +17,7 @@ import numpy as np
 from PIL import Image
 
 from pipescaler.common import validate_float
-from pipescaler.core import (
-    Processor,
-    UnsupportedImageModeError,
-    remove_palette_from_image,
-)
+from pipescaler.core import Processor, validate_image
 
 
 class SolidColorProcessor(Processor):
@@ -45,29 +40,19 @@ class SolidColorProcessor(Processor):
         """
 
         # Read image
-        input_image = Image.open(infile)
-        if input_image.mode == "P":
-            input_image = remove_palette_from_image(input_image)
+        input_image = validate_image(infile, ["L", "LA", "RGB", "RGBA"])
         input_datum = np.array(input_image)
 
-        # Convert image
+        # Process image
+        size = (
+            round(input_image.size[0] * self.scale),
+            round(input_image.size[1] * self.scale),
+        )
         if input_image.mode in ("RGBA", "RGB", "LA"):
             color = tuple(np.rint(input_datum.mean(axis=(0, 1))).astype(np.uint8))
-        elif input_image.mode == "L":
-            color = round(input_datum.mean())
         else:
-            raise UnsupportedImageModeError(
-                f"Image mode '{input_image.mode}' of image '{infile}'"
-                f" is not supported by {type(self)}"
-            )
-        output_image = Image.new(
-            input_image.mode,
-            (
-                int(round(input_image.size[0] * self.scale)),
-                int(round(input_image.size[1] * self.scale)),
-            ),
-            color,
-        )
+            color = round(input_datum.mean())
+        output_image = Image.new(input_image.mode, size, color)
 
         # Write image
         output_image.save(outfile)
@@ -84,7 +69,7 @@ class SolidColorProcessor(Processor):
         Returns:
             parser (ArgumentParser): Argument parser
         """
-        description = kwargs.get("description", cleandoc(cls.__doc__))
+        description = kwargs.pop("description", cleandoc(cls.__doc__))
         parser = super().construct_argparser(description=description, **kwargs)
 
         # Operations

@@ -6,7 +6,6 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-""""""
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -20,11 +19,7 @@ from reportlab.graphics.renderPM import drawToFile
 from svglib.svglib import svg2rlg
 
 from pipescaler.common import temporary_filename, validate_float
-from pipescaler.core import (
-    Processor,
-    UnsupportedImageModeError,
-    remove_palette_from_image,
-)
+from pipescaler.core import Processor, validate_image
 
 
 class PotraceExternalProcessor(Processor):
@@ -52,16 +47,9 @@ class PotraceExternalProcessor(Processor):
 
     def process_file(self, infile: str, outfile: str):
         # Read image
-        input_image = Image.open(infile)
-        if input_image.mode == "P":
-            input_image = remove_palette_from_image(input_image)
-        if input_image.mode != "L":
-            raise UnsupportedImageModeError(
-                f"Image mode '{input_image.mode}' of image '{infile}'"
-                f" is not supported by {type(self)}"
-            )
+        input_image = validate_image(infile, "L")
 
-        # Trace image
+        # Process image
         with temporary_filename(".bmp") as bmpfile:
             with temporary_filename(".svg") as svgfile:
                 with temporary_filename(".png") as pngfile:
@@ -121,7 +109,7 @@ class PotraceExternalProcessor(Processor):
         Returns:
             parser (ArgumentParser): Argument parser
         """
-        description = kwargs.get("description", cleandoc(cls.__doc__))
+        description = kwargs.pop("description", cleandoc(cls.__doc__))
         parser = super().construct_argparser(description=description, **kwargs)
 
         parser.add_argument(
@@ -133,7 +121,7 @@ class PotraceExternalProcessor(Processor):
             "--blacklevel",
             default=0.3,
             type=cls.float_arg(min_value=0),
-            help="black/white cutoff in input file (0.0-1.0, default: " "%(default)s)",
+            help="black/white cutoff in input file (0.0-1.0, default: %(default)s)",
         )
         parser.add_argument(
             "--alphamax",

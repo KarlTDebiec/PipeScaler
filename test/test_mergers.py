@@ -6,7 +6,6 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license. See the LICENSE file for details.
-""""""
 import pytest
 from PIL import Image
 
@@ -53,7 +52,7 @@ def test_alpha_merger(color: str, alpha: str) -> None:
 
 
 @pytest.mark.parametrize(
-    ("reference", "target"),
+    ("reference", "input"),
     [
         (alt_infiles["L"], infiles["L"]),
         (alt_infiles["LA"], infiles["LA"]),
@@ -65,20 +64,20 @@ def test_alpha_merger(color: str, alpha: str) -> None:
         (alt_infiles["PRGBA"], infiles["PRGBA"]),
     ],
 )
-def test_color_match_merger(reference: str, target: str):
+def test_color_match_merger(reference: str, input: str):
     with temporary_filename(".png") as outfile:
         reference_image = Image.open(reference)
-        target_image = Image.open(target)
-        if target_image.mode == "P":
-            expected_output_mode = remove_palette_from_image(target_image).mode
+        input_image = Image.open(input)
+        if input_image.mode == "P":
+            expected_output_mode = remove_palette_from_image(input_image).mode
         else:
-            expected_output_mode = target_image.mode
+            expected_output_mode = input_image.mode
 
         merger = ColorMatchMerger()
-        merger(reference=reference, target=target, outfile=outfile)
+        merger(reference=reference, input=input, outfile=outfile)
         with Image.open(outfile) as output_image:
             assert output_image.mode == expected_output_mode
-            assert output_image.size == target_image.size
+            assert output_image.size == input_image.size
 
 
 @pytest.mark.parametrize(

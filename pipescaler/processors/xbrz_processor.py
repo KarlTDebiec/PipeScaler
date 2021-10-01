@@ -20,8 +20,7 @@ from PIL import Image
 from pipescaler.common import validate_int
 from pipescaler.core import (
     Processor,
-    UnsupportedImageModeError,
-    remove_palette_from_image,
+    validate_image_and_convert_mode,
 )
 
 
@@ -60,26 +59,17 @@ class XbrzProcessor(Processor):
         """
 
         # Read image
-        input_image = Image.open(infile)
-        if input_image.mode == "P":
-            input_image = remove_palette_from_image(input_image)
-        if input_image.mode == "RGBA":
-            rgba_image = input_image
-        elif input_image.mode in ("RGB", "LA", "L"):
-            rgba_image = input_image.convert("RGBA")
-        else:
-            raise UnsupportedImageModeError(
-                f"Image mode '{input_image.mode}' of image '{infile}'"
-                f" is not supported by {type(self)}"
-            )
+        input_image, input_mode = validate_image_and_convert_mode(
+            infile, ["L", "LA", "RGB", "RGBA"], "RGBA"
+        )
 
         # Process image
-        output_image = xbrz.scale_pillow(rgba_image, self.scale)
-        if input_image.mode == "RGB":
+        output_image = xbrz.scale_pillow(input_image, self.scale)
+        if input_mode == "RGB":
             output_image = Image.fromarray(np.array(output_image)[:, :, :3])
-        elif input_image.mode == "LA":
+        elif input_mode == "LA":
             output_image = output_image.convert("LA")
-        elif input_image.mode == "L":
+        elif input_mode == "L":
             output_image = Image.fromarray(np.array(output_image)[:, :, :3])
             output_image = output_image.convert("L")
 
@@ -98,7 +88,7 @@ class XbrzProcessor(Processor):
         Returns:
             parser (ArgumentParser): Argument parser
         """
-        description = kwargs.get("description", cleandoc(cls.__doc__))
+        description = kwargs.pop("description", cleandoc(cls.__doc__))
         parser = super().construct_argparser(description=description, **kwargs)
 
         # Input

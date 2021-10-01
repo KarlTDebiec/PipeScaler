@@ -31,6 +31,8 @@ from pipescaler.core.misc import (
     normal_map_from_heightmap,
     parse_file_list,
     remove_palette_from_image,
+    validate_image,
+    validate_image_and_convert_mode,
 )
 from pipescaler.core.pipe_image import PipeImage
 from pipescaler.core.pipeline import Pipeline
@@ -54,4 +56,6 @@ __all__: List[str] = [
     "normal_map_from_heightmap",
     "parse_file_list",
     "remove_palette_from_image",
+    "validate_image",
+    "validate_image_and_convert_mode",
 ]

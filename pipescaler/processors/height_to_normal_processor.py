@@ -6,7 +6,6 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-""""""
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -14,17 +13,14 @@ from inspect import cleandoc
 from logging import info
 from typing import Any, Optional, Tuple
 
-from PIL import Image
-
 from pipescaler.common import validate_float
 from pipescaler.core import (
     Processor,
-    UnsupportedImageModeError,
     crop_image,
     expand_image,
     gaussian_smooth_image,
     normal_map_from_heightmap,
-    remove_palette_from_image,
+    validate_image,
 )
 
 
@@ -57,14 +53,7 @@ class HeightToNormalProcessor(Processor):
         """
 
         # Read image
-        input_image = Image.open(infile)
-        if input_image.mode == "P":
-            input_image = remove_palette_from_image(input_image)
-        if input_image.mode != "L":
-            raise UnsupportedImageModeError(
-                f"Image mode '{input_image.mode}' of image '{infile}'"
-                f" is not supported by {type(self)}"
-            )
+        input_image = validate_image(infile, "L")
 
         # Process image
         expanded_image = expand_image(input_image, 8, 8, 8, 8)
@@ -90,7 +79,7 @@ class HeightToNormalProcessor(Processor):
         Returns:
             parser (ArgumentParser): Argument parser
         """
-        description = kwargs.get("description", cleandoc(cls.__doc__))
+        description = kwargs.pop("description", cleandoc(cls.__doc__))
         parser = super().construct_argparser(description=description, **kwargs)
 
         # Operations
@@ -98,8 +87,8 @@ class HeightToNormalProcessor(Processor):
             "--sigma",
             default=None,
             type=cls.float_arg(min_value=0),
-            help="Gaussian smoothing to apply to image before calculating normal map"
-            " (default: %(default)s)",
+            help="Gaussian smoothing to apply to image before calculating normal map "
+            "(default: %(default)s)",
         )
 
         return parser

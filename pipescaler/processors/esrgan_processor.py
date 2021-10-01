@@ -20,11 +20,7 @@ import torch
 from PIL import Image
 
 from pipescaler.common import validate_input_path
-from pipescaler.core import (
-    Processor,
-    UnsupportedImageModeError,
-    remove_palette_from_image,
-)
+from pipescaler.core import Processor, validate_image_and_convert_mode
 
 
 class ESRGANProcessor(Processor):
@@ -203,31 +199,10 @@ class ESRGANProcessor(Processor):
         """
 
         # Read image
-        input_image = Image.open(infile)
-        if input_image.mode == "P":
-            full_space_image = remove_palette_from_image(input_image)
-            if full_space_image.mode == "RGB":
-                output_mode = "RGB"
-                input_datum = np.array(full_space_image)
-            elif full_space_image.mode == "L":
-                output_mode = "L"
-                input_datum = np.array(full_space_image.convert("RGB"))
-            else:
-                raise UnsupportedImageModeError(
-                    f"Image mode '{full_space_image.mode}' of paletted image '{infile}'"
-                    f" is not supported by {type(self)}"
-                )
-        elif input_image.mode == "RGB":
-            output_mode = "RGB"
-            input_datum = np.array(input_image)
-        elif input_image.mode == "L":
-            output_mode = "L"
-            input_datum = np.array(input_image.convert("RGB"))
-        else:
-            raise UnsupportedImageModeError(
-                f"Image mode '{input_image.mode}' of image '{infile}'"
-                f" is not supported by {type(self)}"
-            )
+        input_image, input_mode = validate_image_and_convert_mode(
+            infile, ["L", "RGB"], "RGB"
+        )
+        input_datum = np.array(input_image)
 
         # Process image
         try:
@@ -242,7 +217,7 @@ class ESRGANProcessor(Processor):
             else:
                 raise e
         output_image = Image.fromarray(output_datum)
-        if output_mode == "L":
+        if input_mode == "L":
             output_image = output_image.convert("L")
 
         # Write image
@@ -260,7 +235,7 @@ class ESRGANProcessor(Processor):
         Returns:
             parser (ArgumentParser): Argument parser
         """
-        description = kwargs.get("description", cleandoc(cls.__doc__))
+        description = kwargs.pop("description", cleandoc(cls.__doc__))
         parser = super().construct_argparser(description=description, **kwargs)
 
         # Input

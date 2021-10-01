@@ -6,7 +6,6 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-""""""
 from __future__ import annotations
 
 from logging import info
@@ -16,7 +15,7 @@ import numpy as np
 from PIL import Image
 from skimage.exposure import match_histograms
 
-from pipescaler.core import Merger, UnsupportedImageModeError, remove_palette_from_image
+from pipescaler.core import Merger, validate_image
 
 
 class ColorMatchMerger(Merger):
@@ -26,43 +25,29 @@ class ColorMatchMerger(Merger):
         infiles = {k: kwargs.get(k) for k in self.inlets}
 
         # Read images
-        reference_image = Image.open(infiles["reference"])
-        if reference_image.mode == "P":
-            reference_image = remove_palette_from_image(reference_image)
-        if reference_image.mode not in ("L", "LA", "RGB", "RGBA"):
-            raise UnsupportedImageModeError(
-                f"Image mode '{reference_image.mode}' of image '{infiles['reference']}'"
-                f" is not supported by {type(self)}"
-            )
-        target_image = Image.open(infiles["target"])
-        if target_image.mode == "P":
-            target_image = remove_palette_from_image(target_image)
-        if target_image.mode not in ("L", "LA", "RGB", "RGBA"):
-            raise UnsupportedImageModeError(
-                f"Image mode '{target_image.mode}' of image '{infiles['target']}'"
-                f" is not supported by {type(self)}"
-            )
-        if reference_image.mode != target_image.mode:
+        reference_image = validate_image(
+            infiles["reference"], ["L", "LA", "RGB", "RGBA"]
+        )
+        input_image = validate_image(infiles["input"], ["L", "LA", "RGB", "RGBA"])
+        if reference_image.mode != input_image.mode:
             raise ValueError(
                 f"Image mode '{reference_image.mode}' of image '{infiles['reference']}'"
-                f" does not match mode '{target_image.mode}' of image"
-                f" '{infiles['target']}'"
+                f" does not match mode '{input_image.mode}' of image"
+                f" '{infiles['input']}'"
             )
 
         # Merge images
         reference_datum = np.array(reference_image)
-        target_datum = np.array(target_image)
+        input_datum = np.array(input_image)
         if reference_image.mode == "L":
-            output_datum = np.clip(
-                match_histograms(target_datum, reference_datum), 0, 255,
-            ).astype(np.uint8)
+            output_datum = match_histograms(
+                input_datum, reference_datum, multichannel=False
+            )
         else:
-            output_datum = np.clip(
-                match_histograms(target_datum, reference_datum, multichannel=True),
-                0,
-                255,
-            ).astype(np.uint8)
-        output_image = Image.fromarray(output_datum)
+            output_datum = match_histograms(
+                input_datum, reference_datum, multichannel=True
+            )
+        output_image = Image.fromarray(np.clip(output_datum, 0, 255,).astype(np.uint8))
 
         # Write image
         output_image.save(outfile)
@@ -70,4 +55,4 @@ class ColorMatchMerger(Merger):
 
     @property
     def inlets(self):
-        return ["reference", "target"]
+        return ["reference", "input"]

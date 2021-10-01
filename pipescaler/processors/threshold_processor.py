@@ -16,11 +16,7 @@ import numba as nb
 import numpy as np
 from PIL import Image
 
-from pipescaler.core import (
-    Processor,
-    UnsupportedImageModeError,
-    remove_palette_from_image,
-)
+from pipescaler.core import Processor, validate_image
 
 
 class ThresholdProcessor(Processor):
@@ -31,19 +27,13 @@ class ThresholdProcessor(Processor):
     ) -> None:
         super().__init__(**kwargs)
 
+        # Store configuration
         self.threshold = threshold
         self.denoise = denoise
 
     def process_file(self, infile: str, outfile: str) -> None:
         # Read image
-        input_image = Image.open(infile)
-        if input_image.mode == "P":
-            input_image = remove_palette_from_image(input_image)
-        if input_image.mode != "L":
-            raise UnsupportedImageModeError(
-                f"Image mode '{input_image.mode}' of image '{infile}'"
-                f" is not supported by {type(self)}"
-            )
+        input_image = validate_image(infile, "L")
 
         # Process image
         output_image = input_image.point(lambda p: p > self.threshold and 255)
@@ -67,7 +57,7 @@ class ThresholdProcessor(Processor):
         Returns:
             parser (ArgumentParser): Argument parser
         """
-        description = kwargs.get("description", cleandoc(cls.__doc__))
+        description = kwargs.pop("description", cleandoc(cls.__doc__))
         parser = super().construct_argparser(description=description, **kwargs)
 
         parser.add_argument(
