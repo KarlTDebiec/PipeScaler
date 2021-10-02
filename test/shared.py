@@ -9,15 +9,14 @@
 from functools import partial
 from os import getenv
 from os.path import dirname, join, splitext
-from platform import mac_ver, win32_ver
+from platform import mac_ver, system, win32_ver
 
 import pytest
 from PIL import Image
 
-from pipescaler.common import package_root
+from pipescaler.common import UnsupportedPlatformError, package_root
 from pipescaler.core import (
     UnsupportedImageModeError,
-    UnsupportedPlatformError,
     remove_palette_from_image,
 )
 
@@ -147,10 +146,23 @@ xfail_assertion_if_not_windows = partial(
         )
     ],
 )
+
+
+def xfail_unsupported_platform(unsupported_platforms):
+    return partial(
+        pytest.param,
+        marks=pytest.mark.xfail(
+            system() in unsupported_platforms,
+            raises=UnsupportedPlatformError,
+            reason=f"Not supported on {system()}",
+        ),
+    )
+
+
 xfail_if_mac = partial(
     pytest.param,
     marks=pytest.mark.xfail(
-        any(mac_ver()),
+        system() == "Darwin",
         raises=UnsupportedPlatformError,
         reason="Not supported on macOS",
     ),

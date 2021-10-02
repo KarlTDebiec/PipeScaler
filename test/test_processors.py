@@ -8,14 +8,12 @@
 #   BSD license. See the LICENSE file for details.
 from os import getenv
 from os.path import getsize
-from platform import win32_ver
 
 import numpy as np
 import pytest
 from PIL import Image
 
 from pipescaler.common import temporary_filename
-from pipescaler.core import UnsupportedPlatformError
 from pipescaler.processors import (
     CropProcessor,
     ESRGANProcessor,
@@ -41,6 +39,7 @@ from shared import (
     skip_if_ci,
     xfail_if_not_windows,
     xfail_unsupported_mode,
+    xfail_unsupported_platform,
 )
 
 
@@ -371,29 +370,23 @@ def test_solid_color(infile: str, solid_color_processor: SolidColorProcessor) ->
             assert len(output_image.getcolors()) == 1
 
 
-@pytest.mark.skipif(
-    getenv("CONTINUOUS_INTEGRATION") is not None, reason="Skip when running in CI"
-)
-@pytest.mark.xfail(
-    not any(win32_ver()),
-    raises=UnsupportedPlatformError,
-    reason="Only supported on Windows",
-)
 @pytest.mark.parametrize(
     ("infile", "texconv_external_processor"),
     [
-        (infiles["L"], {}),
-        (infiles["LA"], {}),
-        (infiles["RGB"], {}),
-        (infiles["RGBA"], {}),
-        (infiles["PL"], {}),
-        (infiles["PLA"], {}),
-        (infiles["PRGB"], {}),
-        (infiles["PRGBA"], {}),
+        xfail_unsupported_platform({"Darwin", "Linux"})(infiles["L"], {}),
+        xfail_unsupported_platform({"Darwin", "Linux"})(infiles["LA"], {}),
+        xfail_unsupported_platform({"Darwin", "Linux"})(infiles["RGB"], {}),
+        xfail_unsupported_platform({"Darwin", "Linux"})(infiles["RGBA"], {}),
+        xfail_unsupported_platform({"Darwin", "Linux"})(infiles["PL"], {}),
+        xfail_unsupported_platform({"Darwin", "Linux"})(infiles["PLA"], {}),
+        xfail_unsupported_platform({"Darwin", "Linux"})(infiles["PRGB"], {}),
+        xfail_unsupported_platform({"Darwin", "Linux"})(infiles["PRGBA"], {}),
     ],
     indirect=["texconv_external_processor"],
 )
-def test_texconv_external(infile: str, texconv_external_processor) -> None:
+def test_texconv_external(
+    infile: str, texconv_external_processor: TexconvExternalProcessor
+) -> None:
     with temporary_filename(".png") as outfile:
         texconv_external_processor(infile, outfile)
 

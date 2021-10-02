@@ -12,13 +12,12 @@ from argparse import ArgumentParser
 from inspect import cleandoc
 from logging import debug, info
 from os.path import basename, join
-from platform import win32_ver
 from shutil import copyfile
 from tempfile import TemporaryDirectory
 from typing import Any, Optional
 
 from pipescaler.common import run_command, validate_executable
-from pipescaler.core import Processor, UnsupportedPlatformError
+from pipescaler.core import Processor
 
 
 class TexconvExternalProcessor(Processor):
