@@ -6,11 +6,11 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-""""""
 from __future__ import annotations
 
 from argparse import ArgumentParser
 from copy import deepcopy
+from inspect import cleandoc
 from os import environ
 from os.path import expandvars, normpath
 from typing import Any
@@ -22,6 +22,8 @@ from pipescaler.core.pipeline import Pipeline
 
 
 class PipeRunner(CLTool):
+    """"""
+
     def __init__(self, conf_file: str, **kwargs: Any) -> None:
         """
         Initializes.
@@ -98,10 +100,13 @@ class PipeRunner(CLTool):
         """
         Constructs argument parser.
 
+        Args:
+            kwargs (Any): Additional keyword arguments
+
         Returns:
-            ArgumentParser: Argument parser
+            parser (ArgumentParser): Argument parser
         """
-        description = kwargs.pop("description", __doc__.strip())
+        description = kwargs.pop("description", cleandoc(cls.__doc__))
         parser = super().construct_argparser(description=description, **kwargs)
 
         # Input

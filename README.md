@@ -1,6 +1,6 @@
 [![Python: ≥3.8](https://img.shields.io/badge/python-≥3.8-green.svg)](https://docs.python.org/3/whatsnew/3.8.html)
 [![Build Status](https://app.travis-ci.com/KarlTDebiec/PipeScaler.svg?branch=master)](https://app.travis-ci.com/github/KarlTDebiec/PipeScaler)
-[![Coverage](https://img.shields.io/badge/coverage-74-yellowgreen)](https://app.travis-ci.com/github/KarlTDebiec/PipeScaler)
+[![Coverage](https://img.shields.io/badge/coverage-75-yellowgreen)](https://app.travis-ci.com/github/KarlTDebiec/PipeScaler)
 [![Code Style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![License: BSD 3-Clause](https://img.shields.io/badge/license-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 
@@ -20,8 +20,8 @@ image sources:
 
 **Processors** perform operations on an image, yielding a modified downstream image.
 PipeScaler includes the following image processors:
-* [AppleScriptProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/apple_script_processor.py) - Runs image through an [AppleScript](https://developer.apple.com/library/archive/documentation/AppleScript/Conceptual/AppleScriptLangGuide/introduction/ASLR_intro.html); for example using [Pixelmator Pro](https://www.pixelmator.com/support/guide/pixelmator-pro/1270/).
-* [AutomatorProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/automator_processor.py) - Applies an [Automator QuickAction](https://support.apple.com/guide/automator/welcome/mac) to an image; for example using [Pixelmator Pro](https://www.pixelmator.com/support/guide/pixelmator-pro/1270/).
+* [AppleScriptExternalProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/apple_script_external_processor.py) - Runs image through an [AppleScript](https://developer.apple.com/library/archive/documentation/AppleScript/Conceptual/AppleScriptLangGuide/introduction/ASLR_intro.html); for example using [Pixelmator Pro](https://www.pixelmator.com/support/guide/pixelmator-pro/1270/).
+* [AutomatorExternalProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/automator_external_processor.py) - Applies an [Automator QuickAction](https://support.apple.com/guide/automator/welcome/mac) to an image; for example using [Pixelmator Pro](https://www.pixelmator.com/support/guide/pixelmator-pro/1270/).
 * [CropProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/crop_processor.py) - Crops image canvas.
 * [ESRGANProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/esrgan_processor.py) - Upscales and/or denoises image using [ESRGAN](https://github.com/xinntao/ESRGAN); supports old and new architectures.
 * [ExpandProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/expand_processor.py) - Expands image canvas.

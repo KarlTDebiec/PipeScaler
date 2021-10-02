@@ -75,7 +75,7 @@ def potrace_external_processor(request) -> PotraceExternalProcessor:
 
 
 @pytest.fixture()
-def pngquant_processor(request) -> PngquantExternalProcessor:
+def pngquant_external_processor(request) -> PngquantExternalProcessor:
     return PngquantExternalProcessor(**request.param)
 
 
@@ -90,7 +90,7 @@ def solid_color_processor(request) -> SolidColorProcessor:
 
 
 @pytest.fixture()
-def texconv_processor(request) -> TexconvExternalProcessor:
+def texconv_external_processor(request) -> TexconvExternalProcessor:
     return TexconvExternalProcessor(**request.param)
 
 
@@ -269,7 +269,7 @@ def test_mode(infile: str, mode_processor: ModeProcessor) -> None:
     getenv("CONTINUOUS_INTEGRATION") is not None, reason="Skip when running in CI"
 )
 @pytest.mark.parametrize(
-    ("infile", "pngquant_processor"),
+    ("infile", "pngquant_external_processor"),
     [
         (infiles["L"], {}),
         (infiles["LA"], {}),
@@ -280,11 +280,11 @@ def test_mode(infile: str, mode_processor: ModeProcessor) -> None:
         (infiles["PRGB"], {}),
         (infiles["PRGBA"], {}),
     ],
-    indirect=["pngquant_processor"],
+    indirect=["pngquant_external_processor"],
 )
-def test_pngquant(infile: str, pngquant_processor: PngquantExternalProcessor) -> None:
+def test_pngquant_external(infile: str, pngquant_external_processor) -> None:
     with temporary_filename(".png") as outfile:
-        pngquant_processor(infile, outfile)
+        pngquant_external_processor(infile, outfile)
 
         with Image.open(infile) as input_image, Image.open(outfile) as output_image:
             assert output_image.mode in (input_image.mode, "P")
@@ -380,7 +380,7 @@ def test_solid_color(infile: str, solid_color_processor: SolidColorProcessor) ->
     reason="Only supported on Windows",
 )
 @pytest.mark.parametrize(
-    ("infile", "texconv_processor"),
+    ("infile", "texconv_external_processor"),
     [
         (infiles["L"], {}),
         (infiles["LA"], {}),
@@ -391,11 +391,11 @@ def test_solid_color(infile: str, solid_color_processor: SolidColorProcessor) ->
         (infiles["PRGB"], {}),
         (infiles["PRGBA"], {}),
     ],
-    indirect=["texconv_processor"],
+    indirect=["texconv_external_processor"],
 )
-def test_texconv(infile: str, texconv_processor: TexconvExternalProcessor) -> None:
+def test_texconv_external(infile: str, texconv_external_processor) -> None:
     with temporary_filename(".png") as outfile:
-        texconv_processor(infile, outfile)
+        texconv_external_processor(infile, outfile)
 
         with Image.open(infile) as input_image, Image.open(outfile) as output_image:
             assert output_image.mode == "RGBA"

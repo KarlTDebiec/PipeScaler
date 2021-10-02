@@ -13,13 +13,17 @@ from inspect import cleandoc
 from logging import debug, info
 from os import remove
 from platform import win32_ver
-from subprocess import PIPE, Popen
 from tempfile import NamedTemporaryFile
 from typing import Any
 
 from PIL import Image
 
-from pipescaler.common import validate_executable, validate_int, validate_str
+from pipescaler.common import (
+    run_command,
+    validate_executable,
+    validate_int,
+    validate_str,
+)
 from pipescaler.core import Processor, validate_image_and_convert_mode
 
 
@@ -131,15 +135,14 @@ class WaifuExternalProcessor(Processor):
         command = f"{executable} -p gpu"
         if not any(win32_ver()):
             command += f" -t {self.imagetype}"
-        command += f" -s {self.scale}"
-        command += f" -n {self.denoise}"
-        command += f' -i "{tempfile.name}"'
-        command += f' -o "{outfile}"'
+        command += (
+            f" -s {self.scale}"
+            f" -n {self.denoise}"
+            f' -i "{tempfile.name}"'
+            f' -o "{outfile}"'
+        )
         debug(command)
-        child = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)
-        exitcode = child.wait(600)
-        if exitcode != 0:
-            raise ValueError()  # TODO: Provide useful output
+        run_command(command)
 
         # Load processed image and crop back to original content
         waifued_image = Image.open(outfile)

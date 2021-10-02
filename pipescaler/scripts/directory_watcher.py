@@ -6,12 +6,12 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-""""""
 from __future__ import annotations
 
 import logging
 import re
 from argparse import ArgumentParser
+from inspect import cleandoc
 from logging import debug, info
 from os import environ, makedirs, remove, rmdir
 from os.path import basename, expandvars, isdir, isfile, normpath, splitext
@@ -31,6 +31,8 @@ from pipescaler.core import parse_file_list
 
 
 class DirectoryWatcher(CLTool):
+    """"""
+
     exclusions = {".DS_Store", "desktop"}
 
     def __init__(
@@ -223,10 +225,13 @@ class DirectoryWatcher(CLTool):
         """
         Constructs argument parser.
 
+        Args:
+            kwargs (Any): Additional keyword arguments
+
         Returns:
-            ArgumentParser: Argument parser
+            parser (ArgumentParser): Argument parser
         """
-        description = kwargs.pop("description", __doc__.strip())
+        description = kwargs.pop("description", cleandoc(cls.__doc__))
         parser = super().construct_argparser(description=description, **kwargs)
 
         # Input

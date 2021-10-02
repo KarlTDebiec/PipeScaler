@@ -6,12 +6,12 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-""""""
 from __future__ import annotations
 
 import itertools
 import logging
 from argparse import ArgumentParser
+from inspect import cleandoc
 from os.path import basename, splitext
 from pprint import pprint
 from shutil import move
@@ -33,6 +33,8 @@ from pipescaler.core import parse_file_list
 
 
 class ScaledImageIdentifier(CLTool):
+    """"""
+
     exclusions = {".DS_Store", "desktop"}
 
     def __init__(
@@ -264,9 +266,10 @@ class ScaledImageIdentifier(CLTool):
             kwargs (Any): Additional keyword arguments
 
         Returns:
-            ArgumentParser: Argument parser
+            parser (ArgumentParser): Argument parser
         """
-        parser = super().construct_argparser(description=__doc__.strip(), **kwargs)
+        description = kwargs.pop("description", cleandoc(cls.__doc__))
+        parser = super().construct_argparser(description=description, **kwargs)
 
         # Input
         parser_input = parser.add_argument_group("input arguments")

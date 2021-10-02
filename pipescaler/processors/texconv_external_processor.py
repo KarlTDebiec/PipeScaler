@@ -14,11 +14,10 @@ from logging import debug, info
 from os.path import basename, join
 from platform import win32_ver
 from shutil import copyfile
-from subprocess import PIPE, Popen
 from tempfile import TemporaryDirectory
 from typing import Any, Optional
 
-from pipescaler.common import validate_executable
+from pipescaler.common import run_command, validate_executable
 from pipescaler.core import Processor, UnsupportedPlatformError
 
 
@@ -99,17 +98,7 @@ class TexconvExternalProcessor(Processor):
                 command += f" -f {self.format}"
             command += f" -o {temp_directory} {tempfile}"
             debug(f"{self}: {command}")
-            child = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)
-            exitcode = child.wait(10)
-            if exitcode != 0:
-                out, err = child.communicate()
-                raise ValueError(
-                    f"Texconv subprocess failed;\n\n"
-                    f"STDOUT\n"
-                    f"{out.decode('utf8')}\n\n"
-                    f"STDERR\n"
-                    f"{err.decode('utf8')}"
-                )
+            run_command(command)
 
             # Write image
             copyfile(f"{tempfile[:-4]}.dds", outfile)  # TODO: Handle filetypes

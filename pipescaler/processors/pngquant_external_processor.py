@@ -12,10 +12,9 @@ from argparse import ArgumentParser
 from inspect import cleandoc
 from logging import debug, info
 from shutil import copyfile
-from subprocess import PIPE, Popen
 from typing import Any
 
-from pipescaler.common import validate_executable, validate_int
+from pipescaler.common import run_command, validate_executable, validate_int
 from pipescaler.core import Processor
 
 
@@ -66,20 +65,19 @@ class PngquantExternalProcessor(Processor):
         """
 
         # Process image
-        command = f"pngquant --skip-if-larger --force"
-        command += f" --quality {self.quality}"
-        command += f" --speed {self.speed}"
+        command = (
+            f"pngquant --skip-if-larger --force"
+            f" --quality {self.quality}"
+            f" --speed {self.speed}"
+        )
         if not self.floyd_steinberg:
             command += f" --nofs"
         command += f" --output {outfile} {infile} "
         debug(f"{self}: {command}")
-        child = Popen(command, shell=True, close_fds=True, stdout=PIPE, stderr=PIPE)
-        exitcode = child.wait(10)
+        exitcode, stdout, stderr = run_command(command, acceptable_exitcodes=[0, 98])
         if exitcode == 98:
             # pngquant may not save outfile if it is too large or low quality
             copyfile(infile, outfile)
-        elif exitcode != 0:
-            raise ValueError()  # TODO: Provide useful output
 
         # Write image
         info(f"{self}: '{outfile}' saved")

@@ -6,10 +6,10 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-""""""
 from __future__ import annotations
 
 from argparse import ArgumentParser
+from inspect import cleandoc
 from os import remove
 from subprocess import Popen
 from tempfile import NamedTemporaryFile
@@ -25,7 +25,9 @@ from pipescaler.common import (
 )
 
 
-class APNGCreator(CLTool):
+class ApngCreator(CLTool):
+    """"""
+
     def __init__(
         self,
         infiles: List[str],
@@ -110,9 +112,10 @@ class APNGCreator(CLTool):
             kwargs (Any): Additional keyword arguments
 
         Returns:
-            ArgumentParser: Argument parser
+            parser (ArgumentParser): Argument parser
         """
-        parser = super().construct_argparser(description=__doc__.strip(), **kwargs)
+        description = kwargs.pop("description", cleandoc(cls.__doc__))
+        parser = super().construct_argparser(description=description, **kwargs)
 
         # Input
         parser.add_argument(
@@ -156,4 +159,4 @@ class APNGCreator(CLTool):
 
 
 if __name__ == "__main__":
-    APNGCreator.main()
+    ApngCreator.main()
