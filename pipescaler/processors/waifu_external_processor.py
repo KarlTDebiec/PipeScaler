@@ -12,7 +12,7 @@ from argparse import ArgumentParser
 from inspect import cleandoc
 from logging import debug, info
 from os import remove
-from platform import win32_ver
+from platform import system, win32_ver
 from tempfile import NamedTemporaryFile
 from typing import Any
 
@@ -74,20 +74,6 @@ class WaifuExternalProcessor(Processor):
         self.denoise = validate_int(denoise, min_value=0, max_value=4)
         self.expand = expand
 
-    def __call__(self, infile: str, outfile: str) -> None:
-        """
-        Processes infile and writes the resulting output to outfile.
-
-        Arguments:
-            infile: Input file
-            outfile: Output file
-        """
-        if any(win32_ver()):
-            validate_executable("waifu2x-caffe-cui.exe")
-        else:
-            validate_executable("waifu2x")
-        super().__call__(infile, outfile)
-
     def process_file(self, infile: str, outfile: str) -> None:
         """
         Reads input image, processes it, and saves output image
@@ -96,10 +82,10 @@ class WaifuExternalProcessor(Processor):
             infile: Input file path
             outfile: Output file path
         """
-        if any(win32_ver()):
-            executable = validate_executable("waifu2x-caffe-cui.exe")
+        if system() == "Windows":
+            executable = validate_executable("waifu2x-caffe-cui.exe", {"Windows"})
         else:
-            executable = validate_executable("/usr/local/bin/waifu2x")
+            executable = validate_executable("waifu2x", {"Darwin", "Linux"})
 
         # Read image
         input_image, input_mode = validate_image_and_convert_mode(

@@ -13,17 +13,16 @@ from inspect import cleandoc
 from logging import debug, info
 from os.path import join, split
 from shutil import copyfile
-from subprocess import Popen
-from sys import platform
 from typing import Any
 
 from pipescaler.common import (
     package_root,
     run_command,
     temporary_filename,
+    validate_executable,
     validate_input_path,
 )
-from pipescaler.core import Processor, UnsupportedPlatformError
+from pipescaler.core import Processor
 
 
 class AppleScriptExternalProcessor(Processor):
@@ -44,20 +43,6 @@ class AppleScriptExternalProcessor(Processor):
         )
         self.args = args
 
-    def __call__(self, infile: str, outfile: str) -> None:
-        """
-        Validates platform and processes file
-
-        Arguments:
-            infile: Input file path
-            outfile: Output file path
-        """
-        if platform != "darwin":
-            raise UnsupportedPlatformError(
-                "AppleScriptProcessor is only supported on macOS"
-            )
-        self.process_file(infile, outfile)
-
     def process_file(self, infile: str, outfile: str) -> None:
         """
         Reads input image, processes it, and saves output image
@@ -66,12 +51,14 @@ class AppleScriptExternalProcessor(Processor):
             infile: Input file path
             outfile: Output file path
         """
+        executable = validate_executable("osascript", {"Darwin"})
+
         with temporary_filename(".png") as tempfile:
             # Stage image
             copyfile(infile, tempfile)
 
             # Process image
-            command = f'osascript "{self.script}" "{tempfile}" {self.args}'
+            command = f'{executable} "{self.script}" "{tempfile}" {self.args}'
             debug(f"{self}: {command}")
             run_command(command)
 

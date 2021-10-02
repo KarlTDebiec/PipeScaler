@@ -22,7 +22,6 @@ from pipescaler.core.terminus import Terminus
 from pipescaler.core.exceptions import (
     TerminusReached,
     UnsupportedImageModeError,
-    UnsupportedPlatformError,
 )
 from pipescaler.core.misc import (
     crop_image,
@@ -49,7 +48,6 @@ __all__: List[str] = [
     "Terminus",
     "TerminusReached",
     "UnsupportedImageModeError",
-    "UnsupportedPlatformError",
     "crop_image",
     "expand_image",
     "gaussian_smooth_image",

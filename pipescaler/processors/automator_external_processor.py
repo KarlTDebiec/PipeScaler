@@ -13,17 +13,16 @@ from inspect import cleandoc
 from logging import debug, info
 from os.path import join, split
 from shutil import copyfile
-from subprocess import Popen
-from sys import platform
 from typing import Any
 
 from pipescaler.common import (
     package_root,
     run_command,
     temporary_filename,
+    validate_executable,
     validate_input_path,
 )
-from pipescaler.core import Processor, UnsupportedPlatformError
+from pipescaler.core import Processor
 
 
 class AutomatorExternalProcessor(Processor):
@@ -45,20 +44,6 @@ class AutomatorExternalProcessor(Processor):
             default_directory=join(*split(package_root), "data", "workflows"),
         )
 
-    def __call__(self, infile: str, outfile: str) -> None:
-        """
-        Validates platform and processes file
-
-        Arguments:
-            infile: Input file path
-            outfile: Output file path
-        """
-        if platform != "darwin":
-            raise UnsupportedPlatformError(
-                "AutomatorProcessor is only supported on macOS"
-            )
-        self.process_file(infile, outfile)
-
     def process_file(self, infile: str, outfile: str) -> None:
         """
         Reads input image, processes it, and saves output image
@@ -67,12 +52,14 @@ class AutomatorExternalProcessor(Processor):
             infile: Input file path
             outfile: Output file path
         """
+        executable = validate_executable("automator", {"Darwin"})
+
         with temporary_filename(".png") as tempfile:
             # Stage image
             copyfile(infile, tempfile)
 
             # Process image
-            command = f"automator -i {tempfile} {self.workflow}"
+            command = f"{executable} -i {tempfile} {self.workflow}"
             debug(f"{self}: {command}")
             run_command(command)
 
