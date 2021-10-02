@@ -17,7 +17,12 @@ from PIL.ImageOps import invert
 from reportlab.graphics.renderPM import drawToFile
 from svglib.svglib import svg2rlg
 
-from pipescaler.common import run_command, temporary_filename, validate_float
+from pipescaler.common import (
+    run_command,
+    temporary_filename,
+    validate_executable,
+    validate_float,
+)
 from pipescaler.core import Processor, validate_image
 
 
@@ -45,6 +50,8 @@ class PotraceExternalProcessor(Processor):
         self.scale = validate_float(scale, min_value=0)
 
     def process_file(self, infile: str, outfile: str):
+        executable = validate_executable("potrace")
+
         # Read image
         input_image = validate_image(infile, "L")
 
@@ -60,7 +67,7 @@ class PotraceExternalProcessor(Processor):
 
                     # Trace
                     command = (
-                        f"potrace {bmpfile}"
+                        f"{executable} {bmpfile}"
                         f" -b svg"
                         f" -k {self.blacklevel}"
                         f" -a {self.alphamax}"

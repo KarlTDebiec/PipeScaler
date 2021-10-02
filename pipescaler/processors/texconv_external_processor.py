@@ -56,21 +56,6 @@ class TexconvExternalProcessor(Processor):
         self.filetype = filetype
         self.format = format
 
-    def __call__(self, infile: str, outfile: str) -> None:
-        """
-        Processes infile and writes the resulting output to outfile.
-
-        Arguments:
-            infile (str): Input file
-            outfile (str): Output file
-        """
-        if not any(win32_ver()):
-            raise UnsupportedPlatformError(
-                "TexconvProcessor is only supported on Windows"
-            )
-        validate_executable("texconv.exe")
-        super().__call__(infile, outfile)
-
     def process_file(self, infile: str, outfile: str) -> None:
         """
         Loads image, converts it using texconv, and saves resulting output.
@@ -79,6 +64,7 @@ class TexconvExternalProcessor(Processor):
             infile (str): Input file
             outfile (str): Output file
         """
+        executable = validate_executable("texconv.exe", {"Windows"})
 
         with TemporaryDirectory() as temp_directory:
             # Stage image
@@ -86,7 +72,7 @@ class TexconvExternalProcessor(Processor):
             copyfile(infile, tempfile)
 
             # Process image
-            command = "texconv.exe"
+            command = executable
             if self.mipmaps:
                 if self.sepalpha:
                     command += f" -sepalpha"
