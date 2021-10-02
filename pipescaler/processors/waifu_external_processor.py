@@ -79,8 +79,8 @@ class WaifuExternalProcessor(Processor):
         Processes infile and writes the resulting output to outfile.
 
         Arguments:
-            infile (str): Input file
-            outfile (str): Output file
+            infile: Input file
+            outfile: Output file
         """
         if any(win32_ver()):
             validate_executable("waifu2x-caffe-cui.exe")
@@ -90,11 +90,11 @@ class WaifuExternalProcessor(Processor):
 
     def process_file(self, infile: str, outfile: str) -> None:
         """
-        Loads image, processes it, and saves resulting output.
+        Reads input image, processes it, and saves output image
 
         Arguments:
-            infile (str): Input file
-            outfile (str): Output file
+            infile: Input file path
+            outfile: Output file path
         """
         if any(win32_ver()):
             executable = validate_executable("waifu2x-caffe-cui.exe")
@@ -141,7 +141,7 @@ class WaifuExternalProcessor(Processor):
             f' -i "{tempfile.name}"'
             f' -o "{outfile}"'
         )
-        debug(command)
+        debug(f"{self}: {command}")
         run_command(command)
 
         # Load processed image and crop back to original content

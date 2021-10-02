@@ -17,7 +17,12 @@ from subprocess import Popen
 from sys import platform
 from typing import Any
 
-from pipescaler.common import package_root, temporary_filename, validate_input_path
+from pipescaler.common import (
+    package_root,
+    run_command,
+    temporary_filename,
+    validate_input_path,
+)
 from pipescaler.core import Processor, UnsupportedPlatformError
 
 
@@ -40,11 +45,39 @@ class AppleScriptExternalProcessor(Processor):
         self.args = args
 
     def __call__(self, infile: str, outfile: str) -> None:
+        """
+        Validates platform and processes file
+
+        Arguments:
+            infile: Input file path
+            outfile: Output file path
+        """
         if platform != "darwin":
             raise UnsupportedPlatformError(
                 "AppleScriptProcessor is only supported on macOS"
             )
-        self.process_file(infile, outfile, script=self.script, args=self.args)
+        self.process_file(infile, outfile)
+
+    def process_file(self, infile: str, outfile: str) -> None:
+        """
+        Reads input image, processes it, and saves output image
+
+        Arguments:
+            infile: Input file path
+            outfile: Output file path
+        """
+        with temporary_filename(".png") as tempfile:
+            # Stage image
+            copyfile(infile, tempfile)
+
+            # Process image
+            command = f'osascript "{self.script}" "{tempfile}" {self.args}'
+            debug(f"{self}: {command}")
+            run_command(command)
+
+            # Write image
+            copyfile(tempfile, outfile)
+            info(f"{self}: '{outfile}' saved")
 
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
@@ -72,24 +105,6 @@ class AppleScriptExternalProcessor(Processor):
         )
 
         return parser
-
-    @classmethod
-    def process_file(cls, infile: str, outfile: str, **kwargs: Any) -> None:
-        script = kwargs.pop("script")
-        args = kwargs.get("args", "")
-
-        with temporary_filename(".png") as tempfile:
-            # Stage image
-            copyfile(infile, tempfile)
-
-            # Process image
-            command = f'osascript "{script}" "{tempfile}" {args}'
-            debug(f"{cls}: {command}")
-            Popen(command, shell=True, close_fds=True).wait()
-
-            # Write image
-            copyfile(tempfile, outfile)
-            info(f"{cls}: '{outfile}' saved")
 
 
 if __name__ == "__main__":
