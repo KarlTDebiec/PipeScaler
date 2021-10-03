@@ -85,25 +85,11 @@ infile_subfolders = {
     subfolder: join(dirname(package_root), "test", "data", "infiles", subfolder)
     for subfolder in ["basic", "extra", "novel", "split"]
 }
-scripts = {
-    f: join(package_root, "scripts", f)
-    for f in [
-        "apng_creator.py",
-        "directory_watcher.py",
-        "pipe_runner.py",
-        "scaled_image_identifier.py",
-    ]
-}
 
 
 @pytest.fixture(params=infiles.keys())
 def infile(request):
     return infiles[request.param]
-
-
-@pytest.fixture(params=scripts.keys())
-def script(request):
-    return scripts[request.param]
 
 
 def expected_output_mode(input_image: Image.Image):
@@ -144,3 +130,7 @@ def xfail_unsupported_mode():
     return partial(
         pytest.param, marks=pytest.mark.xfail(raises=UnsupportedImageModeError)
     )
+
+
+def xfail_value():
+    return partial(pytest.param, marks=pytest.mark.xfail(raises=ValueError))

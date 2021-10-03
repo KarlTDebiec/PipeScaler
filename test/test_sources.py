@@ -28,8 +28,8 @@ def test_directory_source(directory: str) -> None:
 @pytest.mark.parametrize(
     ("directory"),
     [
-        xfail_value(infile_subfolders["basic"]),
-        xfail_value([infile_subfolders["basic"], infile_subfolders["extra"]]),
+        xfail_value()(infile_subfolders["basic"]),
+        xfail_value()([infile_subfolders["basic"], infile_subfolders["extra"]]),
     ],
 )
 def test_citra_source(directory: str) -> None:
@@ -41,8 +41,8 @@ def test_citra_source(directory: str) -> None:
 @pytest.mark.parametrize(
     ("directory"),
     [
-        xfail_value(infile_subfolders["basic"]),
-        xfail_value([infile_subfolders["basic"], infile_subfolders["extra"]]),
+        xfail_value()(infile_subfolders["basic"]),
+        xfail_value()([infile_subfolders["basic"], infile_subfolders["extra"]]),
     ],
 )
 def test_dolphin_source(directory: str) -> None:
@@ -54,8 +54,8 @@ def test_dolphin_source(directory: str) -> None:
 @pytest.mark.parametrize(
     ("directory"),
     [
-        xfail_value(infile_subfolders["basic"]),
-        xfail_value([infile_subfolders["basic"], infile_subfolders["extra"]]),
+        xfail_value()(infile_subfolders["basic"]),
+        xfail_value()([infile_subfolders["basic"], infile_subfolders["extra"]]),
     ],
 )
 def test_texmod_source(directory: str) -> None:

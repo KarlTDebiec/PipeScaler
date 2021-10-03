@@ -22,8 +22,8 @@ from shared import infiles, xfail_unsupported_mode
         (infiles["RGBA"]),
         (infiles["PLA"]),
         (infiles["PRGBA"]),
-        xfail_unsupported_mode(infiles["L"]),
-        xfail_unsupported_mode(infiles["RGB"]),
+        xfail_unsupported_mode()(infiles["L"]),
+        xfail_unsupported_mode()(infiles["RGB"]),
     ],
 )
 def test_alpha_splitter(infile: str) -> None:
@@ -55,9 +55,9 @@ def test_alpha_splitter(infile: str) -> None:
         (infiles["RGB_magenta"]),
         (infiles["RGB"]),
         (infiles["PRGB"]),
-        xfail_unsupported_mode(infiles["L"]),
-        xfail_unsupported_mode(infiles["LA"]),
-        xfail_unsupported_mode(infiles["RGBA"]),
+        xfail_unsupported_mode()(infiles["L"]),
+        xfail_unsupported_mode()(infiles["LA"]),
+        xfail_unsupported_mode()(infiles["RGBA"]),
     ],
 )
 def test_color_to_alpha_splitter(infile: str) -> None:
@@ -83,9 +83,9 @@ def test_color_to_alpha_splitter(infile: str) -> None:
         (infiles["RGB_normal"]),
         (infiles["RGB"]),
         (infiles["PRGB"]),
-        xfail_unsupported_mode(infiles["L"]),
-        xfail_unsupported_mode(infiles["LA"]),
-        xfail_unsupported_mode(infiles["RGBA"]),
+        xfail_unsupported_mode()(infiles["L"]),
+        xfail_unsupported_mode()(infiles["LA"]),
+        xfail_unsupported_mode()(infiles["RGBA"]),
     ],
 )
 def test_normal_splitter(infile: str) -> None:

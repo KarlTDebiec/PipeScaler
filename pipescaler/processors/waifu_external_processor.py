@@ -12,7 +12,7 @@ from argparse import ArgumentParser
 from inspect import cleandoc
 from logging import debug, info
 from os import remove
-from platform import system, win32_ver
+from platform import system
 from tempfile import NamedTemporaryFile
 from typing import Any
 
@@ -68,7 +68,7 @@ class WaifuExternalProcessor(Processor):
         # Store configuration
         self.imagetype = validate_str(
             imagetype,
-            self.models["windows"] if any(win32_ver()) else self.models["unix"],
+            self.models["windows"] if system() == "Windows" else self.models["unix"],
         )
         self.scale = validate_int(scale, min_value=1, max_value=2)
         self.denoise = validate_int(denoise, min_value=0, max_value=4)
@@ -171,7 +171,7 @@ class WaifuExternalProcessor(Processor):
             default="a",
             dest="imagetype",
             type=cls.str_arg(
-                cls.models["windows"] if any(win32_ver()) else cls.models["unix"],
+                cls.models["windows"] if system() == "Windows" else cls.models["unix"],
             ),
             help="image type - a for anime, p for photo, (default: " "%(default)s)",
         )
