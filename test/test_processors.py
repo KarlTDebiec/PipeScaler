@@ -164,16 +164,16 @@ def test_crop(infile: str, crop_processor: CropProcessor) -> None:
         skip_if_ci()(
             infiles["RGB"], {"model_infile": esrgan_models["RRDB_ESRGAN_x4_old_arch"]}
         ),
-        xfail_unsupported_mode()(
+        skip_if_ci(xfail_unsupported_mode())(
             infiles["LA"], {"model_infile": esrgan_models["1x_BC1-smooth2"]}
         ),
-        xfail_unsupported_mode()(
+        skip_if_ci(xfail_unsupported_mode())(
             infiles["PLA"], {"model_infile": esrgan_models["1x_BC1-smooth2"]}
         ),
-        xfail_unsupported_mode()(
+        skip_if_ci(xfail_unsupported_mode())(
             infiles["PRGBA"], {"model_infile": esrgan_models["1x_BC1-smooth2"]}
         ),
-        xfail_unsupported_mode()(
+        skip_if_ci(xfail_unsupported_mode())(
             infiles["RGBA"], {"model_infile": esrgan_models["1x_BC1-smooth2"]}
         ),
     ],
