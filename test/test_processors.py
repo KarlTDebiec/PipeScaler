@@ -123,6 +123,7 @@ def xbrz_processor(request) -> XbrzProcessor:
 # endregion
 
 
+@pytest.mark.serial
 @pytest.mark.parametrize(
     ("infile", "apple_script_external_processor"),
     [
@@ -151,6 +152,7 @@ def test_apple_script_external(
             )
 
 
+@pytest.mark.serial
 @pytest.mark.parametrize(
     ("infile", "automator_external_processor"),
     [
