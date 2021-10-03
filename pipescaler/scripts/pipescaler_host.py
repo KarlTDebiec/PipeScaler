@@ -10,15 +10,16 @@ from argparse import ArgumentParser
 from importlib import import_module
 from importlib.util import module_from_spec, spec_from_file_location
 from inspect import cleandoc
+from io import BytesIO
 from os import environ
-from os.path import expandvars, normpath
-from pprint import pformat, pprint
+from os.path import expandvars, normpath, splitext
+from pprint import pformat
 from typing import Any, Dict
 
 import yaml
-from flask import Flask, flash, redirect, request, url_for
+from flask import Flask, flash, redirect, request, send_file, url_for
 
-from pipescaler.common import CLTool, validate_input_path
+from pipescaler.common import CLTool, temporary_filename, validate_input_path
 from pipescaler.core import Stage
 
 
@@ -76,17 +77,31 @@ class PipescalerHost(CLTool):
 
     def __call__(self, *args, **kwargs):
         app = Flask(__name__, instance_relative_config=True)
+        app.secret_key = "super secret key"
 
         @app.route("/<stage_name>", methods=["GET", "POST"])
         def stage(stage_name):
             if stage_name in self.stages and request.method == "GET":
                 return pformat(self.stages[stage_name])
             elif stage_name in self.stages and request.method == "POST":
-                if "file" not in request.files:
+                if "image" not in request.files:
                     flash("No file part")
                     return redirect(url_for("entry_point"))
-                file = request.files["file"]
-                print(file)
+                image_file = request.files["image"]
+                extension = splitext(request.files["image"].filename)[-1]
+
+                stage = self.stages[stage_name]
+                with temporary_filename(extension) as infile:
+                    with temporary_filename(extension) as outfile:
+                        image_file.save(infile)
+                        stage(infile, outfile)
+                        with open(outfile, "rb") as output_file:
+                            output_bytes = output_file.read()
+                return send_file(
+                    BytesIO(output_bytes),
+                    download_name=f"response{extension}",
+                    mimetype="multipart/form-data",
+                )
             else:
                 return redirect(url_for("entry_point"))
 

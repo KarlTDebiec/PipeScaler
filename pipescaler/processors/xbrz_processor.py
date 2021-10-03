@@ -18,10 +18,7 @@ import xbrz
 from PIL import Image
 
 from pipescaler.common import validate_int
-from pipescaler.core import (
-    Processor,
-    validate_image_and_convert_mode,
-)
+from pipescaler.core import Processor, validate_image_and_convert_mode
 
 
 class XbrzProcessor(Processor):
@@ -38,16 +35,6 @@ class XbrzProcessor(Processor):
 
         # Store configuration
         self.scale = validate_int(scale, 2, 6)
-
-    def __call__(self, infile: str, outfile: str) -> None:
-        """
-        Scales infile by self.scale and writes the resulting image to outfile.
-
-        Arguments:
-            infile (str): Input file
-            outfile (str): Output file
-        """
-        self.process_file(infile, outfile)
 
     def process_file(self, infile: str, outfile: str) -> None:
         """
