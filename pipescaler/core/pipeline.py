@@ -23,17 +23,15 @@ from pipescaler.common import (
     validate_input_path,
     validate_output_path,
 )
-from pipescaler.core import (
-    Merger,
-    PipeImage,
-    Processor,
-    Sorter,
-    Source,
-    Splitter,
-    Stage,
-    Terminus,
-    TerminusReached,
-)
+from pipescaler.core.exceptions import TerminusReached
+from pipescaler.core.merger import Merger
+from pipescaler.core.pipe_image import PipeImage
+from pipescaler.core.processor import Processor
+from pipescaler.core.sorter import Sorter
+from pipescaler.core.source import Source
+from pipescaler.core.splitter import Splitter
+from pipescaler.core.stage import Stage
+from pipescaler.core.terminus import Terminus
 
 
 class Pipeline:

@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from abc import abstractmethod
 
-from pipescaler.core import Stage
+from pipescaler.core.stage import Stage
 
 
 class Source(Stage):

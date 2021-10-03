@@ -14,7 +14,6 @@ from pipescaler.core import remove_palette_from_image
 from pipescaler.mergers import (
     AlphaMerger,
     ColorMatchMerger,
-    ColorToAlphaMerger,
     NormalMerger,
 )
 from shared import alt_infiles, infiles, xfail_unsupported_mode
@@ -78,28 +77,6 @@ def test_color_match_merger(reference: str, input: str):
         with Image.open(outfile) as output_image:
             assert output_image.mode == expected_output_mode
             assert output_image.size == input_image.size
-
-
-@pytest.mark.parametrize(
-    ("color", "alpha"),
-    [
-        (infiles["RGB_magenta_color_RGB"], infiles["RGB_magenta_alpha_L"]),
-        (infiles["RGB_magenta_color_PRGB"], infiles["RGB_magenta_alpha_PL"]),
-        xfail_unsupported_mode()(infiles["RGBA"], infiles["L"]),
-        xfail_unsupported_mode()(infiles["RGB"], infiles["RGB"]),
-        xfail_unsupported_mode()(infiles["RGB"], infiles["RGBA"]),
-    ],
-)
-def test_color_to_alpha_merger(color: str, alpha: str) -> None:
-    with temporary_filename(".png") as outfile:
-        color_image = Image.open(color)
-        alpha_image = Image.open(alpha)
-
-        merger = ColorToAlphaMerger(alpha_color=[255, 0, 255])
-        merger(color=color, alpha=alpha, outfile=outfile)
-        with Image.open(outfile) as output_image:
-            assert output_image.mode == "RGB"
-            assert output_image.size == color_image.size
 
 
 @pytest.mark.parametrize(

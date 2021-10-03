@@ -157,12 +157,10 @@ def test_apple_script_external(
     ("infile", "automator_external_processor"),
     [
         xfail_if_platform({"Linux", "Windows"})(
-            infiles["RGB"],
-            {"workflow": "pixelmator/denoise.workflow"},
+            infiles["RGB"], {"workflow": "pixelmator/denoise.workflow"},
         ),
         xfail_if_platform({"Linux", "Windows"})(
-            infiles["RGBA"],
-            {"workflow": "pixelmator/denoise.workflow"},
+            infiles["RGBA"], {"workflow": "pixelmator/denoise.workflow"},
         ),
     ],
     indirect=["automator_external_processor"],

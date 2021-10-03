@@ -10,11 +10,10 @@ from functools import partial
 from os import getenv
 from os.path import dirname, join, splitext
 from platform import system
-from typing import Optional, Set, Type
+from typing import Set, Type
 
 import pytest
 from PIL import Image
-from _pytest.mark import MarkDecorator, ParameterSet
 
 from pipescaler.common import UnsupportedPlatformError, package_root
 from pipescaler.core import UnsupportedImageModeError, remove_palette_from_image
@@ -51,13 +50,11 @@ infiles = {
         ("extra", "RGB_RGBA.png"),
         ("novel", "L_solid.png"),
         ("novel", "LA_solid.png"),
-        ("novel", "RGB_magenta.png"),
         ("novel", "RGB_normal.png"),
         ("novel", "RGB_solid.png"),
         ("novel", "RGBA_solid.png"),
         ("novel", "PL_solid.png"),
         ("novel", "PLA_solid.png"),
-        ("novel", "PRGB_magenta.png"),
         ("novel", "PRGB_normal.png"),
         ("novel", "PRGB_solid.png"),
         ("novel", "PRGBA_solid.png"),
@@ -65,10 +62,6 @@ infiles = {
         ("split", "LA_alpha_PL.png"),
         ("split", "LA_color_L.png"),
         ("split", "LA_color_PL.png"),
-        ("split", "RGB_magenta_alpha_L.png"),
-        ("split", "RGB_magenta_alpha_PL.png"),
-        ("split", "RGB_magenta_color_PRGB.png"),
-        ("split", "RGB_magenta_color_RGB.png"),
         ("split", "RGB_normal_x_L.png"),
         ("split", "RGB_normal_x_PL.png"),
         ("split", "RGB_normal_y_L.png"),

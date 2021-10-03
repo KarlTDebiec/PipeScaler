@@ -40,8 +40,7 @@ class AppleScriptExternalProcessor(Processor):
         if not script.endswith(".scpt"):
             script = f"{script}.scpt"
         self.script = validate_input_path(
-            script,
-            default_directory=join(*split(package_root), "data", "scripts"),
+            script, default_directory=join(*split(package_root), "data", "scripts"),
         )
         self.args = args
 
@@ -91,9 +90,7 @@ class AppleScriptExternalProcessor(Processor):
             help="path to script",
         )
         parser.add_argument(
-            "--args",
-            type=str,
-            help="arguments to pass to script",
+            "--args", type=str, help="arguments to pass to script",
         )
 
         return parser
