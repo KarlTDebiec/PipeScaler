@@ -10,6 +10,7 @@ from inspect import getfile
 from typing import Any
 
 import pytest
+from shared import esrgan_models, infiles, skip_if_ci, xfail_if_platform
 
 from pipescaler.common import run_command, temporary_filename
 from pipescaler.processors import (
@@ -29,7 +30,6 @@ from pipescaler.processors import (
     WaifuExternalProcessor,
     XbrzProcessor,
 )
-from shared import esrgan_models, infiles, skip_if_ci, xfail_if_platform
 
 
 def run_processor_on_command_line(processor: Any, args: str, infile: str):
@@ -65,7 +65,8 @@ def test_automator_external(infile: str, args: str) -> None:
 
 
 @pytest.mark.parametrize(
-    ("infile", "args"), [(infiles["RGB"], "-h"), (infiles["RGB"], "--pixels 4 4 4 4")],
+    ("infile", "args"),
+    [(infiles["RGB"], "-h"), (infiles["RGB"], "--pixels 4 4 4 4")],
 )
 def test_crop(infile: str, args: str) -> None:
     run_processor_on_command_line(CropProcessor, args, infile)
@@ -84,14 +85,16 @@ def test_esrgan(infile: str, args: str) -> None:
 
 
 @pytest.mark.parametrize(
-    ("infile", "args"), [(infiles["RGB"], "-h"), (infiles["RGB"], "--pixels 4 4 4 4")],
+    ("infile", "args"),
+    [(infiles["RGB"], "-h"), (infiles["RGB"], "--pixels 4 4 4 4")],
 )
 def test_expand(infile: str, args: str) -> None:
     run_processor_on_command_line(ExpandProcessor, args, infile)
 
 
 @pytest.mark.parametrize(
-    ("infile", "args"), [(infiles["L"], "-h"), (infiles["L"], "--sigma 1.0")],
+    ("infile", "args"),
+    [(infiles["L"], "-h"), (infiles["L"], "--sigma 1.0")],
 )
 def test_height_to_normal(infile: str, args: str) -> None:
     run_processor_on_command_line(HeightToNormalProcessor, args, infile)
@@ -105,28 +108,38 @@ def test_mode(infile: str, args: str) -> None:
 
 
 @pytest.mark.parametrize(
-    ("infile", "args"), [(infiles["RGB"], "-h"), skip_if_ci()(infiles["L"], "")],
+    ("infile", "args"),
+    [(infiles["RGB"], "-h"), skip_if_ci()(infiles["L"], "")],
 )
 def test_potrace_external(infile: str, args: str) -> None:
     run_processor_on_command_line(PotraceExternalProcessor, args, infile)
 
 
 @pytest.mark.parametrize(
-    ("infile", "args"), [(infiles["RGB"], "-h"), skip_if_ci()(infiles["RGB"], ""),],
+    ("infile", "args"),
+    [
+        (infiles["RGB"], "-h"),
+        skip_if_ci()(infiles["RGB"], ""),
+    ],
 )
 def test_pngquant_external(infile: str, args: str) -> None:
     run_processor_on_command_line(PngquantExternalProcessor, args, infile)
 
 
 @pytest.mark.parametrize(
-    ("infile", "args"), [(infiles["RGB"], "-h"), (infiles["RGB"], "--scale 2"),],
+    ("infile", "args"),
+    [
+        (infiles["RGB"], "-h"),
+        (infiles["RGB"], "--scale 2"),
+    ],
 )
 def test_resize(infile: str, args: str) -> None:
     run_processor_on_command_line(ResizeProcessor, args, infile)
 
 
 @pytest.mark.parametrize(
-    ("infile", "args"), [(infiles["RGB"], "-h"), (infiles["RGB"], "")],
+    ("infile", "args"),
+    [(infiles["RGB"], "-h"), (infiles["RGB"], "")],
 )
 def test_solid_color(infile: str, args: str) -> None:
     run_processor_on_command_line(SolidColorProcessor, args, infile)
@@ -144,7 +157,8 @@ def test_texconv_external(infile: str, args: str) -> None:
 
 
 @pytest.mark.parametrize(
-    ("infile", "args"), [(infiles["RGB"], "-h"), (infiles["L"], "")],
+    ("infile", "args"),
+    [(infiles["RGB"], "-h"), (infiles["L"], "")],
 )
 def test_threshold(infile: str, args: str) -> None:
     run_processor_on_command_line(ThresholdProcessor, args, infile)
@@ -163,7 +177,8 @@ def test_waifu_external(infile: str, args: str) -> None:
 
 
 @pytest.mark.parametrize(
-    ("infile", "args"), [(infiles["RGB"], "-h"), (infiles["RGB"], "--scale 2")],
+    ("infile", "args"),
+    [(infiles["RGB"], "-h"), (infiles["RGB"], "--scale 2")],
 )
 def test_xbrz(infile: str, args: str) -> None:
     run_processor_on_command_line(XbrzProcessor, args, infile)

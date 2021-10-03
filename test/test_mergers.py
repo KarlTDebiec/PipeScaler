@@ -8,15 +8,11 @@
 #   BSD license. See the LICENSE file for details.
 import pytest
 from PIL import Image
+from shared import alt_infiles, infiles, xfail_unsupported_mode
 
 from pipescaler.common import temporary_filename
 from pipescaler.core import remove_palette_from_image
-from pipescaler.mergers import (
-    AlphaMerger,
-    ColorMatchMerger,
-    NormalMerger,
-)
-from shared import alt_infiles, infiles, xfail_unsupported_mode
+from pipescaler.mergers import AlphaMerger, ColorMatchMerger, NormalMerger
 
 
 @pytest.mark.parametrize(

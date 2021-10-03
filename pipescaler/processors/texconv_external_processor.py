@@ -103,7 +103,9 @@ class TexconvExternalProcessor(Processor):
         parser = super().construct_argparser(description=description, **kwargs)
 
         parser.add_argument(
-            "--mipmaps", action="store_true", help="generate mipmaps",
+            "--mipmaps",
+            action="store_true",
+            help="generate mipmaps",
         )
         parser.add_argument(
             "--sepalpha",
@@ -111,10 +113,15 @@ class TexconvExternalProcessor(Processor):
             help="generate mips alpha channel separately from color channels",
         )
         parser.add_argument(
-            "--filetype", type=str, help="output file type",
+            "--filetype",
+            type=str,
+            help="output file type",
         )
         parser.add_argument(
-            "--format", default="BC7_UNORM", type=str, help="output format",
+            "--format",
+            default="BC7_UNORM",
+            type=str,
+            help="output format",
         )
 
         return parser
