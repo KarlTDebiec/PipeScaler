@@ -52,11 +52,10 @@ class PngquantExternalProcessor(Processor):
             infile (str): Input file
             outfile (str): Output file
         """
-        executable = validate_executable("pngquant")
+        command = validate_executable("pngquant")
 
         # Process image
-        command = (
-            f"{executable}"
+        command += (
             f" --skip-if-larger"
             f" --force"
             f" --quality {self.quality}"

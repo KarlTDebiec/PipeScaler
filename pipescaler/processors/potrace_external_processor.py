@@ -50,7 +50,7 @@ class PotraceExternalProcessor(Processor):
         self.scale = validate_float(scale, min_value=0)
 
     def process_file(self, infile: str, outfile: str):
-        executable = validate_executable("potrace")
+        command = validate_executable("potrace")
 
         # Read image
         input_image = validate_image(infile, "L")
@@ -66,8 +66,8 @@ class PotraceExternalProcessor(Processor):
                         input_image.save(bmpfile)
 
                     # Trace
-                    command = (
-                        f"{executable} {bmpfile}"
+                    command += (
+                        f" {bmpfile}"
                         f" -b svg"
                         f" -k {self.blacklevel}"
                         f" -a {self.alphamax}"

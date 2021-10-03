@@ -52,14 +52,14 @@ class AutomatorExternalProcessor(Processor):
             infile: Input file path
             outfile: Output file path
         """
-        executable = validate_executable("automator", {"Darwin"})
+        command = validate_executable("automator", {"Darwin"})
 
         with temporary_filename(".png") as tempfile:
             # Stage image
             copyfile(infile, tempfile)
 
             # Process image
-            command = f"{executable} -i {tempfile} {self.workflow}"
+            command += f" -i {tempfile} {self.workflow}"
             debug(f"{self}: {command}")
             run_command(command)
 
