@@ -11,6 +11,14 @@ from os.path import getsize
 import numpy as np
 import pytest
 from PIL import Image
+from shared import (
+    esrgan_models,
+    expected_output_mode,
+    infiles,
+    skip_if_ci,
+    xfail_if_platform,
+    xfail_unsupported_mode,
+)
 
 from pipescaler.common import temporary_filename
 from pipescaler.processors import (
@@ -30,17 +38,6 @@ from pipescaler.processors import (
     WaifuExternalProcessor,
     XbrzProcessor,
 )
-
-# noinspection PyUnresolvedReferences
-from shared import (
-    esrgan_models,
-    expected_output_mode,
-    infiles,
-    skip_if_ci,
-    xfail_if_platform,
-    xfail_unsupported_mode,
-)
-
 
 # region Fixtures
 
@@ -157,10 +154,12 @@ def test_apple_script_external(
     ("infile", "automator_external_processor"),
     [
         xfail_if_platform({"Linux", "Windows"})(
-            infiles["RGB"], {"workflow": "pixelmator/denoise.workflow"},
+            infiles["RGB"],
+            {"workflow": "pixelmator/denoise.workflow"},
         ),
         xfail_if_platform({"Linux", "Windows"})(
-            infiles["RGBA"], {"workflow": "pixelmator/denoise.workflow"},
+            infiles["RGBA"],
+            {"workflow": "pixelmator/denoise.workflow"},
         ),
     ],
     indirect=["automator_external_processor"],
