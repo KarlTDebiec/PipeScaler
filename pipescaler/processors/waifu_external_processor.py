@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/processors/waifu_processor.py
+#   pipescaler/processors/waifu_external_processor.py
 #
 #   Copyright (C) 2020-2021 Karl T Debiec
 #   All rights reserved.
@@ -12,7 +12,7 @@ from argparse import ArgumentParser
 from inspect import cleandoc
 from logging import debug, info
 from os import remove
-from platform import win32_ver
+from platform import system
 from tempfile import NamedTemporaryFile
 from typing import Any
 
@@ -68,38 +68,29 @@ class WaifuExternalProcessor(Processor):
         # Store configuration
         self.imagetype = validate_str(
             imagetype,
-            self.models["windows"] if any(win32_ver()) else self.models["unix"],
+            self.models["windows"] if system() == "Windows" else self.models["unix"],
         )
         self.scale = validate_int(scale, min_value=1, max_value=2)
         self.denoise = validate_int(denoise, min_value=0, max_value=4)
         self.expand = expand
 
-    def __call__(self, infile: str, outfile: str) -> None:
-        """
-        Processes infile and writes the resulting output to outfile.
-
-        Arguments:
-            infile (str): Input file
-            outfile (str): Output file
-        """
-        if any(win32_ver()):
-            validate_executable("waifu2x-caffe-cui.exe")
-        else:
-            validate_executable("waifu2x")
-        super().__call__(infile, outfile)
-
     def process_file(self, infile: str, outfile: str) -> None:
         """
-        Loads image, processes it, and saves resulting output.
+        Reads input image, processes it, and saves output image
 
         Arguments:
-            infile (str): Input file
-            outfile (str): Output file
+            infile: Input file path
+            outfile: Output file path
         """
-        if any(win32_ver()):
-            executable = validate_executable("waifu2x-caffe-cui.exe")
+        if system() == "Windows":
+            command = (
+                validate_executable("waifu2x-caffe-cui.exe", {"Windows"}) + " -p gpu"
+            )
         else:
-            executable = validate_executable("/usr/local/bin/waifu2x")
+            command = (
+                validate_executable("waifu2x", {"Darwin", "Linux"})
+                + f" -t {self.imagetype}"
+            )
 
         # Read image
         input_image, input_mode = validate_image_and_convert_mode(
@@ -132,16 +123,13 @@ class WaifuExternalProcessor(Processor):
         tempfile.close()
 
         # Process using waifu
-        command = f"{executable} -p gpu"
-        if not any(win32_ver()):
-            command += f" -t {self.imagetype}"
         command += (
             f" -s {self.scale}"
             f" -n {self.denoise}"
             f' -i "{tempfile.name}"'
             f' -o "{outfile}"'
         )
-        debug(command)
+        debug(f"{self}: {command}")
         run_command(command)
 
         # Load processed image and crop back to original content
@@ -183,7 +171,7 @@ class WaifuExternalProcessor(Processor):
             default="a",
             dest="imagetype",
             type=cls.str_arg(
-                cls.models["windows"] if any(win32_ver()) else cls.models["unix"],
+                cls.models["windows"] if system() == "Windows" else cls.models["unix"],
             ),
             help="image type - a for anime, p for photo, (default: " "%(default)s)",
         )

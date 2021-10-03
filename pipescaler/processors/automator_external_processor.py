@@ -13,12 +13,16 @@ from inspect import cleandoc
 from logging import debug, info
 from os.path import join, split
 from shutil import copyfile
-from subprocess import Popen
-from sys import platform
 from typing import Any
 
-from pipescaler.common import package_root, temporary_filename, validate_input_path
-from pipescaler.core import Processor, UnsupportedPlatformError
+from pipescaler.common import (
+    package_root,
+    run_command,
+    temporary_filename,
+    validate_executable,
+    validate_input_path,
+)
+from pipescaler.core import Processor
 
 
 class AutomatorExternalProcessor(Processor):
@@ -40,12 +44,28 @@ class AutomatorExternalProcessor(Processor):
             default_directory=join(*split(package_root), "data", "workflows"),
         )
 
-    def __call__(self, infile: str, outfile: str) -> None:
-        if platform != "darwin":
-            raise UnsupportedPlatformError(
-                "AutomatorProcessor is only supported on macOS"
-            )
-        self.process_file(infile, outfile, workflow=self.workflow)
+    def process_file(self, infile: str, outfile: str) -> None:
+        """
+        Reads input image, processes it, and saves output image
+
+        Arguments:
+            infile: Input file path
+            outfile: Output file path
+        """
+        command = validate_executable("automator", {"Darwin"})
+
+        with temporary_filename(".png") as tempfile:
+            # Stage image
+            copyfile(infile, tempfile)
+
+            # Process image
+            command += f" -i {tempfile} {self.workflow}"
+            debug(f"{self}: {command}")
+            run_command(command)
+
+            # Write image
+            copyfile(tempfile, outfile)
+            info(f"{self}: '{outfile}' saved")
 
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
@@ -73,23 +93,6 @@ class AutomatorExternalProcessor(Processor):
         )
 
         return parser
-
-    @classmethod
-    def process_file(cls, infile: str, outfile: str, **kwargs: Any) -> None:
-        workflow = kwargs.pop("workflow")
-
-        with temporary_filename(".png") as tempfile:
-            # Stage image
-            copyfile(infile, tempfile)
-
-            # Process image
-            command = f"automator -i {tempfile} {workflow}"
-            debug(f"{cls}: {command}")
-            Popen(command, shell=True, close_fds=True).wait()
-
-            # Write image
-            copyfile(tempfile, outfile)
-            info(f"{cls}: '{outfile}' saved")
 
 
 if __name__ == "__main__":

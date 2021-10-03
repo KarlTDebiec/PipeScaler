@@ -17,6 +17,8 @@ import yaml
 from pipescaler.common import package_root
 from pipescaler.core import Pipeline
 
+# region Fixtures
+
 
 @pytest.fixture()
 def stages():
@@ -75,6 +77,9 @@ def pipeline():
 """,
         Loader=yaml.SafeLoader,
     )
+
+
+# endregion
 
 
 def test_pipeline(

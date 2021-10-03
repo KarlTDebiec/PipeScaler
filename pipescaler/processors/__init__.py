@@ -29,7 +29,6 @@ from pipescaler.processors.solid_color_processor import SolidColorProcessor
 from pipescaler.processors.texconv_external_processor import TexconvExternalProcessor
 from pipescaler.processors.threshold_processor import ThresholdProcessor
 from pipescaler.processors.waifu_external_processor import WaifuExternalProcessor
-from pipescaler.processors.waifu_processor import WaifuProcessor
 from pipescaler.processors.xbrz_processor import XbrzProcessor
 
 __all__: List[str] = [
@@ -47,7 +46,6 @@ __all__: List[str] = [
     "SolidColorProcessor",
     "TexconvExternalProcessor",
     "ThresholdProcessor",
-    "WaifuProcessor",
     "WaifuExternalProcessor",
     "XbrzProcessor",
 ]

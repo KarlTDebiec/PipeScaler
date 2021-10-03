@@ -27,9 +27,9 @@ from shared import alt_infiles, infiles, xfail_unsupported_mode
         (infiles["RGBA_color_PRGB"], infiles["RGBA_alpha_PL"]),
         (infiles["LA_color_L"], infiles["LA_alpha_L"]),
         (infiles["LA_color_PL"], infiles["LA_alpha_PL"]),
-        xfail_unsupported_mode(infiles["RGBA"], infiles["L"]),
-        xfail_unsupported_mode(infiles["RGB"], infiles["RGB"]),
-        xfail_unsupported_mode(infiles["RGB"], infiles["RGBA"]),
+        xfail_unsupported_mode()(infiles["RGBA"], infiles["L"]),
+        xfail_unsupported_mode()(infiles["RGB"], infiles["RGB"]),
+        xfail_unsupported_mode()(infiles["RGB"], infiles["RGBA"]),
     ],
 )
 def test_alpha_merger(color: str, alpha: str) -> None:
@@ -85,9 +85,9 @@ def test_color_match_merger(reference: str, input: str):
     [
         (infiles["RGB_magenta_color_RGB"], infiles["RGB_magenta_alpha_L"]),
         (infiles["RGB_magenta_color_PRGB"], infiles["RGB_magenta_alpha_PL"]),
-        xfail_unsupported_mode(infiles["RGBA"], infiles["L"]),
-        xfail_unsupported_mode(infiles["RGB"], infiles["RGB"]),
-        xfail_unsupported_mode(infiles["RGB"], infiles["RGBA"]),
+        xfail_unsupported_mode()(infiles["RGBA"], infiles["L"]),
+        xfail_unsupported_mode()(infiles["RGB"], infiles["RGB"]),
+        xfail_unsupported_mode()(infiles["RGB"], infiles["RGBA"]),
     ],
 )
 def test_color_to_alpha_merger(color: str, alpha: str) -> None:
@@ -115,9 +115,9 @@ def test_color_to_alpha_merger(color: str, alpha: str) -> None:
             infiles["RGB_normal_y_PL"],
             infiles["RGB_normal_z_PL"],
         ),
-        xfail_unsupported_mode(infiles["RGB"], infiles["L"], infiles["L"]),
-        xfail_unsupported_mode(infiles["L"], infiles["RGB"], infiles["L"]),
-        xfail_unsupported_mode(infiles["L"], infiles["L"], infiles["RGB"]),
+        xfail_unsupported_mode()(infiles["RGB"], infiles["L"], infiles["L"]),
+        xfail_unsupported_mode()(infiles["L"], infiles["RGB"], infiles["L"]),
+        xfail_unsupported_mode()(infiles["L"], infiles["L"], infiles["RGB"]),
     ],
 )
 def test_normal_merger(x: str, y: str, z: str) -> None:
@@ -131,3 +131,5 @@ def test_normal_merger(x: str, y: str, z: str) -> None:
         with Image.open(outfile) as output_image:
             assert output_image.mode == "RGB"
             assert output_image.size == x_image.size
+            assert output_image.size == y_image.size
+            assert output_image.size == z_image.size

@@ -44,17 +44,6 @@ class PngquantExternalProcessor(Processor):
         self.speed = validate_int(speed, 1, 100)
         self.floyd_steinberg = floyd_steinberg
 
-    def __call__(self, infile: str, outfile: str) -> None:
-        """
-        Processes infile and writes the resulting output to outfile.
-
-        Arguments:
-            infile (str): Input file
-            outfile (str): Output file
-        """
-        validate_executable("pngquant")
-        super().__call__(infile, outfile)
-
     def process_file(self, infile: str, outfile: str) -> None:
         """
         Loads image, processes it using pngquant, and saves resulting output.
@@ -63,16 +52,19 @@ class PngquantExternalProcessor(Processor):
             infile (str): Input file
             outfile (str): Output file
         """
+        command = validate_executable("pngquant")
 
         # Process image
-        command = (
-            f"pngquant --skip-if-larger --force"
+        command += (
+            f" --skip-if-larger"
+            f" --force"
             f" --quality {self.quality}"
             f" --speed {self.speed}"
+            f" --output {outfile} "
         )
         if not self.floyd_steinberg:
             command += f" --nofs"
-        command += f" --output {outfile} {infile} "
+        command += f" {infile} "
         debug(f"{self}: {command}")
         exitcode, stdout, stderr = run_command(command, acceptable_exitcodes=[0, 98])
         if exitcode == 98:

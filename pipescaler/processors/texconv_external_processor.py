@@ -12,13 +12,12 @@ from argparse import ArgumentParser
 from inspect import cleandoc
 from logging import debug, info
 from os.path import basename, join
-from platform import win32_ver
 from shutil import copyfile
 from tempfile import TemporaryDirectory
 from typing import Any, Optional
 
 from pipescaler.common import run_command, validate_executable
-from pipescaler.core import Processor, UnsupportedPlatformError
+from pipescaler.core import Processor
 
 
 class TexconvExternalProcessor(Processor):
@@ -56,21 +55,6 @@ class TexconvExternalProcessor(Processor):
         self.filetype = filetype
         self.format = format
 
-    def __call__(self, infile: str, outfile: str) -> None:
-        """
-        Processes infile and writes the resulting output to outfile.
-
-        Arguments:
-            infile (str): Input file
-            outfile (str): Output file
-        """
-        if not any(win32_ver()):
-            raise UnsupportedPlatformError(
-                "TexconvProcessor is only supported on Windows"
-            )
-        validate_executable("texconv.exe")
-        super().__call__(infile, outfile)
-
     def process_file(self, infile: str, outfile: str) -> None:
         """
         Loads image, converts it using texconv, and saves resulting output.
@@ -79,6 +63,7 @@ class TexconvExternalProcessor(Processor):
             infile (str): Input file
             outfile (str): Output file
         """
+        command = validate_executable("texconv.exe", {"Windows"})
 
         with TemporaryDirectory() as temp_directory:
             # Stage image
@@ -86,7 +71,6 @@ class TexconvExternalProcessor(Processor):
             copyfile(infile, tempfile)
 
             # Process image
-            command = "texconv.exe"
             if self.mipmaps:
                 if self.sepalpha:
                     command += f" -sepalpha"
@@ -119,7 +103,9 @@ class TexconvExternalProcessor(Processor):
         parser = super().construct_argparser(description=description, **kwargs)
 
         parser.add_argument(
-            "--mipmaps", action="store_true", help="generate mipmaps",
+            "--mipmaps",
+            action="store_true",
+            help="generate mipmaps",
         )
         parser.add_argument(
             "--sepalpha",
@@ -127,10 +113,15 @@ class TexconvExternalProcessor(Processor):
             help="generate mips alpha channel separately from color channels",
         )
         parser.add_argument(
-            "--filetype", type=str, help="output file type",
+            "--filetype",
+            type=str,
+            help="output file type",
         )
         parser.add_argument(
-            "--format", default="BC7_UNORM", type=str, help="output format",
+            "--format",
+            default="BC7_UNORM",
+            type=str,
+            help="output format",
         )
 
         return parser

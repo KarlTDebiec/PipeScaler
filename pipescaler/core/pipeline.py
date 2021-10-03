@@ -18,7 +18,11 @@ from pprint import pformat
 from shutil import copyfile
 from typing import Any, Dict, List, Optional, Union
 
-from pipescaler.common import validate_input_path, validate_output_path
+from pipescaler.common import (
+    UnsupportedPlatformError,
+    validate_input_path,
+    validate_output_path,
+)
 from pipescaler.core import (
     Merger,
     PipeImage,
@@ -29,7 +33,6 @@ from pipescaler.core import (
     Stage,
     Terminus,
     TerminusReached,
-    UnsupportedPlatformError,
 )
 
 

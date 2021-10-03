@@ -13,12 +13,16 @@ from inspect import cleandoc
 from logging import debug, info
 from os.path import join, split
 from shutil import copyfile
-from subprocess import Popen
-from sys import platform
 from typing import Any
 
-from pipescaler.common import package_root, temporary_filename, validate_input_path
-from pipescaler.core import Processor, UnsupportedPlatformError
+from pipescaler.common import (
+    package_root,
+    run_command,
+    temporary_filename,
+    validate_executable,
+    validate_input_path,
+)
+from pipescaler.core import Processor
 
 
 class AppleScriptExternalProcessor(Processor):
@@ -33,18 +37,36 @@ class AppleScriptExternalProcessor(Processor):
         super().__init__(**kwargs)
 
         # Store configuration
+        if not script.endswith(".scpt"):
+            script = f"{script}.scpt"
         self.script = validate_input_path(
-            script if script.endswith(".scpt") else f"{script}.scpt",
+            script,
             default_directory=join(*split(package_root), "data", "scripts"),
         )
         self.args = args
 
-    def __call__(self, infile: str, outfile: str) -> None:
-        if platform != "darwin":
-            raise UnsupportedPlatformError(
-                "AppleScriptProcessor is only supported on macOS"
-            )
-        self.process_file(infile, outfile, script=self.script, args=self.args)
+    def process_file(self, infile: str, outfile: str) -> None:
+        """
+        Reads input image, processes it, and saves output image
+
+        Arguments:
+            infile: Input file path
+            outfile: Output file path
+        """
+        command = validate_executable("osascript", {"Darwin"})
+
+        with temporary_filename(".png") as tempfile:
+            # Stage image
+            copyfile(infile, tempfile)
+
+            # Process image
+            command += f' "{self.script}" "{tempfile}" {self.args}'
+            debug(f"{self}: {command}")
+            run_command(command)
+
+            # Write image
+            copyfile(tempfile, outfile)
+            info(f"{self}: '{outfile}' saved")
 
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
@@ -64,32 +86,17 @@ class AppleScriptExternalProcessor(Processor):
         parser.add_argument(
             "--script",
             type=cls.input_path_arg(
-                file_ok=False,
-                directory_ok=True,
                 default_directory=join(*split(package_root), "data", "scripts"),
             ),
             help="path to script",
         )
+        parser.add_argument(
+            "--args",
+            type=str,
+            help="arguments to pass to script",
+        )
 
         return parser
-
-    @classmethod
-    def process_file(cls, infile: str, outfile: str, **kwargs: Any) -> None:
-        script = kwargs.pop("script")
-        args = kwargs.get("args", "")
-
-        with temporary_filename(".png") as tempfile:
-            # Stage image
-            copyfile(infile, tempfile)
-
-            # Process image
-            command = f'osascript "{script}" "{tempfile}" {args}'
-            debug(f"{cls}: {command}")
-            Popen(command, shell=True, close_fds=True).wait()
-
-            # Write image
-            copyfile(tempfile, outfile)
-            info(f"{cls}: '{outfile}' saved")
 
 
 if __name__ == "__main__":
