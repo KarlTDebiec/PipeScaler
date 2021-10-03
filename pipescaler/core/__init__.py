@@ -11,18 +11,8 @@ from __future__ import annotations
 
 from typing import List
 
-from pipescaler.core.stage import Stage
+from pipescaler.core.exceptions import TerminusReached, UnsupportedImageModeError
 from pipescaler.core.merger import Merger
-from pipescaler.core.processor import Processor
-from pipescaler.core.sorter import Sorter
-from pipescaler.core.source import Source
-from pipescaler.core.splitter import Splitter
-from pipescaler.core.terminus import Terminus
-
-from pipescaler.core.exceptions import (
-    TerminusReached,
-    UnsupportedImageModeError,
-)
 from pipescaler.core.misc import (
     crop_image,
     expand_image,
@@ -35,6 +25,12 @@ from pipescaler.core.misc import (
 )
 from pipescaler.core.pipe_image import PipeImage
 from pipescaler.core.pipeline import Pipeline
+from pipescaler.core.processor import Processor
+from pipescaler.core.sorter import Sorter
+from pipescaler.core.source import Source
+from pipescaler.core.splitter import Splitter
+from pipescaler.core.stage import Stage
+from pipescaler.core.terminus import Terminus
 
 __all__: List[str] = [
     "Merger",
