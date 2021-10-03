@@ -6,7 +6,6 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license. See the LICENSE file for details.
-from os import getenv
 from os.path import getsize
 
 import numpy as np
@@ -150,6 +149,31 @@ def test_apple_script_external(
                 input_image.size[0] * int(apple_script_external_processor.args),
                 input_image.size[1] * int(apple_script_external_processor.args),
             )
+
+
+@pytest.mark.parametrize(
+    ("infile", "automator_external_processor"),
+    [
+        xfail_if_platform({"Linux", "Windows"})(
+            infiles["RGB"],
+            {"workflow": "pixelmator/denoise.workflow"},
+        ),
+        xfail_if_platform({"Linux", "Windows"})(
+            infiles["RGBA"],
+            {"workflow": "pixelmator/denoise.workflow"},
+        ),
+    ],
+    indirect=["automator_external_processor"],
+)
+def test_automator_external(
+    infile: str, automator_external_processor: AutomatorExternalProcessor
+) -> None:
+    with temporary_filename(".png") as outfile:
+        automator_external_processor(infile, outfile)
+
+        with Image.open(infile) as input_image, Image.open(outfile) as output_image:
+            assert output_image.mode == input_image.mode
+            assert output_image.size == input_image.size
 
 
 @pytest.mark.parametrize(
