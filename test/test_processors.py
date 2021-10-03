@@ -125,6 +125,34 @@ def xbrz_processor(request) -> XbrzProcessor:
 
 
 @pytest.mark.parametrize(
+    ("infile", "apple_script_external_processor"),
+    [
+        xfail_if_platform({"Linux", "Windows"})(
+            infiles["RGB"],
+            {"script": "pixelmator/ml_super_resolution.scpt", "args": "2"},
+        ),
+        xfail_if_platform({"Linux", "Windows"})(
+            infiles["RGBA"],
+            {"script": "pixelmator/ml_super_resolution.scpt", "args": "2"},
+        ),
+    ],
+    indirect=["apple_script_external_processor"],
+)
+def test_apple_script_external(
+    infile: str, apple_script_external_processor: AppleScriptExternalProcessor
+) -> None:
+    with temporary_filename(".png") as outfile:
+        apple_script_external_processor(infile, outfile)
+
+        with Image.open(infile) as input_image, Image.open(outfile) as output_image:
+            assert output_image.mode == input_image.mode
+            assert output_image.size == (
+                input_image.size[0] * int(apple_script_external_processor.args),
+                input_image.size[1] * int(apple_script_external_processor.args),
+            )
+
+
+@pytest.mark.parametrize(
     ("infile", "crop_processor"),
     [
         (infiles["L"], {"pixels": (4, 4, 4, 4)}),
