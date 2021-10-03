@@ -15,6 +15,8 @@ from PIL import Image
 
 from pipescaler.common import temporary_filename
 from pipescaler.processors import (
+    AppleScriptExternalProcessor,
+    AutomatorExternalProcessor,
     CropProcessor,
     ESRGANProcessor,
     ExpandProcessor,
@@ -27,7 +29,6 @@ from pipescaler.processors import (
     TexconvExternalProcessor,
     ThresholdProcessor,
     WaifuExternalProcessor,
-    WaifuProcessor,
     XbrzProcessor,
 )
 
@@ -37,10 +38,22 @@ from shared import (
     expected_output_mode,
     infiles,
     skip_if_ci,
-    xfail_if_not_windows,
+    xfail_if_platform,
     xfail_unsupported_mode,
-    xfail_unsupported_platform,
 )
+
+
+# region Fixtures
+
+
+@pytest.fixture()
+def apple_script_external_processor(request) -> AppleScriptExternalProcessor:
+    return AppleScriptExternalProcessor(**request.param)
+
+
+@pytest.fixture()
+def automator_external_processor(request) -> AutomatorExternalProcessor:
+    return AutomatorExternalProcessor(**request.param)
 
 
 @pytest.fixture()
@@ -99,11 +112,6 @@ def threshold_processor(request) -> ThresholdProcessor:
 
 
 @pytest.fixture()
-def waifu_processor(request) -> WaifuProcessor:
-    return WaifuProcessor(**request.param)
-
-
-@pytest.fixture()
 def waifu_external_processor(request) -> WaifuExternalProcessor:
     return WaifuExternalProcessor(**request.param)
 
@@ -111,6 +119,9 @@ def waifu_external_processor(request) -> WaifuExternalProcessor:
 @pytest.fixture()
 def xbrz_processor(request) -> XbrzProcessor:
     return XbrzProcessor(**request.param)
+
+
+# endregion
 
 
 @pytest.mark.parametrize(
@@ -140,28 +151,29 @@ def test_crop(infile: str, crop_processor: CropProcessor) -> None:
 
 
 @pytest.mark.serial
-@pytest.mark.skipif(
-    getenv("CONTINUOUS_INTEGRATION") is not None, reason="Skip when running in CI"
-)
 @pytest.mark.parametrize(
     ("infile", "esrgan_processor"),
     [
-        (infiles["L"], {"model_infile": esrgan_models["1x_BC1-smooth2"]}),
-        (infiles["PL"], {"model_infile": esrgan_models["1x_BC1-smooth2"]}),
-        (infiles["PRGB"], {"model_infile": esrgan_models["1x_BC1-smooth2"]}),
-        (infiles["RGB"], {"model_infile": esrgan_models["1x_BC1-smooth2"]}),
-        (infiles["RGB"], {"model_infile": esrgan_models["RRDB_ESRGAN_x4"]}),
-        (infiles["RGB"], {"model_infile": esrgan_models["RRDB_ESRGAN_x4_old_arch"]}),
-        xfail_unsupported_mode(
+        skip_if_ci()(infiles["L"], {"model_infile": esrgan_models["1x_BC1-smooth2"]}),
+        skip_if_ci()(infiles["PL"], {"model_infile": esrgan_models["1x_BC1-smooth2"]}),
+        skip_if_ci()(
+            infiles["PRGB"], {"model_infile": esrgan_models["1x_BC1-smooth2"]}
+        ),
+        skip_if_ci()(infiles["RGB"], {"model_infile": esrgan_models["1x_BC1-smooth2"]}),
+        skip_if_ci()(infiles["RGB"], {"model_infile": esrgan_models["RRDB_ESRGAN_x4"]}),
+        skip_if_ci()(
+            infiles["RGB"], {"model_infile": esrgan_models["RRDB_ESRGAN_x4_old_arch"]}
+        ),
+        xfail_unsupported_mode()(
             infiles["LA"], {"model_infile": esrgan_models["1x_BC1-smooth2"]}
         ),
-        xfail_unsupported_mode(
+        xfail_unsupported_mode()(
             infiles["PLA"], {"model_infile": esrgan_models["1x_BC1-smooth2"]}
         ),
-        xfail_unsupported_mode(
+        xfail_unsupported_mode()(
             infiles["PRGBA"], {"model_infile": esrgan_models["1x_BC1-smooth2"]}
         ),
-        xfail_unsupported_mode(
+        xfail_unsupported_mode()(
             infiles["RGBA"], {"model_infile": esrgan_models["1x_BC1-smooth2"]}
         ),
     ],
@@ -206,13 +218,13 @@ def test_expand(infile: str, expand_processor: ExpandProcessor) -> None:
     [
         (infiles["L"], {"sigma": 0.5}),
         (infiles["L"], {"sigma": 1.0}),
-        xfail_unsupported_mode(infiles["LA"], {"sigma": 1.0}),
+        xfail_unsupported_mode()(infiles["LA"], {"sigma": 1.0}),
         (infiles["PL"], {"sigma": 1.0}),
-        xfail_unsupported_mode(infiles["PLA"], {"sigma": 1.0}),
-        xfail_unsupported_mode(infiles["PRGB"], {"sigma": 1.0}),
-        xfail_unsupported_mode(infiles["PRGBA"], {"sigma": 1.0}),
-        xfail_unsupported_mode(infiles["RGB"], {"sigma": 1.0}),
-        xfail_unsupported_mode(infiles["RGBA"], {"sigma": 1.0}),
+        xfail_unsupported_mode()(infiles["PLA"], {"sigma": 1.0}),
+        xfail_unsupported_mode()(infiles["PRGB"], {"sigma": 1.0}),
+        xfail_unsupported_mode()(infiles["PRGBA"], {"sigma": 1.0}),
+        xfail_unsupported_mode()(infiles["RGB"], {"sigma": 1.0}),
+        xfail_unsupported_mode()(infiles["RGBA"], {"sigma": 1.0}),
     ],
     indirect=["height_to_normal_processor"],
 )
@@ -264,9 +276,6 @@ def test_mode(infile: str, mode_processor: ModeProcessor) -> None:
             assert output_image.mode == mode_processor.mode
 
 
-@pytest.mark.skipif(
-    getenv("CONTINUOUS_INTEGRATION") is not None, reason="Skip when running in CI"
-)
 @pytest.mark.parametrize(
     ("infile", "pngquant_external_processor"),
     [
@@ -275,13 +284,15 @@ def test_mode(infile: str, mode_processor: ModeProcessor) -> None:
         (infiles["RGB"], {}),
         (infiles["RGBA"], {}),
         (infiles["PL"], {}),
-        (infiles["PLA"], {}),
         (infiles["PRGB"], {}),
         (infiles["PRGBA"], {}),
+        (infiles["PLA"], {}),
     ],
     indirect=["pngquant_external_processor"],
 )
-def test_pngquant_external(infile: str, pngquant_external_processor) -> None:
+def test_pngquant_external(
+    infile: str, pngquant_external_processor: PngquantExternalProcessor
+) -> None:
     with temporary_filename(".png") as outfile:
         pngquant_external_processor(infile, outfile)
 
@@ -296,13 +307,13 @@ def test_pngquant_external(infile: str, pngquant_external_processor) -> None:
     [
         (infiles["L"], {}),
         (infiles["L"], {"scale": 2}),
-        xfail_unsupported_mode(infiles["LA"], {}),
+        xfail_unsupported_mode()(infiles["LA"], {}),
         (infiles["PL"], {}),
-        xfail_unsupported_mode(infiles["PLA"], {}),
-        xfail_unsupported_mode(infiles["PRGB"], {}),
-        xfail_unsupported_mode(infiles["PRGBA"], {}),
-        xfail_unsupported_mode(infiles["RGB"], {}),
-        xfail_unsupported_mode(infiles["RGBA"], {}),
+        xfail_unsupported_mode()(infiles["PLA"], {}),
+        xfail_unsupported_mode()(infiles["PRGB"], {}),
+        xfail_unsupported_mode()(infiles["PRGBA"], {}),
+        xfail_unsupported_mode()(infiles["RGB"], {}),
+        xfail_unsupported_mode()(infiles["RGBA"], {}),
     ],
     indirect=["potrace_external_processor"],
 )
@@ -373,14 +384,14 @@ def test_solid_color(infile: str, solid_color_processor: SolidColorProcessor) ->
 @pytest.mark.parametrize(
     ("infile", "texconv_external_processor"),
     [
-        xfail_unsupported_platform({"Darwin", "Linux"})(infiles["L"], {}),
-        xfail_unsupported_platform({"Darwin", "Linux"})(infiles["LA"], {}),
-        xfail_unsupported_platform({"Darwin", "Linux"})(infiles["RGB"], {}),
-        xfail_unsupported_platform({"Darwin", "Linux"})(infiles["RGBA"], {}),
-        xfail_unsupported_platform({"Darwin", "Linux"})(infiles["PL"], {}),
-        xfail_unsupported_platform({"Darwin", "Linux"})(infiles["PLA"], {}),
-        xfail_unsupported_platform({"Darwin", "Linux"})(infiles["PRGB"], {}),
-        xfail_unsupported_platform({"Darwin", "Linux"})(infiles["PRGBA"], {}),
+        xfail_if_platform({"Darwin", "Linux"})(infiles["L"], {}),
+        xfail_if_platform({"Darwin", "Linux"})(infiles["LA"], {}),
+        xfail_if_platform({"Darwin", "Linux"})(infiles["RGB"], {}),
+        xfail_if_platform({"Darwin", "Linux"})(infiles["RGBA"], {}),
+        xfail_if_platform({"Darwin", "Linux"})(infiles["PL"], {}),
+        xfail_if_platform({"Darwin", "Linux"})(infiles["PLA"], {}),
+        xfail_if_platform({"Darwin", "Linux"})(infiles["PRGB"], {}),
+        xfail_if_platform({"Darwin", "Linux"})(infiles["PRGBA"], {}),
     ],
     indirect=["texconv_external_processor"],
 )
@@ -400,13 +411,13 @@ def test_texconv_external(
     [
         (infiles["L"], {}),
         (infiles["L"], {"denoise": True}),
-        xfail_unsupported_mode(infiles["LA"], {}),
+        xfail_unsupported_mode()(infiles["LA"], {}),
         (infiles["PL"], {}),
-        xfail_unsupported_mode(infiles["PLA"], {}),
-        xfail_unsupported_mode(infiles["PRGB"], {}),
-        xfail_unsupported_mode(infiles["PRGBA"], {}),
-        xfail_unsupported_mode(infiles["RGB"], {}),
-        xfail_unsupported_mode(infiles["RGBA"], {}),
+        xfail_unsupported_mode()(infiles["PLA"], {}),
+        xfail_unsupported_mode()(infiles["PRGB"], {}),
+        xfail_unsupported_mode()(infiles["PRGBA"], {}),
+        xfail_unsupported_mode()(infiles["RGB"], {}),
+        xfail_unsupported_mode()(infiles["RGBA"], {}),
     ],
     indirect=["threshold_processor"],
 )
@@ -422,72 +433,24 @@ def test_threshold(infile: str, threshold_processor: ThresholdProcessor) -> None
 
 
 @pytest.mark.serial
-@pytest.mark.skipif(
-    getenv("CONTINUOUS_INTEGRATION") is not None, reason="Skip when running in CI"
-)
-@pytest.mark.parametrize(
-    ("infile", "waifu_processor"),
-    [
-        (infiles["L"], {"architecture": "resnet10", "denoise": 0, "scale": 2}),
-        (infiles["PL"], {"architecture": "resnet10", "denoise": 0, "scale": 2}),
-        (infiles["PRGB"], {"architecture": "resnet10", "denoise": 0, "scale": 2}),
-        (infiles["RGB"], {"architecture": "resnet10", "denoise": 0, "scale": 2}),
-        (infiles["RGB"], {"architecture": "upconv7", "denoise": 0, "scale": 2}),
-        (infiles["RGB"], {"architecture": "upresnet10", "denoise": 0, "scale": 2}),
-        (infiles["RGB"], {"architecture": "vgg7", "denoise": 0, "scale": 2}),
-        (infiles["RGB"], {"architecture": "resnet10", "denoise": 0, "scale": 1}),
-        (infiles["RGB"], {"architecture": "upconv7", "denoise": 1, "scale": 2}),
-        (infiles["RGB"], {"architecture": "upresnet10", "denoise": 2, "scale": 2}),
-        (infiles["RGB"], {"architecture": "vgg7", "denoise": 3, "scale": 2}),
-        xfail_unsupported_mode(
-            infiles["LA"], {"architecture": "resnet10", "denoise": 0, "scale": 2}
-        ),
-        xfail_unsupported_mode(
-            infiles["PLA"], {"architecture": "resnet10", "denoise": 0, "scale": 2}
-        ),
-        xfail_unsupported_mode(
-            infiles["PRGBA"], {"architecture": "resnet10", "denoise": 0, "scale": 2}
-        ),
-        xfail_unsupported_mode(
-            infiles["RGBA"], {"architecture": "resnet10", "denoise": 0, "scale": 2}
-        ),
-    ],
-    indirect=["waifu_processor"],
-)
-def test_waifu(infile: str, waifu_processor: WaifuProcessor) -> None:
-    with temporary_filename(".png") as outfile:
-        waifu_processor(infile, outfile)
-
-        with Image.open(infile) as input_image, Image.open(outfile) as output_image:
-            assert output_image.mode == expected_output_mode(input_image)
-            assert output_image.size == (
-                input_image.size[0] * waifu_processor.scale,
-                input_image.size[1] * waifu_processor.scale,
-            )
-
-
-@pytest.mark.serial
-@pytest.mark.skipif(
-    getenv("CONTINUOUS_INTEGRATION") is not None, reason="Skip when running in CI"
-)
 @pytest.mark.parametrize(
     ("infile", "waifu_external_processor"),
     [
-        (infiles["L"], {"imagetype": "a", "denoise": 0, "scale": 2}),
-        (infiles["PL"], {"imagetype": "a", "denoise": 0, "scale": 2}),
-        (infiles["PRGB"], {"imagetype": "a", "denoise": 0, "scale": 2}),
-        (infiles["RGB"], {"imagetype": "a", "denoise": 0, "scale": 2}),
-        (infiles["RGB"], {"imagetype": "a", "denoise": 3, "scale": 2}),
-        xfail_unsupported_mode(
+        skip_if_ci()(infiles["L"], {"imagetype": "a", "denoise": 0, "scale": 2}),
+        skip_if_ci()(infiles["PL"], {"imagetype": "a", "denoise": 0, "scale": 2}),
+        skip_if_ci()(infiles["PRGB"], {"imagetype": "a", "denoise": 0, "scale": 2}),
+        skip_if_ci()(infiles["RGB"], {"imagetype": "a", "denoise": 0, "scale": 2}),
+        skip_if_ci()(infiles["RGB"], {"imagetype": "a", "denoise": 3, "scale": 2}),
+        skip_if_ci(xfail_unsupported_mode())(
             infiles["LA"], {"imagetype": "a", "denoise": 0, "scale": 2}
         ),
-        xfail_unsupported_mode(
+        skip_if_ci(xfail_unsupported_mode())(
             infiles["PLA"], {"imagetype": "a", "denoise": 0, "scale": 2}
         ),
-        xfail_unsupported_mode(
+        skip_if_ci(xfail_unsupported_mode())(
             infiles["PRGBA"], {"imagetype": "a", "denoise": 0, "scale": 2}
         ),
-        xfail_unsupported_mode(
+        skip_if_ci(xfail_unsupported_mode())(
             infiles["RGBA"], {"imagetype": "a", "denoise": 0, "scale": 2}
         ),
     ],

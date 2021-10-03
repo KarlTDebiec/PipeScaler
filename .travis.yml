@@ -4,6 +4,7 @@ cache: pip
 python: 3.8
 before-install:
   - sudo apt update
+  - sudo apt -y install pngquant
   - sudo apt -y install potrace
   - export PYTHONPATH="${TRAVIS_BUILD_DIR}:${PYTHONPATH}"
 script:

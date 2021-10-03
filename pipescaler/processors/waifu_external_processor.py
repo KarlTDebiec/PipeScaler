@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/processors/waifu_processor.py
+#   pipescaler/processors/waifu_external_processor.py
 #
 #   Copyright (C) 2020-2021 Karl T Debiec
 #   All rights reserved.
@@ -83,9 +83,14 @@ class WaifuExternalProcessor(Processor):
             outfile: Output file path
         """
         if system() == "Windows":
-            executable = validate_executable("waifu2x-caffe-cui.exe", {"Windows"})
+            command = (
+                validate_executable("waifu2x-caffe-cui.exe", {"Windows"}) + " -p gpu"
+            )
         else:
-            executable = validate_executable("waifu2x", {"Darwin", "Linux"})
+            command = (
+                validate_executable("waifu2x", {"Darwin", "Linux"})
+                + f" -t {self.imagetype}"
+            )
 
         # Read image
         input_image, input_mode = validate_image_and_convert_mode(
@@ -118,9 +123,6 @@ class WaifuExternalProcessor(Processor):
         tempfile.close()
 
         # Process using waifu
-        command = f"{executable} -p gpu"
-        if not any(win32_ver()):
-            command += f" -t {self.imagetype}"
         command += (
             f" -s {self.scale}"
             f" -n {self.denoise}"

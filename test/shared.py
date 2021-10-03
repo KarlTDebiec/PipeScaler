@@ -9,16 +9,15 @@
 from functools import partial
 from os import getenv
 from os.path import dirname, join, splitext
-from platform import mac_ver, system, win32_ver
+from platform import system
+from typing import Optional, Set, Type
 
 import pytest
 from PIL import Image
+from _pytest.mark import MarkDecorator, ParameterSet
 
 from pipescaler.common import UnsupportedPlatformError, package_root
-from pipescaler.core import (
-    UnsupportedImageModeError,
-    remove_palette_from_image,
-)
+from pipescaler.core import UnsupportedImageModeError, remove_palette_from_image
 
 alt_infiles = {
     splitext(f)[0]: join(dirname(package_root), "test", "data", "infiles", "alt", f)
@@ -95,90 +94,6 @@ scripts = {
         "scaled_image_identifier.py",
     ]
 }
-skip_if_ci = partial(
-    pytest.param,
-    marks=pytest.mark.skipif(
-        getenv("CONTINUOUS_INTEGRATION") is not None, reason="Skip when running in CI"
-    ),
-)
-skip_if_ci_xfail_assertion_if_mac = partial(
-    pytest.param,
-    marks=[
-        pytest.mark.skipif(
-            getenv("CONTINUOUS_INTEGRATION") is not None,
-            reason="Skip when running in CI",
-        ),
-        pytest.mark.xfail(
-            any(mac_ver()), raises=AssertionError, reason="Not supported on macOS",
-        ),
-    ],
-)
-skip_if_ci_xfail_assertion_if_not_windows = partial(
-    pytest.param,
-    marks=[
-        pytest.mark.skipif(
-            getenv("CONTINUOUS_INTEGRATION") is not None,
-            reason="Skip when running in CI",
-        ),
-        pytest.mark.xfail(
-            not any(win32_ver()),
-            raises=AssertionError,
-            reason="Only supported on Windows",
-        ),
-    ],
-)
-xfail_assertion = partial(pytest.param, marks=pytest.mark.xfail(raises=AssertionError))
-xfail_assertion_if_mac = partial(
-    pytest.param,
-    marks=[
-        pytest.mark.xfail(
-            any(mac_ver()), raises=AssertionError, reason="Not supported on macOS",
-        ),
-    ],
-)
-xfail_assertion_if_not_windows = partial(
-    pytest.param,
-    marks=[
-        pytest.mark.xfail(
-            not any(win32_ver()),
-            raises=AssertionError,
-            reason="Only supported on Windows",
-        )
-    ],
-)
-
-
-def xfail_unsupported_platform(unsupported_platforms):
-    return partial(
-        pytest.param,
-        marks=pytest.mark.xfail(
-            system() in unsupported_platforms,
-            raises=UnsupportedPlatformError,
-            reason=f"Not supported on {system()}",
-        ),
-    )
-
-
-xfail_if_mac = partial(
-    pytest.param,
-    marks=pytest.mark.xfail(
-        system() == "Darwin",
-        raises=UnsupportedPlatformError,
-        reason="Not supported on macOS",
-    ),
-)
-xfail_if_not_windows = partial(
-    pytest.param,
-    marks=pytest.mark.xfail(
-        not any(win32_ver()),
-        raises=UnsupportedPlatformError,
-        reason="Only supported on Windows",
-    ),
-)
-xfail_unsupported_mode = partial(
-    pytest.param, marks=pytest.mark.xfail(raises=UnsupportedImageModeError)
-)
-xfail_value = partial(pytest.param, marks=pytest.mark.xfail(raises=ValueError))
 
 
 @pytest.fixture(params=infiles.keys())
@@ -196,3 +111,36 @@ def expected_output_mode(input_image: Image.Image):
         return remove_palette_from_image(input_image).mode
     else:
         return input_image.mode
+
+
+def skip_if_ci(inner=None):
+    marks = [
+        pytest.mark.skipif(
+            getenv("CONTINUOUS_INTEGRATION") is not None,
+            reason="Skip when running in CI",
+        )
+    ]
+    if inner is not None:
+        marks.append(inner.keywords["marks"].mark)
+
+    return partial(pytest.param, marks=marks)
+
+
+def xfail_if_platform(
+    unsupported_platforms: Set[str] = None,
+    raises: Type[Exception] = UnsupportedPlatformError,
+):
+    return partial(
+        pytest.param,
+        marks=pytest.mark.xfail(
+            system() in unsupported_platforms,
+            raises=raises,
+            reason=f"Not supported on {system()}",
+        ),
+    )
+
+
+def xfail_unsupported_mode():
+    return partial(
+        pytest.param, marks=pytest.mark.xfail(raises=UnsupportedImageModeError)
+    )
