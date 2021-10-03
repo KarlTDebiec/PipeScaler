@@ -29,8 +29,6 @@ from pipescaler.processors import (
     WaifuExternalProcessor,
     XbrzProcessor,
 )
-
-# noinspection PyUnresolvedReferences
 from shared import esrgan_models, infiles, skip_if_ci, xfail_if_platform
 
 
@@ -42,7 +40,12 @@ def run_processor_on_command_line(processor: Any, args: str, infile: str):
 
 @pytest.mark.parametrize(
     ("infile", "args"),
-    [(infiles["RGB"], "-h")],
+    [
+        (infiles["RGB"], "-h"),
+        xfail_if_platform({"Linux", "Windows"})(
+            infiles["RGB"], "--script pixelmator/ml_super_resolution.scpt --args 2"
+        ),
+    ],
 )
 def test_apple_script_external(infile: str, args: str) -> None:
     run_processor_on_command_line(AppleScriptExternalProcessor, args, infile)
@@ -50,7 +53,12 @@ def test_apple_script_external(infile: str, args: str) -> None:
 
 @pytest.mark.parametrize(
     ("infile", "args"),
-    [(infiles["RGB"], "-h")],
+    [
+        (infiles["RGB"], "-h"),
+        xfail_if_platform({"Linux", "Windows"})(
+            infiles["RGB"], "--workflow pixelmator/denoise.workflow"
+        ),
+    ],
 )
 def test_automator_external(infile: str, args: str) -> None:
     run_processor_on_command_line(AutomatorExternalProcessor, args, infile)

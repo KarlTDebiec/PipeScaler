@@ -37,8 +37,10 @@ class AppleScriptExternalProcessor(Processor):
         super().__init__(**kwargs)
 
         # Store configuration
+        if not script.endswith(".scpt"):
+            script = f"{script}.scpt"
         self.script = validate_input_path(
-            script if script.endswith(".scpt") else f"{script}.scpt",
+            script,
             default_directory=join(*split(package_root), "data", "scripts"),
         )
         self.args = args
@@ -51,14 +53,14 @@ class AppleScriptExternalProcessor(Processor):
             infile: Input file path
             outfile: Output file path
         """
-        executable = validate_executable("osascript", {"Darwin"})
+        command = validate_executable("osascript", {"Darwin"})
 
         with temporary_filename(".png") as tempfile:
             # Stage image
             copyfile(infile, tempfile)
 
             # Process image
-            command = f'{executable} "{self.script}" "{tempfile}" {self.args}'
+            command += f' "{self.script}" "{tempfile}" {self.args}'
             debug(f"{self}: {command}")
             run_command(command)
 
@@ -84,11 +86,14 @@ class AppleScriptExternalProcessor(Processor):
         parser.add_argument(
             "--script",
             type=cls.input_path_arg(
-                file_ok=False,
-                directory_ok=True,
                 default_directory=join(*split(package_root), "data", "scripts"),
             ),
             help="path to script",
+        )
+        parser.add_argument(
+            "--args",
+            type=str,
+            help="arguments to pass to script",
         )
 
         return parser
