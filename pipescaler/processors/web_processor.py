@@ -31,24 +31,19 @@ class WebProcessor(Processor):
     def process_file(self, infile: str, outfile: str) -> None:
         # Read image
         with open(infile, "rb") as input_file:
-            files = {
-                "image": (
-                    basename(infile),
-                    input_file.read(),
-                    "multipart/form-data",
-                    {"Expires": "0"},
-                )
-            }
+            input_bytes = input_file.read()
+        files = {"image": (basename(infile), input_bytes, "multipart/form-data")}
 
         # Process image
         with requests.Session() as session:
             response = session.post(self.url, files=files)
             if response.status_code != 200:
                 raise ValueError()
+        output_bytes = response.content
 
         # Write image
         with open(outfile, "wb") as output_file:
-            output_file.write(response.content)
+            output_file.write(output_bytes)
         info(f"{self}: '{outfile}' saved")
 
     @classmethod

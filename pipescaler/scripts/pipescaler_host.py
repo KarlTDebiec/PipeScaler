@@ -13,18 +13,17 @@ from inspect import cleandoc
 from io import BytesIO
 from os import environ
 from os.path import expandvars, normpath, splitext
-from pprint import pformat
 from typing import Any, Dict
 
 import yaml
-from flask import Flask, flash, redirect, request, send_file, url_for
+from flask import Flask, redirect, request, send_file, url_for
 
 from pipescaler.common import CLTool, temporary_filename, validate_input_path
 from pipescaler.core import Stage
 
 
 class PipescalerHost(CLTool):
-    """"""
+    """Hosts processors as endpoints to which images may be POSTed"""
 
     def __init__(
         self, stages: Dict[str, Dict[str, Dict[str, Any]]], **kwargs: Any
@@ -79,31 +78,30 @@ class PipescalerHost(CLTool):
         app = Flask(__name__, instance_relative_config=True)
         app.secret_key = "super secret key"
 
-        @app.route("/<stage_name>", methods=["GET", "POST"])
-        def stage(stage_name):
-            if stage_name in self.stages and request.method == "GET":
-                return pformat(self.stages[stage_name])
-            elif stage_name in self.stages and request.method == "POST":
-                if "image" not in request.files:
-                    flash("No file part")
-                    return redirect(url_for("entry_point"))
-                image_file = request.files["image"]
-                extension = splitext(request.files["image"].filename)[-1]
-
-                stage = self.stages[stage_name]
-                with temporary_filename(extension) as infile:
-                    with temporary_filename(extension) as outfile:
-                        image_file.save(infile)
-                        stage(infile, outfile)
-                        with open(outfile, "rb") as output_file:
-                            output_bytes = output_file.read()
-                return send_file(
-                    BytesIO(output_bytes),
-                    download_name=f"response{extension}",
-                    mimetype="multipart/form-data",
-                )
-            else:
+        @app.route("/<stage_name>", methods=["POST"])
+        def stage_point(stage_name):
+            if stage_name not in self.stages or "image" not in request.files:
                 return redirect(url_for("entry_point"))
+
+            # Receive image
+            image_file = request.files["image"]
+            extension = splitext(request.files["image"].filename)[-1]
+
+            # Process image
+            stage = self.stages[stage_name]
+            with temporary_filename(extension) as infile:
+                image_file.save(infile)
+                with temporary_filename(extension) as outfile:
+                    stage(infile, outfile)
+                    with open(outfile, "rb") as output_file:
+                        output_bytes = output_file.read()
+
+            # Return image
+            return send_file(
+                BytesIO(output_bytes),
+                download_name=f"response{extension}",
+                mimetype="multipart/form-data",
+            )
 
         @app.route("/")
         def entry_point():
