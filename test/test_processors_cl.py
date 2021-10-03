@@ -42,7 +42,7 @@ def run_processor_on_command_line(processor: Any, args: str, infile: str):
     ("infile", "args"),
     [
         (infiles["RGB"], "-h"),
-        xfail_if_platform({"Linux", "Windows"})(
+        xfail_if_platform({"Linux", "Windows"}, raises=ValueError)(
             infiles["RGB"], "--script pixelmator/ml_super_resolution.scpt --args 2"
         ),
     ],
@@ -55,7 +55,7 @@ def test_apple_script_external(infile: str, args: str) -> None:
     ("infile", "args"),
     [
         (infiles["RGB"], "-h"),
-        xfail_if_platform({"Linux", "Windows"})(
+        xfail_if_platform({"Linux", "Windows"}, raises=ValueError)(
             infiles["RGB"], "--workflow pixelmator/denoise.workflow"
         ),
     ],
