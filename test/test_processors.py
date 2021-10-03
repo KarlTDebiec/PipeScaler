@@ -11,8 +11,6 @@ from os.path import getsize
 import numpy as np
 import pytest
 from PIL import Image
-
-# noinspection PyUnresolvedReferences
 from shared import (
     esrgan_models,
     expected_output_mode,
