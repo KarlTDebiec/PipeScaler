@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/scripts/directoryw_watcher.py
+#   pipescaler/scripts/directory_watcher.py
 #
 #   Copyright (C) 2020-2021 Karl T Debiec
 #   All rights reserved.
@@ -47,12 +47,7 @@ class DirectoryWatcher(CLTool):
         purge_directory: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
-        """
-        Initializes.
-
-        Args:
-            conf_file (str): file from which to load configuration
-        """
+        """Initializes."""
         super().__init__(**kwargs)
 
         if self.verbosity == 1:
