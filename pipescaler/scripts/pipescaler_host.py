@@ -84,7 +84,7 @@ class PipescalerHost(CLTool):
                 text += f"<p><a href='{link_url}'>{stage_name}</a></p>"
             return text
 
-        app.run()
+        app.run(host="0.0.0.0")
 
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
