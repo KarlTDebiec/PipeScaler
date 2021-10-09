@@ -34,21 +34,19 @@ PipeScaler includes the following image processors:
 * [SolidColorProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/solid_color_processor.py) - Sets entire image color to its average color, optionally resizing.
 * [TexconvExternalProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/texconv_external_processor.py) - Compresses image using [Texconv](https://github.com/Microsoft/DirectXTex/wiki/Texconv).
 * [ThresholdProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/threshold_processor.py) - Converts image to black and white using threshold, optionally denoising.
-* [WaifuProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/waifu_processor.py) - Upscales and/or denoises image using [waifu2x](https://github.com/nagadomi/waifu2x).
 * [WaifuExternalProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/waifu_external_processor.py) - Upscales and/or denoises image using [waifu2x](https://github.com/nagadomi/waifu2x).
+* [WebProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/web_processor.py) - POSTs image to a defined URL, which responds with processed image.
 * [XbrzProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/xbrz_processor.py) - Upscales image using [xbrz](https://github.com/ioistired/xbrz.py).
 
 **Splitters** separate one image into two or more downstream images. PipeScaler includes the
 following image splitters:
 * [AlphaSplitter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/splitters/alpha_splitter.py) - Splits image with transparency into separate alpha and color images.
-* [ColorToAlphaSplitter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/splitters/color_to_alpha_splitter.py) - Splits image with transparency into separate alpha and color images, treating a defined color as transparent.
 * [NormalSplitter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/splitters/normal_splitter.py) - Splits a normal map image into separate x, y, and z images.
 
 **Mergers** combine two or more images into a single downstream image. PipeScaler includes
 the following image mergers:
 * [AlphaMerger](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/mergers/alpha_merger.py) - Merges alpha and color images into a single image with transparency.
 * [ColorMatchMerger](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/mergers/color_match_merger.py) - Matches an image's color histogram to that of a reference image.
-* [ColorToAlphaMerger](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/mergers/color_to_alpha_merger.py) - Merges alpha and color images into a single image with transparency, treating a defined color as transparent.
 * [NormalMerger](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/mergers/normal_merger.py) - Merges x, y, and z images into a single normal map image.
 
 **Sorters** direct images through different downstream pipeline sections. PipeScaler

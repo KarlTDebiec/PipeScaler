@@ -9,7 +9,39 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from importlib.util import module_from_spec, spec_from_file_location
 from typing import Any, List, Optional
+
+from pipescaler.common import validate_input_path
+
+
+def initialize_stage(stage_name, stage_conf, modules):
+    # Get stage's class name
+    stage_cls_name = next(iter(stage_conf))  # get first key
+
+    # Get stage's configuration
+    stage_args = stage_conf.get(stage_cls_name)
+    if stage_args is None:
+        stage_args = {}
+
+    # Get stage's class
+    stage_cls = None
+    for module in modules:
+        try:
+            stage_cls = getattr(module, stage_cls_name)
+        except AttributeError:
+            continue
+    if stage_cls is None:
+        if "infile" in stage_args:
+            module_infile = validate_input_path(stage_args.pop("infile"))
+            spec = spec_from_file_location(stage_cls_name, module_infile)
+            module = module_from_spec(spec)
+            spec.loader.exec_module(module)
+            stage_cls = getattr(module, stage_cls_name)
+        else:
+            raise KeyError(f"Class '{stage_cls_name}' not found")
+
+    return stage_cls(name=stage_name, **stage_args)
 
 
 class Stage(ABC):

@@ -96,12 +96,14 @@ class Pipeline:
         # Initialize pipeline
         if len(pipeline) == 0:
             raise ValueError("Pipeline must contain at least one stage")
-        stage_name = pipeline.pop(0)
-        if stage_name in self.stages:
-            stage = self.stages[stage_name]
+        source_name = pipeline.pop(0)
+        if source_name in self.stages:
+            source = self.stages[source_name]
         else:
-            raise KeyError(f"Stage {stage_name} referenced by pipeline does not exist")
-        self.pipeline = self.build_source(stage, pipeline)
+            raise KeyError(
+                f"Source {source_name} referenced by pipeline does not exist"
+            )
+        self.pipeline = self.build_source(source, pipeline)
         info(f"{self}: {pformat(self.pipeline)}")
 
         # Initialize directory
