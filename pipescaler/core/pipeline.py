@@ -10,7 +10,6 @@ from __future__ import annotations
 
 from glob import glob
 from importlib import import_module
-from importlib.util import module_from_spec, spec_from_file_location
 from logging import info, warning
 from os import listdir, makedirs, remove, rmdir
 from os.path import basename, isdir, isfile, join
@@ -18,11 +17,7 @@ from pprint import pformat
 from shutil import copyfile
 from typing import Any, Dict, List, Optional, Union
 
-from pipescaler.common import (
-    UnsupportedPlatformError,
-    validate_input_path,
-    validate_output_path,
-)
+from pipescaler.common import UnsupportedPlatformError, validate_output_path
 from pipescaler.core.exceptions import TerminusReached
 from pipescaler.core.merger import Merger
 from pipescaler.core.pipe_image import PipeImage
@@ -30,7 +25,7 @@ from pipescaler.core.processor import Processor
 from pipescaler.core.sorter import Sorter
 from pipescaler.core.source import Source
 from pipescaler.core.splitter import Splitter
-from pipescaler.core.stage import Stage
+from pipescaler.core.stage import Stage, initialize_stage
 from pipescaler.core.terminus import Terminus
 
 
@@ -65,33 +60,9 @@ class Pipeline:
         # Initialize stages
         self.stages: Dict[str, Stage] = {}
         for stage_name, stage_conf in stages.items():
-            # Get stage's class name
-            stage_cls_name = next(iter(stage_conf))  # get first key
-
-            # Get stage's configuration
-            stage_args = stage_conf.get(stage_cls_name)
-            if stage_args is None:
-                stage_args = {}
-
-            # Get stage's class
-            stage_cls = None
-            for module in stage_modules:
-                try:
-                    stage_cls = getattr(module, stage_cls_name)
-                except AttributeError:
-                    continue
-            if stage_cls is None:
-                if "infile" in stage_args:
-                    module_infile = validate_input_path(stage_args.pop("infile"))
-                    spec = spec_from_file_location(stage_cls_name, module_infile)
-                    module = module_from_spec(spec)
-                    spec.loader.exec_module(module)
-                    stage_cls = getattr(module, stage_cls_name)
-                else:
-                    raise KeyError(f"Class '{stage_cls_name}' not found")
-
-            # Initialize stage
-            self.stages[stage_name] = stage_cls(name=stage_name, **stage_args)
+            self.stages[stage_name] = initialize_stage(
+                stage_name, stage_conf, stage_modules
+            )
 
         # Initialize pipeline
         if len(pipeline) == 0:
