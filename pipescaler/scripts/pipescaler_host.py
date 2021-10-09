@@ -8,7 +8,6 @@
 #   BSD license.
 from argparse import ArgumentParser
 from importlib import import_module
-from importlib.util import module_from_spec, spec_from_file_location
 from inspect import cleandoc
 from io import BytesIO
 from os import environ
@@ -19,7 +18,7 @@ import yaml
 from flask import Flask, redirect, request, send_file, url_for
 
 from pipescaler.common import CLTool, temporary_filename, validate_input_path
-from pipescaler.core import Stage
+from pipescaler.core import Stage, initialize_stage
 
 
 class PipescalerHost(CLTool):
@@ -42,44 +41,18 @@ class PipescalerHost(CLTool):
                 "termini",
             ]
         ]
-
-        # Initialize stages
         self.stages: Dict[str, Stage] = {}
         for stage_name, stage_conf in stages.items():
-            # Get stage's class name
-            stage_cls_name = next(iter(stage_conf))  # get first key
-
-            # Get stage's configuration
-            stage_args = stage_conf.get(stage_cls_name)
-            if stage_args is None:
-                stage_args = {}
-
-            # Get stage's class
-            stage_cls = None
-            for module in stage_modules:
-                try:
-                    stage_cls = getattr(module, stage_cls_name)
-                except AttributeError:
-                    continue
-            if stage_cls is None:
-                if "infile" in stage_args:
-                    module_infile = validate_input_path(stage_args.pop("infile"))
-                    spec = spec_from_file_location(stage_cls_name, module_infile)
-                    module = module_from_spec(spec)
-                    spec.loader.exec_module(module)
-                    stage_cls = getattr(module, stage_cls_name)
-                else:
-                    raise KeyError(f"Class '{stage_cls_name}' not found")
-
-            # Initialize stage
-            self.stages[stage_name] = stage_cls(name=stage_name, **stage_args)
+            self.stages[stage_name] = initialize_stage(
+                stage_name, stage_conf, stage_modules
+            )
 
     def __call__(self, *args, **kwargs):
         app = Flask(__name__, instance_relative_config=True)
         app.secret_key = "super secret key"
 
         @app.route("/<stage_name>", methods=["POST"])
-        def stage_point(stage_name):
+        def stage(stage_name):
             if stage_name not in self.stages or "image" not in request.files:
                 return redirect(url_for("entry_point"))
 

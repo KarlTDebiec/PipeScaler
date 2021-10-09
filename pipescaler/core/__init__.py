@@ -29,7 +29,7 @@ from pipescaler.core.processor import Processor
 from pipescaler.core.sorter import Sorter
 from pipescaler.core.source import Source
 from pipescaler.core.splitter import Splitter
-from pipescaler.core.stage import Stage
+from pipescaler.core.stage import Stage, initialize_stage
 from pipescaler.core.terminus import Terminus
 
 __all__: List[str] = [
@@ -47,6 +47,7 @@ __all__: List[str] = [
     "crop_image",
     "expand_image",
     "gaussian_smooth_image",
+    "initialize_stage",
     "normal_map_from_heightmap",
     "parse_file_list",
     "remove_palette_from_image",
