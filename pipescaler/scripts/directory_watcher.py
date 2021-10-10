@@ -150,7 +150,7 @@ class DirectoryWatcher(CLTool):
 
     def purge_copy_directory(self):
         if isdir(self.copy_directory):
-            for filename in parse_file_list(self.copy_directory, full_paths=True):
+            for filename in parse_file_list(self.copy_directory, absolute_paths=True):
                 remove(filename)
 
     def purge_purge_directory(self):
