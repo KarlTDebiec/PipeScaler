@@ -16,7 +16,7 @@ from typing import Any
 from PIL import Image
 
 from pipescaler.common import validate_input_path
-from pipescaler.core import Processor, parse_file_list
+from pipescaler.core import Processor, get_files
 
 
 class SideChannelProcessor(Processor):
@@ -36,7 +36,7 @@ class SideChannelProcessor(Processor):
             directory, file_ok=False, directory_ok=True, create_directory=True
         )
         self.side_files = {}
-        for filename in parse_file_list(self.directory, absolute_paths=True):
+        for filename in get_files(self.directory, style="absolute"):
             filename_base, filename_extension = splitext(basename(filename))
             if clean_suffix is not None and filename_base.endswith(clean_suffix):
                 filename_base = filename_base[: -len(clean_suffix)]

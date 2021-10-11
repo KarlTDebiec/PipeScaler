@@ -6,44 +6,67 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license. See the LICENSE file for details.
-from os.path import dirname, join
+from os import listdir
+from os.path import basename
 
 import pytest
+from shared import infile_subfolders, infiles, xfail_file_not_found
 
-from pipescaler.common import package_root
-from pipescaler.core import parse_file_list
-
-infile_directories = {
-    directory: join(dirname(package_root), "test", "data", "infiles", directory)
-    for directory in ["alt", "basic", "extra", "novel", "split"]
-}
+from pipescaler.common import temporary_filename
+from pipescaler.core import get_files
 
 
 @pytest.mark.parametrize(
-    ("files", "absolute_paths", "exclusions"),
+    ("sources", "style", "exclusions"),
     [
-        (infile_directories["basic"], False, None),
-        ([infile_directories["alt"], infile_directories["basic"]], False, None),
-        (infile_directories["alt"], False, infile_directories["basic"]),
-        ([infile_directories["alt"], infile_directories["basic"]], True, None),
-        (infile_directories["basic"], True, None),
+        (infile_subfolders["basic"], "absolute", None),
+        (infile_subfolders["basic"], "base", None),
+        (infile_subfolders["basic"], "full", None),
+        (
+            [infile_subfolders["basic"], infile_subfolders["extra"]],
+            "base",
+            infile_subfolders["basic"],
+        ),
     ],
 )
-def test_parse_file_list_directory(files, absolute_paths, exclusions) -> None:
-    nay = parse_file_list(files, absolute_paths, exclusions)
-    print(nay)
+def test_get_files_in_directory(sources, style, exclusions) -> None:
+    get_files(sources, style, exclusions)
 
 
 @pytest.mark.parametrize(
-    ("files", "absolute_paths", "exclusions"),
+    ("sources", "style", "exclusions"),
     [
-        (infile_directories["basic"], False, None),
-        ([infile_directories["alt"], infile_directories["basic"]], False, None),
-        (infile_directories["alt"], False, infile_directories["basic"]),
-        ([infile_directories["alt"], infile_directories["basic"]], True, None),
-        (infile_directories["basic"], True, None),
+        xfail_file_not_found()(infile_subfolders["basic"], "absolute", None),
+        (infile_subfolders["basic"], "base", None),
+        (infile_subfolders["basic"], "full", None),
+        (
+            [infile_subfolders["basic"], infile_subfolders["extra"]],
+            "base",
+            infile_subfolders["basic"],
+        ),
     ],
 )
-def test_parse_file_list_directory(files, absolute_paths, exclusions) -> None:
-    nay = parse_file_list(files, absolute_paths, exclusions)
-    print(nay)
+def test_get_files_in_text_file(sources, style, exclusions) -> None:
+    with temporary_filename(".txt") as text_file_name:
+        with open(text_file_name, "w") as text_file:
+            if isinstance(sources, str):
+                sources = [sources]
+            for source in sources:
+                for filename in listdir(source):
+                    text_file.write(f"{filename}\n")
+        get_files(text_file_name, style, exclusions)
+
+
+@pytest.mark.parametrize(
+    ("sources", "style", "exclusions"),
+    [
+        (infiles.values(), "absolute", None),
+        (infiles.values(), "base", None),
+        (infiles.values(), "full", None),
+        xfail_file_not_found()(map(basename, infiles.values()), "absolute", None),
+        (map(basename, infiles.values()), "base", None),
+        (map(basename, infiles.values()), "full", None),
+    ],
+)
+def test_get_files(sources, style, exclusions) -> None:
+    get_files(sources, style, exclusions)

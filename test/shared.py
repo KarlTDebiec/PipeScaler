@@ -119,6 +119,10 @@ def xfail_if_platform(
     )
 
 
+def xfail_file_not_found():
+    return partial(pytest.param, marks=pytest.mark.xfail(raises=FileNotFoundError))
+
+
 def xfail_unsupported_mode():
     return partial(
         pytest.param, marks=pytest.mark.xfail(raises=UnsupportedImageModeError)

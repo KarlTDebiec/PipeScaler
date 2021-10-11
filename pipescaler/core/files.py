@@ -9,8 +9,9 @@
 """Core pipescaler functions for interacting with files"""
 from __future__ import annotations
 
+from mimetypes import guess_type
 from os import listdir
-from os.path import basename, splitext
+from os.path import basename, dirname, isabs, isfile, join, splitext
 from typing import Any, List, Optional, Set, Union
 
 import yaml
@@ -18,75 +19,110 @@ import yaml
 from pipescaler.common import DirectoryNotFoundError, NotAFileError, validate_input_path
 
 
-def parse_file_list(
-    files: Union[str, List[str], Set[str]],
-    absolute_paths: bool = False,
+def get_files_in_directory(
+    directory: str,
+    style: str = "base",
     exclusions: Optional[Union[str, List[str], Set[str]]] = None,
+):
+    if style not in ["absolute", "base", "full"]:
+        raise ValueError()
+    if exclusions is None:
+        exclusions = set()
+    files = set()
+
+    directory = validate_input_path(directory, directory_ok=True, file_ok=False)
+    for filename in listdir(directory):
+        absolute = validate_input_path(filename, default_directory=directory)
+        base = splitext(basename(filename))[0]
+        if base not in exclusions:
+            if style == "absolute":
+                files.add(absolute)
+            elif style == "base":
+                files.add(base)
+            else:
+                files.add(filename)
+
+    return files
+
+
+def get_files_in_text_file(
+    text_file: str,
+    style: str = "base",
+    exclusions: Optional[Union[str, List[str], Set[str]]] = None,
+):
+    if style not in ["absolute", "base", "full"]:
+        raise ValueError()
+    if exclusions is None:
+        exclusions = set()
+    files = set()
+
+    text_file = validate_input_path(text_file)
+    with open(text_file, "r") as f:
+        filenames = [line.strip() for line in f.readlines() if not line.startswith("#")]
+    for filename in filenames:
+        base = splitext(basename(filename))[0]
+        if base not in exclusions:
+            if style == "absolute":
+                absolute = validate_input_path(
+                    filename, default_directory=join(dirname(text_file), base)
+                )
+                files.add(absolute)
+            elif style == "base":
+                files.add(base)
+            else:
+                files.add(filename)
+
+    return files
+
+
+def get_files(
+    sources: Union[str, List[str], Set[str]],
+    style: str = "base",
+    exclusion_sources: Optional[Union[str, List[str], Set[str]]] = None,
 ) -> Set[str]:
-    """
-    Parses a list of files from directories or text file.
+    if style not in ["absolute", "base", "full"]:
+        raise ValueError()
+    exclusions = set()
+    if exclusion_sources is not None:
+        exclusions = get_files(sources=exclusion_sources)
+    if isinstance(sources, str):
+        sources = [sources]
+    files = set()
 
-    Args:
-        files:
-        absolute_paths: Whether or not to include absolute paths or just filenames
-        exclusions:
+    def get_file(source):
+        if isabs(source):
+            filename = basename(source)
+        else:
+            filename = source
+        base = splitext(basename(filename))[0]
+        if base not in exclusions:
+            if style == "absolute":
+                if isabs(source):
+                    absolute = source
+                else:
+                    absolute = validate_input_path(filename)
+                return absolute
+            elif style == "base":
+                return base
+            else:
+                return filename
 
-    Returns:
-
-    """
-    # Prepare exclusion set
-    exclusions_set = set()
-    if exclusions is not None:
-        exclusions_set = parse_file_list(exclusions, False)
-
-    files_set = set()
-    if files is None:
-        return files_set
-    if isinstance(files, str):
-        files = [files]
-
-    for file in files:
+    for source in sources:
         try:
-            try:
-                # If file is a directory, add each file within it to file
-                directory = validate_input_path(file, directory_ok=True, file_ok=False)
-                directory_files = [
-                    validate_input_path(f, default_directory=directory)
-                    for f in listdir(directory)
-                ]
-                for directory_file in directory_files:
-                    directory_file_base = splitext(basename(directory_file))[0]
-                    if directory_file_base not in exclusions_set:
-                        if absolute_paths:
-                            files_set.add(directory_file)
-                        else:
-                            files_set.add(directory_file_base)
-            except NotADirectoryError:
+            directory = validate_input_path(source, directory_ok=True, file_ok=False)
+            files |= get_files_in_directory(directory, style, exclusions)
+        except (DirectoryNotFoundError, NotADirectoryError):
+            guessed_type = guess_type(source)[0]
+            if guessed_type in ["image/png"]:
+                files.add(get_file(source))
+            else:
                 try:
-                    text_file = validate_input_path(
-                        file, directory_ok=False, file_ok=True
-                    )
-                    with open(text_file, "r") as f:
-                        for line in [line.strip() for line in f.readlines()]:
-                            if line.startswith("#"):
-                                continue
-                            line_base = splitext(basename(line))[0]
-                            if line_base not in exclusions_set:
-                                if absolute_paths:
-                                    files_set.add(line)
-                                else:
-                                    files_set.add(line_base)
-                except NotAFileError:
-                    if absolute_paths:
-                        files_set.add(file)
-                    else:
-                        files_set.add(splitext(basename(file))[0])
-        except (FileNotFoundError, DirectoryNotFoundError):
-            files_set.add(file)
+                    text_file = validate_input_path(source)
+                    files |= get_files_in_text_file(text_file, style, exclusions)
+                except (FileNotFoundError, NotAFileError, UnicodeDecodeError):
+                    files.add(get_file(source))
 
-    files_set -= exclusions_set
-
-    return files_set
+    return files
 
 
 def read_yaml(infile: str) -> Any:

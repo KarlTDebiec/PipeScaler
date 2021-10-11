@@ -29,7 +29,7 @@ from pipescaler.common import (
     validate_input_path,
     validate_output_path,
 )
-from pipescaler.core import parse_file_list
+from pipescaler.core import get_files
 
 
 class ScaledImageIdentifier(CLTool):
@@ -71,7 +71,9 @@ class ScaledImageIdentifier(CLTool):
             validate_input_path(d, file_ok=False, directory_ok=True)
             for d in input_directory
         ]
-        filenames = parse_file_list(input_directories, True, self.exclusions)
+        filenames = get_files(
+            input_directories, style="absolute", exclusion_sources=self.exclusions
+        )
         self.filenames = {splitext(basename(f))[0]: f for f in filenames}
 
         # Operations
@@ -165,7 +167,10 @@ class ScaledImageIdentifier(CLTool):
         # Loop over scales from largest to smallest
         for scale in [0.5, 0.25, 0.125, 0.0625]:
             size = tuple(
-                [int(original_size[0] * scale), int(original_size[1] * scale),]
+                [
+                    int(original_size[0] * scale),
+                    int(original_size[1] * scale),
+                ]
             )
             if size not in self.data:
                 continue

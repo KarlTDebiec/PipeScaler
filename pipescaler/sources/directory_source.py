@@ -11,7 +11,7 @@ from __future__ import annotations
 from typing import Any, List, Union
 
 from pipescaler.common import validate_input_path
-from pipescaler.core import Source, parse_file_list
+from pipescaler.core import Source, get_files
 
 
 class DirectorySource(Source):
@@ -39,7 +39,9 @@ class DirectorySource(Source):
         ]
 
         # Store list of filenames
-        filenames = parse_file_list(self.directories, True, exclusions)
+        filenames = get_files(
+            self.directories, style="absolute", exclusion_sources=exclusions
+        )
         filenames = list(filenames)
         filenames.sort(key=self.sort, reverse=True)
         self.filenames = filenames

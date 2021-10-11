@@ -16,7 +16,7 @@ from shutil import copyfile
 from typing import Any
 
 from pipescaler.common import validate_output_path
-from pipescaler.core import Terminus, parse_file_list
+from pipescaler.core import Terminus, get_files
 
 
 class CopyFileTerminus(Terminus):
@@ -31,7 +31,7 @@ class CopyFileTerminus(Terminus):
         )
 
         if purge:
-            for filename in parse_file_list(self.directory, True):
+            for filename in get_files(self.directory, style="absolute"):
                 remove(filename)
                 info(f"{self}: '{filename}' removed")
 
