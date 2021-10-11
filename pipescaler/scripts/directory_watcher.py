@@ -28,6 +28,7 @@ from pipescaler.common import (
     validate_output_path,
 )
 from pipescaler.core import get_files
+from pipescaler.core.files import read_yaml
 
 
 class DirectoryWatcher(CLTool):
@@ -242,9 +243,7 @@ class DirectoryWatcher(CLTool):
         parser = cls.construct_argparser()
         kwargs = vars(parser.parse_args())
 
-        conf_file = kwargs.pop("conf_file")
-        with open(validate_input_path(conf_file), "r") as f:
-            conf = yaml.load(f, Loader=yaml.SafeLoader)
+        conf = read_yaml(kwargs.pop("conf_file"))
 
         # Set environment variables
         for key, value in conf.pop("environment", {}).items():

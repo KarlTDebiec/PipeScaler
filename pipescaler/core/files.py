@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from mimetypes import guess_type
 from os import listdir
-from os.path import basename, dirname, isabs, isfile, join, splitext
+from os.path import basename, dirname, isabs, join, splitext
 from typing import Any, List, Optional, Set, Union
 
 import yaml
@@ -23,7 +23,20 @@ def get_files_in_directory(
     directory: str,
     style: str = "base",
     exclusions: Optional[Union[str, List[str], Set[str]]] = None,
-):
+) -> Set[str]:
+    """
+    Get filenames within provided directory.
+
+    Args:
+        directory: Directory from which to get filenames
+        style: Style in which to get filenames, may be 'absolute' for the complete
+          path, 'base' for the filename excluding extension, and 'full' for the filename
+          including extension
+        exclusions: Base names of files to exclude
+
+    Returns:
+        Filenames in configured style
+    """
     if style not in ["absolute", "base", "full"]:
         raise ValueError()
     if exclusions is None:
@@ -49,7 +62,20 @@ def get_files_in_text_file(
     text_file: str,
     style: str = "base",
     exclusions: Optional[Union[str, List[str], Set[str]]] = None,
-):
+) -> Set[str]:
+    """
+    Get filenames within provided text file.
+
+    Args:
+        text_file: Text file from which to get filenames
+        style: Style in which to get filenames, may be 'absolute' for the complete
+          path, 'base' for the filename excluding extension, and 'full' for the filename
+          including extension
+        exclusions: Base names of files to exclude
+
+    Returns:
+        Filenames in configured style
+    """
     if style not in ["absolute", "base", "full"]:
         raise ValueError()
     if exclusions is None:
@@ -80,11 +106,25 @@ def get_files(
     style: str = "base",
     exclusion_sources: Optional[Union[str, List[str], Set[str]]] = None,
 ) -> Set[str]:
+    """
+    Get filenames from provided sources, which may be either directories or text files.
+
+    Args:
+        sources: Directories and text files from which to get filenames
+        style: Style in which to get filenames, may be 'absolute' for the complete
+          path, 'base' for the filename excluding extension, and 'full' for the filename
+          including extension
+        exclusion_sources: Directories and text files from which to get base names of
+          files to exclude
+
+    Returns:
+        Filenames in configured style
+    """
     if style not in ["absolute", "base", "full"]:
         raise ValueError()
     exclusions = set()
     if exclusion_sources is not None:
-        exclusions = get_files(sources=exclusion_sources)
+        exclusions = get_files(sources=exclusion_sources, style="base")
     if isinstance(sources, str):
         sources = [sources]
     files = set()

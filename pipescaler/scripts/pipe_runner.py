@@ -18,6 +18,7 @@ from typing import Any
 import yaml
 
 from pipescaler.common import CLTool, validate_input_path
+from pipescaler.core.files import read_yaml
 from pipescaler.core.pipeline import Pipeline
 
 
@@ -34,8 +35,7 @@ class PipeRunner(CLTool):
         super().__init__(**kwargs)
 
         # Input
-        with open(validate_input_path(conf_file), "r") as f:
-            conf = yaml.load(f, Loader=yaml.SafeLoader)
+        conf = read_yaml(conf_file)
 
         # Set environment variables
         for key, value in conf.pop("environment", {}).items():
@@ -81,13 +81,12 @@ class PipeRunner(CLTool):
         output = {}
         for key, value in input.items():
             if isinstance(value, str):
-                with open(validate_input_path(value), "r") as f:
-                    subfile = self.insert_subfiles(yaml.load(f, Loader=yaml.SafeLoader))
-                    for sub_key, sub_value in subfile.items():
-                        if sub_key not in output:
-                            output[sub_key] = sub_value
-                        else:
-                            raise KeyError(f"'{sub_key}' specified multiple times")
+                subfile = self.insert_subfiles(read_yaml(validate_input_path(value)))
+                for sub_key, sub_value in subfile.items():
+                    if sub_key not in output:
+                        output[sub_key] = sub_value
+                    else:
+                        raise KeyError(f"'{sub_key}' specified multiple times")
             elif isinstance(value, dict) or isinstance(value, list):
                 if key not in output:
                     output[key] = value

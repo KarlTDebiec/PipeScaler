@@ -30,6 +30,7 @@ from pipescaler.common import (
     validate_output_path,
 )
 from pipescaler.core import get_files
+from pipescaler.core.files import read_yaml
 
 
 class ScaledImageIdentifier(CLTool):
@@ -57,8 +58,7 @@ class ScaledImageIdentifier(CLTool):
 
         # Input
         if infile is not None:
-            with open(validate_input_path(infile), "r") as f:
-                self.scalesets = yaml.load(f, Loader=yaml.SafeLoader)
+            self.scalesets = read_yaml(validate_input_path(infile))
             if self.scalesets is None:
                 self.scalesets = {}
             pprint(self.scalesets)
