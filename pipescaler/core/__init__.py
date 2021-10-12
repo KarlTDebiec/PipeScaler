@@ -11,14 +11,14 @@ from __future__ import annotations
 
 from typing import List
 
-from pipescaler.core.exceptions import TerminusReached, UnsupportedImageModeError
-from pipescaler.core.files import get_files
+from pipescaler.core.exception import TerminusReached, UnsupportedImageModeError
+from pipescaler.core.file import get_files
 from pipescaler.core.image import (
     crop_image,
     expand_image,
-    gaussian_smooth_image,
-    normal_map_from_heightmap,
+    generate_normal_map_from_height_map_image,
     remove_palette_from_image,
+    smooth_image,
 )
 from pipescaler.core.merger import Merger
 from pipescaler.core.pipe_image import PipeImage
@@ -45,9 +45,9 @@ __all__: List[str] = [
     "UnsupportedImageModeError",
     "crop_image",
     "expand_image",
-    "gaussian_smooth_image",
+    "smooth_image",
     "initialize_stage",
-    "normal_map_from_heightmap",
+    "generate_normal_map_from_height_map_image",
     "get_files",
     "remove_palette_from_image",
     "validate_image",

@@ -19,7 +19,7 @@ from flask import Flask, redirect, request, send_file, url_for
 
 from pipescaler.common import CLTool, temporary_filename, validate_input_path
 from pipescaler.core import Stage, initialize_stage
-from pipescaler.core.files import read_yaml
+from pipescaler.core.file import read_yaml
 
 
 class PipescalerHost(CLTool):

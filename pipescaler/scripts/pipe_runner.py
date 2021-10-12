@@ -18,7 +18,7 @@ from typing import Any
 import yaml
 
 from pipescaler.common import CLTool, validate_input_path
-from pipescaler.core.files import read_yaml
+from pipescaler.core.file import read_yaml
 from pipescaler.core.pipeline import Pipeline
 
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/core/exceptions.py
+#   pipescaler/core/exception.py
 #
 #   Copyright (C) 2020-2021 Karl T Debiec
 #   All rights reserved.

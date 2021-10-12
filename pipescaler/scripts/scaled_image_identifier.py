@@ -30,7 +30,7 @@ from pipescaler.common import (
     validate_output_path,
 )
 from pipescaler.core import get_files
-from pipescaler.core.files import read_yaml
+from pipescaler.core.file import read_yaml
 
 
 class ScaledImageIdentifier(CLTool):

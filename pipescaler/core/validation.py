@@ -12,7 +12,7 @@ from typing import List, Optional, Tuple, Union
 
 from PIL import Image
 
-from pipescaler.core.exceptions import UnsupportedImageModeError
+from pipescaler.core.exception import UnsupportedImageModeError
 from pipescaler.core.image import remove_palette_from_image
 
 

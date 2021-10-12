@@ -18,7 +18,7 @@ from shutil import copyfile
 from typing import Any, Dict, List, Optional, Union
 
 from pipescaler.common import UnsupportedPlatformError, validate_output_path
-from pipescaler.core.exceptions import TerminusReached
+from pipescaler.core.exception import TerminusReached
 from pipescaler.core.merger import Merger
 from pipescaler.core.pipe_image import PipeImage
 from pipescaler.core.processor import Processor

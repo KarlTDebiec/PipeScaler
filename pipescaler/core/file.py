@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/core/files.py
+#   pipescaler/core/file.py
 #
 #   Copyright (C) 2020-2021 Karl T Debiec
 #   All rights reserved.
@@ -129,16 +129,25 @@ def get_files(
         sources = [sources]
     files = set()
 
-    def get_file(source):
-        if isabs(source):
-            filename = basename(source)
+    def get_file(file_source):
+        """
+        Gets a filename in configured style.
+
+        Args:
+            file_source: Filename
+
+        Returns:
+            Filename in configured style
+        """
+        if isabs(file_source):
+            filename = basename(file_source)
         else:
-            filename = source
+            filename = file_source
         base = splitext(basename(filename))[0]
         if base not in exclusions:
             if style == "absolute":
-                if isabs(source):
-                    absolute = source
+                if isabs(file_source):
+                    absolute = file_source
                 else:
                     absolute = validate_input_path(filename)
                 return absolute
