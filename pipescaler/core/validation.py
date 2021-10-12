@@ -6,24 +6,36 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+"""Core pipescaler functions for validation"""
 from __future__ import annotations
 
 from typing import List, Optional, Tuple, Union
 
 from PIL import Image
 
+from pipescaler.common import validate_input_path
 from pipescaler.core.exception import UnsupportedImageModeError
 from pipescaler.core.image import remove_palette_from_image
 
 
-def validate_image(infile: str, supported_modes: Union[str, List[str]]) -> Image.Image:
-    if isinstance(supported_modes, str):
-        supported_modes = [supported_modes]
+def validate_image(infile: str, valid_modes: Union[str, List[str]]) -> Image.Image:
+    """
+    Validate that image exists and is of a valid mode, and remove palette if present.
 
-    image = Image.open(infile)
+    Args:
+        infile: Image infile
+        valid_modes: Valid image modes
+
+    Returns:
+        Image
+    """
+    if isinstance(valid_modes, str):
+        valid_modes = [valid_modes]
+
+    image = Image.open(validate_input_path(infile))
     if image.mode == "P":
         image = remove_palette_from_image(image)
-    if image.mode not in supported_modes:
+    if image.mode not in valid_modes:
         raise UnsupportedImageModeError(
             f"Mode '{image.mode}' of image '{infile}' is not supported"
         )
@@ -33,12 +45,24 @@ def validate_image(infile: str, supported_modes: Union[str, List[str]]) -> Image
 
 def validate_image_and_convert_mode(
     infile: str,
-    supported_modes: Union[str, List[str]],
-    convert_mode: Optional[str] = None,
+    valid_modes: Union[str, List[str]],
+    convert_mode: str,
 ) -> Tuple[Image.Image, str]:
-    image = validate_image(infile, supported_modes)
+    """
+    Validate that image exists and is of a valid mode, remove palette if present, and
+    convert it to provided mode.
 
-    if convert_mode is not None and image.mode != convert_mode:
+    Args:
+        infile: Image infile
+        valid_modes: Valid image modes
+        convert_mode: Mode to which to convert image
+
+    Returns:
+        Tuple of image and image's original mode
+    """
+    image = validate_image(infile, valid_modes)
+
+    if image.mode != convert_mode:
         return (image.convert(convert_mode), image.mode)
     else:
         return (image, image.mode)
