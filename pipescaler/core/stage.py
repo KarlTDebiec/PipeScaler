@@ -6,6 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+"""Base class for stages."""
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -16,6 +17,17 @@ from pipescaler.common import validate_input_path
 
 
 def initialize_stage(stage_name, stage_conf, modules):
+    """
+    Imports and initializes a stage
+
+    Args:
+        stage_name: Name with which to initialize stage
+        stage_conf: Configuration with which to initialize stage
+        modules: Modules from which stage may be imported
+
+    Returns:
+        Initialized stage
+    """
     # Get stage's class name
     stage_cls_name = next(iter(stage_conf))  # get first key
 
@@ -71,17 +83,21 @@ class Stage(ABC):
             self.desc = self.name
 
     def __repr__(self) -> str:
+        """Detailed representation of stage"""
         return self.desc
 
     def __str__(self) -> str:
+        """Simple representation of stage"""
         return self.name
 
     @property
     @abstractmethod
     def inlets(self) -> List[str]:
+        """Inlets that flow into stage"""
         raise NotImplementedError()
 
     @property
     @abstractmethod
     def outlets(self) -> List[str]:
+        """Outlets that flow out of stage"""
         raise NotImplementedError()

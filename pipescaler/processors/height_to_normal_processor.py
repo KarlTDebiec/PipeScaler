@@ -30,10 +30,6 @@ class HeightToNormalProcessor(Processor):
     def __init__(self, sigma: Optional[int] = None, **kwargs: Any) -> None:
         """
         Validates and stores static configuration.
-
-        Arguments:
-            pixels (Tuple[int]): Number of pixels to remove from left, top, right, and
-              bottom
         """
         super().__init__(**kwargs)
 
@@ -44,14 +40,6 @@ class HeightToNormalProcessor(Processor):
             self.sigma = None
 
     def process_file(self, infile: str, outfile: str) -> None:
-        """
-        Expands infile and writes the resulting output to outfile.
-
-        Arguments:
-            infile (str): Input file
-            outfile (str): Output file
-        """
-
         # Read image
         input_image = validate_image(infile, "L")
 
@@ -74,10 +62,10 @@ class HeightToNormalProcessor(Processor):
         Constructs argument parser.
 
         Args:
-            kwargs (Any): Additional keyword arguments
+            kwargs: Additional keyword arguments
 
         Returns:
-            parser (ArgumentParser): Argument parser
+            Argument parser
         """
         description = kwargs.pop("description", cleandoc(cls.__doc__))
         parser = super().construct_argparser(description=description, **kwargs)

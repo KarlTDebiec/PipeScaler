@@ -20,7 +20,7 @@ def crop_image(
     """
     Crop an image.
 
-    TODO: Validate
+    TODO: Validate parameters
 
     Args:
         image: Input image
@@ -48,7 +48,7 @@ def expand_image(
     """
     Expand an image by reflecting it around its edges.
 
-    TODO: Option to tile rather than reflect
+    TODO: Implement option to tile rather than reflect
 
     Args:
         image: Input image

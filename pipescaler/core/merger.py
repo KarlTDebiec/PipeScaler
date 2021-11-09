@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Base class for merger stages"""
+"""Base class for merger stages."""
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -16,7 +16,7 @@ from pipescaler.core.stage import Stage
 
 
 class Merger(Stage, ABC):
-    """Base class for merger stages"""
+    """Base class for merger stages."""
 
     def __init__(
         self,
@@ -24,6 +24,14 @@ class Merger(Stage, ABC):
         trim_suffixes: Optional[List[str]] = None,
         **kwargs: Any
     ) -> None:
+        """
+        Validates and stores static configuration.
+
+        Args:
+            suffix: Suffix to add to merged outfiles
+            trim_suffixes: Suffixes to trim from merged outfiles
+            **kwargs: Additional keyword arguments
+        """
         super().__init__(**kwargs)
 
         # Store configuration
@@ -38,8 +46,18 @@ class Merger(Stage, ABC):
 
     @abstractmethod
     def __call__(self, outfile: str, **kwargs: Any) -> None:
+        """
+
+        Args:
+            outfile: Path to output file
+            **kwargs: Additional keyword arguments
+
+        Returns:
+
+        """
         raise NotImplementedError()
 
     @property
     def outlets(self) -> List[str]:
+        """Outlets that flow out of stage"""
         return ["outlet"]

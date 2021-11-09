@@ -15,7 +15,16 @@ from pipescaler.common import validate_output_path
 
 
 class PipeImage:
+    """Image within a pipeline"""
+
     def __init__(self, path: str, parent: PipeImage = None) -> None:
+        """
+        Initializes
+
+        Args:
+            path: Path to image file
+            parent: Parent image from which this image is descended
+        """
         self.full_path = validate_output_path(path)
         self.directory = dirname(self.full_path)
         self.filename = splitext(basename(self.full_path))[0]
@@ -28,9 +37,11 @@ class PipeImage:
             self.name = self.parent.name
 
     def __repr__(self) -> str:
+        """Representation of image"""
         return self.name
 
     def __str__(self) -> str:
+        """String representation of image"""
         return self.name
 
     def get_child(
@@ -40,6 +51,18 @@ class PipeImage:
         trim_suffixes: Optional[List[str]] = None,
         extension="png",
     ) -> PipeImage:
+        """
+        Gets a new PipeImage descended from this one
+
+        Args:
+            directory: Directory in which to place child image's path
+            suffix: Suffix to append to child image's name
+            trim_suffixes: Suffixes to trim from child image's name
+            extension: Extension to use for child image
+
+        Returns:
+            New PipeImage descended from this one
+        """
         filename = self.filename
         if filename.startswith(self.name):
             filename = filename[len(self.name) :]

@@ -6,6 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+"""Base class for splitters."""
 from __future__ import annotations
 
 from abc import ABC
@@ -20,6 +21,13 @@ class Splitter(Stage, ABC):
     def __init__(
         self, suffixes: Optional[Dict[str, str]] = None, **kwargs: Any
     ) -> None:
+        """
+        Validates and stores static configuration.
+
+        Args:
+            suffixes: Suffixes to add to split outfiles
+            **kwargs: Additional keyword arguments
+        """
         super().__init__(**kwargs)
 
         # Store configuration
@@ -33,4 +41,5 @@ class Splitter(Stage, ABC):
 
     @property
     def inlets(self):
+        """Inlets that flow into stage"""
         return ["infile"]

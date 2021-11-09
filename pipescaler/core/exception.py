@@ -16,6 +16,6 @@ class TerminusReached(Exception):
 
 
 class UnsupportedImageModeError(Exception):
-    """Unsupported image mode"""
+    """Mode of image is not supported"""
 
     pass

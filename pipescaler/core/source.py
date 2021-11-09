@@ -6,6 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+"""Base class for sources."""
 from __future__ import annotations
 
 from abc import abstractmethod
@@ -17,14 +18,21 @@ class Source(Stage):
     """Base class for sources."""
 
     def __iter__(self):
+        """
+
+        Returns:
+
+        """
         raise NotImplementedError()
 
     @property
     def inlets(self):
+        """Inlets that flow into stage"""
         return []
 
     @property
     def outlets(self):
+        """Outlets that flow out of stage"""
         return ["default"]
 
     @staticmethod
