@@ -41,28 +41,17 @@ class ColorMatchMerger(Merger):
         if reference_image.mode != input_image.mode:
             raise ValueError(
                 f"Image mode '{reference_image.mode}' of image '{reference}'"
-                f" does not match mode '{input_image.mode}' of image"
-                f" '{input}'"
+                f" does not match mode '{input_image.mode}' of image '{input}'"
             )
 
         # Merge images
         reference_array = np.array(reference_image)
         input_array = np.array(input_image)
-        if reference_image.mode == "L":
-            output_array = match_histograms(
-                input_array, reference_array, multichannel=False
-            )
-        else:
-            output_array = match_histograms(
-                input_array, reference_array, multichannel=True
-            )
-        output_image = Image.fromarray(
-            np.clip(
-                output_array,
-                0,
-                255,
-            ).astype(np.uint8)
+        output_array = match_histograms(
+            input_array, reference_array, multichannel=reference_image.mode != "L"
         )
+        output_array = np.clip(output_array, 0, 255).astype(np.uint8)
+        output_image = Image.fromarray(output_array)
 
         # Write image
         output_image.save(outfile)
