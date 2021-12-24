@@ -29,7 +29,7 @@ class NormalMerger(Merger):
             outfile: Output image
             **kwargs: Additional keyword arguments
         """
-        self.merge(outfile, **{k: kwargs.get(k) for k in self.inlets})
+        self.merge(outfile=outfile, **{k: kwargs.get(k) for k in self.inlets})
 
     def merge(self, x: str, y: str, z: str, outfile: str) -> None:
         """

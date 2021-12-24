@@ -29,14 +29,14 @@ class AlphaMerger(Merger):
             outfile: Output image
             **kwargs: Additional keyword arguments
         """
-        self.merge(outfile, **{k: kwargs.get(k) for k in self.inlets})
+        self.merge(outfile=outfile, **{k: kwargs.get(k) for k in self.inlets})
 
     def merge(self, color: str, alpha: str, outfile: str) -> None:
         """
         Merge color and alpha images into a single image with transparency
 
         Args:
-            color: Infile with either
+            color: Color infile
             alpha: Alpha infile
             outfile: Output file
         """

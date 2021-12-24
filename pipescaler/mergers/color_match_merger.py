@@ -23,7 +23,7 @@ class ColorMatchMerger(Merger):
     """Matches an image's color histogram to that of a reference image."""
 
     def __call__(self, outfile: str, **kwargs: Any) -> None:
-        self.merge(outfile, **{k: kwargs.get(k) for k in self.inlets})
+        self.merge(outfile=outfile, **{k: kwargs.get(k) for k in self.inlets})
 
     def merge(self, input: str, reference: str, outfile: str) -> None:
         """

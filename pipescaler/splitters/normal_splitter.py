@@ -34,7 +34,7 @@ class NormalSplitter(Splitter):
             outlet's associated outfile
         """
         outfiles = {k: kwargs.get(k) for k in self.outlets}
-        self.split(infile, **outfiles)
+        self.split(infile=infile, **outfiles)
         return outfiles
 
     def split(self, infile: str, x: str, y: str, z: str) -> None:
