@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-""""""
+"""Terminus stages"""
 from __future__ import annotations
 
 from typing import List
