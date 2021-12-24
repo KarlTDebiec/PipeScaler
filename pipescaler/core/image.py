@@ -18,7 +18,7 @@ def crop_image(
     image: Image.Image, left: int = 0, top: int = 0, right: int = 0, bottom: int = 0
 ) -> Image.Image:
     """
-    Crop an image.
+    Crop an image
 
     TODO: Validate parameters
 
@@ -46,16 +46,16 @@ def expand_image(
     min_size: int = 1,
 ) -> Image.Image:
     """
-    Expand an image by reflecting it around its edges.
+    Expand an image by reflecting it around its edges
 
     TODO: Implement option to tile rather than reflect
 
     Args:
         image: Input image
-        left: Pixels to remove from left side
-        top: Pixels to remove from top
-        right: Pixels to remove from right side
-        bottom: Pixels to remove from bottom
+        left: Pixels to add to left side
+        top: Pixels to add to top
+        right: Pixels to add to right side
+        bottom: Pixels to add to bottom
         min_size: Minimum size of expanded image
 
     Returns:
@@ -87,10 +87,10 @@ def expand_image(
 
 def generate_normal_map_from_height_map_image(image: Image.Image) -> Image.Image:
     """
-    Generates normal map image from a height map image.
+    Generate normal map image from a height map image
 
     Args:
-        image: Height map image from which to generate normal map
+        image: Height map image
 
     Returns:
         Normal map image
@@ -127,7 +127,7 @@ def generate_normal_map_from_height_map_image(image: Image.Image) -> Image.Image
 
 def remove_palette_from_image(image: Image.Image) -> Image.Image:
     """
-    Remove palette from a paletted image.
+    Remove palette from a paletted image
 
     Args:
         image: Image in 'P' mode
@@ -144,13 +144,13 @@ def remove_palette_from_image(image: Image.Image) -> Image.Image:
         )[0]
     )
     if "transparency" in image.info:
-        datum = np.array(image)
+        array = np.array(image)
         fully_transparent_colors = set(
             np.where(np.array(list(image.info["transparency"])) == 0)[0]
         )
         pixels_per_non_grayscale_color = np.array(
             [
-                (datum == color).sum()
+                (array == color).sum()
                 for color in non_grayscale_colors - fully_transparent_colors
             ]
         )
@@ -164,9 +164,9 @@ def remove_palette_from_image(image: Image.Image) -> Image.Image:
         return image.convert("RGB")
 
 
-def smooth_image(image: Image.Image, sigma: float):
+def smooth_image(image: Image.Image, sigma: float) -> Image.Image:
     """
-    Smooth an image using a Gaussian kernel.
+    Smooth an image using a Gaussian kernel
 
     Args:
         image: Image to smooth

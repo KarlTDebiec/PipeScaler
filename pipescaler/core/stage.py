@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Base class for stages."""
+"""Base class for stages"""
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -18,7 +18,7 @@ from pipescaler.common import validate_input_path
 
 def initialize_stage(stage_name, stage_conf, modules):
     """
-    Imports and initializes a stage
+    Import and initialize a stage
 
     Args:
         stage_name: Name with which to initialize stage
@@ -29,7 +29,7 @@ def initialize_stage(stage_name, stage_conf, modules):
         Initialized stage
     """
     # Get stage's class name
-    stage_cls_name = next(iter(stage_conf))  # get first key
+    stage_cls_name = next(iter(stage_conf))
 
     # Get stage's configuration
     stage_args = stage_conf.get(stage_cls_name)
@@ -57,7 +57,7 @@ def initialize_stage(stage_name, stage_conf, modules):
 
 
 class Stage(ABC):
-    """Base class for stages."""
+    """Base class for stages"""
 
     trim_suffixes = None
     extension = "png"
@@ -66,12 +66,12 @@ class Stage(ABC):
         self, name: Optional[str] = None, desc: Optional[str] = None, **kwargs: Any
     ) -> None:
         """
-        Validates and stores static configuration.
+        Validate and store static configuration
 
         Arguments:
-            name (Optional[str]): Name of stage
-            desc (Optional[str]): Description of stage
-            kwargs (Any): Additional keyword arguments
+            name: Name of stage
+            desc: Description of stage
+            kwargs: Additional keyword arguments
         """
         if name is not None:
             self.name = name

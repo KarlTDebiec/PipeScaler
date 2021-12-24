@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Base class for merger stages."""
+"""Base class for merger stages"""
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -16,7 +16,7 @@ from pipescaler.core.stage import Stage
 
 
 class Merger(Stage, ABC):
-    """Base class for merger stages."""
+    """Base class for merger stages"""
 
     def __init__(
         self,
@@ -25,7 +25,7 @@ class Merger(Stage, ABC):
         **kwargs: Any
     ) -> None:
         """
-        Validates and stores static configuration.
+        Validate and store static configuration
 
         Args:
             suffix: Suffix to add to merged outfiles
@@ -47,13 +47,13 @@ class Merger(Stage, ABC):
     @abstractmethod
     def __call__(self, outfile: str, **kwargs: Any) -> None:
         """
+        Merges infiles into an outfile
 
         Args:
             outfile: Path to output file
-            **kwargs: Additional keyword arguments
-
-        Returns:
-
+            **kwargs: Additional keyword arguments; including one argument for each
+              inlet, whose key is the name of that inlet and whose value is the path to
+              the associated infile
         """
         raise NotImplementedError()
 

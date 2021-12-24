@@ -6,6 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+"""Image within a pipeline"""
 from __future__ import annotations
 
 from os.path import basename, dirname, join, splitext
@@ -19,7 +20,7 @@ class PipeImage:
 
     def __init__(self, path: str, parent: PipeImage = None) -> None:
         """
-        Initializes
+        Validate and store static configuration
 
         Args:
             path: Path to image file
@@ -37,11 +38,11 @@ class PipeImage:
             self.name = self.parent.name
 
     def __repr__(self) -> str:
-        """Representation of image"""
+        """Detailed representation of image"""
         return self.name
 
     def __str__(self) -> str:
-        """String representation of image"""
+        """Simple representation of image"""
         return self.name
 
     def get_child(
@@ -52,7 +53,7 @@ class PipeImage:
         extension="png",
     ) -> PipeImage:
         """
-        Gets a new PipeImage descended from this one
+        Get a new PipeImage descended from this one
 
         Args:
             directory: Directory in which to place child image's path

@@ -20,7 +20,7 @@ from pipescaler.core.image import remove_palette_from_image
 
 def validate_image(infile: str, valid_modes: Union[str, List[str]]) -> Image.Image:
     """
-    Validate that image exists and is of a valid mode, and remove palette if present.
+    Validate that image exists and is of a valid mode, and remove palette if present
 
     Args:
         infile: Image infile
@@ -50,7 +50,7 @@ def validate_image_and_convert_mode(
 ) -> Tuple[Image.Image, str]:
     """
     Validate that image exists and is of a valid mode, remove palette if present, and
-    convert it to provided mode.
+    convert it to provided mode
 
     Args:
         infile: Image infile

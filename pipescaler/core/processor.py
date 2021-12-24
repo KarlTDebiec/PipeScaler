@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Base class for processors."""
+"""Base class for processors"""
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -18,11 +18,11 @@ from pipescaler.core.stage import Stage
 
 
 class Processor(Stage, CLTool):
-    """Base class for processors."""
+    """Base class for processors"""
 
     def __init__(self, suffix: Optional[str] = None, **kwargs: Any) -> None:
         """
-        Validates and stores static configuration.
+        Validate and store static configuration
 
         Arguments:
             suffix: Suffix to append to images
@@ -38,13 +38,13 @@ class Processor(Stage, CLTool):
 
     def __call__(self, infile: str, outfile: str) -> None:
         """
-        Processes infile and writes the resulting output to outfile.
+        Process infile and writes the resulting output to outfile
 
         Arguments:
             infile (str): Input file
             outfile (str): Output file
         """
-        self.process_file(infile, outfile)
+        raise NotImplementedError()
 
     @property
     def inlets(self) -> List[str]:
@@ -59,7 +59,7 @@ class Processor(Stage, CLTool):
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
-        Constructs argument parser.
+        Construct argument parser
 
         Args:
             kwargs: Additional keyword arguments
@@ -78,7 +78,7 @@ class Processor(Stage, CLTool):
 
     @classmethod
     def main(cls) -> None:
-        """Parses arguments, initializes processor, and processes file."""
+        """Parse arguments, initialize processor, and process file"""
         parser = cls.construct_argparser()
         kwargs = vars(parser.parse_args())
         infile = kwargs.pop("infile")
