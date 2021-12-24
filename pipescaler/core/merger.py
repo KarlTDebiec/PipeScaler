@@ -47,7 +47,7 @@ class Merger(Stage, ABC):
     @abstractmethod
     def __call__(self, outfile: str, **kwargs: Any) -> None:
         """
-        Merges infiles into an outfile
+        Merge infiles into an outfile
 
         Args:
             outfile: Path to output file

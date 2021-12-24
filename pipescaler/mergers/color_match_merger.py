@@ -6,10 +6,11 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+"""Matches an image's color histogram to that of a reference image"""
 from __future__ import annotations
 
 from logging import info
-from typing import Any
+from typing import Any, List
 
 import numpy as np
 from PIL import Image
@@ -22,37 +23,52 @@ class ColorMatchMerger(Merger):
     """Matches an image's color histogram to that of a reference image."""
 
     def __call__(self, outfile: str, **kwargs: Any) -> None:
-        infiles = {k: kwargs.get(k) for k in self.inlets}
+        self.merge(outfile, **{k: kwargs.get(k) for k in self.inlets})
+
+    def merge(self, input: str, reference: str, outfile: str) -> None:
+        """
+        Match an image's color histogram to that of a reference image
+
+        Args:
+            input: Input image whose color is to be matched
+            reference: Reference image to which color is to be matched
+            outfile: Output file
+        """
 
         # Read images
-        reference_image = validate_image(
-            infiles["reference"], ["L", "LA", "RGB", "RGBA"]
-        )
-        input_image = validate_image(infiles["input"], ["L", "LA", "RGB", "RGBA"])
+        reference_image = validate_image(reference, ["L", "LA", "RGB", "RGBA"])
+        input_image = validate_image(input, ["L", "LA", "RGB", "RGBA"])
         if reference_image.mode != input_image.mode:
             raise ValueError(
-                f"Image mode '{reference_image.mode}' of image '{infiles['reference']}'"
+                f"Image mode '{reference_image.mode}' of image '{reference}'"
                 f" does not match mode '{input_image.mode}' of image"
-                f" '{infiles['input']}'"
+                f" '{input}'"
             )
 
         # Merge images
-        reference_datum = np.array(reference_image)
-        input_datum = np.array(input_image)
+        reference_array = np.array(reference_image)
+        input_array = np.array(input_image)
         if reference_image.mode == "L":
-            output_datum = match_histograms(
-                input_datum, reference_datum, multichannel=False
+            output_array = match_histograms(
+                input_array, reference_array, multichannel=False
             )
         else:
-            output_datum = match_histograms(
-                input_datum, reference_datum, multichannel=True
+            output_array = match_histograms(
+                input_array, reference_array, multichannel=True
             )
-        output_image = Image.fromarray(np.clip(output_datum, 0, 255,).astype(np.uint8))
+        output_image = Image.fromarray(
+            np.clip(
+                output_array,
+                0,
+                255,
+            ).astype(np.uint8)
+        )
 
         # Write image
         output_image.save(outfile)
         info(f"'{self}: '{outfile}' saved")
 
     @property
-    def inlets(self):
+    def inlets(self) -> List[str]:
+        """Inlets that flow into stage"""
         return ["reference", "input"]
