@@ -38,7 +38,7 @@ class Splitter(Stage, ABC):
 
     def __call__(self, infile: str, **kwargs: Any) -> Dict[str, str]:
         """
-        Splits infile inout outfiles
+        Split infile inout outfiles
 
         Args:
             infile: Input file
