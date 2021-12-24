@@ -49,7 +49,7 @@ class PotraceExternalProcessor(Processor):
         self.opttolerance = validate_float(opttolerance, min_value=0)
         self.scale = validate_float(scale, min_value=0)
 
-    def process_file(self, infile: str, outfile: str):
+    def __call__(self, infile: str, outfile: str) -> None:
         command = validate_executable("potrace")
 
         # Read image

@@ -44,7 +44,7 @@ class PngquantExternalProcessor(Processor):
         self.speed = validate_int(speed, 1, 100)
         self.floyd_steinberg = floyd_steinberg
 
-    def process_file(self, infile: str, outfile: str) -> None:
+    def __call__(self, infile: str, outfile: str) -> None:
         """
         Loads image, processes it using pngquant, and saves resulting output.
 

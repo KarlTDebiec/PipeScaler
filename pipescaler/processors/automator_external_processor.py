@@ -44,7 +44,7 @@ class AutomatorExternalProcessor(Processor):
             default_directory=join(*split(package_root), "data", "workflows"),
         )
 
-    def process_file(self, infile: str, outfile: str) -> None:
+    def __call__(self, infile: str, outfile: str) -> None:
         """
         Reads input image, processes it, and saves output image
 

@@ -36,7 +36,7 @@ class XbrzProcessor(Processor):
         # Store configuration
         self.scale = validate_int(scale, 2, 6)
 
-    def process_file(self, infile: str, outfile: str) -> None:
+    def __call__(self, infile: str, outfile: str) -> None:
         """
         Scales infile and writes the resulting output to outfile.
 

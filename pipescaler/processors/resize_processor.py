@@ -54,7 +54,7 @@ class ResizeProcessor(Processor):
             validate_str(resample, options=self.resample_methods.keys())
         ]
 
-    def process_file(self, infile: str, outfile: str) -> None:
+    def __call__(self, infile: str, outfile: str) -> None:
         """
         Rescales infile and writes the resulting output to outfile.
 

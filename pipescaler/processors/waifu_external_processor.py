@@ -74,7 +74,7 @@ class WaifuExternalProcessor(Processor):
         self.denoise = validate_int(denoise, min_value=0, max_value=4)
         self.expand = expand
 
-    def process_file(self, infile: str, outfile: str) -> None:
+    def __call__(self, infile: str, outfile: str) -> None:
         """
         Reads input image, processes it, and saves output image
 

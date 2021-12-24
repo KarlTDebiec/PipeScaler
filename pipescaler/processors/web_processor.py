@@ -28,7 +28,7 @@ class WebProcessor(Processor):
         # Store configuration
         self.url = url
 
-    def process_file(self, infile: str, outfile: str) -> None:
+    def __call__(self, infile: str, outfile: str) -> None:
         # Read image
         with open(infile, "rb") as input_file:
             input_bytes = input_file.read()

@@ -31,7 +31,7 @@ class ThresholdProcessor(Processor):
         self.threshold = threshold
         self.denoise = denoise
 
-    def process_file(self, infile: str, outfile: str) -> None:
+    def __call__(self, infile: str, outfile: str) -> None:
         # Read image
         input_image = validate_image(infile, "L")
 

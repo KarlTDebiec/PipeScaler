@@ -29,7 +29,7 @@ class SolidColorProcessor(Processor):
         # Store configuration
         self.scale = validate_float(scale)
 
-    def process_file(self, infile: str, outfile: str, **kwargs: Any) -> None:
+    def __call__(self, infile: str, outfile: str) -> None:
         """
         Calculates average color of infile and writes new image of equivalent
         size and mode to outfile.
