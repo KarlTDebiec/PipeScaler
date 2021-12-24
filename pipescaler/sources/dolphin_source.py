@@ -6,6 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+"""Yields images dumped by [Dolphin](https://dolphin-emu.org/)"""
 from __future__ import annotations
 
 from logging import error
@@ -19,6 +20,7 @@ class DolphinSource(DirectorySource):
 
     @staticmethod
     def sort(filename):
+        """Sort outfiles to be yielded by source"""
         try:
             components = splitext(basename(filename))[0].split("_")
             if len(components) == 4:

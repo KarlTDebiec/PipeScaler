@@ -6,6 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+"""Yields images dumped by [Citra](https://citra-emu.org)"""
 from __future__ import annotations
 
 from logging import error
@@ -19,6 +20,7 @@ class CitraSource(DirectorySource):
 
     @staticmethod
     def sort(filename):
+        """Sort outfiles to be yielded by source"""
         try:
             _, size, code, _ = splitext(basename(filename))[0].split("_")
             width, height = size.split("x")

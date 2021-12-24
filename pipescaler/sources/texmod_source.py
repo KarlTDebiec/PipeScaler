@@ -6,6 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+"""Yields images dumped by [TexMod](https://www.moddb.com/downloads/texmod4)"""
 from __future__ import annotations
 
 from logging import error
@@ -19,6 +20,7 @@ class TexmodSource(DirectorySource):
 
     @staticmethod
     def sort(filename):
+        """Sort outfiles to be yielded by source"""
         try:
             return int(f"1{int(get_name(filename)[2:10], 16):022d}")
         except ValueError as e:
