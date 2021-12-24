@@ -6,6 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+"""Sorts image based on mode"""
 from __future__ import annotations
 
 from logging import info
@@ -18,24 +19,23 @@ class ModeSorter(Sorter):
     """Sorts image based on mode."""
 
     def __call__(self, infile: str) -> str:
+        """
+        Sort image based on mode
 
+        Args:
+            infile: Input image
+
+        Returns:
+            Outlet
+        """
         # Read image
         image = validate_image(infile, ["L", "LA", "RGB", "RGBA"])
 
         # Sort image
-        if image.mode == "RGBA":
-            info(f"{self}: '{infile}' matches 'RGBA'")
-            return "rgba"
-        elif image.mode == "RGB":
-            info(f"{self}: {infile}' matches 'RGB'")
-            return "rgb"
-        elif image.mode == "LA":
-            info(f"{self}: {infile}' matches 'LA'")
-            return "la"
-        else:
-            info(f"{self}: {infile}' matches 'L'")
-            return "l"
+        info(f"{self}: '{infile}' matches '{image.mode}'")
+        return image.mode.lower()
 
     @property
     def outlets(self) -> List[str]:
+        """Outlets that flow out of stage"""
         return ["rgba", "rgb", "la", "l"]

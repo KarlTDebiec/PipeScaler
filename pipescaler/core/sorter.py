@@ -26,7 +26,7 @@ class Sorter(Stage, ABC):
             infile: Input file
 
         Returns:
-            Class of source
+            Outlet
         """
         raise NotImplementedError()
 

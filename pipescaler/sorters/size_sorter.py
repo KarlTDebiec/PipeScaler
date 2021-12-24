@@ -6,6 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+"""Sorts image based on canvas size"""
 from __future__ import annotations
 
 from logging import info
@@ -21,12 +22,28 @@ class SizeSorter(Sorter):
     """Sorts image based on canvas size."""
 
     def __init__(self, cutoff: int = 32, **kwargs: Any) -> None:
+        """
+        Validate and store static configuration
+
+        Args:
+            cutoff: Sort as 'less_than' if smallest dimension is below threshold
+            **kwargs: Additional keyword arguments
+        """
         super().__init__(**kwargs)
 
         # Store configuration
         self.cutoff = validate_int(cutoff, min_value=1)
 
     def __call__(self, infile: str) -> str:
+        """
+        Sort image based on canvas size
+
+        Args:
+            infile: Input image
+
+        Returns:
+            Outlet
+        """
         # Read image
         image = Image.open(infile)
 
@@ -42,4 +59,5 @@ class SizeSorter(Sorter):
 
     @property
     def outlets(self):
+        """Outlets that flow out of stage"""
         return ["less_than", "greater_than_or_equal_to"]

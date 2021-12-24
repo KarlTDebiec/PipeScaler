@@ -6,6 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+"""Sorts image based on filename using a set of configured lists"""
 from __future__ import annotations
 
 from logging import info, warning
@@ -22,6 +23,13 @@ class ListSorter(Sorter):
     exclusions = {".DS_Store", "desktop"}
 
     def __init__(self, outlets: Dict[str, List[str]], **kwargs: Any) -> None:
+        """
+        Validate and store configuration
+
+        Args:
+            outlets: Outlet configuration
+            **kwargs: Additional keyword arguments
+        """
         super().__init__(**kwargs)
 
         # Store configuration
@@ -52,6 +60,15 @@ class ListSorter(Sorter):
             )
 
     def __call__(self, infile: str) -> str:
+        """
+        Sort image based on filename using a set of configured lists
+
+        Args:
+            infile: Input image
+
+        Returns:
+            Outlet
+        """
         # Identify image
         name = basename(dirname(infile))
 
@@ -65,4 +82,5 @@ class ListSorter(Sorter):
 
     @property
     def outlets(self):
+        """Outlets that flow out of stage"""
         return self._outlets
