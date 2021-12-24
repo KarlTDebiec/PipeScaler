@@ -36,7 +36,7 @@ class ExpandProcessor(Processor):
             pixels, length=4, min_value=0
         )
 
-    def process_file(self, infile: str, outfile: str) -> None:
+    def __call__(self, infile: str, outfile: str) -> None:
         """
         Expands infile and writes the resulting output to outfile.
 

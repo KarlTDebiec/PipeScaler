@@ -19,6 +19,7 @@ from flask import Flask, redirect, request, send_file, url_for
 
 from pipescaler.common import CLTool, temporary_filename, validate_input_path
 from pipescaler.core import Stage, initialize_stage
+from pipescaler.core.file import read_yaml
 
 
 class PipescalerHost(CLTool):
@@ -112,10 +113,7 @@ class PipescalerHost(CLTool):
         """Parses arguments, constructs tool, and calls tool."""
         parser = cls.construct_argparser()
         kwargs = vars(parser.parse_args())
-
-        conf_file = kwargs.pop("conf_file")
-        with open(validate_input_path(conf_file), "r") as f:
-            conf = yaml.load(f, Loader=yaml.SafeLoader)
+        conf = read_yaml(kwargs.pop("conf_file"))
 
         # Set environment variables
         for key, value in conf.pop("environment", {}).items():

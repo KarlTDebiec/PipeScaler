@@ -16,7 +16,7 @@ from shutil import copyfile
 from typing import Any
 
 from pipescaler.common import validate_output_path
-from pipescaler.core import Terminus, parse_file_list
+from pipescaler.core import Terminus, get_files
 
 
 class CopyFileTerminus(Terminus):
@@ -31,11 +31,11 @@ class CopyFileTerminus(Terminus):
         )
 
         if purge:
-            for filename in parse_file_list(self.directory, True):
+            for filename in get_files(self.directory, style="absolute"):
                 remove(filename)
                 info(f"{self}: '{filename}' removed")
 
-    def process_file(self, infile: str, outfile: str) -> None:
+    def __call__(self, infile: str, outfile: str) -> None:
         if isfile(outfile):
             infile_md5sum = md5(open(infile, "rb").read()).hexdigest()
             outfile_md5sum = md5(open(outfile, "rb").read()).hexdigest()

@@ -9,7 +9,7 @@
 from __future__ import annotations
 
 from logging import info
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 import numpy as np
 from PIL import Image
@@ -49,5 +49,6 @@ class NormalSplitter(Splitter):
         return outfiles
 
     @property
-    def outlets(self):
+    def outlets(self) -> List[str]:
+        """Outlets that flow out of stage"""
         return ["x", "y", "z"]

@@ -189,7 +189,7 @@ class ESRGANProcessor(Processor):
             self.cpu_upscaler = None
         # TODO: Determine output scale and store as self.scale
 
-    def process_file(self, infile: str, outfile: str) -> None:
+    def __call__(self, infile: str, outfile: str) -> None:
         """
         Processes infile and writes the resulting output to outfile.
 

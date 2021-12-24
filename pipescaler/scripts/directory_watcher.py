@@ -27,7 +27,8 @@ from pipescaler.common import (
     validate_input_path,
     validate_output_path,
 )
-from pipescaler.core import parse_file_list
+from pipescaler.core import get_files
+from pipescaler.core.file import read_yaml
 
 
 class DirectoryWatcher(CLTool):
@@ -62,7 +63,7 @@ class DirectoryWatcher(CLTool):
             input_directory, file_ok=False, directory_ok=True
         )
 
-        self.classified_filenames = parse_file_list(classified_directories)
+        self.classified_filenames = get_files(classified_directories)
 
         if purge_directory is not None:
             try:
@@ -75,7 +76,7 @@ class DirectoryWatcher(CLTool):
             self.purge_directory = None
 
         if observed_filenames_infile is not None:
-            self.observed_filenames = parse_file_list(observed_filenames_infile)
+            self.observed_filenames = get_files(observed_filenames_infile)
         else:
             self.observed_filenames = set()
 
@@ -142,7 +143,7 @@ class DirectoryWatcher(CLTool):
             raise ValueError()
 
     def process_existing_files_in_input_directory(self):
-        filenames = parse_file_list(self.input_directory, False)
+        filenames = get_files(self.input_directory)
         filenames = list(filenames)
         filenames.sort(reverse=True)
         for filename in filenames:
@@ -150,12 +151,12 @@ class DirectoryWatcher(CLTool):
 
     def purge_copy_directory(self):
         if isdir(self.copy_directory):
-            for filename in parse_file_list(self.copy_directory, full_paths=True):
+            for filename in get_files(self.copy_directory, style="absolute"):
                 remove(filename)
 
     def purge_purge_directory(self):
         if self.purge_directory is not None:
-            purge_filenames = parse_file_list(self.purge_directory)
+            purge_filenames = get_files(self.purge_directory)
             for filename in purge_filenames:
                 if isfile(f"{self.input_directory}/{filename}.png"):
                     remove(f"{self.input_directory}/{filename}.png")
@@ -242,9 +243,7 @@ class DirectoryWatcher(CLTool):
         parser = cls.construct_argparser()
         kwargs = vars(parser.parse_args())
 
-        conf_file = kwargs.pop("conf_file")
-        with open(validate_input_path(conf_file), "r") as f:
-            conf = yaml.load(f, Loader=yaml.SafeLoader)
+        conf = read_yaml(kwargs.pop("conf_file"))
 
         # Set environment variables
         for key, value in conf.pop("environment", {}).items():

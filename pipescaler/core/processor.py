@@ -6,9 +6,9 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+"""Base class for processors"""
 from __future__ import annotations
 
-from abc import abstractmethod
 from argparse import ArgumentParser
 from inspect import cleandoc
 from typing import Any, List, Optional
@@ -22,11 +22,11 @@ class Processor(Stage, CLTool):
 
     def __init__(self, suffix: Optional[str] = None, **kwargs: Any) -> None:
         """
-        Validates and stores static configuration.
+        Validate and store static configuration
 
         Arguments:
-            suffix (Optional[str]): suffix to append to images
-            kwargs (Any): Additional keyword arguments
+            suffix: Suffix to append to images
+            kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
 
@@ -38,36 +38,34 @@ class Processor(Stage, CLTool):
 
     def __call__(self, infile: str, outfile: str) -> None:
         """
-        Processes infile and writes the resulting output to outfile.
+        Process infile and writes the resulting output to outfile
 
         Arguments:
             infile (str): Input file
             outfile (str): Output file
         """
-        self.process_file(infile, outfile)
+        raise NotImplementedError()
 
     @property
     def inlets(self) -> List[str]:
+        """Inlets that flow into stage"""
         return ["inlet"]
 
     @property
     def outlets(self) -> List[str]:
+        """Outlets that flow out of stage"""
         return ["outlet"]
-
-    @abstractmethod
-    def process_file(cls, infile: str, outfile: str) -> None:
-        raise NotImplementedError()
 
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
-        Constructs argument parser.
+        Construct argument parser
 
         Args:
-            kwargs (Any): Additional keyword arguments
+            kwargs: Additional keyword arguments
 
         Returns:
-            parser (ArgumentParser): Argument parser
+            parser: Argument parser
         """
         description = kwargs.pop("description", cleandoc(cls.__doc__))
         parser = super().construct_argparser(description=description, **kwargs)
@@ -80,7 +78,7 @@ class Processor(Stage, CLTool):
 
     @classmethod
     def main(cls) -> None:
-        """Parses arguments, initializes processor, and processes file."""
+        """Parse arguments, initialize processor, and process file"""
         parser = cls.construct_argparser()
         kwargs = vars(parser.parse_args())
         infile = kwargs.pop("infile")

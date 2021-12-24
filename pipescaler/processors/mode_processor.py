@@ -26,7 +26,10 @@ class ModeProcessor(Processor):
     modes = ["L", "LA", "RGB", "RGBA"]
 
     def __init__(
-        self, mode: str = "RGB", background_color: str = "#000000", **kwargs: Any,
+        self,
+        mode: str = "RGB",
+        background_color: str = "#000000",
+        **kwargs: Any,
     ) -> None:
         """
         Validates and stores static configuration.
@@ -41,7 +44,7 @@ class ModeProcessor(Processor):
         self.mode = validate_str(mode, self.modes)
         self.background_color = ImageColor.getrgb(background_color)  # TODO: Validate
 
-    def process_file(self, infile: str, outfile: str) -> None:
+    def __call__(self, infile: str, outfile: str) -> None:
         """
         Converts infile mode and writes the resulting output to outfile.
 

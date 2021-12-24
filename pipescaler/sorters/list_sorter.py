@@ -13,7 +13,7 @@ from os.path import basename, dirname
 from pprint import pformat
 from typing import Any, Dict, List
 
-from pipescaler.core import Sorter, parse_file_list
+from pipescaler.core import Sorter, get_files
 
 
 class ListSorter(Sorter):
@@ -31,8 +31,10 @@ class ListSorter(Sorter):
         # Organize downstream outlets
         duplicates = {}
         for outlet in self.outlets:
-            for filename in parse_file_list(
-                outlets.get(outlet, []), False, self.exclusions
+            for filename in get_files(
+                outlets.get(outlet, []),
+                style="absolute",
+                exclusion_sources=self.exclusions,
             ):
                 if filename in self.outlets_by_filename:
                     duplicates[filename] = duplicates.get(

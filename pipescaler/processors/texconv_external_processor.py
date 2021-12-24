@@ -55,7 +55,7 @@ class TexconvExternalProcessor(Processor):
         self.filetype = filetype
         self.format = format
 
-    def process_file(self, infile: str, outfile: str) -> None:
+    def __call__(self, infile: str, outfile: str) -> None:
         """
         Loads image, converts it using texconv, and saves resulting output.
 

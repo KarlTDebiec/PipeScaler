@@ -6,11 +6,11 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+"""Image processing pipeline"""
 from __future__ import annotations
 
 from glob import glob
 from importlib import import_module
-from importlib.util import module_from_spec, spec_from_file_location
 from logging import info, warning
 from os import listdir, makedirs, remove, rmdir
 from os.path import basename, isdir, isfile, join
@@ -18,23 +18,21 @@ from pprint import pformat
 from shutil import copyfile
 from typing import Any, Dict, List, Optional, Union
 
-from pipescaler.common import (
-    UnsupportedPlatformError,
-    validate_input_path,
-    validate_output_path,
-)
-from pipescaler.core.exceptions import TerminusReached
+from pipescaler.common import UnsupportedPlatformError, validate_output_path
+from pipescaler.core.exception import TerminusReached
 from pipescaler.core.merger import Merger
 from pipescaler.core.pipe_image import PipeImage
 from pipescaler.core.processor import Processor
 from pipescaler.core.sorter import Sorter
 from pipescaler.core.source import Source
 from pipescaler.core.splitter import Splitter
-from pipescaler.core.stage import Stage
+from pipescaler.core.stage import Stage, initialize_stage
 from pipescaler.core.terminus import Terminus
 
 
 class Pipeline:
+    """Image processing pipeline"""
+
     def __init__(
         self,
         wip_directory: str,
@@ -42,6 +40,16 @@ class Pipeline:
         pipeline: List[Union[str, Dict[str, Any]]],
         purge_wip: bool = False,
     ) -> None:
+        """
+        Validate and store static configuration
+
+        Args:
+            wip_directory: Directory in which to store intermediate image files
+            stages: Stages available to pipeline specification
+            pipeline: Pipeline specification
+            purge_wip: Purge files in wip_directory that are not intermediates of the
+              current pipeline
+        """
 
         # Store configuration
         self.wip_directory = validate_output_path(
@@ -65,33 +73,9 @@ class Pipeline:
         # Initialize stages
         self.stages: Dict[str, Stage] = {}
         for stage_name, stage_conf in stages.items():
-            # Get stage's class name
-            stage_cls_name = next(iter(stage_conf))  # get first key
-
-            # Get stage's configuration
-            stage_args = stage_conf.get(stage_cls_name)
-            if stage_args is None:
-                stage_args = {}
-
-            # Get stage's class
-            stage_cls = None
-            for module in stage_modules:
-                try:
-                    stage_cls = getattr(module, stage_cls_name)
-                except AttributeError:
-                    continue
-            if stage_cls is None:
-                if "infile" in stage_args:
-                    module_infile = validate_input_path(stage_args.pop("infile"))
-                    spec = spec_from_file_location(stage_cls_name, module_infile)
-                    module = module_from_spec(spec)
-                    spec.loader.exec_module(module)
-                    stage_cls = getattr(module, stage_cls_name)
-                else:
-                    raise KeyError(f"Class '{stage_cls_name}' not found")
-
-            # Initialize stage
-            self.stages[stage_name] = stage_cls(name=stage_name, **stage_args)
+            self.stages[stage_name] = initialize_stage(
+                stage_name, stage_conf, stage_modules
+            )
 
         # Initialize pipeline
         if len(pipeline) == 0:
@@ -113,7 +97,7 @@ class Pipeline:
         self.wip_files = set()
 
     def __call__(self, **kwargs: Any) -> None:
-        """Performs operations."""
+        """Perform operations"""
 
         source = self.pipeline[0]
         for infile in source:
@@ -163,9 +147,11 @@ class Pipeline:
                     info(f"{self}: '{wip_subdirectory}' removed")
 
     def __repr__(self) -> str:
+        """Detailed representation of pipeline"""
         return self.__class__.__name__.lower()
 
     def __str__(self) -> str:
+        """Simple representation of image"""
         return self.__class__.__name__.lower()
 
     def build_merger(
@@ -175,7 +161,7 @@ class Pipeline:
         downstream_pipeline_conf: List[Union[str, Dict[str, Any]]],
     ) -> List[Union[Stage, Dict[Stage, Any]]]:
         """
-        Builds a merger and its downstream pipeline.
+        Build a merger and its downstream pipeline
 
         Args:
             stage: Stage being built
@@ -203,7 +189,7 @@ class Pipeline:
         downstream_pipeline_conf: List[Union[str, Dict[str, Any]]],
     ) -> List[Union[Stage, Dict[Stage, Any]]]:
         """
-        Builds a Processor and its downstream pipeline.
+        Build a Processor and its downstream pipeline
 
         Args:
             stage: Stage being built
@@ -225,7 +211,7 @@ class Pipeline:
         self, pipeline_conf: List[Union[str, Dict[str, Any]]]
     ) -> List[Union[Stage, Dict[Stage, Any]]]:
         """
-        Builds a downstream pipeline.
+        Build a downstream pipeline
 
         Args:
             pipeline_conf: Configuration of pipeline
@@ -273,7 +259,7 @@ class Pipeline:
         downstream_pipeline_conf: List[Union[str, Dict[str, Any]]],
     ) -> List[Union[Stage, Dict[Stage, Any]]]:
         """
-        Builds a Sorter and its downstream pipeline.
+        Build a Sorter and its downstream pipeline
 
         Args:
             stage: Stage being built
@@ -302,7 +288,7 @@ class Pipeline:
         self, stage: Source, downstream_pipeline_conf: List[Union[str, Dict[str, Any]]]
     ) -> List[Union[Stage, Dict[Stage, Any]]]:
         """
-        Builds a Source stage and its downstream pipeline.
+        Build a Source stage and its downstream pipeline
 
         Args:
             stage: Stage being built
@@ -323,7 +309,7 @@ class Pipeline:
         downstream_pipeline_conf: List[Union[str, Dict[str, Any]]],
     ) -> List[Union[Stage, Dict[Stage, Any]]]:
         """
-        Builds a Splitter and its downstream pipeline.
+        Build a Splitter and its downstream pipeline
 
         Args:
             stage: Stage being built
@@ -351,7 +337,7 @@ class Pipeline:
         downstream_pipeline_conf: List[Union[str, Dict[str, Any]]],
     ) -> List[Union[Stage, Dict[Stage, Any]]]:
         """
-        Builds a Terminus and its downstream pipeline.
+        Build a Terminus and its downstream pipeline
 
         Args:
             stage: Stage being built
@@ -369,7 +355,13 @@ class Pipeline:
 
         return pipeline
 
-    def log_wip_file(self, wip_filename):
+    def log_wip_file(self, wip_filename: str) -> None:
+        """
+        Mark an intermediate file as having been covered by this pipeline
+
+        Args:
+            wip_filename: Intermediate file path
+        """
         self.wip_files.add(wip_filename)
 
     def run_merger(
@@ -380,8 +372,8 @@ class Pipeline:
         input: Union[PipeImage, Dict[str, PipeImage]],
     ):
         """
-        Runs input images through a Merger and routes output image into
-        downstream pipeline.
+        Run input images through a Merger and routes output image into downstream
+        pipeline
 
         Args:
             stage: Merger to run
@@ -427,8 +419,8 @@ class Pipeline:
         input: Union[PipeImage, Dict[str, PipeImage]],
     ):
         """
-        Runs input image through a Processor and routes output image into
-        downstream pipeline.
+        Run input image through a Processor and routes output image into
+        downstream pipeline
 
         Args:
             stage: Stage to run
@@ -468,7 +460,7 @@ class Pipeline:
         input: Union[PipeImage, Dict[str, PipeImage]],
     ):
         """
-        Routes input to downstream pipeline.
+        Route input to downstream pipeline
 
         Args:
             pipeline: Pipeline to route to
@@ -511,9 +503,9 @@ class Pipeline:
         input: Union[PipeImage, Dict[str, PipeImage]],
     ):
         """
-        Runs input image through an outlet pipeline selected by a Sorter, then
-        runs output image of that outlet pipeline through a further downstream
-        pipeline.
+        Run input image through an outlet pipeline selected by a Sorter, then
+        run output image of that outlet pipeline through a further downstream
+        pipeline
 
         Args:
             stage: Stage to run
@@ -548,9 +540,9 @@ class Pipeline:
         input: Union[PipeImage, Dict[str, PipeImage]],
     ):
         """
-        Runs an input image through a Splitter, and each output image through
+        Run an input image through a Splitter, and each output image through
         the Splitter's associated outlet pipeline. Collects the outputs of each
-        outlet pipeline, and routes all of them into downstream pipeline.
+        outlet pipeline, and route all of them into downstream pipeline
 
         Args:
             stage: Splitter to run
@@ -624,7 +616,7 @@ class Pipeline:
         input: Union[PipeImage, Dict[str, PipeImage]],
     ) -> None:
         """
-        Runs input image through a Terminus.
+        Run input image through a Terminus
 
         Args:
             stage: Stage to run
