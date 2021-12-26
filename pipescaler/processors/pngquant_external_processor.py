@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Compresses image palette using [pngquant](https://pngquant.org/)"""
+"""Compresses image palette using pngquant"""
 from __future__ import annotations
 
 from argparse import ArgumentParser

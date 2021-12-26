@@ -6,9 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""
-Compresses image using [Texconv](https://github.com/Microsoft/DirectXTex/wiki/Texconv)
-"""
+"""Compresses image using Texconv"""
 from __future__ import annotations
 
 from argparse import ArgumentParser

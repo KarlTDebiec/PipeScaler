@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Upscales image using [xbrz](https://github.com/ioistired/xbrz.py)"""
+"""Upscales image using xbrz"""
 from __future__ import annotations
 
 from argparse import ArgumentParser

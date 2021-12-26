@@ -6,6 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+"""Upscales and/or denoises image using ESRGAN"""
 from __future__ import annotations
 
 import collections

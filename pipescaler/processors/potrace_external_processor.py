@@ -6,10 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""
-Traces image using [Potrace](http://potrace.sourceforge.net/) and re-rasterizes,
-optionally resizing
-"""
+"""Traces image using Potrace and re-rasterizes, optionally resizing"""
 from __future__ import annotations
 
 from argparse import ArgumentParser

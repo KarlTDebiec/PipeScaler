@@ -6,6 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+"""Expands image canvas"""
 from __future__ import annotations
 
 from argparse import ArgumentParser

@@ -6,9 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""
-Upscales and/or denoises image using [waifu2x](https://github.com/nagadomi/waifu2x)
-"""
+"""Upscales and/or denoises image using waifu2x"""
 from __future__ import annotations
 
 from argparse import ArgumentParser
