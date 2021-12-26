@@ -6,6 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+"""Sets entire image color to its average color, optionally resizing"""
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -61,13 +62,13 @@ class SolidColorProcessor(Processor):
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
-        Constructs argument parser.
+        Construct argument parser
 
         Args:
-            kwargs (Any): Additional keyword arguments
+            kwargs: Additional keyword arguments
 
         Returns:
-            parser (ArgumentParser): Argument parser
+            parser: Argument parser
         """
         description = kwargs.pop("description", cleandoc(cls.__doc__))
         parser = super().construct_argparser(description=description, **kwargs)

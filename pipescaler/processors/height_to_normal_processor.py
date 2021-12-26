@@ -59,13 +59,13 @@ class HeightToNormalProcessor(Processor):
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
-        Constructs argument parser.
+        Construct argument parser
 
         Args:
             kwargs: Additional keyword arguments
 
         Returns:
-            Argument parser
+            parser: Argument parser
         """
         description = kwargs.pop("description", cleandoc(cls.__doc__))
         parser = super().construct_argparser(description=description, **kwargs)

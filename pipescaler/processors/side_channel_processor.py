@@ -6,6 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+"""Replaces image with an alternative sourced from a defined directory"""
 from __future__ import annotations
 
 from logging import info
