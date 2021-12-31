@@ -47,11 +47,11 @@ class ModeProcessor(Processor):
 
     def __call__(self, infile: str, outfile: str) -> None:
         """
-        Converts infile mode and writes the resulting output to outfile.
+        Read image from infile, process it, and save to outfile
 
         Arguments:
-            infile (str): Input file
-            outfile (str): Output file
+            infile: Input file path
+            outfile: Output file path
         """
         # Read image
         input_image = validate_image(infile, ["L", "LA", "RGB", "RGBA"])
@@ -75,7 +75,7 @@ class ModeProcessor(Processor):
         Construct argument parser
 
         Args:
-            kwargs: Additional keyword arguments
+            **kwargs: Additional keyword arguments
 
         Returns:
             parser: Argument parser

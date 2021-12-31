@@ -45,6 +45,13 @@ class HeightToNormalProcessor(Processor):
             self.sigma = None
 
     def __call__(self, infile: str, outfile: str) -> None:
+        """
+        Read image from infile, process it, and save to outfile
+
+        Arguments:
+            infile: Input file path
+            outfile: Output file path
+        """
         # Read image
         input_image = validate_image(infile, "L")
 
@@ -67,7 +74,7 @@ class HeightToNormalProcessor(Processor):
         Construct argument parser
 
         Args:
-            kwargs: Additional keyword arguments
+            **kwargs: Additional keyword arguments
 
         Returns:
             parser: Argument parser

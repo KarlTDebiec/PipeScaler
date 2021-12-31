@@ -60,7 +60,14 @@ class SideChannelProcessor(Processor):
             self.side_files[filename_base] = filename
         self.match_input_mode = match_input_mode
 
-    def process_file(self, infile: str, outfile: str) -> None:
+    def __call__(self, infile: str, outfile: str) -> None:
+        """
+        Read image from infile, process it, and save to outfile
+
+        Arguments:
+            infile: Input file path
+            outfile: Output file path
+        """
         try:
             side_file = self.side_files[basename(dirname(infile))]
             if self.match_input_mode:

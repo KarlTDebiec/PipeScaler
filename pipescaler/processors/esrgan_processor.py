@@ -14,11 +14,12 @@ from argparse import ArgumentParser
 from functools import partial
 from inspect import cleandoc
 from logging import info, warning
-from typing import Any
+from typing import Any, Dict, OrderedDict, Tuple
 
 import numpy as np
 import torch
 from PIL import Image
+from torch.jit import RecursiveScriptModule
 
 from pipescaler.common import validate_input_path
 from pipescaler.core import Processor, validate_image_and_convert_mode
@@ -193,13 +194,12 @@ class ESRGANProcessor(Processor):
 
     def __call__(self, infile: str, outfile: str) -> None:
         """
-        Processes infile and writes the resulting output to outfile.
+        Read image from infile, process it, and save to outfile
 
         Arguments:
-            infile (str): Input file
-            outfile (str): Output file
+            infile: Input file path
+            outfile: Output file path
         """
-
         # Read image
         input_image, input_mode = validate_image_and_convert_mode(
             infile, ["L", "RGB"], "RGB"
@@ -232,7 +232,7 @@ class ESRGANProcessor(Processor):
         Construct argument parser
 
         Args:
-            kwargs: Additional keyword arguments
+            **kwargs: Additional keyword arguments
 
         Returns:
             parser: Argument parser
@@ -260,7 +260,7 @@ class ESRGANProcessor(Processor):
         return parser
 
     @classmethod
-    def load_model(cls, model_infile: str):
+    def load_model(cls, model_infile: str) -> Tuple[RecursiveScriptModule, int]:
         state_dict = torch.load(model_infile)
 
         # check for old model format
@@ -275,8 +275,7 @@ class ESRGANProcessor(Processor):
         return state_dict, scale_index
 
     @staticmethod
-    def build_old_keymap(n_upscale):
-
+    def build_old_keymap(n_upscale: int) -> OrderedDict[str, str]:
         # Build initial keymap
         keymap = collections.OrderedDict()
         keymap["model.0"] = "conv_first"
@@ -303,7 +302,7 @@ class ESRGANProcessor(Processor):
         return keymap_final
 
     @staticmethod
-    def get_old_scale_index(state_dict):
+    def get_old_scale_index(state_dict: Dict[str, str]) -> int:
         try:
             # get largest model index from keys like "model.X.weight"
             max_index = max([int(n.split(".")[1]) for n in state_dict.keys()])
@@ -314,10 +313,7 @@ class ESRGANProcessor(Processor):
         return (max_index - 4) // 3
 
     @staticmethod
-    def get_scale_index(state_dict):
-        # this is more or less guesswork, since I haven't seen any non-4x
-        # models using the new format in the wild, but it should work in
-        # theory
+    def get_scale_index(state_dict: Dict[str, str]) -> int:
         max_index = 0
 
         for k in state_dict.keys():

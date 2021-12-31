@@ -37,6 +37,13 @@ class WebProcessor(Processor):
         self.url = url
 
     def __call__(self, infile: str, outfile: str) -> None:
+        """
+        Read image from infile, process it, and save to outfile
+
+        Arguments:
+            infile: Input file path
+            outfile: Output file path
+        """
         # Read image
         with open(infile, "rb") as input_file:
             input_bytes = input_file.read()
@@ -60,7 +67,7 @@ class WebProcessor(Processor):
         Construct argument parser
 
         Args:
-            kwargs: Additional keyword arguments
+            **kwargs: Additional keyword arguments
 
         Returns:
             parser: Argument parser

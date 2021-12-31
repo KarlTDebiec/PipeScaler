@@ -77,7 +77,7 @@ class WaifuExternalProcessor(Processor):
 
     def __call__(self, infile: str, outfile: str) -> None:
         """
-        Reads input image, processes it, and saves output image
+        Read image from infile, process it, and save to outfile
 
         Arguments:
             infile: Input file path
@@ -158,7 +158,7 @@ class WaifuExternalProcessor(Processor):
         Construct argument parser
 
         Args:
-            kwargs: Additional keyword arguments
+            **kwargs: Additional keyword arguments
 
         Returns:
             parser: Argument parser

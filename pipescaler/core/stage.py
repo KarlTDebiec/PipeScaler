@@ -71,7 +71,7 @@ class Stage(ABC):
         Arguments:
             name: Name of stage
             desc: Description of stage
-            kwargs: Additional keyword arguments
+            **kwargs: Additional keyword arguments
         """
         if name is not None:
             self.name = name

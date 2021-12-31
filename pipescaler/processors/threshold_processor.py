@@ -42,6 +42,13 @@ class ThresholdProcessor(Processor):
         self.denoise = denoise
 
     def __call__(self, infile: str, outfile: str) -> None:
+        """
+        Read image from infile, process it, and save to outfile
+
+        Arguments:
+            infile: Input file path
+            outfile: Output file path
+        """
         # Read image
         input_image = validate_image(infile, "L")
 
@@ -62,7 +69,7 @@ class ThresholdProcessor(Processor):
         Construct argument parser
 
         Args:
-            kwargs: Additional keyword arguments
+            **kwargs: Additional keyword arguments
 
         Returns:
             parser: Argument parser
@@ -91,6 +98,12 @@ class ThresholdProcessor(Processor):
     @staticmethod
     @nb.jit(nopython=True, nogil=True, cache=True, fastmath=True)
     def denoise_data(data: np.ndarray) -> None:
+        """
+        Flip color of pixels bordered by less than 5 pixels of the same color
+
+        Args:
+            data: Input image array; modified in-place
+        """
         for x in range(1, data.shape[1] - 1):
             for y in range(1, data.shape[0] - 1):
                 slc = data[y - 1 : y + 2, x - 1 : x + 2]

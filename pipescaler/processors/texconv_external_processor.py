@@ -46,7 +46,7 @@ class TexconvExternalProcessor(Processor):
               color channels
             filetype: Output file type
             format: Output format
-            kwargs: Additional keyword arguments
+            **kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
 
@@ -58,11 +58,11 @@ class TexconvExternalProcessor(Processor):
 
     def __call__(self, infile: str, outfile: str) -> None:
         """
-        Loads image, converts it using texconv, and saves resulting output.
+        Read image from infile, process it, and save to outfile
 
         Arguments:
-            infile (str): Input file
-            outfile (str): Output file
+            infile: Input file path
+            outfile: Output file path
         """
         command = validate_executable("texconv.exe", {"Windows"})
 
@@ -95,7 +95,7 @@ class TexconvExternalProcessor(Processor):
         Construct argument parser
 
         Args:
-            kwargs: Additional keyword arguments
+            **kwargs: Additional keyword arguments
 
         Returns:
             parser: Argument parser

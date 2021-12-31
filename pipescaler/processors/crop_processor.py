@@ -40,13 +40,12 @@ class CropProcessor(Processor):
 
     def __call__(self, infile: str, outfile: str) -> None:
         """
-        Crop infile and write the resulting output to outfile
+        Read image from infile, process it, and save to outfile
 
         Arguments:
-            infile: Input file
-            outfile: Output file
+            infile: Input file path
+            outfile: Output file path
         """
-
         # Read image
         input_image = Image.open(infile)
         if (
@@ -70,7 +69,7 @@ class CropProcessor(Processor):
         Construct argument parser
 
         Args:
-            kwargs: Additional keyword arguments
+            **kwargs: Additional keyword arguments
 
         Returns:
             parser: Argument parser

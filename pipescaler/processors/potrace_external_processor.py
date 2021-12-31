@@ -62,6 +62,13 @@ class PotraceExternalProcessor(Processor):
         self.scale = validate_float(scale, min_value=0)
 
     def __call__(self, infile: str, outfile: str) -> None:
+        """
+        Read image from infile, process it, and save to outfile
+
+        Arguments:
+            infile: Input file path
+            outfile: Output file path
+        """
         command = validate_executable("potrace")
 
         # Read image
@@ -112,7 +119,7 @@ class PotraceExternalProcessor(Processor):
         Construct argument parser
 
         Args:
-            kwargs: Additional keyword arguments
+            **kwargs: Additional keyword arguments
 
         Returns:
             parser: Argument parser

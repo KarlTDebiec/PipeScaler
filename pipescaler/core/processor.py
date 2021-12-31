@@ -26,7 +26,7 @@ class Processor(Stage, CLTool):
 
         Arguments:
             suffix: Suffix to append to images
-            kwargs: Additional keyword arguments
+            **kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
 
@@ -38,11 +38,11 @@ class Processor(Stage, CLTool):
 
     def __call__(self, infile: str, outfile: str) -> None:
         """
-        Process infile and writes the resulting output to outfile
+        Read image from infile, process it, and save to outfile
 
         Arguments:
-            infile (str): Input file
-            outfile (str): Output file
+            infile: Input file path
+            outfile: Output file path
         """
         raise NotImplementedError()
 
@@ -62,7 +62,7 @@ class Processor(Stage, CLTool):
         Construct argument parser
 
         Args:
-            kwargs: Additional keyword arguments
+            **kwargs: Additional keyword arguments
 
         Returns:
             parser: Argument parser
