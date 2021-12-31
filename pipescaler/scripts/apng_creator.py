@@ -136,7 +136,9 @@ class ApngCreator(CLTool):
             help="labels with which to annotate images",
         )
         parser.add_argument(
-            "--show_size", action="store_true", help="annotate each image with size",
+            "--show_size",
+            action="store_true",
+            help="annotate each image with size",
         )
         parser.add_argument(
             "--duration",
