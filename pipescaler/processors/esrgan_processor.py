@@ -19,7 +19,6 @@ from typing import Any, Dict, OrderedDict, Tuple
 import numpy as np
 import torch
 from PIL import Image
-from torch.jit import RecursiveScriptModule
 
 from pipescaler.common import validate_input_path
 from pipescaler.core import Processor, validate_image_and_convert_mode
@@ -260,7 +259,9 @@ class ESRGANProcessor(Processor):
         return parser
 
     @classmethod
-    def load_model(cls, model_infile: str) -> Tuple[RecursiveScriptModule, int]:
+    def load_model(
+        cls, model_infile: str
+    ) -> Tuple[torch.jit.RecursiveScriptModule, int]:
         state_dict = torch.load(model_infile)
 
         # check for old model format
