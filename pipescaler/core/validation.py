@@ -22,7 +22,7 @@ def validate_image(infile: str, valid_modes: Union[str, List[str]]) -> Image.Ima
     """
     Validate that image exists and is of a valid mode, and remove palette if present
 
-    Args:
+    Arguments:
         infile: Image infile
         valid_modes: Valid image modes
 
@@ -52,7 +52,7 @@ def validate_image_and_convert_mode(
     Validate that image exists and is of a valid mode, remove palette if present, and
     convert it to provided mode
 
-    Args:
+    Arguments:
         infile: Image infile
         valid_modes: Valid image modes
         convert_mode: Mode to which to convert image

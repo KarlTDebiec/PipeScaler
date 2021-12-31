@@ -6,6 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+"""Upscales and/or denoises image using ESRGAN"""
 from __future__ import annotations
 
 import collections
@@ -13,7 +14,7 @@ from argparse import ArgumentParser
 from functools import partial
 from inspect import cleandoc
 from logging import info, warning
-from typing import Any
+from typing import Any, Dict, OrderedDict, Tuple
 
 import numpy as np
 import torch
@@ -26,12 +27,12 @@ from pipescaler.core import Processor, validate_image_and_convert_mode
 class ESRGANProcessor(Processor):
     """
     Upscales and/or denoises image using [ESRGAN](https://github.com/xinntao/ESRGAN);
-    supports old and new architectures.
+    supports old and new architectures
 
     Adapted from ESRGAN (https://github.com/xinntao/ESRGAN) and Colab-ESRGAN
     (https://github.com/styler00dollar/Colab-ESRGAN), both licensed under the
     `Apache 2.0 License
-    (https://raw.githubusercontent.com/xinntao/ESRGAN/master/LICENSE).
+    (https://raw.githubusercontent.com/xinntao/ESRGAN/master/LICENSE)
     """
 
     class ResidualDenseBlock5C(torch.nn.Module):
@@ -155,11 +156,12 @@ class ESRGANProcessor(Processor):
 
     def __init__(self, model_infile: str, device: str = "cuda", **kwargs: Any) -> None:
         """
-        Validates and stores static configuration.
+        Validate and store static configuration
 
         Arguments:
-            model_infile (str): Path to model infile
-            device (str): Device on which to compute
+            model_infile: Path to model infile
+            device: Device on which to compute
+            **kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
 
@@ -191,13 +193,12 @@ class ESRGANProcessor(Processor):
 
     def __call__(self, infile: str, outfile: str) -> None:
         """
-        Processes infile and writes the resulting output to outfile.
+        Read image from infile, process it, and save to outfile
 
         Arguments:
-            infile (str): Input file
-            outfile (str): Output file
+            infile: Input file path
+            outfile: Output file path
         """
-
         # Read image
         input_image, input_mode = validate_image_and_convert_mode(
             infile, ["L", "RGB"], "RGB"
@@ -227,13 +228,13 @@ class ESRGANProcessor(Processor):
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
-        Constructs argument parser.
+        Construct argument parser
 
-        Args:
-            kwargs (Any): Additional keyword arguments
+        Arguments:
+            **kwargs: Additional keyword arguments
 
         Returns:
-            parser (ArgumentParser): Argument parser
+            parser: Argument parser
         """
         description = kwargs.pop("description", cleandoc(cls.__doc__))
         parser = super().construct_argparser(description=description, **kwargs)
@@ -258,7 +259,9 @@ class ESRGANProcessor(Processor):
         return parser
 
     @classmethod
-    def load_model(cls, model_infile: str):
+    def load_model(
+        cls, model_infile: str
+    ) -> Tuple[torch.jit.RecursiveScriptModule, int]:
         state_dict = torch.load(model_infile)
 
         # check for old model format
@@ -273,8 +276,7 @@ class ESRGANProcessor(Processor):
         return state_dict, scale_index
 
     @staticmethod
-    def build_old_keymap(n_upscale):
-
+    def build_old_keymap(n_upscale: int) -> OrderedDict[str, str]:
         # Build initial keymap
         keymap = collections.OrderedDict()
         keymap["model.0"] = "conv_first"
@@ -301,7 +303,7 @@ class ESRGANProcessor(Processor):
         return keymap_final
 
     @staticmethod
-    def get_old_scale_index(state_dict):
+    def get_old_scale_index(state_dict: Dict[str, str]) -> int:
         try:
             # get largest model index from keys like "model.X.weight"
             max_index = max([int(n.split(".")[1]) for n in state_dict.keys()])
@@ -312,10 +314,7 @@ class ESRGANProcessor(Processor):
         return (max_index - 4) // 3
 
     @staticmethod
-    def get_scale_index(state_dict):
-        # this is more or less guesswork, since I haven't seen any non-4x
-        # models using the new format in the wild, but it should work in
-        # theory
+    def get_scale_index(state_dict: Dict[str, str]) -> int:
         max_index = 0
 
         for k in state_dict.keys():

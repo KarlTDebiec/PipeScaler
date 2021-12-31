@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-""""""
+"""Converts mode of image"""
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -21,7 +21,7 @@ from pipescaler.core import Processor, validate_image
 
 
 class ModeProcessor(Processor):
-    """Converts mode of image."""
+    """Converts mode of image"""
 
     modes = ["L", "LA", "RGB", "RGBA"]
 
@@ -32,11 +32,12 @@ class ModeProcessor(Processor):
         **kwargs: Any,
     ) -> None:
         """
-        Validates and stores static configuration.
+        Validate and store static configuration
 
         Arguments:
-            mode (str): Output mode, default=RGB
-            background_color (str): Background color of image
+            mode: Output mode
+            background_color: Background color of image
+            **kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
 
@@ -46,11 +47,11 @@ class ModeProcessor(Processor):
 
     def __call__(self, infile: str, outfile: str) -> None:
         """
-        Converts infile mode and writes the resulting output to outfile.
+        Read image from infile, process it, and save to outfile
 
         Arguments:
-            infile (str): Input file
-            outfile (str): Output file
+            infile: Input file path
+            outfile: Output file path
         """
         # Read image
         input_image = validate_image(infile, ["L", "LA", "RGB", "RGBA"])
@@ -71,13 +72,13 @@ class ModeProcessor(Processor):
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
-        Constructs argument parser.
+        Construct argument parser
 
-        Args:
-            kwargs (Any): Additional keyword arguments
+        Arguments:
+            **kwargs: Additional keyword arguments
 
         Returns:
-            parser (ArgumentParser): Argument parser
+            parser: Argument parser
         """
         description = kwargs.pop("description", cleandoc(cls.__doc__))
         parser = super().construct_argparser(description=description, **kwargs)

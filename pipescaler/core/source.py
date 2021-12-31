@@ -19,7 +19,7 @@ class Source(Stage):
     """Base class for sources"""
 
     def __iter__(self):
-        """Yield next image from source"""
+        """Yield next image"""
         raise NotImplementedError()
 
     @property
@@ -35,5 +35,5 @@ class Source(Stage):
     @staticmethod
     @abstractmethod
     def sort(filename):
-        """Sorts outfiles of source"""
+        """Sort outfiles to be yielded by source"""
         raise NotImplementedError()

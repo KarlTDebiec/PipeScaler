@@ -6,6 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+"""Yields images from a directory"""
 from __future__ import annotations
 
 from typing import Any, List, Union
@@ -15,7 +16,7 @@ from pipescaler.core import Source, get_files
 
 
 class DirectorySource(Source):
-    """Yields images from a directory."""
+    """Yields images from a directory"""
 
     exclusions = {".DS_Store", "desktop"}
 
@@ -25,6 +26,14 @@ class DirectorySource(Source):
         exclusions: Union[str, List[str]] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Validate and store static configuration
+
+        Arguments:
+            directory: Directory from which to yield files
+            exclusions: Names of files to exclude
+            **kwargs: Additional keyword arguments
+        """
         super().__init__(**kwargs)
 
         if exclusions is None:
@@ -47,9 +56,11 @@ class DirectorySource(Source):
         self.filenames = filenames
 
     def __iter__(self):
+        """Yield next image"""
         for filename in self.filenames:
             yield filename
 
     @staticmethod
     def sort(filename):
+        """Sort outfiles to be yielded by source"""
         return "".join([f"{ord(c):03d}" for c in filename.lower()])

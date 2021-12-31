@@ -92,7 +92,7 @@ class PipescalerHost(CLTool):
         """
         Constructs argument parser.
 
-        Args:
+        Arguments:
             kwargs (Any): Additional keyword arguments
 
         Returns:

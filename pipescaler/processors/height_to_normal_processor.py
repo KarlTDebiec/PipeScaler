@@ -6,6 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+"""Converts height map image to a normal map image"""
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -25,11 +26,15 @@ from pipescaler.core import (
 
 
 class HeightToNormalProcessor(Processor):
-    """Converts height map image to a normal map image."""
+    """Converts height map image to a normal map image"""
 
     def __init__(self, sigma: Optional[int] = None, **kwargs: Any) -> None:
         """
-        Validates and stores static configuration.
+        Validate and store static configuration
+
+        Arguments:
+            sigma: Gaussian smoothing to apply to image
+            **kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
 
@@ -40,6 +45,13 @@ class HeightToNormalProcessor(Processor):
             self.sigma = None
 
     def __call__(self, infile: str, outfile: str) -> None:
+        """
+        Read image from infile, process it, and save to outfile
+
+        Arguments:
+            infile: Input file path
+            outfile: Output file path
+        """
         # Read image
         input_image = validate_image(infile, "L")
 
@@ -59,13 +71,13 @@ class HeightToNormalProcessor(Processor):
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
-        Constructs argument parser.
+        Construct argument parser
 
-        Args:
-            kwargs: Additional keyword arguments
+        Arguments:
+            **kwargs: Additional keyword arguments
 
         Returns:
-            Argument parser
+            parser: Argument parser
         """
         description = kwargs.pop("description", cleandoc(cls.__doc__))
         parser = super().construct_argparser(description=description, **kwargs)

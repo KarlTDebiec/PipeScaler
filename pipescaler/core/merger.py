@@ -27,7 +27,7 @@ class Merger(Stage, ABC):
         """
         Validate and store static configuration
 
-        Args:
+        Arguments:
             suffix: Suffix to add to merged outfiles
             trim_suffixes: Suffixes to trim from merged outfiles
             **kwargs: Additional keyword arguments
@@ -49,7 +49,7 @@ class Merger(Stage, ABC):
         """
         Merge infiles into an outfile
 
-        Args:
+        Arguments:
             outfile: Path to output file
             **kwargs: Additional keyword arguments; including one argument for each
               inlet, whose key is the name of that inlet and whose value is the path to

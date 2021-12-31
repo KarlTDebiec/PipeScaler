@@ -6,6 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+"""Traces image using Potrace and re-rasterizes, optionally resizing"""
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -29,7 +30,7 @@ from pipescaler.core import Processor, validate_image
 class PotraceExternalProcessor(Processor):
     """
     Traces image using [Potrace](http://potrace.sourceforge.net/) and re-rasterizes,
-    optionally resizing.
+    optionally resizing
     """
 
     def __init__(
@@ -41,6 +42,17 @@ class PotraceExternalProcessor(Processor):
         scale: float = 1.0,
         **kwargs: Any,
     ) -> None:
+        """
+        Validate and store static configuration
+
+        Arguments:
+            invert: Invert bitmap
+            blacklevel: Black/white cutoff in input file
+            alphamax: Corner threshold parameter
+            opttolerance: Curve optimization tolerance
+            scale: Factor by which to scale output image relative to input
+            **kwargs: Additional keyword arguments
+        """
         super().__init__(**kwargs)
 
         self.invert = invert
@@ -50,6 +62,13 @@ class PotraceExternalProcessor(Processor):
         self.scale = validate_float(scale, min_value=0)
 
     def __call__(self, infile: str, outfile: str) -> None:
+        """
+        Read image from infile, process it, and save to outfile
+
+        Arguments:
+            infile: Input file path
+            outfile: Output file path
+        """
         command = validate_executable("potrace")
 
         # Read image
@@ -97,13 +116,13 @@ class PotraceExternalProcessor(Processor):
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
-        Constructs argument parser.
+        Construct argument parser
 
-        Args:
-            kwargs (Any): Additional keyword arguments
+        Arguments:
+            **kwargs: Additional keyword arguments
 
         Returns:
-            parser (ArgumentParser): Argument parser
+            parser: Argument parser
         """
         description = kwargs.pop("description", cleandoc(cls.__doc__))
         parser = super().construct_argparser(description=description, **kwargs)

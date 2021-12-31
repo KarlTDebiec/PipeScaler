@@ -6,6 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+"""Copies images to a defined output directory"""
 from __future__ import annotations
 
 from hashlib import md5
@@ -20,9 +21,17 @@ from pipescaler.core import Terminus, get_files
 
 
 class CopyFileTerminus(Terminus):
-    """Copies images to a defined output directory."""
+    """Copies images to a defined output directory"""
 
     def __init__(self, directory: str, purge: bool = False, **kwargs: Any) -> None:
+        """
+        Validate and store static configuration
+
+        Arguments:
+            directory: Directory to which to copy images
+            purge: Purge pre-existing files from directory
+            **kwargs: Additional keyword arguments
+        """
         super().__init__(**kwargs)
 
         # Store configuration
@@ -36,6 +45,13 @@ class CopyFileTerminus(Terminus):
                 info(f"{self}: '{filename}' removed")
 
     def __call__(self, infile: str, outfile: str) -> None:
+        """
+        Copy image to a defined output directory
+
+        Arguments:
+            infile: Input file
+            outfile: Output file
+        """
         if isfile(outfile):
             infile_md5sum = md5(open(infile, "rb").read()).hexdigest()
             outfile_md5sum = md5(open(outfile, "rb").read()).hexdigest()

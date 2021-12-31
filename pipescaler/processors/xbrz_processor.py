@@ -6,6 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+"""Upscales image using xbrz"""
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -22,14 +23,15 @@ from pipescaler.core import Processor, validate_image_and_convert_mode
 
 
 class XbrzProcessor(Processor):
-    """Upscales image using [xbrz](https://github.com/ioistired/xbrz.py)."""
+    """Upscales image using [xbrz](https://github.com/ioistired/xbrz.py)"""
 
     def __init__(self, scale: int = 4, **kwargs: Any) -> None:
         """
-        Validates and stores static configuration.
+        Validate and store static configuration
 
         Arguments:
-            scale (int): Factor by which to scale images
+            scale: Factor by which to scale output image relative to input
+            **kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
 
@@ -38,13 +40,12 @@ class XbrzProcessor(Processor):
 
     def __call__(self, infile: str, outfile: str) -> None:
         """
-        Scales infile and writes the resulting output to outfile.
+        Read image from infile, process it, and save to outfile
 
         Arguments:
-            infile (str): Input file
-            outfile (str): Output file
+            infile: Input file path
+            outfile: Output file path
         """
-
         # Read image
         input_image, input_mode = validate_image_and_convert_mode(
             infile, ["L", "LA", "RGB", "RGBA"], "RGBA"
@@ -67,13 +68,13 @@ class XbrzProcessor(Processor):
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
-        Constructs argument parser.
+        Construct argument parser
 
-        Args:
-            kwargs (Any): Additional keyword arguments
+        Arguments:
+            **kwargs: Additional keyword arguments
 
         Returns:
-            parser (ArgumentParser): Argument parser
+            parser: Argument parser
         """
         description = kwargs.pop("description", cleandoc(cls.__doc__))
         parser = super().construct_argparser(description=description, **kwargs)

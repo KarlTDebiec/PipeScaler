@@ -6,6 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+"""Runs image through an AppleScript"""
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -30,10 +31,18 @@ class AppleScriptExternalProcessor(Processor):
     Runs image through an
     [AppleScript](https://developer.apple.com/library/archive/documentation/AppleScript/Conceptual/AppleScriptLangGuide/introduction/ASLR_intro.html);
     for example using
-    [Pixelmator Pro](https://www.pixelmator.com/support/guide/pixelmator-pro/1270/).
+    [Pixelmator Pro](https://www.pixelmator.com/support/guide/pixelmator-pro/1270/)
     """
 
     def __init__(self, script: str, args: str = "", **kwargs: Any) -> None:
+        """
+        Validate and store static configuration
+
+        Arguments:
+            script: Path to AppleScript to run
+            args: Arguments to pass to AppleScript
+            **kwargs: Additional keyword arguments
+        """
         super().__init__(**kwargs)
 
         # Store configuration
@@ -47,7 +56,7 @@ class AppleScriptExternalProcessor(Processor):
 
     def __call__(self, infile: str, outfile: str) -> None:
         """
-        Reads input image, processes it, and saves output image
+        Read image from infile, process it, and save to outfile
 
         Arguments:
             infile: Input file path
@@ -71,13 +80,13 @@ class AppleScriptExternalProcessor(Processor):
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
-        Constructs argument parser.
+        Construct argument parser
 
-        Args:
-            kwargs (Any): Additional keyword arguments
+        Arguments:
+            **kwargs: Additional keyword arguments
 
         Returns:
-            parser (ArgumentParser): Argument parser
+            parser: Argument parser
         """
         description = kwargs.pop("description", cleandoc(cls.__doc__))
         parser = super().construct_argparser(description=description, **kwargs)

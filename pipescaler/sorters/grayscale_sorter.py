@@ -20,7 +20,7 @@ from pipescaler.core import Sorter, validate_image
 
 
 class GrayscaleSorter(Sorter):
-    """Sorts image based on presence and use of color channels."""
+    """Sorts image based on presence and use of color channels"""
 
     def __init__(
         self, mean_threshold: float = 1, max_threshold: float = 10, **kwargs: Any
@@ -28,7 +28,7 @@ class GrayscaleSorter(Sorter):
         """
         Validate and store static configuration
 
-        Args:
+        Arguments:
             mean_threshold: Sort as 'drop_rgb' if mean diff is below this threshold
             max_threshold: Sort as 'drop_rgb' if maximum diff is below this threshold
             **kwargs: Additional keyword arguments
@@ -43,7 +43,7 @@ class GrayscaleSorter(Sorter):
         """
         Sort image based on presence and use of color channels
 
-        Args:
+        Arguments:
             infile: Input image
 
         Returns:

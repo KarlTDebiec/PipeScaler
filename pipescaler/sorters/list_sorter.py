@@ -18,7 +18,7 @@ from pipescaler.core import Sorter, get_files
 
 
 class ListSorter(Sorter):
-    """Sorts image based on filename using a set of configured lists."""
+    """Sorts image based on filename using a set of configured lists"""
 
     exclusions = {".DS_Store", "desktop"}
 
@@ -26,7 +26,7 @@ class ListSorter(Sorter):
         """
         Validate and store configuration
 
-        Args:
+        Arguments:
             outlets: Outlet configuration
             **kwargs: Additional keyword arguments
         """
@@ -63,7 +63,7 @@ class ListSorter(Sorter):
         """
         Sort image based on filename using a set of configured lists
 
-        Args:
+        Arguments:
             infile: Input image
 
         Returns:

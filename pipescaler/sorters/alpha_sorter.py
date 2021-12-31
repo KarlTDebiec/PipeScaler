@@ -19,13 +19,13 @@ from pipescaler.core import Sorter, UnsupportedImageModeError, validate_image
 
 
 class AlphaSorter(Sorter):
-    """Sorts image based on presence and use of alpha channel."""
+    """Sorts image based on presence and use of alpha channel"""
 
     def __init__(self, threshold: int = 255, **kwargs: Any) -> None:
         """
         Validate and store static configuration
 
-        Args:
+        Arguments:
             threshold: Sort as 'drop_alpha' if all pixels' alpha is above this threshold
             **kwargs: Additional keyword arguments
         """
@@ -38,7 +38,7 @@ class AlphaSorter(Sorter):
         """
         Sort image based on presence and use of alpha channel
 
-        Args:
+        Arguments:
             infile: Input image
 
         Returns:

@@ -6,6 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+"""POSTs image to a defined URL, which responds with processed image"""
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -20,15 +21,29 @@ from pipescaler.core import Processor
 
 
 class WebProcessor(Processor):
-    """POSTs image to a defined URL, which responds with processed image."""
+    """POSTs image to a defined URL, which responds with processed image"""
 
     def __init__(self, url: str, **kwargs: Any) -> None:
+        """
+        Validate and store static configuration
+
+        Arguments:
+            url: URL to which to POST image for processing
+            **kwargs: Additional keyword arguments
+        """
         super().__init__(**kwargs)
 
         # Store configuration
         self.url = url
 
     def __call__(self, infile: str, outfile: str) -> None:
+        """
+        Read image from infile, process it, and save to outfile
+
+        Arguments:
+            infile: Input file path
+            outfile: Output file path
+        """
         # Read image
         with open(infile, "rb") as input_file:
             input_bytes = input_file.read()
@@ -49,13 +64,13 @@ class WebProcessor(Processor):
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
-        Constructs argument parser.
+        Construct argument parser
 
         Args:
-            kwargs (Any): Additional keyword arguments
+            **kwargs: Additional keyword arguments
 
         Returns:
-            parser (ArgumentParser): Argument parser
+            parser: Argument parser
         """
         description = kwargs.pop("description", cleandoc(cls.__doc__))
         parser = super().construct_argparser(description=description, **kwargs)

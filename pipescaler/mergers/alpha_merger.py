@@ -19,13 +19,13 @@ from pipescaler.core import Merger, validate_image
 
 
 class AlphaMerger(Merger):
-    """Merges alpha and color images into a single image with transparency."""
+    """Merges alpha and color images into a single image with transparency"""
 
     def __call__(self, outfile: str, **kwargs: Any) -> None:
         """
         Merge images
 
-        Args:
+        Arguments:
             outfile: Output image
             **kwargs: Additional keyword arguments
         """
@@ -35,7 +35,7 @@ class AlphaMerger(Merger):
         """
         Merge color and alpha images into a single image with transparency
 
-        Args:
+        Arguments:
             color: Color infile
             alpha: Alpha infile
             outfile: Output file

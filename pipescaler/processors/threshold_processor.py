@@ -6,6 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+"""Converts image to black and white using threshold, optionally denoising"""
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -20,11 +21,20 @@ from pipescaler.core import Processor, validate_image
 
 
 class ThresholdProcessor(Processor):
-    """Converts image to black and white using threshold, optionally denoising."""
+    """Converts image to black and white using threshold, optionally denoising"""
 
     def __init__(
         self, threshold: int = 128, denoise: bool = False, **kwargs: Any
     ) -> None:
+        """
+        Validate and store static configuration
+
+        Arguments:
+            threshold: Threshold differentiating black and white
+            denoise: Flip color of pixels bordered by less than 5 pixels of the same
+              color
+            **kwargs: Additional keyword arguments
+        """
         super().__init__(**kwargs)
 
         # Store configuration
@@ -32,6 +42,13 @@ class ThresholdProcessor(Processor):
         self.denoise = denoise
 
     def __call__(self, infile: str, outfile: str) -> None:
+        """
+        Read image from infile, process it, and save to outfile
+
+        Arguments:
+            infile: Input file path
+            outfile: Output file path
+        """
         # Read image
         input_image = validate_image(infile, "L")
 
@@ -49,13 +66,13 @@ class ThresholdProcessor(Processor):
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
-        Constructs argument parser.
+        Construct argument parser
 
-        Args:
-            kwargs (Any): Additional keyword arguments
+        Arguments:
+            **kwargs: Additional keyword arguments
 
         Returns:
-            parser (ArgumentParser): Argument parser
+            parser: Argument parser
         """
         description = kwargs.pop("description", cleandoc(cls.__doc__))
         parser = super().construct_argparser(description=description, **kwargs)
@@ -81,6 +98,12 @@ class ThresholdProcessor(Processor):
     @staticmethod
     @nb.jit(nopython=True, nogil=True, cache=True, fastmath=True)
     def denoise_data(data: np.ndarray) -> None:
+        """
+        Flip color of pixels bordered by less than 5 pixels of the same color
+
+        Arguments:
+            data: Input image array; modified in-place
+        """
         for x in range(1, data.shape[1] - 1):
             for y in range(1, data.shape[0] - 1):
                 slc = data[y - 1 : y + 2, x - 1 : x + 2]

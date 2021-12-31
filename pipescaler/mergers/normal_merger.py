@@ -19,13 +19,13 @@ from pipescaler.core import Merger, validate_image
 
 
 class NormalMerger(Merger):
-    """Merges x, y, and z images into a single normal map image."""
+    """Merges x, y, and z images into a single normal map image"""
 
     def __call__(self, outfile: str, **kwargs: Any) -> None:
         """
         Merge images
 
-        Args:
+        Arguments:
             outfile: Output image
             **kwargs: Additional keyword arguments
         """
@@ -35,7 +35,7 @@ class NormalMerger(Merger):
         """
         Merge x, y, and z images into a single normal map image
 
-        Args:
+        Arguments:
             x: X infile
             y: Y infile
             z: Z infile

@@ -18,12 +18,12 @@ from pipescaler.core import Sorter
 
 
 class RegexSorter(Sorter):
-    """Sorts image based on filename using a regular expression."""
+    """Sorts image based on filename using a regular expression"""
 
     def __init__(self, regex: str, **kwargs: Any) -> None:
         """
         Validate and store static configuration
-            Args:
+            Arguments:
                 regex: Sort as 'matched' if image name matches this regular expression
                 **kwargs: Additional keyword arguments
         """
@@ -36,7 +36,7 @@ class RegexSorter(Sorter):
         """
         Sort image based on filename using a regular expression
 
-        Args:
+        Arguments:
             infile: Input image
 
         Returns:

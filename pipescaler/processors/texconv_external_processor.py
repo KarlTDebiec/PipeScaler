@@ -6,6 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+"""Compresses image using Texconv"""
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -23,7 +24,7 @@ from pipescaler.core import Processor
 class TexconvExternalProcessor(Processor):
     """
     Compresses image using
-    [Texconv](https://github.com/Microsoft/DirectXTex/wiki/Texconv).
+    [Texconv](https://github.com/Microsoft/DirectXTex/wiki/Texconv)
     """
 
     extension = "dds"
@@ -37,15 +38,15 @@ class TexconvExternalProcessor(Processor):
         **kwargs: Any,
     ) -> None:
         """
-        Validates and stores static configuration.
+        Validate and store static configuration
 
         Arguments:
-        mipmaps (bool): whether or not to generate mipmaps
-        sepalpha (bool): whether or not to generate mips alpha channel separately from
-          color channels
-        filetype (Optional[str]): output file type
-        format (Optional[str]): output format
-        kwargs (Any): Additional keyword arguments
+            mipmaps: Whether or not to generate mipmaps
+            sepalpha: Whether or not to generate mips alpha channel separately from
+              color channels
+            filetype: Output file type
+            format: Output format
+            **kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
 
@@ -57,11 +58,11 @@ class TexconvExternalProcessor(Processor):
 
     def __call__(self, infile: str, outfile: str) -> None:
         """
-        Loads image, converts it using texconv, and saves resulting output.
+        Read image from infile, process it, and save to outfile
 
         Arguments:
-            infile (str): Input file
-            outfile (str): Output file
+            infile: Input file path
+            outfile: Output file path
         """
         command = validate_executable("texconv.exe", {"Windows"})
 
@@ -91,13 +92,13 @@ class TexconvExternalProcessor(Processor):
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
-        Constructs argument parser.
+        Construct argument parser
 
-        Args:
-            kwargs (Any): Additional keyword arguments
+        Arguments:
+            **kwargs: Additional keyword arguments
 
         Returns:
-            parser (ArgumentParser): Argument parser
+            parser: Argument parser
         """
         description = kwargs.pop("description", cleandoc(cls.__doc__))
         parser = super().construct_argparser(description=description, **kwargs)

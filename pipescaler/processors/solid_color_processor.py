@@ -6,6 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+"""Sets entire image color to its average color, optionally resizing"""
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -21,9 +22,16 @@ from pipescaler.core import Processor, validate_image
 
 
 class SolidColorProcessor(Processor):
-    """Sets entire image color to its average color, optionally resizing."""
+    """Sets entire image color to its average color, optionally resizing"""
 
     def __init__(self, scale: float = 1, **kwargs: Any) -> None:
+        """
+        Validate and store static configuration
+
+        Arguments:
+            scale: Factor by which to scale output image relative to input
+            **kwargs: Additional keyword arguments
+        """
         super().__init__(**kwargs)
 
         # Store configuration
@@ -31,14 +39,12 @@ class SolidColorProcessor(Processor):
 
     def __call__(self, infile: str, outfile: str) -> None:
         """
-        Calculates average color of infile and writes new image of equivalent
-        size and mode to outfile.
+        Read image from infile, process it, and save to outfile
 
         Arguments:
-            infile (str): Input file
-            outfile (str): Output file
+            infile: Input file path
+            outfile: Output file path
         """
-
         # Read image
         input_image = validate_image(infile, ["L", "LA", "RGB", "RGBA"])
         input_datum = np.array(input_image)
@@ -61,13 +67,13 @@ class SolidColorProcessor(Processor):
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
-        Constructs argument parser.
+        Construct argument parser
 
-        Args:
-            kwargs (Any): Additional keyword arguments
+        Arguments:
+            **kwargs: Additional keyword arguments
 
         Returns:
-            parser (ArgumentParser): Argument parser
+            parser: Argument parser
         """
         description = kwargs.pop("description", cleandoc(cls.__doc__))
         parser = super().construct_argparser(description=description, **kwargs)

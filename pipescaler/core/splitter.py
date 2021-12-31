@@ -24,7 +24,7 @@ class Splitter(Stage, ABC):
         """
         Validate and store static configuration
 
-        Args:
+        Arguments:
             suffixes: Suffixes to add to split outfiles
             **kwargs: Additional keyword arguments
         """
@@ -40,7 +40,7 @@ class Splitter(Stage, ABC):
         """
         Split infile inout outfiles
 
-        Args:
+        Arguments:
             infile: Input file
             **kwargs: Additional keyword arguments; including one argument for each
               outlet, whose key is the name of that outlet and whose value is the path

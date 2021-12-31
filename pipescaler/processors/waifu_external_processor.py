@@ -6,6 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+"""Upscales and/or denoises image using waifu2x"""
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -29,7 +30,7 @@ from pipescaler.core import Processor, validate_image_and_convert_mode
 
 class WaifuExternalProcessor(Processor):
     """
-    Upscales and/or denoises image using [waifu2x](https://github.com/nagadomi/waifu2x).
+    Upscales and/or denoises image using [waifu2x](https://github.com/nagadomi/waifu2x)
 
     On Windows, requires [waifu2x-caffe](https://github.com/lltcggie/waifu2x-caffe) in
     the executor's path.
@@ -55,13 +56,13 @@ class WaifuExternalProcessor(Processor):
         **kwargs: Any,
     ) -> None:
         """
-        Validates and stores static configuration.
+        Validate and store static configuration
 
         Arguments:
-            imagetype (str): Image type
-            denoise (int): Level of denoising to apply
-            scale (int): Output image scale
-            expand (str): Whether or not to expand and crop image
+            imagetype: Image type
+            denoise: Level of denoising to apply
+            scale: Output image scale
+            expand: Whether or not to expand and crop image
         """
         super().__init__(**kwargs)
 
@@ -76,7 +77,7 @@ class WaifuExternalProcessor(Processor):
 
     def __call__(self, infile: str, outfile: str) -> None:
         """
-        Reads input image, processes it, and saves output image
+        Read image from infile, process it, and save to outfile
 
         Arguments:
             infile: Input file path
@@ -154,13 +155,13 @@ class WaifuExternalProcessor(Processor):
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
-        Constructs argument parser.
+        Construct argument parser
 
-        Args:
-            kwargs (Any): Additional keyword arguments
+        Arguments:
+            **kwargs: Additional keyword arguments
 
         Returns:
-            parser (ArgumentParser): Argument parser
+            parser: Argument parser
         """
         description = kwargs.pop("description", cleandoc(cls.__doc__))
         parser = super().construct_argparser(description=description, **kwargs)

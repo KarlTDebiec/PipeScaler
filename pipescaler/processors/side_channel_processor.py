@@ -6,6 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+"""Replaces image with an alternative sourced from a defined directory"""
 from __future__ import annotations
 
 from logging import info
@@ -20,7 +21,7 @@ from pipescaler.core import Processor, get_files
 
 
 class SideChannelProcessor(Processor):
-    """Replaces image with an alternative sourced from a defined directory."""
+    """Replaces image with an alternative sourced from a defined directory"""
 
     def __init__(
         self,
@@ -29,6 +30,16 @@ class SideChannelProcessor(Processor):
         match_input_mode: bool = True,
         **kwargs: Any,
     ) -> None:
+        """
+        Validate and store static configuration
+
+        Arguments:
+            directory: Directory from which to load alternative images
+            clean_suffix: Suffix to remove from alternative images
+            match_input_mode: Ensure output alternative image matches mode of input
+              image
+            **kwargs: Additional keyword images
+        """
         super().__init__(**kwargs)
 
         # Store configuration
@@ -49,7 +60,14 @@ class SideChannelProcessor(Processor):
             self.side_files[filename_base] = filename
         self.match_input_mode = match_input_mode
 
-    def process_file(self, infile: str, outfile: str) -> None:
+    def __call__(self, infile: str, outfile: str) -> None:
+        """
+        Read image from infile, process it, and save to outfile
+
+        Arguments:
+            infile: Input file path
+            outfile: Output file path
+        """
         try:
             side_file = self.side_files[basename(dirname(infile))]
             if self.match_input_mode:

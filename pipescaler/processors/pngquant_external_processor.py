@@ -6,6 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+"""Compresses image palette using pngquant"""
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -19,7 +20,7 @@ from pipescaler.core import Processor
 
 
 class PngquantExternalProcessor(Processor):
-    """Compresses image palette using [pngquant](https://pngquant.org/)."""
+    """Compresses image palette using [pngquant](https://pngquant.org/)"""
 
     def __init__(
         self,
@@ -29,13 +30,13 @@ class PngquantExternalProcessor(Processor):
         **kwargs: Any,
     ) -> None:
         """
-        Validates and stores static configuration.
+        Validate and store static configuration
 
         Arguments:
-        quality (int): minimum quality below which output image will not be saved, and
-          maximum quality above which fewer colors will be used
-        speed (int): speed/quality balance
-        floyd_steinberg (bool): disable Floyd-Steinberg dithering
+            quality: Minimum quality below which output image will not be saved, and
+              maximum quality above which fewer colors will be used
+            speed: Speed/quality balance
+            floyd_steinberg: Disable Floyd-Steinberg dithering
         """
         super().__init__(**kwargs)
 
@@ -46,11 +47,11 @@ class PngquantExternalProcessor(Processor):
 
     def __call__(self, infile: str, outfile: str) -> None:
         """
-        Loads image, processes it using pngquant, and saves resulting output.
+        Read image from infile, process it, and save to outfile
 
         Arguments:
-            infile (str): Input file
-            outfile (str): Output file
+            infile: Input file path
+            outfile: Output file path
         """
         command = validate_executable("pngquant")
 
@@ -77,13 +78,13 @@ class PngquantExternalProcessor(Processor):
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
-        Constructs argument parser.
+        Construct argument parser
 
-        Args:
-            kwargs (Any): Additional keyword arguments
+        Arguments:
+            **kwargs: Additional keyword arguments
 
         Returns:
-            parser (ArgumentParser): Argument parser
+            parser: Argument parser
         """
         description = kwargs.pop("description", cleandoc(cls.__doc__))
         parser = super().construct_argparser(description=description, **kwargs)

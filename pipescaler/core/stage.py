@@ -20,7 +20,7 @@ def initialize_stage(stage_name, stage_conf, modules):
     """
     Import and initialize a stage
 
-    Args:
+    Arguments:
         stage_name: Name with which to initialize stage
         stage_conf: Configuration with which to initialize stage
         modules: Modules from which stage may be imported
@@ -71,7 +71,7 @@ class Stage(ABC):
         Arguments:
             name: Name of stage
             desc: Description of stage
-            kwargs: Additional keyword arguments
+            **kwargs: Additional keyword arguments
         """
         if name is not None:
             self.name = name

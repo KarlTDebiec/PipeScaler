@@ -29,7 +29,7 @@ class PipeRunner(CLTool):
         """
         Initializes.
 
-        Args:
+        Arguments:
             conf_file (str): file from which to load configuration
         """
         super().__init__(**kwargs)
@@ -99,7 +99,7 @@ class PipeRunner(CLTool):
         """
         Constructs argument parser.
 
-        Args:
+        Arguments:
             kwargs (Any): Additional keyword arguments
 
         Returns:
