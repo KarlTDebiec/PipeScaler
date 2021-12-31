@@ -28,7 +28,7 @@ from pipescaler.core import Processor, validate_image_and_convert_mode
 class ESRGANProcessor(Processor):
     """
     Upscales and/or denoises image using [ESRGAN](https://github.com/xinntao/ESRGAN);
-    supports old and new architectures.
+    supports old and new architectures
 
     Adapted from ESRGAN (https://github.com/xinntao/ESRGAN) and Colab-ESRGAN
     (https://github.com/styler00dollar/Colab-ESRGAN), both licensed under the
