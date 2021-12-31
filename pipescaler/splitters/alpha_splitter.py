@@ -25,7 +25,7 @@ class AlphaSplitter(Splitter):
         """
         Split image
 
-        Args:
+        Arguments:
             infile: Input file
             **kwargs: Additional keyword arguments
 
@@ -41,7 +41,7 @@ class AlphaSplitter(Splitter):
         """
         Split image with transparency into separate alpha and color images
 
-        Args:
+        Arguments:
             infile: Input file
             color: Color output file
             alpha: Z output file

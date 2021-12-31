@@ -22,7 +22,7 @@ class ModeSorter(Sorter):
         """
         Sort image based on mode
 
-        Args:
+        Arguments:
             infile: Input image
 
         Returns:

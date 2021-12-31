@@ -61,7 +61,7 @@ class Processor(Stage, CLTool):
         """
         Construct argument parser
 
-        Args:
+        Arguments:
             **kwargs: Additional keyword arguments
 
         Returns:

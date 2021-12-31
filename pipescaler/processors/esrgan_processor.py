@@ -230,7 +230,7 @@ class ESRGANProcessor(Processor):
         """
         Construct argument parser
 
-        Args:
+        Arguments:
             **kwargs: Additional keyword arguments
 
         Returns:

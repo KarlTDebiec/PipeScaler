@@ -43,7 +43,7 @@ class Pipeline:
         """
         Validate and store static configuration
 
-        Args:
+        Arguments:
             wip_directory: Directory in which to store intermediate image files
             stages: Stages available to pipeline specification
             pipeline: Pipeline specification
@@ -163,7 +163,7 @@ class Pipeline:
         """
         Build a merger and its downstream pipeline
 
-        Args:
+        Arguments:
             stage: Stage being built
             stage_conf: Configuration of this stage
             downstream_pipeline_conf: Configuration of pipeline downstream from stage
@@ -191,7 +191,7 @@ class Pipeline:
         """
         Build a Processor and its downstream pipeline
 
-        Args:
+        Arguments:
             stage: Stage being built
             stage_conf: Configuration of this stage
             downstream_pipeline_conf: Configuration of pipeline downstream from stage
@@ -213,7 +213,7 @@ class Pipeline:
         """
         Build a downstream pipeline
 
-        Args:
+        Arguments:
             pipeline_conf: Configuration of pipeline
 
         Returns:
@@ -261,7 +261,7 @@ class Pipeline:
         """
         Build a Sorter and its downstream pipeline
 
-        Args:
+        Arguments:
             stage: Stage being built
             stage_conf: Configuration of this stage
             downstream_pipeline_conf: Configuration of pipeline downstream from stage
@@ -290,7 +290,7 @@ class Pipeline:
         """
         Build a Source stage and its downstream pipeline
 
-        Args:
+        Arguments:
             stage: Stage being built
             downstream_pipeline_conf: Configuration of pipeline downstream from stage
 
@@ -311,7 +311,7 @@ class Pipeline:
         """
         Build a Splitter and its downstream pipeline
 
-        Args:
+        Arguments:
             stage: Stage being built
             stage_conf: Configuration of this stage
             downstream_pipeline_conf: Configuration of pipeline downstream from stage
@@ -339,7 +339,7 @@ class Pipeline:
         """
         Build a Terminus and its downstream pipeline
 
-        Args:
+        Arguments:
             stage: Stage being built
             stage_conf: Configuration of this stage
             downstream_pipeline_conf: Configuration of pipeline downstream from stage
@@ -359,7 +359,7 @@ class Pipeline:
         """
         Mark an intermediate file as having been covered by this pipeline
 
-        Args:
+        Arguments:
             wip_filename: Intermediate file path
         """
         self.wip_files.add(wip_filename)
@@ -375,7 +375,7 @@ class Pipeline:
         Run input images through a Merger and routes output image into downstream
         pipeline
 
-        Args:
+        Arguments:
             stage: Merger to run
             stage_pipeline: Either 1) name of inlet into with input image should flow
               once all inlets are satisfied in upstream splitter, or 2) None, indicating
@@ -422,7 +422,7 @@ class Pipeline:
         Run input image through a Processor and routes output image into
         downstream pipeline
 
-        Args:
+        Arguments:
             stage: Stage to run
             stage_pipeline: Pipeline of this stage
             downstream_pipeline: Pipeline downstream from this stage
@@ -462,7 +462,7 @@ class Pipeline:
         """
         Route input to downstream pipeline
 
-        Args:
+        Arguments:
             pipeline: Pipeline to route to
             input: Input image(s)
 
@@ -507,7 +507,7 @@ class Pipeline:
         run output image of that outlet pipeline through a further downstream
         pipeline
 
-        Args:
+        Arguments:
             stage: Stage to run
             stage_pipeline: Pipeline of stage
             downstream_pipeline: Pipeline downstream from stage
@@ -544,7 +544,7 @@ class Pipeline:
         the Splitter's associated outlet pipeline. Collects the outputs of each
         outlet pipeline, and route all of them into downstream pipeline
 
-        Args:
+        Arguments:
             stage: Splitter to run
             stage_pipeline: Pipelines of this Splitter
             downstream_pipeline: Pipeline downstream from this splitter
@@ -618,7 +618,7 @@ class Pipeline:
         """
         Run input image through a Terminus
 
-        Args:
+        Arguments:
             stage: Stage to run
             stage_pipeline: Pipeline of this stage
             downstream_pipeline: Pipeline downstream from this stage

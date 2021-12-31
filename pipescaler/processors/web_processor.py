@@ -27,7 +27,7 @@ class WebProcessor(Processor):
         """
         Validate and store static configuration
 
-        Args:
+        Arguments:
             url: URL to which to POST image for processing
             **kwargs: Additional keyword arguments
         """

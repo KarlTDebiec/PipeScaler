@@ -23,7 +23,7 @@ class RegexSorter(Sorter):
     def __init__(self, regex: str, **kwargs: Any) -> None:
         """
         Validate and store static configuration
-            Args:
+            Arguments:
                 regex: Sort as 'matched' if image name matches this regular expression
                 **kwargs: Additional keyword arguments
         """
@@ -36,7 +36,7 @@ class RegexSorter(Sorter):
         """
         Sort image based on filename using a regular expression
 
-        Args:
+        Arguments:
             infile: Input image
 
         Returns:

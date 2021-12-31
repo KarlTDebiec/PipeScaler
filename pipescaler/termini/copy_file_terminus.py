@@ -27,7 +27,7 @@ class CopyFileTerminus(Terminus):
         """
         Validate and store static configuration
 
-        Args:
+        Arguments:
             directory: Directory to which to copy images
             purge: Purge pre-existing files from directory
             **kwargs: Additional keyword arguments
@@ -48,7 +48,7 @@ class CopyFileTerminus(Terminus):
         """
         Copy image to a defined output directory
 
-        Args:
+        Arguments:
             infile: Input file
             outfile: Output file
         """

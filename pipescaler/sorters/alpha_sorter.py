@@ -25,7 +25,7 @@ class AlphaSorter(Sorter):
         """
         Validate and store static configuration
 
-        Args:
+        Arguments:
             threshold: Sort as 'drop_alpha' if all pixels' alpha is above this threshold
             **kwargs: Additional keyword arguments
         """
@@ -38,7 +38,7 @@ class AlphaSorter(Sorter):
         """
         Sort image based on presence and use of alpha channel
 
-        Args:
+        Arguments:
             infile: Input image
 
         Returns:

@@ -28,7 +28,7 @@ class SolidColorProcessor(Processor):
         """
         Validate and store static configuration
 
-        Args:
+        Arguments:
             scale: Factor by which to scale output image relative to input
             **kwargs: Additional keyword arguments
         """
@@ -69,7 +69,7 @@ class SolidColorProcessor(Processor):
         """
         Construct argument parser
 
-        Args:
+        Arguments:
             **kwargs: Additional keyword arguments
 
         Returns:

@@ -29,7 +29,7 @@ class ColorMatchMerger(Merger):
         """
         Match an image's color histogram to that of a reference image
 
-        Args:
+        Arguments:
             input: Input image whose color is to be matched
             reference: Reference image to which color is to be matched
             outfile: Output file

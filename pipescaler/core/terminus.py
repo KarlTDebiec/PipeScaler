@@ -23,7 +23,7 @@ class Terminus(Stage, CLTool):
         """
         Terminates an image
 
-        Args:
+        Arguments:
             infile: Input file
             outfile: Output file
         """

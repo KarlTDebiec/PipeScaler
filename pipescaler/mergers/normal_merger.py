@@ -25,7 +25,7 @@ class NormalMerger(Merger):
         """
         Merge images
 
-        Args:
+        Arguments:
             outfile: Output image
             **kwargs: Additional keyword arguments
         """
@@ -35,7 +35,7 @@ class NormalMerger(Merger):
         """
         Merge x, y, and z images into a single normal map image
 
-        Args:
+        Arguments:
             x: X infile
             y: Y infile
             z: Z infile

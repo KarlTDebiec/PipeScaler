@@ -29,7 +29,7 @@ class DirectorySource(Source):
         """
         Validate and store static configuration
 
-        Args:
+        Arguments:
             directory: Directory from which to yield files
             exclusions: Names of files to exclude
             **kwargs: Additional keyword arguments

@@ -22,7 +22,7 @@ class Sorter(Stage, ABC):
         """
         Sort image into an outlet
 
-        Args:
+        Arguments:
             infile: Input file
 
         Returns:

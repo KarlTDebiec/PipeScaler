@@ -29,7 +29,7 @@ class ThresholdProcessor(Processor):
         """
         Validate and store static configuration
 
-        Args:
+        Arguments:
             threshold: Threshold differentiating black and white
             denoise: Flip color of pixels bordered by less than 5 pixels of the same
               color
@@ -68,7 +68,7 @@ class ThresholdProcessor(Processor):
         """
         Construct argument parser
 
-        Args:
+        Arguments:
             **kwargs: Additional keyword arguments
 
         Returns:
@@ -101,7 +101,7 @@ class ThresholdProcessor(Processor):
         """
         Flip color of pixels bordered by less than 5 pixels of the same color
 
-        Args:
+        Arguments:
             data: Input image array; modified in-place
         """
         for x in range(1, data.shape[1] - 1):

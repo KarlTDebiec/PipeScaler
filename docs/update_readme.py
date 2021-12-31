@@ -23,7 +23,7 @@ def get_github_link(cls: Type) -> str:
     """
     Get the GitHub master branch link to the file containing a class
 
-    Args:
+    Arguments:
         cls: Class for which to get link
 
     Returns:
@@ -39,7 +39,7 @@ def get_module_regexes(modules: List[ModuleType]) -> Dict[ModuleType, re.Pattern
     """
     Get regular expressions to identify README sections for provided modules
 
-    Args:
+    Arguments:
         modules: Modules for which to generate regexes
 
     Returns:
@@ -62,7 +62,7 @@ def get_stage_description(stage: Stage) -> str:
 
     Uses the first block of lines in the Stage's docstring
 
-    Args:
+    Arguments:
         stage: Stage for which to get formatted description
 
     Returns:
@@ -86,7 +86,7 @@ def get_stage_descriptions(module: ModuleType) -> str:
     """
     Get the descriptions of stages within a module
 
-    Args:
+    Arguments:
         module: Module for which to get stage descriptions
 
     Returns:

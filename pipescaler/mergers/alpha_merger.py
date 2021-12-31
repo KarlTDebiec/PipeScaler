@@ -25,7 +25,7 @@ class AlphaMerger(Merger):
         """
         Merge images
 
-        Args:
+        Arguments:
             outfile: Output image
             **kwargs: Additional keyword arguments
         """
@@ -35,7 +35,7 @@ class AlphaMerger(Merger):
         """
         Merge color and alpha images into a single image with transparency
 
-        Args:
+        Arguments:
             color: Color infile
             alpha: Alpha infile
             outfile: Output file

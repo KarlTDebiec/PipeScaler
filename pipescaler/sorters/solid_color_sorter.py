@@ -27,7 +27,7 @@ class SolidColorSorter(Sorter):
         """
         Validate and store static configuration
 
-        Args:
+        Arguments:
             mean_threshold: Sort as 'solid' if mean diff is below this threshold
             max_threshold: Sort as 'solid' if maximum diff is below this threshold
             **kwargs: Additional keyword arguments
@@ -42,7 +42,7 @@ class SolidColorSorter(Sorter):
         """
         Sort image based on presence of multiple colors
 
-        Args:
+        Arguments:
             infile: Input image
 
         Returns:

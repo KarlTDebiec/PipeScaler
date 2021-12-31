@@ -22,7 +22,7 @@ def crop_image(
 
     TODO: Validate parameters
 
-    Args:
+    Arguments:
         image: Input image
         left: Pixels to remove from left side
         top: Pixels to remove from top
@@ -50,7 +50,7 @@ def expand_image(
 
     TODO: Implement option to tile rather than reflect
 
-    Args:
+    Arguments:
         image: Input image
         left: Pixels to add to left side
         top: Pixels to add to top
@@ -89,7 +89,7 @@ def generate_normal_map_from_height_map_image(image: Image.Image) -> Image.Image
     """
     Generate normal map image from a height map image
 
-    Args:
+    Arguments:
         image: Height map image
 
     Returns:
@@ -129,7 +129,7 @@ def remove_palette_from_image(image: Image.Image) -> Image.Image:
     """
     Remove palette from a paletted image
 
-    Args:
+    Arguments:
         image: Image in 'P' mode
 
     Returns:
@@ -168,7 +168,7 @@ def smooth_image(image: Image.Image, sigma: float) -> Image.Image:
     """
     Smooth an image using a Gaussian kernel
 
-    Args:
+    Arguments:
         image: Image to smooth
         sigma: Sigma of Gaussian with which to smooth
 

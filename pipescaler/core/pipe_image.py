@@ -22,7 +22,7 @@ class PipeImage:
         """
         Validate and store static configuration
 
-        Args:
+        Arguments:
             path: Path to image file
             parent: Parent image from which this image is descended
         """
@@ -55,7 +55,7 @@ class PipeImage:
         """
         Get a new PipeImage descended from this one
 
-        Args:
+        Arguments:
             directory: Directory in which to place child image's path
             suffix: Suffix to append to child image's name
             trim_suffixes: Suffixes to trim from child image's name

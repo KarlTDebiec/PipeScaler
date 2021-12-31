@@ -45,7 +45,7 @@ class PotraceExternalProcessor(Processor):
         """
         Validate and store static configuration
 
-        Args:
+        Arguments:
             invert: Invert bitmap
             blacklevel: Black/white cutoff in input file
             alphamax: Corner threshold parameter
@@ -118,7 +118,7 @@ class PotraceExternalProcessor(Processor):
         """
         Construct argument parser
 
-        Args:
+        Arguments:
             **kwargs: Additional keyword arguments
 
         Returns:

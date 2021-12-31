@@ -32,7 +32,7 @@ class HeightToNormalProcessor(Processor):
         """
         Validate and store static configuration
 
-        Args:
+        Arguments:
             sigma: Gaussian smoothing to apply to image
             **kwargs: Additional keyword arguments
         """
@@ -73,7 +73,7 @@ class HeightToNormalProcessor(Processor):
         """
         Construct argument parser
 
-        Args:
+        Arguments:
             **kwargs: Additional keyword arguments
 
         Returns:

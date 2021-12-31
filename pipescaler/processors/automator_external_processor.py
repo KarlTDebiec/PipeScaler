@@ -38,7 +38,7 @@ class AutomatorExternalProcessor(Processor):
         """
         Validate and store static configuration
 
-        Args:
+        Arguments:
             workflow: Automator workflow to run
             **kwargs: Additional keyword arguments
         """
@@ -80,7 +80,7 @@ class AutomatorExternalProcessor(Processor):
         """
         Construct argument parser
 
-        Args:
+        Arguments:
             **kwargs: Additional keyword arguments
 
         Returns:

@@ -25,7 +25,7 @@ class NormalSplitter(Splitter):
         """
         Split image
 
-        Args:
+        Arguments:
             infile: Input file
             **kwargs: Additional keyword arguments
 
@@ -41,7 +41,7 @@ class NormalSplitter(Splitter):
         """
         Split a normal map image into separate x, y, and z images
 
-        Args:
+        Arguments:
             infile: Input file
             x: X output file
             y: Y output file

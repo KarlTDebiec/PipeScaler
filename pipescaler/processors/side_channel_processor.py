@@ -33,7 +33,7 @@ class SideChannelProcessor(Processor):
         """
         Validate and store static configuration
 
-        Args:
+        Arguments:
             directory: Directory from which to load alternative images
             clean_suffix: Suffix to remove from alternative images
             match_input_mode: Ensure output alternative image matches mode of input

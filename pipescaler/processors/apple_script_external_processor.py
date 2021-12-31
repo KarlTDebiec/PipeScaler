@@ -38,7 +38,7 @@ class AppleScriptExternalProcessor(Processor):
         """
         Validate and store static configuration
 
-        Args:
+        Arguments:
             script: Path to AppleScript to run
             args: Arguments to pass to AppleScript
             **kwargs: Additional keyword arguments
@@ -82,7 +82,7 @@ class AppleScriptExternalProcessor(Processor):
         """
         Construct argument parser
 
-        Args:
+        Arguments:
             **kwargs: Additional keyword arguments
 
         Returns:

@@ -25,7 +25,7 @@ class SizeSorter(Sorter):
         """
         Validate and store static configuration
 
-        Args:
+        Arguments:
             cutoff: Sort as 'less_than' if smallest dimension is below threshold
             **kwargs: Additional keyword arguments
         """
@@ -38,7 +38,7 @@ class SizeSorter(Sorter):
         """
         Sort image based on canvas size
 
-        Args:
+        Arguments:
             infile: Input image
 
         Returns:
