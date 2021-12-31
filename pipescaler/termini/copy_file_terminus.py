@@ -21,7 +21,7 @@ from pipescaler.core import Terminus, get_files
 
 
 class CopyFileTerminus(Terminus):
-    """Copies images to a defined output directory."""
+    """Copies images to a defined output directory"""
 
     def __init__(self, directory: str, purge: bool = False, **kwargs: Any) -> None:
         """

@@ -23,7 +23,7 @@ from pipescaler.core import Processor, validate_image_and_convert_mode
 
 
 class XbrzProcessor(Processor):
-    """Upscales image using [xbrz](https://github.com/ioistired/xbrz.py)."""
+    """Upscales image using [xbrz](https://github.com/ioistired/xbrz.py)"""
 
     def __init__(self, scale: int = 4, **kwargs: Any) -> None:
         """

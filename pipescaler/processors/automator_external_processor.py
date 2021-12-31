@@ -31,7 +31,7 @@ class AutomatorExternalProcessor(Processor):
     Applies an
     [Automator QuickAction](https://support.apple.com/guide/automator/welcome/mac) to an
     image; for example using
-    [Pixelmator Pro](https://www.pixelmator.com/support/guide/pixelmator-pro/1270/).
+    [Pixelmator Pro](https://www.pixelmator.com/support/guide/pixelmator-pro/1270/)
     """
 
     def __init__(self, workflow: str, **kwargs: Any) -> None:

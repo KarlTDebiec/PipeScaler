@@ -22,7 +22,7 @@ from pipescaler.core import Processor, validate_image
 
 
 class SolidColorProcessor(Processor):
-    """Sets entire image color to its average color, optionally resizing."""
+    """Sets entire image color to its average color, optionally resizing"""
 
     def __init__(self, scale: float = 1, **kwargs: Any) -> None:
         """

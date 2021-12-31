@@ -20,7 +20,7 @@ from pipescaler.core import Processor
 
 
 class PngquantExternalProcessor(Processor):
-    """Compresses image palette using [pngquant](https://pngquant.org/)."""
+    """Compresses image palette using [pngquant](https://pngquant.org/)"""
 
     def __init__(
         self,

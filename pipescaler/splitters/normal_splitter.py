@@ -19,7 +19,7 @@ from pipescaler.core import Splitter, validate_image
 
 
 class NormalSplitter(Splitter):
-    """Splits a normal map image into separate x, y, and z images."""
+    """Splits a normal map image into separate x, y, and z images"""
 
     def __call__(self, infile: str, **kwargs: Any) -> Dict[str, str]:
         """

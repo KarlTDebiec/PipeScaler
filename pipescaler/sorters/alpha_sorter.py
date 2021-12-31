@@ -19,7 +19,7 @@ from pipescaler.core import Sorter, UnsupportedImageModeError, validate_image
 
 
 class AlphaSorter(Sorter):
-    """Sorts image based on presence and use of alpha channel."""
+    """Sorts image based on presence and use of alpha channel"""
 
     def __init__(self, threshold: int = 255, **kwargs: Any) -> None:
         """

@@ -26,7 +26,7 @@ from pipescaler.core import (
 
 
 class HeightToNormalProcessor(Processor):
-    """Converts height map image to a normal map image."""
+    """Converts height map image to a normal map image"""
 
     def __init__(self, sigma: Optional[int] = None, **kwargs: Any) -> None:
         """

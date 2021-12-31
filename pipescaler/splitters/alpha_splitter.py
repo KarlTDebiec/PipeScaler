@@ -19,7 +19,7 @@ from pipescaler.core import Splitter, validate_image
 
 
 class AlphaSplitter(Splitter):
-    """Splits image with transparency into separate alpha and color images."""
+    """Splits image with transparency into separate alpha and color images"""
 
     def __call__(self, infile: str, **kwargs: Any) -> Dict[str, str]:
         """

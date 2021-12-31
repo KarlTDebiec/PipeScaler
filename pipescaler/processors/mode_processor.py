@@ -21,7 +21,7 @@ from pipescaler.core import Processor, validate_image
 
 
 class ModeProcessor(Processor):
-    """Converts mode of image."""
+    """Converts mode of image"""
 
     modes = ["L", "LA", "RGB", "RGBA"]
 

@@ -16,7 +16,7 @@ from pipescaler.sources.directory_source import DirectorySource
 
 
 class DolphinSource(DirectorySource):
-    """Yields images dumped by [Dolphin](https://dolphin-emu.org/)."""
+    """Yields images dumped by [Dolphin](https://dolphin-emu.org/)"""
 
     @staticmethod
     def sort(filename):

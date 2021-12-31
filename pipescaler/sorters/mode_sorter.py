@@ -16,7 +16,7 @@ from pipescaler.core import Sorter, validate_image
 
 
 class ModeSorter(Sorter):
-    """Sorts image based on mode."""
+    """Sorts image based on mode"""
 
     def __call__(self, infile: str) -> str:
         """

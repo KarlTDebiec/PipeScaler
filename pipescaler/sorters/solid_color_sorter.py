@@ -19,7 +19,7 @@ from pipescaler.core import Sorter, validate_image
 
 
 class SolidColorSorter(Sorter):
-    """Sorts image based on presence of multiple colors."""
+    """Sorts image based on presence of multiple colors"""
 
     def __init__(
         self, mean_threshold: float = 1, max_threshold: float = 10, **kwargs: Any

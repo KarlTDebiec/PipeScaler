@@ -33,7 +33,7 @@ class ESRGANProcessor(Processor):
     Adapted from ESRGAN (https://github.com/xinntao/ESRGAN) and Colab-ESRGAN
     (https://github.com/styler00dollar/Colab-ESRGAN), both licensed under the
     `Apache 2.0 License
-    (https://raw.githubusercontent.com/xinntao/ESRGAN/master/LICENSE).
+    (https://raw.githubusercontent.com/xinntao/ESRGAN/master/LICENSE)
     """
 
     class ResidualDenseBlock5C(torch.nn.Module):

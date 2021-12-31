@@ -30,7 +30,7 @@ from pipescaler.core import Processor, validate_image
 class PotraceExternalProcessor(Processor):
     """
     Traces image using [Potrace](http://potrace.sourceforge.net/) and re-rasterizes,
-    optionally resizing.
+    optionally resizing
     """
 
     def __init__(

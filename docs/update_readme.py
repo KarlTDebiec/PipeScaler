@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Updates readme."""
+"""Updates readme"""
 import re
 from inspect import cleandoc, getfile
 from os.path import dirname, join, splitext
@@ -21,7 +21,7 @@ from pipescaler.core import Stage
 
 def get_github_link(cls: Type) -> str:
     """
-    Gets the GitHub master branch link to the file containing a class
+    Get the GitHub master branch link to the file containing a class
 
     Args:
         cls: Class for which to get link
@@ -37,7 +37,7 @@ def get_github_link(cls: Type) -> str:
 
 def get_module_regexes(modules: List[ModuleType]) -> Dict[ModuleType, re.Pattern]:
     """
-    Gets regular expressions to identify README sections for provided modules
+    Get regular expressions to identify README sections for provided modules
 
     Args:
         modules: Modules for which to generate regexes
@@ -58,7 +58,7 @@ def get_module_regexes(modules: List[ModuleType]) -> Dict[ModuleType, re.Pattern
 
 def get_stage_description(stage: Stage) -> str:
     """
-    Gets the formatted description of a stage, including GitHub link
+    Get the formatted description of a stage, including GitHub link
 
     Uses the first block of lines in the Stage's docstring
 
@@ -69,7 +69,7 @@ def get_stage_description(stage: Stage) -> str:
         Formatted description of stage
     """
     name = stage.__name__
-    link = get_github_link(stage)
+    link = get_github_link(type(stage))
     doc = stage.__doc__
     if doc is None:
         return f"* [{name}]({link})\n"
@@ -79,12 +79,12 @@ def get_stage_description(stage: Stage) -> str:
             doc_head = " ".join(line for line in doc_lines[: doc_lines.index("")])
         except ValueError:
             doc_head = " ".join(line for line in doc_lines)
-        return f"* [{name}]({link}) - {doc_head}\n"
+        return f"* [{name}]({link}) - {doc_head}.\n"
 
 
 def get_stage_descriptions(module: ModuleType) -> str:
     """
-    Gets the descriptions of stages within a module
+    Get the descriptions of stages within a module
 
     Args:
         module: Module for which to get stage descriptions

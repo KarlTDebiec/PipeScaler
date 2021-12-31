@@ -24,7 +24,7 @@ from pipescaler.core import Processor
 class TexconvExternalProcessor(Processor):
     """
     Compresses image using
-    [Texconv](https://github.com/Microsoft/DirectXTex/wiki/Texconv).
+    [Texconv](https://github.com/Microsoft/DirectXTex/wiki/Texconv)
     """
 
     extension = "dds"
