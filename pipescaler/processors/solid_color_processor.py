@@ -25,6 +25,13 @@ class SolidColorProcessor(Processor):
     """Sets entire image color to its average color, optionally resizing."""
 
     def __init__(self, scale: float = 1, **kwargs: Any) -> None:
+        """
+        Validate and store static configuration
+
+        Args:
+            scale: Factor by which to scale output image relative to input
+            **kwargs: Additional keyword arguments
+        """
         super().__init__(**kwargs)
 
         # Store configuration

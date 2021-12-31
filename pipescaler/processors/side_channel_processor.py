@@ -30,6 +30,16 @@ class SideChannelProcessor(Processor):
         match_input_mode: bool = True,
         **kwargs: Any,
     ) -> None:
+        """
+        Validate and store static configuration
+
+        Args:
+            directory: Directory from which to load alternative images
+            clean_suffix: Suffix to remove from alternative images
+            match_input_mode: Ensure output alternative image matches mode of input
+              image
+            **kwargs: Additional keyword images
+        """
         super().__init__(**kwargs)
 
         # Store configuration

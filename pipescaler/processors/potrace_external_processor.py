@@ -42,6 +42,17 @@ class PotraceExternalProcessor(Processor):
         scale: float = 1.0,
         **kwargs: Any,
     ) -> None:
+        """
+        Validate and store static configuration
+
+        Args:
+            invert: Invert bitmap
+            blacklevel: Black/white cutoff in input file
+            alphamax: Corner threshold parameter
+            opttolerance: Curve optimization tolerance
+            scale: Factor by which to scale output image relative to input
+            **kwargs: Additional keyword arguments
+        """
         super().__init__(**kwargs)
 
         self.invert = invert

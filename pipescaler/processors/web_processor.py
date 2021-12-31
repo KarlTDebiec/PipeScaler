@@ -24,6 +24,13 @@ class WebProcessor(Processor):
     """POSTs image to a defined URL, which responds with processed image."""
 
     def __init__(self, url: str, **kwargs: Any) -> None:
+        """
+        Validate and store static configuration
+
+        Args:
+            url: URL to which to POST image for processing
+            **kwargs: Additional keyword arguments
+        """
         super().__init__(**kwargs)
 
         # Store configuration

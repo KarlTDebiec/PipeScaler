@@ -32,11 +32,12 @@ class ModeProcessor(Processor):
         **kwargs: Any,
     ) -> None:
         """
-        Validates and stores static configuration.
+        Validate and store static configuration
 
         Arguments:
-            mode (str): Output mode, default=RGB
-            background_color (str): Background color of image
+            mode: Output mode
+            background_color: Background color of image
+            **kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
 

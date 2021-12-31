@@ -44,11 +44,12 @@ class ResizeProcessor(Processor):
 
     def __init__(self, scale: float, resample: str = "lanczos", **kwargs: Any) -> None:
         """
-        Validates and stores static configuration.
+        Validate and store static configuration
 
         Arguments:
-            scale (float): Output image scale relative to input image
-            resample (str): Resample algorithm
+            scale: Output image scale relative to input image
+            resample: Resample algorithm
+            **kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
 

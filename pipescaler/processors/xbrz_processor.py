@@ -27,10 +27,11 @@ class XbrzProcessor(Processor):
 
     def __init__(self, scale: int = 4, **kwargs: Any) -> None:
         """
-        Validates and stores static configuration.
+        Validate and store static configuration
 
         Arguments:
-            scale (int): Factor by which to scale images
+            scale: Factor by which to scale output image relative to input
+            **kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
 

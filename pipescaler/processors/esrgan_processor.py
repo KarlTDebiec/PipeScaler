@@ -156,11 +156,12 @@ class ESRGANProcessor(Processor):
 
     def __init__(self, model_infile: str, device: str = "cuda", **kwargs: Any) -> None:
         """
-        Validates and stores static configuration.
+        Validate and store static configuration
 
         Arguments:
-            model_infile (str): Path to model infile
-            device (str): Device on which to compute
+            model_infile: Path to model infile
+            device: Device on which to compute
+            **kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
 

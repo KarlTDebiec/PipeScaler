@@ -26,6 +26,15 @@ class ThresholdProcessor(Processor):
     def __init__(
         self, threshold: int = 128, denoise: bool = False, **kwargs: Any
     ) -> None:
+        """
+        Validate and store static configuration
+
+        Args:
+            threshold: Threshold differentiating black and white
+            denoise: Flip color of pixels bordered by less than 5 pixels of the same
+              color
+            **kwargs: Additional keyword arguments
+        """
         super().__init__(**kwargs)
 
         # Store configuration

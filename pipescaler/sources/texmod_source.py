@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Yields images dumped by [TexMod](https://www.moddb.com/downloads/texmod4)"""
+"""Yields images dumped by TexMod"""
 from __future__ import annotations
 
 from logging import error

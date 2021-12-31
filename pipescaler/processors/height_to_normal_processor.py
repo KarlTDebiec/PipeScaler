@@ -30,7 +30,11 @@ class HeightToNormalProcessor(Processor):
 
     def __init__(self, sigma: Optional[int] = None, **kwargs: Any) -> None:
         """
-        Validates and stores static configuration.
+        Validate and store static configuration
+
+        Args:
+            sigma: Gaussian smoothing to apply to image
+            **kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
 

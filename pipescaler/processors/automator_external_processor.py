@@ -35,6 +35,13 @@ class AutomatorExternalProcessor(Processor):
     """
 
     def __init__(self, workflow: str, **kwargs: Any) -> None:
+        """
+        Validate and store static configuration
+
+        Args:
+            workflow: Automator workflow to run
+            **kwargs: Additional keyword arguments
+        """
         super().__init__(**kwargs)
 
         # Store configuration

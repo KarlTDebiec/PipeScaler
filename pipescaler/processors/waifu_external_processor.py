@@ -56,13 +56,13 @@ class WaifuExternalProcessor(Processor):
         **kwargs: Any,
     ) -> None:
         """
-        Validates and stores static configuration.
+        Validate and store static configuration
 
         Arguments:
-            imagetype (str): Image type
-            denoise (int): Level of denoising to apply
-            scale (int): Output image scale
-            expand (str): Whether or not to expand and crop image
+            imagetype: Image type
+            denoise: Level of denoising to apply
+            scale: Output image scale
+            expand: Whether or not to expand and crop image
         """
         super().__init__(**kwargs)
 

@@ -38,15 +38,15 @@ class TexconvExternalProcessor(Processor):
         **kwargs: Any,
     ) -> None:
         """
-        Validates and stores static configuration.
+        Validate and store static configuration
 
         Arguments:
-        mipmaps (bool): whether or not to generate mipmaps
-        sepalpha (bool): whether or not to generate mips alpha channel separately from
-          color channels
-        filetype (Optional[str]): output file type
-        format (Optional[str]): output format
-        kwargs (Any): Additional keyword arguments
+            mipmaps: Whether or not to generate mipmaps
+            sepalpha: Whether or not to generate mips alpha channel separately from
+              color channels
+            filetype: Output file type
+            format: Output format
+            kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
 

@@ -25,10 +25,11 @@ class ExpandProcessor(Processor):
 
     def __init__(self, pixels: Tuple[int], **kwargs: Any) -> None:
         """
-        Validates and stores static configuration.
+        Validate and store static configuration
 
         Arguments:
-            pixels (Tuple[int]): Number of pixels to add to left, top, right, and bottom
+            pixels: Number of pixels to add to left, top, right, and bottom
+            **kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
 

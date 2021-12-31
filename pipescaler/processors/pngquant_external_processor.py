@@ -30,13 +30,13 @@ class PngquantExternalProcessor(Processor):
         **kwargs: Any,
     ) -> None:
         """
-        Validates and stores static configuration.
+        Validate and store static configuration
 
         Arguments:
-        quality (int): minimum quality below which output image will not be saved, and
-          maximum quality above which fewer colors will be used
-        speed (int): speed/quality balance
-        floyd_steinberg (bool): disable Floyd-Steinberg dithering
+            quality: Minimum quality below which output image will not be saved, and
+              maximum quality above which fewer colors will be used
+            speed: Speed/quality balance
+            floyd_steinberg: Disable Floyd-Steinberg dithering
         """
         super().__init__(**kwargs)
 

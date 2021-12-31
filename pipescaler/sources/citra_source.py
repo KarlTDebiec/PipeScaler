@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Yields images dumped by [Citra](https://citra-emu.org)"""
+"""Yields images dumped by Citra"""
 from __future__ import annotations
 
 from logging import error

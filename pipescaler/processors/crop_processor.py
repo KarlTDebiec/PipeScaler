@@ -25,11 +25,11 @@ class CropProcessor(Processor):
 
     def __init__(self, pixels: Tuple[int], **kwargs: Any) -> None:
         """
-        Validates and stores static configuration.
+        Validate and store static configuration
 
         Arguments:
-            pixels (Tuple[int]): Number of pixels to remove from left, top, right, and
-              bottom
+            pixels: Number of pixels to remove from left, top, right, and bottom
+            **kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
 
@@ -40,11 +40,11 @@ class CropProcessor(Processor):
 
     def __call__(self, infile: str, outfile: str) -> None:
         """
-        Crops infile and writes the resulting output to outfile.
+        Crop infile and write the resulting output to outfile
 
         Arguments:
-            infile (str): Input file
-            outfile (str): Output file
+            infile: Input file
+            outfile: Output file
         """
 
         # Read image

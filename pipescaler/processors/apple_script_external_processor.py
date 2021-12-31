@@ -35,6 +35,14 @@ class AppleScriptExternalProcessor(Processor):
     """
 
     def __init__(self, script: str, args: str = "", **kwargs: Any) -> None:
+        """
+        Validate and store static configuration
+
+        Args:
+            script: Path to AppleScript to run
+            args: Arguments to pass to AppleScript
+            **kwargs: Additional keyword arguments
+        """
         super().__init__(**kwargs)
 
         # Store configuration
