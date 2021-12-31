@@ -86,7 +86,9 @@ class PngquantExternalProcessor(Processor):
         Returns:
             parser: Argument parser
         """
-        description = kwargs.pop("description", cleandoc(cls.__doc__))
+        description = kwargs.pop(
+            "description", cleandoc(cls.__doc__) if cls.__doc__ is not None else ""
+        )
         parser = super().construct_argparser(description=description, **kwargs)
 
         parser.add_argument(
