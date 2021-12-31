@@ -69,7 +69,7 @@ def get_stage_description(stage: Stage) -> str:
         Formatted description of stage
     """
     name = stage.__name__
-    link = get_github_link(type(stage))
+    link = get_github_link(stage)
     doc = stage.__doc__
     if doc is None:
         return f"* [{name}]({link})\n"
