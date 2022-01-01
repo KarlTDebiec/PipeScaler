@@ -25,6 +25,7 @@ PipeScaler includes the following image processors:
 * [CropProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/crop_processor.py) - Crops image canvas.
 * [ESRGANProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/esrgan_processor.py) - Upscales and/or denoises image using [ESRGAN](https://github.com/xinntao/ESRGAN); supports old and new architectures.
 * [ExpandProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/expand_processor.py) - Expands image canvas.
+* [GigapixelAiProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/gigapixel_ai_proessor.py) - Upscales image using [Gigapixel AI](https://www.topazlabs.com/gigapixel-ai).
 * [HeightToNormalProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/height_to_normal_processor.py) - Converts height map image to a normal map image.
 * [ModeProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/mode_processor.py) - Converts mode of image.
 * [PngquantExternalProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/pngquant_external_processor.py) - Compresses image palette using [pngquant](https://pngquant.org/).
