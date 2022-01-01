@@ -192,7 +192,6 @@ class DirectoryWatcher(CLTool):
             print(base_filename, self.image_hashes.size)
             if not self.image_hashes.index.isin([(base_filename, 1.0)]).any():
                 self.store_hashes(filename)
-                break
             # self.perform_operation_for_filename(base_filename)
         self.image_hashes.to_hdf(self.hash_cache, "image_hashes")
 
@@ -326,7 +325,7 @@ class DirectoryWatcher(CLTool):
 
     @classmethod
     def main(cls) -> None:
-        """Parse arguments, construct tool, and call tool."""
+        """Parse arguments, construct tool, and call tool"""
         parser = cls.construct_argparser()
         kwargs = vars(parser.parse_args())
 

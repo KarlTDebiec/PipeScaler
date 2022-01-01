@@ -31,6 +31,7 @@ pip install `
     xbrz.py
 
 conda install -y `
+    pytables `
     pywin32
 
 conda install -y -c pytorch `
