@@ -36,8 +36,7 @@ class SideChannelProcessor(Processor):
         Arguments:
             directory: Directory from which to load alternative images
             clean_suffix: Suffix to remove from alternative images
-            match_input_mode: Ensure output alternative image matches mode of input
-              image
+            match_input_mode: Ensure output image mode matches input image mode
             **kwargs: Additional keyword images
         """
         super().__init__(**kwargs)

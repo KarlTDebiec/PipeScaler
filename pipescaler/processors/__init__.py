@@ -20,6 +20,7 @@ from pipescaler.processors.automator_external_processor import (
 from pipescaler.processors.crop_processor import CropProcessor
 from pipescaler.processors.esrgan_processor import ESRGANProcessor
 from pipescaler.processors.expand_processor import ExpandProcessor
+from pipescaler.processors.gigapixel_ai_proessor import GigapixelAiProcessor
 from pipescaler.processors.height_to_normal_processor import HeightToNormalProcessor
 from pipescaler.processors.mode_processor import ModeProcessor
 from pipescaler.processors.pngquant_external_processor import PngquantExternalProcessor
@@ -39,6 +40,7 @@ __all__: List[str] = [
     "CropProcessor",
     "ESRGANProcessor",
     "ExpandProcessor",
+    "GigapixelAiProcessor",
     "HeightToNormalProcessor",
     "ModeProcessor",
     "PngquantExternalProcessor",
