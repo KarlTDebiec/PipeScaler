@@ -6,9 +6,9 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+""""""
 from __future__ import annotations
 
-import logging
 import re
 from argparse import ArgumentParser
 from inspect import cleandoc
@@ -19,7 +19,9 @@ from shutil import copy, move
 from time import sleep
 from typing import Any, Dict, List, Optional
 
-import yaml
+import pandas as pd
+from imagehash import average_hash, dhash, phash, whash
+from PIL import Image
 
 from pipescaler.common import (
     CLTool,
@@ -29,6 +31,8 @@ from pipescaler.common import (
 )
 from pipescaler.core import get_files
 from pipescaler.core.file import read_yaml
+
+pd.set_option("display.max_rows", None, "display.max_columns", None)
 
 
 class DirectoryWatcher(CLTool):
@@ -43,6 +47,7 @@ class DirectoryWatcher(CLTool):
         classified_directories: str,
         move_directory: str,
         rules: List[Dict[str, str]],
+        hash_cache: Optional[str] = None,
         observed_filenames_infile: Optional[str] = None,
         observed_filenames_outfile: Optional[str] = None,
         purge_directory: Optional[str] = None,
@@ -50,13 +55,6 @@ class DirectoryWatcher(CLTool):
     ) -> None:
         """Initializes."""
         super().__init__(**kwargs)
-
-        if self.verbosity == 1:
-            logging.basicConfig(level=logging.WARNING)
-        elif self.verbosity == 2:
-            logging.basicConfig(level=logging.INFO)
-        elif self.verbosity >= 3:
-            logging.basicConfig(level=logging.DEBUG)
 
         # Input
         self.input_directory = validate_input_path(
@@ -98,7 +96,51 @@ class DirectoryWatcher(CLTool):
             move_directory, file_ok=False, directory_ok=True
         )
 
-    def __call__(self, *args, **kwargs):
+        if hash_cache is not None:
+            try:
+                self.hash_cache = validate_input_path(hash_cache)
+                self.image_hashes = pd.read_hdf(self.hash_cache)
+            except (FileNotFoundError):
+                self.hash_cache = validate_output_path(hash_cache)
+                self.image_hashes = pd.DataFrame(
+                    {
+                        "filename": pd.Series(dtype="str"),
+                        "scale": pd.Series(dtype="float"),
+                        "width": pd.Series(dtype="int"),
+                        "height": pd.Series(dtype="int"),
+                        "average hash": pd.Series(dtype="str"),
+                        "difference hash": pd.Series(dtype="str"),
+                        "perceptual hash": pd.Series(dtype="str"),
+                        "wavelet hash": pd.Series(dtype="str"),
+                    }
+                )
+                self.image_hashes = self.image_hashes.set_index(["filename", "scale"])
+        else:
+            self.image_hashes = pd.DataFrame(
+                {
+                    "filename": pd.Series(dtype="str"),
+                    "scale": pd.Series(dtype="float"),
+                    "width": pd.Series(dtype="int"),
+                    "height": pd.Series(dtype="int"),
+                    "average hash": pd.Series(dtype="str"),
+                    "difference hash": pd.Series(dtype="str"),
+                    "perceptual hash": pd.Series(dtype="str"),
+                    "wavelet hash": pd.Series(dtype="str"),
+                }
+            )
+            self.image_hashes = self.image_hashes.set_index(["filename", "scale"])
+
+        self.image_sets = {}
+        # self.image_sets = {"filename": {0.5: "filename"}}
+        # filename original_size scale scaled_size filename
+
+    def __call__(self, **kwargs: Any) -> Any:
+        """
+        Perform operations
+
+        Args:
+            **kwargs: Additional keyword arguments
+        """
 
         # Prepare to run
         self.purge_copy_directory()
@@ -106,10 +148,10 @@ class DirectoryWatcher(CLTool):
 
         # Run on existing files
         self.process_existing_files_in_input_directory()
-        self.write_observed_filenames_to_outfile()
+        # self.write_observed_filenames_to_outfile()
 
         # Watch for new files
-        self.watch_new_files_in_input_directory()
+        # self.watch_new_files_in_input_directory()
 
     def perform_operation_for_filename(self, filename):
         status = self.select_operation_for_filename(filename)
@@ -143,18 +185,31 @@ class DirectoryWatcher(CLTool):
             raise ValueError()
 
     def process_existing_files_in_input_directory(self):
-        filenames = get_files(self.input_directory)
-        filenames = list(filenames)
-        filenames.sort(reverse=True)
+        filenames = list(get_files(self.input_directory, style="absolute"))
+        filenames.sort(reverse=False)
         for filename in filenames:
-            self.perform_operation_for_filename(filename)
+            base_filename = splitext(basename(filename))[0]
+            print(base_filename, self.image_hashes.size)
+            if not self.image_hashes.index.isin([(base_filename, 1.0)]).any():
+                self.store_hashes(filename)
+                break
+            # self.perform_operation_for_filename(base_filename)
+        self.image_hashes.to_hdf(self.hash_cache, "image_hashes")
 
     def purge_copy_directory(self):
+        """
+        Remove existing files in the copy directory; which is refreshed from the input
+        directory with each run
+        """
         if isdir(self.copy_directory):
             for filename in get_files(self.copy_directory, style="absolute"):
                 remove(filename)
 
     def purge_purge_directory(self):
+        """
+        Remove existing files in the purge directory, as well as their source files in
+        the input directory; afterwards remove the purge directory itself
+        """
         if self.purge_directory is not None:
             purge_filenames = get_files(self.purge_directory)
             for filename in purge_filenames:
@@ -179,6 +234,36 @@ class DirectoryWatcher(CLTool):
                 return action
 
         return "copy"
+
+    def store_hashes(self, filename: str) -> None:
+        scale = 1.0
+        scaled_image = image = Image.open(filename)
+        scaled_size = original_size = image.size
+        rows = []
+        while True:
+            rows.append(
+                {
+                    "filename": splitext(basename(filename))[0],
+                    "scale": scale,
+                    "width": scaled_size[0],
+                    "height": scaled_size[1],
+                    "average hash": str(average_hash(scaled_image)),
+                    "difference hash": str(dhash(scaled_image)),
+                    "perceptual hash": str(phash(scaled_image)),
+                    "wavelet hash": str(whash(scaled_image)),
+                }
+            )
+            scale /= 2.0
+            scaled_size = (
+                round(original_size[0] * scale),
+                round(original_size[1] * scale),
+            )
+            if min(scaled_size) < 8:
+                break
+            scaled_image = image.resize(scaled_size, Image.NEAREST)
+        self.image_hashes = self.image_hashes.append(
+            pd.DataFrame(rows).set_index(["filename", "scale"])
+        )
 
     def watch_new_files_in_input_directory(self):
         try:
@@ -219,13 +304,13 @@ class DirectoryWatcher(CLTool):
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
         """
-        Constructs argument parser.
+        Construct argument parser
 
         Arguments:
-            kwargs (Any): Additional keyword arguments
+            **kwargs: Additional keyword arguments
 
         Returns:
-            parser (ArgumentParser): Argument parser
+            Argument parser
         """
         description = kwargs.pop(
             "description", cleandoc(cls.__doc__) if cls.__doc__ is not None else ""
@@ -241,7 +326,7 @@ class DirectoryWatcher(CLTool):
 
     @classmethod
     def main(cls) -> None:
-        """Parses arguments, constructs tool, and calls tool."""
+        """Parse arguments, construct tool, and call tool."""
         parser = cls.construct_argparser()
         kwargs = vars(parser.parse_args())
 

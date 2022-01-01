@@ -49,13 +49,6 @@ class ScaledImageIdentifier(CLTool):
     ) -> None:
         super().__init__(**kwargs)
 
-        if self.verbosity == 1:
-            logging.basicConfig(level=logging.WARNING)
-        elif self.verbosity == 2:
-            logging.basicConfig(level=logging.INFO)
-        elif self.verbosity >= 3:
-            logging.basicConfig(level=logging.DEBUG)
-
         # Input
         if infile is not None:
             self.scalesets = read_yaml(validate_input_path(infile))
