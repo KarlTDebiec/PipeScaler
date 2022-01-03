@@ -73,7 +73,7 @@ class DirectoryWatcher(CLTool):
         if hash_cache is not None:
             try:
                 self.hash_cache = validate_input_path(hash_cache)
-                self.image_hashes = pd.read_hdf(self.hash_cache)
+                self.image_hashes = pd.read_csv(self.hash_cache)
                 info(f"Image hashes read from '{self.hash_cache}'")
             except FileNotFoundError:
                 self.hash_cache = validate_output_path(hash_cache)
@@ -231,7 +231,7 @@ class DirectoryWatcher(CLTool):
 
         if image_hashes_changed:
             self.image_hashes = self.image_hashes.reset_index(drop=True)
-            self.image_hashes.to_hdf(self.hash_cache, "image_hashes")
+            self.image_hashes.to_csv(self.hash_cache, index=False)
             info(f"Image hashes saved to '{self.hash_cache}'")
 
     def hash_image(self, filename: str) -> pd.DataFrame:
@@ -584,7 +584,7 @@ class DirectoryWatcher(CLTool):
 
     @staticmethod
     def hamming_distance(parent: pd.Series, child: pd.Series, hash_type: str) -> int:
-        """Calcuate hamming distance"""
+        """Calculate hamming distance"""
         parent_hash = hex_to_hash(parent[f"{hash_type} hash"])
         child_hash = hex_to_hash(child[f"{hash_type} hash"])
         return parent_hash - child_hash
