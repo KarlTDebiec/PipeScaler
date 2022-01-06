@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import re
 from argparse import ArgumentParser
+from functools import partial
 from inspect import cleandoc
 from logging import debug, info
 from os import environ, makedirs, remove, rmdir
@@ -50,49 +51,56 @@ class DirectoryWatcher(CLTool):
         copy_directory: str,
         input_directory: str,
         classified_directories: str,
-        skip_directory: str,
+        ignore_directory: str,
         move_directory: str,
-        rules: List[Dict[str, str]],
-        hash_cache: Optional[str] = None,
-        scale_cache: Optional[str] = None,
-        scale_debug_directory: Optional[str] = None,
+        rules: List[List[str, str]],
+        hash_cache_file: Optional[str] = None,
+        scale_pairs_file: Optional[str] = None,
+        scale_pairs_image_directory: Optional[str] = None,
         observed_filenames_infile: Optional[str] = None,
         observed_filenames_outfile: Optional[str] = None,
         purge_directory: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
-        """Initializes."""
+        """
+        Validate and store static configuration
+
+        Args:
+            copy_directory: Directory to which to copy images that match 'copy' rule
+            input_directory: Directory from which to read input files
+            classified_directories: Directories of previously-classified images
+            ignore_directory: Directory of previously-classified images to skip
+            move_directory: Directory to which to move images that match 'move' rule
+            rules: Rules by which to process images
+            hash_cache_file: CSV file to read/write cache of image hashes
+            scale_pairs_file: CSV file containing cache if scaled image relationships
+            scale_pairs_image_directory: Directory to which to write scaled image debug
+              images
+            observed_filenames_infile: Text file from which to read list of observed
+              files
+            observed_filenames_outfile: Text file to which to write list of observed
+              files
+            purge_directory: Directory of previously-classified images to purge from
+              input directory
+            **kwargs: Additional keyword arguments
+        """
         super().__init__(**kwargs)
 
-        # Input
-        self.input_directory = validate_input_path(
-            input_directory, file_ok=False, directory_ok=True
+        validate_input_directory = partial(
+            validate_input_path, file_ok=False, directory_ok=True
         )
-        self.classified_filenames = get_files(classified_directories)
-        self.skip_filenames = get_files(skip_directory)
-        if hash_cache is not None:
-            try:
-                self.hash_cache = validate_input_path(hash_cache)
-                self.image_hashes = pd.read_csv(self.hash_cache)
-                info(f"Image hashes read from '{self.hash_cache}'")
-            except FileNotFoundError:
-                self.hash_cache = validate_output_path(hash_cache)
-        if scale_cache is not None:
-            try:
-                self.scale_cache = validate_input_path(scale_cache)
-                self.image_sets = pd.read_csv(self.scale_cache)
-                info(f"Scaled images read from '{self.scale_cache}'")
-            except FileNotFoundError:
-                self.scale_cache = validate_output_path(scale_cache)
+
+        # Input
+        self._input_directory = validate_input_directory(input_directory)
+        self._classified_filenames = get_files(classified_directories)
+        self._ignore_filenames = get_files(ignore_directory)
         if purge_directory is not None:
             try:
-                self.purge_directory = validate_input_path(
-                    purge_directory, file_ok=False, directory_ok=True
-                )
+                self._purge_directory = validate_input_directory(purge_directory)
             except DirectoryNotFoundError:
-                self.purge_directory = None
+                self._purge_directory = None
         else:
-            self.purge_directory = None
+            self._purge_directory = None
         if observed_filenames_infile is not None:
             self.observed_filenames = get_files(observed_filenames_infile)
         else:
@@ -103,24 +111,41 @@ class DirectoryWatcher(CLTool):
             )
         else:
             self.observed_filenames_outfile = None
-
-        # Operations
-        self.alpha_sorter = AlphaSorter()
-        self.grayscale_sorter = GrayscaleSorter()
-        self.rules = [(re.compile(regex), action) for regex, action in rules]
-
-        # Output
-        self.scale_debug_directory = validate_output_path(
-            scale_debug_directory, file_ok=False, directory_ok=True
-        )
-        self.copy_directory = validate_output_path(
-            copy_directory, file_ok=False, directory_ok=True
-        )
-        self.move_directory = validate_output_path(
-            move_directory, file_ok=False, directory_ok=True
-        )
         self._filenames = None
         self._filenames_dict = None
+
+        # Operations
+        if hash_cache_file is not None:
+            self._hash_cache_file = validate_output_path(hash_cache_file)
+            try:
+                self._hashes = pd.read_csv(self.hash_cache_file)
+                info(f"Image hashes read from '{self.hash_cache_file}'")
+            except FileNotFoundError:
+                self._hashes = None
+        else:
+            self._hash_cache_file = None
+            self._hashes = None
+        if scale_pairs_file is not None:
+            self._scale_pairs_file = validate_output_path(scale_pairs_file)
+            try:
+                self._scale_pairs = pd.read_csv(self.scale_pairs_file)
+                info(f"Scaled images read from '{self.scale_pairs_file}'")
+            except FileNotFoundError:
+                self._scale_pairs = None
+        else:
+            self._scale_pairs_file = None
+            self._scale_pairs = None
+        if scale_pairs_image_directory is not None:
+            self._scale_pairs_image_directory = validate_input_directory(
+                scale_pairs_image_directory
+            )
+        else:
+            self._scale_pairs_image_directory = None
+        self._rules = [(re.compile(regex), action) for regex, action in rules]
+
+        # Output
+        self._copy_directory = validate_input_directory(copy_directory)
+        self._move_directory = validate_input_directory(move_directory)
 
     def __call__(self, **kwargs: Any) -> Any:
         """
@@ -146,29 +171,30 @@ class DirectoryWatcher(CLTool):
         # self.watch_new_files_in_input_directory()
 
     @property
-    def filenames(self):
-        """Filenames"""
-        if not hasattr(self, "_filenames") or self._filenames is None:
-            self._filenames = list(get_files(self.input_directory, style="absolute"))
-            self._filenames.sort()
-        return self._filenames
+    def classified_filenames(self) -> Set[str]:
+        """Base filenames of images in classified directories"""
+        return self._classified_filenames
 
     @property
-    def filenames_dict(self):
-        """Filenames"""
-        if not hasattr(self, "_filenames_dict") or self._filenames_dict is None:
-            absolute_filenames = list(get_files(self.input_directory, style="absolute"))
-            absolute_filenames.sort()
-            self._filenames_dict = {
-                splitext(basename(f))[0]: f for f in absolute_filenames
-            }
-        return self._filenames_dict
+    def ignore_filenames(self) -> Set[str]:
+        """Base filenames of images to ignore"""
+        return self._ignore_filenames
 
     @property
-    def image_hashes(self) -> pd.DataFrame:
+    def copy_directory(self) -> str:
+        """Directory to which to copy images that match 'copy' rule"""
+        return self._copy_directory
+
+    @property
+    def hash_cache_file(self) -> Optional[str]:
+        """CSV file from which to read/write image hash cache"""
+        return self._hash_cache_file
+
+    @property
+    def hashes(self) -> pd.DataFrame:
         """Image hashes"""
-        if not hasattr(self, "_image_hashes"):
-            self._image_hashes = pd.DataFrame(
+        if self._hashes is None:
+            self._hashes = pd.DataFrame(
                 {
                     "filename": pd.Series(dtype="str"),
                     "scale": pd.Series(dtype="float"),
@@ -181,58 +207,103 @@ class DirectoryWatcher(CLTool):
                     "wavelet hash": pd.Series(dtype="str"),
                 }
             )
-        return self._image_hashes
+        return self._hashes
 
-    @image_hashes.setter
-    def image_hashes(self, value: pd.DataFrame) -> None:
-        self._image_hashes = value
+    @hashes.setter
+    def hashes(self, value: pd.DataFrame) -> None:
+        self._hashes = value
 
     @property
-    def image_sets(self) -> pd.DataFrame:
+    def move_directory(self) -> str:
+        """Directory to which to move images that match 'move' rule"""
+        return self._move_directory
+
+    @property
+    def input_directory(self) -> str:
+        """Directory from which to read input files"""
+        return self._input_directory
+
+    @property
+    def purge_directory(self):
+        return self._purge_directory
+
+    @property
+    def rules(self):
+        return self._rules
+
+    @property
+    def scale_pairs_image_directory(self) -> str:
+        """Directory to which to write scaled pair images"""
+        return self._scale_pairs_image_directory
+
+    @property
+    def scale_pairs_file(self) -> Optional[str]:
+        """CSV file from which to read/write scaled image pairs"""
+        return self._scale_pairs_file
+
+    @property
+    def scale_pairs(self) -> pd.DataFrame:
         """Image sets"""
-        if not hasattr(self, "_image_sets"):
-            self._image_sets = pd.DataFrame(
+        if self._scale_pairs is None:
+            self._scale_pairs = pd.DataFrame(
                 {
                     "filename": pd.Series(dtype="str"),
                     "scale": pd.Series(dtype="float"),
                     "scaled filename": pd.Series(dtype="str"),
                 }
             )
-        return self._image_sets
+        return self._scale_pairs
 
-    @image_sets.setter
-    def image_sets(self, value: pd.DataFrame) -> None:
-        self._image_sets = value
+    @scale_pairs.setter
+    def scale_pairs(self, value: pd.DataFrame) -> None:
+        self._scale_pairs = value
+
+    @property
+    def filenames(self) -> List[str]:
+        """Filenames"""
+        if not hasattr(self, "_filenames") or self._filenames is None:
+            self._filenames = list(get_files(self.input_directory, style="absolute"))
+            self._filenames.sort()
+        return self._filenames
+
+    @property
+    def filenames_dict(self) -> Dict[str, str]:
+        """Filenames"""
+        if not hasattr(self, "_filenames_dict") or self._filenames_dict is None:
+            absolute_filenames = list(get_files(self.input_directory, style="absolute"))
+            absolute_filenames.sort()
+            self._filenames_dict = {
+                splitext(basename(f))[0]: f for f in absolute_filenames
+            }
+        return self._filenames_dict
 
     @property
     def child_filenames(self) -> Set[str]:
         """Child images"""
-        return set(self.image_sets["scaled filename"])
+        return set(self.scale_pairs["scaled filename"])
 
     @property
     def parent_filenames(self) -> Set[str]:
         """Parent images"""
-        return set(self.image_sets["filename"])
+        return set(self.scale_pairs["filename"])
 
     def hash_images_in_input_directory(self):
         """Hash images in input directory"""
         # TODO: Somehow handle images that should be skipped
         # TODO: Handle known images as well
         image_hashes_changed = False
-        hashed_filenames = set(self.image_hashes["filename"])
+        hashed_filenames = set(self.hashes["filename"])
 
         for base_filename in self.filenames_dict.keys():
             if base_filename not in hashed_filenames:
-                self.image_hashes = self.image_hashes.append(
-                    self.hash_image(base_filename)
-                )
+                self.hashes = self.hashes.append(self.hash_image(base_filename))
                 hashed_filenames.add(base_filename)
                 image_hashes_changed = True
 
         if image_hashes_changed:
-            self.image_hashes = self.image_hashes.reset_index(drop=True)
-            self.image_hashes.to_csv(self.hash_cache, index=False)
-            info(f"Image hashes saved to '{self.hash_cache}'")
+            self.hashes = self.hashes.reset_index(drop=True)
+            self.hashes.to_csv(self.hash_cache_file, index=False)
+            info(f"Image hashes saved to '{self.hash_cache_file}'")
 
     def hash_image(self, filename: str) -> pd.DataFrame:
         """Hash an image"""
@@ -277,14 +348,14 @@ class DirectoryWatcher(CLTool):
     ) -> pd.DataFrame:
         """Get candidate children of parent"""
         # Select potential child images
-        candidate_children = self.image_hashes.loc[
-            (self.image_hashes["scale"] == 1.0)
-            & (self.image_hashes["width"] == width)
-            & (self.image_hashes["height"] == height)
-            & (self.image_hashes["mode"] == parent["mode"])
-            & ~(self.image_hashes["filename"].isin(self.parent_filenames))
-            & ~(self.image_hashes["filename"].isin(self.child_filenames))
-            & ~(self.image_hashes["filename"].isin(self.skip_filenames))
+        candidate_children = self.hashes.loc[
+            (self.hashes["scale"] == 1.0)
+            & (self.hashes["width"] == width)
+            & (self.hashes["height"] == height)
+            & (self.hashes["mode"] == parent["mode"])
+            & ~(self.hashes["filename"].isin(self.parent_filenames))
+            & ~(self.hashes["filename"].isin(self.child_filenames))
+            & ~(self.hashes["filename"].isin(self.ignore_filenames))
         ].copy(deep=True)
 
         # Score potential child images
@@ -307,11 +378,11 @@ class DirectoryWatcher(CLTool):
     def identify_scaled_images(self):
         """Identify scaled images"""
         # Loop over potential parent images starting from the largest
-        parents = self.image_hashes.loc[
-            (self.image_hashes["scale"] == 1.0)
-            & ~(self.image_hashes["filename"].isin(self.parent_filenames))
-            & ~(self.image_hashes["filename"].isin(self.child_filenames))
-            & ~(self.image_hashes["filename"].isin(self.skip_filenames))
+        parents = self.hashes.loc[
+            (self.hashes["scale"] == 1.0)
+            & ~(self.hashes["filename"].isin(self.parent_filenames))
+            & ~(self.hashes["filename"].isin(self.child_filenames))
+            & ~(self.hashes["filename"].isin(self.ignore_filenames))
         ].sort_values(["width", "height", "filename"], ascending=False)
         for _, parent in parents.iterrows():
             # Skip potential parents that are now known to be children
@@ -375,19 +446,19 @@ class DirectoryWatcher(CLTool):
             # Update image sets
             if len(new_pairs) > 0:
                 new_pairs = pd.DataFrame(new_pairs)
-                self.image_sets = self.image_sets.append(new_pairs)
-                self.image_sets.sort_values(["filename", "scale"])
+                self.scale_pairs = self.scale_pairs.append(new_pairs)
+                self.scale_pairs.sort_values(["filename", "scale"])
                 # noinspection PyTypeChecker
-                self.image_sets.to_csv(self.scale_cache, index=False)
+                self.scale_pairs.to_csv(self.scale_cache, index=False)
                 info(f"Scaled images saved to '{self.scale_cache}'")
                 self.save_scaled_debug_image(parent["filename"])
 
     def save_scaled_debug_image(self, parent):
-        children = self.image_sets.loc[
-            self.image_sets["filename"] == parent, "scaled filename"
+        children = self.scale_pairs.loc[
+            self.scale_pairs["filename"] == parent, "scaled filename"
         ]
         debug_image = self.concatenate_images(parent, *children)
-        debug_outfile = join(self.scale_debug_directory, f"{parent}.png")
+        debug_outfile = join(self.scale_pairs_image_directory, f"{parent}.png")
         debug_image.save(debug_outfile)
         info(f"Scaled image saved to '{debug_outfile}'")
 
