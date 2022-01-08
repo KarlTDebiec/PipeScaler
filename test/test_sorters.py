@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #   test_sorters.py
 #
-#   Copyright (C) 2020-2021 Karl T Debiec
+#   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
 #
 #   This software may be modified and distributed under the terms of the
@@ -9,6 +9,7 @@
 from typing import Dict, List
 
 import pytest
+from shared import infile_subfolders, infiles
 
 from pipescaler.sorters import (
     AlphaSorter,
@@ -19,7 +20,6 @@ from pipescaler.sorters import (
     SizeSorter,
     SolidColorSorter,
 )
-from shared import infile_subfolders, infiles
 
 
 @pytest.mark.parametrize(

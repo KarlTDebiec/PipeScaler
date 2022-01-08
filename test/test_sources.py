@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 #   test_sources.py
 #
-#   Copyright (C) 2020-2021 Karl T Debiec
+#   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license. See the LICENSE file for details.
 import pytest
+from shared import infile_subfolders, xfail_value
 
 from pipescaler.sources import CitraSource, DirectorySource, DolphinSource, TexmodSource
-from shared import infile_subfolders, xfail_value
 
 
 @pytest.mark.parametrize(

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #   test_termini.py
 #
-#   Copyright (C) 2020-2021 Karl T Debiec
+#   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
 #
 #   This software may be modified and distributed under the terms of the
@@ -9,8 +9,9 @@
 from os.path import join
 from tempfile import TemporaryDirectory
 
-from pipescaler.termini import CopyFileTerminus
 from shared import alt_infiles, infiles
+
+from pipescaler.termini import CopyFileTerminus
 
 
 def test_copy_file_terminus() -> None:
