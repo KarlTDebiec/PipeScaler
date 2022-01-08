@@ -10,13 +10,12 @@
 from __future__ import annotations
 
 import re
-from functools import partial
 from logging import debug, info
 from os import makedirs, remove, rmdir
 from os.path import basename, isdir, isfile, join, splitext
 from shutil import copy, move
 from time import sleep
-from typing import Any, Dict, List, Optional, Set, Union
+from typing import Any, List, Optional, Set, Union
 
 import numpy as np
 import pandas as pd
@@ -26,10 +25,12 @@ from scipy.stats import zscore
 
 from pipescaler.common import (
     DirectoryNotFoundError,
-    validate_input_path,
-    validate_output_path,
+    validate_input_directory,
+    validate_output_directory,
+    validate_output_file,
 )
 from pipescaler.core import ConfigurableCommandLineTool, get_files
+from pipescaler.sorters import AlphaSorter, GrayscaleSorter
 
 pd.set_option(
     "display.max_rows", None, "display.max_columns", None, "display.width", 140
@@ -49,7 +50,6 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
         rules: List[List[str, str]],
         reviewed_directory: Optional[Union[str, List[str]]] = None,
         ignore_directory: Optional[Union[str, List[str]]] = None,
-        scaled_directory: Optional[str] = None,
         hash_cache_file: Optional[str] = None,
         scaled_pairs_file: Optional[str] = None,
         scaled_pairs_image_directory: Optional[str] = None,
@@ -82,66 +82,115 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
         """
         super().__init__(**kwargs)
 
-        validate_input_directory = partial(
-            validate_input_path, file_ok=False, directory_ok=True
-        )
+        def validate_input_directories(input_directories: Union[str, List[str]]):
+            if isinstance(input_directories, str):
+                input_directories = [input_directories]
+            return [validate_input_directory(d) for d in input_directories]
 
-        # Input
-        self._input_directories = validate_input_directory(input_directory)
-        self._classified_filenames = get_files(reviewed_directory)
-        self._ignore_filenames = get_files(ignore_directory)
+        # Validate input and output directory and file paths
+        self.ignore_directories = []
+        """Directories containing files which should be ignored"""
+        if ignore_directory is not None:
+            self.ignore_directories = validate_input_directories(ignore_directory)
+
+        self.input_directories = validate_input_directories(input_directory)
+        """Directories from which to read input files"""
+
+        self.copy_directory = validate_output_directory(copy_directory)
+        """Directory to which to copy images that match 'copy' rule"""
+
+        self.hash_cache_file = None
+        """CSV file from which to read/write image hash cache"""
+        if hash_cache_file is not None:
+            self.hash_cache_file = validate_output_file(hash_cache_file)
+
+        self.move_directory = validate_output_directory(move_directory)
+        """Directory to which to move images that match 'move' rule"""
+
+        self.purge_directory = None
+        """Directory containing files which should be purged from input directories"""
         if purge_directory is not None:
             try:
-                self._purge_directory = validate_input_directory(purge_directory)
+                self.purge_directory = validate_input_directory(purge_directory)
             except DirectoryNotFoundError:
-                self._purge_directory = None
-        else:
-            self._purge_directory = None
-        if observed_filenames_infile is not None:
-            self.observed_filenames = get_files(observed_filenames_infile)
-        else:
-            self.observed_filenames = set()
-        if observed_filenames_outfile is not None:
-            self.observed_filenames_outfile = validate_output_path(
-                observed_filenames_outfile
-            )
-        else:
-            self.observed_filenames_outfile = None
-        self._filenames = None
-        self._filenames_dict = None
+                self.purge_directory = None
 
-        # Operations
-        if hash_cache_file is not None:
-            self._hash_cache_file = validate_output_path(hash_cache_file)
-            try:
-                self._hashes = pd.read_csv(self.hash_cache_file)
-                info(f"Image hashes read from '{self.hash_cache_file}'")
-            except FileNotFoundError:
-                self._hashes = None
-        else:
-            self._hash_cache_file = None
-            self._hashes = None
+        self.reviewed_directories = []
+        """Directories containing files which have been reviewed"""
+        if reviewed_directory is not None:
+            self.reviewed_directories = validate_input_directories(reviewed_directory)
+
+        self.scaled_pairs_file = None
+        """CSV file from which to read/write scaled image pairs"""
         if scaled_pairs_file is not None:
-            self._scale_pairs_file = validate_output_path(scaled_pairs_file)
-            try:
-                self._scale_pairs = pd.read_csv(self.scale_pairs_file)
-                info(f"Scaled images read from '{self.scale_pairs_file}'")
-            except FileNotFoundError:
-                self._scale_pairs = None
-        else:
-            self._scale_pairs_file = None
-            self._scale_pairs = None
+            self.scaled_pairs_file = validate_output_file(scaled_pairs_file)
+
+        self.scaled_pairs_image_directory = None
+        """Directory to which images of scaled pairs should be written"""
         if scaled_pairs_image_directory is not None:
-            self._scale_pairs_image_directory = validate_input_directory(
+            self.scaled_pairs_image_directory = validate_output_directory(
                 scaled_pairs_image_directory
             )
-        else:
-            self._scale_pairs_image_directory = None
-        self._rules = [(re.compile(regex), action) for regex, action in rules]
 
-        # Output
-        self._copy_directory = validate_input_directory(copy_directory)
-        self._move_directory = validate_input_directory(move_directory)
+        self.observed_filenames = set()
+        if observed_filenames_infile is not None:
+            self.observed_filenames = get_files(observed_filenames_infile, style="base")
+        self.observed_filenames_outfile = None
+        """Text file to which to write observed filenames"""
+        if observed_filenames_outfile is not None:
+            self.observed_filenames_outfile = validate_output_file(
+                observed_filenames_outfile
+            )
+
+        self.classified_filenames = get_files(self.reviewed_directories, style="base")
+        """Base filenames of images in classified directories"""
+
+        self.hashes = pd.DataFrame(
+            {
+                "filename": pd.Series(dtype="str"),
+                "scale": pd.Series(dtype="float"),
+                "width": pd.Series(dtype="int"),
+                "height": pd.Series(dtype="int"),
+                "mode": pd.Series(dtype="str"),
+                "average hash": pd.Series(dtype="str"),
+                "difference hash": pd.Series(dtype="str"),
+                "perceptual hash": pd.Series(dtype="str"),
+                "wavelet hash": pd.Series(dtype="str"),
+            }
+        )
+        """Image hashes"""
+        if self.hash_cache_file is not None and isfile(self.hash_cache_file):
+            self._hashes = pd.read_csv(self.hash_cache_file)
+            info(f"Image hashes read from '{self.hash_cache_file}'")
+
+        self.ignore_filenames = get_files(self.ignore_directories, style="base")
+        """Base filenames of images to ignore"""
+
+        self.rules = [(re.compile(regex), action) for regex, action in rules]
+        """Rules by which to classify images"""
+
+        self.scaled_pairs = pd.DataFrame(
+            {
+                "filename": pd.Series(dtype="str"),
+                "scale": pd.Series(dtype="float"),
+                "scaled filename": pd.Series(dtype="str"),
+            }
+        )
+        """Scaled image pairs"""
+        if self.scaled_pairs_file is not None and isfile(self.scaled_pairs_file):
+            self.scaled_pairs = pd.read_csv(self.scaled_pairs_file)
+            info(f"Scaled image pairs read from '{self.scaled_pairs_file}'")
+
+        absolute_filenames = get_files(self.input_directories, style="absolute")
+        absolute_filenames = sorted(list(absolute_filenames))
+        self.filenames = {splitext(basename(f))[0]: f for f in absolute_filenames}
+        """Input filenames; keys are base names and values are absolute paths"""
+
+        self.alpha_sorter = AlphaSorter()
+        """Alpha sorter"""
+
+        self.grayscale_sorter = GrayscaleSorter()
+        """Grayscale sorter"""
 
     def __call__(self, **kwargs: Any) -> Any:
         """
@@ -157,7 +206,7 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
 
         # Run on existing files
         self.hash_images_in_input_directory()
-        for parent in self.parent_filenames:
+        for parent in self.scaled_parent_filenames:
             self.save_scaled_debug_image(parent)
         self.identify_scaled_images()
         # self.process_existing_files_in_input_directory()
@@ -167,123 +216,14 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
         # self.watch_new_files_in_input_directory()
 
     @property
-    def classified_filenames(self) -> Set[str]:
-        """Base filenames of images in classified directories"""
-        return self._classified_filenames
-
-    @property
-    def ignore_filenames(self) -> Set[str]:
-        """Base filenames of images to ignore"""
-        return self._ignore_filenames
-
-    @property
-    def copy_directory(self) -> str:
-        """Directory to which to copy images that match 'copy' rule"""
-        return self._copy_directory
-
-    @property
-    def hash_cache_file(self) -> Optional[str]:
-        """CSV file from which to read/write image hash cache"""
-        return self._hash_cache_file
-
-    @property
-    def hashes(self) -> pd.DataFrame:
-        """Image hashes"""
-        if self._hashes is None:
-            self._hashes = pd.DataFrame(
-                {
-                    "filename": pd.Series(dtype="str"),
-                    "scale": pd.Series(dtype="float"),
-                    "width": pd.Series(dtype="int"),
-                    "height": pd.Series(dtype="int"),
-                    "mode": pd.Series(dtype="str"),
-                    "average hash": pd.Series(dtype="str"),
-                    "difference hash": pd.Series(dtype="str"),
-                    "perceptual hash": pd.Series(dtype="str"),
-                    "wavelet hash": pd.Series(dtype="str"),
-                }
-            )
-        return self._hashes
-
-    @hashes.setter
-    def hashes(self, value: pd.DataFrame) -> None:
-        self._hashes = value
-
-    @property
-    def move_directory(self) -> str:
-        """Directory to which to move images that match 'move' rule"""
-        return self._move_directory
-
-    @property
-    def input_directories(self) -> List[str]:
-        """Directory from which to read input files"""
-        return self._input_directories
-
-    @property
-    def purge_directory(self):
-        return self._purge_directory
-
-    @property
-    def rules(self):
-        return self._rules
-
-    @property
-    def scale_pairs_image_directory(self) -> str:
-        """Directory to which to write scaled pair images"""
-        return self._scale_pairs_image_directory
-
-    @property
-    def scale_pairs_file(self) -> Optional[str]:
-        """CSV file from which to read/write scaled image pairs"""
-        return self._scale_pairs_file
-
-    @property
-    def scale_pairs(self) -> pd.DataFrame:
-        """Image sets"""
-        if self._scale_pairs is None:
-            self._scale_pairs = pd.DataFrame(
-                {
-                    "filename": pd.Series(dtype="str"),
-                    "scale": pd.Series(dtype="float"),
-                    "scaled filename": pd.Series(dtype="str"),
-                }
-            )
-        return self._scale_pairs
-
-    @scale_pairs.setter
-    def scale_pairs(self, value: pd.DataFrame) -> None:
-        self._scale_pairs = value
-
-    @property
-    def filenames(self) -> List[str]:
-        """Filenames"""
-        if not hasattr(self, "_filenames") or self._filenames is None:
-            self._filenames = list(get_files(self.input_directories, style="absolute"))
-            self._filenames.sort()
-        return self._filenames
-
-    @property
-    def filenames_dict(self) -> Dict[str, str]:
-        """Filenames"""
-        if not hasattr(self, "_filenames_dict") or self._filenames_dict is None:
-            absolute_filenames = list(
-                get_files(self.input_directories, style="absolute")
-            )
-            absolute_filenames.sort()
-            self._filenames_dict = {
-                splitext(basename(f))[0]: f for f in absolute_filenames
-            }
-        return self._filenames_dict
-
-    @property
-    def child_filenames(self) -> Set[str]:
+    def scaled_child_filenames(self) -> Set[str]:
         """Child images"""
-        return set(self.scale_pairs["scaled filename"])
+        return set(self.scaled_pairs["scaled filename"])
 
     @property
-    def parent_filenames(self) -> Set[str]:
+    def scaled_parent_filenames(self) -> Set[str]:
         """Parent images"""
-        return set(self.scale_pairs["filename"])
+        return set(self.scaled_pairs["filename"])
 
     def hash_images_in_input_directory(self):
         """Hash images in input directory"""
@@ -292,7 +232,7 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
         image_hashes_changed = False
         hashed_filenames = set(self.hashes["filename"])
 
-        for base_filename in self.filenames_dict.keys():
+        for base_filename in self.filenames.keys():
             if base_filename not in hashed_filenames:
                 self.hashes = self.hashes.append(self.hash_image(base_filename))
                 hashed_filenames.add(base_filename)
@@ -305,7 +245,7 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
 
     def hash_image(self, filename: str) -> pd.DataFrame:
         """Hash an image"""
-        absolute_filename = self.filenames_dict[filename]
+        absolute_filename = self.filenames[filename]
         scale = 1.0
         scaled_image = image = Image.open(absolute_filename)
         scaled_size = original_size = image.size
@@ -351,8 +291,8 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
             & (self.hashes["width"] == width)
             & (self.hashes["height"] == height)
             & (self.hashes["mode"] == parent["mode"])
-            & ~(self.hashes["filename"].isin(self.parent_filenames))
-            & ~(self.hashes["filename"].isin(self.child_filenames))
+            & ~(self.hashes["filename"].isin(self.scaled_parent_filenames))
+            & ~(self.hashes["filename"].isin(self.scaled_child_filenames))
             & ~(self.hashes["filename"].isin(self.ignore_filenames))
         ].copy(deep=True)
 
@@ -378,13 +318,13 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
         # Loop over potential parent images starting from the largest
         parents = self.hashes.loc[
             (self.hashes["scale"] == 1.0)
-            & ~(self.hashes["filename"].isin(self.parent_filenames))
-            & ~(self.hashes["filename"].isin(self.child_filenames))
+            & ~(self.hashes["filename"].isin(self.scaled_parent_filenames))
+            & ~(self.hashes["filename"].isin(self.scaled_child_filenames))
             & ~(self.hashes["filename"].isin(self.ignore_filenames))
         ].sort_values(["width", "height", "filename"], ascending=False)
         for _, parent in parents.iterrows():
             # Skip potential parents that are now known to be children
-            if parent["filename"] in self.child_filenames:
+            if parent["filename"] in self.scaled_child_filenames:
                 continue
 
             print(parent)
@@ -444,19 +384,19 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
             # Update image sets
             if len(new_pairs) > 0:
                 new_pairs = pd.DataFrame(new_pairs)
-                self.scale_pairs = self.scale_pairs.append(new_pairs)
-                self.scale_pairs.sort_values(["filename", "scale"])
+                self.scaled_pairs = self.scaled_pairs.append(new_pairs)
+                self.scaled_pairs.sort_values(["filename", "scale"])
                 # noinspection PyTypeChecker
-                self.scale_pairs.to_csv(self.scale_cache, index=False)
-                info(f"Scaled images saved to '{self.scale_cache}'")
+                self.scaled_pairs.to_csv(self.scaled_pairs, index=False)
+                info(f"Scaled images saved to '{self.scaled_pairs}'")
                 self.save_scaled_debug_image(parent["filename"])
 
     def save_scaled_debug_image(self, parent):
-        children = self.scale_pairs.loc[
-            self.scale_pairs["filename"] == parent, "scaled filename"
+        children = self.scaled_pairs.loc[
+            self.scaled_pairs["filename"] == parent, "scaled filename"
         ]
         debug_image = self.concatenate_images(parent, *children)
-        debug_outfile = join(self.scale_pairs_image_directory, f"{parent}.png")
+        debug_outfile = join(self.scaled_pairs_image_directory, f"{parent}.png")
         debug_image.save(debug_outfile)
         info(f"Scaled image saved to '{debug_outfile}'")
 
@@ -514,9 +454,13 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
         if self.purge_directory is not None:
             purge_filenames = get_files(self.purge_directory, style="full")
             for filename in purge_filenames:
-                if isfile(join(self.input_directories, filename)):
-                    remove(join(self.input_directories, filename))
-                    info(f"'{filename}' removed from input directory")
+                for input_directory in self.input_directories:
+                    if isfile(join(input_directory, filename)):
+                        remove(join(input_directory, filename))
+                        info(
+                            f"'{filename}' removed from input directory "
+                            f"'{input_directory}'"
+                        )
                 if isfile(join(self.purge_directory, filename)):
                     remove(join(self.purge_directory, filename))
                     info(f"'{filename}' removed from purge directory")
@@ -558,7 +502,7 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
 
         event_handler = FileCreatedEventHandler(self)
         observer = Observer()
-        observer.schedule(event_handler, self.input_directories)
+        observer.schedule(event_handler, self.input_directories[0])
         observer.start()
         try:
             while True:
@@ -583,7 +527,7 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
         images = []
         size = None
         for filename in filenames:
-            image = Image.open(self.filenames_dict[filename])
+            image = Image.open(self.filenames[filename])
 
             if size is None:
                 size = image.size

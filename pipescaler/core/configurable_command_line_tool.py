@@ -28,49 +28,20 @@ class ConfigurableCommandLineTool(CommandLineTool):
         Construct argument parser
 
         Arguments:
-            **kwargs: Additional keyword arguments
-
+            kwargs: Additional keyword arguments
         Returns:
-            Argument parser
+            parser: Argument parser
         """
         description = kwargs.pop(
             "description", cleandoc(cls.__doc__) if cls.__doc__ is not None else ""
         )
         parser = super().construct_argparser(description=description, **kwargs)
 
-        configuration = parser.add_argument_group("configuration")
-        configuration.add_argument("--yat", help="yat")
-        configuration.add_argument("--eee", help="eee")
-        configuration.add_argument("--sam", help="sam")
-
-        # Yaml subparser
-        subparsers = parser.add_subparsers(title="sub-commands")
-        yaml_subparser = subparsers.add_parser(
-            "yaml",
-            description="This is the yaml subparser description",
-            help="read arguments from yaml file",
-        )
-        verbosity = yaml_subparser.add_mutually_exclusive_group()
-        verbosity.add_argument(
-            "-v",
-            "--verbose",
-            action="count",
-            default=1,
-            dest="verbosity",
-            help="enable verbose output, may be specified more than once",
-        )
-        verbosity.add_argument(
-            "-q",
-            "--quiet",
-            action="store_const",
-            const=0,
-            dest="verbosity",
-            help="disable verbose output",
-        )
-        yaml_subparser.add_argument(
-            "yaml_file",
+        # Input
+        parser.add_argument(
+            "conf_file",
             type=cls.input_path_arg(),
-            help="path to yaml file from which to read arguments",
+            help="path to yaml file from which to read configuration",
         )
 
         return parser
@@ -80,17 +51,14 @@ class ConfigurableCommandLineTool(CommandLineTool):
         """Parse arguments, construct tool, and call tool"""
         parser = cls.construct_argparser()
         kwargs = vars(parser.parse_args())
-        yaml_kwargs = {}
 
-        if "yaml_file" in kwargs:
-            yaml_kwargs = read_yaml(kwargs.pop("yaml_file"))
-            for key, value in yaml_kwargs.pop("environment", {}).items():
-                value = normpath(expandvars(value))
-                environ[key] = value
-                info(f"Set environment variable '{key}' to '{value}'")
+        conf = read_yaml(kwargs.pop("conf_file"))
 
-        pprint(kwargs)
-        pprint(yaml_kwargs)
+        # Set environment variables
+        for key, value in conf.pop("environment", {}).items():
+            value = normpath(expandvars(value))
+            environ[key] = normpath(expandvars(value))
+            info(f"Environment variable '{key}' set to '{value}'")
 
-        # tool = cls(**{**kwargs, **yaml_kwargs})
-        # tool()
+        tool = cls(**{**kwargs, **conf})
+        tool()
