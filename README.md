@@ -1,4 +1,4 @@
-[![Python: ≥3.8](https://img.shields.io/badge/python-=3.8-green.svg)](https://docs.python.org/3/whatsnew/3.8.html)
+[![Python: =3.8](https://img.shields.io/badge/python-=3.8-green.svg)](https://docs.python.org/3/whatsnew/3.8.html)
 [![Build Status](https://app.travis-ci.com/KarlTDebiec/PipeScaler.svg?branch=master)](https://app.travis-ci.com/github/KarlTDebiec/PipeScaler)
 [![Coverage](https://img.shields.io/badge/coverage-77-yellowgreen)](https://app.travis-ci.com/github/KarlTDebiec/PipeScaler)
 [![Code Style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
