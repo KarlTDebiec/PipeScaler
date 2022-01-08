@@ -25,12 +25,11 @@ from PIL import Image
 from scipy.stats import zscore
 
 from pipescaler.common import (
-    ConfigurableCommandLineTool,
     DirectoryNotFoundError,
     validate_input_path,
     validate_output_path,
 )
-from pipescaler.core import get_files
+from pipescaler.core import ConfigurableCommandLineTool, get_files
 
 pd.set_option(
     "display.max_rows", None, "display.max_columns", None, "display.width", 140

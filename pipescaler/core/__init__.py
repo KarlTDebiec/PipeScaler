@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from typing import List
 
+from pipescaler.core.configurable_command_line_tool import ConfigurableCommandLineTool
 from pipescaler.core.exception import TerminusReached, UnsupportedImageModeError
 from pipescaler.core.file import get_files
 from pipescaler.core.image import (
@@ -32,6 +33,7 @@ from pipescaler.core.terminus import Terminus
 from pipescaler.core.validation import validate_image, validate_image_and_convert_mode
 
 __all__: List[str] = [
+    "ConfigurableCommandLineTool",
     "Merger",
     "PipeImage",
     "Pipeline",
