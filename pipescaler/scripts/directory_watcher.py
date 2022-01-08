@@ -27,31 +27,30 @@ from PIL import Image
 from scipy.stats import zscore
 
 from pipescaler.common import (
-    CLTool,
+    ConfigurableCommandLineTool,
     DirectoryNotFoundError,
     validate_input_path,
     validate_output_path,
 )
 from pipescaler.core import get_files
 from pipescaler.core.file import read_yaml
-from pipescaler.sorters import AlphaSorter, GrayscaleSorter
 
 pd.set_option(
     "display.max_rows", None, "display.max_columns", None, "display.width", 140
 )
 
 
-class DirectoryWatcher(CLTool):
+class DirectoryWatcher(ConfigurableCommandLineTool):
     """Watches files in a directory"""
 
     exclusions = {".DS_Store", "desktop"}
 
     def __init__(
         self,
-        copy_directory: str,
         input_directory: str,
-        classified_directories: str,
+        reviewed_directory: str,
         ignore_directory: str,
+        copy_directory: str,
         move_directory: str,
         rules: List[List[str, str]],
         hash_cache_file: Optional[str] = None,
@@ -66,10 +65,10 @@ class DirectoryWatcher(CLTool):
         Validate and store static configuration
 
         Args:
-            copy_directory: Directory to which to copy images that match 'copy' rule
             input_directory: Directory from which to read input files
-            classified_directories: Directories of previously-classified images
+            reviewed_directory: Directories of previously-classified images
             ignore_directory: Directory of previously-classified images to skip
+            copy_directory: Directory to which to copy images that match 'copy' rule
             move_directory: Directory to which to move images that match 'move' rule
             rules: Rules by which to process images
             hash_cache_file: CSV file to read/write cache of image hashes
@@ -92,7 +91,7 @@ class DirectoryWatcher(CLTool):
 
         # Input
         self._input_directory = validate_input_directory(input_directory)
-        self._classified_filenames = get_files(classified_directories)
+        self._classified_filenames = get_files(reviewed_directory)
         self._ignore_filenames = get_files(ignore_directory)
         if purge_directory is not None:
             try:
@@ -579,44 +578,6 @@ class DirectoryWatcher(CLTool):
                     f"'{self.observed_filenames_outfile}' updated with "
                     f"{len(self.observed_filenames)} filenames"
                 )
-
-    @classmethod
-    def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
-        """
-        Construct argument parser
-
-        Arguments:
-            **kwargs: Additional keyword arguments
-
-        Returns:
-            Argument parser
-        """
-        description = kwargs.pop(
-            "description", cleandoc(cls.__doc__) if cls.__doc__ is not None else ""
-        )
-        parser = super().construct_argparser(description=description, **kwargs)
-
-        # Input
-        parser.add_argument(
-            "conf_file", type=cls.input_path_arg(), help="configuration file"
-        )
-
-        return parser
-
-    @classmethod
-    def main(cls) -> None:
-        """Parse arguments, construct tool, and call tool"""
-        parser = cls.construct_argparser()
-        kwargs = vars(parser.parse_args())
-
-        conf = read_yaml(kwargs.pop("conf_file"))
-
-        # Set environment variables
-        for key, value in conf.pop("environment", {}).items():
-            environ[key] = normpath(expandvars(value))
-
-        tool = cls(**{**kwargs, **conf})
-        tool()
 
     def concatenate_images(self, *filenames: str) -> Image.Image:
         """Concatenate images"""

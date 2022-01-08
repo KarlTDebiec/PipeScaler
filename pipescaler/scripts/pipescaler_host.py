@@ -17,12 +17,12 @@ from typing import Any, Dict
 import yaml
 from flask import Flask, redirect, request, send_file, url_for
 
-from pipescaler.common import CLTool, temporary_filename, validate_input_path
+from pipescaler.common import CommandLineTool, temporary_filename, validate_input_path
 from pipescaler.core import Stage, initialize_stage
 from pipescaler.core.file import read_yaml
 
 
-class PipescalerHost(CLTool):
+class PipescalerHost(CommandLineTool):
     """Hosts processors as endpoints to which images may be POSTed"""
 
     def __init__(
