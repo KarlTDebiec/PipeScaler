@@ -9,8 +9,9 @@
 from os.path import join
 from tempfile import TemporaryDirectory
 
-from pipescaler.termini import CopyFileTerminus
 from shared import alt_infiles, infiles
+
+from pipescaler.termini import CopyFileTerminus
 
 
 def test_copy_file_terminus() -> None:

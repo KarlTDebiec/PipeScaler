@@ -9,6 +9,7 @@
 from typing import Dict, List
 
 import pytest
+from shared import infile_subfolders, infiles
 
 from pipescaler.sorters import (
     AlphaSorter,
@@ -19,7 +20,6 @@ from pipescaler.sorters import (
     SizeSorter,
     SolidColorSorter,
 )
-from shared import infile_subfolders, infiles
 
 
 @pytest.mark.parametrize(
