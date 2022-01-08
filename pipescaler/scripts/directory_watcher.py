@@ -10,15 +10,13 @@
 from __future__ import annotations
 
 import re
-from argparse import ArgumentParser
 from functools import partial
-from inspect import cleandoc
 from logging import debug, info
-from os import environ, makedirs, remove, rmdir
-from os.path import basename, expandvars, isdir, isfile, join, normpath, splitext
+from os import makedirs, remove, rmdir
+from os.path import basename, isdir, isfile, join, splitext
 from shutil import copy, move
 from time import sleep
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional, Set, Union
 
 import numpy as np
 import pandas as pd
@@ -33,7 +31,6 @@ from pipescaler.common import (
     validate_output_path,
 )
 from pipescaler.core import get_files
-from pipescaler.core.file import read_yaml
 
 pd.set_option(
     "display.max_rows", None, "display.max_columns", None, "display.width", 140
@@ -47,40 +44,41 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
 
     def __init__(
         self,
-        input_directory: str,
-        reviewed_directory: str,
-        ignore_directory: str,
+        input_directory: Union[str, List[str]],
         copy_directory: str,
         move_directory: str,
         rules: List[List[str, str]],
+        reviewed_directory: Optional[Union[str, List[str]]] = None,
+        ignore_directory: Optional[Union[str, List[str]]] = None,
+        scaled_directory: Optional[str] = None,
         hash_cache_file: Optional[str] = None,
-        scale_pairs_file: Optional[str] = None,
-        scale_pairs_image_directory: Optional[str] = None,
+        scaled_pairs_file: Optional[str] = None,
+        scaled_pairs_image_directory: Optional[str] = None,
+        purge_directory: Optional[str] = None,
         observed_filenames_infile: Optional[str] = None,
         observed_filenames_outfile: Optional[str] = None,
-        purge_directory: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
         """
         Validate and store static configuration
 
-        Args:
-            input_directory: Directory from which to read input files
-            reviewed_directory: Directories of previously-classified images
-            ignore_directory: Directory of previously-classified images to skip
+        Arguments:
+            input_directory: Directory or directories from which to read input files
             copy_directory: Directory to which to copy images that match 'copy' rule
             move_directory: Directory to which to move images that match 'move' rule
             rules: Rules by which to process images
+            reviewed_directory: Directory or directories of reviewed images
+            ignore_directory: Directory or directories of reviewed images to skip
             hash_cache_file: CSV file to read/write cache of image hashes
-            scale_pairs_file: CSV file containing cache if scaled image relationships
-            scale_pairs_image_directory: Directory to which to write scaled image debug
-              images
+            scaled_pairs_file: CSV file to read/write scaled image relationships
+            scaled_pairs_image_directory: Directory to which to write concatenated
+              scaled image pairs
             observed_filenames_infile: Text file from which to read list of observed
               files
             observed_filenames_outfile: Text file to which to write list of observed
               files
-            purge_directory: Directory of previously-classified images to purge from
-              input directory
+            purge_directory: Directory of reviewed images to purge from input
+              directory or directories
             **kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
@@ -90,7 +88,7 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
         )
 
         # Input
-        self._input_directory = validate_input_directory(input_directory)
+        self._input_directories = validate_input_directory(input_directory)
         self._classified_filenames = get_files(reviewed_directory)
         self._ignore_filenames = get_files(ignore_directory)
         if purge_directory is not None:
@@ -124,8 +122,8 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
         else:
             self._hash_cache_file = None
             self._hashes = None
-        if scale_pairs_file is not None:
-            self._scale_pairs_file = validate_output_path(scale_pairs_file)
+        if scaled_pairs_file is not None:
+            self._scale_pairs_file = validate_output_path(scaled_pairs_file)
             try:
                 self._scale_pairs = pd.read_csv(self.scale_pairs_file)
                 info(f"Scaled images read from '{self.scale_pairs_file}'")
@@ -134,9 +132,9 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
         else:
             self._scale_pairs_file = None
             self._scale_pairs = None
-        if scale_pairs_image_directory is not None:
+        if scaled_pairs_image_directory is not None:
             self._scale_pairs_image_directory = validate_input_directory(
-                scale_pairs_image_directory
+                scaled_pairs_image_directory
             )
         else:
             self._scale_pairs_image_directory = None
@@ -150,7 +148,7 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
         """
         Perform operations
 
-        Args:
+        Arguments:
             **kwargs: Additional keyword arguments
         """
 
@@ -218,9 +216,9 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
         return self._move_directory
 
     @property
-    def input_directory(self) -> str:
+    def input_directories(self) -> List[str]:
         """Directory from which to read input files"""
-        return self._input_directory
+        return self._input_directories
 
     @property
     def purge_directory(self):
@@ -261,7 +259,7 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
     def filenames(self) -> List[str]:
         """Filenames"""
         if not hasattr(self, "_filenames") or self._filenames is None:
-            self._filenames = list(get_files(self.input_directory, style="absolute"))
+            self._filenames = list(get_files(self.input_directories, style="absolute"))
             self._filenames.sort()
         return self._filenames
 
@@ -269,7 +267,9 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
     def filenames_dict(self) -> Dict[str, str]:
         """Filenames"""
         if not hasattr(self, "_filenames_dict") or self._filenames_dict is None:
-            absolute_filenames = list(get_files(self.input_directory, style="absolute"))
+            absolute_filenames = list(
+                get_files(self.input_directories, style="absolute")
+            )
             absolute_filenames.sort()
             self._filenames_dict = {
                 splitext(basename(f))[0]: f for f in absolute_filenames
@@ -474,7 +474,7 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
                 makedirs(self.copy_directory)
                 info(f"'{self.copy_directory}' created")
             copy(
-                f"{self.input_directory}/{filename}.png",
+                f"{self.input_directories}/{filename}.png",
                 f"{self.copy_directory}/{filename}.png",
             )
             info(f"'{filename}' copied to '{self.copy_directory}'")
@@ -483,12 +483,12 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
                 makedirs(self.move_directory)
                 info(f"'{self.move_directory}' created")
             move(
-                f"{self.input_directory}/{filename}.png",
+                f"{self.input_directories}/{filename}.png",
                 f"{self.move_directory}/{filename}.png",
             )
             info(f"'{filename}' moved to '{self.move_directory}'")
         elif status == "remove":
-            remove(f"{self.input_directory}/{filename}.png")
+            remove(f"{self.input_directories}/{filename}.png")
             info(f"'{filename}' deleted")
         else:
             raise ValueError()
@@ -515,8 +515,8 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
         if self.purge_directory is not None:
             purge_filenames = get_files(self.purge_directory, style="full")
             for filename in purge_filenames:
-                if isfile(join(self.input_directory, filename)):
-                    remove(join(self.input_directory, filename))
+                if isfile(join(self.input_directories, filename)):
+                    remove(join(self.input_directories, filename))
                     info(f"'{filename}' removed from input directory")
                 if isfile(join(self.purge_directory, filename)):
                     remove(join(self.purge_directory, filename))
@@ -559,7 +559,7 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
 
         event_handler = FileCreatedEventHandler(self)
         observer = Observer()
-        observer.schedule(event_handler, self.input_directory)
+        observer.schedule(event_handler, self.input_directories)
         observer.start()
         try:
             while True:
