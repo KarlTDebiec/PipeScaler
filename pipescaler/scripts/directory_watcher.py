@@ -53,7 +53,7 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
         hash_cache_file: Optional[str] = None,
         scaled_pairs_file: Optional[str] = None,
         scaled_pairs_image_directory: Optional[str] = None,
-        purge_directory: Optional[str] = None,
+        remove_directory: Optional[str] = None,
         observed_filenames_infile: Optional[str] = None,
         observed_filenames_outfile: Optional[str] = None,
         **kwargs: Any,
@@ -76,13 +76,14 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
               files
             observed_filenames_outfile: Text file to which to write list of observed
               files
-            purge_directory: Directory of reviewed images to purge from input
+            remove_directory: Directory of reviewed images to remove from input
               directory or directories
             **kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
 
         def validate_input_directories(input_directories: Union[str, List[str]]):
+            """Validate input directory paths and make them absolute"""
             if isinstance(input_directories, str):
                 input_directories = [input_directories]
             return [validate_input_directory(d) for d in input_directories]
@@ -107,13 +108,13 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
         self.move_directory = validate_output_directory(move_directory)
         """Directory to which to move images that match 'move' rule"""
 
-        self.purge_directory = None
-        """Directory containing files which should be purged from input directories"""
-        if purge_directory is not None:
+        self.remove_directory = None
+        """Directory containing files which should be removed from input directories"""
+        if remove_directory is not None:
             try:
-                self.purge_directory = validate_input_directory(purge_directory)
+                self.remove_directory = validate_input_directory(remove_directory)
             except DirectoryNotFoundError:
-                self.purge_directory = None
+                self.remove_directory = None
 
         self.reviewed_directories = []
         """Directories containing files which have been reviewed"""
@@ -160,7 +161,7 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
         )
         """Image hashes"""
         if self.hash_cache_file is not None and isfile(self.hash_cache_file):
-            self._hashes = pd.read_csv(self.hash_cache_file)
+            self.hashes = pd.read_csv(self.hash_cache_file)
             info(f"Image hashes read from '{self.hash_cache_file}'")
 
         self.ignore_filenames = get_files(self.ignore_directories, style="base")
@@ -185,6 +186,7 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
         absolute_filenames = sorted(list(absolute_filenames))
         self.filenames = {splitext(basename(f))[0]: f for f in absolute_filenames}
         """Input filenames; keys are base names and values are absolute paths"""
+        info(f"Found {len(self.filenames)} infiles in {self.input_directories}")
 
         self.alpha_sorter = AlphaSorter()
         """Alpha sorter"""
@@ -201,13 +203,13 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
         """
 
         # Prepare to run
-        self.purge_copy_directory()
-        self.purge_purge_directory()
+        self.remove_files_in_copy_directory()
+        self.remove_files_in_remove_directory()
 
         # Run on existing files
         self.hash_images_in_input_directory()
-        for parent in self.scaled_parent_filenames:
-            self.save_scaled_debug_image(parent)
+        # for parent in self.scaled_parent_filenames:
+        #     self.save_scaled_pairs_image(parent)
         self.identify_scaled_images()
         # self.process_existing_files_in_input_directory()
         # self.write_observed_filenames_to_outfile()
@@ -232,9 +234,11 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
         image_hashes_changed = False
         hashed_filenames = set(self.hashes["filename"])
 
-        for base_filename in self.filenames.keys():
+        for base_filename in self.filenames:
+            if base_filename in self.ignore_filenames:
+                continue
             if base_filename not in hashed_filenames:
-                self.hashes = self.hashes.append(self.hash_image(base_filename))
+                self.hashes = self.hashes.append(self.get_hash(base_filename))
                 hashed_filenames.add(base_filename)
                 image_hashes_changed = True
 
@@ -243,7 +247,7 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
             self.hashes.to_csv(self.hash_cache_file, index=False)
             info(f"Image hashes saved to '{self.hash_cache_file}'")
 
-    def hash_image(self, filename: str) -> pd.DataFrame:
+    def get_hash(self, filename: str) -> pd.DataFrame:
         """Hash an image"""
         absolute_filename = self.filenames[filename]
         scale = 1.0
@@ -281,7 +285,7 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
 
         return pd.DataFrame(rows)
 
-    def get_candidate_children(
+    def get_candidate_children_hashes(
         self, parent: pd.Series, width: int, height: int
     ) -> pd.DataFrame:
         """Get candidate children of parent"""
@@ -313,92 +317,104 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
 
         return candidate_children
 
-    def identify_scaled_images(self):
-        """Identify scaled images"""
-        # Loop over potential parent images starting from the largest
-        parents = self.hashes.loc[
+    def get_known_children(self, parent: pd.Series) -> pd.DataFrame:
+        return self.scaled_pairs.loc[
+            self.scaled_pairs["filename"] == parent["filename"]
+        ]
+
+    def get_candidate_parent_hashes(self) -> pd.DataFrame:
+        return self.hashes.loc[
             (self.hashes["scale"] == 1.0)
-            & ~(self.hashes["filename"].isin(self.scaled_parent_filenames))
             & ~(self.hashes["filename"].isin(self.scaled_child_filenames))
             & ~(self.hashes["filename"].isin(self.ignore_filenames))
         ].sort_values(["width", "height", "filename"], ascending=False)
-        for _, parent in parents.iterrows():
+
+    def search_for_pair(
+        self, parent: pd.Series, scale: float, width: int, height: int
+    ) -> Optional[pd.DataFrame]:
+        candidate_children = self.get_candidate_children_hashes(parent, width, height)
+
+        if len(candidate_children) == 0:
+            return
+
+        candidate_child = self.get_best_candidate_child(candidate_children)
+        accept_child = candidate_child["hamming sum"] <= 75
+        if accept_child and len(candidate_children) >= 5:
+            accept_child = candidate_child["hamming sum z score"] < -1
+        if accept_child:
+            info(candidate_child)
+            return {
+                "filename": parent["filename"],
+                "scale": scale,
+                "scaled filename": candidate_child["filename"],
+            }
+
+    def identify_scaled_images(self):
+        """Identify scaled images"""
+        # Loop over potential parent images starting from the largest
+        for _, parent in self.get_candidate_parent_hashes().iterrows():
             # Skip potential parents that are now known to be children
             if parent["filename"] in self.scaled_child_filenames:
                 continue
 
-            print(parent)
+            info(f"Searching for scaled child images of '{parent['filename']}'")
+            known_pairs = self.get_known_children(parent)
             scale = 0.5
-            debug_rows = []
             new_pairs = []
             while True:
                 width = round(parent["width"] * scale)
                 height = round(parent["height"] * scale)
                 if min(width, height) < 8:
                     break
-
-                # Prepare candidate children
-                candidate_children = self.get_candidate_children(parent, width, height)
-
-                # Accept or reject best candidate
-                if len(candidate_children) > 0:
-                    candidate_child = self.get_best_candidate_child(candidate_children)
-                    accept_child = candidate_child["hamming sum"] <= 75
-                    if accept_child and len(candidate_children) >= 5:
-                        accept_child = candidate_child["hamming sum z score"] < -1
-                    debug_rows.append(
-                        {
-                            "filename": parent["filename"],
-                            "scale": scale,
-                            "scaled filename": candidate_child["filename"],
-                            "candidates": len(candidate_children),
-                            "hamming sum": candidate_child["hamming sum"],
-                            "z score": candidate_child["hamming sum z score"],
-                            "z score margin": candidate_child[
-                                "hamming sum z score margin"
-                            ],
-                            "accept": accept_child,
-                        }
-                    )
-                    if accept_child:
-                        new_pairs.append(
-                            {
-                                "filename": parent["filename"],
-                                "scale": scale,
-                                "scaled filename": candidate_child["filename"],
-                            }
-                        )
+                if scale not in known_pairs["scale"].values:
+                    new_pair = self.search_for_pair(parent, scale, width, height)
+                    if new_pair is not None:
+                        new_pairs.append(new_pair)
 
                 # Move on to next scale
                 scale /= 2.0
 
-            # Print debug output
-            if len(debug_rows) > 0:
-                debug_rows = pd.DataFrame(debug_rows)
-                print(debug_rows)
-                self.concatenate_images(
-                    *[parent["filename"]] + list(debug_rows["scaled filename"])
-                ).show()
-                print()
-
             # Update image sets
             if len(new_pairs) > 0:
                 new_pairs = pd.DataFrame(new_pairs)
-                self.scaled_pairs = self.scaled_pairs.append(new_pairs)
-                self.scaled_pairs.sort_values(["filename", "scale"])
-                # noinspection PyTypeChecker
-                self.scaled_pairs.to_csv(self.scaled_pairs, index=False)
-                info(f"Scaled images saved to '{self.scaled_pairs}'")
-                self.save_scaled_debug_image(parent["filename"])
+                info(
+                    f"To known pairs:\n{known_pairs}\n"
+                    f"have been added new pairs:\n{new_pairs}"
+                )
+                all_pairs = known_pairs.append(new_pairs)
+                all_pairs = all_pairs.sort_values("scale", ascending=False)
+                children = list(all_pairs["scaled filename"])
+                self.concatenate_images(parent["filename"], *children).show()
+                prompt = f"Confirm ({'y' * len(new_pairs)}/{'n' * len(new_pairs)})?: "
+                regex = re.compile(f"^[yn]{{{len(new_pairs)}}}$", re.IGNORECASE)
+                response = input(prompt).lower()
+                if regex.match(response):
+                    scaled_pairs_modified = False
+                    for i in range(len(new_pairs)):
+                        if response[i] == "y":
+                            self.scaled_pairs = self.scaled_pairs.append(
+                                new_pairs.iloc[i]
+                            )
+                            scaled_pairs_modified = True
+                            info(f"{new_pairs.iloc[i]} accepted")
+                    if scaled_pairs_modified:
+                        self.scaled_pairs = self.scaled_pairs.sort_values(
+                            ["filename", "scale"], ascending=False
+                        )
+                        self.scaled_pairs.to_csv(self.scaled_pairs_file, index=False)
+                        info(f"Scaled pairs saved to '{self.scaled_pairs_file}'")
+            self.save_scaled_pairs_image(parent["filename"])
 
-    def save_scaled_debug_image(self, parent):
+    def save_scaled_pairs_image(self, parent):
+        """Save scaled debug image"""
         children = self.scaled_pairs.loc[
             self.scaled_pairs["filename"] == parent, "scaled filename"
         ]
-        debug_image = self.concatenate_images(parent, *children)
-        debug_outfile = join(self.scaled_pairs_image_directory, f"{parent}.png")
-        debug_image.save(debug_outfile)
-        info(f"Scaled image saved to '{debug_outfile}'")
+        if len(children) > 0:
+            image = self.concatenate_images(parent, *children)
+            outfile = join(self.scaled_pairs_image_directory, f"{parent}.png")
+            image.save(outfile)
+            info(f"Scaled image saved to '{outfile}'")
 
     def perform_operation_for_filename(self, filename):
         """Perform operations for filename"""
@@ -437,7 +453,7 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
         for filename in self.filenames:
             self.perform_operation_for_filename(filename)
 
-    def purge_copy_directory(self):
+    def remove_files_in_copy_directory(self):
         """
         Remove existing files in the copy directory; which is refreshed from the input
         directory with each run
@@ -446,14 +462,14 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
             for filename in get_files(self.copy_directory, style="absolute"):
                 remove(filename)
 
-    def purge_purge_directory(self):
+    def remove_files_in_remove_directory(self):
         """
-        Remove existing files in the purge directory, as well as their source files in
-        the input directory; afterwards remove the purge directory itself
+        Remove existing files in the remove directory, as well as their source files in
+        the input directories; afterwards remove the remove directory itself
         """
-        if self.purge_directory is not None:
-            purge_filenames = get_files(self.purge_directory, style="full")
-            for filename in purge_filenames:
+        if self.remove_directory is not None:
+            remove_filenames = get_files(self.remove_directory, style="full")
+            for filename in remove_filenames:
                 for input_directory in self.input_directories:
                     if isfile(join(input_directory, filename)):
                         remove(join(input_directory, filename))
@@ -461,11 +477,11 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
                             f"'{filename}' removed from input directory "
                             f"'{input_directory}'"
                         )
-                if isfile(join(self.purge_directory, filename)):
-                    remove(join(self.purge_directory, filename))
-                    info(f"'{filename}' removed from purge directory")
-            rmdir(self.purge_directory)
-            info(f"'{self.purge_directory}' removed")
+                if isfile(join(self.remove_directory, filename)):
+                    remove(join(self.remove_directory, filename))
+                    info(f"'{filename}' removed from remove directory")
+            rmdir(self.remove_directory)
+            info(f"'{self.remove_directory}' removed")
 
     def select_operation_for_filename(self, filename):
         """Select operation for filename"""
@@ -545,14 +561,14 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
         return concatenated
 
     @staticmethod
-    def get_best_candidate_child(candidates: pd.DataFrame) -> pd.Series:
+    def get_best_candidate_child(candidate_children: pd.DataFrame) -> pd.Series:
         """Get best candidate child"""
-        if len(candidates) > 1:
-            top_two = candidates["hamming sum z score"].nsmallest(2)
-            best = candidates.loc[top_two.index[0]].copy(deep=True)
+        if len(candidate_children) > 1:
+            top_two = candidate_children["hamming sum z score"].nsmallest(2)
+            best = candidate_children.loc[top_two.index[0]].copy(deep=True)
             best["hamming sum z score margin"] = top_two.iloc[0] - top_two.iloc[1]
         else:
-            best = candidates.iloc[0].copy(deep=True)
+            best = candidate_children.iloc[0].copy(deep=True)
             best["hamming sum z score margin"] = np.nan
 
         return best
