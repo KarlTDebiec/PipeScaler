@@ -10,12 +10,12 @@
 from __future__ import annotations
 
 import re
-from logging import debug, info
+from logging import debug, info, warning
 from os import makedirs, remove, rmdir
 from os.path import basename, isdir, isfile, join, splitext
 from shutil import copy, move
 from time import sleep
-from typing import Any, List, Optional, Set, Union
+from typing import Any, Dict, List, Optional, Set, Union
 
 import numpy as np
 import pandas as pd
@@ -51,6 +51,7 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
         reviewed_directory: Optional[Union[str, List[str]]] = None,
         ignore_directory: Optional[Union[str, List[str]]] = None,
         hash_cache_file: Optional[str] = None,
+        scaled_directory: Optional[str] = None,
         scaled_pairs_file: Optional[str] = None,
         scaled_pairs_image_directory: Optional[str] = None,
         remove_directory: Optional[str] = None,
@@ -114,12 +115,17 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
             try:
                 self.remove_directory = validate_input_directory(remove_directory)
             except DirectoryNotFoundError:
-                self.remove_directory = None
+                pass
 
         self.reviewed_directories = []
         """Directories containing files which have been reviewed"""
         if reviewed_directory is not None:
             self.reviewed_directories = validate_input_directories(reviewed_directory)
+
+        self.scaled_directory = None
+        """Directory containing files which are rescaled from other files"""
+        if scaled_directory is not None:
+            self.scaled_directory = validate_output_directory(scaled_directory)
 
         self.scaled_pairs_file = None
         """CSV file from which to read/write scaled image pairs"""
@@ -153,6 +159,7 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
                 "width": pd.Series(dtype="int"),
                 "height": pd.Series(dtype="int"),
                 "mode": pd.Series(dtype="str"),
+                "type": pd.Series(dtype="str"),
                 "average hash": pd.Series(dtype="str"),
                 "difference hash": pd.Series(dtype="str"),
                 "perceptual hash": pd.Series(dtype="str"),
@@ -183,6 +190,10 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
             info(f"Scaled image pairs read from '{self.scaled_pairs_file}'")
 
         absolute_filenames = get_files(self.input_directories, style="absolute")
+        if self.scaled_directory is not None:
+            absolute_filenames.update(
+                get_files(self.scaled_directory, style="absolute")
+            )
         absolute_filenames = sorted(list(absolute_filenames))
         self.filenames = {splitext(basename(f))[0]: f for f in absolute_filenames}
         """Input filenames; keys are base names and values are absolute paths"""
@@ -206,11 +217,11 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
         self.remove_files_in_copy_directory()
         self.remove_files_in_remove_directory()
 
-        # Run on existing files
+        # Search for scaled image pairs
         self.hash_images_in_input_directory()
-        # for parent in self.scaled_parent_filenames:
-        #     self.save_scaled_pairs_image(parent)
-        self.identify_scaled_images()
+        self.identify_scaled_pairs()
+        if self.scaled_directory is not None:
+            self.move_children_to_scaled_directory()
         # self.process_existing_files_in_input_directory()
         # self.write_observed_filenames_to_outfile()
 
@@ -227,10 +238,38 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
         """Parent images"""
         return set(self.scaled_pairs["filename"])
 
+    def remove_files_in_copy_directory(self):
+        """
+        Remove existing files in the copy directory; which is refreshed from the input
+        directory with each run
+        """
+        if isdir(self.copy_directory):
+            for filename in get_files(self.copy_directory, style="absolute"):
+                remove(filename)
+
+    def remove_files_in_remove_directory(self):
+        """
+        Remove existing files in the remove directory, as well as their source files in
+        the input directories; afterwards remove the remove directory itself
+        """
+        if self.remove_directory is not None:
+            remove_filenames = get_files(self.remove_directory, style="full")
+            for filename in remove_filenames:
+                for input_directory in self.input_directories:
+                    if isfile(join(input_directory, filename)):
+                        remove(join(input_directory, filename))
+                        info(
+                            f"'{filename}' removed from input directory "
+                            f"'{input_directory}'"
+                        )
+                if isfile(join(self.remove_directory, filename)):
+                    remove(join(self.remove_directory, filename))
+                    info(f"'{filename}' removed from remove directory")
+            rmdir(self.remove_directory)
+            info(f"'{self.remove_directory}' removed")
+
     def hash_images_in_input_directory(self):
         """Hash images in input directory"""
-        # TODO: Somehow handle images that should be skipped
-        # TODO: Handle known images as well
         image_hashes_changed = False
         hashed_filenames = set(self.hashes["filename"])
 
@@ -247,6 +286,95 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
             self.hashes.to_csv(self.hash_cache_file, index=False)
             info(f"Image hashes saved to '{self.hash_cache_file}'")
 
+    def identify_scaled_pairs(self):
+        """Identify scaled images"""
+        # Loop over potential parent images starting from the largest
+        parents = self.hashes.loc[
+            (self.hashes["scale"] == 1.0)
+            & ~(self.hashes["filename"].isin(self.scaled_child_filenames))
+            & ~(self.hashes["filename"].isin(self.ignore_filenames))
+        ].sort_values(["width", "height", "filename"], ascending=False)
+        scales = np.array([1 / (2 ** x) for x in range(1, 7)])
+        for _, parent in parents.iterrows():
+            # Skip potential parents that are now known to be children
+            if parent["filename"] in self.scaled_child_filenames:
+                continue
+
+            info(f"Searching for scaled child images of " f"'{parent['filename']}'")
+            known_pairs = self.get_known_pairs(parent)
+            if not np.all(known_pairs["scale"].values == scales[: len(known_pairs)]):
+                print(known_pairs)
+                print("NAY")
+            new_pairs = []
+            for scale in scales:
+                if round(parent["width"] * scale) < 8:
+                    break
+                if round(parent["height"] * scale) < 8:
+                    break
+                if scale not in known_pairs["scale"].values:
+                    child = self.seek_child_hash(parent, scale)
+                    if child is not None:
+                        info(child)
+                        new_pairs.append(
+                            {
+                                "filename": parent["filename"],
+                                "scale": scale,
+                                "scaled filename": child["filename"],
+                            }
+                        )
+
+            # Update image sets
+            if len(new_pairs) > 0:
+                new_pairs = pd.DataFrame(new_pairs)
+                if self.review_candidate_pairs(known_pairs, new_pairs) == 0:
+                    break
+
+            self.save_scaled_pairs_image(parent["filename"])
+
+    def move_children_to_scaled_directory(self):
+        """Move children to scaled directory"""
+        for child_filename in self.scaled_child_filenames:
+            child = basename(self.filenames[child_filename])
+            for reviewed_directory in self.reviewed_directories:
+                if isfile(join(reviewed_directory, child)):
+                    move(
+                        join(reviewed_directory, child),
+                        join(self.scaled_directory, child),
+                    )
+                    info(
+                        f"'{child}' moved from reviewed directory '{reviewed_directory}' "
+                        f"to scaled directory '{self.scaled_directory}'"
+                    )
+
+    def review_candidate_pairs(self, known_pairs: pd.Series, new_pairs: pd.Series):
+        """"""
+        info(f"To known pairs:\n{known_pairs}\nmay be added new pairs:\n{new_pairs}")
+        all_pairs = known_pairs.append(new_pairs).sort_values("scale", ascending=False)
+        parent = all_pairs.iloc[0]["filename"]
+        children = list(all_pairs["scaled filename"])
+
+        self.concatenate_images(parent, *children).show()
+        prompt = f"Confirm ({'y' * len(new_pairs)}/{'n' * len(new_pairs)})?: "
+        accept_re = re.compile(f"^[yn]{{{len(new_pairs)}}}$", re.IGNORECASE)
+        quit_re = re.compile("quit", re.IGNORECASE)
+        response = input(prompt).lower()
+        if accept_re.match(response):
+            scaled_pairs_modified = False
+            for i in range(len(new_pairs)):
+                if response[i] == "y":
+                    self.scaled_pairs = self.scaled_pairs.append(new_pairs.iloc[i])
+                    scaled_pairs_modified = True
+                    info(f"{new_pairs.iloc[i]} accepted")
+            if scaled_pairs_modified:
+                self.scaled_pairs = self.scaled_pairs.sort_values(
+                    ["filename", "scale"], ascending=False
+                )
+                self.scaled_pairs.to_csv(self.scaled_pairs_file, index=False)
+                info(f"Scaled pairs saved to '{self.scaled_pairs_file}'")
+            return 1
+        elif quit_re.match(response):
+            return 0
+
     def get_hash(self, filename: str) -> pd.DataFrame:
         """Hash an image"""
         absolute_filename = self.filenames[filename]
@@ -259,6 +387,7 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
             mode = "L"
         if self.alpha_sorter(absolute_filename) == "keep_alpha":
             mode += "A"
+        filetype = filename.split("_")[-1]
         rows = []
         while True:
             rows.append(
@@ -268,6 +397,7 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
                     "width": scaled_size[0],
                     "height": scaled_size[1],
                     "mode": mode,
+                    "type": filetype,
                     "average hash": str(average_hash(scaled_image)),
                     "difference hash": str(dhash(scaled_image)),
                     "perceptual hash": str(phash(scaled_image)),
@@ -285,125 +415,131 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
 
         return pd.DataFrame(rows)
 
-    def get_candidate_children_hashes(
-        self, parent: pd.Series, width: int, height: int
+    def seek_child_hash(self, parent: pd.Series, scale: float) -> Optional[pd.Series]:
+        """Search for child hash"""
+
+        # Find best candidate child
+        candidate_children = self.get_candidate_child_hashes(parent, scale)
+        if len(candidate_children) >= 2:
+            best_idx = candidate_children["hamming sum z score"].idxmin()
+            if np.isnan(best_idx):
+                info(f"Unable to determine best candidate among {candidate_children}")
+                return
+            candidate_child = candidate_children.loc[best_idx]
+        elif len(candidate_children) == 1:
+            candidate_child = candidate_children.iloc[0]
+        else:
+            return
+
+        # Find best candidate parent of candidate child
+        candidate_parents_of_candidate_child = self.get_candidate_parent_hashes(
+            candidate_child, scale
+        )
+        if len(candidate_parents_of_candidate_child) >= 2:
+            best_idx = candidate_parents_of_candidate_child[
+                "hamming sum z score"
+            ].idxmin()
+            if np.isnan(best_idx):
+                info(
+                    f"Unable to determine best candidate among "
+                    f"{candidate_parents_of_candidate_child}"
+                )
+                return
+            candidate_parent_of_candidate_child = (
+                candidate_parents_of_candidate_child.loc[best_idx]
+            )
+        elif len(candidate_parents_of_candidate_child) == 1:
+            candidate_parent_of_candidate_child = (
+                candidate_parents_of_candidate_child.iloc[0]
+            )
+        else:
+            return
+
+        # Review child
+        if parent["filename"] == candidate_parent_of_candidate_child["filename"]:
+            if candidate_child["hamming sum"] <= 75:
+                return candidate_child
+        return
+
+    def get_candidate_child_hashes(
+        self, parent: pd.Series, scale: float
     ) -> pd.DataFrame:
         """Get candidate children of parent"""
         # Select potential child images
-        candidate_children = self.hashes.loc[
+        candidates = self.hashes.loc[
             (self.hashes["scale"] == 1.0)
-            & (self.hashes["width"] == width)
-            & (self.hashes["height"] == height)
+            & (self.hashes["width"] == round(parent["width"] * scale))
+            & (self.hashes["height"] == round(parent["height"] * scale))
             & (self.hashes["mode"] == parent["mode"])
+            & (self.hashes["type"] == parent["type"])
             & ~(self.hashes["filename"].isin(self.scaled_parent_filenames))
             & ~(self.hashes["filename"].isin(self.scaled_child_filenames))
             & ~(self.hashes["filename"].isin(self.ignore_filenames))
         ].copy(deep=True)
+        if len(candidates) == 0:
+            return candidates
 
-        # Score potential child images
-        if len(candidate_children) > 0:
-            hash_types = ["average", "difference", "perceptual", "wavelet"]
-            for hash_type in hash_types:
-                candidate_children[f"{hash_type} hamming"] = candidate_children.apply(
-                    lambda child: self.hamming_distance(parent, child, hash_type),
-                    axis=1,
-                )
-            candidate_children["hamming sum"] = candidate_children[
-                [f"{hash_type} hamming" for hash_type in hash_types]
-            ].sum(axis=1)
-            candidate_children["hamming sum z score"] = zscore(
-                candidate_children["hamming sum"]
+        # Calculate hamming distances of candidates and sum thereof
+        hash_types = ["average", "difference", "perceptual", "wavelet"]
+        for hash_type in hash_types:
+            candidates[f"{hash_type} hamming"] = candidates.apply(
+                lambda child: self.hamming_distance(parent, child, hash_type),
+                axis=1,
             )
+        candidates["hamming sum"] = candidates[
+            [f"{hash_type} hamming" for hash_type in hash_types]
+        ].sum(axis=1)
 
-        return candidate_children
+        # Calculate z scores of hamming sums of candidates
+        candidates["hamming sum z score"] = zscore(candidates["hamming sum"])
+        candidates = candidates.sort_values(["hamming sum z score"])
+        candidates["hamming sum z score diff"] = list(
+            np.diff(candidates["hamming sum z score"])
+        ) + [np.nan]
 
-    def get_known_children(self, parent: pd.Series) -> pd.DataFrame:
+        return candidates
+
+    def get_candidate_parent_hashes(
+        self, child: pd.Series, scale: float
+    ) -> pd.DataFrame:
+        # Select potential parent images
+        candidates = self.hashes.loc[
+            (self.hashes["scale"] == 1.0)
+            & (self.hashes["width"] == round(child["width"] / scale))
+            & (self.hashes["height"] == round(child["height"] / scale))
+            & (self.hashes["mode"] == child["mode"])
+            & (self.hashes["type"] == child["type"])
+            & ~(self.hashes["filename"].isin(self.scaled_parent_filenames))
+            & ~(self.hashes["filename"].isin(self.scaled_child_filenames))
+            & ~(self.hashes["filename"].isin(self.ignore_filenames))
+        ].copy(deep=True)
+        if len(candidates) == 0:
+            return candidates
+
+        # Calculate hamming distances of candidates and sum thereof
+        hash_types = ["average", "difference", "perceptual", "wavelet"]
+        for hash_type in hash_types:
+            candidates[f"{hash_type} hamming"] = candidates.apply(
+                lambda parent: self.hamming_distance(parent, child, hash_type),
+                axis=1,
+            )
+        candidates["hamming sum"] = candidates[
+            [f"{hash_type} hamming" for hash_type in hash_types]
+        ].sum(axis=1)
+
+        # Calculate z scores of hamming sums of candidates
+        candidates["hamming sum z score"] = zscore(candidates["hamming sum"])
+        candidates = candidates.sort_values(["hamming sum z score"])
+        candidates["hamming sum z score diff"] = list(
+            np.diff(candidates["hamming sum z score"])
+        ) + [np.nan]
+
+        return candidates
+
+    def get_known_pairs(self, parent: pd.Series) -> pd.DataFrame:
         return self.scaled_pairs.loc[
             self.scaled_pairs["filename"] == parent["filename"]
         ]
-
-    def get_candidate_parent_hashes(self) -> pd.DataFrame:
-        return self.hashes.loc[
-            (self.hashes["scale"] == 1.0)
-            & ~(self.hashes["filename"].isin(self.scaled_child_filenames))
-            & ~(self.hashes["filename"].isin(self.ignore_filenames))
-        ].sort_values(["width", "height", "filename"], ascending=False)
-
-    def search_for_pair(
-        self, parent: pd.Series, scale: float, width: int, height: int
-    ) -> Optional[pd.DataFrame]:
-        candidate_children = self.get_candidate_children_hashes(parent, width, height)
-
-        if len(candidate_children) == 0:
-            return
-
-        candidate_child = self.get_best_candidate_child(candidate_children)
-        accept_child = candidate_child["hamming sum"] <= 75
-        if accept_child and len(candidate_children) >= 5:
-            accept_child = candidate_child["hamming sum z score"] < -1
-        if accept_child:
-            info(candidate_child)
-            return {
-                "filename": parent["filename"],
-                "scale": scale,
-                "scaled filename": candidate_child["filename"],
-            }
-
-    def identify_scaled_images(self):
-        """Identify scaled images"""
-        # Loop over potential parent images starting from the largest
-        for _, parent in self.get_candidate_parent_hashes().iterrows():
-            # Skip potential parents that are now known to be children
-            if parent["filename"] in self.scaled_child_filenames:
-                continue
-
-            info(f"Searching for scaled child images of '{parent['filename']}'")
-            known_pairs = self.get_known_children(parent)
-            scale = 0.5
-            new_pairs = []
-            while True:
-                width = round(parent["width"] * scale)
-                height = round(parent["height"] * scale)
-                if min(width, height) < 8:
-                    break
-                if scale not in known_pairs["scale"].values:
-                    new_pair = self.search_for_pair(parent, scale, width, height)
-                    if new_pair is not None:
-                        new_pairs.append(new_pair)
-
-                # Move on to next scale
-                scale /= 2.0
-
-            # Update image sets
-            if len(new_pairs) > 0:
-                new_pairs = pd.DataFrame(new_pairs)
-                info(
-                    f"To known pairs:\n{known_pairs}\n"
-                    f"have been added new pairs:\n{new_pairs}"
-                )
-                all_pairs = known_pairs.append(new_pairs)
-                all_pairs = all_pairs.sort_values("scale", ascending=False)
-                children = list(all_pairs["scaled filename"])
-                self.concatenate_images(parent["filename"], *children).show()
-                prompt = f"Confirm ({'y' * len(new_pairs)}/{'n' * len(new_pairs)})?: "
-                regex = re.compile(f"^[yn]{{{len(new_pairs)}}}$", re.IGNORECASE)
-                response = input(prompt).lower()
-                if regex.match(response):
-                    scaled_pairs_modified = False
-                    for i in range(len(new_pairs)):
-                        if response[i] == "y":
-                            self.scaled_pairs = self.scaled_pairs.append(
-                                new_pairs.iloc[i]
-                            )
-                            scaled_pairs_modified = True
-                            info(f"{new_pairs.iloc[i]} accepted")
-                    if scaled_pairs_modified:
-                        self.scaled_pairs = self.scaled_pairs.sort_values(
-                            ["filename", "scale"], ascending=False
-                        )
-                        self.scaled_pairs.to_csv(self.scaled_pairs_file, index=False)
-                        info(f"Scaled pairs saved to '{self.scaled_pairs_file}'")
-            self.save_scaled_pairs_image(parent["filename"])
 
     def save_scaled_pairs_image(self, parent):
         """Save scaled debug image"""
@@ -452,36 +588,6 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
         """Process existing files in input directory"""
         for filename in self.filenames:
             self.perform_operation_for_filename(filename)
-
-    def remove_files_in_copy_directory(self):
-        """
-        Remove existing files in the copy directory; which is refreshed from the input
-        directory with each run
-        """
-        if isdir(self.copy_directory):
-            for filename in get_files(self.copy_directory, style="absolute"):
-                remove(filename)
-
-    def remove_files_in_remove_directory(self):
-        """
-        Remove existing files in the remove directory, as well as their source files in
-        the input directories; afterwards remove the remove directory itself
-        """
-        if self.remove_directory is not None:
-            remove_filenames = get_files(self.remove_directory, style="full")
-            for filename in remove_filenames:
-                for input_directory in self.input_directories:
-                    if isfile(join(input_directory, filename)):
-                        remove(join(input_directory, filename))
-                        info(
-                            f"'{filename}' removed from input directory "
-                            f"'{input_directory}'"
-                        )
-                if isfile(join(self.remove_directory, filename)):
-                    remove(join(self.remove_directory, filename))
-                    info(f"'{filename}' removed from remove directory")
-            rmdir(self.remove_directory)
-            info(f"'{self.remove_directory}' removed")
 
     def select_operation_for_filename(self, filename):
         """Select operation for filename"""
@@ -559,19 +665,6 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
                     image.resize(size, resample=Image.NEAREST), (size[0] * i, 0)
                 )
         return concatenated
-
-    @staticmethod
-    def get_best_candidate_child(candidate_children: pd.DataFrame) -> pd.Series:
-        """Get best candidate child"""
-        if len(candidate_children) > 1:
-            top_two = candidate_children["hamming sum z score"].nsmallest(2)
-            best = candidate_children.loc[top_two.index[0]].copy(deep=True)
-            best["hamming sum z score margin"] = top_two.iloc[0] - top_two.iloc[1]
-        else:
-            best = candidate_children.iloc[0].copy(deep=True)
-            best["hamming sum z score margin"] = np.nan
-
-        return best
 
     @staticmethod
     def hamming_distance(parent: pd.Series, child: pd.Series, hash_type: str) -> int:
