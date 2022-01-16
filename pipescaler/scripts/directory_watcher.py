@@ -158,7 +158,7 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
         # Search for scaled image pairs
         if self.scaled_pair_identifier is not None:
             self.scaled_pair_identifier.identify_pairs()
-        self.process_files_in_input_directories()
+        # self.process_files_in_input_directories()
         # self.write_observed_filenames_to_outfile()
 
         # Watch for new files

@@ -50,12 +50,12 @@ class ScaledPairIdentifier:
         # Store input and output paths
         self.filenames = filenames
         """Image filenames; keys are base names and values are absolute paths"""
-        self.scaled_pairs_file = validate_output_file(pairs_file)
+        self.pairs_file = validate_output_file(pairs_file)
         """CSV file from which to read/write scaled image pairs"""
-        self.hash_cache_file = None
+        self.hash_file = None
         """CSV file from which to read/write image hash cache"""
         if hash_file is not None:
-            self.hash_cache_file = validate_output_file(hash_file)
+            self.hash_file = validate_output_file(hash_file)
         self.image_directory = None
         """Directory to which to write stacked scaled image sets"""
         if image_directory is not None:
@@ -77,9 +77,9 @@ class ScaledPairIdentifier:
             }
         )
         """Image hashes"""
-        if self.hash_cache_file is not None and isfile(self.hash_cache_file):
-            self.hashes = pd.read_csv(self.hash_cache_file)
-            info(f"Image hashes read from '{self.hash_cache_file}'")
+        if self.hash_file is not None and isfile(self.hash_file):
+            self.hashes = pd.read_csv(self.hash_file)
+            info(f"Image hashes read from '{self.hash_file}'")
 
         # Prepare DataFrame of image pairs
         self.pairs = pd.DataFrame(
@@ -90,15 +90,18 @@ class ScaledPairIdentifier:
             }
         )
         """Image pairs"""
-        if isfile(self.scaled_pairs_file):
-            self.pairs = pd.read_csv(self.scaled_pairs_file)
-            info(f"Scaled image pairs read from '{self.scaled_pairs_file}'")
+        if isfile(self.pairs_file):
+            self.pairs = pd.read_csv(self.pairs_file)
+            info(f"Scaled image pairs read from '{self.pairs_file}'")
 
         # Prepare image sorters for image analysis
         self.alpha_sorter = AlphaSorter()
         """Alpha sorter"""
         self.grayscale_sorter = GrayscaleSorter()
         """Grayscale sorter"""
+
+        # Hash images
+        self._hash_images()
 
     @property
     def children(self) -> Set[str]:
@@ -123,9 +126,9 @@ class ScaledPairIdentifier:
 
         if hashes_changed:
             self.hashes = self.hashes.reset_index(drop=True)
-            if self.hash_cache_file is not None:
-                self.hashes.to_csv(self.hash_cache_file, index=False)
-                info(f"Image hashes saved to '{self.hash_cache_file}'")
+            if self.hash_file is not None:
+                self.hashes.to_csv(self.hash_file, index=False)
+                info(f"Image hashes saved to '{self.hash_file}'")
 
     def get_best_child_score(
         self, parent_hash: pd.Series, scale: float
@@ -336,6 +339,20 @@ class ScaledPairIdentifier:
 
         return pd.DataFrame(hashes)
 
+    def get_hstacked_image(self, *filenames: str) -> Image.Image:
+        """
+        Get horizontally stacked images, rescaled to match first image, if necessary
+
+        Arguments:
+            *filenames: Basenames of files to stacks
+
+        Returns:s
+            Horizontally stacked images, rescaled to match first image, if necessary
+        """
+        return hstack_images(
+            *[Image.open(self.filenames[filename]) for filename in filenames]
+        )
+
     def get_pair(self, child: str) -> pd.DataFrame:
         """
         Get pair of *child*
@@ -382,17 +399,17 @@ class ScaledPairIdentifier:
                 if width < 8 or height < 8:
                     break
                 if scale not in known_pairs["scale"].values:
-                    child = self.get_best_child_score(parent_hash, scale)
-                    if child is None:
+                    child_score = self.get_best_child_score(parent_hash, scale)
+                    if child_score is None:
                         break
                     new_pairs.append(
                         {
                             "filename": parent_hash["filename"],
                             "scale": scale,
-                            "scaled filename": child["filename"],
+                            "scaled filename": child_score["filename"],
                         }
                     )
-                    new_pair_scores.append(child)
+                    new_pair_scores.append(child_score)
 
             # Update image sets
             if len(new_pairs) > 0:
@@ -420,12 +437,19 @@ class ScaledPairIdentifier:
         Returns:
 
         """
-        info(f"To known pairs:\n{known_pairs}\nmay be added new pairs:\n{new_pairs}")
+        info(
+            f"To known pairs:\n"
+            f"{known_pairs}\n"
+            f"may be added new pairs:\n"
+            f"{new_pairs}\n"
+            f"with scores:\n"
+            f"{new_pair_scores}"
+        )
         all_pairs = known_pairs.append(new_pairs).sort_values("scale", ascending=False)
         parent = all_pairs.iloc[0]["filename"]
         children = list(all_pairs["scaled filename"])
 
-        self.get_hstacked_images(parent, *children).show()
+        self.get_hstacked_image(parent, *children).show()
         prompt = f"Confirm ({'y' * len(new_pairs)}/{'n' * len(new_pairs)})?: "
         accept_re = re.compile(f"^[yn]{{{len(new_pairs)}}}$", re.IGNORECASE)
         quit_re = re.compile("quit", re.IGNORECASE)
@@ -434,15 +458,15 @@ class ScaledPairIdentifier:
             scaled_pairs_modified = False
             for i in range(len(new_pairs)):
                 if response[i] == "y":
-                    self.scaled_pairs = self.scaled_pairs.append(new_pairs.iloc[i])
+                    self.pairs = self.pairs.append(new_pairs.iloc[i])
                     scaled_pairs_modified = True
                     info(f"{new_pairs.iloc[i]} accepted")
             if scaled_pairs_modified:
-                self.scaled_pairs = self.scaled_pairs.sort_values(
+                self.pairs = self.pairs.sort_values(
                     ["filename", "scale"], ascending=False
                 )
-                self.scaled_pairs.to_csv(self.scaled_pairs_file, index=False)
-                info(f"Scaled pairs saved to '{self.scaled_pairs_file}'")
+                self.pairs.to_csv(self.pairs_file, index=False)
+                info(f"Scaled pairs saved to '{self.pairs_file}'")
             return 1
         elif quit_re.match(response):
             return 0
@@ -453,21 +477,7 @@ class ScaledPairIdentifier:
             self.scaled_pairs["filename"] == parent, "scaled filename"
         ]
         if len(children) > 0:
-            image = self.get_hstacked_images(parent, *children)
+            image = self.get_hstacked_image(parent, *children)
             outfile = join(self.image_directory, f"{parent}.png")
             image.save(outfile)
             info(f"Scaled image saved to '{outfile}'")
-
-    def get_hstacked_images(self, *filenames: str) -> Image.Image:
-        """
-        Get horizontally stacked images, rescaled to match first image, if necessary
-
-        Arguments:
-            *filenames: Basenames of files to stacks
-
-        Returns:s
-            Horizontally stacked images, rescaled to match first image, if necessary
-        """
-        return hstack_images(
-            *[Image.open(self.filenames[filename]) for filename in filenames]
-        )
