@@ -18,6 +18,7 @@ from pipescaler.core.image import (
     crop_image,
     expand_image,
     generate_normal_map_from_height_map_image,
+    hstack_images,
     remove_palette_from_image,
     smooth_image,
 )
@@ -52,6 +53,7 @@ __all__: List[str] = [
     "generate_normal_map_from_height_map_image",
     "get_files",
     "remove_palette_from_image",
+    "hstack_images",
     "validate_image",
     "validate_image_and_convert_mode",
 ]

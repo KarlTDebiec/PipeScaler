@@ -125,6 +125,26 @@ def generate_normal_map_from_height_map_image(image: Image.Image) -> Image.Image
     return output_image
 
 
+def hstack_images(*images: Image.Image) -> Image.Image:
+    """
+    Horizontally stack images; rescaled to size of first image
+
+    Arguments:
+        *images: Images to stack
+
+    Returns:
+        Horizontally stacked images
+    """
+    size = images[0].size
+    stacked = Image.new("RGBA", (size[0] * len(images), size[1]))
+    for i, image in enumerate(images):
+        if image.size == size:
+            stacked.paste(image, (size[0] * i, 0))
+        else:
+            stacked.paste(image.resize(size, resample=Image.NEAREST), (size[0] * i, 0))
+    return stacked
+
+
 def remove_palette_from_image(image: Image.Image) -> Image.Image:
     """
     Remove palette from a paletted image
