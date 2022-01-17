@@ -55,7 +55,8 @@ class ScaledPairIdentifier:
     ):
         """
         Args:
-            filenames:
+            filenames: Filenames to review; keys are base filenames and values are
+              absolute paths
             pairs_file: CSV file to read/write scaled image pairs
             hash_file: CSV file to read/write cache of image hashes
             image_directory: Directory to which to write stacked scaled image sets
