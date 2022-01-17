@@ -29,7 +29,7 @@ from PIL import Image
 from scipy.stats import zscore
 
 from pipescaler.common import validate_output_directory, validate_output_file
-from pipescaler.core import hstack_images
+from pipescaler.core import hstack_images, vstack_images
 from pipescaler.sorters import AlphaSorter, GrayscaleSorter
 
 
@@ -366,19 +366,30 @@ class ScaledPairIdentifier:
 
         return pd.DataFrame(hashes)
 
-    def get_hstacked_image(self, *filenames: str) -> Image.Image:
+    def get_stacked_image(self, *filenames: str) -> Image.Image:
         """
-        Get horizontally stacked images, rescaled to match first image, if necessary
+        Get stacked images, rescaled to match first image, if necessary
 
         Arguments:
-            *filenames: Basenames of files to stacks
+            *filenames: Basenames of files to stack
 
         Returns:s
-            Horizontally stacked images, rescaled to match first image, if necessary
+            Stacked images, rescaled to match first image, if necessary
         """
-        return hstack_images(
-            *[Image.open(self.filenames[filename]) for filename in filenames]
-        )
+        if self.alpha_sorter(self.filenames[filenames[0]]) == "keep_alpha":
+            color_images = []
+            alpha_images = []
+            for filename in filenames:
+                array = np.array(Image.open(self.filenames[filename]))
+                color_images.append(Image.fromarray(np.squeeze(array[:, :, :-1])))
+                alpha_images.append(Image.fromarray(array[:, :, -1]))
+            color_image = hstack_images(*color_images)
+            alpha_image = hstack_images(*alpha_images)
+            return vstack_images(color_image, alpha_image)
+        else:
+            return hstack_images(
+                *[Image.open(self.filenames[filename]) for filename in filenames]
+            )
 
     def get_pair(self, child: str) -> pd.DataFrame:
         """
@@ -478,7 +489,7 @@ class ScaledPairIdentifier:
         children = list(all_pairs["scaled filename"])
 
         if self.interactive:
-            self.get_hstacked_image(parent, *children).show()
+            self.get_stacked_image(parent, *children).show()
         prompt = f"Confirm ({'y' * len(new_pairs)}/{'n' * len(new_pairs)})?: "
         accept_re = re.compile(f"^[yn]{{{len(new_pairs)}}}$", re.IGNORECASE)
         quit_re = re.compile("quit", re.IGNORECASE)
@@ -507,7 +518,7 @@ class ScaledPairIdentifier:
         """Save scaled debug image"""
         children = list(self.get_pairs(parent)["scaled filename"])
         if len(children) > 0:
-            image = self.get_hstacked_image(parent, *children)
+            image = self.get_stacked_image(parent, *children)
             outfile = join(self.image_directory, f"{parent}.png")
             image.save(outfile)
             info(f"Scaled image saved to '{outfile}'")

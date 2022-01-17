@@ -21,6 +21,7 @@ from pipescaler.core.image import (
     hstack_images,
     remove_palette_from_image,
     smooth_image,
+    vstack_images,
 )
 from pipescaler.core.merger import Merger
 from pipescaler.core.pipe_image import PipeImage
@@ -56,4 +57,5 @@ __all__: List[str] = [
     "hstack_images",
     "validate_image",
     "validate_image_and_convert_mode",
+    "vstack_images",
 ]

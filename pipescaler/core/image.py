@@ -206,3 +206,23 @@ def smooth_image(image: Image.Image, sigma: float) -> Image.Image:
     smoothed = Image.fromarray(smoothed_array)
 
     return smoothed
+
+
+def vstack_images(*images: Image.Image) -> Image.Image:
+    """
+    Vertically stack images; rescaled to size of first image
+
+    Arguments:
+        *images: Images to stack
+
+    Returns:
+        Vertically stacked images
+    """
+    size = images[0].size
+    stacked = Image.new("RGBA", (size[0], size[1] * len(images)))
+    for i, image in enumerate(images):
+        if image.size == size:
+            stacked.paste(image, (0, size[1] * i))
+        else:
+            stacked.paste(image.resize(size, resample=Image.NEAREST), (0, size[1] * i))
+    return stacked
