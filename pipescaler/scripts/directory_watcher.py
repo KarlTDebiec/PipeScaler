@@ -187,6 +187,7 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
                         )
                 if isfile(join(self.remove_directory, filename)):
                     remove(join(self.remove_directory, filename))
+                    del self.filenames[splitext(filename)[0]]
                     info(f"'{filename}' removed from remove directory")
             rmdir(self.remove_directory)
             info(f"'{self.remove_directory}' removed")
