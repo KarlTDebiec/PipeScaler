@@ -10,7 +10,7 @@
 from __future__ import annotations
 
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 from scipy.ndimage import convolve
 
 
@@ -125,6 +125,24 @@ def generate_normal_map_from_height_map_image(image: Image.Image) -> Image.Image
     return output_image
 
 
+def get_font_size(
+    text: str,
+    width: int,
+    height: int,
+    proportional_height: float = 0.2,
+    font: str = "arial",
+):
+    observed_width, observed_height = get_text_size(text, width, height, font, 100)
+    return round(100 / (observed_height / height) * proportional_height)
+
+
+def get_text_size(
+    text: str, width: int, height: int, font: str = "arial", size: int = 100
+):
+    image = Image.new("L", (width, height))
+    return ImageDraw.Draw(image).textsize(text, ImageFont.truetype(font, size))
+
+
 def hstack_images(*images: Image.Image) -> Image.Image:
     """
     Horizontally stack images; rescaled to size of first image
@@ -143,6 +161,27 @@ def hstack_images(*images: Image.Image) -> Image.Image:
         else:
             stacked.paste(image.resize(size, resample=Image.NEAREST), (size[0] * i, 0))
     return stacked
+
+
+def label_image(image: Image.Image, text: str) -> Image.Image:
+    labeled_image = image.copy()
+
+    ImageDraw.Draw(labeled_image).text(
+        (
+            round(image.width * 0.025),
+            round(image.height * 0.025),
+        ),
+        text,
+        font=ImageFont.truetype(
+            "arial",
+            get_font_size(text, image.width, image.height),
+        ),
+        stroke="white",
+        stroke_fill="black",
+        stroke_width=2,
+    )
+
+    return labeled_image
 
 
 def remove_palette_from_image(image: Image.Image) -> Image.Image:

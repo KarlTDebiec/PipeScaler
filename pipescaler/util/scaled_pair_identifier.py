@@ -12,7 +12,7 @@ Identifies pairs of images in which one is rescaled from another by a power of t
 import re
 from logging import info
 from os.path import isfile, join
-from typing import Dict, Optional, Set
+from typing import Dict, List, Optional, Set
 
 import numpy as np
 import pandas as pd
@@ -29,7 +29,7 @@ from PIL import Image
 from scipy.stats import zscore
 
 from pipescaler.common import validate_output_directory, validate_output_file
-from pipescaler.core import hstack_images, vstack_images
+from pipescaler.core import hstack_images, label_image, vstack_images
 from pipescaler.sorters import AlphaSorter, GrayscaleSorter
 
 
@@ -140,7 +140,7 @@ class ScaledPairIdentifier:
 
         for filename in self.filenames:
             if filename not in hashed_filenames:
-                self.hashes = self.hashes.append(self.get_hashes(filename))
+                self.hashes = self.hashes.append(self.calculate_hashes(filename))
                 hashed_filenames.add(filename)
                 hashes_changed = True
 
@@ -318,9 +318,14 @@ class ScaledPairIdentifier:
                 child_hash[f"{hash_type} hash"]
             )
 
-    def get_hashes(self, filename: str) -> pd.DataFrame:
+    def get_hash(self, filename: str, scale: float = 1.0) -> pd.Series:
+        return self.hashes.loc[
+            (self.hashes["filename"] == filename) & (self.hashes["scale"] == scale)
+        ].iloc[0]
+
+    def calculate_hashes(self, filename: str) -> pd.DataFrame:
         """
-        Get hashes of *filename*, including original size and scaled versions
+        Calculate hashes of *filename*, including original size and scaled versions
 
         Arguments:
             filename: Basename of file
@@ -345,7 +350,7 @@ class ScaledPairIdentifier:
             if width < 8 or height < 8:
                 break
             scaled_image = (
-                image.resize((width, height), Image.NEAREST) if scale != 1.0 else image
+                image.resize((width, height), Image.LANCZOS) if scale != 1.0 else image
             )
             hashes.append(
                 {
@@ -366,12 +371,12 @@ class ScaledPairIdentifier:
 
         return pd.DataFrame(hashes)
 
-    def get_stacked_image(self, *filenames: str) -> Image.Image:
+    def get_stacked_image(self, filenames: List[str]) -> Image.Image:
         """
         Get stacked images, rescaled to match first image, if necessary
 
         Arguments:
-            *filenames: Basenames of files to stack
+            filenames: Basenames of files to stack
 
         Returns:s
             Stacked images, rescaled to match first image, if necessary
@@ -414,6 +419,35 @@ class ScaledPairIdentifier:
             Pairs of *parent*
         """
         return self.pairs.loc[self.pairs["filename"] == parent]
+
+    def calculate_pair_score(
+        self, parent_hash: pd.Series, child_hash: pd.Series
+    ) -> pd.Series:
+        score = parent_hash.copy(deep=True)
+        score["scaled filename"] = child_hash["filename"]
+
+        for hash_type in self.hash_types:
+            score[f"{hash_type} hamming"] = self.get_hamming_distance(
+                score, child_hash, hash_type
+            )
+        score["hamming sum"] = score[
+            [f"{hash_type} hamming" for hash_type in self.hash_types]
+        ].sum()
+
+        return score
+
+    def get_pair_scores(self, parent: str) -> Optional[pd.DataFrame]:
+        parent_hash = self.get_hash(parent)
+        pairs = self.get_pairs(parent)
+        if len(pairs) > 1:
+            scores = []
+            for _, pair in pairs.iterrows():
+                child_hash = self.get_hash(pair["scaled filename"])
+                score = self.calculate_pair_score(parent_hash, child_hash)
+                scores.append(score)
+            scores = pd.DataFrame(scores)
+
+            return scores
 
     def identify_pairs(self):
         """Identify pairs"""
@@ -458,7 +492,56 @@ class ScaledPairIdentifier:
                 )
                 if result == 0:
                     break
-            self.save_image_set_image(parent_hash["filename"])
+            pair_scores = self.get_pair_scores(parent_hash["filename"])
+            if pair_scores is not None:
+                print(pair_scores)
+                image = self.get_pair_score_image(pair_scores)
+                outfile = join(self.image_directory, f"{parent_hash['filename']}.png")
+                image.save(outfile)
+                info(f"Scaled image saved to '{outfile}'")
+
+    def get_pair_score_image(self, pair_scores) -> Image.Image:
+        parent = pair_scores["filename"].values[0]
+        children = list(pair_scores["scaled filename"].values)
+        scores = list(pair_scores["hamming sum"].values)
+
+        parent_image = Image.open(self.filenames[parent])
+        if self.alpha_sorter(self.filenames[parent]) == "keep_alpha":
+            parent_array = np.array(parent_image)
+            parent_color_image = Image.fromarray(np.squeeze(parent_array[:, :, :-1]))
+            parent_alpha_image = Image.fromarray(parent_array[:, :, -1])
+            child_color_images = []
+            child_alpha_images = []
+
+            for child, score in zip(children, scores):
+                child_image = Image.open(self.filenames[child])
+                child_array = np.array(child_image)
+
+                child_color_image = Image.fromarray(np.squeeze(child_array[:, :, :-1]))
+                child_color_image = child_color_image.resize(
+                    parent_image.size, Image.NEAREST
+                )
+                child_color_image = label_image(child_color_image, str(score))
+                child_color_images.append(child_color_image)
+
+                child_alpha_image = Image.fromarray(child_array[:, :, -1])
+                child_alpha_image = child_alpha_image.resize(
+                    parent_image.size, Image.NEAREST
+                )
+                child_alpha_images.append(child_alpha_image)
+
+            color_image = hstack_images(parent_color_image, *child_color_images)
+            alpha_image = hstack_images(parent_alpha_image, *child_alpha_images)
+            return vstack_images(color_image, alpha_image)
+        else:
+            child_images = []
+            for child, score in zip(children, scores):
+                child_image = Image.open(self.filenames[child])
+                child_image = child_image.resize(parent_image.size, Image.NEAREST)
+                child_image = label_image(child_image, str(score))
+                child_images.append(child_image)
+
+            return hstack_images(parent_image, *child_images)
 
     def review_candidate_pairs(
         self,
@@ -489,7 +572,7 @@ class ScaledPairIdentifier:
         children = list(all_pairs["scaled filename"])
 
         if self.interactive:
-            self.get_stacked_image(parent, *children).show()
+            self.get_stacked_image([parent, *children]).show()
         prompt = f"Confirm ({'y' * len(new_pairs)}/{'n' * len(new_pairs)})?: "
         accept_re = re.compile(f"^[yn]{{{len(new_pairs)}}}$", re.IGNORECASE)
         quit_re = re.compile("quit", re.IGNORECASE)
@@ -513,12 +596,3 @@ class ScaledPairIdentifier:
             return 1
         elif quit_re.match(response):
             return 0
-
-    def save_image_set_image(self, parent: str):
-        """Save scaled debug image"""
-        children = list(self.get_pairs(parent)["scaled filename"])
-        if len(children) > 0:
-            image = self.get_stacked_image(parent, *children)
-            outfile = join(self.image_directory, f"{parent}.png")
-            image.save(outfile)
-            info(f"Scaled image saved to '{outfile}'")
