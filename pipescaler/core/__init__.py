@@ -11,12 +11,14 @@ from __future__ import annotations
 
 from typing import List
 
+from pipescaler.core.configurable_command_line_tool import ConfigurableCommandLineTool
 from pipescaler.core.exception import TerminusReached, UnsupportedImageModeError
 from pipescaler.core.file import get_files
 from pipescaler.core.image import (
     crop_image,
     expand_image,
     generate_normal_map_from_height_map_image,
+    hstack_images,
     remove_palette_from_image,
     smooth_image,
 )
@@ -32,6 +34,7 @@ from pipescaler.core.terminus import Terminus
 from pipescaler.core.validation import validate_image, validate_image_and_convert_mode
 
 __all__: List[str] = [
+    "ConfigurableCommandLineTool",
     "Merger",
     "PipeImage",
     "Pipeline",
@@ -50,6 +53,7 @@ __all__: List[str] = [
     "generate_normal_map_from_height_map_image",
     "get_files",
     "remove_palette_from_image",
+    "hstack_images",
     "validate_image",
     "validate_image_and_convert_mode",
 ]

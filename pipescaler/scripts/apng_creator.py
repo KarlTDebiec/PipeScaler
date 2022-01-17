@@ -18,14 +18,14 @@ from typing import Any, List, Optional
 from PIL import Image, ImageDraw, ImageFont
 
 from pipescaler.common import (
-    CLTool,
+    CommandLineTool,
     validate_executable,
     validate_input_path,
     validate_output_path,
 )
 
 
-class ApngCreator(CLTool):
+class ApngCreator(CommandLineTool):
     """"""
 
     def __init__(

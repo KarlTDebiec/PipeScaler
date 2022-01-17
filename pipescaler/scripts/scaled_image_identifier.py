@@ -24,7 +24,7 @@ from PIL import Image
 from skimage.metrics import structural_similarity as ssim
 
 from pipescaler.common import (
-    CLTool,
+    CommandLineTool,
     validate_float,
     validate_input_path,
     validate_output_path,
@@ -33,7 +33,7 @@ from pipescaler.core import get_files
 from pipescaler.core.file import read_yaml
 
 
-class ScaledImageIdentifier(CLTool):
+class ScaledImageIdentifier(CommandLineTool):
     """"""
 
     exclusions = {".DS_Store", "desktop"}
@@ -48,13 +48,6 @@ class ScaledImageIdentifier(CLTool):
         **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
-
-        if self.verbosity == 1:
-            logging.basicConfig(level=logging.WARNING)
-        elif self.verbosity == 2:
-            logging.basicConfig(level=logging.INFO)
-        elif self.verbosity >= 3:
-            logging.basicConfig(level=logging.DEBUG)
 
         # Input
         if infile is not None:

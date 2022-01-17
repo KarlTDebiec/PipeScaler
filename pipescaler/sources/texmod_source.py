@@ -10,8 +10,8 @@
 from __future__ import annotations
 
 from logging import error
+from os.path import basename, splitext
 
-from pipescaler.common import get_name
 from pipescaler.sources.directory_source import DirectorySource
 
 
@@ -22,7 +22,7 @@ class TexmodSource(DirectorySource):
     def sort(filename):
         """Sort outfiles to be yielded by source"""
         try:
-            return int(f"1{int(get_name(filename)[2:10], 16):022d}")
+            return int(f"1{int(splitext(basename(filename))[0][2:10], 16):022d}")
         except ValueError as e:
             error(f"Error encountered while sorting {filename}")
             raise e
