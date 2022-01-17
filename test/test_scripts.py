@@ -16,7 +16,7 @@ scripts = {
     f: join(package_root, "scripts", f)
     for f in [
         "apng_creator.py",
-        "directory_watcher.py",
+        "file_watcher.py",
         "pipe_runner.py",
         "pipescaler_host.py",
         "scaled_image_identifier.py",
