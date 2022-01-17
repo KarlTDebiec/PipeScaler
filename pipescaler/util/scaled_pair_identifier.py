@@ -16,7 +16,15 @@ from typing import Dict, Optional, Set
 
 import numpy as np
 import pandas as pd
-from imagehash import average_hash, dhash, hex_to_hash, phash, whash
+from imagehash import (
+    average_hash,
+    colorhash,
+    dhash,
+    hex_to_flathash,
+    hex_to_hash,
+    phash,
+    whash,
+)
 from PIL import Image
 from scipy.stats import zscore
 
@@ -30,7 +38,13 @@ class ScaledPairIdentifier:
     Identifies pairs of images in which one is rescaled from another by a power of two
     """
 
-    hash_types = ["average", "difference", "perceptual", "wavelet"]
+    hash_types = {
+        "average": average_hash,
+        "color": colorhash,
+        "difference": dhash,
+        "perceptual": phash,
+        "wavelet": whash,
+    }
 
     def __init__(
         self,
@@ -40,7 +54,6 @@ class ScaledPairIdentifier:
         image_directory: Optional[str] = None,
     ):
         """
-
         Args:
             filenames:
             pairs_file: CSV file to read/write scaled image pairs
@@ -64,16 +77,18 @@ class ScaledPairIdentifier:
         # Prepare DatFrame of image hashes
         self.hashes = pd.DataFrame(
             {
-                "filename": pd.Series(dtype="str"),
-                "scale": pd.Series(dtype="float"),
-                "width": pd.Series(dtype="int"),
-                "height": pd.Series(dtype="int"),
-                "mode": pd.Series(dtype="str"),
-                "type": pd.Series(dtype="str"),
-                "average hash": pd.Series(dtype="str"),
-                "difference hash": pd.Series(dtype="str"),
-                "perceptual hash": pd.Series(dtype="str"),
-                "wavelet hash": pd.Series(dtype="str"),
+                **{
+                    "filename": pd.Series(dtype="str"),
+                    "scale": pd.Series(dtype="float"),
+                    "width": pd.Series(dtype="int"),
+                    "height": pd.Series(dtype="int"),
+                    "mode": pd.Series(dtype="str"),
+                    "type": pd.Series(dtype="str"),
+                },
+                **{
+                    f"{hash_type} hash": pd.Series(dtype="str")
+                    for hash_type in self.hash_types.keys()
+                },
             }
         )
         """Image hashes"""
@@ -289,9 +304,14 @@ class ScaledPairIdentifier:
         Returns:
             Hamming distance of *hash_type* between *parent* and *child*
         """
-        return hex_to_hash(parent_hash[f"{hash_type} hash"]) - hex_to_hash(
-            child_hash[f"{hash_type} hash"]
-        )
+        if hash_type == "color":
+            return hex_to_flathash(
+                parent_hash[f"{hash_type} hash"], 14
+            ) - hex_to_flathash(child_hash[f"{hash_type} hash"], 14)
+        else:
+            return hex_to_hash(parent_hash[f"{hash_type} hash"]) - hex_to_hash(
+                child_hash[f"{hash_type} hash"]
+            )
 
     def get_hashes(self, filename: str) -> pd.DataFrame:
         """
@@ -324,16 +344,18 @@ class ScaledPairIdentifier:
             )
             hashes.append(
                 {
-                    "filename": filename,
-                    "scale": scale,
-                    "width": width,
-                    "height": height,
-                    "mode": mode,
-                    "type": filetype,
-                    "average hash": str(average_hash(scaled_image)),
-                    "difference hash": str(dhash(scaled_image)),
-                    "perceptual hash": str(phash(scaled_image)),
-                    "wavelet hash": str(whash(scaled_image)),
+                    **{
+                        "filename": filename,
+                        "scale": scale,
+                        "width": width,
+                        "height": height,
+                        "mode": mode,
+                        "type": filetype,
+                    },
+                    **{
+                        f"{hash_type} hash": str(hash_function(scaled_image))
+                        for hash_type, hash_function in self.hash_types.items()
+                    },
                 }
             )
 
@@ -420,6 +442,7 @@ class ScaledPairIdentifier:
                 )
                 if result == 0:
                     break
+            self.save_image_set_image(parent_hash["filename"])
 
     def review_candidate_pairs(
         self,
@@ -471,11 +494,9 @@ class ScaledPairIdentifier:
         elif quit_re.match(response):
             return 0
 
-    def save_image_set_image(self, parent):
+    def save_image_set_image(self, parent: str):
         """Save scaled debug image"""
-        children = self.scaled_pairs.loc[
-            self.scaled_pairs["filename"] == parent, "scaled filename"
-        ]
+        children = list(self.get_pairs(parent)["scaled filename"])
         if len(children) > 0:
             image = self.get_hstacked_image(parent, *children)
             outfile = join(self.image_directory, f"{parent}.png")

@@ -109,7 +109,7 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
         # Prepare filename data structures
         self.reviewed_filenames = get_files(self.reviewed_directories, style="base")
         """Base filenames of images in classified directories"""
-        self.ignore_filenames = get_files(self.ignore_directories, style="base")
+        self.ignored_filenames = get_files(self.ignore_directories, style="base")
         """Base filenames of images to ignore"""
         self.rules = [(re.compile(regex), action) for regex, action in rules]
         """Rules by which to classify images"""
@@ -132,15 +132,15 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
             )
 
         # Initialize observed filename lister
-        self.observed_filenames = set()
-        if observed_filenames_infile is not None:
-            self.observed_filenames = get_files(observed_filenames_infile, style="base")
-        self.observed_filenames_outfile = None
+        # self.observed_filenames = set()
+        # if observed_filenames_infile is not None:
+        #     self.observed_filenames = get_files(observed_filenames_infile, style="base")
+        # self.observed_filenames_outfile = None
         """Text file to which to write observed filenames"""
-        if observed_filenames_outfile is not None:
-            self.observed_filenames_outfile = validate_output_file(
-                observed_filenames_outfile
-            )
+        # if observed_filenames_outfile is not None:
+        #     self.observed_filenames_outfile = validate_output_file(
+        #         observed_filenames_outfile
+        #     )
 
     def __call__(self, **kwargs: Any) -> Any:
         """
@@ -150,28 +150,25 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
             **kwargs: Additional keyword arguments
         """
 
-        # Prepare to run
-        self.remove_files_in_copy_directory()
+        # Prepare to for run
+        if isdir(self.copy_directory):
+            for filename in get_files(self.copy_directory, style="absolute"):
+                remove(filename)
         if self.remove_directory is not None:
             self.remove_files_in_remove_directory()
 
         # Search for scaled image pairs
         if self.scaled_pair_identifier is not None:
             self.scaled_pair_identifier.identify_pairs()
-        # self.process_files_in_input_directories()
+
+        # Perform operations
+        for filename in self.filenames:
+            status = self.get_status(filename)
+            self.perform_operation(filename, status)
         # self.write_observed_filenames_to_outfile()
 
         # Watch for new files
         # self.watch_new_files_in_input_directory()
-
-    def remove_files_in_copy_directory(self):
-        """
-        Remove existing files in the copy directory; which is refreshed from the input
-        directory with each run
-        """
-        if isdir(self.copy_directory):
-            for filename in get_files(self.copy_directory, style="absolute"):
-                remove(filename)
 
     def remove_files_in_remove_directory(self):
         """
@@ -209,54 +206,62 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
                         f"to scaled directory '{self.scaled_directory}'"
                     )
 
-    def process_files_in_input_directories(self):
-        """Process files in input directories"""
-        for filename in self.filenames:
-            self.perform_operation_for_filename(filename)
-
-    def perform_operation_for_filename(self, filename):
+    def perform_operation(self, filename: str, status: str) -> None:
         """Perform operations for filename"""
-        status = self.select_operation_for_filename(filename)
         if status == "known":
-            self.observed_filenames.add(filename)
-            debug(f"'{filename}' known")
+            # self.observed_filenames.add(filename)
+            debug(f"'{self.filenames[filename]}' known")
         elif status == "ignore":
-            debug(f"'{filename}' ignored")
+            debug(f"'{self.filenames[filename]}' ignored")
+        elif status == "scaled":
+            if not self.filenames[filename].startswith(self.scaled_directory):
+                if not isdir(self.scaled_directory):
+                    makedirs(self.scaled_directory)
+                    info(f"'{self.scaled_directory}' created")
+                source = self.filenames[filename]
+                destination = join(self.scaled_directory, basename(source))
+                move(source, destination)
+                info(f"'{source}' moved to '{destination}'")
+            else:
+                debug(f"'{self.filenames[filename]}' scaled")
         elif status == "copy":
             if not isdir(self.copy_directory):
                 makedirs(self.copy_directory)
                 info(f"'{self.copy_directory}' created")
-            copy(
-                f"{self.input_directories}/{filename}.png",
-                f"{self.copy_directory}/{filename}.png",
-            )
-            info(f"'{filename}' copied to '{self.copy_directory}'")
+            source = self.filenames[filename]
+            destination = join(self.copy_directory, basename(source))
+            copy(source, destination)
+            info(f"'{source}' copied to '{destination}'")
         elif status == "move":
             if not isdir(self.move_directory):
                 makedirs(self.move_directory)
                 info(f"'{self.move_directory}' created")
-            move(
-                f"{self.input_directories}/{filename}.png",
-                f"{self.move_directory}/{filename}.png",
-            )
-            info(f"'{filename}' moved to '{self.move_directory}'")
+            source = self.filenames[filename]
+            destination = join(self.move_directory, basename(source))
+            move(source, destination)
+            info(f"'{source}' moved to '{destination}'")
         elif status == "remove":
-            remove(f"{self.input_directories}/{filename}.png")
-            info(f"'{filename}' deleted")
+            remove(self.filenames[filename])
+            info(f"'{self.filenames[filename]}' deleted")
         else:
             raise ValueError()
 
-    def select_operation_for_filename(self, filename):
+    def get_status(self, filename: str) -> str:
         """Select operation for filename"""
+
+        if self.scaled_pair_identifier is not None:
+            if filename in self.scaled_pair_identifier.children:
+                return "scaled"
 
         if filename in self.reviewed_filenames:
             return "known"
 
-        for rule in self.rules:
-            regex = next(iter(rule))
-            action = rule[next(iter(rule))]
+        if filename in self.ignored_filenames:
+            return "ignore"
+
+        for regex, status in self.rules:
             if regex.match(filename):
-                return action
+                return status
 
         return "copy"
 
@@ -277,7 +282,7 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
             def on_created(self, event):
                 """action"""
                 filename = splitext(basename(event.key[1]))[0]
-                self.host.perform_operation_for_filename(filename)
+                self.host.perform_operation(filename)
 
         event_handler = FileCreatedEventHandler(self)
         observer = Observer()
