@@ -13,11 +13,11 @@ from argparse import ArgumentParser
 from inspect import cleandoc
 from typing import Any, List, Optional
 
-from pipescaler.common import CLTool
+from pipescaler.common import CommandLineTool
 from pipescaler.core.stage import Stage
 
 
-class Processor(Stage, CLTool):
+class Processor(Stage, CommandLineTool):
     """Base class for processors"""
 
     def __init__(self, suffix: Optional[str] = None, **kwargs: Any) -> None:

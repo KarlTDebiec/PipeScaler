@@ -12,11 +12,11 @@ from __future__ import annotations
 from abc import abstractmethod
 from typing import List
 
-from pipescaler.common import CLTool
+from pipescaler.common import CommandLineTool
 from pipescaler.core.stage import Stage
 
 
-class Terminus(Stage, CLTool):
+class Terminus(Stage, CommandLineTool):
     """Base class for termini"""
 
     def __call__(self, infile: str, outfile: str) -> None:

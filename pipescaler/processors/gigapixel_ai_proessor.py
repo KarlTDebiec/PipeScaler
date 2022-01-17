@@ -33,7 +33,7 @@ class GigapixelAiProcessor(Processor):
         """
         Validate and store configuration
 
-        Args:
+        Arguments:
             command: Path to Gigapixel AI executable
             match_input_mode: Ensure output image mode matches input image mode
             **kwargs: Additional keyword arguments
@@ -128,7 +128,7 @@ class GigapixelAiProcessor(Processor):
         Click a provided button; uses click_input rather than click, which doesn't
         seem to work for this application
 
-        Args:
+        Arguments:
             button: Button to click
         """
         self.window.set_focus()
@@ -150,7 +150,7 @@ class GigapixelAiProcessor(Processor):
         """
         Completes an open file dialog with a provided filename
 
-        Args:
+        Arguments:
             dialog: Open file dialog to complete
             filename: Filename with which to complete open file dialog
         """
@@ -163,7 +163,7 @@ class GigapixelAiProcessor(Processor):
         """
         Completes a select folder dialog
 
-        Args:
+        Arguments:
             dialog: Select folder dialog to complete
             directory: Directory which which to complete select folder dialog
         """

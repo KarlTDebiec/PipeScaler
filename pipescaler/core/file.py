@@ -27,7 +27,7 @@ def get_files_in_directory(
     """
     Get filenames within provided directory.
 
-    Args:
+    Arguments:
         directory: Directory from which to get filenames
         style: Style in which to get filenames, may be 'absolute' for the complete
           path, 'base' for the filename excluding extension, and 'full' for the filename
@@ -66,7 +66,7 @@ def get_files_in_text_file(
     """
     Get filenames within provided text file.
 
-    Args:
+    Arguments:
         text_file: Text file from which to get filenames
         style: Style in which to get filenames, may be 'absolute' for the complete
           path, 'base' for the filename excluding extension, and 'full' for the filename
@@ -109,7 +109,7 @@ def get_files(
     """
     Get filenames from provided sources, which may be either directories or text files.
 
-    Args:
+    Arguments:
         sources: Directories and text files from which to get filenames
         style: Style in which to get filenames, may be 'absolute' for the complete
           path, 'base' for the filename excluding extension, and 'full' for the filename
@@ -133,7 +133,7 @@ def get_files(
         """
         Gets a filename in configured style.
 
-        Args:
+        Arguments:
             file_source: Filename
 
         Returns:
@@ -161,15 +161,15 @@ def get_files(
             directory = validate_input_path(source, directory_ok=True, file_ok=False)
             files |= get_files_in_directory(directory, style, exclusions)
         except (DirectoryNotFoundError, NotADirectoryError):
-            guessed_type = guess_type(source)[0]
-            if guessed_type in ["image/png"]:
-                files.add(get_file(source))
-            else:
-                try:
-                    text_file = validate_input_path(source)
-                    files |= get_files_in_text_file(text_file, style, exclusions)
-                except (FileNotFoundError, NotAFileError, UnicodeDecodeError):
+            try:
+                file = validate_input_path(source, directory_ok=False, file_ok=True)
+                guessed_type = guess_type(file)[0]
+                if guessed_type in ["image/png"]:
                     files.add(get_file(source))
+                else:
+                    files |= get_files_in_text_file(file, style, exclusions)
+            except (FileNotFoundError, NotAFileError, UnicodeDecodeError):
+                continue
 
     return files
 
@@ -178,7 +178,7 @@ def read_yaml(infile: str) -> Any:
     """
     Reads a yaml file and returns the contents.
 
-    Args:
+    Arguments:
         infile: Path to input file
 
     Returns:

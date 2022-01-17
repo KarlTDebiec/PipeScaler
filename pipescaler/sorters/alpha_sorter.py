@@ -15,7 +15,7 @@ from typing import Any, List
 import numpy as np
 
 from pipescaler.common import validate_int
-from pipescaler.core import Sorter, UnsupportedImageModeError, validate_image
+from pipescaler.core import Sorter, validate_image
 
 
 class AlphaSorter(Sorter):

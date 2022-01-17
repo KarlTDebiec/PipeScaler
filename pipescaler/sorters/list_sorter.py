@@ -41,7 +41,7 @@ class ListSorter(Sorter):
         for outlet in self.outlets:
             for filename in get_files(
                 outlets.get(outlet, []),
-                style="absolute",
+                style="base",
                 exclusion_sources=self.exclusions,
             ):
                 if filename in self.outlets_by_filename:

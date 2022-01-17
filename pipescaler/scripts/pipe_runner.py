@@ -17,12 +17,12 @@ from typing import Any
 
 import yaml
 
-from pipescaler.common import CLTool, validate_input_path
+from pipescaler.common import CommandLineTool, validate_input_path
 from pipescaler.core.file import read_yaml
 from pipescaler.core.pipeline import Pipeline
 
 
-class PipeRunner(CLTool):
+class PipeRunner(CommandLineTool):
     """"""
 
     def __init__(self, conf_file: str, **kwargs: Any) -> None:
