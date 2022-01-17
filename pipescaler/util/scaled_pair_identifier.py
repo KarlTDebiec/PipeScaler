@@ -52,6 +52,7 @@ class ScaledPairIdentifier:
         pairs_file: str,
         hash_file: Optional[str] = None,
         image_directory: Optional[str] = None,
+        interactive: bool = True,
     ):
         """
         Args:
@@ -60,6 +61,7 @@ class ScaledPairIdentifier:
             pairs_file: CSV file to read/write scaled image pairs
             hash_file: CSV file to read/write cache of image hashes
             image_directory: Directory to which to write stacked scaled image sets
+            interactive: Whether or not to prompt for interactive review
         """
         # Store input and output paths
         self.filenames = filenames
@@ -109,6 +111,8 @@ class ScaledPairIdentifier:
         if isfile(self.pairs_file):
             self.pairs = pd.read_csv(self.pairs_file)
             info(f"Scaled image pairs read from '{self.pairs_file}'")
+
+        self.interactive = interactive
 
         # Prepare image sorters for image analysis
         self.alpha_sorter = AlphaSorter()
@@ -473,11 +477,15 @@ class ScaledPairIdentifier:
         parent = all_pairs.iloc[0]["filename"]
         children = list(all_pairs["scaled filename"])
 
-        self.get_hstacked_image(parent, *children).show()
+        if self.interactive:
+            self.get_hstacked_image(parent, *children).show()
         prompt = f"Confirm ({'y' * len(new_pairs)}/{'n' * len(new_pairs)})?: "
         accept_re = re.compile(f"^[yn]{{{len(new_pairs)}}}$", re.IGNORECASE)
         quit_re = re.compile("quit", re.IGNORECASE)
-        response = input(prompt).lower()
+        if self.interactive:
+            response = input(prompt).lower()
+        else:
+            response = "y" * len(new_pairs)
         if accept_re.match(response):
             scaled_pairs_modified = False
             for i in range(len(new_pairs)):
