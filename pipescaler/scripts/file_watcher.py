@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/scripts/directory_watcher.py
+#   pipescaler/scripts/file_watcher.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
@@ -23,7 +23,6 @@ from pipescaler.common import (
     DirectoryNotFoundError,
     validate_input_directory,
     validate_output_directory,
-    validate_output_file,
 )
 from pipescaler.core import ConfigurableCommandLineTool, get_files
 from pipescaler.util import ScaledPairIdentifier
@@ -33,7 +32,7 @@ pd.set_option(
 )
 
 
-class DirectoryWatcher(ConfigurableCommandLineTool):
+class FileWater(ConfigurableCommandLineTool):
     """Watches files in a directory"""
 
     exclusions = {".DS_Store", "desktop"}
@@ -309,4 +308,4 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
 
 
 if __name__ == "__main__":
-    DirectoryWatcher.main()
+    FileWater.main()
