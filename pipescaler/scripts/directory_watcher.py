@@ -136,7 +136,7 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
         # if observed_filenames_infile is not None:
         #     self.observed_filenames = get_files(observed_filenames_infile, style="base")
         # self.observed_filenames_outfile = None
-        """Text file to which to write observed filenames"""
+        # """Text file to which to write observed filenames"""
         # if observed_filenames_outfile is not None:
         #     self.observed_filenames_outfile = validate_output_file(
         #         observed_filenames_outfile
@@ -170,27 +170,24 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
         # Watch for new files
         # self.watch_new_files_in_input_directory()
 
-    def remove_files_in_remove_directory(self):
-        """
-        Remove existing files in the remove directory, as well as their source files in
-        the input directories; afterwards remove the remove directory itself
-        """
-        if self.remove_directory is not None:
-            remove_filenames = get_files(self.remove_directory, style="full")
-            for filename in remove_filenames:
-                for input_directory in self.input_directories:
-                    if isfile(join(input_directory, filename)):
-                        remove(join(input_directory, filename))
-                        info(
-                            f"'{filename}' removed from input directory "
-                            f"'{input_directory}'"
-                        )
-                if isfile(join(self.remove_directory, filename)):
-                    remove(join(self.remove_directory, filename))
-                    del self.filenames[splitext(filename)[0]]
-                    info(f"'{filename}' removed from remove directory")
-            rmdir(self.remove_directory)
-            info(f"'{self.remove_directory}' removed")
+    def get_status(self, filename: str) -> str:
+        """Select operation for filename"""
+
+        if self.scaled_pair_identifier is not None:
+            if filename in self.scaled_pair_identifier.children:
+                return "scaled"
+
+        if filename in self.reviewed_filenames:
+            return "known"
+
+        if filename in self.ignored_filenames:
+            return "ignore"
+
+        for regex, status in self.rules:
+            if regex.match(filename):
+                return status
+
+        return "copy"
 
     def move_children_to_scaled_directory(self):
         """Move children to scaled directory"""
@@ -247,24 +244,27 @@ class DirectoryWatcher(ConfigurableCommandLineTool):
         else:
             raise ValueError()
 
-    def get_status(self, filename: str) -> str:
-        """Select operation for filename"""
-
-        if self.scaled_pair_identifier is not None:
-            if filename in self.scaled_pair_identifier.children:
-                return "scaled"
-
-        if filename in self.reviewed_filenames:
-            return "known"
-
-        if filename in self.ignored_filenames:
-            return "ignore"
-
-        for regex, status in self.rules:
-            if regex.match(filename):
-                return status
-
-        return "copy"
+    def remove_files_in_remove_directory(self):
+        """
+        Remove existing files in the remove directory, as well as their source files in
+        the input directories; afterwards remove the remove directory itself
+        """
+        if self.remove_directory is not None:
+            remove_filenames = get_files(self.remove_directory, style="full")
+            for filename in remove_filenames:
+                for input_directory in self.input_directories:
+                    if isfile(join(input_directory, filename)):
+                        remove(join(input_directory, filename))
+                        info(
+                            f"'{filename}' removed from input directory "
+                            f"'{input_directory}'"
+                        )
+                if isfile(join(self.remove_directory, filename)):
+                    remove(join(self.remove_directory, filename))
+                    del self.filenames[splitext(filename)[0]]
+                    info(f"'{filename}' removed from remove directory")
+            rmdir(self.remove_directory)
+            info(f"'{self.remove_directory}' removed")
 
     def watch_new_files_in_input_directory(self):
         """Watch new files in input directory"""
