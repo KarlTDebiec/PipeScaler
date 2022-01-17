@@ -161,15 +161,15 @@ def get_files(
             directory = validate_input_path(source, directory_ok=True, file_ok=False)
             files |= get_files_in_directory(directory, style, exclusions)
         except (DirectoryNotFoundError, NotADirectoryError):
-            guessed_type = guess_type(source)[0]
-            if guessed_type in ["image/png"]:
-                files.add(get_file(source))
-            else:
-                try:
-                    text_file = validate_input_path(source)
-                    files |= get_files_in_text_file(text_file, style, exclusions)
-                except (FileNotFoundError, NotAFileError, UnicodeDecodeError):
+            try:
+                file = validate_input_path(source, directory_ok=False, file_ok=True)
+                guessed_type = guess_type(file)[0]
+                if guessed_type in ["image/png"]:
                     files.add(get_file(source))
+                else:
+                    files |= get_files_in_text_file(file, style, exclusions)
+            except (FileNotFoundError, NotAFileError, UnicodeDecodeError):
+                continue
 
     return files
 

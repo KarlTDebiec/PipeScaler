@@ -67,8 +67,10 @@ class PngquantExternalProcessor(Processor):
             command += f" --nofs"
         command += f" {infile} "
         debug(f"{self}: {command}")
-        exitcode, stdout, stderr = run_command(command, acceptable_exitcodes=[0, 98])
-        if exitcode == 98:
+        exitcode, stdout, stderr = run_command(
+            command, acceptable_exitcodes=[0, 98, 99]
+        )
+        if exitcode in [98, 99]:
             # pngquant may not save outfile if it is too large or low quality
             copyfile(infile, outfile)
 
