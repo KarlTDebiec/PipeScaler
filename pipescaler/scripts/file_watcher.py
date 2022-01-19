@@ -23,6 +23,7 @@ from pipescaler.common import (
     DirectoryNotFoundError,
     validate_input_directory,
     validate_output_directory,
+    validate_output_file,
 )
 from pipescaler.core import ConfigurableCommandLineTool, get_files
 from pipescaler.util import ScaledPairIdentifier
@@ -131,15 +132,15 @@ class FileWater(ConfigurableCommandLineTool):
             )
 
         # Initialize observed filename lister
-        # self.observed_filenames = set()
-        # if observed_filenames_infile is not None:
-        #     self.observed_filenames = get_files(observed_filenames_infile, style="base")
-        # self.observed_filenames_outfile = None
-        # """Text file to which to write observed filenames"""
-        # if observed_filenames_outfile is not None:
-        #     self.observed_filenames_outfile = validate_output_file(
-        #         observed_filenames_outfile
-        #     )
+        self.observed_filenames = set()
+        if observed_filenames_infile is not None:
+            self.observed_filenames = get_files(observed_filenames_infile, style="base")
+        self.observed_filenames_outfile = None
+        """Text file to which to write observed filenames"""
+        if observed_filenames_outfile is not None:
+            self.observed_filenames_outfile = validate_output_file(
+                observed_filenames_outfile
+            )
 
     def __call__(self, **kwargs: Any) -> Any:
         """
@@ -164,7 +165,8 @@ class FileWater(ConfigurableCommandLineTool):
         for filename in self.filenames:
             status = self.get_status(filename)
             self.perform_operation(filename, status)
-        # self.write_observed_filenames_to_outfile()
+        if self.observed_filenames_outfile is not None:
+            self.write_observed_filenames_to_outfile()
 
         # Watch for new files
         # self.watch_new_files_in_input_directory()
@@ -206,7 +208,7 @@ class FileWater(ConfigurableCommandLineTool):
     def perform_operation(self, filename: str, status: str) -> None:
         """Perform operations for filename"""
         if status == "known":
-            # self.observed_filenames.add(filename)
+            self.observed_filenames.add(filename)
             debug(f"'{self.filenames[filename]}' known")
         elif status == "ignore":
             debug(f"'{self.filenames[filename]}' ignored")
@@ -297,14 +299,13 @@ class FileWater(ConfigurableCommandLineTool):
 
     def write_observed_filenames_to_outfile(self):
         """Write observed filenames to outfile"""
-        if self.observed_filenames_outfile is not None:
-            with open(self.observed_filenames_outfile, "w") as outfile:
-                for filename in sorted(list(self.observed_filenames)):
-                    outfile.write(f"{filename}\n")
-                info(
-                    f"'{self.observed_filenames_outfile}' updated with "
-                    f"{len(self.observed_filenames)} filenames"
-                )
+        with open(self.observed_filenames_outfile, "w") as outfile:
+            for filename in sorted(list(self.observed_filenames)):
+                outfile.write(f"{filename}\n")
+            info(
+                f"'{self.observed_filenames_outfile}' updated with "
+                f"{len(self.observed_filenames)} filenames"
+            )
 
 
 if __name__ == "__main__":
