@@ -21,6 +21,7 @@ class ListSorter(Sorter):
     """Sorts image based on filename using a set of configured lists"""
 
     exclusions = {".DS_Store", "desktop"}
+    """Base filenames to exclude"""
 
     def __init__(self, outlets: Dict[str, List[str]], **kwargs: Any) -> None:
         """
@@ -42,7 +43,7 @@ class ListSorter(Sorter):
             for filename in get_files(
                 outlets.get(outlet, []),
                 style="base",
-                exclusion_sources=self.exclusions,
+                exclusions=self.exclusions,
             ):
                 if filename in self.outlets_by_filename:
                     duplicates[filename] = duplicates.get(
