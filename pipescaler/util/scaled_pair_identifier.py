@@ -121,7 +121,7 @@ class ScaledPairIdentifier:
         """Grayscale sorter"""
 
         # Hash images
-        self._hash_images()
+        self._calculate_all_hashes()
 
     @property
     def children(self) -> Set[str]:
@@ -133,8 +133,8 @@ class ScaledPairIdentifier:
         """Parent images"""
         return set(self.pairs["filename"])
 
-    def _hash_images(self):
-        """Calculate image hashes"""
+    def _calculate_all_hashes(self):
+        """Calculate all image hashes"""
         hashes_changed = False
         hashed_filenames = set(self.hashes["filename"])
 
@@ -224,6 +224,16 @@ class ScaledPairIdentifier:
     def calculate_pair_score(
         self, parent_hash: pd.Series, child_hash: pd.Series
     ) -> pd.Series:
+        """
+        Calculate hamming sum between a potential *parent_hash* and *child_hash*
+
+        Arguments:
+            parent_hash: Hash of potential parent
+            child_hash: Hash of potential child
+
+        Returns:
+            Potential parent/child pair information and score
+        """
         score = parent_hash.copy(deep=True)
         score["scaled filename"] = child_hash["filename"]
 
@@ -237,7 +247,17 @@ class ScaledPairIdentifier:
 
         return score
 
-    def get_hash(self, filename: str, scale: float = 1.0) -> pd.Series:
+    def get_hashes(self, filename: str, scale: float = 1.0) -> pd.Series:
+        """
+        Get hashes of *filename* at *scale*
+
+        Arguments:
+            filename: Base filename whose hashes to get
+            scale: Scale at which to get hashes
+
+        Returns:
+            Hashes of *filename* at *scale*
+        """
         return self.hashes.loc[
             (self.hashes["filename"] == filename) & (self.hashes["scale"] == scale)
         ].iloc[0]
@@ -292,12 +312,21 @@ class ScaledPairIdentifier:
         return self.pairs.loc[self.pairs["filename"] == parent]
 
     def get_pair_scores(self, parent: str) -> Optional[pd.DataFrame]:
-        parent_hash = self.get_hash(parent)
+        """
+        Get pair scores of *parent*
+
+        Arguments:
+            parent: Base filename of parent whose pairs to get
+
+        Returns:
+            Pair scores of *parent*
+        """
+        parent_hash = self.get_hashes(parent)
         pairs = self.get_pairs(parent)
         if len(pairs) > 1:
             scores = []
             for _, pair in pairs.iterrows():
-                child_hash = self.get_hash(pair["scaled filename"])
+                child_hash = self.get_hashes(pair["scaled filename"])
                 score = self.calculate_pair_score(parent_hash, child_hash)
                 scores.append(score)
             scores = pd.DataFrame(scores)
@@ -305,6 +334,15 @@ class ScaledPairIdentifier:
             return scores
 
     def get_pair_score_image(self, pair_scores) -> Image.Image:
+        """
+        Gets a concatenated image of images in *pair_scores*
+
+        Arguments:
+            pair_scores: Pair scores
+
+        Returns:
+            Concatenated image of images in *pair_scores*
+        """
         parent = pair_scores["filename"].values[0]
         children = list(pair_scores["scaled filename"].values)
         scores = list(pair_scores["hamming sum"].values)
