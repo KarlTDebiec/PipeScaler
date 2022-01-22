@@ -13,12 +13,12 @@ from glob import glob
 from importlib import import_module
 from logging import info, warning
 from os import listdir, makedirs, remove, rmdir
-from os.path import basename, isdir, isfile, join
+from os.path import isdir, isfile, join
 from pprint import pformat
 from shutil import copyfile
 from typing import Any, Dict, List, Optional, Union
 
-from pipescaler.common import UnsupportedPlatformError, validate_output_path
+from pipescaler.common import UnsupportedPlatformError, validate_output_directory
 from pipescaler.core.exception import TerminusReached
 from pipescaler.core.merger import Merger
 from pipescaler.core.pipe_image import PipeImage
@@ -50,11 +50,8 @@ class Pipeline:
             purge_wip: Purge files in wip_directory that are not intermediates of the
               current pipeline
         """
-
         # Store configuration
-        self.wip_directory = validate_output_path(
-            wip_directory, file_ok=False, directory_ok=True, create_directory=True
-        )
+        self.wip_directory = validate_output_directory(wip_directory)
         self.purge_wip = purge_wip
 
         # Load configuration
@@ -104,30 +101,9 @@ class Pipeline:
             info(f"{self}: '{infile}' processing started")
             source_image = PipeImage(infile)
 
-            # Create image working directory
-            image_directory = validate_output_path(
-                join(self.wip_directory, source_image.name),
-                file_ok=False,
-                directory_ok=True,
-                create_directory=True,
-            )
-
-            # Backup original image to working directory
-            # TODO: Should be handled within source, to support archive sources
-            image_backup = PipeImage(
-                join(image_directory, basename(source_image.full_path)), source_image
-            )
-            if not isfile(image_backup.full_path):
-                copyfile(source_image.full_path, image_backup.full_path)
-                info(
-                    f"{self}: '{source_image.full_path}' "
-                    f"copied to '{image_backup.full_path}'"
-                )
-            self.log_wip_file(image_backup.full_path)
-
             # Flow into pipeline
             try:
-                self.run_route(self.pipeline[1:], image_backup)
+                self.run_route(self.pipeline[1:], source_image)
             except TerminusReached:
                 continue
             except UnsupportedPlatformError as error:
@@ -355,6 +331,27 @@ class Pipeline:
 
         return pipeline
 
+    def create_image_wip_directory(self, source_image: PipeImage):
+        # Create image working directory
+        image_wip_directory = validate_output_directory(
+            join(self.wip_directory, source_image.base_filename)
+        )
+
+        # Copy initial image to working directory
+        initial_image = PipeImage(
+            join(image_wip_directory, source_image.full_filename),
+            source_image,
+        )
+        if not isfile(initial_image.absolute_filename):
+            copyfile(source_image.absolute_filename, initial_image.absolute_filename)
+            info(
+                f"{self}: '{source_image.absolute_filename}' "
+                f"copied to '{initial_image.absolute_filename}'"
+            )
+        self.log_wip_file(initial_image.absolute_filename)
+
+        return initial_image
+
     def log_wip_file(self, wip_filename: str) -> None:
         """
         Mark an intermediate file as having been covered by this pipeline
@@ -391,6 +388,8 @@ class Pipeline:
 
         # Prepare output image
         first_input = next(iter(input.values()))
+        if first_input.parent is None:
+            raise ValueError(f"Input images to merge should already have wip directory")
         output = first_input.get_child(
             directory=join(self.wip_directory, first_input.name),
             suffix=stage.suffix,
@@ -399,14 +398,14 @@ class Pipeline:
         )
 
         # Check if output image exists, and if not, run stage
-        if not isfile(output.full_path):
+        if not isfile(output.absolute_filename):
             stage(
-                outfile=output.full_path,
-                **{inlet: input.full_path for inlet, input in input.items()},
+                outfile=output.absolute_filename,
+                **{inlet: input.absolute_filename for inlet, input in input.items()},
             )
         else:
-            info(f"{self}: '{output.full_path}' already exists")
-        self.log_wip_file(output.full_path)
+            info(f"{self}: '{output.absolute_filename}' already exists")
+        self.log_wip_file(output.absolute_filename)
 
         # Route merged image to downstream pipeline
         return self.run_route(downstream_pipeline, output)
@@ -437,6 +436,8 @@ class Pipeline:
             raise ValueError()
 
         # Prepare output image
+        if input.parent is None:
+            input = self.create_image_wip_directory(input)
         output = input.get_child(
             directory=join(self.wip_directory, input.name),
             suffix=stage.suffix,
@@ -445,11 +446,11 @@ class Pipeline:
         )
 
         # Check if output image exists, and if not, run processor
-        if not isfile(output.full_path):
-            stage(input.full_path, output.full_path)
+        if not isfile(output.absolute_filename):
+            stage(input.absolute_filename, output.absolute_filename)
         else:
-            info(f"{self}: '{output.full_path}' already exists")
-        self.log_wip_file(output.full_path)
+            info(f"{self}: '{output.absolute_filename}' already exists")
+        self.log_wip_file(output.absolute_filename)
 
         # Route output image to downstream pipeline
         return self.run_route(downstream_pipeline, output)
@@ -520,7 +521,7 @@ class Pipeline:
             raise ValueError()
 
         # Determine into which outlet input_image should flow
-        outlet = stage(infile=input.full_path)
+        outlet = stage(infile=input.absolute_filename)
         if outlet is None and "default" in stage_pipeline:
             outlet_pipeline = stage_pipeline.get("default")
         else:
@@ -557,6 +558,8 @@ class Pipeline:
             raise ValueError()
 
         # Prepare output images
+        if input.parent is None:
+            input = self.create_image_wip_directory(input)
         outputs = {
             outlet: input.get_child(
                 directory=join(self.wip_directory, input.name),
@@ -570,17 +573,20 @@ class Pipeline:
         # Check if all output images, and if not, run splitter
         to_run = False
         for output in outputs.values():
-            if not isfile(output.full_path):
+            if not isfile(output.absolute_filename):
                 to_run = True
             else:
-                info(f"{self}: '{output.full_path}' already exists")
+                info(f"{self}: '{output.absolute_filename}' already exists")
         if to_run:
             stage(
-                infile=input.full_path,
-                **{outlet: output.full_path for outlet, output in outputs.items()},
+                infile=input.absolute_filename,
+                **{
+                    outlet: output.absolute_filename
+                    for outlet, output in outputs.items()
+                },
             )
         for output in outputs.values():
-            self.log_wip_file(output.full_path)
+            self.log_wip_file(output.absolute_filename)
 
         # Route each output image through its downstream pipeline
         downstream_input = {}
@@ -635,5 +641,5 @@ class Pipeline:
             raise ValueError()
 
         outfile = f"{join(stage.directory, input.name)}.{input.extension}"
-        stage(input.full_path, outfile)
+        stage(input.absolute_filename, outfile)
         raise TerminusReached(outfile)
