@@ -10,10 +10,11 @@
 from __future__ import annotations
 
 from logging import info, warning
-from os.path import basename, dirname
+from os.path import basename, dirname, splitext
 from pprint import pformat
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
+from pipescaler.common import validate_output_directory
 from pipescaler.core import Sorter, get_files
 
 
@@ -21,13 +22,22 @@ class ListSorter(Sorter):
     """Sorts image based on filename using a set of configured lists"""
 
     exclusions = {".DS_Store", "desktop"}
+    """Base filenames to exclude"""
 
-    def __init__(self, outlets: Dict[str, List[str]], **kwargs: Any) -> None:
+    def __init__(
+        self,
+        outlets: Dict[str, List[str]],
+        wip_directory: Optional[str] = None,
+        **kwargs: Any,
+    ) -> None:
         """
         Validate and store configuration
 
         Arguments:
             outlets: Outlet configuration
+            wip_directory: Work-in-progress directory; workaround used to handle
+              potential file locations both inside and outside of a pipeline's
+              wip_directory
             **kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
@@ -35,6 +45,9 @@ class ListSorter(Sorter):
         # Store configuration
         self._outlets = list(outlets.keys())
         self.outlets_by_filename = {}
+        self.wip_directory = None
+        if wip_directory is not None:
+            self.wip_directory = validate_output_directory(wip_directory)
 
         # Organize downstream outlets
         duplicates = {}
@@ -42,7 +55,7 @@ class ListSorter(Sorter):
             for filename in get_files(
                 outlets.get(outlet, []),
                 style="base",
-                exclusion_sources=self.exclusions,
+                exclusions=self.exclusions,
             ):
                 if filename in self.outlets_by_filename:
                     duplicates[filename] = duplicates.get(
@@ -70,7 +83,10 @@ class ListSorter(Sorter):
             Outlet
         """
         # Identify image
-        name = basename(dirname(infile))
+        if self.wip_directory is not None and not infile.startswith(self.wip_directory):
+            name = splitext(basename(infile))[0]
+        else:
+            name = basename(dirname(infile))
 
         # Sort image
         outlet = self.outlets_by_filename.get(name, None)

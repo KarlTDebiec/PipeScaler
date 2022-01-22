@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from typing import Any, List, Union
 
-from pipescaler.common import validate_input_path
+from pipescaler.common import validate_input_directory
 from pipescaler.core import Source, get_files
 
 
@@ -19,6 +19,7 @@ class DirectorySource(Source):
     """Yields images from a directory"""
 
     exclusions = {".DS_Store", "desktop"}
+    """Base filenames to exclude"""
 
     def __init__(
         self,
@@ -31,7 +32,7 @@ class DirectorySource(Source):
 
         Arguments:
             directory: Directory from which to yield files
-            exclusions: Names of files to exclude
+            exclusions: Base filenames to exclude
             **kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
@@ -43,14 +44,10 @@ class DirectorySource(Source):
         # Store configuration
         if isinstance(directory, str):
             directory = [directory]
-        self.directories = [
-            validate_input_path(d, file_ok=False, directory_ok=True) for d in directory
-        ]
+        self.directories = [validate_input_directory(d) for d in directory]
 
         # Store list of filenames
-        filenames = get_files(
-            self.directories, style="absolute", exclusion_sources=exclusions
-        )
+        filenames = get_files(self.directories, style="absolute", exclusions=exclusions)
         filenames = list(filenames)
         filenames.sort(key=self.sort, reverse=True)
         self.filenames = filenames

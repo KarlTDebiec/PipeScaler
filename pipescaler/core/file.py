@@ -102,9 +102,9 @@ def get_files_in_text_file(
 
 
 def get_files(
-    sources: Union[str, List[str], Set[str]],
+    sources: Union[str, List[str]],
     style: str = "base",
-    exclusion_sources: Optional[Union[str, List[str], Set[str]]] = None,
+    exclusions: Optional[Set[str]] = None,
 ) -> Set[str]:
     """
     Get filenames from provided sources, which may be either directories or text files.
@@ -114,17 +114,15 @@ def get_files(
         style: Style in which to get filenames, may be 'absolute' for the complete
           path, 'base' for the filename excluding extension, and 'full' for the filename
           including extension
-        exclusion_sources: Directories and text files from which to get base names of
-          files to exclude
+        exclusions: Base filenames to exclude
 
     Returns:
         Filenames in configured style
     """
     if style not in ["absolute", "base", "full"]:
         raise ValueError()
-    exclusions = set()
-    if exclusion_sources is not None:
-        exclusions = get_files(sources=exclusion_sources, style="base")
+    if exclusions is None:
+        exclusions = set()
     if isinstance(sources, str):
         sources = [sources]
     files = set()
