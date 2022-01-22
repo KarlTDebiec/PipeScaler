@@ -18,9 +18,13 @@ from pipescaler.core.image import (
     crop_image,
     expand_image,
     generate_normal_map_from_height_map_image,
+    get_font_size,
+    get_text_size,
     hstack_images,
+    label_image,
     remove_palette_from_image,
     smooth_image,
+    vstack_images,
 )
 from pipescaler.core.merger import Merger
 from pipescaler.core.pipe_image import PipeImage
@@ -52,8 +56,12 @@ __all__: List[str] = [
     "initialize_stage",
     "generate_normal_map_from_height_map_image",
     "get_files",
+    "get_font_size",
+    "get_text_size",
+    "label_image",
     "remove_palette_from_image",
     "hstack_images",
     "validate_image",
     "validate_image_and_convert_mode",
+    "vstack_images",
 ]

@@ -10,7 +10,7 @@
 from __future__ import annotations
 
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 from scipy.ndimage import convolve
 
 
@@ -125,6 +125,51 @@ def generate_normal_map_from_height_map_image(image: Image.Image) -> Image.Image
     return output_image
 
 
+def get_font_size(
+    text: str,
+    width: int,
+    height: int,
+    proportional_height: float = 0.2,
+    font: str = "arial",
+):
+    """
+    Get the font size at which *text* drawn with *font* will take up
+    *proportional_height* of an image of *width* and *height*
+
+    Arguments:
+        text: Text to get size of
+        width: Width of image
+        height: Height of image
+        proportional_height: Proportion of height which text should take up
+        font: Font
+
+    Returns:
+        Font size at which text will take up proportional height of image
+    """
+    observed_width, observed_height = get_text_size(text, width, height, font, 100)
+    return round(100 / (observed_height / height) * proportional_height)
+
+
+def get_text_size(
+    text: str, width: int, height: int, font: str = "arial", size: int = 100
+):
+    """
+    Get the size of *text* drawn with *font* at *size* on image of *width* and *height*
+
+    Arguments:
+        text: Text to get size of
+        width: width of image
+        height: Height of image
+        font: Font
+        size: Font size
+
+    Returns:
+
+    """
+    image = Image.new("L", (width, height))
+    return ImageDraw.Draw(image).textsize(text, ImageFont.truetype(font, size))
+
+
 def hstack_images(*images: Image.Image) -> Image.Image:
     """
     Horizontally stack images; rescaled to size of first image
@@ -143,6 +188,37 @@ def hstack_images(*images: Image.Image) -> Image.Image:
         else:
             stacked.paste(image.resize(size, resample=Image.NEAREST), (size[0] * i, 0))
     return stacked
+
+
+def label_image(image: Image.Image, text: str) -> Image.Image:
+    """
+    Label an image in its upper left corner
+
+    Arguments:
+        image: Image to label
+        text: Text with which to label image
+
+    Returns:
+        Labeled image
+    """
+    labeled_image = image.copy()
+
+    ImageDraw.Draw(labeled_image).text(
+        (
+            round(image.width * 0.025),
+            round(image.height * 0.025),
+        ),
+        text,
+        font=ImageFont.truetype(
+            "arial",
+            get_font_size(text, image.width, image.height),
+        ),
+        stroke="white",
+        stroke_fill="black",
+        stroke_width=2,
+    )
+
+    return labeled_image
 
 
 def remove_palette_from_image(image: Image.Image) -> Image.Image:
@@ -206,3 +282,23 @@ def smooth_image(image: Image.Image, sigma: float) -> Image.Image:
     smoothed = Image.fromarray(smoothed_array)
 
     return smoothed
+
+
+def vstack_images(*images: Image.Image) -> Image.Image:
+    """
+    Vertically stack images; rescaled to size of first image
+
+    Arguments:
+        *images: Images to stack
+
+    Returns:
+        Vertically stacked images
+    """
+    size = images[0].size
+    stacked = Image.new("RGBA", (size[0], size[1] * len(images)))
+    for i, image in enumerate(images):
+        if image.size == size:
+            stacked.paste(image, (0, size[1] * i))
+        else:
+            stacked.paste(image.resize(size, resample=Image.NEAREST), (0, size[1] * i))
+    return stacked
