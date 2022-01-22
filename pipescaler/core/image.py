@@ -132,6 +132,20 @@ def get_font_size(
     proportional_height: float = 0.2,
     font: str = "arial",
 ):
+    """
+    Get the font size at which *text* drawn with *font* will take up
+    *proportional_height* of an image of *width* and *height*
+
+    Arguments:
+        text: Text to get size of
+        width: Width of image
+        height: Height of image
+        proportional_height: Proportion of height which text should take up
+        font: Font
+
+    Returns:
+        Font size at which text will take up proportional height of image
+    """
     observed_width, observed_height = get_text_size(text, width, height, font, 100)
     return round(100 / (observed_height / height) * proportional_height)
 
@@ -139,6 +153,19 @@ def get_font_size(
 def get_text_size(
     text: str, width: int, height: int, font: str = "arial", size: int = 100
 ):
+    """
+    Get the size of *text* drawn with *font* at *size* on image of *width* and *height*
+
+    Arguments:
+        text: Text to get size of
+        width: width of image
+        height: Height of image
+        font: Font
+        size: Font size
+
+    Returns:
+
+    """
     image = Image.new("L", (width, height))
     return ImageDraw.Draw(image).textsize(text, ImageFont.truetype(font, size))
 
@@ -164,6 +191,16 @@ def hstack_images(*images: Image.Image) -> Image.Image:
 
 
 def label_image(image: Image.Image, text: str) -> Image.Image:
+    """
+    Label an image in its upper left corner
+
+    Arguments:
+        image: Image to label
+        text: Text with which to label image
+
+    Returns:
+        Labeled image
+    """
     labeled_image = image.copy()
 
     ImageDraw.Draw(labeled_image).text(
