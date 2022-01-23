@@ -192,6 +192,7 @@ class ScaledPairIdentifier:
             mode = "L"
         if self.alpha_sorter(absolute_filename) == "keep_alpha":
             mode += "A"
+        image = image.convert(mode)
         filetype = filename.split("_")[-1]
         hashes = []
         for scale in np.array([1 / (2 ** x) for x in range(0, 7)]):
@@ -202,6 +203,21 @@ class ScaledPairIdentifier:
             scaled_image = (
                 image.resize((width, height), Image.LANCZOS) if scale != 1.0 else image
             )
+            scaled_channels = []
+            if mode == "L":
+                scaled_channels.append(scaled_image)
+            elif mode == "LA":
+                scaled_channels.append(Image.fromarray(np.array(scaled_image)[:, :, 0]))
+                scaled_channels.append(Image.fromarray(np.array(scaled_image)[:, :, 1]))
+            elif mode == "RGB":
+                scaled_channels.append(Image.fromarray(np.array(scaled_image)[:, :, 0]))
+                scaled_channels.append(Image.fromarray(np.array(scaled_image)[:, :, 1]))
+                scaled_channels.append(Image.fromarray(np.array(scaled_image)[:, :, 2]))
+            elif mode == "RGBA":
+                scaled_channels.append(Image.fromarray(np.array(scaled_image)[:, :, 0]))
+                scaled_channels.append(Image.fromarray(np.array(scaled_image)[:, :, 1]))
+                scaled_channels.append(Image.fromarray(np.array(scaled_image)[:, :, 2]))
+                scaled_channels.append(Image.fromarray(np.array(scaled_image)[:, :, 3]))
             hashes.append(
                 {
                     **{
@@ -213,7 +229,9 @@ class ScaledPairIdentifier:
                         "type": filetype,
                     },
                     **{
-                        f"{hash_type} hash": str(hash_function(scaled_image))
+                        f"{hash_type} hash": "_".join(
+                            [str(hash_function(c)) for c in scaled_channels]
+                        )
                         for hash_type, hash_function in self.hash_types.items()
                     },
                 }
