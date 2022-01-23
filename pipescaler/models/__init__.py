@@ -12,7 +12,9 @@ from __future__ import annotations
 from typing import List
 
 from pipescaler.models.waifu_upcon7 import WaifuUpconv7
+from pipescaler.models.waifu_vgg7 import WaifuVgg7
 
 __all__: List[str] = [
+    "WaifuVgg7",
     "WaifuUpconv7",
 ]

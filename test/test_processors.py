@@ -492,24 +492,30 @@ def test_threshold(infile: str, threshold_processor: ThresholdProcessor) -> None
 
 @pytest.mark.serial
 @pytest.mark.parametrize(
-    ("infile", "waifu_processor"),
+    ("infile", "scale", "waifu_processor"),
     [
-        (
-            infiles["RGB"],
-            {"model_infile": waifu_models["noise3_scale2.0x_model"]},
+        (infiles["L"], 2, {"model_infile": waifu_models["WaifuUpConv7/a-2-3"]}),
+        (infiles["L"], 1, {"model_infile": waifu_models["WaifuVgg7/a-1-3"]}),
+        xfail_unsupported_mode()(
+            infiles["LA"], 2, {"model_infile": waifu_models["WaifuUpConv7/a-2-3"]}
+        ),
+        (infiles["RGB"], 2, {"model_infile": waifu_models["WaifuUpConv7/a-2-3"]}),
+        (infiles["RGB"], 1, {"model_infile": waifu_models["WaifuVgg7/a-1-3"]}),
+        xfail_unsupported_mode()(
+            infiles["RGBA"], 2, {"model_infile": waifu_models["WaifuUpConv7/a-2-3"]}
         ),
     ],
     indirect=["waifu_processor"],
 )
-def test_waifu(infile: str, waifu_processor: WaifuProcessor) -> None:
+def test_waifu(infile: str, scale: int, waifu_processor: WaifuProcessor) -> None:
     with temporary_filename(".png") as outfile:
         waifu_processor(infile, outfile)
 
         with Image.open(infile) as input_image, Image.open(outfile) as output_image:
             assert output_image.mode == expected_output_mode(input_image)
             assert output_image.size == (
-                input_image.size[0] * 2,
-                input_image.size[1] * 2,
+                input_image.size[0] * scale,
+                input_image.size[1] * scale,
             )
 
 
