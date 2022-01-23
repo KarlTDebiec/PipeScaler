@@ -12,9 +12,9 @@ from __future__ import annotations
 from typing import List
 
 from pipescaler.util.scaled_pair_identifier import ScaledPairIdentifier
-from pipescaler.util.waifu_pytorch_pickler import WaifuPytorchPickler
+from pipescaler.util.waifu_pytorch_pickler import WaifuPyTorchPickler
 
 __all__: List[str] = [
     "ScaledPairIdentifier",
-    "WaifuPytorchPickler",
+    "WaifuPyTorchPickler",
 ]

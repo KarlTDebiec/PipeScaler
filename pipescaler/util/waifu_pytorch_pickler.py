@@ -26,7 +26,7 @@ from pipescaler.common import (
 from pipescaler.models import WaifuUpConv7, WaifuVgg7
 
 
-class WaifuPytorchPickler(CommandLineTool):
+class WaifuPyTorchPickler(CommandLineTool):
     """
     Converts Waifu models in JSON format to PyTorch's serialized pth format
 
@@ -108,4 +108,4 @@ class WaifuPytorchPickler(CommandLineTool):
 
 
 if __name__ == "__main__":
-    WaifuPytorchPickler.main()
+    WaifuPyTorchPickler.main()
