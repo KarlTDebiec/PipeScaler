@@ -334,7 +334,7 @@ class Pipeline:
     def create_image_wip_directory(self, source_image: PipeImage):
         # Create image working directory
         image_wip_directory = validate_output_directory(
-            join(self.wip_directory, source_image.base_filename)
+            join(self.wip_directory, source_image.base_filename), create_directory=True
         )
 
         # Copy initial image to working directory
