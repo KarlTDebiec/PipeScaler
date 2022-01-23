@@ -23,7 +23,7 @@ from pipescaler.common import (
     validate_output_file,
     validate_str,
 )
-from pipescaler.models import WaifuUpconv7, WaifuVgg7
+from pipescaler.models import WaifuUpConv7, WaifuVgg7
 
 
 class WaifuPytorchPickler(CommandLineTool):
@@ -35,7 +35,7 @@ class WaifuPytorchPickler(CommandLineTool):
     """
 
     architectures = {
-        "upconv7": WaifuUpconv7,
+        "upconv7": WaifuUpConv7,
         "vgg7": WaifuVgg7,
     }
 

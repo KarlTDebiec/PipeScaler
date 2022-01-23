@@ -13,7 +13,7 @@ from torch import Tensor
 from torch.nn import Conv2d, ConvTranspose2d, LeakyReLU, Module, Sequential, ZeroPad2d
 
 
-class WaifuUpconv7(Module):
+class WaifuUpConv7(Module):
     """Waifu2x Upconv7 model"""
 
     def __init__(self):
