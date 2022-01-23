@@ -75,7 +75,9 @@ class ScaledPairIdentifier:
         self.image_directory = None
         """Directory to which to write stacked scaled image sets"""
         if image_directory is not None:
-            self.image_directory = validate_output_directory(image_directory)
+            self.image_directory = validate_output_directory(
+                image_directory, create_directory=True
+            )
 
         # Prepare DatFrame of image hashes
         self.hashes = pd.DataFrame(
