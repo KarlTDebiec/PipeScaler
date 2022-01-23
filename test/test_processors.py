@@ -16,6 +16,7 @@ from shared import (
     expected_output_mode,
     infiles,
     skip_if_ci,
+    waifu_models,
     xfail_if_platform,
     xfail_unsupported_mode,
 )
@@ -36,6 +37,7 @@ from pipescaler.processors import (
     TexconvExternalProcessor,
     ThresholdProcessor,
     WaifuExternalProcessor,
+    WaifuProcessor,
     XbrzProcessor,
 )
 
@@ -110,6 +112,11 @@ def threshold_processor(request) -> ThresholdProcessor:
 @pytest.fixture()
 def waifu_external_processor(request) -> WaifuExternalProcessor:
     return WaifuExternalProcessor(**request.param)
+
+
+@pytest.fixture()
+def waifu_processor(request) -> WaifuProcessor:
+    return WaifuProcessor(**request.param)
 
 
 @pytest.fixture()
@@ -481,6 +488,29 @@ def test_threshold(infile: str, threshold_processor: ThresholdProcessor) -> None
             assert output_image.mode == "L"
             assert output_image.size == input_image.size
             assert np.logical_or(output_datum == 0, output_datum == 255).all()
+
+
+@pytest.mark.serial
+@pytest.mark.parametrize(
+    ("infile", "waifu_processor"),
+    [
+        (
+            infiles["RGB"],
+            {"model_infile": waifu_models["noise3_scale2.0x_model"]},
+        ),
+    ],
+    indirect=["waifu_processor"],
+)
+def test_waifu(infile: str, waifu_processor: WaifuProcessor) -> None:
+    with temporary_filename(".png") as outfile:
+        waifu_processor(infile, outfile)
+
+        with Image.open(infile) as input_image, Image.open(outfile) as output_image:
+            assert output_image.mode == expected_output_mode(input_image)
+            assert output_image.size == (
+                input_image.size[0] * 2,
+                input_image.size[1] * 2,
+            )
 
 
 @pytest.mark.serial

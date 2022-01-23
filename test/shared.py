@@ -32,8 +32,12 @@ alt_infiles = {
     ]
 }
 esrgan_models = {
-    f[:-4]: join(dirname(package_root), "test", "data", "models", f)
+    f[:-4]: join(dirname(package_root), "test", "data", "models", "ESRGAN", f)
     for f in ["1x_BC1-smooth2.pth", "RRDB_ESRGAN_x4.pth", "RRDB_ESRGAN_x4_old_arch.pth"]
+}
+waifu_models = {
+    f[:-4]: join(dirname(package_root), "test", "data", "models", "WaifuUpConv7", f)
+    for f in ["noise3_scale2.0x_model.pth"]
 }
 infiles = {
     splitext(f[-1])[0]: join(dirname(package_root), "test", "data", "infiles", *f)
