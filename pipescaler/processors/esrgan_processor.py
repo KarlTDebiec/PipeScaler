@@ -19,6 +19,7 @@ from typing import Any, Dict, OrderedDict, Tuple
 import numpy as np
 import torch
 from PIL import Image
+from torch.nn import Conv2d, LeakyReLU, Sequential
 
 from pipescaler.common import validate_input_path
 from pipescaler.core import Processor, validate_image_and_convert_mode
@@ -73,19 +74,19 @@ class ESRGANProcessor(Processor):
                 layers = []
                 for _ in range(n_layers):
                     layers.append(block())
-                return torch.nn.Sequential(*layers)
+                return Sequential(*layers)
 
             super().__init__()
             RRDB_block_f = partial(ESRGANProcessor.RRDB, nf=nf, gc=gc)
 
-            self.conv_first = torch.nn.Conv2d(in_nc, nf, 3, 1, 1, bias=True)
+            self.conv_first = Conv2d(in_nc, nf, 3, 1, 1, bias=True)
             self.RRDB_trunk = make_layer(RRDB_block_f, nb)
-            self.trunk_conv = torch.nn.Conv2d(nf, nf, 3, 1, 1, bias=True)
+            self.trunk_conv = Conv2d(nf, nf, 3, 1, 1, bias=True)
 
-            self.HRconv = torch.nn.Conv2d(nf, nf, 3, 1, 1, bias=True)
-            self.conv_last = torch.nn.Conv2d(nf, out_nc, 3, 1, 1, bias=True)
+            self.HRconv = Conv2d(nf, nf, 3, 1, 1, bias=True)
+            self.conv_last = Conv2d(nf, out_nc, 3, 1, 1, bias=True)
 
-            self.lrelu = torch.nn.LeakyReLU(negative_slope=0.2, inplace=True)
+            self.lrelu = LeakyReLU(negative_slope=0.2, inplace=True)
 
             self.n_upscale = 0
             self.nf = nf
@@ -95,7 +96,7 @@ class ESRGANProcessor(Processor):
 
             # build upconv layers based on model scale
             for n in range(1, self.n_upscale + 1):
-                upconv = torch.nn.Conv2d(self.nf, self.nf, 3, 1, 1, bias=True)
+                upconv = Conv2d(self.nf, self.nf, 3, 1, 1, bias=True)
                 setattr(self, "upconv%d" % n, upconv)
 
             return super().load_state_dict(state_dict, strict)

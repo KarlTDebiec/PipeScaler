@@ -1,20 +1,20 @@
 #!/usr/bin/env python
-#   pipescaler/util/__init__.py
+#   pipescaler/models/__init__.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Pipescaler utilities"""
+"""Models"""
 from __future__ import annotations
 
 from typing import List
 
-from pipescaler.util.scaled_pair_identifier import ScaledPairIdentifier
-from pipescaler.util.waifu_pytorch_pickler import WaifuPyTorchPickler
+from pipescaler.models.waifu_upconv7 import WaifuUpConv7
+from pipescaler.models.waifu_vgg7 import WaifuVgg7
 
 __all__: List[str] = [
-    "ScaledPairIdentifier",
-    "WaifuPyTorchPickler",
+    "WaifuVgg7",
+    "WaifuUpConv7",
 ]
