@@ -20,22 +20,22 @@ class WaifuUpConv7(Module):
         """Initializes model"""
         super().__init__()
 
-        self.activation_function = LeakyReLU(0.1)
+        self.leaky_relu = LeakyReLU(0.1)
         self.pad = ZeroPad2d(7)
         # noinspection PyTypeChecker
         self.sequential = Sequential(
             Conv2d(3, 16, 3),
-            self.activation_function,
+            self.leaky_relu,
             Conv2d(16, 32, 3),
-            self.activation_function,
+            self.leaky_relu,
             Conv2d(32, 64, 3),
-            self.activation_function,
+            self.leaky_relu,
             Conv2d(64, 128, 3),
-            self.activation_function,
+            self.leaky_relu,
             Conv2d(128, 128, 3),
-            self.activation_function,
+            self.leaky_relu,
             Conv2d(128, 256, 3),
-            self.activation_function,
+            self.leaky_relu,
             ConvTranspose2d(256, 3, kernel_size=4, stride=2, padding=3, bias=False),
         )
 
