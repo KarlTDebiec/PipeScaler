@@ -21,6 +21,7 @@ from pipescaler.core import UnsupportedImageModeError, remove_palette_from_image
 alt_infiles = {
     splitext(f)[0]: join(dirname(package_root), "test", "data", "infiles", "alt", f)
     for f in [
+        "1.png",
         "L.png",
         "LA.png",
         "RGB.png",
@@ -42,6 +43,7 @@ waifu_models = {
 infiles = {
     splitext(f[-1])[0]: join(dirname(package_root), "test", "data", "infiles", *f)
     for f in [
+        ("basic", "1.png"),
         ("basic", "L.png"),
         ("basic", "LA.png"),
         ("basic", "PL.png"),
@@ -50,6 +52,7 @@ infiles = {
         ("basic", "PRGBA.png"),
         ("basic", "RGB.png"),
         ("basic", "RGBA.png"),
+        ("extra", "1_L.png"),
         ("extra", "L_LA.png"),
         ("extra", "RGB_RGBA.png"),
         ("novel", "L_solid.png"),

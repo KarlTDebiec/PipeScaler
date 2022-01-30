@@ -16,6 +16,7 @@ from pipescaler.sorters import (
     GrayscaleSorter,
     ListSorter,
     ModeSorter,
+    MonochromeSorter,
     RegexSorter,
     SizeSorter,
     SolidColorSorter,
@@ -80,6 +81,19 @@ def test_list_sorter(outlets: Dict[str, List[str]]) -> None:
 )
 def test_mode_sorter(infile: str, outlet: str) -> None:
     sorter = ModeSorter()
+    assert sorter(infile) == outlet
+
+
+@pytest.mark.parametrize(
+    ("infile", "outlet"),
+    [
+        (infiles["1"], "no_gray"),
+        (infiles["1_L"], "drop_gray"),
+        (infiles["L"], "keep_gray"),
+    ],
+)
+def test_monochrome_sorter(infile: str, outlet: str) -> None:
+    sorter = MonochromeSorter()
     assert sorter(infile) == outlet
 
 
