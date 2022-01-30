@@ -69,6 +69,7 @@ def test_list_sorter(outlets: Dict[str, List[str]]) -> None:
 @pytest.mark.parametrize(
     ("infile", "outlet"),
     [
+        (infiles["1"], "1"),
         (infiles["L"], "l"),
         (infiles["LA"], "la"),
         (infiles["RGB"], "rgb"),

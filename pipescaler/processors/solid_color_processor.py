@@ -59,7 +59,7 @@ class SolidColorProcessor(Processor):
         elif input_image.mode == "L":
             color = round(input_datum.mean())
         else:
-            color = input_datum
+            color = 255 if input_datum.mean() >= 0.5 else 0
         output_image = Image.new(input_image.mode, size, color)
 
         # Write image
