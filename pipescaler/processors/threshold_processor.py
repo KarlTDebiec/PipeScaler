@@ -58,7 +58,7 @@ class ThresholdProcessor(Processor):
             output_data = np.array(output_image)
             self.denoise_data(output_data)
             output_image = Image.fromarray(output_data)
-        output_image = output_image.convert("L")
+        output_image = output_image
 
         # Write image
         output_image.save(outfile)

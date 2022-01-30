@@ -23,7 +23,7 @@ from pipescaler.core import Processor, validate_image
 class ModeProcessor(Processor):
     """Converts mode of image"""
 
-    modes = ["L", "LA", "RGB", "RGBA"]
+    modes = ["1", "L", "LA", "RGB", "RGBA"]
 
     def __init__(
         self,
@@ -54,7 +54,7 @@ class ModeProcessor(Processor):
             outfile: Output file path
         """
         # Read image
-        input_image = validate_image(infile, ["L", "LA", "RGB", "RGBA"])
+        input_image = validate_image(infile, ["1", "L", "LA", "RGB", "RGBA"])
 
         # Process image
         if input_image.mode == self.mode:
@@ -90,7 +90,7 @@ class ModeProcessor(Processor):
             "--mode",
             default="RGBA",
             type=cls.str_arg(options=cls.modes),
-            help="image mode ('RGBA', 'RGB', 'LA', or 'L', default: %(default)s)",
+            help="image mode ('RGBA', 'RGB', 'LA', 'L', or '1', default: %(default)s)",
         )
         parser.add_argument(
             "--background_color",

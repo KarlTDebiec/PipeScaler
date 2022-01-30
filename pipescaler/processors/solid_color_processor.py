@@ -46,7 +46,7 @@ class SolidColorProcessor(Processor):
             outfile: Output file path
         """
         # Read image
-        input_image = validate_image(infile, ["L", "LA", "RGB", "RGBA"])
+        input_image = validate_image(infile, ["1", "L", "LA", "RGB", "RGBA"])
         input_datum = np.array(input_image)
 
         # Process image
@@ -56,8 +56,10 @@ class SolidColorProcessor(Processor):
         )
         if input_image.mode in ("RGBA", "RGB", "LA"):
             color = tuple(np.rint(input_datum.mean(axis=(0, 1))).astype(np.uint8))
-        else:
+        elif input_image.mode == "L":
             color = round(input_datum.mean())
+        else:
+            color = input_datum
         output_image = Image.new(input_image.mode, size, color)
 
         # Write image

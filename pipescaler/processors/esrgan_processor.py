@@ -202,7 +202,7 @@ class ESRGANProcessor(Processor):
         """
         # Read image
         input_image, input_mode = validate_image_and_convert_mode(
-            infile, ["L", "RGB"], "RGB"
+            infile, ["1", "L", "RGB"], "RGB"
         )
         input_datum = np.array(input_image)
 
@@ -219,8 +219,8 @@ class ESRGANProcessor(Processor):
             else:
                 raise e
         output_image = Image.fromarray(output_datum)
-        if input_mode == "L":
-            output_image = output_image.convert("L")
+        if input_mode in ("1", "L"):
+            output_image = output_image.convert(input_mode)
 
         # Write image
         output_image.save(outfile)

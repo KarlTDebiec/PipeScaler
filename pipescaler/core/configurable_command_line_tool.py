@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   common/configurable_command_line_tool.py
+#   pipescaler/configurable_command_line_tool.py
 #
 #   Copyright (C) 2017-2022 Karl T Debiec
 #   All rights reserved.
@@ -12,7 +12,6 @@ from inspect import cleandoc
 from logging import info
 from os import environ
 from os.path import expandvars, normpath
-from pprint import pprint
 from typing import Any
 
 from pipescaler.common import CommandLineTool

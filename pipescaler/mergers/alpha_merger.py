@@ -42,11 +42,17 @@ class AlphaMerger(Merger):
         """
         # Read images
         color_image = validate_image(color, ["L", "RGB"])
-        alpha_image = validate_image(alpha, "L")
+        alpha_image = validate_image(alpha, ["1", "L"])
 
         # Merge images
+        # noinspection PyTypeChecker
         color_array = np.array(color_image)
-        alpha_array = np.array(alpha_image)
+        if alpha_image.mode == "L":
+            # noinspection PyTypeChecker
+            alpha_array = np.array(alpha_image)
+        else:
+            # noinspection PyTypeChecker
+            alpha_array = np.array(alpha_image.convert("L"))
         if color_image.mode == "L":
             output_array = np.zeros((*color_array.shape, 2), np.uint8)
             output_array[:, :, 0] = color_array
