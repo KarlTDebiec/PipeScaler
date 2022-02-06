@@ -104,7 +104,7 @@ def expected_output_mode(input_image: Image.Image):
 def skip_if_ci(inner=None):
     marks = [
         pytest.mark.skipif(
-            getenv("CONTINUOUS_INTEGRATION") is not None,
+            getenv("CI") is not None,
             reason="Skip when running in CI",
         )
     ]
