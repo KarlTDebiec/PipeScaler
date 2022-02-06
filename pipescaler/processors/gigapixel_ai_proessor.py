@@ -9,8 +9,8 @@
 """Upscales image using [Gigapixel AI](https://www.topazlabs.com/gigapixel-ai)"""
 from __future__ import annotations
 
-from os import system
 from os.path import basename, dirname, splitext
+from platform import system
 from typing import Any, Optional
 
 from PIL import Image
