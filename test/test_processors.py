@@ -494,14 +494,22 @@ def test_threshold(infile: str, threshold_processor: ThresholdProcessor) -> None
 @pytest.mark.parametrize(
     ("infile", "scale", "waifu_processor"),
     [
-        (infiles["L"], 2, {"model_infile": waifu_models["WaifuUpConv7/a-2-3"]}),
-        (infiles["L"], 1, {"model_infile": waifu_models["WaifuVgg7/a-1-3"]}),
-        xfail_unsupported_mode()(
+        skip_if_ci()(
+            infiles["L"], 2, {"model_infile": waifu_models["WaifuUpConv7/a-2-3"]}
+        ),
+        skip_if_ci()(
+            infiles["L"], 1, {"model_infile": waifu_models["WaifuVgg7/a-1-3"]}
+        ),
+        skip_if_ci(xfail_unsupported_mode())(
             infiles["LA"], 2, {"model_infile": waifu_models["WaifuUpConv7/a-2-3"]}
         ),
-        (infiles["RGB"], 2, {"model_infile": waifu_models["WaifuUpConv7/a-2-3"]}),
-        (infiles["RGB"], 1, {"model_infile": waifu_models["WaifuVgg7/a-1-3"]}),
-        xfail_unsupported_mode()(
+        skip_if_ci()(
+            infiles["RGB"], 2, {"model_infile": waifu_models["WaifuUpConv7/a-2-3"]}
+        ),
+        skip_if_ci()(
+            infiles["RGB"], 1, {"model_infile": waifu_models["WaifuVgg7/a-1-3"]}
+        ),
+        skip_if_ci(xfail_unsupported_mode())(
             infiles["RGBA"], 2, {"model_infile": waifu_models["WaifuUpConv7/a-2-3"]}
         ),
     ],
