@@ -30,7 +30,9 @@ setup(
     packages=find_packages(),
     scripts=[
         "pipescaler/scripts/apng_creator.py",
+        "pipescaler/scripts/file_watcher.py",
         "pipescaler/scripts/pipe_runner.py",
+        "pipescaler/scripts/pipescaler_host.py",
         "pipescaler/scripts/scaled_image_identifier.py",
     ],
 )
