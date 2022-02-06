@@ -26,13 +26,7 @@ setup(
     name="pipescaler",
     version="0.1",
     include_package_data=True,
-    package_data={"pipescaler": get_package_data("pipescaler/data")},
+    package_data={"pipescaler": get_package_data(join("pipescaler", "data"))},
     packages=find_packages(),
-    scripts=[
-        "pipescaler/scripts/apng_creator.py",
-        "pipescaler/scripts/file_watcher.py",
-        "pipescaler/scripts/pipe_runner.py",
-        "pipescaler/scripts/pipescaler_host.py",
-        "pipescaler/scripts/scaled_image_identifier.py",
-    ],
+    scripts=get_package_data(join("pipescaler", "scripts")),
 )
