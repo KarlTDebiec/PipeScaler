@@ -37,5 +37,5 @@ jobs:
         python setup.py install
     - name: Test with pytest
       run: |
-        export PACKAGE_ROOT=${GITHUB_WORKSPACE}
+        export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
         pytest -v test/test_core.py
