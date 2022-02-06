@@ -32,6 +32,9 @@ jobs:
           run: |
               python setup.py build
               python setup.py install
+        - name: List packages
+          run: |
+              pip list --format=freeze
         - name: Test with pytest
           run: |
               pytest -v test
