@@ -41,16 +41,4 @@ jobs:
     - name: Test with pytest
       run: |
         export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
-        pytest -v test/test_core.py
-        pytest -v test/test_gui_processors.py
-        pytest -v test/test_mergers.py
-        pytest -v test/test_pipeline.py
-        pytest -v test/test_processors.py
-        pytest -v test/test_processors_cl.py
-        pytest -v test/test_scaled_pair_identifier.py
-        pytest -v test/test_scripts.py
-        pytest -v test/test_sorters.py
-        pytest -v test/test_sources.py
-        pytest -v test/test_splitters.py
-        pytest -v test/test_termini.py
-        pytest -v test/test_web_processor.py
+        pytest -v --cov=pipescaler --cov-report term test
