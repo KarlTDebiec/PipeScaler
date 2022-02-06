@@ -9,17 +9,38 @@
 """Splits image with transparency into separate alpha and color images"""
 from __future__ import annotations
 
+from enum import Enum, auto
 from logging import info
 from typing import Any, Dict, List
 
 import numpy as np
 from PIL import Image
 
-from pipescaler.core import Splitter, validate_image
+from pipescaler.common import validate_enum
+from pipescaler.core import Splitter, is_monochrome, validate_image
+
+
+class AlphaMode(Enum):
+    GRAYSCALE = auto()
+    GRAYSCALE_OR_MONOCHROME = auto()
+    GRAYSCALE_OR_MONOCHROME_FILL_BLACK = auto()
 
 
 class AlphaSplitter(Splitter):
     """Splits image with transparency into separate alpha and color images"""
+
+    def __init__(
+        self, alpha_mode: AlphaMode = AlphaMode.GRAYSCALE, **kwargs: Any
+    ) -> None:
+        """
+        Validate and store static configuration
+
+        Arguments:
+            **kwargs: Additional keyword arguments
+        """
+        super().__init__(**kwargs)
+
+        self.alpha_mode = validate_enum(alpha_mode, AlphaMode)
 
     def __call__(self, infile: str, **kwargs: Any) -> Dict[str, str]:
         """
@@ -50,11 +71,17 @@ class AlphaSplitter(Splitter):
         input_image = validate_image(infile, ["LA", "RGBA"])
 
         # Split image
+        # noinspection PyTypeChecker
         input_array = np.array(input_image)
         color_array = np.squeeze(input_array[:, :, :-1])
         alpha_array = input_array[:, :, -1]
         color_image = Image.fromarray(color_array)
         alpha_image = Image.fromarray(alpha_array)
+        if self.alpha_mode != AlphaMode.GRAYSCALE:
+            if is_monochrome(alpha_image):
+                alpha_image = alpha_image.convert("1")
+            if self.alpha_mode == AlphaMode.GRAYSCALE_OR_MONOCHROME_FILL_BLACK:
+                pass
 
         # Write images
         color_image.save(color)

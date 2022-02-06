@@ -13,6 +13,9 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from scipy.ndimage import convolve
 
+from pipescaler.common import validate_float
+from pipescaler.core.exception import UnsupportedImageModeError
+
 
 def crop_image(
     image: Image.Image, left: int = 0, top: int = 0, right: int = 0, bottom: int = 0
@@ -188,6 +191,25 @@ def hstack_images(*images: Image.Image) -> Image.Image:
         else:
             stacked.paste(image.resize(size, resample=Image.NEAREST), (size[0] * i, 0))
     return stacked
+
+
+def is_monochrome(
+    image: Image.Image, mean_threshold: float = 0, max_threshold: float = 0
+) -> bool:
+    if image.mode != "L":
+        raise UnsupportedImageModeError()
+    mean_threshold = validate_float(mean_threshold, 0, 255)
+    max_threshold = validate_float(max_threshold, 0, 255)
+
+    # noinspection PyTypeChecker
+    l_array = np.array(image)
+    # noinspection PyTypeChecker
+    one_array = np.array(image.convert("1").convert("L"))
+    diff = np.abs(l_array - one_array)
+    if diff.mean() <= mean_threshold and diff.max() <= max_threshold:
+        return True
+    else:
+        return False
 
 
 def label_image(image: Image.Image, text: str) -> Image.Image:

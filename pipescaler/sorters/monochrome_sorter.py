@@ -12,10 +12,8 @@ from __future__ import annotations
 from logging import info
 from typing import Any, List
 
-import numpy as np
-
-from pipescaler.common import validate_float, validate_int
-from pipescaler.core import Sorter, validate_image
+from pipescaler.common import validate_float
+from pipescaler.core import Sorter, is_monochrome, validate_image
 
 
 class MonochromeSorter(Sorter):
@@ -53,12 +51,7 @@ class MonochromeSorter(Sorter):
 
         # Sort image
         if image.mode == "L":
-            # noinspection PyTypeChecker
-            l_array = np.array(image)
-            # noinspection PyTypeChecker
-            one_array = np.array(image.convert("1").convert("L"))
-            diff = np.abs(l_array - one_array)
-            if diff.mean() <= self.mean_threshold and diff.max() <= self.max_threshold:
+            if is_monochrome(image):
                 info(f"{self}: '{infile}' matches 'drop_gray'")
                 return "drop_gray"
             else:
