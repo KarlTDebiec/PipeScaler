@@ -11,7 +11,6 @@ Pillow==9.0.1
 pytest==7.0.0
 pytest-cov==3.0.0
 pytest-xdist==2.5.0
-pywinauto==0.6.8
 PyYAML==6.0
 requests==2.27.1
 scikit-image==0.19.1
