@@ -7,7 +7,7 @@
 #   This software may be modified and distributed under the terms of the
 #   BSD license. See the LICENSE file for details.
 from functools import partial
-from os import getenv
+from os import environ, getenv
 from os.path import dirname, join, splitext
 from platform import system
 from typing import Set, Type
@@ -15,8 +15,13 @@ from typing import Set, Type
 import pytest
 from PIL import Image
 
-from pipescaler.common import UnsupportedPlatformError, package_root
+from pipescaler.common import UnsupportedPlatformError
 from pipescaler.core import UnsupportedImageModeError, remove_palette_from_image
+
+if environ.get("PACKAGE_ROOT") is not None:
+    package_root = getenv("PACKAGE_ROOT")
+else:
+    from pipescaler.common import package_root
 
 alt_infiles = {
     splitext(f)[0]: join(dirname(package_root), "test", "data", "infiles", "alt", f)
