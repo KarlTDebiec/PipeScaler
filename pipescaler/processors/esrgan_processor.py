@@ -134,7 +134,7 @@ class ESRGANProcessor(Processor):
 
             self.model = model_net.to(device)
             self.device = device
-            self.scale_factor = 2 ** scale
+            self.scale_factor = 2**scale
 
         def upscale(self, input_datum):
             input_datum = input_datum * 1.0 / 255

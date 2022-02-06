@@ -8,6 +8,7 @@
 #   BSD license. See the LICENSE file for details.
 from os import listdir
 from os.path import basename
+from typing import List, Set, Union
 
 import pytest
 from shared import infile_subfolders, infiles, xfail_file_not_found
@@ -29,7 +30,9 @@ from pipescaler.core import get_files
         ),
     ],
 )
-def test_get_files_in_directory(sources, style, exclusions) -> None:
+def test_get_files_in_directory(
+    sources: Union[str, List[str]], style: str, exclusions: Set[str]
+) -> None:
     get_files(sources, style, exclusions)
 
 

@@ -10,13 +10,24 @@
 from __future__ import annotations
 
 from os.path import basename, dirname, splitext
+from platform import system
 from typing import Any, Optional
 
 from PIL import Image
-from pywinauto.application import Application, ProcessNotFoundError, WindowSpecification
 
 from pipescaler.common import validate_executable
 from pipescaler.core import Processor, validate_image
+
+if system() == "Windows":
+    from pywinauto.application import (
+        Application,
+        ProcessNotFoundError,
+        WindowSpecification,
+    )
+else:
+    Application = None
+    ProcessNotFoundError = None
+    WindowSpecification = None
 
 
 class GigapixelAiProcessor(Processor):

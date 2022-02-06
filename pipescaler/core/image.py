@@ -295,7 +295,7 @@ def smooth_image(image: Image.Image, sigma: float) -> Image.Image:
     """
     kernel = np.exp(
         (-1 * (np.arange(-3 * sigma, 3 * sigma + 1).astype(float) ** 2))
-        / (2 * (sigma ** 2))
+        / (2 * (sigma**2))
     )
     smoothed_array = np.array(image).astype(float)
     smoothed_array = convolve(smoothed_array, kernel[np.newaxis])

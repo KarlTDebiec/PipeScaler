@@ -39,6 +39,3 @@ conda install -y -c pytorch `
     pytorch `
     torchvision `
     torchaudio
-
-pip install `
-    numpy==1.20.3
