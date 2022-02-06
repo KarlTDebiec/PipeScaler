@@ -41,4 +41,5 @@ jobs:
     - name: Test with pytest
       run: |
         export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
-        pytest -v --cov=pipescaler --cov-report term test
+        cd test
+        pytest -v --cov=pipescaler --cov-report term .
