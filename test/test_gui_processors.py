@@ -9,7 +9,7 @@
 
 import pytest
 from PIL import Image
-from shared import expected_output_mode, infiles
+from shared import expected_output_mode, infiles, skip_if_ci, xfail_if_platform
 
 from pipescaler.common import temporary_filename
 from pipescaler.processors import GigapixelAiProcessor
@@ -24,8 +24,8 @@ def gigapixel_ai_processor(request) -> GigapixelAiProcessor:
 @pytest.mark.parametrize(
     ("infile", "gigapixel_ai_processor"),
     [
-        (infiles["RGB"], {}),
-        (infiles["L"], {}),
+        skip_if_ci(xfail_if_platform({"Darwin", "Linux"}))(infiles["RGB"], {}),
+        skip_if_ci(xfail_if_platform({"Darwin", "Linux"}))(infiles["L"], {}),
     ],
     indirect=["gigapixel_ai_processor"],
 )

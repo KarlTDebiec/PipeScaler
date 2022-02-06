@@ -1,4 +1,4 @@
 [submodule "pipescaler/common"]
-    path = pipescaler/common
-    url = https://github.com/KarlTDebiec/common.git
-    branch = "pipescaler/master"
+    path    = pipescaler/common
+    url     = https://github.com/KarlTDebiec/common.git
+    branch  = pipescaler/master

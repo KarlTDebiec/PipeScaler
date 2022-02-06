@@ -13,8 +13,8 @@ from typing import Any, Dict, List, Union
 
 import pytest
 import yaml
+from shared import package_root
 
-from pipescaler.common import package_root
 from pipescaler.core import Pipeline
 
 # region Fixtures

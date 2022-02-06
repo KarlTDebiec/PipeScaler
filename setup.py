@@ -22,15 +22,20 @@ def get_package_data(directory: str) -> List[str]:
     return paths
 
 
+def get_scripts(directory: str) -> List[str]:
+    paths = []
+    for (path, directories, filenames) in walk(directory):
+        for filename in [f for f in filenames if f.endswith(".py")]:
+            paths.append(join(directory, filename))
+        print(path, directories, filenames)
+    return paths
+
+
 setup(
     name="pipescaler",
     version="0.1",
     include_package_data=True,
-    package_data={"pipescaler": get_package_data("pipescaler/data")},
+    package_data={"pipescaler": get_package_data(join("pipescaler", "data"))},
     packages=find_packages(),
-    scripts=[
-        "pipescaler/scripts/apng_creator.py",
-        "pipescaler/scripts/pipe_runner.py",
-        "pipescaler/scripts/scaled_image_identifier.py",
-    ],
+    scripts=get_scripts(join("pipescaler", "scripts")),
 )
