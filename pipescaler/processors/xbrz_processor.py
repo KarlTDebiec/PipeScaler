@@ -59,7 +59,7 @@ class XbrzProcessor(Processor):
             output_image = output_image.convert("LA")
         elif input_mode in ("1", "L"):
             output_image = Image.fromarray(np.array(output_image)[:, :, :3]).convert(
-                input_mode
+                "L"
             )
 
         # Write image
