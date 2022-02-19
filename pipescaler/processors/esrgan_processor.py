@@ -204,6 +204,7 @@ class ESRGANProcessor(Processor):
         input_image, input_mode = validate_image_and_convert_mode(
             infile, ["1", "L", "RGB"], "RGB"
         )
+        # noinspection PyTypeChecker
         input_datum = np.array(input_image)
 
         # Process image
@@ -219,7 +220,7 @@ class ESRGANProcessor(Processor):
             else:
                 raise e
         output_image = Image.fromarray(output_datum)
-        if input_mode in ("1", "L"):
+        if output_image.mode != input_mode:
             output_image = output_image.convert(input_mode)
 
         # Write image

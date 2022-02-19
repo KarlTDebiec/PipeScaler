@@ -21,6 +21,8 @@ from pipescaler.core import Splitter, fill_mask, is_monochrome, validate_image
 
 
 class AlphaMode(Enum):
+    """Mode of output alpha image"""
+
     L = auto()
     L_OR_1 = auto()
     L_OR_1_FILL = auto()
@@ -55,7 +57,9 @@ class AlphaSplitter(Splitter):
             outlet's associated outfile
         """
         outfiles = {k: kwargs.get(k) for k in self.outlets}
+
         self.split(infile=infile, **outfiles)
+
         return outfiles
 
     def split(self, infile: str, color: str, alpha: str) -> None:
