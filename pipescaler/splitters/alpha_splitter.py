@@ -11,26 +11,27 @@ from __future__ import annotations
 
 from enum import Enum, auto
 from logging import info
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Union
 
 import numpy as np
 from PIL import Image
 
 from pipescaler.common import validate_enum
 from pipescaler.core import Splitter, is_monochrome, validate_image
+from pipescaler.util import MaskFiller
 
 
 class AlphaMode(Enum):
-    GRAYSCALE = auto()
-    GRAYSCALE_OR_MONOCHROME = auto()
-    GRAYSCALE_OR_MONOCHROME_FILL_BLACK = auto()
+    L = auto()
+    L_OR_1 = auto()
+    L_OR_1_FILL = auto()
 
 
 class AlphaSplitter(Splitter):
     """Splits image with transparency into separate alpha and color images"""
 
     def __init__(
-        self, alpha_mode: AlphaMode = AlphaMode.GRAYSCALE, **kwargs: Any
+        self, alpha_mode: Union[AlphaMode, str] = AlphaMode.L, **kwargs: Any
     ) -> None:
         """
         Validate and store static configuration
@@ -41,6 +42,8 @@ class AlphaSplitter(Splitter):
         super().__init__(**kwargs)
 
         self.alpha_mode = validate_enum(alpha_mode, AlphaMode)
+        if self.alpha_mode == AlphaMode.L_OR_1_FILL:
+            self.mask_filler = MaskFiller()
 
     def __call__(self, infile: str, **kwargs: Any) -> Dict[str, str]:
         """
@@ -77,13 +80,11 @@ class AlphaSplitter(Splitter):
         alpha_array = input_array[:, :, -1]
         color_image = Image.fromarray(color_array)
         alpha_image = Image.fromarray(alpha_array)
-        if self.alpha_mode == AlphaMode.GRAYSCALE_OR_MONOCHROME:
+        if self.alpha_mode in (AlphaMode.L_OR_1, AlphaMode.L_OR_1_FILL):
             if is_monochrome(alpha_image):
                 alpha_image = alpha_image.convert("1")
-        if self.alpha_mode == AlphaMode.GRAYSCALE_OR_MONOCHROME_FILL_BLACK:
-            if is_monochrome(alpha_image):
-                alpha_image = alpha_image.convert("1")
-            pass  # Revise color image
+        if self.alpha_mode == AlphaMode.L_OR_1_FILL and alpha_image.mode == "1":
+            color_image = self.mask_filler(color_image, alpha_image)
 
         # Write images
         color_image.save(color)
