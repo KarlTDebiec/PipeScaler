@@ -17,6 +17,7 @@ from pipescaler.core.file import get_files
 from pipescaler.core.image import (
     crop_image,
     expand_image,
+    fill_mask,
     generate_normal_map_from_height_map_image,
     get_font_size,
     get_text_size,
@@ -53,6 +54,7 @@ __all__: List[str] = [
     "UnsupportedImageModeError",
     "crop_image",
     "expand_image",
+    "fill_mask",
     "smooth_image",
     "initialize_stage",
     "generate_normal_map_from_height_map_image",
