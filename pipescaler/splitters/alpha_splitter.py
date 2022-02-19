@@ -77,11 +77,13 @@ class AlphaSplitter(Splitter):
         alpha_array = input_array[:, :, -1]
         color_image = Image.fromarray(color_array)
         alpha_image = Image.fromarray(alpha_array)
-        if self.alpha_mode != AlphaMode.GRAYSCALE:
+        if self.alpha_mode == AlphaMode.GRAYSCALE_OR_MONOCHROME:
             if is_monochrome(alpha_image):
                 alpha_image = alpha_image.convert("1")
-            if self.alpha_mode == AlphaMode.GRAYSCALE_OR_MONOCHROME_FILL_BLACK:
-                pass
+        if self.alpha_mode == AlphaMode.GRAYSCALE_OR_MONOCHROME_FILL_BLACK:
+            if is_monochrome(alpha_image):
+                alpha_image = alpha_image.convert("1")
+            pass  # Revise color image
 
         # Write images
         color_image.save(color)
