@@ -8,31 +8,30 @@
 #   BSD license. See the LICENSE file for details.
 import pytest
 from PIL import Image
-from shared import get_infile
+from shared import get_infile, stage_fixture
 
 from pipescaler.common import temporary_filename
 from pipescaler.core import remove_palette_from_image
 from pipescaler.mergers import ColorMatchMerger
 
 
-@pytest.fixture()
+@stage_fixture(cls=ColorMatchMerger, params=[{}])
 def color_match_merger(request) -> ColorMatchMerger:
     return ColorMatchMerger(**request.param)
 
 
 @pytest.mark.parametrize(
-    ("reference", "input", "color_match_merger"),
+    ("reference", "input"),
     [
-        ("alt/L", "L", {}),
-        ("alt/LA", "LA", {}),
-        ("alt/RGB", "RGB", {}),
-        ("alt/RGBA", "RGBA", {}),
-        ("alt/PL", "PL", {}),
-        ("alt/PLA", "PLA", {}),
-        ("alt/PRGB", "PRGB", {}),
-        ("alt/PRGBA", "PRGBA", {}),
+        ("alt/L", "L"),
+        ("alt/LA", "LA"),
+        ("alt/RGB", "RGB"),
+        ("alt/RGBA", "RGBA"),
+        ("alt/PL", "PL"),
+        ("alt/PLA", "PLA"),
+        ("alt/PRGB", "PRGB"),
+        ("alt/PRGBA", "PRGBA"),
     ],
-    indirect=["color_match_merger"],
 )
 def test_color_match_merger(
     reference: str, input: str, color_match_merger: ColorMatchMerger
@@ -41,7 +40,6 @@ def test_color_match_merger(
     input = get_infile(input)
 
     with temporary_filename(".png") as outfile:
-        reference_image = Image.open(reference)
         input_image = Image.open(input)
         if input_image.mode == "P":
             expected_output_mode = remove_palette_from_image(input_image).mode

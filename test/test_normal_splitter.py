@@ -8,29 +8,28 @@
 #   BSD license. See the LICENSE file for details.
 import pytest
 from PIL import Image
-from shared import get_infile, xfail_unsupported_mode
+from shared import get_infile, stage_fixture, xfail_unsupported_image_mode
 
 from pipescaler.common import temporary_filename
 from pipescaler.splitters import NormalSplitter
 
 
-@pytest.fixture()
+@stage_fixture(cls=NormalSplitter, params=[{}])
 def normal_splitter(request) -> NormalSplitter:
     return NormalSplitter(**request.param)
 
 
 @pytest.mark.parametrize(
-    ("infile", "normal_splitter"),
+    ("infile"),
     [
-        xfail_unsupported_mode()("1", {}),
-        xfail_unsupported_mode()("L", {}),
-        xfail_unsupported_mode()("LA", {}),
-        ("RGB", {}),
-        xfail_unsupported_mode()("RGBA", {}),
-        ("PRGB", {}),
-        ("novel/RGB_normal", {}),
+        xfail_unsupported_image_mode()("1"),
+        xfail_unsupported_image_mode()("L"),
+        xfail_unsupported_image_mode()("LA"),
+        ("RGB"),
+        xfail_unsupported_image_mode()("RGBA"),
+        ("PRGB"),
+        ("novel/RGB_normal"),
     ],
-    indirect=["normal_splitter"],
 )
 def test_normal_splitter(infile: str, normal_splitter: NormalSplitter) -> None:
     infile = get_infile(infile)

@@ -6,42 +6,44 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license. See the LICENSE file for details.
+
 import pytest
 from PIL import Image
-from shared import get_infile, xfail_unsupported_mode
+from shared import get_infile, stage_fixture, xfail_unsupported_image_mode
 
 from pipescaler.common import temporary_filename
 from pipescaler.core import remove_palette_from_image
 from pipescaler.splitters import AlphaSplitter
 
 
-@pytest.fixture()
+@stage_fixture(
+    cls=AlphaSplitter,
+    params=[
+        {"alpha_mode": "L"},
+        {"alpha_mode": "L_OR_1"},
+        {"alpha_mode": "L_OR_1_FILL"},
+    ],
+)
 def alpha_splitter(request) -> AlphaSplitter:
     return AlphaSplitter(**request.param)
 
 
 @pytest.mark.parametrize(
-    ("infile", "expected_alpha_mode", "alpha_splitter"),
+    ("infile"),
     [
-        xfail_unsupported_mode()("1", "L", {}),
-        xfail_unsupported_mode()("L", "L", {}),
-        ("LA", "L", {"alpha_mode": "L"}),
-        ("LA", "L", {"alpha_mode": "L_OR_1"}),
-        ("LA", "L", {"alpha_mode": "L_OR_1_FILL"}),
-        xfail_unsupported_mode()("RGB", "L", {}),
-        ("RGBA", "L", {"alpha_mode": "L"}),
-        ("RGBA", "L", {"alpha_mode": "L_OR_1"}),
-        ("RGBA", "L", {"alpha_mode": "L_OR_1_FILL"}),
-        ("PLA", "L", {"alpha_mode": "L"}),
-        ("PRGBA", "L", {"alpha_mode": "L"}),
-        ("novel/RGBA_monochrome", "L", {"alpha_mode": "L"}),
-        ("novel/RGBA_monochrome", "1", {"alpha_mode": "L_OR_1"}),
-        ("novel/RGBA_monochrome", "1", {"alpha_mode": "L_OR_1_FILL"}),
+        xfail_unsupported_image_mode()("1"),
+        xfail_unsupported_image_mode()("L"),
+        ("LA"),
+        xfail_unsupported_image_mode()("RGB"),
+        ("RGBA"),
+        ("PLA"),
+        ("PRGBA"),
+        ("novel/RGBA_monochrome"),
     ],
-    indirect=["alpha_splitter"],
 )
 def test_alpha_splitter(
-    infile: str, expected_alpha_mode: str, alpha_splitter: AlphaSplitter
+    infile: str,
+    alpha_splitter: AlphaSplitter,
 ) -> None:
     infile = get_infile(infile)
 
@@ -62,5 +64,4 @@ def test_alpha_splitter(
                 assert color_image.size == input_image.size
 
             with Image.open(alpha_outfile) as alpha_image:
-                assert alpha_image.mode == expected_alpha_mode
                 assert alpha_image.size == input_image.size

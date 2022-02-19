@@ -18,7 +18,7 @@ from shared import (
     skip_if_ci,
     waifu_models,
     xfail_if_platform,
-    xfail_unsupported_mode,
+    xfail_unsupported_image_mode,
 )
 
 from pipescaler.common import temporary_filename
@@ -222,16 +222,16 @@ def test_crop(infile: str, crop_processor: CropProcessor) -> None:
         skip_if_ci()(
             infiles["RGB"], {"model_infile": esrgan_models["RRDB_ESRGAN_x4_old_arch"]}
         ),
-        skip_if_ci(xfail_unsupported_mode())(
+        skip_if_ci(xfail_unsupported_image_mode())(
             infiles["LA"], {"model_infile": esrgan_models["1x_BC1-smooth2"]}
         ),
-        skip_if_ci(xfail_unsupported_mode())(
+        skip_if_ci(xfail_unsupported_image_mode())(
             infiles["PLA"], {"model_infile": esrgan_models["1x_BC1-smooth2"]}
         ),
-        skip_if_ci(xfail_unsupported_mode())(
+        skip_if_ci(xfail_unsupported_image_mode())(
             infiles["PRGBA"], {"model_infile": esrgan_models["1x_BC1-smooth2"]}
         ),
-        skip_if_ci(xfail_unsupported_mode())(
+        skip_if_ci(xfail_unsupported_image_mode())(
             infiles["RGBA"], {"model_infile": esrgan_models["1x_BC1-smooth2"]}
         ),
     ],
@@ -276,13 +276,13 @@ def test_expand(infile: str, expand_processor: ExpandProcessor) -> None:
     [
         (infiles["L"], {"sigma": 0.5}),
         (infiles["L"], {"sigma": 1.0}),
-        xfail_unsupported_mode()(infiles["LA"], {"sigma": 1.0}),
+        xfail_unsupported_image_mode()(infiles["LA"], {"sigma": 1.0}),
         (infiles["PL"], {"sigma": 1.0}),
-        xfail_unsupported_mode()(infiles["PLA"], {"sigma": 1.0}),
-        xfail_unsupported_mode()(infiles["PRGB"], {"sigma": 1.0}),
-        xfail_unsupported_mode()(infiles["PRGBA"], {"sigma": 1.0}),
-        xfail_unsupported_mode()(infiles["RGB"], {"sigma": 1.0}),
-        xfail_unsupported_mode()(infiles["RGBA"], {"sigma": 1.0}),
+        xfail_unsupported_image_mode()(infiles["PLA"], {"sigma": 1.0}),
+        xfail_unsupported_image_mode()(infiles["PRGB"], {"sigma": 1.0}),
+        xfail_unsupported_image_mode()(infiles["PRGBA"], {"sigma": 1.0}),
+        xfail_unsupported_image_mode()(infiles["RGB"], {"sigma": 1.0}),
+        xfail_unsupported_image_mode()(infiles["RGBA"], {"sigma": 1.0}),
     ],
     indirect=["height_to_normal_processor"],
 )
@@ -374,13 +374,13 @@ def test_pngquant_external(
     [
         (infiles["L"], {}),
         (infiles["L"], {"scale": 2}),
-        xfail_unsupported_mode()(infiles["LA"], {}),
+        xfail_unsupported_image_mode()(infiles["LA"], {}),
         (infiles["PL"], {}),
-        xfail_unsupported_mode()(infiles["PLA"], {}),
-        xfail_unsupported_mode()(infiles["PRGB"], {}),
-        xfail_unsupported_mode()(infiles["PRGBA"], {}),
-        xfail_unsupported_mode()(infiles["RGB"], {}),
-        xfail_unsupported_mode()(infiles["RGBA"], {}),
+        xfail_unsupported_image_mode()(infiles["PLA"], {}),
+        xfail_unsupported_image_mode()(infiles["PRGB"], {}),
+        xfail_unsupported_image_mode()(infiles["PRGBA"], {}),
+        xfail_unsupported_image_mode()(infiles["RGB"], {}),
+        xfail_unsupported_image_mode()(infiles["RGBA"], {}),
     ],
     indirect=["potrace_external_processor"],
 )
@@ -478,13 +478,13 @@ def test_texconv_external(
     [
         (infiles["L"], {}),
         (infiles["L"], {"denoise": True}),
-        xfail_unsupported_mode()(infiles["LA"], {}),
+        xfail_unsupported_image_mode()(infiles["LA"], {}),
         (infiles["PL"], {}),
-        xfail_unsupported_mode()(infiles["PLA"], {}),
-        xfail_unsupported_mode()(infiles["PRGB"], {}),
-        xfail_unsupported_mode()(infiles["PRGBA"], {}),
-        xfail_unsupported_mode()(infiles["RGB"], {}),
-        xfail_unsupported_mode()(infiles["RGBA"], {}),
+        xfail_unsupported_image_mode()(infiles["PLA"], {}),
+        xfail_unsupported_image_mode()(infiles["PRGB"], {}),
+        xfail_unsupported_image_mode()(infiles["PRGBA"], {}),
+        xfail_unsupported_image_mode()(infiles["RGB"], {}),
+        xfail_unsupported_image_mode()(infiles["RGBA"], {}),
     ],
     indirect=["threshold_processor"],
 )
@@ -509,7 +509,7 @@ def test_threshold(infile: str, threshold_processor: ThresholdProcessor) -> None
         skip_if_ci()(
             infiles["L"], 1, {"model_infile": waifu_models["WaifuVgg7/a-1-3"]}
         ),
-        skip_if_ci(xfail_unsupported_mode())(
+        skip_if_ci(xfail_unsupported_image_mode())(
             infiles["LA"], 2, {"model_infile": waifu_models["WaifuUpConv7/a-2-3"]}
         ),
         skip_if_ci()(
@@ -518,7 +518,7 @@ def test_threshold(infile: str, threshold_processor: ThresholdProcessor) -> None
         skip_if_ci()(
             infiles["RGB"], 1, {"model_infile": waifu_models["WaifuVgg7/a-1-3"]}
         ),
-        skip_if_ci(xfail_unsupported_mode())(
+        skip_if_ci(xfail_unsupported_image_mode())(
             infiles["RGBA"], 2, {"model_infile": waifu_models["WaifuUpConv7/a-2-3"]}
         ),
     ],
@@ -545,16 +545,16 @@ def test_waifu(infile: str, scale: int, waifu_processor: WaifuProcessor) -> None
         skip_if_ci()(infiles["PRGB"], {"imagetype": "a", "denoise": 0, "scale": 2}),
         skip_if_ci()(infiles["RGB"], {"imagetype": "a", "denoise": 0, "scale": 2}),
         skip_if_ci()(infiles["RGB"], {"imagetype": "a", "denoise": 3, "scale": 2}),
-        skip_if_ci(xfail_unsupported_mode())(
+        skip_if_ci(xfail_unsupported_image_mode())(
             infiles["LA"], {"imagetype": "a", "denoise": 0, "scale": 2}
         ),
-        skip_if_ci(xfail_unsupported_mode())(
+        skip_if_ci(xfail_unsupported_image_mode())(
             infiles["PLA"], {"imagetype": "a", "denoise": 0, "scale": 2}
         ),
-        skip_if_ci(xfail_unsupported_mode())(
+        skip_if_ci(xfail_unsupported_image_mode())(
             infiles["PRGBA"], {"imagetype": "a", "denoise": 0, "scale": 2}
         ),
-        skip_if_ci(xfail_unsupported_mode())(
+        skip_if_ci(xfail_unsupported_image_mode())(
             infiles["RGBA"], {"imagetype": "a", "denoise": 0, "scale": 2}
         ),
     ],

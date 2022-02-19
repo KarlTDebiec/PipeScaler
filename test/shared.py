@@ -10,7 +10,7 @@ from functools import partial
 from os import environ, getenv
 from os.path import dirname, join, normpath, sep, splitext
 from platform import system
-from typing import Set, Type
+from typing import Any, Dict, List, Set, Type
 
 import pytest
 from PIL import Image
@@ -126,33 +126,49 @@ def skip_if_ci(inner=None):
     ]
     if inner is not None:
         marks.append(inner.keywords["marks"].mark)
-
     return partial(pytest.param, marks=marks)
+
+
+def stage_fixture(cls: object, params: List[Dict[str, Any]]):
+    def get_name(args):
+        return f"{cls.__name__}({','.join(args.values())})"
+
+    return partial(pytest.fixture(params=params, ids=get_name))
 
 
 def xfail_if_platform(
     unsupported_platforms: Set[str] = None,
     raises: Type[Exception] = UnsupportedPlatformError,
+    inner=None,
 ):
-    return partial(
-        pytest.param,
-        marks=pytest.mark.xfail(
+    marks = (
+        pytest.mark.xfail(
             system() in unsupported_platforms,
             raises=raises,
             reason=f"Not supported on {system()}",
         ),
     )
+    if inner is not None:
+        marks.append(inner.keywords["marks"].mark)
+    return partial(pytest.param, marks=marks)
 
 
-def xfail_file_not_found():
-    return partial(pytest.param, marks=pytest.mark.xfail(raises=FileNotFoundError))
+def xfail_file_not_found(inner=None):
+    marks = pytest.mark.xfail(raises=FileNotFoundError)
+    if inner is not None:
+        marks.append(inner.keywords["marks"].mark)
+    return partial(pytest.param, marks=marks)
 
 
-def xfail_unsupported_mode():
-    return partial(
-        pytest.param, marks=pytest.mark.xfail(raises=UnsupportedImageModeError)
-    )
+def xfail_unsupported_image_mode(inner=None):
+    marks = pytest.mark.xfail(raises=UnsupportedImageModeError)
+    if inner is not None:
+        marks.append(inner.keywords["marks"].mark)
+    return partial(pytest.param, marks=marks)
 
 
-def xfail_value():
-    return partial(pytest.param, marks=pytest.mark.xfail(raises=ValueError))
+def xfail_value(inner=None):
+    marks = pytest.mark.xfail(raises=ValueError)
+    if inner is not None:
+        marks.append(inner.keywords["marks"].mark)
+    return partial(pytest.param, marks=marks)
