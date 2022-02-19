@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Core pipescaler functions for interacting with files"""
+"""Core functions for interacting with files"""
 from __future__ import annotations
 
 from mimetypes import guess_type

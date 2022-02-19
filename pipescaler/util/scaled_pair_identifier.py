@@ -196,7 +196,7 @@ class ScaledPairIdentifier:
             mode += "A"
         filetype = filename.split("_")[-1]
         hashes = []
-        for scale in np.array([1 / (2 ** x) for x in range(0, 7)]):
+        for scale in np.array([1 / (2**x) for x in range(0, 7)]):
             width = round(size[0] * scale)
             height = round(size[1] * scale)
             if width < 8 or height < 8:
@@ -403,7 +403,7 @@ class ScaledPairIdentifier:
             known_pairs = self.get_pairs(parent_hash["filename"])
             new_pairs = []
             new_pair_scores = []
-            for scale in np.array([1 / (2 ** x) for x in range(1, 7)]):
+            for scale in np.array([1 / (2**x) for x in range(1, 7)]):
                 width = round(parent_hash["width"] * scale)
                 height = round(parent_hash["height"] * scale)
                 if width < 8 or height < 8:
@@ -603,7 +603,7 @@ class ScaledPairIdentifier:
             scale: Scale of child relative to parent
 
         Returns:
-            Scroes of candidate parents of *child* at *scale*
+            Scores of candidate parents of *child* at *scale*
         """
         # Select potential parent images
         candidates = self.hashes.loc[

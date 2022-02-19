@@ -95,7 +95,7 @@ class WaifuExternalProcessor(Processor):
 
         # Read image
         input_image, input_mode = validate_image_and_convert_mode(
-            infile, ["L", "RGB"], "RGB"
+            infile, ["1", "L", "RGB"], "RGB"
         )
 
         tempfile = NamedTemporaryFile(delete=False, suffix=".png")
@@ -134,10 +134,10 @@ class WaifuExternalProcessor(Processor):
         run_command(command)
 
         # Load processed image and crop back to original content
-        waifued_image = Image.open(outfile)
+        output_image = Image.open(outfile)
         remove(tempfile.name)
         if self.expand:
-            waifued_image = waifued_image.crop(
+            output_image = output_image.crop(
                 (
                     (x - w // 2) * self.scale,
                     (y - h // 2) * self.scale,
@@ -145,11 +145,11 @@ class WaifuExternalProcessor(Processor):
                     (y + h // 2) * self.scale,
                 )
             )
-        if input_mode == "L":
-            waifued_image = waifued_image.convert("L")
+        if output_image.mode != input_mode:
+            output_image = output_image.convert(input_mode)
 
         # Write image
-        waifued_image.save(outfile)
+        output_image.save(outfile)
         info(f"{self}: '{outfile}' saved")
 
     @classmethod

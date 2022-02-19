@@ -8,14 +8,14 @@
 #   BSD license. See the LICENSE file for details.
 from functools import partial
 from os import environ, getenv
-from os.path import dirname, join, splitext
+from os.path import dirname, join, normpath, sep, splitext
 from platform import system
 from typing import Set, Type
 
 import pytest
 from PIL import Image
 
-from pipescaler.common import UnsupportedPlatformError
+from pipescaler.common import UnsupportedPlatformError, validate_input_file
 from pipescaler.core import UnsupportedImageModeError, remove_palette_from_image
 
 if environ.get("PACKAGE_ROOT") is not None:
@@ -26,6 +26,7 @@ else:
 alt_infiles = {
     splitext(f)[0]: join(dirname(package_root), "test", "data", "infiles", "alt", f)
     for f in [
+        "1.png",
         "L.png",
         "LA.png",
         "RGB.png",
@@ -47,6 +48,7 @@ waifu_models = {
 infiles = {
     splitext(f[-1])[0]: join(dirname(package_root), "test", "data", "infiles", *f)
     for f in [
+        ("basic", "1.png"),
         ("basic", "L.png"),
         ("basic", "LA.png"),
         ("basic", "PL.png"),
@@ -55,6 +57,7 @@ infiles = {
         ("basic", "PRGBA.png"),
         ("basic", "RGB.png"),
         ("basic", "RGBA.png"),
+        ("extra", "1_L.png"),
         ("extra", "L_LA.png"),
         ("extra", "RGB_RGBA.png"),
         ("novel", "L_solid.png"),
@@ -99,6 +102,19 @@ def expected_output_mode(input_image: Image.Image):
         return remove_palette_from_image(input_image).mode
     else:
         return input_image.mode
+
+
+def get_infile(name: str):
+    base_directory = join(dirname(package_root), "test", "data", "infiles")
+    split_name = normpath(name).split(sep)
+    if len(split_name) == 1:
+        sub_directory = "basic"
+    else:
+        sub_directory = join(*split_name[:-1])
+    filename = split_name[-1]
+    if splitext(filename)[-1] == "":
+        filename = f"{filename}.png"
+    return validate_input_file(join(base_directory, sub_directory, filename))
 
 
 def skip_if_ci(inner=None):

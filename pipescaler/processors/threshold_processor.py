@@ -55,10 +55,10 @@ class ThresholdProcessor(Processor):
         # Process image
         output_image = input_image.point(lambda p: p > self.threshold and 255)
         if self.denoise:
+            # noinspection PyTypeChecker
             output_data = np.array(output_image)
             self.denoise_data(output_data)
             output_image = Image.fromarray(output_data)
-        output_image = output_image.convert("L")
 
         # Write image
         output_image.save(outfile)

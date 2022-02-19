@@ -134,7 +134,7 @@ class ESRGANProcessor(Processor):
 
             self.model = model_net.to(device)
             self.device = device
-            self.scale_factor = 2 ** scale
+            self.scale_factor = 2**scale
 
         def upscale(self, input_datum):
             input_datum = input_datum * 1.0 / 255
@@ -202,8 +202,9 @@ class ESRGANProcessor(Processor):
         """
         # Read image
         input_image, input_mode = validate_image_and_convert_mode(
-            infile, ["L", "RGB"], "RGB"
+            infile, ["1", "L", "RGB"], "RGB"
         )
+        # noinspection PyTypeChecker
         input_datum = np.array(input_image)
 
         # Process image
@@ -219,8 +220,8 @@ class ESRGANProcessor(Processor):
             else:
                 raise e
         output_image = Image.fromarray(output_datum)
-        if input_mode == "L":
-            output_image = output_image.convert("L")
+        if output_image.mode != input_mode:
+            output_image = output_image.convert(input_mode)
 
         # Write image
         output_image.save(outfile)

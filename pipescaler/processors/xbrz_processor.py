@@ -48,7 +48,7 @@ class XbrzProcessor(Processor):
         """
         # Read image
         input_image, input_mode = validate_image_and_convert_mode(
-            infile, ["L", "LA", "RGB", "RGBA"], "RGBA"
+            infile, ["1", "L", "LA", "RGB", "RGBA"], "RGBA"
         )
 
         # Process image
@@ -57,9 +57,10 @@ class XbrzProcessor(Processor):
             output_image = Image.fromarray(np.array(output_image)[:, :, :3])
         elif input_mode == "LA":
             output_image = output_image.convert("LA")
-        elif input_mode == "L":
-            output_image = Image.fromarray(np.array(output_image)[:, :, :3])
-            output_image = output_image.convert("L")
+        elif input_mode in ("1", "L"):
+            output_image = Image.fromarray(np.array(output_image)[:, :, :3]).convert(
+                "L"
+            )
 
         # Write image
         output_image.save(outfile)
