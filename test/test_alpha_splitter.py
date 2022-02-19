@@ -25,16 +25,16 @@ def alpha_splitter(request) -> AlphaSplitter:
     [
         xfail_unsupported_mode()("1", "L", {}),
         xfail_unsupported_mode()("L", "L", {}),
-        ("LA", "L", {}),
+        ("LA", "L", {"alpha_mode": "L"}),
         ("LA", "L", {"alpha_mode": "L_OR_1"}),
         ("LA", "L", {"alpha_mode": "L_OR_1_FILL"}),
         xfail_unsupported_mode()("RGB", "L", {}),
-        ("RGBA", "L", {}),
+        ("RGBA", "L", {"alpha_mode": "L"}),
         ("RGBA", "L", {"alpha_mode": "L_OR_1"}),
         ("RGBA", "L", {"alpha_mode": "L_OR_1_FILL"}),
-        ("PLA", "L", {}),
-        ("PRGBA", "L", {}),
-        ("novel/RGBA_monochrome", "L", {}),
+        ("PLA", "L", {"alpha_mode": "L"}),
+        ("PRGBA", "L", {"alpha_mode": "L"}),
+        ("novel/RGBA_monochrome", "L", {"alpha_mode": "L"}),
         ("novel/RGBA_monochrome", "1", {"alpha_mode": "L_OR_1"}),
         ("novel/RGBA_monochrome", "1", {"alpha_mode": "L_OR_1_FILL"}),
     ],
@@ -44,6 +44,7 @@ def test_alpha_splitter(
     infile: str, expected_alpha_mode: str, alpha_splitter: AlphaSplitter
 ) -> None:
     infile = get_infile(infile)
+
     with temporary_filename(".png") as color_outfile:
         with temporary_filename(".png") as alpha_outfile:
             input_image = Image.open(infile)

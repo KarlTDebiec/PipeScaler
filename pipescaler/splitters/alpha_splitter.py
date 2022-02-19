@@ -16,7 +16,7 @@ from typing import Any, Dict, List, Union
 import numpy as np
 from PIL import Image
 
-from pipescaler.common import validate_enum
+from pipescaler.common import validate_enum, validate_output_path
 from pipescaler.core import Splitter, is_monochrome, validate_image
 from pipescaler.util import MaskFiller
 
@@ -87,8 +87,10 @@ class AlphaSplitter(Splitter):
             color_image = self.mask_filler(color_image, alpha_image)
 
         # Write images
+        color = validate_output_path(color)
         color_image.save(color)
         info(f"{self}: '{color}' saved")
+        alpha = validate_output_path(alpha)
         alpha_image.save(alpha)
         info(f"{self}: '{alpha}' saved")
 

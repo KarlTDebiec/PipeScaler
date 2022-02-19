@@ -34,6 +34,7 @@ def normal_splitter(request) -> NormalSplitter:
 )
 def test_normal_splitter(infile: str, normal_splitter: NormalSplitter) -> None:
     infile = get_infile(infile)
+
     with temporary_filename(".png") as x_outfile:
         with temporary_filename(".png") as y_outfile:
             with temporary_filename(".png") as z_outfile:
