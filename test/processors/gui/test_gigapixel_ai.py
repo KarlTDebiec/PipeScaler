@@ -1,37 +1,47 @@
 #!/usr/bin/env python
-#   test_gui_processors.py
+#   test/processors/gui/test_gigapixel_ai.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license. See the LICENSE file for details.
-
+"""Tests for GigapixelAiProcessor"""
 import pytest
 from PIL import Image
-from shared import expected_output_mode, infiles, skip_if_ci, xfail_if_platform
 
 from pipescaler.common import temporary_filename
 from pipescaler.processors import GigapixelAiProcessor
+from pipescaler.testing import (
+    expected_output_mode,
+    get_infile,
+    skip_if_ci,
+    stage_fixture,
+    xfail_if_platform,
+)
 
 
-@pytest.fixture()
+@stage_fixture(
+    cls=GigapixelAiProcessor,
+    params=[
+        {},
+    ],
+)
 def gigapixel_ai_processor(request) -> GigapixelAiProcessor:
     return GigapixelAiProcessor(**request.param)
 
 
 @pytest.mark.gui
 @pytest.mark.parametrize(
-    ("infile", "gigapixel_ai_processor"),
+    ("infile"),
     [
-        skip_if_ci(xfail_if_platform({"Darwin", "Linux"}))(infiles["RGB"], {}),
-        skip_if_ci(xfail_if_platform({"Darwin", "Linux"}))(infiles["L"], {}),
+        skip_if_ci(xfail_if_platform({"Darwin", "Linux"}))("RGB"),
+        skip_if_ci(xfail_if_platform({"Darwin", "Linux"}))("L"),
     ],
-    indirect=["gigapixel_ai_processor"],
 )
-def test_gigapixel_ai(
-    infile: str, gigapixel_ai_processor: GigapixelAiProcessor
-) -> None:
+def test(infile: str, gigapixel_ai_processor: GigapixelAiProcessor) -> None:
+    infile = get_infile(infile)
+
     with temporary_filename(".png") as outfile:
         gigapixel_ai_processor(infile, outfile)
 

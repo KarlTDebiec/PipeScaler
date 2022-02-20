@@ -68,7 +68,8 @@ class ResizeProcessor(Processor):
             outfile: Output file path
         """
         # Read image
-        input_image = validate_image(infile, ["L", "LA", "RGB", "RGBA"])
+        input_image = validate_image(infile, ["1", "L", "LA", "RGB", "RGBA"])
+        # noinspection PyTypeChecker
         input_datum = np.array(input_image)
 
         # Process image
@@ -80,18 +81,22 @@ class ResizeProcessor(Processor):
             rgba_datum = np.zeros((size[1], size[0], 4), np.uint8)
             rgb_image = Image.fromarray(input_datum[:, :, :3])
             rgb_image = rgb_image.resize(size, resample=self.resample)
+            # noinspection PyTypeChecker
             rgba_datum[:, :, :3] = np.array(rgb_image)
             a_image = Image.fromarray(input_datum[:, :, 3])
             a_image = a_image.resize(size, resample=self.resample)
+            # noinspection PyTypeChecker
             rgba_datum[:, :, 3] = np.array(a_image)
             output_image = Image.fromarray(rgba_datum)
         elif input_image.mode == "LA":
             la_datum = np.zeros((size[1], size[0], 2), np.uint8)
             l_image = Image.fromarray(input_datum[:, :, 0])
             l_image = l_image.resize(size, resample=self.resample)
+            # noinspection PyTypeChecker
             la_datum[:, :, 0] = np.array(l_image)
             a_image = Image.fromarray(input_datum[:, :, 1])
             a_image = a_image.resize(size, resample=self.resample)
+            # noinspection PyTypeChecker
             la_datum[:, :, 1] = np.array(a_image)
             output_image = Image.fromarray(la_datum)
         else:

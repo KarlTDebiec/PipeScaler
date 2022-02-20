@@ -6,17 +6,8 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license. See the LICENSE file for details.
-from functools import partial
 from os import environ, getenv
-from os.path import dirname, join, normpath, sep, splitext
-from platform import system
-from typing import Any, Dict, List, Set, Type
-
-import pytest
-from PIL import Image
-
-from pipescaler.common import UnsupportedPlatformError, validate_input_file
-from pipescaler.core import UnsupportedImageModeError, remove_palette_from_image
+from os.path import dirname, join, splitext
 
 if environ.get("PACKAGE_ROOT") is not None:
     package_root = getenv("PACKAGE_ROOT")
@@ -36,14 +27,6 @@ alt_infiles = {
         "PRGB.png",
         "PRGBA.png",
     ]
-}
-esrgan_models = {
-    f[:-4]: join(dirname(package_root), "test", "data", "models", "ESRGAN", f)
-    for f in ["1x_BC1-smooth2.pth", "RRDB_ESRGAN_x4.pth", "RRDB_ESRGAN_x4_old_arch.pth"]
-}
-waifu_models = {
-    f[:-4]: join(dirname(package_root), "test", "data", "models", f)
-    for f in ["WaifuUpConv7/a-2-3.pth", "WaifuVgg7/a-1-3.pth"]
 }
 infiles = {
     splitext(f[-1])[0]: join(dirname(package_root), "test", "data", "infiles", *f)
@@ -86,89 +69,3 @@ infiles = {
         ("split", "RGBA_color_RGB.png"),
     ]
 }
-infile_subfolders = {
-    subfolder: join(dirname(package_root), "test", "data", "infiles", subfolder)
-    for subfolder in ["basic", "extra", "novel", "split"]
-}
-
-
-@pytest.fixture(params=infiles.keys())
-def infile(request):
-    return infiles[request.param]
-
-
-def expected_output_mode(input_image: Image.Image):
-    if input_image.mode == "P":
-        return remove_palette_from_image(input_image).mode
-    else:
-        return input_image.mode
-
-
-def get_infile(name: str):
-    base_directory = join(dirname(package_root), "test", "data", "infiles")
-    split_name = normpath(name).split(sep)
-    if len(split_name) == 1:
-        sub_directory = "basic"
-    else:
-        sub_directory = join(*split_name[:-1])
-    filename = split_name[-1]
-    if splitext(filename)[-1] == "":
-        filename = f"{filename}.png"
-    return validate_input_file(join(base_directory, sub_directory, filename))
-
-
-def skip_if_ci(inner=None):
-    marks = [
-        pytest.mark.skipif(
-            getenv("CI") is not None,
-            reason="Skip when running in CI",
-        )
-    ]
-    if inner is not None:
-        marks.append(inner.keywords["marks"].mark)
-    return partial(pytest.param, marks=marks)
-
-
-def stage_fixture(cls: object, params: List[Dict[str, Any]]):
-    def get_name(args):
-        return f"{cls.__name__}({','.join(args.values())})"
-
-    return partial(pytest.fixture(params=params, ids=get_name))
-
-
-def xfail_if_platform(
-    unsupported_platforms: Set[str] = None,
-    raises: Type[Exception] = UnsupportedPlatformError,
-    inner=None,
-):
-    marks = (
-        pytest.mark.xfail(
-            system() in unsupported_platforms,
-            raises=raises,
-            reason=f"Not supported on {system()}",
-        ),
-    )
-    if inner is not None:
-        marks.append(inner.keywords["marks"].mark)
-    return partial(pytest.param, marks=marks)
-
-
-def xfail_file_not_found(inner=None):
-    marks = pytest.mark.xfail(raises=FileNotFoundError)
-    if inner is not None:
-        marks.append(inner.keywords["marks"].mark)
-    return partial(pytest.param, marks=marks)
-
-
-def xfail_unsupported_image_mode(inner=None):
-    marks = pytest.mark.xfail(raises=UnsupportedImageModeError)
-    if inner is not None:
-        marks.append(inner.keywords["marks"].mark)
-    return partial(pytest.param, marks=marks)
-
-
-def xfail_value(inner=None):
-    marks = pytest.mark.xfail(raises=ValueError)
-    if inner is not None:
-        marks.append(inner.keywords["marks"].mark)
-    return partial(pytest.param, marks=marks)

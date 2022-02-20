@@ -1,19 +1,19 @@
 #!/usr/bin/env python
-#   test_alpha_splitter.py
+#   test/splitters/test_alpha_splitter.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license. See the LICENSE file for details.
-
+"""Tests for AlphaSplitter"""
 import pytest
 from PIL import Image
-from shared import get_infile, stage_fixture, xfail_unsupported_image_mode
 
 from pipescaler.common import temporary_filename
 from pipescaler.core import remove_palette_from_image
 from pipescaler.splitters import AlphaSplitter
+from pipescaler.testing import get_infile, stage_fixture, xfail_unsupported_image_mode
 
 
 @stage_fixture(
@@ -41,7 +41,7 @@ def alpha_splitter(request) -> AlphaSplitter:
         ("novel/RGBA_monochrome"),
     ],
 )
-def test_alpha_splitter(
+def test(
     infile: str,
     alpha_splitter: AlphaSplitter,
 ) -> None:

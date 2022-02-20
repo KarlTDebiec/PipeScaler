@@ -1,17 +1,18 @@
 #!/usr/bin/env python
-#   test_normal_splitter.py
+#   test/splitters/test_normal_splitter.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license. See the LICENSE file for details.
+"""Tests for NormalSplitter"""
 import pytest
 from PIL import Image
-from shared import get_infile, stage_fixture, xfail_unsupported_image_mode
 
 from pipescaler.common import temporary_filename
 from pipescaler.splitters import NormalSplitter
+from pipescaler.testing import get_infile, stage_fixture, xfail_unsupported_image_mode
 
 
 @stage_fixture(cls=NormalSplitter, params=[{}])
@@ -31,7 +32,7 @@ def normal_splitter(request) -> NormalSplitter:
         ("novel/RGB_normal"),
     ],
 )
-def test_normal_splitter(infile: str, normal_splitter: NormalSplitter) -> None:
+def test(infile: str, normal_splitter: NormalSplitter) -> None:
     infile = get_infile(infile)
 
     with temporary_filename(".png") as x_outfile:
