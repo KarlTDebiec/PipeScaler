@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   test_scaled_pair_identifier.py
+#   test/util/test_scaled_pair_identifier.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
@@ -14,10 +14,10 @@ from tempfile import TemporaryDirectory
 import numpy as np
 import pytest
 from PIL import Image
-from shared import alt_infiles, infiles
 
 from pipescaler.common import temporary_filename
 from pipescaler.core import get_files
+from pipescaler.testing import get_infile
 from pipescaler.util import ScaledPairIdentifier
 
 
@@ -27,9 +27,9 @@ from pipescaler.util import ScaledPairIdentifier
 def test_review() -> None:
     with TemporaryDirectory() as input_directory:
         for mode in ["L", "LA", "RGB", "RGBA"]:
-            base_filename = splitext(basename(infiles[mode]))[0]
-            copy(infiles[mode], join(input_directory, f"{base_filename}_1.png"))
-            parent = Image.open(infiles[mode])
+            base_filename = splitext(basename(get_infile(mode)))[0]
+            copy(get_infile(mode), join(input_directory, f"{base_filename}_1.png"))
+            parent = Image.open(get_infile(mode))
             for scale in np.array([1 / (2**x) for x in range(1, 7)]):
                 width = round(parent.size[0] * scale)
                 height = round(parent.size[1] * scale)
@@ -38,13 +38,16 @@ def test_review() -> None:
                 child = parent.resize((width, height), Image.NEAREST)
                 outfile = join(
                     input_directory,
-                    f"{splitext(basename(infiles[mode]))[0]}_{scale}_1.png",
+                    f"{splitext(basename(get_infile(mode)))[0]}_{scale}_1.png",
                 )
                 child.save(outfile)
         for mode in ["L", "LA", "RGB", "RGBA"]:
-            base_filename = splitext(basename(alt_infiles[mode]))[0]
-            copy(alt_infiles[mode], join(input_directory, f"{base_filename}_alt_1.png"))
-            parent = Image.open(alt_infiles[mode])
+            base_filename = splitext(basename(get_infile(f"alt/{mode}")))[0]
+            copy(
+                get_infile(f"alt/{mode}"),
+                join(input_directory, f"{base_filename}_alt_1.png"),
+            )
+            parent = Image.open(get_infile(f"alt/{mode}"))
             for scale in np.array([1 / (2**x) for x in range(1, 7)]):
                 width = round(parent.size[0] * scale)
                 height = round(parent.size[1] * scale)
@@ -53,7 +56,7 @@ def test_review() -> None:
                 child = parent.resize((width, height), Image.NEAREST)
                 outfile = join(
                     input_directory,
-                    f"{splitext(basename(alt_infiles[mode]))[0]}_alt_{scale}_1.png",
+                    f"{splitext(basename(get_infile(f'alt/{mode}')))[0]}_alt_{scale}_1.png",
                 )
                 child.save(outfile)
         absolute_filenames = get_files(input_directory, style="absolute")

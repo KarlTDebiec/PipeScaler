@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Pipescaler testing marks"""
+"""Marks for testing"""
 from functools import partial
 from os import getenv
 from platform import system

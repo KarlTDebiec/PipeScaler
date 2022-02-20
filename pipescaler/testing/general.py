@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Pipescaler testing general code"""
+"""General functions for testing"""
 from inspect import getfile
 from typing import Type
 

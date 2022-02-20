@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Pipescaler testing file code"""
+"""File-related functions for testing"""
 from os.path import dirname, join, normpath, sep, splitext
 
 from pipescaler.common import (

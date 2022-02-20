@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Pipescaler testing image code"""
+"""Image-related functions for testing"""
 from PIL import Image
 
 from pipescaler.core import remove_palette_from_image
