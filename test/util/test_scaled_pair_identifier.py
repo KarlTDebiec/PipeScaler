@@ -6,6 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license. See the LICENSE file for details.
+"""Tests for ScaledPairIdentifier"""
 from os.path import basename, join, splitext
 from platform import system
 from shutil import copy

@@ -22,6 +22,6 @@ def directory_source(request) -> DirectorySource:
     return DirectorySource(**request.param)
 
 
-def test_directory_source(directory_source: DirectorySource) -> None:
+def test(directory_source: DirectorySource) -> None:
     for infile in directory_source:
         pass

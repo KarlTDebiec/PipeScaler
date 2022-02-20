@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   test/processors/test_waifu_external.py
+#   test/processors/test_waifu.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
