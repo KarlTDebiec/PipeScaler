@@ -7,13 +7,15 @@
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
 """File-related functions for testing"""
+from os import environ, getenv
 from os.path import dirname, join, normpath, sep, splitext
 
-from pipescaler.common import (
-    package_root,
-    validate_input_directory,
-    validate_input_file,
-)
+from pipescaler.common import validate_input_directory, validate_input_file
+
+if environ.get("PACKAGE_ROOT") is not None:
+    package_root = getenv("PACKAGE_ROOT")
+else:
+    from pipescaler.common import package_root
 
 
 def get_infile(name: str):
