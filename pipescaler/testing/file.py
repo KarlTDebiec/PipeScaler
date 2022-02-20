@@ -32,6 +32,24 @@ def get_infile(name: str):
     return validate_input_file(join(base_directory, sub_directory, filename))
 
 
+def get_model_infile(name: str):
+    base_directory = join(dirname(package_root), "test", "data", "models")
+    split_name = normpath(name).split(sep)
+    if len(split_name) == 1:
+        sub_directory = "WaifuUpConv7"
+    else:
+        sub_directory = join(*split_name[:-1])
+    filename = split_name[-1]
+    if splitext(filename)[-1] == "":
+        filename = f"{filename}.pth"
+
+    infile = join(base_directory, sub_directory, filename)
+    if getenv("CI") is None:
+        infile = validate_input_file(infile)
+
+    return infile
+
+
 def get_script(filename: str):
     if splitext(filename)[-1] == "":
         filename = f"{filename}.py"

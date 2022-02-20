@@ -11,7 +11,12 @@ from __future__ import annotations
 
 from typing import List
 
-from pipescaler.testing.file import get_infile, get_script, get_sub_directory
+from pipescaler.testing.file import (
+    get_infile,
+    get_model_infile,
+    get_script,
+    get_sub_directory,
+)
 from pipescaler.testing.fixture import stage_fixture
 from pipescaler.testing.general import run_processor_on_command_line
 from pipescaler.testing.image import expected_output_mode
@@ -26,6 +31,7 @@ from pipescaler.testing.mark import (
 __all__: List[str] = [
     "expected_output_mode",
     "get_infile",
+    "get_model_infile",
     "get_script",
     "get_sub_directory",
     "skip_if_ci",

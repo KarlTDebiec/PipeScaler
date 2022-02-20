@@ -7,16 +7,15 @@
 #   This software may be modified and distributed under the terms of the
 #   BSD license. See the LICENSE file for details.
 """Tests for ESRGANProcessor"""
-from os.path import dirname, join, normpath, sep, splitext
-
 import pytest
 from PIL import Image
 
-from pipescaler.common import package_root, temporary_filename, validate_input_file
+from pipescaler.common import temporary_filename
 from pipescaler.processors import ESRGANProcessor
 from pipescaler.testing import (
     expected_output_mode,
     get_infile,
+    get_model_infile,
     run_processor_on_command_line,
     skip_if_ci,
     stage_fixture,
@@ -24,26 +23,12 @@ from pipescaler.testing import (
 )
 
 
-def get_model_infile(name: str):
-    base_directory = join(dirname(package_root), "test", "data", "models")
-    split_name = normpath(name).split(sep)
-    if len(split_name) == 1:
-        sub_directory = "ESRGAN"
-    else:
-        sub_directory = join(*split_name[:-1])
-    filename = split_name[-1]
-    if splitext(filename)[-1] == "":
-        filename = f"{filename}.pth"
-
-    return validate_input_file(join(base_directory, sub_directory, filename))
-
-
 @stage_fixture(
     cls=ESRGANProcessor,
     params=[
-        {"model_infile": get_model_infile("1x_BC1-smooth2")},
-        {"model_infile": get_model_infile("RRDB_ESRGAN_x4")},
-        {"model_infile": get_model_infile("RRDB_ESRGAN_x4_old_arch")},
+        {"model_infile": get_model_infile("ESRGAN/1x_BC1-smooth2")},
+        {"model_infile": get_model_infile("ESRGAN/RRDB_ESRGAN_x4")},
+        {"model_infile": get_model_infile("ESRGAN/RRDB_ESRGAN_x4_old_arch")},
     ],
 )
 def esrgan_processor(request) -> ESRGANProcessor:

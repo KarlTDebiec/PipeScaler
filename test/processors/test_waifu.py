@@ -7,34 +7,19 @@
 #   This software may be modified and distributed under the terms of the
 #   BSD license. See the LICENSE file for details.
 """Tests for WaifuProcessor"""
-from os.path import dirname, join, normpath, sep, splitext
-
 import pytest
 from PIL import Image
 
-from pipescaler.common import package_root, temporary_filename, validate_input_file
+from pipescaler.common import temporary_filename
 from pipescaler.processors import WaifuProcessor
 from pipescaler.testing import (
     expected_output_mode,
     get_infile,
+    get_model_infile,
     skip_if_ci,
     stage_fixture,
     xfail_unsupported_image_mode,
 )
-
-
-def get_model_infile(name: str):
-    base_directory = join(dirname(package_root), "test", "data", "models")
-    split_name = normpath(name).split(sep)
-    if len(split_name) == 1:
-        sub_directory = "WaifuUpConv7"
-    else:
-        sub_directory = join(*split_name[:-1])
-    filename = split_name[-1]
-    if splitext(filename)[-1] == "":
-        filename = f"{filename}.pth"
-
-    return validate_input_file(join(base_directory, sub_directory, filename))
 
 
 @stage_fixture(
