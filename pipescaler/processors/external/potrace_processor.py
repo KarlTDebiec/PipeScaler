@@ -64,6 +64,7 @@ class PotraceProcessor(ExternalProcessor):
 
     @property
     def command_template(self):
+        """String template with which to generate command"""
         command = (
             f"{validate_executable(self.executable, self.supported_platforms)}"
             " {bmpfile}"
@@ -78,13 +79,18 @@ class PotraceProcessor(ExternalProcessor):
 
     @property
     def executable(self) -> str:
+        """Name of executable"""
         return "potrace"
 
-    def process(self, temp_infile: str, temp_outfile: str) -> None:
+    def process(self, infile: str, outfile: str) -> None:
         """
         Read image from infile, process it, and save to outfile
+
+        Arguments:
+            infile: Input file path
+            outfile: Output file path
         """
-        input_image = validate_image(temp_infile, ["1", "L"])
+        input_image = validate_image(infile, ["1", "L"])
         if self.invert:
             input_image = invert(input_image)
 
@@ -110,7 +116,7 @@ class PotraceProcessor(ExternalProcessor):
 
         if self.invert:
             output_image = invert(output_image)
-        output_image.save(temp_outfile)
+        output_image.save(outfile)
 
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:

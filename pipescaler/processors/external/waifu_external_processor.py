@@ -81,6 +81,7 @@ class WaifuExternalProcessor(ExternalProcessor):
 
     @property
     def command_template(self):
+        """String template with which to generate command"""
         command = (
             f"{validate_executable(self.executable, self.supported_platforms)}"
             f" -s {self.scale}"
@@ -94,34 +95,39 @@ class WaifuExternalProcessor(ExternalProcessor):
 
     @property
     def executable(self) -> str:
+        """Name of executable"""
         if system() == "Windows":
             return "waifu2x-caffe-cui.exe"
         else:
             return "waifu2x"
 
-    def process(self, temp_infile: str, temp_outfile: str) -> None:
+    def process(self, infile: str, outfile: str) -> None:
         """
         Read image from infile, process it, and save to outfile
+
+        Arguments:
+            infile: Input file path
+            outfile: Output file path
         """
         input_image, input_mode = validate_image_and_convert_mode(
-            temp_infile, ["1", "L", "RGB"], "RGB"
+            infile, ["1", "L", "RGB"], "RGB"
         )
 
-        with temporary_filename(".png") as temp_temp_infile:
+        with temporary_filename(".png") as intermediate_file_1:
             if self.expand:
                 intermediate_image = expand_image(input_image, 8, 8, 8, 8, 200)
             else:
                 intermediate_image = input_image.copy()
-            intermediate_image.save(temp_temp_infile)
+            intermediate_image.save(intermediate_file_1)
 
-            with temporary_filename(".png") as temp_temp_outfile:
+            with temporary_filename(".png") as intermediate_file_2:
                 command = self.command_template.format(
-                    infile=temp_temp_infile, outfile=temp_temp_outfile
+                    infile=intermediate_file_1, outfile=intermediate_file_2
                 )
                 debug(f"{self}: {command}")
                 run_command(command)
 
-                output_image = Image.open(temp_temp_outfile)
+                output_image = Image.open(intermediate_file_2)
                 if self.expand:
                     output_image = crop_image(
                         output_image,
@@ -133,7 +139,7 @@ class WaifuExternalProcessor(ExternalProcessor):
                 if output_image.mode != input_mode:
                     output_image = output_image.convert(input_mode)
 
-        output_image.save(temp_outfile)
+        output_image.save(outfile)
 
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:

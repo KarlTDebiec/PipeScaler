@@ -46,6 +46,7 @@ class AutomatorProcessor(ExternalProcessor):
 
     @property
     def command_template(self):
+        """String template with which to generate command"""
         return (
             f"{validate_executable(self.executable, self.supported_platforms)}"
             " -i {infile}"
@@ -54,10 +55,12 @@ class AutomatorProcessor(ExternalProcessor):
 
     @property
     def executable(self) -> str:
+        """Name of executable"""
         return "automator"
 
     @property
     def supported_platforms(self) -> Set[str]:
+        """Platforms on which processor is supported"""
         return {"Darwin"}
 
     @classmethod

@@ -47,6 +47,7 @@ class PngquantProcessor(ExternalProcessor):
 
     @property
     def command_template(self):
+        """String template with which to generate command"""
         command = (
             f"{validate_executable(self.executable, self.supported_platforms)}"
             " --skip-if-larger"
@@ -62,20 +63,25 @@ class PngquantProcessor(ExternalProcessor):
 
     @property
     def executable(self) -> str:
+        """Name of executable"""
         return "pngquant"
 
-    def process(self, temp_infile: str, temp_outfile: str) -> None:
+    def process(self, infile: str, outfile: str) -> None:
         """
         Read image from infile, process it, and save to outfile
+
+        Arguments:
+            infile: Input file path
+            outfile: Output file path
         """
-        command = self.command_template.format(infile=temp_infile, outfile=temp_outfile)
+        command = self.command_template.format(infile=infile, outfile=outfile)
         debug(f"{self}: {command}")
         exitcode, stdout, stderr = run_command(
             command, acceptable_exitcodes=[0, 98, 99]
         )
         if exitcode in [98, 99]:
             # pngquant may not save outfile if it is too large or low quality
-            copyfile(temp_infile, temp_outfile)
+            copyfile(infile, outfile)
 
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:

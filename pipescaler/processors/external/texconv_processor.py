@@ -57,6 +57,7 @@ class TexconvProcessor(ExternalProcessor):
 
     @property
     def command_template(self):
+        """String template with which to generate command"""
         command = f"{validate_executable(self.executable, self.supported_platforms)}"
         if self.mipmaps:
             if self.sepalpha:
@@ -74,24 +75,30 @@ class TexconvProcessor(ExternalProcessor):
 
     @property
     def executable(self) -> str:
+        """Name of executable"""
         return "texconv.exe"
 
     @property
     def supported_platforms(self) -> Set[str]:
+        """Platforms on which processor is supported"""
         return {"Windows"}
 
-    def process(self, temp_infile: str, temp_outfile: str) -> None:
+    def process(self, infile: str, outfile: str) -> None:
         """
         Read image from infile, process it, and save to outfile
+
+        Arguments:
+            infile: Input file path
+            outfile: Output file path
         """
         command = self.command_template.format(
-            infile=temp_infile, directory=dirname(temp_outfile)
+            infile=infile, directory=dirname(outfile)
         )
         debug(f"{self}: {command}")
         run_command(command)
         copyfile(
-            join(dirname(temp_outfile), f"{splitext(basename(temp_infile))[0]}.DDS"),
-            temp_outfile,
+            join(dirname(outfile), f"{splitext(basename(infile))[0]}.DDS"),
+            outfile,
         )
 
     @classmethod

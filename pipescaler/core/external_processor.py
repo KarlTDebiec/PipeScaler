@@ -57,10 +57,14 @@ class ExternalProcessor(Processor, ABC):
         """Platforms on which processor is supported"""
         return {"Darwin", "Linux", "Windows"}
 
-    def process(self, temp_infile: str, temp_outfile: str):
+    def process(self, infile: str, outfile: str) -> None:
         """
         Read image from infile, process it, and save to outfile
+
+        Arguments:
+            infile: Input file path
+            outfile: Output file path
         """
-        command = self.command_template.format(infile=temp_infile, outfile=temp_outfile)
+        command = self.command_template.format(infile=infile, outfile=outfile)
         debug(f"{self}: {command}")
         run_command(command)
