@@ -60,6 +60,7 @@ def test(conf: str, infile: str, web_processor: WebProcessor):
                 web_processor(infile, outfile)
 
                 child.send_signal(SIGTERM)
+
                 with Image.open(infile) as input_image, Image.open(
                     outfile
                 ) as output_image:

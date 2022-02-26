@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/processors/waifu_external_processor.py
+#   pipescaler/processors/external/waifu_external_processor.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
@@ -21,14 +21,20 @@ from PIL import Image
 
 from pipescaler.common import (
     run_command,
+    temporary_filename,
     validate_executable,
     validate_int,
     validate_str,
 )
-from pipescaler.core import Processor, validate_image_and_convert_mode
+from pipescaler.core import (
+    ExternalProcessor,
+    crop_image,
+    expand_image,
+    validate_image_and_convert_mode,
+)
 
 
-class WaifuExternalProcessor(Processor):
+class WaifuExternalProcessor(ExternalProcessor):
     """
     Upscales and/or denoises image using [waifu2x](https://github.com/nagadomi/waifu2x)
 
@@ -62,7 +68,7 @@ class WaifuExternalProcessor(Processor):
             imagetype: Image type
             denoise: Level of denoising to apply
             scale: Output image scale
-            expand: Whether or not to expand and crop image
+            expand: Whether to expand and crop image
         """
         super().__init__(**kwargs)
 
@@ -75,82 +81,61 @@ class WaifuExternalProcessor(Processor):
         self.denoise = validate_int(denoise, min_value=0, max_value=4)
         self.expand = expand
 
-    def __call__(self, infile: str, outfile: str) -> None:
-        """
-        Read image from infile, process it, and save to outfile
-
-        Arguments:
-            infile: Input file path
-            outfile: Output file path
-        """
-        if system() == "Windows":
-            command = (
-                validate_executable("waifu2x-caffe-cui.exe", {"Windows"}) + " -p gpu"
-            )
-        else:
-            command = (
-                validate_executable("waifu2x", {"Darwin", "Linux"})
-                + f" -t {self.imagetype}"
-            )
-
-        # Read image
-        input_image, input_mode = validate_image_and_convert_mode(
-            infile, ["1", "L", "RGB"], "RGB"
-        )
-
-        tempfile = NamedTemporaryFile(delete=False, suffix=".png")
-        if self.expand:
-            w, h = input_image.size
-            transposed_h = input_image.transpose(Image.FLIP_LEFT_RIGHT)
-            transposed_v = input_image.transpose(Image.FLIP_TOP_BOTTOM)
-            transposed_hv = input_image.transpose(Image.FLIP_TOP_BOTTOM)
-            reflected = Image.new(
-                "RGB", (max(200, int(w * 1.5)), max(200, int(h * 1.5)))
-            )
-            x = reflected.size[0] // 2
-            y = reflected.size[1] // 2
-            reflected.paste(input_image, (x - w // 2, y - h // 2))
-            reflected.paste(transposed_h, (x + w // 2, y - h // 2))
-            reflected.paste(transposed_h, (x - w - w // 2, y - h // 2))
-            reflected.paste(transposed_v, (x - w // 2, y - h - h // 2))
-            reflected.paste(transposed_v, (x - w // 2, y + h // 2))
-            reflected.paste(transposed_hv, (x + w // 2, y - h - h // 2))
-            reflected.paste(transposed_hv, (x - w - w // 2, y - h - h // 2))
-            reflected.paste(transposed_hv, (x - w - w // 2, y + h // 2))
-            reflected.paste(transposed_hv, (x + w // 2, y + h // 2))
-            reflected.save(tempfile)
-        else:
-            input_image.save(tempfile)
-        tempfile.close()
-
-        # Process using waifu
-        command += (
+    @property
+    def command_template(self):
+        command = (
+            f"{validate_executable(self.executable, self.supported_platforms)}"
             f" -s {self.scale}"
             f" -n {self.denoise}"
-            f' -i "{tempfile.name}"'
-            f' -o "{outfile}"'
         )
-        debug(f"{self}: {command}")
-        run_command(command)
+        if system() == "Windows":
+            command += " -p gpu"
+        command += ' -i "{infile}" -o "{outfile}"'
 
-        # Load processed image and crop back to original content
-        output_image = Image.open(outfile)
-        remove(tempfile.name)
-        if self.expand:
-            output_image = output_image.crop(
-                (
-                    (x - w // 2) * self.scale,
-                    (y - h // 2) * self.scale,
-                    (x + w // 2) * self.scale,
-                    (y + h // 2) * self.scale,
+        return command
+
+    @property
+    def executable(self) -> str:
+        if system() == "Windows":
+            return "waifu2x-caffe-cui.exe"
+        else:
+            return "waifu2x"
+
+    def process(self, temp_infile: str, temp_outfile: str) -> None:
+        """
+        Read image from infile, process it, and save to outfile
+        """
+        input_image, input_mode = validate_image_and_convert_mode(
+            temp_infile, ["1", "L", "RGB"], "RGB"
+        )
+
+        with temporary_filename(".png") as temp_temp_infile:
+            if self.expand:
+                intermediate_image = expand_image(input_image, 8, 8, 8, 8, 200)
+            else:
+                intermediate_image = input_image.copy()
+            intermediate_image.save(temp_temp_infile)
+
+            with temporary_filename(".png") as temp_temp_outfile:
+                command = self.command_template.format(
+                    infile=temp_temp_infile, outfile=temp_temp_outfile
                 )
-            )
-        if output_image.mode != input_mode:
-            output_image = output_image.convert(input_mode)
+                debug(f"{self}: {command}")
+                run_command(command)
 
-        # Write image
-        output_image.save(outfile)
-        info(f"{self}: '{outfile}' saved")
+                output_image = Image.open(temp_temp_outfile)
+                if self.expand:
+                    output_image = crop_image(
+                        output_image,
+                        (output_image.width - (input_image.width * self.scale)) // 2,
+                        (output_image.height - (input_image.height * self.scale)) // 2,
+                        (output_image.width - (input_image.width * self.scale)) // 2,
+                        (output_image.height - (input_image.height * self.scale)) // 2,
+                    )
+                if output_image.mode != input_mode:
+                    output_image = output_image.convert(input_mode)
+
+        output_image.save(temp_outfile)
 
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:

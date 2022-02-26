@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/processors/waifu_upconv7.py
+#   pipescaler/processors/image/processor.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
@@ -11,18 +11,17 @@ from __future__ import annotations
 
 from argparse import ArgumentParser
 from inspect import cleandoc
-from logging import info
-from typing import Any
+from typing import Any, List
 
 import numpy as np
 import torch
 from PIL import Image
 
 from pipescaler.common import validate_input_path
-from pipescaler.core import Processor, validate_image_and_convert_mode
+from pipescaler.core import ImageProcessor, convert_mode
 
 
-class WaifuProcessor(Processor):
+class WaifuProcessor(ImageProcessor):
     """
     Upscales and/or denoises image using [waifu2x](https://github.com/nagadomi/waifu2x)
     """
@@ -44,30 +43,21 @@ class WaifuProcessor(Processor):
         model.eval()
         self.model = model.to(self.device)
 
-    def __call__(self, infile: str, outfile: str) -> None:
-        """
-        Read image from infile, process it, and save to outfile
+    @property
+    def supported_input_modes(self) -> List[str]:
+        return ["L", "RGB"]
 
-        Arguments:
-            infile: Input file path
-            outfile: Output file path
-        """
-        # Read image
-        input_image, input_mode = validate_image_and_convert_mode(
-            infile, ["L", "RGB"], "RGB"
-        )
+    def process(self, input_image: Image.Image) -> Image.Image:
+        input_image, input_mode = convert_mode(input_image, "RGB")
         # noinspection PyTypeChecker
         input_array = np.array(input_image)
 
-        # Process image
         output_array = self.upscale(input_array)
         output_image = Image.fromarray(output_array)
         if input_mode == "L":
             output_image = output_image.convert("L")
 
-        # Write image
-        output_image.save(outfile)
-        info(f"{self}: '{outfile}' saved")
+        return output_image
 
     def upscale(self, input_array):
         input_array = input_array * 1.0 / 255

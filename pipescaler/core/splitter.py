@@ -10,9 +10,13 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Any, Dict, List, Optional
+from logging import info
+from typing import Any, Dict, List, Optional, Tuple
+
+from PIL import Image
 
 from pipescaler.core.stage import Stage
+from pipescaler.core.validation import validate_image
 
 
 class Splitter(Stage, ABC):
@@ -38,7 +42,7 @@ class Splitter(Stage, ABC):
 
     def __call__(self, infile: str, **kwargs: Any) -> Dict[str, str]:
         """
-        Split infile inout outfiles
+        Split infile into outfiles
 
         Arguments:
             infile: Input file
@@ -50,9 +54,25 @@ class Splitter(Stage, ABC):
             Dict whose keys are outlet names and whose values are the paths to each
             outlet's associated outfile
         """
-        raise NotImplementedError()
+        input_image = validate_image(infile, self.supported_input_modes)
+
+        output_images = self.split(input_image)
+
+        outfiles = {k: kwargs.get(k) for k in self.outlets}
+        for outlet, output_image in zip(self.outlets, output_images):
+            output_image.save(outfiles[outlet])
+            info(f"{self}: '{outfiles[outlet]}' saved")
+
+        return outfiles
 
     @property
     def inlets(self) -> List[str]:
         """Inlets that flow into stage"""
         return ["infile"]
+
+    @property
+    def supported_input_modes(self) -> List[str]:
+        return ["1", "L", "LA", "RGB", "RGBA"]
+
+    def split(self, input_image: Image.Image) -> Tuple[Image.Image, ...]:
+        raise NotImplementedError()

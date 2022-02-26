@@ -6,12 +6,12 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license. See the LICENSE file for details.
-"""Tests for AutomatorExternalProcessor"""
+"""Tests for AutomatorProcessor"""
 import pytest
 from PIL import Image
 
 from pipescaler.common import temporary_filename
-from pipescaler.processors import AutomatorExternalProcessor
+from pipescaler.processors import AutomatorProcessor
 from pipescaler.testing import (
     get_infile,
     run_processor_on_command_line,
@@ -21,13 +21,13 @@ from pipescaler.testing import (
 
 
 @stage_fixture(
-    cls=AutomatorExternalProcessor,
+    cls=AutomatorProcessor,
     params=[
         {"workflow": "pixelmator/denoise.workflow"},
     ],
 )
-def automator_external_processor(request) -> AutomatorExternalProcessor:
-    return AutomatorExternalProcessor(**request.param)
+def processor(request) -> AutomatorProcessor:
+    return AutomatorProcessor(**request.param)
 
 
 @pytest.mark.serial
@@ -38,11 +38,11 @@ def automator_external_processor(request) -> AutomatorExternalProcessor:
         xfail_if_platform({"Linux", "Windows"})("RGBA"),
     ],
 )
-def test(infile: str, automator_external_processor: AutomatorExternalProcessor) -> None:
+def test(infile: str, processor: AutomatorProcessor) -> None:
     infile = get_infile(infile)
 
     with temporary_filename(".png") as outfile:
-        automator_external_processor(infile, outfile)
+        processor(infile, outfile)
 
         with Image.open(infile) as input_image, Image.open(outfile) as output_image:
             assert output_image.mode == input_image.mode
@@ -61,4 +61,4 @@ def test(infile: str, automator_external_processor: AutomatorExternalProcessor) 
 def test_cl(infile: str, args: str) -> None:
     infile = get_infile(infile)
 
-    run_processor_on_command_line(AutomatorExternalProcessor, args, infile)
+    run_processor_on_command_line(AutomatorProcessor, args, infile)

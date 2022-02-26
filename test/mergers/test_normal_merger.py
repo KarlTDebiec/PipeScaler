@@ -16,7 +16,7 @@ from pipescaler.testing import get_infile, stage_fixture, xfail_unsupported_imag
 
 
 @stage_fixture(cls=NormalMerger, params=[{}])
-def normal_merger(request) -> NormalMerger:
+def merger(request) -> NormalMerger:
     return NormalMerger(**request.param)
 
 
@@ -30,7 +30,7 @@ def normal_merger(request) -> NormalMerger:
         ("split/RGB_normal_x_PL", "split/RGB_normal_y_PL", "split/RGB_normal_z_PL"),
     ],
 )
-def test(x: str, y: str, z: str, normal_merger: NormalMerger) -> None:
+def test(x: str, y: str, z: str, merger: NormalMerger) -> None:
     x = get_infile(x)
     y = get_infile(y)
     z = get_infile(z)
@@ -40,7 +40,7 @@ def test(x: str, y: str, z: str, normal_merger: NormalMerger) -> None:
         y_image = Image.open(y)
         z_image = Image.open(z)
 
-        normal_merger(x=x, y=y, z=z, outfile=outfile)
+        merger(x=x, y=y, z=z, outfile=outfile)
 
         with Image.open(outfile) as output_image:
             assert output_image.mode == "RGB"

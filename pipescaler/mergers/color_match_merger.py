@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/mergers/alpha_merger.py
+#   pipescaler/mergers/merger.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
@@ -10,42 +10,47 @@
 from __future__ import annotations
 
 from logging import info
-from typing import Any, List
+from typing import Any, Dict, List
 
 import numpy as np
 from PIL import Image
 from skimage.exposure import match_histograms
 
-from pipescaler.core import Merger, validate_image
+from pipescaler.core import Merger, UnsupportedImageModeError, validate_image
 
 
 class ColorMatchMerger(Merger):
     """Matches an image's color histogram to that of a reference image"""
 
-    def __call__(self, outfile: str, **kwargs: Any) -> None:
-        self.merge(outfile=outfile, **{k: kwargs.get(k) for k in self.inlets})
+    @property
+    def inlets(self) -> List[str]:
+        """Inlets that flow into stage"""
+        return ["reference", "input"]
 
-    def merge(self, input: str, reference: str, outfile: str) -> None:
+    @property
+    def supported_input_modes(self) -> Dict[str, List[str]]:
+        return {
+            "reference": ["L", "LA", "RGB", "RGBA"],
+            "input": ["L", "LA", "RGB", "RGBA"],
+        }
+
+    def merge(self, *input_images: Image.Image) -> Image.Image:
         """
         Match an image's color histogram to that of a reference image
-
-        Arguments:
-            input: Input image whose color is to be matched
-            reference: Reference image to which color is to be matched
-            outfile: Output file
         """
 
         # Read images
-        reference_image = validate_image(reference, ["L", "LA", "RGB", "RGBA"])
-        input_image = validate_image(input, ["L", "LA", "RGB", "RGBA"])
+        reference_image, input_image = input_images
         if reference_image.mode != input_image.mode:
-            raise ValueError(
-                f"Image mode '{reference_image.mode}' of image '{reference}'"
-                f" does not match mode '{input_image.mode}' of image '{input}'"
+            raise UnsupportedImageModeError(
+                f"Image mode '{reference_image.mode}' of reference image"
+                f" does not match mode '{input_image.mode}' of input image"
             )
 
         # Merge images
+        # noinspection PyTypeChecker
         reference_array = np.array(reference_image)
+        # noinspection PyTypeChecker
         input_array = np.array(input_image)
         output_array = match_histograms(
             input_array, reference_array, multichannel=reference_image.mode != "L"
@@ -53,11 +58,4 @@ class ColorMatchMerger(Merger):
         output_array = np.clip(output_array, 0, 255).astype(np.uint8)
         output_image = Image.fromarray(output_array)
 
-        # Write image
-        output_image.save(outfile)
-        info(f"'{self}: '{outfile}' saved")
-
-    @property
-    def inlets(self) -> List[str]:
-        """Inlets that flow into stage"""
-        return ["reference", "input"]
+        return output_image

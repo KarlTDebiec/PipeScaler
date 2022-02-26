@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/processors/mode_processor.py
+#   pipescaler/processors/image/processor.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
@@ -11,19 +11,16 @@ from __future__ import annotations
 
 from argparse import ArgumentParser
 from inspect import cleandoc
-from logging import info
 from typing import Any
 
 from PIL import Image, ImageColor
 
 from pipescaler.common import validate_str
-from pipescaler.core import Processor, validate_image
+from pipescaler.core import ImageProcessor
 
 
-class ModeProcessor(Processor):
+class ModeProcessor(ImageProcessor):
     """Converts mode of image"""
-
-    modes = ["1", "L", "LA", "RGB", "RGBA"]
 
     def __init__(
         self,
@@ -42,10 +39,10 @@ class ModeProcessor(Processor):
         super().__init__(**kwargs)
 
         # Store configuration
-        self.mode = validate_str(mode, self.modes)
+        self.mode = validate_str(mode, self.supported_input_modes)
         self.background_color = ImageColor.getrgb(background_color)  # TODO: Validate
 
-    def __call__(self, infile: str, outfile: str) -> None:
+    def process(self, input_image: Image.Image) -> Image.Image:
         """
         Read image from infile, process it, and save to outfile
 
@@ -53,10 +50,6 @@ class ModeProcessor(Processor):
             infile: Input file path
             outfile: Output file path
         """
-        # Read image
-        input_image = validate_image(infile, ["1", "L", "LA", "RGB", "RGBA"])
-
-        # Process image
         if input_image.mode == self.mode:
             output_image = input_image
         else:
@@ -65,9 +58,7 @@ class ModeProcessor(Processor):
             if self.mode != "RGBA":
                 output_image = output_image.convert(self.mode)
 
-        # Write image
-        output_image.save(outfile)
-        info(f"{self}: '{outfile}' saved")
+        return output_image
 
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
@@ -89,7 +80,7 @@ class ModeProcessor(Processor):
         parser.add_argument(
             "--mode",
             default="RGBA",
-            type=cls.str_arg(options=cls.modes),
+            type=cls.str_arg(options=["1", "L", "LA", "RGB", "RGBA"]),
             help="image mode ('RGBA', 'RGB', 'LA', 'L', or '1', default: %(default)s)",
         )
         parser.add_argument(

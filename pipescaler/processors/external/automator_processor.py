@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/processors/automator_external_processor.py
+#   pipescaler/processors/external/automator_processor.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
@@ -14,7 +14,7 @@ from inspect import cleandoc
 from logging import debug, info
 from os.path import join, split
 from shutil import copyfile
-from typing import Any
+from typing import Any, Set
 
 from pipescaler.common import (
     package_root,
@@ -23,10 +23,10 @@ from pipescaler.common import (
     validate_executable,
     validate_input_path,
 )
-from pipescaler.core import Processor
+from pipescaler.core import ExternalProcessor
 
 
-class AutomatorExternalProcessor(Processor):
+class AutomatorProcessor(ExternalProcessor):
     """
     Applies an
     [Automator QuickAction](https://support.apple.com/guide/automator/welcome/mac) to an
@@ -52,28 +52,21 @@ class AutomatorExternalProcessor(Processor):
             default_directory=join(*split(package_root), "data", "workflows"),
         )
 
-    def __call__(self, infile: str, outfile: str) -> None:
-        """
-        Read image from infile, process it, and save to outfile
+    @property
+    def command_template(self):
+        return (
+            f"{validate_executable(self.executable, self.supported_platforms)}"
+            " -i {infile}"
+            f" {self.workflow}"
+        )
 
-        Arguments:
-            infile: Input file path
-            outfile: Output file path
-        """
-        command = validate_executable("automator", {"Darwin"})
+    @property
+    def executable(self) -> str:
+        return "automator"
 
-        with temporary_filename(".png") as tempfile:
-            # Stage image
-            copyfile(infile, tempfile)
-
-            # Process image
-            command += f" -i {tempfile} {self.workflow}"
-            debug(f"{self}: {command}")
-            run_command(command)
-
-            # Write image
-            copyfile(tempfile, outfile)
-            info(f"{self}: '{outfile}' saved")
+    @property
+    def supported_platforms(self) -> Set[str]:
+        return {"Darwin"}
 
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
@@ -106,4 +99,4 @@ class AutomatorExternalProcessor(Processor):
 
 
 if __name__ == "__main__":
-    AutomatorExternalProcessor.main()
+    AutomatorProcessor.main()

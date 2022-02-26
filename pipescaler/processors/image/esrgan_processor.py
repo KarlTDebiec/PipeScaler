@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/processors/esrgan_processor.py
+#   pipescaler/processors/image/processor.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
@@ -13,8 +13,8 @@ import collections
 from argparse import ArgumentParser
 from functools import partial
 from inspect import cleandoc
-from logging import info, warning
-from typing import Any, Dict, OrderedDict, Tuple
+from logging import warning
+from typing import Any, Dict, List, OrderedDict, Tuple
 
 import numpy as np
 import torch
@@ -22,10 +22,10 @@ from PIL import Image
 from torch.nn import Conv2d, LeakyReLU, Sequential
 
 from pipescaler.common import validate_input_path
-from pipescaler.core import Processor, validate_image_and_convert_mode
+from pipescaler.core import ImageProcessor, convert_mode
 
 
-class ESRGANProcessor(Processor):
+class ESRGANProcessor(ImageProcessor):
     """
     Upscales and/or denoises image using [ESRGAN](https://github.com/xinntao/ESRGAN);
     supports old and new architectures
@@ -192,22 +192,18 @@ class ESRGANProcessor(Processor):
             self.cpu_upscaler = None
         # TODO: Determine output scale and store as self.scale
 
-    def __call__(self, infile: str, outfile: str) -> None:
+    @property
+    def supported_input_modes(self) -> List[str]:
+        return ["1", "L", "RGB"]
+
+    def process(self, input_image: Image.Image) -> Image.Image:
         """
         Read image from infile, process it, and save to outfile
-
-        Arguments:
-            infile: Input file path
-            outfile: Output file path
         """
-        # Read image
-        input_image, input_mode = validate_image_and_convert_mode(
-            infile, ["1", "L", "RGB"], "RGB"
-        )
+        input_image, input_mode = convert_mode(input_image, "RGB")
         # noinspection PyTypeChecker
         input_datum = np.array(input_image)
 
-        # Process image
         try:
             output_datum = self.upscaler.upscale(input_datum)
         except RuntimeError as e:
@@ -223,9 +219,7 @@ class ESRGANProcessor(Processor):
         if output_image.mode != input_mode:
             output_image = output_image.convert(input_mode)
 
-        # Write image
-        output_image.save(outfile)
-        info(f"{self}: '{outfile}' saved")
+        return output_image
 
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:

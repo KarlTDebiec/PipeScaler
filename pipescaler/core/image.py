@@ -19,6 +19,13 @@ from pipescaler.common import validate_float
 from pipescaler.core.exception import UnsupportedImageModeError
 
 
+def convert_mode(image: Image.Image, convert_mode: str) -> Tuple[Image.Image, str]:
+    if image.mode != convert_mode:
+        return (image.convert(convert_mode), image.mode)
+    else:
+        return (image, image.mode)
+
+
 def crop_image(
     image: Image.Image, left: int = 0, top: int = 0, right: int = 0, bottom: int = 0
 ) -> Image.Image:
@@ -74,6 +81,7 @@ def expand_image(
     transposed_v = image.transpose(Image.FLIP_TOP_BOTTOM)
     transposed_hv = transposed_h.transpose(Image.FLIP_TOP_BOTTOM)
 
+    # noinspection PyTypeChecker
     expanded = Image.new(image.mode, (new_w, new_h))
     x = expanded.size[0] // 2
     y = expanded.size[1] // 2

@@ -13,8 +13,10 @@ from typing import List
 
 from pipescaler.core.configurable_command_line_tool import ConfigurableCommandLineTool
 from pipescaler.core.exception import TerminusReached, UnsupportedImageModeError
+from pipescaler.core.external_processor import ExternalProcessor
 from pipescaler.core.file import get_files
 from pipescaler.core.image import (
+    convert_mode,
     crop_image,
     expand_image,
     fill_mask,
@@ -28,6 +30,7 @@ from pipescaler.core.image import (
     smooth_image,
     vstack_images,
 )
+from pipescaler.core.image_processor import ImageProcessor
 from pipescaler.core.merger import Merger
 from pipescaler.core.pipe_image import PipeImage
 from pipescaler.core.pipeline import Pipeline
@@ -41,6 +44,8 @@ from pipescaler.core.validation import validate_image, validate_image_and_conver
 
 __all__: List[str] = [
     "ConfigurableCommandLineTool",
+    "ExternalProcessor",
+    "ImageProcessor",
     "Merger",
     "PipeImage",
     "Pipeline",
@@ -52,6 +57,7 @@ __all__: List[str] = [
     "Terminus",
     "TerminusReached",
     "UnsupportedImageModeError",
+    "convert_mode",
     "crop_image",
     "expand_image",
     "fill_mask",

@@ -9,15 +9,18 @@
 """Base class for processors"""
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from argparse import ArgumentParser
 from inspect import cleandoc
 from typing import Any, List, Optional
+
+from PIL import Image
 
 from pipescaler.common import CommandLineTool
 from pipescaler.core.stage import Stage
 
 
-class Processor(Stage, CommandLineTool):
+class Processor(Stage, CommandLineTool, ABC):
     """Base class for processors"""
 
     def __init__(self, suffix: Optional[str] = None, **kwargs: Any) -> None:
@@ -36,6 +39,7 @@ class Processor(Stage, CommandLineTool):
         else:
             self.suffix = self.name
 
+    @abstractmethod
     def __call__(self, infile: str, outfile: str) -> None:
         """
         Read image from infile, process it, and save to outfile

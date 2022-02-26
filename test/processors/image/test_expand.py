@@ -1,28 +1,33 @@
 #!/usr/bin/env python
-#   test/processors/test_crop.py
+#   test/processors/image/test_expand.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license. See the LICENSE file for details.
-"""Tests for CropProcessor"""
+"""Tests for ExpandProcessor"""
 import pytest
 from PIL import Image
 
 from pipescaler.common import temporary_filename
-from pipescaler.processors import CropProcessor
-from pipescaler.testing import get_infile, run_processor_on_command_line, stage_fixture
+from pipescaler.processors import ExpandProcessor
+from pipescaler.testing import (
+    expected_output_mode,
+    get_infile,
+    run_processor_on_command_line,
+    stage_fixture,
+)
 
 
 @stage_fixture(
-    cls=CropProcessor,
+    cls=ExpandProcessor,
     params=[
         {"pixels": (4, 4, 4, 4)},
     ],
 )
-def crop_processor(request) -> CropProcessor:
-    return CropProcessor(**request.param)
+def processor(request) -> ExpandProcessor:
+    return ExpandProcessor(**request.param)
 
 
 @pytest.mark.parametrize(
@@ -39,17 +44,17 @@ def crop_processor(request) -> CropProcessor:
         ("PRGBA"),
     ],
 )
-def test(infile: str, crop_processor: CropProcessor) -> None:
+def test(infile: str, processor: ExpandProcessor) -> None:
     infile = get_infile(infile)
 
     with temporary_filename(".png") as outfile:
-        crop_processor(infile, outfile)
+        processor(infile, outfile)
 
         with Image.open(infile) as input_image, Image.open(outfile) as output_image:
-            assert output_image.mode == input_image.mode
+            assert output_image.mode == expected_output_mode(input_image)
             assert output_image.size == (
-                input_image.size[0] - crop_processor.left - crop_processor.right,
-                input_image.size[1] - crop_processor.top - crop_processor.bottom,
+                input_image.size[0] + processor.left + processor.right,
+                input_image.size[1] + processor.top + processor.bottom,
             )
 
 
@@ -63,4 +68,4 @@ def test(infile: str, crop_processor: CropProcessor) -> None:
 def test_cl(infile: str, args: str) -> None:
     infile = get_infile(infile)
 
-    run_processor_on_command_line(CropProcessor, args, infile)
+    run_processor_on_command_line(ExpandProcessor, args, infile)

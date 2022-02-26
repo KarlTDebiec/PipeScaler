@@ -6,12 +6,12 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license. See the LICENSE file for details.
-"""Tests for PotraceExternalProcessor"""
+"""Tests for PotraceProcessor"""
 import pytest
 from PIL import Image
 
 from pipescaler.common import temporary_filename
-from pipescaler.processors import PotraceExternalProcessor
+from pipescaler.processors import PotraceProcessor
 from pipescaler.testing import (
     get_infile,
     run_processor_on_command_line,
@@ -21,20 +21,20 @@ from pipescaler.testing import (
 
 
 @stage_fixture(
-    cls=PotraceExternalProcessor,
+    cls=PotraceProcessor,
     params=[
         {},
-        {"scale": 2},
+        # {"scale": 2},
     ],
 )
-def potrace_external_processor(request) -> PotraceExternalProcessor:
-    return PotraceExternalProcessor(**request.param)
+def processor(request) -> PotraceProcessor:
+    return PotraceProcessor(**request.param)
 
 
 @pytest.mark.parametrize(
     ("infile"),
     [
-        xfail_unsupported_image_mode()("1"),
+        ("1"),
         ("L"),
         xfail_unsupported_image_mode()("LA"),
         xfail_unsupported_image_mode()("RGB"),
@@ -45,17 +45,17 @@ def potrace_external_processor(request) -> PotraceExternalProcessor:
         xfail_unsupported_image_mode()("PRGBA"),
     ],
 )
-def test(infile: str, potrace_external_processor: PotraceExternalProcessor) -> None:
+def test(infile: str, processor: PotraceProcessor) -> None:
     infile = get_infile(infile)
 
     with temporary_filename(".png") as outfile:
-        potrace_external_processor(infile, outfile)
+        processor(infile, outfile)
 
         with Image.open(infile) as input_image, Image.open(outfile) as output_image:
             assert output_image.mode == "L"
             assert output_image.size == (
-                input_image.size[0] * potrace_external_processor.scale,
-                input_image.size[1] * potrace_external_processor.scale,
+                input_image.size[0] * processor.scale,
+                input_image.size[1] * processor.scale,
             )
 
 
@@ -69,4 +69,4 @@ def test(infile: str, potrace_external_processor: PotraceExternalProcessor) -> N
 def test_cl(infile: str, args: str) -> None:
     infile = get_infile(infile)
 
-    run_processor_on_command_line(PotraceExternalProcessor, args, infile)
+    run_processor_on_command_line(PotraceProcessor, args, infile)

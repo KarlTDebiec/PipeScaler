@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/processors/xbrz_processor.py
+#   pipescaler/processors/image/processor.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
@@ -11,7 +11,6 @@ from __future__ import annotations
 
 from argparse import ArgumentParser
 from inspect import cleandoc
-from logging import info
 from typing import Any
 
 import numpy as np
@@ -19,10 +18,10 @@ import xbrz
 from PIL import Image
 
 from pipescaler.common import validate_int
-from pipescaler.core import Processor, validate_image_and_convert_mode
+from pipescaler.core import ImageProcessor, convert_mode
 
 
-class XbrzProcessor(Processor):
+class XbrzProcessor(ImageProcessor):
     """Upscales image using [xbrz](https://github.com/ioistired/xbrz.py)"""
 
     def __init__(self, scale: int = 4, **kwargs: Any) -> None:
@@ -38,20 +37,9 @@ class XbrzProcessor(Processor):
         # Store configuration
         self.scale = validate_int(scale, 2, 6)
 
-    def __call__(self, infile: str, outfile: str) -> None:
-        """
-        Read image from infile, process it, and save to outfile
+    def process(self, input_image: Image.Image) -> Image.Image:
+        input_image, input_mode = convert_mode(input_image, "RGBA")
 
-        Arguments:
-            infile: Input file path
-            outfile: Output file path
-        """
-        # Read image
-        input_image, input_mode = validate_image_and_convert_mode(
-            infile, ["1", "L", "LA", "RGB", "RGBA"], "RGBA"
-        )
-
-        # Process image
         output_image = xbrz.scale_pillow(input_image, self.scale)
         if input_mode == "RGB":
             output_image = Image.fromarray(np.array(output_image)[:, :, :3])
@@ -62,9 +50,7 @@ class XbrzProcessor(Processor):
                 "L"
             )
 
-        # Write image
-        output_image.save(outfile)
-        info(f"{self}: '{outfile}' saved")
+        return output_image
 
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:

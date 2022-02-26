@@ -24,7 +24,7 @@ from pipescaler.testing import get_infile, stage_fixture, xfail_unsupported_imag
         {"alpha_mode": "L_OR_1_FILL"},
     ],
 )
-def alpha_splitter(request) -> AlphaSplitter:
+def splitter(request) -> AlphaSplitter:
     return AlphaSplitter(**request.param)
 
 
@@ -41,10 +41,7 @@ def alpha_splitter(request) -> AlphaSplitter:
         ("novel/RGBA_monochrome"),
     ],
 )
-def test(
-    infile: str,
-    alpha_splitter: AlphaSplitter,
-) -> None:
+def test(infile: str, splitter: AlphaSplitter) -> None:
     infile = get_infile(infile)
 
     with temporary_filename(".png") as color_outfile:
@@ -57,7 +54,7 @@ def test(
             else:
                 expected_color_mode = input_image.mode.rstrip("A")
 
-            alpha_splitter(infile, color=color_outfile, alpha=alpha_outfile)
+            splitter(infile, color=color_outfile, alpha=alpha_outfile)
 
             with Image.open(color_outfile) as color_image:
                 assert color_image.mode == expected_color_mode

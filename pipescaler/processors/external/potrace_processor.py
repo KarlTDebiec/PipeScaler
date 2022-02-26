@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/processors/potrace_external_processor.py
+#   pipescaler/processors/external/potrace_processor.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from argparse import ArgumentParser
 from inspect import cleandoc
+from logging import debug
 from typing import Any
 
 from PIL import Image
@@ -24,10 +25,10 @@ from pipescaler.common import (
     validate_executable,
     validate_float,
 )
-from pipescaler.core import Processor, validate_image
+from pipescaler.core import ExternalProcessor, validate_image
 
 
-class PotraceExternalProcessor(Processor):
+class PotraceProcessor(ExternalProcessor):
     """
     Traces image using [Potrace](http://potrace.sourceforge.net/) and re-rasterizes,
     optionally resizing
@@ -61,41 +62,41 @@ class PotraceExternalProcessor(Processor):
         self.opttolerance = validate_float(opttolerance, min_value=0)
         self.scale = validate_float(scale, min_value=0)
 
-    def __call__(self, infile: str, outfile: str) -> None:
+    @property
+    def command_template(self):
+        command = (
+            f"{validate_executable(self.executable, self.supported_platforms)}"
+            " {bmpfile}"
+            f" -b svg"
+            f" -k {self.blacklevel}"
+            f" -a {self.alphamax}"
+            f" -O {self.opttolerance}"
+            " -o {svgfile}"
+        )
+
+        return command
+
+    @property
+    def executable(self) -> str:
+        return "potrace"
+
+    def process(self, temp_infile: str, temp_outfile: str) -> None:
         """
         Read image from infile, process it, and save to outfile
-
-        Arguments:
-            infile: Input file path
-            outfile: Output file path
         """
-        command = validate_executable("potrace")
+        input_image = validate_image(temp_infile, ["1", "L"])
+        if self.invert:
+            input_image = invert(input_image)
 
-        # Read image
-        input_image = validate_image(infile, "L")
-
-        # Process image
         with temporary_filename(".bmp") as bmpfile:
+            input_image.save(bmpfile)
+
             with temporary_filename(".svg") as svgfile:
+                command = self.command_template.format(bmpfile=bmpfile, svgfile=svgfile)
+                debug(f"{self}: {command}")
+                run_command(command)
+
                 with temporary_filename(".png") as pngfile:
-                    # Convert to bmp
-                    if self.invert:
-                        invert(input_image).save(bmpfile)
-                    else:
-                        input_image.save(bmpfile)
-
-                    # Trace
-                    command += (
-                        f" {bmpfile}"
-                        f" -b svg"
-                        f" -k {self.blacklevel}"
-                        f" -a {self.alphamax}"
-                        f" -O {self.opttolerance}"
-                        f" -o {svgfile}"
-                    )
-                    run_command(command)
-
-                    # Scale
                     traced_drawing = svg2rlg(svgfile)
                     traced_drawing.scale(
                         (input_image.size[0] / traced_drawing.width) * self.scale,
@@ -105,13 +106,11 @@ class PotraceExternalProcessor(Processor):
                     traced_drawing.height = input_image.size[1] * self.scale
                     drawToFile(traced_drawing, pngfile, fmt="png")
 
-                    # Convert mode
                     output_image = Image.open(pngfile).convert("L")
-                    if self.invert:
-                        output_image = invert(output_image)
 
-        # Write image
-        output_image.save(outfile)
+        if self.invert:
+            output_image = invert(output_image)
+        output_image.save(temp_outfile)
 
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
@@ -163,4 +162,4 @@ class PotraceExternalProcessor(Processor):
 
 
 if __name__ == "__main__":
-    PotraceExternalProcessor.main()
+    PotraceProcessor.main()

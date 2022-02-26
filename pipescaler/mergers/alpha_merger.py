@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/mergers/alpha_merger.py
+#   pipescaler/mergers/merger.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
@@ -10,7 +10,7 @@
 from __future__ import annotations
 
 from logging import info
-from typing import Any, List
+from typing import Any, Dict, List, Tuple
 
 import numpy as np
 from PIL import Image
@@ -21,30 +21,24 @@ from pipescaler.core import Merger, validate_image
 class AlphaMerger(Merger):
     """Merges alpha and color images into a single image with transparency"""
 
-    def __call__(self, outfile: str, **kwargs: Any) -> None:
-        """
-        Merge images
+    @property
+    def inlets(self) -> List[str]:
+        """Inlets that flow into stage"""
+        return ["color", "alpha"]
 
-        Arguments:
-            outfile: Output image
-            **kwargs: Additional keyword arguments
-        """
-        self.merge(outfile=outfile, **{k: kwargs.get(k) for k in self.inlets})
+    @property
+    def supported_input_modes(self) -> Dict[str, List[str]]:
+        return {
+            "color": ["L", "RGB"],
+            "alpha": ["1", "L"],
+        }
 
-    def merge(self, color: str, alpha: str, outfile: str) -> None:
+    def merge(self, *input_images: Image.Image) -> Image.Image:
         """
         Merge color and alpha images into a single image with transparency
-
-        Arguments:
-            color: Color infile
-            alpha: Alpha infile
-            outfile: Output file
         """
-        # Read images
-        color_image = validate_image(color, ["L", "RGB"])
-        alpha_image = validate_image(alpha, ["1", "L"])
+        color_image, alpha_image = input_images
 
-        # Merge images
         # noinspection PyTypeChecker
         color_array = np.array(color_image)
         if alpha_image.mode == "L":
@@ -62,11 +56,4 @@ class AlphaMerger(Merger):
         output_array[:, :, -1] = alpha_array
         output_image = Image.fromarray(output_array)
 
-        # Write image
-        output_image.save(outfile)
-        info(f"'{self}: '{outfile}' saved")
-
-    @property
-    def inlets(self) -> List[str]:
-        """Inlets that flow into stage"""
-        return ["color", "alpha"]
+        return output_image

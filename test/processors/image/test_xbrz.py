@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   test/processors/test_xbrz.py
+#   test/processors/image/test_xbrz.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
@@ -26,7 +26,7 @@ from pipescaler.testing import (
         {"scale": 2},
     ],
 )
-def xbrz_processor(request) -> XbrzProcessor:
+def processor(request) -> XbrzProcessor:
     return XbrzProcessor(**request.param)
 
 
@@ -43,17 +43,17 @@ def xbrz_processor(request) -> XbrzProcessor:
         ("PRGBA"),
     ],
 )
-def test(infile: str, xbrz_processor: XbrzProcessor) -> None:
+def test(infile: str, processor: XbrzProcessor) -> None:
     infile = get_infile(infile)
 
     with temporary_filename(".png") as outfile:
-        xbrz_processor(infile, outfile)
+        processor(infile, outfile)
 
         with Image.open(infile) as input_image, Image.open(outfile) as output_image:
             assert output_image.mode == expected_output_mode(input_image)
             assert output_image.size == (
-                input_image.size[0] * xbrz_processor.scale,
-                input_image.size[1] * xbrz_processor.scale,
+                input_image.size[0] * processor.scale,
+                input_image.size[1] * processor.scale,
             )
 
 

@@ -6,25 +6,25 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license. See the LICENSE file for details.
-"""Tests for PngquantExternalProcessor"""
+"""Tests for PngquantProcessor"""
 from os.path import getsize
 
 import pytest
 from PIL import Image
 
 from pipescaler.common import temporary_filename
-from pipescaler.processors import PngquantExternalProcessor
+from pipescaler.processors import PngquantProcessor
 from pipescaler.testing import get_infile, run_processor_on_command_line, stage_fixture
 
 
 @stage_fixture(
-    cls=PngquantExternalProcessor,
+    cls=PngquantProcessor,
     params=[
         {},
     ],
 )
-def pngquant_external_processor(request) -> PngquantExternalProcessor:
-    return PngquantExternalProcessor(**request.param)
+def processor(request) -> PngquantProcessor:
+    return PngquantProcessor(**request.param)
 
 
 @pytest.mark.parametrize(
@@ -41,11 +41,11 @@ def pngquant_external_processor(request) -> PngquantExternalProcessor:
         ("PRGBA"),
     ],
 )
-def test(infile: str, pngquant_external_processor: PngquantExternalProcessor) -> None:
+def test(infile: str, processor: PngquantProcessor) -> None:
     infile = get_infile(infile)
 
     with temporary_filename(".png") as outfile:
-        pngquant_external_processor(infile, outfile)
+        processor(infile, outfile)
 
         with Image.open(infile) as input_image, Image.open(outfile) as output_image:
             assert output_image.mode in (input_image.mode, "P")
@@ -63,4 +63,4 @@ def test(infile: str, pngquant_external_processor: PngquantExternalProcessor) ->
 def test_cl(infile: str, args: str) -> None:
     infile = get_infile(infile)
 
-    run_processor_on_command_line(PngquantExternalProcessor, args, infile)
+    run_processor_on_command_line(PngquantProcessor, args, infile)

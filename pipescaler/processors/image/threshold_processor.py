@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/processors/threshold_processor.py
+#   pipescaler/processors/image/processor.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
@@ -11,16 +11,17 @@ from __future__ import annotations
 
 from argparse import ArgumentParser
 from inspect import cleandoc
-from typing import Any, no_type_check
+from typing import Any, List, no_type_check
 
 import numba as nb
 import numpy as np
 from PIL import Image
 
-from pipescaler.core import Processor, validate_image
+from pipescaler.common import validate_int
+from pipescaler.core import ImageProcessor
 
 
-class ThresholdProcessor(Processor):
+class ThresholdProcessor(ImageProcessor):
     """Converts image to black and white using threshold, optionally denoising"""
 
     def __init__(
@@ -38,21 +39,14 @@ class ThresholdProcessor(Processor):
         super().__init__(**kwargs)
 
         # Store configuration
-        self.threshold = threshold
+        self.threshold = validate_int(threshold, 1, 244)
         self.denoise = denoise
 
-    def __call__(self, infile: str, outfile: str) -> None:
-        """
-        Read image from infile, process it, and save to outfile
+    @property
+    def supported_input_modes(self) -> List[str]:
+        return ["L"]
 
-        Arguments:
-            infile: Input file path
-            outfile: Output file path
-        """
-        # Read image
-        input_image = validate_image(infile, "L")
-
-        # Process image
+    def process(self, input_image: Image.Image) -> Image.Image:
         output_image = input_image.point(lambda p: p > self.threshold and 255)
         if self.denoise:
             # noinspection PyTypeChecker
@@ -60,8 +54,7 @@ class ThresholdProcessor(Processor):
             self.denoise_data(output_data)
             output_image = Image.fromarray(output_data)
 
-        # Write image
-        output_image.save(outfile)
+        return output_image
 
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:

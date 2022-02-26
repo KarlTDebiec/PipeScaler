@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/processors/pngquant_external_processor.py
+#   pipescaler/processors/external/pngquant_processor.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
@@ -13,13 +13,13 @@ from argparse import ArgumentParser
 from inspect import cleandoc
 from logging import debug, info
 from shutil import copyfile
-from typing import Any
+from typing import Any, Dict
 
 from pipescaler.common import run_command, validate_executable, validate_int
-from pipescaler.core import Processor
+from pipescaler.core import ExternalProcessor
 
 
-class PngquantExternalProcessor(Processor):
+class PngquantProcessor(ExternalProcessor):
     """Compresses image palette using [pngquant](https://pngquant.org/)"""
 
     def __init__(
@@ -45,37 +45,37 @@ class PngquantExternalProcessor(Processor):
         self.speed = validate_int(speed, 1, 100)
         self.floyd_steinberg = floyd_steinberg
 
-    def __call__(self, infile: str, outfile: str) -> None:
-        """
-        Read image from infile, process it, and save to outfile
-
-        Arguments:
-            infile: Input file path
-            outfile: Output file path
-        """
-        command = validate_executable("pngquant")
-
-        # Process image
-        command += (
-            f" --skip-if-larger"
-            f" --force"
+    @property
+    def command_template(self):
+        command = (
+            f"{validate_executable(self.executable, self.supported_platforms)}"
+            " --skip-if-larger"
+            " --force"
             f" --quality {self.quality}"
             f" --speed {self.speed}"
-            f" --output {outfile} "
         )
         if not self.floyd_steinberg:
-            command += f" --nofs"
-        command += f" {infile} "
+            command += " --nofs"
+        command += " --output {outfile} {infile}"
+
+        return command
+
+    @property
+    def executable(self) -> str:
+        return "pngquant"
+
+    def process(self, temp_infile: str, temp_outfile: str) -> None:
+        """
+        Read image from infile, process it, and save to outfile
+        """
+        command = self.command_template.format(infile=temp_infile, outfile=temp_outfile)
         debug(f"{self}: {command}")
         exitcode, stdout, stderr = run_command(
             command, acceptable_exitcodes=[0, 98, 99]
         )
         if exitcode in [98, 99]:
             # pngquant may not save outfile if it is too large or low quality
-            copyfile(infile, outfile)
-
-        # Write image
-        info(f"{self}: '{outfile}' saved")
+            copyfile(temp_infile, temp_outfile)
 
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
@@ -118,4 +118,4 @@ class PngquantExternalProcessor(Processor):
 
 
 if __name__ == "__main__":
-    PngquantExternalProcessor.main()
+    PngquantProcessor.main()

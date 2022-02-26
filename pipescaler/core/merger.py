@@ -10,9 +10,13 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any, List, Optional
+from logging import info
+from typing import Any, Dict, List, Optional
+
+from PIL import Image
 
 from pipescaler.core.stage import Stage
+from pipescaler.core.validation import validate_image
 
 
 class Merger(Stage, ABC):
@@ -22,7 +26,7 @@ class Merger(Stage, ABC):
         self,
         suffix: Optional[str] = None,
         trim_suffixes: Optional[List[str]] = None,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> None:
         """
         Validate and store static configuration
@@ -44,7 +48,6 @@ class Merger(Stage, ABC):
         else:
             self.trim_suffixes = self.inlets
 
-    @abstractmethod
     def __call__(self, outfile: str, **kwargs: Any) -> None:
         """
         Merge infiles into an outfile
@@ -55,9 +58,29 @@ class Merger(Stage, ABC):
               inlet, whose key is the name of that inlet and whose value is the path to
               the associated infile
         """
-        raise NotImplementedError()
+        infiles = {k: kwargs.get(k) for k in self.inlets}
+        input_images = []
+        for inlet in self.inlets:
+            input_images.append(
+                validate_image((infiles[inlet]), self.supported_input_modes[inlet])
+            )
+
+        output_image = self.merge(*input_images)
+
+        # Write image
+        output_image.save(outfile)
+        info(f"'{self}: '{outfile}' saved")
 
     @property
     def outlets(self) -> List[str]:
         """Outlets that flow out of stage"""
         return ["outlet"]
+
+    @property
+    @abstractmethod
+    def supported_input_modes(self) -> Dict[str, List[str]]:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def merge(self, *input_images: Image.Image) -> Image.Image:
+        raise NotImplementedError()

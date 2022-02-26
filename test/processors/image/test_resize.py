@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   test/processors/test_resize.py
+#   test/processors/image/test_resize.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
@@ -26,7 +26,7 @@ from pipescaler.testing import (
         {"scale": 2},
     ],
 )
-def resize_processor(request) -> ResizeProcessor:
+def processor(request) -> ResizeProcessor:
     return ResizeProcessor(**request.param)
 
 
@@ -44,17 +44,17 @@ def resize_processor(request) -> ResizeProcessor:
         ("PRGBA"),
     ],
 )
-def test(infile: str, resize_processor: ResizeProcessor) -> None:
+def test(infile: str, processor: ResizeProcessor) -> None:
     infile = get_infile(infile)
 
     with temporary_filename(".png") as outfile:
-        resize_processor(infile, outfile)
+        processor(infile, outfile)
 
         with Image.open(infile) as input_image, Image.open(outfile) as output_image:
             assert output_image.mode == expected_output_mode(input_image)
             assert output_image.size == (
-                input_image.size[0] * resize_processor.scale,
-                input_image.size[1] * resize_processor.scale,
+                input_image.size[0] * processor.scale,
+                input_image.size[1] * processor.scale,
             )
 
 
