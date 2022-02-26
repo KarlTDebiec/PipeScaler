@@ -21,11 +21,11 @@ from pipescaler.core.exception import UnsupportedImageModeError
 
 def convert_mode(image: Image.Image, mode: str) -> Tuple[Image.Image, str]:
     """
-    Convert image to specified mode
+    Convert image to specified mode, if necessary, returning image and original mode
 
     Arguments:
-        image: Input image
-        mode: Mode to which to convert
+        image: Image to convert
+        mode: Mode to which to convert, if image is not already in mode
 
     Returns:
         Converted image, image's original mode
