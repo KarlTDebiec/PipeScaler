@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Base class for processors"""
+"""Base class for processors that perform their processing within python"""
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -20,7 +20,7 @@ from pipescaler.core.validation import validate_image
 
 
 class ImageProcessor(Processor, ABC):
-    """Base class for processors"""
+    """Base class for processors that perform their processing within python"""
 
     def __call__(self, infile: str, outfile: str) -> None:
         """
@@ -39,6 +39,7 @@ class ImageProcessor(Processor, ABC):
 
     @property
     def supported_input_modes(self) -> List[str]:
+        """Supported image modes for input put"""
         return ["1", "L", "LA", "RGB", "RGBA"]
 
     @abstractmethod
