@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/splitter/splitter.py
+#   pipescaler/splitter/alpha_splitter.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.

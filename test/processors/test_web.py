@@ -36,7 +36,7 @@ stages:
         {"url": "http://127.0.0.1:5000/xbrz-2"},
     ],
 )
-def web_processor(request) -> WebProcessor:
+def processor(request) -> WebProcessor:
     return WebProcessor(**request.param)
 
 
@@ -46,7 +46,7 @@ def web_processor(request) -> WebProcessor:
         ("RGB"),
     ],
 )
-def test(conf: str, infile: str, web_processor: WebProcessor):
+def test(conf: str, infile: str, processor: WebProcessor):
     infile = get_infile(infile)
 
     with temporary_filename(".yml") as conf_outfile_name:
@@ -57,7 +57,7 @@ def test(conf: str, infile: str, web_processor: WebProcessor):
         with Popen(command, shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE) as child:
             child.stderr.readline()
             with temporary_filename(".png") as outfile:
-                web_processor(infile, outfile)
+                processor(infile, outfile)
 
                 child.send_signal(SIGTERM)
 
