@@ -15,7 +15,7 @@ from typing import Any, List
 import numpy as np
 from PIL import Image
 
-from pipescaler.common import validate_float, validate_int
+from pipescaler.common import validate_float
 from pipescaler.core import Sorter, validate_image
 
 
@@ -23,7 +23,7 @@ class GrayscaleSorter(Sorter):
     """Sorts image based on presence and use of color channels"""
 
     def __init__(
-        self, mean_threshold: float = 1, max_threshold: float = 10, **kwargs: Any
+            self, mean_threshold: float = 1, max_threshold: float = 10, **kwargs: Any
     ) -> None:
         """
         Validate and store static configuration

@@ -13,7 +13,7 @@ from abc import ABC, abstractmethod
 from logging import debug, info
 from os.path import splitext
 from shutil import copyfile
-from typing import List, Set
+from typing import Set
 
 from pipescaler.common import run_command, temporary_filename
 from pipescaler.common.validation import validate_executable

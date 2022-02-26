@@ -11,10 +11,8 @@ from __future__ import annotations
 
 from argparse import ArgumentParser
 from inspect import cleandoc
-from logging import debug, info
-from os import remove
+from logging import debug
 from platform import system
-from tempfile import NamedTemporaryFile
 from typing import Any
 
 from PIL import Image

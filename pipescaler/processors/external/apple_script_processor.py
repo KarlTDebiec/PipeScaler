@@ -11,18 +11,10 @@ from __future__ import annotations
 
 from argparse import ArgumentParser
 from inspect import cleandoc
-from logging import debug, info
 from os.path import join, split
-from shutil import copyfile
 from typing import Any, Set
 
-from pipescaler.common import (
-    package_root,
-    run_command,
-    temporary_filename,
-    validate_executable,
-    validate_input_path,
-)
+from pipescaler.common import package_root, validate_executable, validate_input_path
 from pipescaler.core import ExternalProcessor
 
 

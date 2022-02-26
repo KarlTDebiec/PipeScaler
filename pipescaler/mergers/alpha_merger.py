@@ -9,13 +9,12 @@
 """Merges alpha and color images into a single image with transparency"""
 from __future__ import annotations
 
-from logging import info
-from typing import Any, Dict, List, Tuple
+from typing import Dict, List
 
 import numpy as np
 from PIL import Image
 
-from pipescaler.core import Merger, validate_image
+from pipescaler.core import Merger
 
 
 class AlphaMerger(Merger):

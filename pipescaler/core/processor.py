@@ -14,8 +14,6 @@ from argparse import ArgumentParser
 from inspect import cleandoc
 from typing import Any, List, Optional
 
-from PIL import Image
-
 from pipescaler.common import CommandLineTool
 from pipescaler.core.stage import Stage
 

@@ -11,9 +11,9 @@ from __future__ import annotations
 
 from argparse import ArgumentParser
 from inspect import cleandoc
-from logging import debug, info
+from logging import debug
 from shutil import copyfile
-from typing import Any, Dict
+from typing import Any
 
 from pipescaler.common import run_command, validate_executable, validate_int
 from pipescaler.core import ExternalProcessor

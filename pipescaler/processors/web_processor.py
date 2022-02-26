@@ -16,7 +16,6 @@ from os.path import basename
 from typing import Any
 
 import requests as requests
-from PIL import Image
 
 from pipescaler.core import Processor
 

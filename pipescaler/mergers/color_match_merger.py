@@ -9,14 +9,13 @@
 """Matches an image's color histogram to that of a reference image"""
 from __future__ import annotations
 
-from logging import info
-from typing import Any, Dict, List
+from typing import Dict, List
 
 import numpy as np
 from PIL import Image
 from skimage.exposure import match_histograms
 
-from pipescaler.core import Merger, UnsupportedImageModeError, validate_image
+from pipescaler.core import Merger, UnsupportedImageModeError
 
 
 class ColorMatchMerger(Merger):
@@ -52,9 +51,12 @@ class ColorMatchMerger(Merger):
         reference_array = np.array(reference_image)
         # noinspection PyTypeChecker
         input_array = np.array(input_image)
-        output_array = match_histograms(
-            input_array, reference_array, multichannel=reference_image.mode != "L"
-        )
+        if reference_image.mode == "L":
+            output_array = match_histograms(input_array, reference_array)
+        else:
+            output_array = match_histograms(
+                input_array, reference_array, channel_axis=0
+            )
         output_array = np.clip(output_array, 0, 255).astype(np.uint8)
         output_image = Image.fromarray(output_array)
 

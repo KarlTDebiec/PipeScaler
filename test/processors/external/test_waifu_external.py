@@ -62,15 +62,15 @@ def test(infile: str, waifu_external_processor: WaifuExternalProcessor) -> None:
             )
 
 
-# @pytest.mark.serial
-# @pytest.mark.parametrize(
-#     ("infile", "args"),
-#     [
-#         ("RGB", "-h"),
-#         skip_if_ci()("RGB", f" --type a --denoise 0 --scale 2"),
-#     ],
-# )
-# def test_cl(infile: str, args: str) -> None:
-#     infile = get_infile(infile)
-#
-#     run_processor_on_command_line(WaifuExternalProcessor, args, infile)
+@pytest.mark.serial
+@pytest.mark.parametrize(
+    ("infile", "args"),
+    [
+        ("RGB", "-h"),
+        skip_if_ci()("RGB", f" --type a --denoise 0 --scale 2"),
+    ],
+)
+def test_cl(infile: str, args: str) -> None:
+    infile = get_infile(infile)
+
+    run_processor_on_command_line(WaifuExternalProcessor, args, infile)
