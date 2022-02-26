@@ -28,6 +28,7 @@ class ColorMatchMerger(Merger):
 
     @property
     def supported_input_modes(self) -> Dict[str, List[str]]:
+        """Supported modes for input images"""
         return {
             "reference": ["L", "LA", "RGB", "RGBA"],
             "input": ["L", "LA", "RGB", "RGBA"],
@@ -35,10 +36,13 @@ class ColorMatchMerger(Merger):
 
     def merge(self, *input_images: Image.Image) -> Image.Image:
         """
-        Match an image's color histogram to that of a reference image
-        """
+        Merge images
 
-        # Read images
+        Arguments:
+            *input_images: Input images to merge
+        Returns:
+            Merged output image
+        """
         reference_image, input_image = input_images
         if reference_image.mode != input_image.mode:
             raise UnsupportedImageModeError(
@@ -46,7 +50,6 @@ class ColorMatchMerger(Merger):
                 f" does not match mode '{input_image.mode}' of input image"
             )
 
-        # Merge images
         # noinspection PyTypeChecker
         reference_array = np.array(reference_image)
         # noinspection PyTypeChecker

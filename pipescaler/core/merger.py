@@ -67,7 +67,6 @@ class Merger(Stage, ABC):
 
         output_image = self.merge(*input_images)
 
-        # Write image
         output_image.save(outfile)
         info(f"'{self}: '{outfile}' saved")
 
@@ -79,8 +78,17 @@ class Merger(Stage, ABC):
     @property
     @abstractmethod
     def supported_input_modes(self) -> Dict[str, List[str]]:
+        """Supported modes for input images"""
         raise NotImplementedError()
 
     @abstractmethod
     def merge(self, *input_images: Image.Image) -> Image.Image:
+        """
+        Merge images
+
+        Arguments:
+            *input_images: Input images to merge
+        Returns:
+            Merged output image
+        """
         raise NotImplementedError()

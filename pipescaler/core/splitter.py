@@ -72,7 +72,16 @@ class Splitter(Stage, ABC):
 
     @property
     def supported_input_modes(self) -> List[str]:
+        """Supported modes for input image"""
         return ["1", "L", "LA", "RGB", "RGBA"]
 
     def split(self, input_image: Image.Image) -> Tuple[Image.Image, ...]:
+        """
+        Split an image
+
+        Arguments:
+            input_image: Input image to split
+        Returns:
+            Split output images
+        """
         raise NotImplementedError()

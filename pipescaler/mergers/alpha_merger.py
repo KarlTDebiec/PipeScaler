@@ -27,6 +27,7 @@ class AlphaMerger(Merger):
 
     @property
     def supported_input_modes(self) -> Dict[str, List[str]]:
+        """Supported modes for input images"""
         return {
             "color": ["L", "RGB"],
             "alpha": ["1", "L"],
@@ -34,7 +35,12 @@ class AlphaMerger(Merger):
 
     def merge(self, *input_images: Image.Image) -> Image.Image:
         """
-        Merge color and alpha images into a single image with transparency
+        Merge images
+
+        Arguments:
+            *input_images: Input images to merge
+        Returns:
+            Merged output image
         """
         color_image, alpha_image = input_images
 

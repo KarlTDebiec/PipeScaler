@@ -27,11 +27,17 @@ class NormalSplitter(Splitter):
 
     @property
     def supported_input_modes(self) -> List[str]:
+        """Supported modes for input image"""
         return ["RGB"]
 
     def split(self, input_image: Image.Image) -> Tuple[Image.Image, ...]:
         """
-        Split a normal map image into separate x, y, and z images
+        Split an image
+
+        Arguments:
+            input_image: Input image to split
+        Returns:
+            Split output images
         """
         # noinspection PyTypeChecker
         input_array = np.array(input_image)

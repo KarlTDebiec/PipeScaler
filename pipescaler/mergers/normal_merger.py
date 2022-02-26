@@ -27,6 +27,7 @@ class NormalMerger(Merger):
 
     @property
     def supported_input_modes(self) -> Dict[str, List[str]]:
+        """Supported modes for input images"""
         return {
             "x": ["L"],
             "y": ["L"],
@@ -35,11 +36,15 @@ class NormalMerger(Merger):
 
     def merge(self, *input_images: Image.Image) -> Image.Image:
         """
-        Merge x, y, and z images into a single normal map image
+        Merge images
+
+        Arguments:
+            *input_images: Input images to merge
+        Returns:
+            Merged output image
         """
         x_image, y_image, z_image = input_images
 
-        # Merge images
         # noinspection PyTypeChecker
         x_array = np.clip(np.array(x_image, float) - 128, -128, 127)
         # noinspection PyTypeChecker

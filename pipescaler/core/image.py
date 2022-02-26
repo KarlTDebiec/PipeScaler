@@ -19,9 +19,19 @@ from pipescaler.common import validate_float
 from pipescaler.core.exception import UnsupportedImageModeError
 
 
-def convert_mode(image: Image.Image, convert_mode: str) -> Tuple[Image.Image, str]:
-    if image.mode != convert_mode:
-        return (image.convert(convert_mode), image.mode)
+def convert_mode(image: Image.Image, mode: str) -> Tuple[Image.Image, str]:
+    """
+    Convert image to specified mode
+
+    Arguments:
+        image: Input image
+        mode: Mode to which to convert
+
+    Returns:
+        Converted image, image's original mode
+    """
+    if image.mode != mode:
+        return (image.convert(mode), image.mode)
     else:
         return (image, image.mode)
 

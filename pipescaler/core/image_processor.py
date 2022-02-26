@@ -39,9 +39,17 @@ class ImageProcessor(Processor, ABC):
 
     @property
     def supported_input_modes(self) -> List[str]:
-        """Supported image modes for input put"""
+        """Supported modes for input image"""
         return ["1", "L", "LA", "RGB", "RGBA"]
 
     @abstractmethod
     def process(self, input_image: Image.Image) -> Image.Image:
+        """
+        Process an image
+
+        Arguments:
+            input_image: Input image to process
+        Returns:
+            Processed output image
+        """
         raise NotImplementedError()
