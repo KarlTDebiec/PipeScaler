@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/mergers/merger.py
+#   pipescaler/mergers/alpha_merger.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.

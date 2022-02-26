@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/processors/image/processor.py
+#   pipescaler/processors/image/crop_processor.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
@@ -38,6 +38,14 @@ class CropProcessor(ImageProcessor):
         )
 
     def process(self, input_image: Image.Image) -> Image.Image:
+        """
+        Process an image
+
+        Arguments:
+            input_image: Input image to process
+        Returns:
+            Processed output image
+        """
         if (
             input_image.size[0] < self.left + self.right + 1
             or input_image.size[1] < self.top + self.bottom + 1

@@ -65,7 +65,7 @@ class PotraceProcessor(ExternalProcessor):
     @property
     def command_template(self):
         """String template with which to generate command"""
-        command = (
+        return (
             f"{validate_executable(self.executable, self.supported_platforms)}"
             " {bmpfile}"
             f" -b svg"
@@ -74,8 +74,6 @@ class PotraceProcessor(ExternalProcessor):
             f" -O {self.opttolerance}"
             " -o {svgfile}"
         )
-
-        return command
 
     @property
     def executable(self) -> str:

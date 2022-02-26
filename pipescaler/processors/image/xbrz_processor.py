@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/processors/image/processor.py
+#   pipescaler/processors/image/xbrz_processor.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
@@ -38,6 +38,14 @@ class XbrzProcessor(ImageProcessor):
         self.scale = validate_int(scale, 2, 6)
 
     def process(self, input_image: Image.Image) -> Image.Image:
+        """
+        Process an image
+
+        Arguments:
+            input_image: Input image to process
+        Returns:
+            Processed output image
+        """
         input_image, input_mode = convert_mode(input_image, "RGBA")
 
         output_image = xbrz.scale_pillow(input_image, self.scale)

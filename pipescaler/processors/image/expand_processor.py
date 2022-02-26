@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/processors/image/processor.py
+#   pipescaler/processors/image/expand_processor.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
@@ -38,6 +38,14 @@ class ExpandProcessor(ImageProcessor):
         )
 
     def process(self, input_image: Image.Image) -> Image.Image:
+        """
+        Process an image
+
+        Arguments:
+            input_image: Input image to process
+        Returns:
+            Processed output image
+        """
         output_image = expand_image(
             input_image, self.left, self.top, self.right, self.bottom
         )

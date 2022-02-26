@@ -32,8 +32,10 @@ def validate_image(infile: str, valid_modes: Union[str, List[str]]) -> Image.Ima
     if isinstance(valid_modes, str):
         valid_modes = [valid_modes]
 
-    # '.copy()' is a workaround for a bug that keeps the file open, causing trouble
-    # if infile is a temporary file and an UnsupportedImageModeError is raised
+    # If infile is a temporary file, and an UnsupportedImageModeError is raised, a
+    # PermissionError is raised when attempting to remove the temporary file. This
+    # appears to be due to a bug (or just unexpected behavior) in pillow that keeps the
+    # file open. Appending '.copy()' mysteriously works around this and closes the file
     image = Image.open(validate_input_path(infile)).copy()
     if image.mode == "P":
         image = remove_palette_from_image(image)

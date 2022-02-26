@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/processors/image/processor.py
+#   pipescaler/processors/image/threshold_processor.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
@@ -44,9 +44,18 @@ class ThresholdProcessor(ImageProcessor):
 
     @property
     def supported_input_modes(self) -> List[str]:
+        """Supported modes for input image"""
         return ["L"]
 
     def process(self, input_image: Image.Image) -> Image.Image:
+        """
+        Process an image
+
+        Arguments:
+            input_image: Input image to process
+        Returns:
+            Processed output image
+        """
         output_image = input_image.point(lambda p: p > self.threshold and 255)
         if self.denoise:
             # noinspection PyTypeChecker

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/processors/image/processor.py
+#   pipescaler/processors/image/esrgan_processor.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
@@ -194,11 +194,17 @@ class ESRGANProcessor(ImageProcessor):
 
     @property
     def supported_input_modes(self) -> List[str]:
+        """Supported modes for input image"""
         return ["1", "L", "RGB"]
 
     def process(self, input_image: Image.Image) -> Image.Image:
         """
-        Read image from infile, process it, and save to outfile
+        Process an image
+
+        Arguments:
+            input_image: Input image to process
+        Returns:
+            Processed output image
         """
         input_image, input_mode = convert_mode(input_image, "RGB")
         # noinspection PyTypeChecker

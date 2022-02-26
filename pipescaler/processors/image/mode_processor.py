@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/processors/image/processor.py
+#   pipescaler/processors/image/mode_processor.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
@@ -44,11 +44,12 @@ class ModeProcessor(ImageProcessor):
 
     def process(self, input_image: Image.Image) -> Image.Image:
         """
-        Read image from infile, process it, and save to outfile
+        Process an image
 
         Arguments:
-            infile: Input file path
-            outfile: Output file path
+            input_image: Input image to process
+        Returns:
+            Processed output image
         """
         if input_image.mode == self.mode:
             output_image = input_image

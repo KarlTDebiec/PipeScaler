@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/processors/image/processor.py
+#   pipescaler/processors/image/resize_processor.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
@@ -55,7 +55,12 @@ class ResizeProcessor(ImageProcessor):
 
     def process(self, input_image: Image.Image) -> Image.Image:
         """
-        Read image from infile, process it, and save to outfile
+        Process an image
+
+        Arguments:
+            input_image: Input image to process
+        Returns:
+            Processed output image
         """
         # noinspection PyTypeChecker
         input_datum = np.array(input_image)
