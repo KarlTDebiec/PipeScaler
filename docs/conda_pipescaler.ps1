@@ -12,12 +12,14 @@ pip install `
     black `
     flask `
     imagehash `
+    interrogate `
     ipython `
     isort `
     numba `
     numpy `
     pandas `
     pillow `
+    prospector `
     pytest `
     pytest-cov `
     pytest-xdist `

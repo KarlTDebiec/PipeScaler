@@ -12,10 +12,6 @@
 class TerminusReached(Exception):
     """Pipeline terminus has been reached"""
 
-    pass
-
 
 class UnsupportedImageModeError(Exception):
     """Mode of image is not supported"""
-
-    pass
