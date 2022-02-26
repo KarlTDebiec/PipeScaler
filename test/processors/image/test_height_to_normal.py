@@ -43,11 +43,11 @@ def processor(request) -> HeightToNormalProcessor:
         xfail_unsupported_image_mode()("PRGBA"),
     ],
 )
-def test(infile: str, processors: HeightToNormalProcessor) -> None:
+def test(infile: str, processor: HeightToNormalProcessor) -> None:
     infile = get_infile(infile)
 
     with temporary_filename(".png") as outfile:
-        processors(infile, outfile)
+        processor(infile, outfile)
 
         with Image.open(infile) as input_image, Image.open(outfile) as output_image:
             # noinspection PyTypeChecker
