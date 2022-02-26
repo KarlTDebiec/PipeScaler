@@ -27,12 +27,12 @@ jobs:
         sudo apt -y install potrace
     - name: Prospector
       run: |
-        cd ${GITHUB_WORKSPACE}/pipescaler
-        prospector -0
+        cd ${GITHUB_WORKSPACE}
+        prospector -0 --doc-warnings pipescaler
     - name: Interrogate
       run: |
-        cd ${GITHUB_WORKSPACE}/pipescaler
-        interrogate -vv
+        cd ${GITHUB_WORKSPACE}
+        interrogate -vv pipescaler
     - name: Install
       run: |
         cd ${GITHUB_WORKSPACE}
