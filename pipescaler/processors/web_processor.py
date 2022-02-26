@@ -15,7 +15,7 @@ from logging import info
 from os.path import basename
 from typing import Any
 
-import requests as requests
+import requests
 
 from pipescaler.core import Processor
 

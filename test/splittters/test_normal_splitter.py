@@ -16,7 +16,7 @@ from pipescaler.testing import get_infile, stage_fixture, xfail_unsupported_imag
 
 
 @stage_fixture(cls=NormalSplitter, params=[{}])
-def normal_splitter(request) -> NormalSplitter:
+def splitter(request) -> NormalSplitter:
     return NormalSplitter(**request.param)
 
 
@@ -32,7 +32,7 @@ def normal_splitter(request) -> NormalSplitter:
         ("novel/RGB_normal"),
     ],
 )
-def test(infile: str, normal_splitter: NormalSplitter) -> None:
+def test(infile: str, splitter: NormalSplitter) -> None:
     infile = get_infile(infile)
 
     with temporary_filename(".png") as x_outfile:
@@ -40,7 +40,7 @@ def test(infile: str, normal_splitter: NormalSplitter) -> None:
             with temporary_filename(".png") as z_outfile:
                 input_image = Image.open(infile)
 
-                normal_splitter(infile, x=x_outfile, y=y_outfile, z=z_outfile)
+                splitter(infile, x=x_outfile, y=y_outfile, z=z_outfile)
 
                 with Image.open(x_outfile) as x_image:
                     assert x_image.mode == "L"

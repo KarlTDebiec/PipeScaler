@@ -1,28 +1,32 @@
 #!/usr/bin/env python
-#   test/processors/test_expand.py
+#   test/processors/image/test_mode_processor.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license. See the LICENSE file for details.
-"""Tests for ExpandProcessor"""
+"""Tests for ModeProcessor"""
 import pytest
 from PIL import Image
 
 from pipescaler.common import temporary_filename
-from pipescaler.processors import ExpandProcessor
+from pipescaler.processors import ModeProcessor
 from pipescaler.testing import get_infile, run_processor_on_command_line, stage_fixture
 
 
 @stage_fixture(
-    cls=ExpandProcessor,
+    cls=ModeProcessor,
     params=[
-        {"pixels": (4, 4, 4, 4)},
+        {"mode": "1"},
+        {"mode": "L"},
+        {"mode": "LA"},
+        {"mode": "RGB"},
+        {"mode": "RGBA"},
     ],
 )
-def expand_processor(request) -> ExpandProcessor:
-    return ExpandProcessor(**request.param)
+def processor(request) -> ModeProcessor:
+    return ModeProcessor(**request.param)
 
 
 @pytest.mark.parametrize(
@@ -39,28 +43,25 @@ def expand_processor(request) -> ExpandProcessor:
         ("PRGBA"),
     ],
 )
-def test(infile: str, expand_processor: ExpandProcessor) -> None:
+def test(infile: str, processor: ModeProcessor) -> None:
     infile = get_infile(infile)
 
     with temporary_filename(".png") as outfile:
-        expand_processor(infile, outfile)
+        processor(infile, outfile)
 
         with Image.open(infile) as input_image, Image.open(outfile) as output_image:
-            assert output_image.mode == input_image.mode
-            assert output_image.size == (
-                input_image.size[0] + expand_processor.left + expand_processor.right,
-                input_image.size[1] + expand_processor.top + expand_processor.bottom,
-            )
+            assert output_image.size == input_image.size
+            assert output_image.mode == processor.mode
 
 
 @pytest.mark.parametrize(
     ("infile", "args"),
     [
         ("RGB", "-h"),
-        ("RGB", "--pixels 4 4 4 4"),
+        ("RGB", "--mode L"),
     ],
 )
 def test_cl(infile: str, args: str) -> None:
     infile = get_infile(infile)
 
-    run_processor_on_command_line(ExpandProcessor, args, infile)
+    run_processor_on_command_line(ModeProcessor, args, infile)

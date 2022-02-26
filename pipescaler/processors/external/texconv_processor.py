@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/processors/texconv_external_processor.py
+#   pipescaler/processors/external/texconv_processor.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
@@ -11,17 +11,16 @@ from __future__ import annotations
 
 from argparse import ArgumentParser
 from inspect import cleandoc
-from logging import debug, info
-from os.path import basename, join
+from logging import debug
+from os.path import basename, dirname, join, splitext
 from shutil import copyfile
-from tempfile import TemporaryDirectory
-from typing import Any, Optional
+from typing import Any, Optional, Set
 
 from pipescaler.common import run_command, validate_executable
-from pipescaler.core import Processor
+from pipescaler.core import ExternalProcessor
 
 
-class TexconvExternalProcessor(Processor):
+class TexconvProcessor(ExternalProcessor):
     """
     Compresses image using
     [Texconv](https://github.com/Microsoft/DirectXTex/wiki/Texconv)
@@ -41,9 +40,9 @@ class TexconvExternalProcessor(Processor):
         Validate and store static configuration
 
         Arguments:
-            mipmaps: Whether or not to generate mipmaps
-            sepalpha: Whether or not to generate mips alpha channel separately from
-              color channels
+            mipmaps: Whether to generate mipmaps
+            sepalpha: Whether to generate mips alpha channel separately from color
+              channels
             filetype: Output file type
             format: Output format
             **kwargs: Additional keyword arguments
@@ -56,7 +55,35 @@ class TexconvExternalProcessor(Processor):
         self.filetype = filetype
         self.format = format
 
-    def __call__(self, infile: str, outfile: str) -> None:
+    @property
+    def command_template(self):
+        """String template with which to generate command"""
+        command = f"{validate_executable(self.executable, self.supported_platforms)}"
+        if self.mipmaps:
+            if self.sepalpha:
+                command += " -sepalpha"
+        else:
+            command += " -m 1"
+        if self.filetype:
+            command += f" -ft {self.filetype}"
+        if self.format:
+            command += f" -f {self.format}"
+        command += " -o {directory}"
+        command += " {infile}"
+
+        return command
+
+    @property
+    def executable(self) -> str:
+        """Name of executable"""
+        return "texconv.exe"
+
+    @property
+    def supported_platforms(self) -> Set[str]:
+        """Platforms on which processor is supported"""
+        return {"Windows"}
+
+    def process(self, infile: str, outfile: str) -> None:
         """
         Read image from infile, process it, and save to outfile
 
@@ -64,30 +91,15 @@ class TexconvExternalProcessor(Processor):
             infile: Input file path
             outfile: Output file path
         """
-        command = validate_executable("texconv.exe", {"Windows"})
-
-        with TemporaryDirectory() as temp_directory:
-            # Stage image
-            tempfile = join(temp_directory, basename(infile))
-            copyfile(infile, tempfile)
-
-            # Process image
-            if self.mipmaps:
-                if self.sepalpha:
-                    command += f" -sepalpha"
-            else:
-                command += f" -m 1"
-            if self.filetype:
-                command += f" -ft {self.filetype}"
-            if self.format:
-                command += f" -f {self.format}"
-            command += f" -o {temp_directory} {tempfile}"
-            debug(f"{self}: {command}")
-            run_command(command)
-
-            # Write image
-            copyfile(f"{tempfile[:-4]}.dds", outfile)  # TODO: Handle filetypes
-            info(f"{self}: '{outfile}' saved")
+        command = self.command_template.format(
+            infile=infile, directory=dirname(outfile)
+        )
+        debug(f"{self}: {command}")
+        run_command(command)
+        copyfile(
+            join(dirname(outfile), f"{splitext(basename(infile))[0]}.DDS"),
+            outfile,
+        )
 
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
@@ -131,4 +143,4 @@ class TexconvExternalProcessor(Processor):
 
 
 if __name__ == "__main__":
-    TexconvExternalProcessor.main()
+    TexconvProcessor.main()

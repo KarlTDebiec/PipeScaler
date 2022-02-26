@@ -17,7 +17,7 @@ from pipescaler.testing import get_infile, stage_fixture
 
 
 @stage_fixture(cls=ColorMatchMerger, params=[{}])
-def color_match_merger(request) -> ColorMatchMerger:
+def merger(request) -> ColorMatchMerger:
     return ColorMatchMerger(**request.param)
 
 
@@ -34,7 +34,7 @@ def color_match_merger(request) -> ColorMatchMerger:
         ("alt/PRGBA", "PRGBA"),
     ],
 )
-def test(reference: str, input: str, color_match_merger: ColorMatchMerger):
+def test(reference: str, input: str, merger: ColorMatchMerger):
     reference = get_infile(reference)
     input = get_infile(input)
 
@@ -45,7 +45,7 @@ def test(reference: str, input: str, color_match_merger: ColorMatchMerger):
         else:
             expected_output_mode = input_image.mode
 
-        color_match_merger(reference=reference, input=input, outfile=outfile)
+        merger(reference=reference, input=input, outfile=outfile)
 
         with Image.open(outfile) as output_image:
             assert output_image.mode == expected_output_mode

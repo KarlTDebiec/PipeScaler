@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   test/processors/test_esrgan.py
+#   test/processors/image/test_esrgan.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
@@ -31,7 +31,7 @@ from pipescaler.testing import (
         {"model_infile": get_model_infile("ESRGAN/RRDB_ESRGAN_x4_old_arch")},
     ],
 )
-def esrgan_processor(request) -> ESRGANProcessor:
+def processor(request) -> ESRGANProcessor:
     return ESRGANProcessor(**request.param)
 
 
@@ -50,11 +50,11 @@ def esrgan_processor(request) -> ESRGANProcessor:
         skip_if_ci(xfail_unsupported_image_mode())("PRGBA"),
     ],
 )
-def test(infile: str, esrgan_processor: ESRGANProcessor) -> None:
+def test(infile: str, processor: ESRGANProcessor) -> None:
     infile = get_infile(infile)
 
     with temporary_filename(".png") as outfile:
-        esrgan_processor(infile, outfile)
+        processor(infile, outfile)
 
         with Image.open(infile) as input_image, Image.open(outfile) as output_image:
             assert output_image.mode == expected_output_mode(input_image)
@@ -65,7 +65,7 @@ def test(infile: str, esrgan_processor: ESRGANProcessor) -> None:
     ("infile", "args"),
     [
         ("RGB", "-h"),
-        skip_if_ci()("RGB", f"--model {get_model_infile('1x_BC1-smooth2')}"),
+        skip_if_ci()("RGB", f"--model {get_model_infile('ESRGAN/1x_BC1-smooth2')}"),
     ],
 )
 def test_cl(infile: str, args: str) -> None:

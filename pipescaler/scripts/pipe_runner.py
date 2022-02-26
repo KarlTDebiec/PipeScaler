@@ -15,8 +15,6 @@ from os import environ
 from os.path import expandvars, normpath
 from typing import Any
 
-import yaml
-
 from pipescaler.common import CommandLineTool, validate_input_path
 from pipescaler.core.file import read_yaml
 from pipescaler.core.pipeline import Pipeline

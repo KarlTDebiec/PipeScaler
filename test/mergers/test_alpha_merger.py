@@ -17,7 +17,7 @@ from pipescaler.testing import get_infile, stage_fixture, xfail_unsupported_imag
 
 
 @stage_fixture(cls=AlphaMerger, params=[{}])
-def alpha_merger(request) -> AlphaMerger:
+def merger(request) -> AlphaMerger:
     return AlphaMerger(**request.param)
 
 
@@ -34,7 +34,7 @@ def alpha_merger(request) -> AlphaMerger:
         ("split/RGBA_monochrome_color_RGB", "split/RGBA_monochrome_alpha_1"),
     ],
 )
-def test(color: str, alpha: str, alpha_merger: AlphaMerger) -> None:
+def test(color: str, alpha: str, merger: AlphaMerger) -> None:
     color = get_infile(color)
     alpha = get_infile(alpha)
 
@@ -45,7 +45,7 @@ def test(color: str, alpha: str, alpha_merger: AlphaMerger) -> None:
         else:
             color_image_mode = color_image.mode
 
-        alpha_merger(color=color, alpha=alpha, outfile=outfile)
+        merger(color=color, alpha=alpha, outfile=outfile)
         with Image.open(outfile) as output_image:
             if color_image_mode == "L":
                 assert output_image.mode == "LA"

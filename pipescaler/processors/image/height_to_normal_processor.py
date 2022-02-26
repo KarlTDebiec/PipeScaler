@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/processors/height_to_normal_processor.py
+#   pipescaler/processors/image/height_to_normal_processor.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
@@ -11,21 +11,21 @@ from __future__ import annotations
 
 from argparse import ArgumentParser
 from inspect import cleandoc
-from logging import info
-from typing import Any, Optional, Tuple
+from typing import Any, List, Optional
+
+from PIL import Image
 
 from pipescaler.common import validate_float
 from pipescaler.core import (
-    Processor,
+    ImageProcessor,
     crop_image,
     expand_image,
     generate_normal_map_from_height_map_image,
     smooth_image,
-    validate_image,
 )
 
 
-class HeightToNormalProcessor(Processor):
+class HeightToNormalProcessor(ImageProcessor):
     """Converts height map image to a normal map image"""
 
     def __init__(self, sigma: Optional[int] = None, **kwargs: Any) -> None:
@@ -44,7 +44,11 @@ class HeightToNormalProcessor(Processor):
         else:
             self.sigma = None
 
-    def __call__(self, infile: str, outfile: str) -> None:
+    @property
+    def supported_input_modes(self) -> List[str]:
+        return ["L"]
+
+    def process(self, input_image: Image.Image) -> Image.Image:
         """
         Read image from infile, process it, and save to outfile
 
@@ -52,10 +56,6 @@ class HeightToNormalProcessor(Processor):
             infile: Input file path
             outfile: Output file path
         """
-        # Read image
-        input_image = validate_image(infile, "L")
-
-        # Process image
         expanded_image = expand_image(input_image, 8, 8, 8, 8)
         if self.sigma is not None:
             smoothed_image = smooth_image(expanded_image, self.sigma)
@@ -64,9 +64,7 @@ class HeightToNormalProcessor(Processor):
             normal_image = generate_normal_map_from_height_map_image(expanded_image)
         output_image = crop_image(normal_image, 8, 8, 8, 8)
 
-        # Write image
-        output_image.save(outfile)
-        info(f"{self}: '{outfile}' saved")
+        return output_image
 
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:

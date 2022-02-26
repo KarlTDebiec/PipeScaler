@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/processors/solid_color_processor.py
+#   pipescaler/processors/image/solid_color_processor.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
@@ -11,17 +11,16 @@ from __future__ import annotations
 
 from argparse import ArgumentParser
 from inspect import cleandoc
-from logging import info
 from typing import Any
 
 import numpy as np
 from PIL import Image
 
 from pipescaler.common import validate_float
-from pipescaler.core import Processor, validate_image
+from pipescaler.core import ImageProcessor
 
 
-class SolidColorProcessor(Processor):
+class SolidColorProcessor(ImageProcessor):
     """Sets entire image color to its average color, optionally resizing"""
 
     def __init__(self, scale: float = 1, **kwargs: Any) -> None:
@@ -37,19 +36,18 @@ class SolidColorProcessor(Processor):
         # Store configuration
         self.scale = validate_float(scale)
 
-    def __call__(self, infile: str, outfile: str) -> None:
+    def process(self, input_image: Image.Image) -> Image.Image:
         """
-        Read image from infile, process it, and save to outfile
+        Process an image
 
         Arguments:
-            infile: Input file path
-            outfile: Output file path
+            input_image: Input image to process
+        Returns:
+            Processed output image
         """
-        # Read image
-        input_image = validate_image(infile, ["1", "L", "LA", "RGB", "RGBA"])
+        # noinspection PyTypeChecker
         input_datum = np.array(input_image)
 
-        # Process image
         size = (
             round(input_image.size[0] * self.scale),
             round(input_image.size[1] * self.scale),
@@ -60,11 +58,10 @@ class SolidColorProcessor(Processor):
             color = round(input_datum.mean())
         else:
             color = 255 if input_datum.mean() >= 0.5 else 0
+        # noinspection PyTypeChecker
         output_image = Image.new(input_image.mode, size, color)
 
-        # Write image
-        output_image.save(outfile)
-        info(f"{self}: '{outfile}' saved")
+        return output_image
 
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/processors/resize_processor.py
+#   pipescaler/processors/image/resize_processor.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
@@ -14,22 +14,16 @@ from __future__ import annotations
 
 from argparse import ArgumentParser
 from inspect import cleandoc
-from logging import info
 from typing import Any
 
 import numpy as np
 from PIL import Image
 
 from pipescaler.common import validate_float, validate_str
-from pipescaler.core import (
-    Processor,
-    UnsupportedImageModeError,
-    remove_palette_from_image,
-    validate_image,
-)
+from pipescaler.core import ImageProcessor
 
 
-class ResizeProcessor(Processor):
+class ResizeProcessor(ImageProcessor):
     """
     Resizes image canvas using bicubic, bilinear, lanczos, or nearest-neighbor
     interpolation
@@ -59,16 +53,15 @@ class ResizeProcessor(Processor):
             validate_str(resample, options=self.resample_methods.keys())
         ]
 
-    def __call__(self, infile: str, outfile: str) -> None:
+    def process(self, input_image: Image.Image) -> Image.Image:
         """
-        Read image from infile, process it, and save to outfile
+        Process an image
 
         Arguments:
-            infile: Input file path
-            outfile: Output file path
+            input_image: Input image to process
+        Returns:
+            Processed output image
         """
-        # Read image
-        input_image = validate_image(infile, ["1", "L", "LA", "RGB", "RGBA"])
         # noinspection PyTypeChecker
         input_datum = np.array(input_image)
 
@@ -102,9 +95,7 @@ class ResizeProcessor(Processor):
         else:
             output_image = input_image.resize(size, resample=self.resample)
 
-        # Write image
-        output_image.save(outfile)
-        info(f"{self}: '{outfile}' saved")
+        return output_image
 
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:

@@ -6,12 +6,12 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license. See the LICENSE file for details.
-"""Tests for TexconvExternalProcessor"""
+"""Tests for TexconvProcessor"""
 import pytest
 from PIL import Image
 
 from pipescaler.common import temporary_filename
-from pipescaler.processors import TexconvExternalProcessor
+from pipescaler.processors import TexconvProcessor
 from pipescaler.testing import (
     get_infile,
     run_processor_on_command_line,
@@ -21,13 +21,13 @@ from pipescaler.testing import (
 
 
 @stage_fixture(
-    cls=TexconvExternalProcessor,
+    cls=TexconvProcessor,
     params=[
         {},
     ],
 )
-def texconv_external_processor(request) -> TexconvExternalProcessor:
-    return TexconvExternalProcessor(**request.param)
+def processor(request) -> TexconvProcessor:
+    return TexconvProcessor(**request.param)
 
 
 @pytest.mark.parametrize(
@@ -44,11 +44,11 @@ def texconv_external_processor(request) -> TexconvExternalProcessor:
         xfail_if_platform({"Darwin", "Linux"})("PRGBA"),
     ],
 )
-def test(infile: str, texconv_external_processor: TexconvExternalProcessor) -> None:
+def test(infile: str, processor: TexconvProcessor) -> None:
     infile = get_infile(infile)
 
     with temporary_filename(".png") as outfile:
-        texconv_external_processor(infile, outfile)
+        processor(infile, outfile)
 
         with Image.open(infile) as input_image, Image.open(outfile) as output_image:
             assert output_image.mode == "RGBA"
@@ -65,4 +65,4 @@ def test(infile: str, texconv_external_processor: TexconvExternalProcessor) -> N
 def test_cl(infile: str, args: str) -> None:
     infile = get_infile(infile)
 
-    run_processor_on_command_line(TexconvExternalProcessor, args, infile)
+    run_processor_on_command_line(TexconvProcessor, args, infile)

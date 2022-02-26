@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/processors/apple_script_external_processor.py
+#   pipescaler/processors/external/apple_script_processor.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
@@ -11,22 +11,14 @@ from __future__ import annotations
 
 from argparse import ArgumentParser
 from inspect import cleandoc
-from logging import debug, info
 from os.path import join, split
-from shutil import copyfile
-from typing import Any
+from typing import Any, Set
 
-from pipescaler.common import (
-    package_root,
-    run_command,
-    temporary_filename,
-    validate_executable,
-    validate_input_path,
-)
-from pipescaler.core import Processor
+from pipescaler.common import package_root, validate_executable, validate_input_path
+from pipescaler.core import ExternalProcessor
 
 
-class AppleScriptExternalProcessor(Processor):
+class AppleScriptProcessor(ExternalProcessor):
     """
     Runs image through an
     [AppleScript](https://developer.apple.com/library/archive/documentation/AppleScript/Conceptual/AppleScriptLangGuide/introduction/ASLR_intro.html);
@@ -54,28 +46,25 @@ class AppleScriptExternalProcessor(Processor):
         )
         self.args = args
 
-    def __call__(self, infile: str, outfile: str) -> None:
-        """
-        Read image from infile, process it, and save to outfile
+    @property
+    def command_template(self):
+        """String template with which to generate command"""
+        return (
+            f"{validate_executable(self.executable, self.supported_platforms)}"
+            f' "{self.script}"'
+            ' "{infile}"'
+            f" {self.args}"
+        )
 
-        Arguments:
-            infile: Input file path
-            outfile: Output file path
-        """
-        command = validate_executable("osascript", {"Darwin"})
+    @property
+    def executable(self) -> str:
+        """Name of executable"""
+        return "osascript"
 
-        with temporary_filename(".png") as tempfile:
-            # Stage image
-            copyfile(infile, tempfile)
-
-            # Process image
-            command += f' "{self.script}" "{tempfile}" {self.args}'
-            debug(f"{self}: {command}")
-            run_command(command)
-
-            # Write image
-            copyfile(tempfile, outfile)
-            info(f"{self}: '{outfile}' saved")
+    @property
+    def supported_platforms(self) -> Set[str]:
+        """Platforms on which processor is supported"""
+        return {"Darwin"}
 
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
@@ -111,4 +100,4 @@ class AppleScriptExternalProcessor(Processor):
 
 
 if __name__ == "__main__":
-    AppleScriptExternalProcessor.main()
+    AppleScriptProcessor.main()

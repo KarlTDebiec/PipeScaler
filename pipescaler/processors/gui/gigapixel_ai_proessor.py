@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/processors/gigapixel_ai_processor.py
+#   pipescaler/processors/gui/gigapixel_ai_processor.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.

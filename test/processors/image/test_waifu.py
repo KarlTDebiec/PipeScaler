@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   test/processors/test_waifu.py
+#   test/processors/image/test_waifu.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
@@ -29,7 +29,7 @@ from pipescaler.testing import (
         {"model_infile": get_model_infile("WaifuVgg7/a-1-3")},
     ],
 )
-def waifu_processor(request) -> WaifuProcessor:
+def processor(request) -> WaifuProcessor:
     return WaifuProcessor(**request.param)
 
 
@@ -44,11 +44,11 @@ def waifu_processor(request) -> WaifuProcessor:
         skip_if_ci(xfail_unsupported_image_mode())("RGBA"),
     ],
 )
-def test(infile: str, waifu_processor: WaifuProcessor) -> None:
+def test(infile: str, processor: WaifuProcessor) -> None:
     infile = get_infile(infile)
 
     with temporary_filename(".png") as outfile:
-        waifu_processor(infile, outfile)
+        processor(infile, outfile)
 
         with Image.open(infile) as input_image, Image.open(outfile) as output_image:
             assert output_image.mode == expected_output_mode(input_image)
