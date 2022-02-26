@@ -32,8 +32,7 @@ def convert_mode(image: Image.Image, mode: str) -> Tuple[Image.Image, str]:
     """
     if image.mode != mode:
         return (image.convert(mode), image.mode)
-    else:
-        return (image, image.mode)
+    return (image, image.mode)
 
 
 def crop_image(

@@ -98,8 +98,7 @@ class WaifuExternalProcessor(ExternalProcessor):
         """Name of executable"""
         if system() == "Windows":
             return "waifu2x-caffe-cui.exe"
-        else:
-            return "waifu2x"
+        return "waifu2x"
 
     def process(self, infile: str, outfile: str) -> None:
         """
