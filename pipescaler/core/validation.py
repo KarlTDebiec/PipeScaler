@@ -9,7 +9,7 @@
 """Core pipescaler functions for validation"""
 from __future__ import annotations
 
-from typing import List, Optional, Tuple, Union
+from typing import List, Tuple, Union
 
 from PIL import Image
 
