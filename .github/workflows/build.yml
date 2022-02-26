@@ -28,7 +28,11 @@ jobs:
     - name: Prospector
       run: |
         cd ${GITHUB_WORKSPACE}/pipescaler
-        prospector .
+        prospector
+    - name: Interrogate
+      run: |
+        cd ${GITHUB_WORKSPACE}/pipescaler
+        interrogate -vv
     - name: Install
       run: |
         cd ${GITHUB_WORKSPACE}
