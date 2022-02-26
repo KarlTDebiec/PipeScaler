@@ -32,7 +32,9 @@ def validate_image(infile: str, valid_modes: Union[str, List[str]]) -> Image.Ima
     if isinstance(valid_modes, str):
         valid_modes = [valid_modes]
 
-    image = Image.open(validate_input_path(infile))
+    # '.copy()' is a workaround for a bug that keeps the file open, causing trouble
+    # if infile is a temporary file and an UnsupportedImageModeError is raised
+    image = Image.open(validate_input_path(infile)).copy()
     if image.mode == "P":
         image = remove_palette_from_image(image)
     if image.mode not in valid_modes:

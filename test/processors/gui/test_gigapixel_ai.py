@@ -27,7 +27,7 @@ from pipescaler.testing import (
         {},
     ],
 )
-def gigapixel_ai_processor(request) -> GigapixelAiProcessor:
+def processor(request) -> GigapixelAiProcessor:
     return GigapixelAiProcessor(**request.param)
 
 
@@ -39,11 +39,11 @@ def gigapixel_ai_processor(request) -> GigapixelAiProcessor:
         skip_if_ci(xfail_if_platform({"Darwin", "Linux"}))("L"),
     ],
 )
-def test(infile: str, gigapixel_ai_processor: GigapixelAiProcessor) -> None:
+def test(infile: str, processor: GigapixelAiProcessor) -> None:
     infile = get_infile(infile)
 
     with temporary_filename(".png") as outfile:
-        gigapixel_ai_processor(infile, outfile)
+        processor(infile, outfile)
 
         with Image.open(infile) as input_image, Image.open(outfile) as output_image:
             assert output_image.mode == expected_output_mode(input_image)
