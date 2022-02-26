@@ -54,12 +54,10 @@ class MonochromeSorter(Sorter):
             if is_monochrome(image):
                 info(f"{self}: '{infile}' matches 'drop_gray'")
                 return "drop_gray"
-            else:
-                info(f"{self}: '{infile}' matches 'keep_gray'")
-                return "keep_gray"
-        else:
-            info(f"{self}: {infile}' matches 'no_gray'")
-            return "no_gray"
+            info(f"{self}: '{infile}' matches 'keep_gray'")
+            return "keep_gray"
+        info(f"{self}: {infile}' matches 'no_gray'")
+        return "no_gray"
 
     @property
     def outlets(self) -> List[str]:

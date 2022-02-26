@@ -50,12 +50,11 @@ class SizeSorter(Sorter):
         if image.size[0] < self.cutoff or image.size[1] < self.cutoff:
             info(f"{self}: {infile}'s smallest dimension is less than{self.cutoff}")
             return "less_than"
-        else:
-            info(
-                f"{self}: {infile}'s smallest dimension is greater than or equal to"
-                f" {self.cutoff}"
-            )
-            return "greater_than_or_equal_to"
+        info(
+            f"{self}: {infile}'s smallest dimension is greater than or equal to"
+            f" {self.cutoff}"
+        )
+        return "greater_than_or_equal_to"
 
     @property
     def outlets(self):

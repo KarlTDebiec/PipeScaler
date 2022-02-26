@@ -49,16 +49,15 @@ class AlphaSorter(Sorter):
 
         # Sort image
         if image.mode in ("LA", "RGBA"):
+            # noinspection PyTypeChecker
             alpha_array = np.array(image)[:, :, -1]
             if alpha_array.min() >= self.threshold:
                 info(f"{self}: '{infile}' matches 'drop_alpha'")
                 return "drop_alpha"
-            else:
-                info(f"{self}: '{infile}' matches 'keep_alpha'")
-                return "keep_alpha"
-        else:
-            info(f"{self}: {infile}' matches 'no_alpha'")
-            return "no_alpha"
+            info(f"{self}: '{infile}' matches 'keep_alpha'")
+            return "keep_alpha"
+        info(f"{self}: {infile}' matches 'no_alpha'")
+        return "no_alpha"
 
     @property
     def outlets(self) -> List[str]:

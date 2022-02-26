@@ -63,16 +63,14 @@ class SolidColorSorter(Sorter):
             if diff.mean() <= self.mean_threshold and diff.max() <= self.max_threshold:
                 info(f"{self}: '{infile}' matches 'solid'")
                 return "solid"
-            else:
-                info(f"{self}: '{infile}' matches 'not_solid'")
-                return "not_solid"
+            info(f"{self}: '{infile}' matches 'not_solid'")
+            return "not_solid"
         else:
             if np.all(np.abs(array - array.mean()) == 0):
                 info(f"{self}: '{infile}' matches 'solid'")
                 return "solid"
-            else:
-                info(f"{self}: '{infile}' matches 'not_solid'")
-                return "not_solid"
+            info(f"{self}: '{infile}' matches 'not_solid'")
+            return "not_solid"
 
     @property
     def outlets(self) -> List[str]:
