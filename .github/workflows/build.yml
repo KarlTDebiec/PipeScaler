@@ -75,37 +75,37 @@ jobs:
     build-windows:
         runs-on: windows-latest
         steps:
-        - name: Checkout PipeScaler
-          uses: actions/checkout@v2
-          with:
-              submodules: true
-        - name: Set up Python 3.8
-          uses: actions/setup-python@v2
-          with:
-              python-version: "3.8"
+#         - name: Checkout PipeScaler
+#           uses: actions/checkout@v2
+#           with:
+#               submodules: true
+#         - name: Set up Python 3.8
+#           uses: actions/setup-python@v2
+#           with:
+#               python-version: "3.8"
         - name: Install dependencies
           run: |
               $ErrorView = 'NormalView'
               Set-Location -Path ${env:GITHUB_WORKSPACE}
-              python -m pip install --upgrade pip
-              pip install -r requirements.txt
-              pip install pywinauto
-              choco install pngquant
               Invoke-WebRequest -Uri http://potrace.sourceforge.net/download/1.16/potrace-1.16.win64.zip -Outfile potrace-1.16.win64.zip
               Expand-Archive potrace-1.16.win64.zip
               echo "${env:GITHUB_WORKSPACE}\potrace-1.16.win64\potrace-1.16.win64" | Out-File -FilePath ${env:GITHUB_PATH} -Encoding utf8 -Append
               Write-Output ${env:GITHUB_PATH}
               Get-Command potrace
               Invoke-WebRequest -Uri https://github.com/microsoft/DirectXTex/releases/download/nov2021/texconv.exe -Outfile texconv.exe
-        - name: Install
-          run: |
-              $ErrorView = 'NormalView'
-              Set-Location -Path ${env:GITHUB_WORKSPACE}
-              python setup.py build
-              python setup.py install
-        - name: Test with pytest
-          run: |
-              $ErrorView = 'NormalView'
-              ${env:PACKAGE_ROOT}="${env:GITHUB_WORKSPACE}\pipescaler"
-              Set-Location ${env:GITHUB_WORKSPACE}\test
-              pytest -v --cov=pipescaler --cov-report term .
+#               python -m pip install --upgrade pip
+#               pip install -r requirements.txt
+#               pip install pywinauto
+#               choco install pngquant
+#         - name: Install
+#           run: |
+#               $ErrorView = 'NormalView'
+#               Set-Location -Path ${env:GITHUB_WORKSPACE}
+#               python setup.py build
+#               python setup.py install
+#         - name: Test with pytest
+#           run: |
+#               $ErrorView = 'NormalView'
+#               ${env:PACKAGE_ROOT}="${env:GITHUB_WORKSPACE}\pipescaler"
+#               Set-Location ${env:GITHUB_WORKSPACE}\test
+#               pytest -v --cov=pipescaler --cov-report term .
