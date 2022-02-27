@@ -75,14 +75,14 @@ jobs:
     build-windows:
         runs-on: windows-latest
         steps:
-        - name: Checkout PipeScaler
-          uses: actions/checkout@v2
-          with:
-              submodules: true
-        - name: Set up Python 3.8
-          uses: actions/setup-python@v2
-          with:
-              python-version: "3.8"
+#         - name: Checkout PipeScaler
+#           uses: actions/checkout@v2
+#           with:
+#               submodules: true
+#         - name: Set up Python 3.8
+#           uses: actions/setup-python@v2
+#           with:
+#               python-version: "3.8"
         - name: Install dependencies
           run: |
               $ErrorView = 'NormalView'
@@ -91,15 +91,16 @@ jobs:
               pip install pywinauto
               choco install pngquant
               npm install potrace
-        - name: Install
-          run: |
-              $ErrorView = 'NormalView'
-              Set-Location -Path ${env:GITHUB_WORKSPACE}
-              python setup.py build
-              python setup.py install
-        - name: Test with pytest
-          run: |
-              $ErrorView = 'NormalView'
-              ${env:PACKAGE_ROOT}="${env:GITHUB_WORKSPACE}\pipescaler"
-              Set-Location ${env:GITHUB_WORKSPACE}\test
-              pytest -v --cov=pipescaler --cov-report term .
+              Get-Command potrace
+#         - name: Install
+#           run: |
+#               $ErrorView = 'NormalView'
+#               Set-Location -Path ${env:GITHUB_WORKSPACE}
+#               python setup.py build
+#               python setup.py install
+#         - name: Test with pytest
+#           run: |
+#               $ErrorView = 'NormalView'
+#               ${env:PACKAGE_ROOT}="${env:GITHUB_WORKSPACE}\pipescaler"
+#               Set-Location ${env:GITHUB_WORKSPACE}\test
+#               pytest -v --cov=pipescaler --cov-report term .
