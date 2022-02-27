@@ -12,7 +12,6 @@ profile='black'
 
 [tool.pydocstyle]
 convention='google'
-add-ignore='D212'
 
 [tool.pylint.master]
 fail-under=10.0
