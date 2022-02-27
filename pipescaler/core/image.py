@@ -246,7 +246,7 @@ def get_font_size(
     width: int,
     height: int,
     proportional_height: float = 0.2,
-    font: str = "arial",
+    font: str = "Arial",
 ):
     """
     Get the font size at which *text* drawn with *font* will take up
@@ -267,8 +267,8 @@ def get_font_size(
 
 
 def get_text_size(
-    text: str, width: int, height: int, font: str = "arial", size: int = 100
-):
+    text: str, width: int, height: int, font: str = "Arial", size: int = 100
+) -> Tuple[int,int]:
     """
     Get the size of *text* drawn with *font* at *size* on image of *width* and *height*
 
@@ -278,12 +278,13 @@ def get_text_size(
         height: Height of image
         font: Font
         size: Font size
-
     Returns:
-
+        Width and height of text
     """
     image = Image.new("L", (width, height))
-    return ImageDraw.Draw(image).textsize(text, ImageFont.truetype(font, size))
+    draw = ImageDraw.Draw(image)
+    font = ImageFont.truetype(font, size)
+    return draw.textsize(text, font)
 
 
 def hstack_images(*images: Image.Image) -> Image.Image:
@@ -356,7 +357,7 @@ def label_image(image: Image.Image, text: str) -> Image.Image:
         ),
         text,
         font=ImageFont.truetype(
-            "arial",
+            "Arial",
             get_font_size(text, image.width, image.height),
         ),
         stroke="white",
