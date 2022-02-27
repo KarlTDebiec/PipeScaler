@@ -66,11 +66,11 @@ jobs:
               cd ${GITHUB_WORKSPACE}
               python setup.py build
               python setup.py install
-        - name: Test with pytest
-          run: |
-              export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
-              cd ${GITHUB_WORKSPACE}/test
-              pytest -v --cov=pipescaler --cov-report term .
+#         - name: Test with pytest
+#           run: |
+#               export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
+#               cd ${GITHUB_WORKSPACE}/test
+#               pytest -v --cov=pipescaler --cov-report term .
 
     build-windows:
         runs-on: windows-latest
@@ -90,6 +90,7 @@ jobs:
               choco install pngquant
         - name: Install
           run: |
+              Write-Output ${GITHUB_WORKSPACE}
               Set-Location -Path ${GITHUB_WORKSPACE}
               Get-Location
               Get-ChildItem
