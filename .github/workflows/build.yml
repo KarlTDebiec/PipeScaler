@@ -86,9 +86,13 @@ jobs:
         - name: Install dependencies
           run: |
               $ErrorView = 'NormalView'
+              Write-Output ${env:GITHUB_WORKSPACE}
               Set-Location -Path ${env:GITHUB_WORKSPACE}
+              Get-Location
               Invoke-WebRequest -Uri http://potrace.sourceforge.net/download/1.16/potrace-1.16.win64.zip -Outfile potrace-1.16.win64.zip
+              Get-ChildItem
               Expand-Archive potrace-1.16.win64.zip
+              Get-ChildItem
               echo "${env:GITHUB_WORKSPACE}\potrace-1.16.win64\potrace-1.16.win64" | Out-File -FilePath ${env:GITHUB_PATH} -Encoding utf8 -Append
               Write-Output ${env:GITHUB_PATH}
               Get-Command potrace
