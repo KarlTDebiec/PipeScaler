@@ -99,12 +99,15 @@ jobs:
               echo "${env:GITHUB_WORKSPACE}" | Out-File -FilePath $env:GITHUB_PATH
         - name: Install
           run: |
+              Set-PSDebug -Trace 1
               $ErrorView = 'NormalView'
+              Write-Output ${env:PATH}
               Set-Location -Path ${env:GITHUB_WORKSPACE}
               python setup.py build
               python setup.py install
         - name: Test with pytest
           run: |
+              Set-PSDebug -Trace 1
               $ErrorView = 'NormalView'
               ${env:PACKAGE_ROOT}="${env:GITHUB_WORKSPACE}\pipescaler"
               Set-Location ${env:GITHUB_WORKSPACE}\test
