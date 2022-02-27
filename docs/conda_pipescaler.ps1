@@ -1,5 +1,6 @@
 #!/usr/bin/env pwsh
-# Script for creating a working conda environment on Windows
+# Script for creating a working conda environment on Windows,
+# with the latest version of required packages
 
 $ErrorActionPreference = "Stop"
 
@@ -40,3 +41,4 @@ conda install -y -c pytorch `
     pytorch `
     torchvision `
     torchaudio
+
