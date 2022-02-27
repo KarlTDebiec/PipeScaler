@@ -6,3 +6,4 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+"""pipescaler package root"""

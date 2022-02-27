@@ -25,14 +25,14 @@ jobs:
         sudo apt update
         sudo apt -y install pngquant
         sudo apt -y install potrace
-    - name: Prospector
+    - name: prospector
       run: |
         cd ${GITHUB_WORKSPACE}
-        prospector -0 --doc-warnings pipescaler
-    - name: Interrogate
+        prospector -0 pipescaler
+    - name: pydocstyle
       run: |
         cd ${GITHUB_WORKSPACE}
-        interrogate -vv pipescaler
+        pydocstyle pipescaler
     - name: Install
       run: |
         cd ${GITHUB_WORKSPACE}
