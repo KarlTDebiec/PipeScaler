@@ -7,70 +7,70 @@ on:
         branches: [ master ]
 
 jobs:
-    build-linux:
-        runs-on: ubuntu-latest
-        steps:
-        - name: Checkout PipeScaler
-          uses: actions/checkout@v2
-          with:
-              submodules: true
-        - name: Set up Python 3.8
-          uses: actions/setup-python@v2
-          with:
-              python-version: "3.8"
-        - name: Install dependencies
-          run: |
-              python -m pip install --upgrade pip
-              pip install -r requirements.txt
-              sudo apt update
-              sudo apt -y install pngquant
-              sudo apt -y install potrace
-        - name: prospector
-          run: |
-              cd ${GITHUB_WORKSPACE}
-              prospector -0 pipescaler
-        - name: pydocstyle
-          run: |
-              cd ${GITHUB_WORKSPACE}
-              pydocstyle pipescaler || echo
-        - name: Install
-          run: |
-              cd ${GITHUB_WORKSPACE}
-              python setup.py build
-              python setup.py install
-        - name: Test with pytest
-          run: |
-              export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
-              cd ${GITHUB_WORKSPACE}/test
-              pytest -v --cov=pipescaler --cov-report term .
-
-    build-macos:
-        runs-on: macos-latest
-        steps:
-        - name: Checkout PipeScaler
-          uses: actions/checkout@v2
-          with:
-              submodules: true
-        - name: Set up Python 3.8
-          uses: actions/setup-python@v2
-          with:
-              python-version: "3.8"
-        - name: Install dependencies
-          run: |
-              python -m pip install --upgrade pip
-              pip install -r requirements.txt
-              brew install pngquant
-              brew install potrace
-        - name: Install
-          run: |
-              cd ${GITHUB_WORKSPACE}
-              python setup.py build
-              python setup.py install
-        - name: Test with pytest
-          run: |
-              export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
-              cd ${GITHUB_WORKSPACE}/test
-              pytest -v --cov=pipescaler --cov-report term .
+#     build-linux:
+#         runs-on: ubuntu-latest
+#         steps:
+#         - name: Checkout PipeScaler
+#           uses: actions/checkout@v2
+#           with:
+#               submodules: true
+#         - name: Set up Python 3.8
+#           uses: actions/setup-python@v2
+#           with:
+#               python-version: "3.8"
+#         - name: Install dependencies
+#           run: |
+#               python -m pip install --upgrade pip
+#               pip install -r requirements.txt
+#               sudo apt update
+#               sudo apt -y install pngquant
+#               sudo apt -y install potrace
+#         - name: prospector
+#           run: |
+#               cd ${GITHUB_WORKSPACE}
+#               prospector -0 pipescaler
+#         - name: pydocstyle
+#           run: |
+#               cd ${GITHUB_WORKSPACE}
+#               pydocstyle pipescaler || echo
+#         - name: Install
+#           run: |
+#               cd ${GITHUB_WORKSPACE}
+#               python setup.py build
+#               python setup.py install
+#         - name: Test with pytest
+#           run: |
+#               export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
+#               cd ${GITHUB_WORKSPACE}/test
+#               pytest -v --cov=pipescaler --cov-report term .
+#
+#     build-macos:
+#         runs-on: macos-latest
+#         steps:
+#         - name: Checkout PipeScaler
+#           uses: actions/checkout@v2
+#           with:
+#               submodules: true
+#         - name: Set up Python 3.8
+#           uses: actions/setup-python@v2
+#           with:
+#               python-version: "3.8"
+#         - name: Install dependencies
+#           run: |
+#               python -m pip install --upgrade pip
+#               pip install -r requirements.txt
+#               brew install pngquant
+#               brew install potrace
+#         - name: Install
+#           run: |
+#               cd ${GITHUB_WORKSPACE}
+#               python setup.py build
+#               python setup.py install
+#         - name: Test with pytest
+#           run: |
+#               export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
+#               cd ${GITHUB_WORKSPACE}/test
+#               pytest -v --cov=pipescaler --cov-report term .
 
     build-windows:
         runs-on: windows-latest
@@ -86,12 +86,17 @@ jobs:
         - name: Install dependencies
           run: |
               $ErrorView = 'NormalView'
+              Set-Location -Path ${env:GITHUB_WORKSPACE}
               python -m pip install --upgrade pip
               pip install -r requirements.txt
               pip install pywinauto
               choco install pngquant
-              npm install potrace
+              Invoke-WebRequest -Uri http://potrace.sourceforge.net/download/1.16/potrace-1.16.win64.zip -Outfile potrace-1.16.win64.zip
+              Expand-Archive potrace-1.16.win64.zip
+              echo "${env:GITHUB_WORKSPACE}\potrace-1.16.win64\potrace-1.16.win64" | Out-File -FilePath ${env:GITHUB_PATH} -Encoding utf8 -Append
+              Write-Output ${env:GITHUB_PATH}
               Get-Command potrace
+              Invoke-WebRequest -Uri https://github.com/microsoft/DirectXTex/releases/download/nov2021/texconv.exe -Outfile texconv.exe
         - name: Install
           run: |
               $ErrorView = 'NormalView'
