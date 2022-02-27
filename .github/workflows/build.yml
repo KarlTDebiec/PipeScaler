@@ -90,8 +90,8 @@ jobs:
 #               choco install pngquant
         - name: Install
           run: |
-              Write-Output ${GITHUB_WORKSPACE}
-#               Set-Location -Path ${GITHUB_WORKSPACE}
+              Write-Output ${HOME}
+#               Set-Location -Path ${HOME}
 #               Get-Location
 #               Get-ChildItem
 #               python setup.py build
