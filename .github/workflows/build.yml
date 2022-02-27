@@ -112,5 +112,4 @@ jobs:
               $ErrorView = 'NormalView'
               ${env:PACKAGE_ROOT}="${env:GITHUB_WORKSPACE}\pipescaler"
               Set-Location ${env:GITHUB_WORKSPACE}\test
-              pytest -v processors\external\test_potrace.py
-              pytest -v processors\external\test_texconv.py
+              pytest -v --cov=pipescaler --cov-report term .
