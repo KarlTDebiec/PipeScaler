@@ -268,7 +268,7 @@ def get_font_size(
 
 def get_text_size(
     text: str, width: int, height: int, font: str = "Arial", size: int = 100
-) -> Tuple[int,int]:
+) -> Tuple[int, int]:
     """
     Get the size of *text* drawn with *font* at *size* on image of *width* and *height*
 
@@ -283,7 +283,10 @@ def get_text_size(
     """
     image = Image.new("L", (width, height))
     draw = ImageDraw.Draw(image)
-    font = ImageFont.truetype(font, size)
+    try:
+        font = ImageFont.truetype(font, size)
+    except OSError:
+        font = ImageFont.truetype(font.lower(), size)
     return draw.textsize(text, font)
 
 
