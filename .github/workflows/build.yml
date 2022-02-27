@@ -92,8 +92,8 @@ jobs:
           run: |
               $ErrorView = 'NormalView'
               Write-Output ${HOME}
-              Write-Output ${GITHUB_WORKSPACE}
-              Set-Location -Path ${HOME}
+              Write-Output ${env:GITHUB_WORKSPACE}
+              Set-Location -Path ${env:GITHUB_WORKSPACE}
               Get-Location
               Get-ChildItem
 #               python setup.py build
