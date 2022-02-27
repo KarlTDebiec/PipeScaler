@@ -75,25 +75,25 @@ jobs:
     build-windows:
         runs-on: windows-latest
         steps:
-        - name: Checkout PipeScaler
-          uses: actions/checkout@v2
-          with:
-              submodules: true
-        - name: Set up Python 3.8
-          uses: actions/setup-python@v2
-          with:
-              python-version: "3.8"
-        - name: Install dependencies
-          run: |
-              python -m pip install --upgrade pip
-              pip install -r requirements.txt
-              choco install pngquant
+#         - name: Checkout PipeScaler
+#           uses: actions/checkout@v2
+#           with:
+#               submodules: true
+#         - name: Set up Python 3.8
+#           uses: actions/setup-python@v2
+#           with:
+#               python-version: "3.8"
+#         - name: Install dependencies
+#           run: |
+#               python -m pip install --upgrade pip
+#               pip install -r requirements.txt
+#               choco install pngquant
         - name: Install
           run: |
               Write-Output ${GITHUB_WORKSPACE}
-              Set-Location -Path ${GITHUB_WORKSPACE}
-              Get-Location
-              Get-ChildItem
+#               Set-Location -Path ${GITHUB_WORKSPACE}
+#               Get-Location
+#               Get-ChildItem
 #               python setup.py build
 #               python setup.py install
 #         - name: Test with pytest
