@@ -7,42 +7,42 @@ on:
         branches: [ master ]
 
 jobs:
-#     build-linux:
-#         runs-on: ubuntu-latest
-#         steps:
-#         - name: Checkout PipeScaler
-#           uses: actions/checkout@v2
-#           with:
-#               submodules: true
-#         - name: Set up Python 3.8
-#           uses: actions/setup-python@v2
-#           with:
-#               python-version: "3.8"
-#         - name: Install dependencies
-#           run: |
-#               python -m pip install --upgrade pip
-#               pip install -r requirements.txt
-#               sudo apt update
-#               sudo apt -y install pngquant
-#               sudo apt -y install potrace
-#         - name: prospector
-#           run: |
-#               cd ${GITHUB_WORKSPACE}
-#               prospector -0 pipescaler
-#         - name: pydocstyle
-#           run: |
-#               cd ${GITHUB_WORKSPACE}
-#               pydocstyle pipescaler || echo
-#         - name: Install
-#           run: |
-#               cd ${GITHUB_WORKSPACE}
-#               python setup.py build
-#               python setup.py install
-#         - name: Test with pytest
-#           run: |
-#               export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
-#               cd ${GITHUB_WORKSPACE}/test
-#               pytest -v --cov=pipescaler --cov-report term .
+     build-linux:
+         runs-on: ubuntu-latest
+         steps:
+         - name: Checkout PipeScaler
+           uses: actions/checkout@v2
+           with:
+               submodules: true
+         - name: Set up Python 3.8
+           uses: actions/setup-python@v2
+           with:
+               python-version: "3.8"
+         - name: Install dependencies
+           run: |
+               python -m pip install --upgrade pip
+               pip install -r requirements.txt
+               sudo apt update
+               sudo apt -y install pngquant
+               sudo apt -y install potrace
+         - name: prospector
+           run: |
+               cd ${GITHUB_WORKSPACE}
+               prospector -0 pipescaler
+         - name: pydocstyle
+           run: |
+               cd ${GITHUB_WORKSPACE}
+               pydocstyle pipescaler || echo
+         - name: Install
+           run: |
+               cd ${GITHUB_WORKSPACE}
+               python setup.py build
+               python setup.py install
+         - name: Test with pytest
+           run: |
+               export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
+               cd ${GITHUB_WORKSPACE}/test
+               pytest -v --cov=pipescaler --cov-report term .
 #
      build-macos:
          runs-on: macos-latest
@@ -70,15 +70,15 @@ jobs:
            run: |
                export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
                cd ${GITHUB_WORKSPACE}/test
-               pytest -v --cov=pipescaler --cov-report term ./core
-               pytest -v --cov=pipescaler --cov-report term ./mergers
-               pytest -v --cov=pipescaler --cov-report term ./scripts
-               pytest -v --cov=pipescaler --cov-report term ./sorters
-               pytest -v --cov=pipescaler --cov-report term ./sources
-               pytest -v --cov=pipescaler --cov-report term ./splitters
-               pytest -v --cov=pipescaler --cov-report term ./termini
-               pytest -v --cov=pipescaler --cov-report term ./util
-#               pytest -v --cov=pipescaler --cov-report term ./processors
+               pytest -v --cov=pipescaler --cov-report term ./processors
+#               pytest -v --cov=pipescaler --cov-report term ./core
+#               pytest -v --cov=pipescaler --cov-report term ./mergers
+#               pytest -v --cov=pipescaler --cov-report term ./scripts
+#               pytest -v --cov=pipescaler --cov-report term ./sorters
+#               pytest -v --cov=pipescaler --cov-report term ./sources
+#               pytest -v --cov=pipescaler --cov-report term ./splitters
+#               pytest -v --cov=pipescaler --cov-report term ./termini
+#               pytest -v --cov=pipescaler --cov-report term ./util
 
 #    build-windows:
 #        runs-on: windows-latest

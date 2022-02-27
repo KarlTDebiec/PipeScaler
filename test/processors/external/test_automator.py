@@ -48,7 +48,7 @@ def test(infile: str, processor: AutomatorProcessor) -> None:
             assert output_image.mode == input_image.mode
             assert output_image.size == input_image.size
 
-
+@pytest.mark.serial
 @pytest.mark.parametrize(
     ("infile", "args"),
     [
