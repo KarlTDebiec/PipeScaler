@@ -52,6 +52,7 @@ def test(infile: str, processor: AppleScriptProcessor) -> None:
                 input_image.size[1] * int(processor.args),
             )
 
+
 @pytest.mark.serial
 @pytest.mark.parametrize(
     ("infile", "args"),
