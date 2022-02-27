@@ -33,6 +33,7 @@ def get_files_in_directory(
           path, 'base' for the filename excluding extension, and 'full' for the filename
           including extension
         exclusions: Base names of files to exclude
+
     Returns:
         Filenames in configured style
     """
@@ -71,6 +72,7 @@ def get_files_in_text_file(
           path, 'base' for the filename excluding extension, and 'full' for the filename
           including extension
         exclusions: Base names of files to exclude
+
     Returns:
         Filenames in configured style
     """
@@ -81,7 +83,7 @@ def get_files_in_text_file(
     files = set()
 
     text_file = validate_input_path(text_file)
-    with open(text_file, "r", encoding="utf8") as f:
+    with open(text_file, "r") as f:
         filenames = [line.strip() for line in f.readlines() if not line.startswith("#")]
     for filename in filenames:
         base = splitext(basename(filename))[0]
@@ -113,6 +115,7 @@ def get_files(
           path, 'base' for the filename excluding extension, and 'full' for the filename
           including extension
         exclusions: Base filenames to exclude
+
     Returns:
         Filenames in configured style
     """
@@ -124,12 +127,13 @@ def get_files(
         sources = [sources]
     files = set()
 
-    def get_file(file_source: str) -> str:
+    def get_file(file_source):
         """
         Gets a filename in configured style.
 
         Arguments:
             file_source: Filename
+
         Returns:
             Filename in configured style
         """
@@ -174,8 +178,9 @@ def read_yaml(infile: str) -> Any:
 
     Arguments:
         infile: Path to input file
+
     Returns:
         Loaded yaml data structure
     """
-    with open(validate_input_path(infile), "r", encoding="utf8") as f:
+    with open(validate_input_path(infile), "r") as f:
         return yaml.load(f, Loader=yaml.SafeLoader)
