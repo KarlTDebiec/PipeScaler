@@ -66,11 +66,11 @@ jobs:
                cd ${GITHUB_WORKSPACE}
                python setup.py build
                python setup.py install
-#         - name: Test with pytest
-#           run: |
-#               export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
-#               cd ${GITHUB_WORKSPACE}/test
-#               pytest -v --cov=pipescaler --cov-report term ./core
+         - name: Test with pytest
+           run: |
+               export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
+               cd ${GITHUB_WORKSPACE}/test
+               pytest -v --cov=pipescaler --cov-report term ./core
 #               pytest -v --cov=pipescaler --cov-report term ./mergers
 #               pytest -v --cov=pipescaler --cov-report term ./processors
 #               pytest -v --cov=pipescaler --cov-report term ./scripts
