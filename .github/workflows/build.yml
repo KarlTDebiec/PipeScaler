@@ -98,7 +98,7 @@ jobs:
               Write-Output ${env:GITHUB_PATH}
               Write-Output ${env:PATH}
               Write-Output "${env:GITHUB_WORKSPACE}\potrace-1.16.win64\potrace-1.16.win64"
-              Write-Output "${env:GITHUB_WORKSPACE}\potrace-1.16.win64\potrace-1.16.win64" | Out-File -FilePath ${env:GITHUB_PATH} -Encoding utf8 -Append
+              Write-Output "${env:GITHUB_WORKSPACE}\potrace-1.16.win64\potrace-1.16.win64" | Out-File -FilePath ${env:GITHUB_PATH} -Encoding utf8
               Write-Output ${env:GITHUB_PATH}
               Write-Output ${env:PATH}
               Get-Command potrace
