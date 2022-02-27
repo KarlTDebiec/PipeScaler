@@ -59,6 +59,18 @@ jobs:
           run: |
               python -m pip install --upgrade pip
               pip install -r requirements.txt
+              brew install pngquant
+              brew install potrace
+        - name: Install
+          run: |
+              cd ${GITHUB_WORKSPACE}
+              python setup.py build
+              python setup.py install
+        - name: Test with pytest
+          run: |
+              export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
+              cd ${GITHUB_WORKSPACE}/test
+              pytest -v --cov=pipescaler --cov-report term .
 
     build-windows:
         runs-on: windows-latest
@@ -75,3 +87,14 @@ jobs:
           run: |
               python -m pip install --upgrade pip
               pip install -r requirements.txt
+              choco install pngquant
+        - name: Install
+          run: |
+              cd ${GITHUB_WORKSPACE}
+              python setup.py build
+              python setup.py install
+        - name: Test with pytest
+          run: |
+              export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
+              cd ${GITHUB_WORKSPACE}/test
+              pytest -v --cov=pipescaler --cov-report term .

@@ -12,7 +12,6 @@ pip install `
     black `
     flask `
     imagehash `
-    interrogate `
     ipython `
     isort `
     numba `
