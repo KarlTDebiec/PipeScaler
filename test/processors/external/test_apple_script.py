@@ -35,7 +35,7 @@ def processor(request) -> AppleScriptProcessor:
     ("infile"),
     [
         xfail_if_platform({"Linux", "Windows"})("RGB"),
-        xfail_if_platform({"Linux", "Windows"})("RGBA"),
+        # xfail_if_platform({"Linux", "Windows"})("RGBA"),
     ],
 )
 def test(infile: str, processor: AppleScriptProcessor) -> None:
@@ -52,16 +52,16 @@ def test(infile: str, processor: AppleScriptProcessor) -> None:
             )
 
 
-@pytest.mark.parametrize(
-    ("infile", "args"),
-    [
-        ("RGB", "-h"),
-        xfail_if_platform({"Linux", "Windows"}, raises=ValueError)(
-            "RGB", "--script pixelmator/ml_super_resolution.scpt --args 2"
-        ),
-    ],
-)
-def test_cl(infile: str, args: str) -> None:
-    infile = get_infile(infile)
-
-    run_processor_on_command_line(AppleScriptProcessor, args, infile)
+# @pytest.mark.parametrize(
+#     ("infile", "args"),
+#     [
+#         ("RGB", "-h"),
+#         xfail_if_platform({"Linux", "Windows"}, raises=ValueError)(
+#             "RGB", "--script pixelmator/ml_super_resolution.scpt --args 2"
+#         ),
+#     ],
+# )
+# def test_cl(infile: str, args: str) -> None:
+#     infile = get_infile(infile)
+#
+#     run_processor_on_command_line(AppleScriptProcessor, args, infile)
