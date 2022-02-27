@@ -94,9 +94,8 @@ jobs:
               choco install pngquant
               Invoke-WebRequest -Uri http://potrace.sourceforge.net/download/1.16/potrace-1.16.win64.zip -Outfile potrace-1.16.win64.zip
               Expand-Archive potrace-1.16.win64.zip
-              echo "${env:GITHUB_WORKSPACE}\potrace-1.16.win64\potrace-1.16.win64" | Out-File -FilePath $env:GITHUB_PATH
+              Move-Item -Path ${env:GITHUB_WORKSPACE}\potrace-1.16.win64\potrace-1.16.win64\* -Destination {env:GITHUB_WORKSPACE}
               Invoke-WebRequest -Uri https://github.com/microsoft/DirectXTex/releases/download/nov2021/texconv.exe -Outfile texconv.exe
-              echo "${env:GITHUB_WORKSPACE}" | Out-File -FilePath $env:GITHUB_PATH
         - name: Install
           run: |
               Set-PSDebug -Trace 1
@@ -112,3 +111,5 @@ jobs:
               ${env:PACKAGE_ROOT}="${env:GITHUB_WORKSPACE}\pipescaler"
               Set-Location ${env:GITHUB_WORKSPACE}\test
               pytest -v processors\external\test_potrace.py
+              pytest -v processors\external\test_texconv.py
+#               echo "${env:GITHUB_WORKSPACE}" | Out-File -FilePath $env:GITHUB_PATH
