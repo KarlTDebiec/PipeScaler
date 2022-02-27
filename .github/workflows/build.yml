@@ -94,7 +94,7 @@ jobs:
               choco install pngquant
               Invoke-WebRequest -Uri http://potrace.sourceforge.net/download/1.16/potrace-1.16.win64.zip -Outfile potrace-1.16.win64.zip
               Expand-Archive potrace-1.16.win64.zip
-              Move-Item -Path ${env:GITHUB_WORKSPACE}\potrace-1.16.win64\potrace-1.16.win64\* -Destination {env:GITHUB_WORKSPACE}
+              Move-Item -Path ${env:GITHUB_WORKSPACE}\potrace-1.16.win64\potrace-1.16.win64\* -Destination ${env:GITHUB_WORKSPACE}
               Invoke-WebRequest -Uri https://github.com/microsoft/DirectXTex/releases/download/nov2021/texconv.exe -Outfile texconv.exe
         - name: Install
           run: |
