@@ -90,6 +90,7 @@ jobs:
 #               choco install pngquant
         - name: Install
           run: |
+              $ErrorView = 'NormalView'
               Write-Output ${HOME}
 #               Set-Location -Path ${HOME}
 #               Get-Location
