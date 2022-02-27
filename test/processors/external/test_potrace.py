@@ -34,15 +34,15 @@ def processor(request) -> PotraceProcessor:
 @pytest.mark.parametrize(
     ("infile"),
     [
-        ("1"),
+        # ("1"),
         ("L"),
-        xfail_unsupported_image_mode()("LA"),
-        xfail_unsupported_image_mode()("RGB"),
-        xfail_unsupported_image_mode()("RGBA"),
-        ("PL"),
-        xfail_unsupported_image_mode()("PLA"),
-        xfail_unsupported_image_mode()("PRGB"),
-        xfail_unsupported_image_mode()("PRGBA"),
+        # xfail_unsupported_image_mode()("LA"),
+        # xfail_unsupported_image_mode()("RGB"),
+        # xfail_unsupported_image_mode()("RGBA"),
+        # ("PL"),
+        # xfail_unsupported_image_mode()("PLA"),
+        # xfail_unsupported_image_mode()("PRGB"),
+        # xfail_unsupported_image_mode()("PRGBA"),
     ],
 )
 def test(infile: str, processor: PotraceProcessor) -> None:
@@ -59,14 +59,14 @@ def test(infile: str, processor: PotraceProcessor) -> None:
             )
 
 
-@pytest.mark.parametrize(
-    ("infile", "args"),
-    [
-        ("RGB", "-h"),
-        ("L", ""),
-    ],
-)
-def test_cl(infile: str, args: str) -> None:
-    infile = get_infile(infile)
-
-    run_processor_on_command_line(PotraceProcessor, args, infile)
+# @pytest.mark.parametrize(
+#     ("infile", "args"),
+#     [
+#         ("RGB", "-h"),
+#         ("L", ""),
+#     ],
+# )
+# def test_cl(infile: str, args: str) -> None:
+#     infile = get_infile(infile)
+#
+#     run_processor_on_command_line(PotraceProcessor, args, infile)
