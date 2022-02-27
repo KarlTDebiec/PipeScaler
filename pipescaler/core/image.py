@@ -340,7 +340,7 @@ def is_monochrome(
         return False
 
 
-def label_image(image: Image.Image, text: str) -> Image.Image:
+def label_image(image: Image.Image, text: str, font: str = "Arial") -> Image.Image:
     """
     Label an image in its upper left corner
 
@@ -353,16 +353,19 @@ def label_image(image: Image.Image, text: str) -> Image.Image:
     """
     labeled_image = image.copy()
 
+    size = get_font_size(text, image.width, image.height, font=font)
+    try:
+        font = ImageFont.truetype(font, size)
+    except OSError:
+        font = ImageFont.truetype(font.lower(), size)
+
     ImageDraw.Draw(labeled_image).text(
         (
             round(image.width * 0.025),
             round(image.height * 0.025),
         ),
         text,
-        font=ImageFont.truetype(
-            "Arial",
-            get_font_size(text, image.width, image.height),
-        ),
+        font=font,
         stroke="white",
         stroke_fill="black",
         stroke_width=2,
