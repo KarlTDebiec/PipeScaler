@@ -75,47 +75,38 @@ jobs:
     build-windows:
         runs-on: windows-latest
         steps:
-#         - name: Checkout PipeScaler
-#           uses: actions/checkout@v2
-#           with:
-#               submodules: true
-#         - name: Set up Python 3.8
-#           uses: actions/setup-python@v2
-#           with:
-#               python-version: "3.8"
+        - name: Checkout PipeScaler
+          uses: actions/checkout@v2
+          with:
+              submodules: true
+        - name: Set up Python 3.8
+          uses: actions/setup-python@v2
+          with:
+              python-version: "3.8"
         - name: Install dependencies
           run: |
-              $ErrorView = 'NormalView'
-              Write-Output ${env:GITHUB_WORKSPACE}
-              Set-Location -Path ${env:GITHUB_WORKSPACE}
-              Invoke-WebRequest -Uri http://potrace.sourceforge.net/download/1.16/potrace-1.16.win64.zip -Outfile potrace-1.16.win64.zip
-              Get-ChildItem
-              Expand-Archive potrace-1.16.win64.zip
               Set-PSDebug -Trace 1
-              Get-ChildItem ${env:GITHUB_WORKSPACE}
-              Get-ChildItem ${env:GITHUB_WORKSPACE}\potrace-1.16.win64
-              Get-ChildItem ${env:GITHUB_WORKSPACE}\potrace-1.16.win64\potrace-1.16.win64
-              Write-Output ${env:GITHUB_PATH}
-              Write-Output ${env:PATH}
-              Write-Output "${env:GITHUB_WORKSPACE}\potrace-1.16.win64\potrace-1.16.win64"
+              $ErrorView = 'NormalView'
+              Set-Location -Path ${env:GITHUB_WORKSPACE}
+              python -m pip install --upgrade pip
+              pip install -r requirements.txt
+              pip install pywinauto
+              choco install pngquant
+              Invoke-WebRequest -Uri http://potrace.sourceforge.net/download/1.16/potrace-1.16.win64.zip -Outfile potrace-1.16.win64.zip
+              Expand-Archive potrace-1.16.win64.zip
               echo "${env:GITHUB_WORKSPACE}\potrace-1.16.win64\potrace-1.16.win64" | Out-File -FilePath $env:GITHUB_PATH
-              Write-Output ${env:GITHUB_PATH}
-              Write-Output ${env:PATH}
-              Get-Command potrace.exe
               Invoke-WebRequest -Uri https://github.com/microsoft/DirectXTex/releases/download/nov2021/texconv.exe -Outfile texconv.exe
-#               python -m pip install --upgrade pip
-#               pip install -r requirements.txt
-#               pip install pywinauto
-#               choco install pngquant
-#         - name: Install
-#           run: |
-#               $ErrorView = 'NormalView'
-#               Set-Location -Path ${env:GITHUB_WORKSPACE}
-#               python setup.py build
-#               python setup.py install
-#         - name: Test with pytest
-#           run: |
-#               $ErrorView = 'NormalView'
-#               ${env:PACKAGE_ROOT}="${env:GITHUB_WORKSPACE}\pipescaler"
-#               Set-Location ${env:GITHUB_WORKSPACE}\test
-#               pytest -v --cov=pipescaler --cov-report term .
+              echo "${env:GITHUB_WORKSPACE}" | Out-File -FilePath $env:GITHUB_PATH
+        - name: Install
+          run: |
+              $ErrorView = 'NormalView'
+              Set-Location -Path ${env:GITHUB_WORKSPACE}
+              python setup.py build
+              python setup.py install
+        - name: Test with pytest
+          run: |
+              $ErrorView = 'NormalView'
+              ${env:PACKAGE_ROOT}="${env:GITHUB_WORKSPACE}\pipescaler"
+              Set-Location ${env:GITHUB_WORKSPACE}\test
+              pytest -v processors\external\test_potrace.py
+              pytest -v processors\external\test_texconv.py
