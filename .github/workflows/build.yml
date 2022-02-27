@@ -70,8 +70,8 @@ jobs:
            run: |
                export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
                cd ${GITHUB_WORKSPACE}/test
-               pytest -v ./processors/external/test_apple_script.py
-#               pytest -v ./processors/external/test_automator.py
+#               pytest -v ./processors/external/test_apple_script.py
+               pytest -v ./processors/external/test_automator.py
 
 #    build-windows:
 #        runs-on: windows-latest
