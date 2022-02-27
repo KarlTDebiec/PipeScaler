@@ -43,7 +43,7 @@ jobs:
 #               export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
 #               cd ${GITHUB_WORKSPACE}/test
 #               pytest -v --cov=pipescaler --cov-report term .
-
+#
      build-macos:
          runs-on: macos-latest
          steps:
@@ -66,20 +66,20 @@ jobs:
                cd ${GITHUB_WORKSPACE}
                python setup.py build
                python setup.py install
-         - name: Test with pytest
-           run: |
-               export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
-               cd ${GITHUB_WORKSPACE}/test
-               pytest -v --cov=pipescaler --cov-report term ./core
-               pytest -v --cov=pipescaler --cov-report term ./mergers
+#         - name: Test with pytest
+#           run: |
+#               export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
+#               cd ${GITHUB_WORKSPACE}/test
+#               pytest -v --cov=pipescaler --cov-report term ./core
+#               pytest -v --cov=pipescaler --cov-report term ./mergers
 #               pytest -v --cov=pipescaler --cov-report term ./processors
-               pytest -v --cov=pipescaler --cov-report term ./scripts
-               pytest -v --cov=pipescaler --cov-report term ./sorters
-               pytest -v --cov=pipescaler --cov-report term ./sources
-               pytest -v --cov=pipescaler --cov-report term ./splitters
-               pytest -v --cov=pipescaler --cov-report term ./termini
-               pytest -v --cov=pipescaler --cov-report term ./util
-
+#               pytest -v --cov=pipescaler --cov-report term ./scripts
+#               pytest -v --cov=pipescaler --cov-report term ./sorters
+#               pytest -v --cov=pipescaler --cov-report term ./sources
+#               pytest -v --cov=pipescaler --cov-report term ./splitters
+#               pytest -v --cov=pipescaler --cov-report term ./termini
+#               pytest -v --cov=pipescaler --cov-report term ./util
+#
 #    build-windows:
 #        runs-on: windows-latest
 #        steps:
