@@ -404,12 +404,10 @@ def remove_palette_from_image(image: Image.Image) -> Image.Image:
         )
         if pixels_per_non_grayscale_color.sum() == 0:
             return image.convert("RGBA").convert("LA")
-        else:
-            return image.convert("RGBA")
+        return image.convert("RGBA")
     elif len(non_grayscale_colors) == 0:
         return image.convert("L")
-    else:
-        return image.convert("RGB")
+    return image.convert("RGB")
 
 
 def smooth_image(image: Image.Image, sigma: float) -> Image.Image:

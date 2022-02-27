@@ -81,8 +81,10 @@ def get_files_in_text_file(
     files = set()
 
     text_file = validate_input_path(text_file)
-    with open(text_file, "r", encoding="utf8") as f:
-        filenames = [line.strip() for line in f.readlines() if not line.startswith("#")]
+    with open(text_file, "r", encoding="utf8") as infile:
+        filenames = [
+            line.strip() for line in infile.readlines() if not line.startswith("#")
+        ]
     for filename in filenames:
         base = splitext(basename(filename))[0]
         if base not in exclusions:
@@ -124,7 +126,7 @@ def get_files(
         sources = [sources]
     files = set()
 
-    def get_file(file_source: str) -> str:
+    def get_file(file_source: str) -> Optional[str]:
         """
         Gets a filename in configured style.
 
@@ -145,10 +147,10 @@ def get_files(
                 else:
                     absolute = validate_input_path(filename)
                 return absolute
-            elif style == "base":
+            if style == "base":
                 return base
-            else:
-                return filename
+            return filename
+        return None
 
     for source in sources:
         try:
@@ -177,5 +179,5 @@ def read_yaml(infile: str) -> Any:
     Returns:
         Loaded yaml data structure
     """
-    with open(validate_input_path(infile), "r", encoding="utf8") as f:
-        return yaml.load(f, Loader=yaml.SafeLoader)
+    with open(validate_input_path(infile), "r", encoding="utf8") as yaml_file:
+        return yaml.load(yaml_file, Loader=yaml.SafeLoader)
