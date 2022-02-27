@@ -15,6 +15,7 @@ from pipescaler.processors import AutomatorProcessor
 from pipescaler.testing import (
     get_infile,
     run_processor_on_command_line,
+    skip_if_ci,
     stage_fixture,
     xfail_if_platform,
 )
@@ -34,8 +35,8 @@ def processor(request) -> AutomatorProcessor:
 @pytest.mark.parametrize(
     ("infile"),
     [
-        xfail_if_platform({"Linux", "Windows"})("RGB"),
-        xfail_if_platform({"Linux", "Windows"})("RGBA"),
+        skip_if_ci(xfail_if_platform({"Linux", "Windows"}))("RGB"),
+        skip_if_ci(xfail_if_platform({"Linux", "Windows"}))("RGBA"),
     ],
 )
 def test(infile: str, processor: AutomatorProcessor) -> None:
@@ -48,12 +49,13 @@ def test(infile: str, processor: AutomatorProcessor) -> None:
             assert output_image.mode == input_image.mode
             assert output_image.size == input_image.size
 
+
 @pytest.mark.serial
 @pytest.mark.parametrize(
     ("infile", "args"),
     [
         ("RGB", "-h"),
-        xfail_if_platform({"Linux", "Windows"}, raises=ValueError)(
+        skip_if_ci(xfail_if_platform({"Linux", "Windows"}, raises=ValueError))(
             "RGB", "--workflow pixelmator/denoise.workflow"
         ),
     ],
