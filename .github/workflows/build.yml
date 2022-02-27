@@ -32,7 +32,7 @@ jobs:
     - name: pydocstyle
       run: |
         cd ${GITHUB_WORKSPACE}
-        pydocstyle pipescaler
+        pydocstyle pipescaler || echo
     - name: Install
       run: |
         cd ${GITHUB_WORKSPACE}
