@@ -85,10 +85,11 @@ jobs:
               python-version: "3.8"
         - name: Install dependencies
           run: |
+              $ErrorView = 'NormalView'
               python -m pip install --upgrade pip
               pip install -r requirements.txt
               choco install pngquant
-              Get-Command npm
+              npm install potrace
         - name: Install
           run: |
               $ErrorView = 'NormalView'
@@ -97,6 +98,7 @@ jobs:
               python setup.py install
         - name: Test with pytest
           run: |
-              ${env:PACKAGE_ROOT}=${env:GITHUB_WORKSPACE}/pipescaler
+              $ErrorView = 'NormalView'
+              ${env:PACKAGE_ROOT}=${env:GITHUB_WORKSPACE}\pipescaler
               Set-Location ${env:GITHUB_WORKSPACE}/test
               pytest -v --cov=pipescaler --cov-report term .
