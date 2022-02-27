@@ -75,31 +75,28 @@ jobs:
     build-windows:
         runs-on: windows-latest
         steps:
-#         - name: Checkout PipeScaler
-#           uses: actions/checkout@v2
-#           with:
-#               submodules: true
-#         - name: Set up Python 3.8
-#           uses: actions/setup-python@v2
-#           with:
-#               python-version: "3.8"
-#         - name: Install dependencies
-#           run: |
-#               python -m pip install --upgrade pip
-#               pip install -r requirements.txt
-#               choco install pngquant
+        - name: Checkout PipeScaler
+          uses: actions/checkout@v2
+          with:
+              submodules: true
+        - name: Set up Python 3.8
+          uses: actions/setup-python@v2
+          with:
+              python-version: "3.8"
+        - name: Install dependencies
+          run: |
+              python -m pip install --upgrade pip
+              pip install -r requirements.txt
+              choco install pngquant
+              Get-Command npm
         - name: Install
           run: |
               $ErrorView = 'NormalView'
-              Write-Output ${HOME}
-              Write-Output ${env:GITHUB_WORKSPACE}
               Set-Location -Path ${env:GITHUB_WORKSPACE}
-              Get-Location
-              Get-ChildItem
-#               python setup.py build
-#               python setup.py install
-#         - name: Test with pytest
-#           run: |
-#               export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
-#               cd ${GITHUB_WORKSPACE}/test
-#               pytest -v --cov=pipescaler --cov-report term .
+              python setup.py build
+              python setup.py install
+        - name: Test with pytest
+          run: |
+              ${env:PACKAGE_ROOT}=${env:GITHUB_WORKSPACE}/pipescaler
+              Set-Location ${env:GITHUB_WORKSPACE}/test
+              pytest -v --cov=pipescaler --cov-report term .
