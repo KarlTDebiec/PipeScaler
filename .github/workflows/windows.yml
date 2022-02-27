@@ -1,0 +1,50 @@
+name: Windows
+
+on:
+    push:
+        branches: [ master ]
+    pull_request:
+        branches: [ master ]
+
+jobs:
+    build-windows:
+        runs-on: windows-latest
+        steps:
+        - name: Checkout PipeScaler
+          uses: actions/checkout@v2
+          with:
+              submodules: true
+        - name: Set up Python 3.8
+          uses: actions/setup-python@v2
+          with:
+              python-version: "3.8"
+        - name: Install dependencies
+          run: |
+              Set-PSDebug -Trace 1
+              $ErrorView = 'NormalView'
+              Set-Location -Path ${env:GITHUB_WORKSPACE}
+              python -m pip install --upgrade pip
+              pip install -r requirements.txt
+              pip install pywinauto
+              choco install pngquant
+              New-Item -Path ${env:GITHUB_WORKSPACE} -Name "executables" -ItemType "directory"
+              Invoke-WebRequest -Uri http://potrace.sourceforge.net/download/1.16/potrace-1.16.win64.zip -Outfile potrace-1.16.win64.zip
+              Expand-Archive potrace-1.16.win64.zip
+              Move-Item -Path ${env:GITHUB_WORKSPACE}\potrace-1.16.win64\potrace-1.16.win64\* -Destination ${env:GITHUB_WORKSPACE}/executables
+              Invoke-WebRequest -Uri https://github.com/microsoft/DirectXTex/releases/download/nov2021/texconv.exe -Outfile ${env:GITHUB_WORKSPACE}/executables/texconv.exe
+              echo "${env:GITHUB_WORKSPACE}/executables" | Out-File -FilePath $env:GITHUB_PATH
+        - name: Install
+          run: |
+              Set-PSDebug -Trace 1
+              $ErrorView = 'NormalView'
+              Write-Output ${env:PATH}
+              Set-Location -Path ${env:GITHUB_WORKSPACE}
+              python setup.py build
+              python setup.py install
+        - name: Test with pytest
+          run: |
+              Set-PSDebug -Trace 1
+              $ErrorView = 'NormalView'
+              ${env:PACKAGE_ROOT}="${env:GITHUB_WORKSPACE}\pipescaler"
+              Set-Location ${env:GITHUB_WORKSPACE}\test
+              pytest -v --cov=pipescaler --cov-report term .
