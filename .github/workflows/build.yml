@@ -99,6 +99,6 @@ jobs:
         - name: Test with pytest
           run: |
               $ErrorView = 'NormalView'
-              ${PACKAGE_ROOT}="${env:GITHUB_WORKSPACE}\pipescaler"
+              ${env:PACKAGE_ROOT}="${env:GITHUB_WORKSPACE}\pipescaler"
               Set-Location ${env:GITHUB_WORKSPACE}/test
               pytest -v --cov=pipescaler --cov-report term .
