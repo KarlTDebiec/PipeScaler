@@ -88,6 +88,7 @@ jobs:
               $ErrorView = 'NormalView'
               python -m pip install --upgrade pip
               pip install -r requirements.txt
+              pip install pywinauto
               choco install pngquant
               npm install potrace
         - name: Install
@@ -100,5 +101,5 @@ jobs:
           run: |
               $ErrorView = 'NormalView'
               ${env:PACKAGE_ROOT}="${env:GITHUB_WORKSPACE}\pipescaler"
-              Set-Location ${env:GITHUB_WORKSPACE}/test
+              Set-Location ${env:GITHUB_WORKSPACE}\test
               pytest -v --cov=pipescaler --cov-report term .
