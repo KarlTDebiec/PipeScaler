@@ -15,6 +15,7 @@ from pipescaler.processors import AppleScriptProcessor
 from pipescaler.testing import (
     get_infile,
     run_processor_on_command_line,
+    skip_if_ci,
     stage_fixture,
     xfail_if_platform,
 )
@@ -34,8 +35,8 @@ def processor(request) -> AppleScriptProcessor:
 @pytest.mark.parametrize(
     ("infile"),
     [
-        xfail_if_platform({"Linux", "Windows"})("RGB"),
-        xfail_if_platform({"Linux", "Windows"})("RGBA"),
+        skip_if_ci(xfail_if_platform({"Linux", "Windows"}))("RGB"),
+        skip_if_ci(xfail_if_platform({"Linux", "Windows"}))("RGBA"),
     ],
 )
 def test(infile: str, processor: AppleScriptProcessor) -> None:
@@ -52,11 +53,12 @@ def test(infile: str, processor: AppleScriptProcessor) -> None:
             )
 
 
+@pytest.mark.serial
 @pytest.mark.parametrize(
     ("infile", "args"),
     [
         ("RGB", "-h"),
-        xfail_if_platform({"Linux", "Windows"}, raises=ValueError)(
+        skip_if_ci(xfail_if_platform({"Linux", "Windows"}, raises=ValueError))(
             "RGB", "--script pixelmator/ml_super_resolution.scpt --args 2"
         ),
     ],
