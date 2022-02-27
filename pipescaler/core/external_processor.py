@@ -67,4 +67,8 @@ class ExternalProcessor(Processor, ABC):
         """
         command = self.command_template.format(infile=infile, outfile=outfile)
         debug(f"{self}: {command}")
-        run_command(command)
+        run_command(command, timeout=600)
+
+        # If command template lacks outfile, assume infile is processed in place
+        if "{outfile}" not in self.command_template:
+            copyfile(infile, outfile)

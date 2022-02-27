@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from argparse import ArgumentParser
 from inspect import cleandoc
+from logging import warning
 from typing import Any, List
 
 import numpy as np
@@ -38,10 +39,17 @@ class WaifuProcessor(ImageProcessor):
         super().__init__(**kwargs)
 
         self.model_infile = validate_input_path(model_infile)
-        self.device = device
         model = torch.load(model_infile)
         model.eval()
-        self.model = model.to(self.device)
+        try:
+            self.model = model.to(device)
+            self.device = device
+        except AssertionError as error:
+            device = "cpu"
+            self.model = model.to(device)
+            self.device = device
+            warning(f"{self}: Torch raised '{error}' with device '{device}', "
+                    f"falling back to cpu")
 
     @property
     def supported_input_modes(self) -> List[str]:

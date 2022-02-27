@@ -31,7 +31,7 @@ def test_review() -> None:
             base_filename = splitext(basename(get_infile(mode)))[0]
             copy(get_infile(mode), join(input_directory, f"{base_filename}_1.png"))
             parent = Image.open(get_infile(mode))
-            for scale in np.array([1 / (2**x) for x in range(1, 7)]):
+            for scale in np.array([1 / (2 ** x) for x in range(1, 7)]):
                 width = round(parent.size[0] * scale)
                 height = round(parent.size[1] * scale)
                 if width < 8 or height < 8:
@@ -49,7 +49,7 @@ def test_review() -> None:
                 join(input_directory, f"{base_filename}_alt_1.png"),
             )
             parent = Image.open(get_infile(f"alt/{mode}"))
-            for scale in np.array([1 / (2**x) for x in range(1, 7)]):
+            for scale in np.array([1 / (2 ** x) for x in range(1, 7)]):
                 width = round(parent.size[0] * scale)
                 height = round(parent.size[1] * scale)
                 if width < 8 or height < 8:
