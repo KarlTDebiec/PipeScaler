@@ -31,8 +31,8 @@ def convert_mode(image: Image.Image, mode: str) -> Tuple[Image.Image, str]:
         Converted image, image's original mode
     """
     if image.mode != mode:
-        return (image.convert(mode), image.mode)
-    return (image, image.mode)
+        return image.convert(mode), image.mode
+    return image, image.mode
 
 
 def crop_image(
@@ -82,27 +82,49 @@ def expand_image(
     Returns:
         Expanded image
     """
-    w, h = image.size
-    new_w = max(min_size, left + w + right)
-    new_h = max(min_size, top + h + bottom)
+    width, height = image.size
+    new_w = max(min_size, left + width + right)
+    new_h = max(min_size, top + height + bottom)
 
-    transposed_h = image.transpose(Image.FLIP_LEFT_RIGHT)
-    transposed_v = image.transpose(Image.FLIP_TOP_BOTTOM)
-    transposed_hv = transposed_h.transpose(Image.FLIP_TOP_BOTTOM)
+    transposed_horizontally = image.transpose(Image.FLIP_LEFT_RIGHT)
+    transposed_vertically = image.transpose(Image.FLIP_TOP_BOTTOM)
+    transposed_horizontally_and_vertically = transposed_horizontally.transpose(
+        Image.FLIP_TOP_BOTTOM
+    )
 
     # noinspection PyTypeChecker
     expanded = Image.new(image.mode, (new_w, new_h))
-    x = expanded.size[0] // 2
-    y = expanded.size[1] // 2
-    expanded.paste(image, (x - w // 2, y - h // 2))
-    expanded.paste(transposed_h, (x + w // 2, y - h // 2))
-    expanded.paste(transposed_h, (x - w - w // 2, y - h // 2))
-    expanded.paste(transposed_v, (x - w // 2, y - h - h // 2))
-    expanded.paste(transposed_v, (x - w // 2, y + h // 2))
-    expanded.paste(transposed_hv, (x + w // 2, y - h - h // 2))
-    expanded.paste(transposed_hv, (x - w - w // 2, y - h - h // 2))
-    expanded.paste(transposed_hv, (x - w - w // 2, y + h // 2))
-    expanded.paste(transposed_hv, (x + w // 2, y + h // 2))
+    center_x = expanded.size[0] // 2
+    center_y = expanded.size[1] // 2
+    expanded.paste(image, (center_x - width // 2, center_y - height // 2))
+    expanded.paste(
+        transposed_horizontally, (center_x + width // 2, center_y - height // 2)
+    )
+    expanded.paste(
+        transposed_horizontally, (center_x - width - width // 2, center_y - height // 2)
+    )
+    expanded.paste(
+        transposed_vertically, (center_x - width // 2, center_y - height - height // 2)
+    )
+    expanded.paste(
+        transposed_vertically, (center_x - width // 2, center_y + height // 2)
+    )
+    expanded.paste(
+        transposed_horizontally_and_vertically,
+        (center_x + width // 2, center_y - height - height // 2),
+    )
+    expanded.paste(
+        transposed_horizontally_and_vertically,
+        (center_x - width - width // 2, center_y - height - height // 2),
+    )
+    expanded.paste(
+        transposed_horizontally_and_vertically,
+        (center_x - width - width // 2, center_y + height // 2),
+    )
+    expanded.paste(
+        transposed_horizontally_and_vertically,
+        (center_x + width // 2, center_y + height // 2),
+    )
 
     return expanded
 
@@ -166,10 +188,12 @@ def fill_mask(color_image: Image.Image, mask_image: Image.Image) -> Image.Image:
         # count the number of opaque pixels adjacent to each pixel in image
         adjacent_opaque_pixels = adjacent_opaque_pixels(mask_array)
 
-        # Disregard the number of adjacent opaque pixels for pixels that are themselves opaque
+        # Disregard the number of adjacent opaque pixels for pixels that are themselves
+        # opaque
         adjacent_opaque_pixels[np.logical_not(mask_array)] = 0
 
         # Identify pixels who have the max number of adjacent opaque pixels
+        # noinspection PyArgumentList
         pixels_to_fill = np.logical_and(
             mask_array,
             adjacent_opaque_pixels == adjacent_opaque_pixels.max(),
@@ -179,6 +203,7 @@ def fill_mask(color_image: Image.Image, mask_image: Image.Image) -> Image.Image:
         sum_of_adjacent_opaque_pixels = sum_of_adjacent_opaque_pixels(
             color_array, mask_array
         )
+        # noinspection PyArgumentList
         colors_of_pixels_to_fill = np.round(
             sum_of_adjacent_opaque_pixels[pixels_to_fill] / adjacent_opaque_pixels.max()
         ).astype(np.uint8)
@@ -217,6 +242,7 @@ def generate_normal_map_from_height_map_image(image: Image.Image) -> Image.Image
     gradient_x = convolve(input_array.astype(float), kernel)
     gradient_y = convolve(input_array.astype(float), kernel.T)
     output_array = np.zeros((input_array.shape[0], input_array.shape[1], 3))
+    # noinspection PyArgumentList
     max_dimension = max(gradient_x.max(), gradient_y.max())
     output_array[..., 0] = gradient_x / max_dimension
     output_array[..., 1] = gradient_y / max_dimension
@@ -335,8 +361,7 @@ def is_monochrome(
     diff = np.abs(l_array - one_array)
     if diff.mean() <= mean_threshold and diff.max() <= max_threshold:
         return True
-    else:
-        return False
+    return False
 
 
 def label_image(image: Image.Image, text: str, font: str = "Arial") -> Image.Image:
@@ -374,12 +399,10 @@ def label_image(image: Image.Image, text: str, font: str = "Arial") -> Image.Ima
 
 
 def remove_palette_from_image(image: Image.Image) -> Image.Image:
-    """
-    Remove palette from a paletted image
+    """Remove palette from a paletted image.
 
     Arguments:
         image: Image in 'P' mode
-
     Returns:
         Image in 'L', 'LA', 'RGB', or 'RGBA' mode
     """
@@ -392,6 +415,7 @@ def remove_palette_from_image(image: Image.Image) -> Image.Image:
         )[0]
     )
     if "transparency" in image.info:
+        # noinspection PyTypeChecker
         array = np.array(image)
         fully_transparent_colors = set(
             np.where(np.array(list(image.info["transparency"])) == 0)[0]
@@ -405,7 +429,7 @@ def remove_palette_from_image(image: Image.Image) -> Image.Image:
         if pixels_per_non_grayscale_color.sum() == 0:
             return image.convert("RGBA").convert("LA")
         return image.convert("RGBA")
-    elif len(non_grayscale_colors) == 0:
+    if len(non_grayscale_colors) == 0:
         return image.convert("L")
     return image.convert("RGB")
 
@@ -425,6 +449,7 @@ def smooth_image(image: Image.Image, sigma: float) -> Image.Image:
         (-1 * (np.arange(-3 * sigma, 3 * sigma + 1).astype(float) ** 2))
         / (2 * (sigma**2))
     )
+    # noinspection PyTypeChecker
     smoothed_array = np.array(image).astype(float)
     smoothed_array = convolve(smoothed_array, kernel[np.newaxis])
     smoothed_array = convolve(smoothed_array, kernel[np.newaxis].T)
