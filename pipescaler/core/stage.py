@@ -62,16 +62,13 @@ class Stage(ABC):
     trim_suffixes = None
     extension = "png"
 
-    def __init__(
-        self, name: Optional[str] = None, desc: Optional[str] = None, **kwargs: Any
-    ) -> None:
+    def __init__(self, name: Optional[str] = None, desc: Optional[str] = None) -> None:
         """
         Validate and store static configuration
 
         Arguments:
             name: Name of stage
             desc: Description of stage
-            **kwargs: Additional keyword arguments
         """
         if name is not None:
             self.name = name
