@@ -99,7 +99,7 @@ class PaletteMatchMerger(Merger):
             scale = validate_int(fit_array.shape[0] / ref_array.shape[0])
             local_colors = self.get_local_colors(ref_array_by_index)
 
-            output_array_by_index = np.zeros_like(ref_array_by_index)
+            output_array_by_index = np.zeros_like(fit_array_by_index)
             for fit_x in range(fit_array.shape[0]):
                 for fit_y in range(fit_array.shape[1]):
                     ref_x = int(np.floor(fit_x / scale))
@@ -117,8 +117,6 @@ class PaletteMatchMerger(Merger):
             raise ValueError()
 
         output_image = Image.fromarray(output_array)
-        fit_image.show()
-        output_image.show()
         return output_image
 
     @staticmethod
