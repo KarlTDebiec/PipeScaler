@@ -266,6 +266,18 @@ def generate_normal_map_from_height_map_image(image: Image.Image) -> Image.Image
     return output_image
 
 
+def get_colors(image: Image.Image) -> np.ndarray:
+    """
+    Get a numpy array of all colors present in an image
+
+    Arguments:
+        image: Input image
+    Returns:
+        numpy array of all colors present in an image
+    """
+    return np.array([a[1] for a in image.getcolors(16581375)])
+
+
 def get_font_size(
     text: str,
     width: int,
