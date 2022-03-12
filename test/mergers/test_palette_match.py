@@ -25,16 +25,14 @@ def merger(request) -> PaletteMatchMerger:
 @pytest.mark.parametrize(
     ("reference", "input"),
     [
-        # xfail_unsupported_image_mode()("alt/L", "L"),
-        # xfail_unsupported_image_mode()("alt/LA", "LA"),
-        # ("alt/RGB", "RGB"),
-        # xfail_unsupported_image_mode()("alt/RGBA", "RGBA"),
-        # xfail_unsupported_image_mode()("alt/PL", "PL"),
-        # xfail_unsupported_image_mode()("alt/PLA", "PLA"),
-        # ("alt/PRGB", "PRGB"),
-        # xfail_unsupported_image_mode()("alt/PRGBA", "PRGBA"),
+        xfail_unsupported_image_mode()("alt/L", "L"),
+        xfail_unsupported_image_mode()("alt/LA", "LA"),
         ("PRGB", "RGB"),
-        # ("RGB", "RGB"),
+        xfail_unsupported_image_mode()("alt/RGBA", "RGBA"),
+        xfail_unsupported_image_mode()("alt/PL", "PL"),
+        xfail_unsupported_image_mode()("alt/PLA", "PLA"),
+        ("alt/PRGB", "PRGB"),
+        xfail_unsupported_image_mode()("alt/PRGBA", "PRGBA"),
     ],
 )
 def test(reference: str, input: str, merger: PaletteMatchMerger):
