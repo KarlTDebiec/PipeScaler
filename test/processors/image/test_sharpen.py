@@ -30,7 +30,7 @@ def processor(request) -> SharpenProcessor:
     ("infile"),
     [
         # xfail_unsupported_image_mode()("1"),
-        # ("L"),
+        ("L"),
         # xfail_unsupported_image_mode()("LA"),
         ("RGB"),
         # xfail_unsupported_image_mode()("RGBA"),
@@ -47,9 +47,7 @@ def test(infile: str, processor: SharpenProcessor) -> None:
         processor(infile, outfile)
 
         with Image.open(infile) as input_image, Image.open(outfile) as output_image:
-            # noinspection PyTypeChecker
-            output_datum = np.array(output_image)
-            assert output_image.mode == "RGB"
+            assert output_image.mode == input_image.mode
             assert output_image.size == input_image.size
 
 

@@ -9,20 +9,13 @@
 """Sharpens an image"""
 from __future__ import annotations
 
-from argparse import ArgumentParser
-from inspect import cleandoc
-from typing import Any, List, Optional
+from typing import List
 
+import numpy as np
 from PIL import Image
+from scipy.signal import convolve2d
 
-from pipescaler.common import validate_float
-from pipescaler.core import (
-    ImageProcessor,
-    crop_image,
-    expand_image,
-    generate_normal_map_from_height_map_image,
-    smooth_image,
-)
+from pipescaler.core import ImageProcessor
 
 
 class SharpenProcessor(ImageProcessor):
@@ -40,9 +33,22 @@ class SharpenProcessor(ImageProcessor):
             infile: Input file path
             outfile: Output file path
         """
-        expanded_image = expand_image(input_image, 8, 8, 8, 8)
+        sharpen = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]])
 
-        output_image = crop_image(expanded_image, 8, 8, 8, 8)
+        # noinspection PyTypeChecker
+        input_array = np.array(input_image).astype(float)
+        if input_image.mode == "L":
+            output_array = convolve2d(input_array, sharpen, "same")
+            output_array = np.clip(output_array, 0, 255).astype(np.uint8)
+            output_image = Image.fromarray(output_array)
+        else:
+            # noinspection PyTypeChecker
+            hsv_array = np.array(input_image.convert("HSV"))
+            sharpened_l = convolve2d(hsv_array[:, :, 2].astype(float), sharpen, "same")
+            hsv_array[:, :, 2] = np.clip(sharpened_l, 0, 255).astype(np.uint8)
+            output_image = Image.fromarray(hsv_array, mode="HSV").convert("RGB")
+        input_image.show()
+        output_image.show()
 
         return output_image
 
