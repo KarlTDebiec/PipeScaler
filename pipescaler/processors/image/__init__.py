@@ -19,6 +19,7 @@ from pipescaler.processors.image.height_to_normal_processor import (
 )
 from pipescaler.processors.image.mode_processor import ModeProcessor
 from pipescaler.processors.image.resize_processor import ResizeProcessor
+from pipescaler.processors.image.sharpen_processor import SharpenProcessor
 from pipescaler.processors.image.solid_color_processor import SolidColorProcessor
 from pipescaler.processors.image.threshold_processor import ThresholdProcessor
 from pipescaler.processors.image.waifu_processor import WaifuProcessor
@@ -31,6 +32,7 @@ __all__: List[str] = [
     "HeightToNormalProcessor",
     "ModeProcessor",
     "ResizeProcessor",
+    "SharpenProcessor",
     "SolidColorProcessor",
     "ThresholdProcessor",
     "WaifuProcessor",

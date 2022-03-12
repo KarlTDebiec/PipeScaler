@@ -33,6 +33,7 @@ PipeScaler includes the following image processors:
 * [PngquantProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/external/pngquant_processor.py) - Compresses image palette using [pngquant](https://pngquant.org/).
 * [PotraceProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/external/potrace_processor.py) - Traces image using [Potrace](http://potrace.sourceforge.net/) and re-rasterizes, optionally resizing.
 * [ResizeProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/image/resize_processor.py) - Resizes image canvas using bicubic, bilinear, lanczos, or nearest-neighbor interpolation.
+* [SharpenProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/image/sharpen_processor.py) - Sharpens an image.
 * [SideChannelProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/side_channel_processor.py) - Replaces image with an alternative sourced from a defined directory.
 * [SolidColorProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/image/solid_color_processor.py) - Sets entire image color to its average color, optionally resizing.
 * [TexconvProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/external/texconv_processor.py) - Compresses image using [Texconv](https://github.com/Microsoft/DirectXTex/wiki/Texconv).
@@ -52,6 +53,7 @@ the following image mergers:
 * [AlphaMerger](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/mergers/alpha_merger.py) - Merges alpha and color images into a single image with transparency.
 * [ColorMatchMerger](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/mergers/color_match_merger.py) - Matches an image's color histogram to that of a reference image.
 * [NormalMerger](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/mergers/normal_merger.py) - Merges x, y, and z images into a single normal map image.
+* [PaletteMatchMerger](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/mergers/palette_match_merger.py) - Matches an image's color palette to that of a reference image.
 
 **Sorters** direct images through different downstream pipeline sections. PipeScaler
 includes the following image sorters:
