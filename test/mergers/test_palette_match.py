@@ -21,22 +21,32 @@ def merger(request) -> PaletteMatchMerger:
     return PaletteMatchMerger(**request.param)
 
 
-@pytest.mark.parametrize(
-    ("reference", "input"),
-    [
-        xfail_unsupported_image_mode()("alt/L", "L"),
-        xfail_unsupported_image_mode()("alt/LA", "LA"),
-        ("PRGB", "RGB"),
-        xfail_unsupported_image_mode()("alt/RGBA", "RGBA"),
-        xfail_unsupported_image_mode()("alt/PL", "PL"),
-        xfail_unsupported_image_mode()("alt/PLA", "PLA"),
-        ("alt/PRGB", "PRGB"),
-        xfail_unsupported_image_mode()("alt/PRGBA", "PRGBA"),
-    ],
-)
+@pytest.fixture
+def reference():
+    return r"C:\Users\karls\OneDrive\Desktop\test\one\mode-rgb.png"
+
+
+@pytest.fixture
+def input():
+    return r"C:\Users\karls\OneDrive\Desktop\test\one\xbrz-2_xbrz-2.png"
+
+
+# @pytest.mark.parametrize(
+#     ("reference", "input"),
+#     [
+#         xfail_unsupported_image_mode()("alt/L", "L"),
+#         xfail_unsupported_image_mode()("alt/LA", "LA"),
+#         ("PRGB", "RGB"),
+#         xfail_unsupported_image_mode()("alt/RGBA", "RGBA"),
+#         xfail_unsupported_image_mode()("alt/PL", "PL"),
+#         xfail_unsupported_image_mode()("alt/PLA", "PLA"),
+#         ("alt/PRGB", "PRGB"),
+#         xfail_unsupported_image_mode()("alt/PRGBA", "PRGBA"),
+#     ],
+# )
 def test(reference: str, input: str, merger: PaletteMatchMerger):
-    reference = get_infile(reference)
-    input = get_infile(input)
+    # reference = get_infile(reference)
+    # input = get_infile(input)
 
     with temporary_filename(".png") as outfile:
         reference_image = validate_image(reference, "RGB")
