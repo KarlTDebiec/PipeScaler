@@ -7,7 +7,6 @@
 #   This software may be modified and distributed under the terms of the
 #   BSD license. See the LICENSE file for details.
 """Tests for PaletteMatchMerger"""
-import numpy as np
 import pytest
 from PIL import Image
 
