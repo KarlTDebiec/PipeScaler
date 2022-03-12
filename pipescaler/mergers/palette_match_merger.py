@@ -62,6 +62,15 @@ class PaletteMatchMerger(Merger):
 
     @staticmethod
     def weighted_distance(color_1: np.ndarray, color_2: np.ndarray) -> float:
+        """
+        Calculate the squared distance between two colors, adjusted for perception
+
+        Args:
+            color_1: Color 1
+            color_2: Color 2
+        Returns:
+            Squared distance between two colors
+        """
         rmean = (color_1[0] + color_2[0]) / 2
         dr = color_1[0] - color_2[0]
         dg = color_1[1] - color_2[1]
