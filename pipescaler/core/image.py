@@ -241,6 +241,10 @@ def generate_normal_map_from_height_map_image(image: Image.Image) -> Image.Image
     return output_image
 
 
+def get_colors(image: Image.Image) -> np.ndarray:
+    return np.array([a[1] for a in image.getcolors(16581375)])
+
+
 def get_font_size(
     text: str,
     width: int,

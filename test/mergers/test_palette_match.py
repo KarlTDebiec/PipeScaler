@@ -12,7 +12,7 @@ import pytest
 from PIL import Image
 
 from pipescaler.common import temporary_filename
-from pipescaler.core import remove_palette_from_image, validate_image
+from pipescaler.core import get_colors, remove_palette_from_image, validate_image
 from pipescaler.mergers import PaletteMatchMerger
 from pipescaler.testing import get_infile, stage_fixture, xfail_unsupported_image_mode
 
@@ -42,6 +42,7 @@ def test(reference: str, input: str, merger: PaletteMatchMerger):
     input = get_infile(input)
 
     with temporary_filename(".png") as outfile:
+        reference_image = validate_image(reference, "RGB")
         input_image = Image.open(input)
         if input_image.mode == "P":
             expected_output_mode = remove_palette_from_image(input_image).mode
@@ -51,11 +52,6 @@ def test(reference: str, input: str, merger: PaletteMatchMerger):
         merger(reference=reference, input=input, outfile=outfile)
 
         with Image.open(outfile) as output_image:
-            reference_image = validate_image(reference, "RGB")
-            reference_colors = np.array(
-                [a[1] for a in reference_image.getcolors(16581375)]
-            )
-            output_colors = np.array([a[1] for a in output_image.getcolors(16581375)])
-            assert np.all(reference_colors == output_colors)
+            assert np.all(get_colors(reference_image) == get_colors(output_image))
             assert output_image.mode == expected_output_mode
             assert output_image.size == input_image.size

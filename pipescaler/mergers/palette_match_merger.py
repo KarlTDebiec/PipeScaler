@@ -14,9 +14,8 @@ from typing import Dict, List
 import numpy as np
 from PIL import Image
 from scipy.spatial.distance import cdist
-from skimage.exposure import match_histograms
 
-from pipescaler.core import Merger
+from pipescaler.core import Merger, get_colors
 
 
 class PaletteMatchMerger(Merger):
@@ -48,10 +47,11 @@ class PaletteMatchMerger(Merger):
 
         # noinspection PyTypeChecker
         input_array = np.array(input_image)
-        reference_colors = np.array([a[1] for a in reference_image.getcolors(16581375)])
-        input_colors = np.array([a[1] for a in input_image.getcolors(16581375)])
+        reference_colors = get_colors(reference_image)
+        input_colors = get_colors(input_image)
         dist = cdist(reference_colors, input_colors, self.weighted_distance)
         best_fit_indexes = dist.argmin(axis=0)
+
         output_array = np.zeros_like(input_array)
         for old_color, best_fit_index in zip(input_colors, best_fit_indexes):
             new_color = reference_colors[best_fit_index]
