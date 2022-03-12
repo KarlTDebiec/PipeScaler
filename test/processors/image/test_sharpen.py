@@ -29,15 +29,15 @@ def processor(request) -> SharpenProcessor:
 @pytest.mark.parametrize(
     ("infile"),
     [
-        # xfail_unsupported_image_mode()("1"),
+        xfail_unsupported_image_mode()("1"),
         ("L"),
-        # xfail_unsupported_image_mode()("LA"),
+        xfail_unsupported_image_mode()("LA"),
         ("RGB"),
-        # xfail_unsupported_image_mode()("RGBA"),
-        # ("PL"),
-        # xfail_unsupported_image_mode()("PLA"),
-        # ("PRGB"),
-        # xfail_unsupported_image_mode()("PRGBA"),
+        xfail_unsupported_image_mode()("RGBA"),
+        ("PL"),
+        xfail_unsupported_image_mode()("PLA"),
+        ("PRGB"),
+        xfail_unsupported_image_mode()("PRGBA"),
     ],
 )
 def test(infile: str, processor: SharpenProcessor) -> None:
@@ -55,6 +55,7 @@ def test(infile: str, processor: SharpenProcessor) -> None:
     ("infile", "args"),
     [
         ("RGB", "-h"),
+        ("RGB", ""),
     ],
 )
 def test_cl(infile: str, args: str) -> None:
