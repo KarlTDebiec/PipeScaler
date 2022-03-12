@@ -14,9 +14,11 @@ from typing import List
 from pipescaler.mergers.alpha_merger import AlphaMerger
 from pipescaler.mergers.color_match_merger import ColorMatchMerger
 from pipescaler.mergers.normal_merger import NormalMerger
+from pipescaler.mergers.palette_match_merger import PaletteMatchMerger
 
 __all__: List[str] = [
     "AlphaMerger",
     "ColorMatchMerger",
     "NormalMerger",
+    "PaletteMatchMerger",
 ]
