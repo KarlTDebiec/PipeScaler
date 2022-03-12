@@ -373,7 +373,7 @@ class Pipeline:
 
         Arguments:
             stage: Merger to run
-            stage_pipeline: Either 1) name of inlet into with image image should flow
+            stage_pipeline: Either 1) name of inlet into with input image should flow
               once all inlets are satisfied in upstream splitter, or 2) None, indicating
               that all inlets should be satisfied and Merger is ready to run
             downstream_pipeline: Pipeline downstream from stage
