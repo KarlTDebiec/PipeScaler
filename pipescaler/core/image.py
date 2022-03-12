@@ -393,6 +393,7 @@ def remove_palette_from_image(image: Image.Image) -> Image.Image:
         )[0]
     )
     if "transparency" in image.info:
+        # noinspection PyTypeChecker
         array = np.array(image)
         fully_transparent_colors = set(
             np.where(np.array(list(image.info["transparency"])) == 0)[0]
@@ -428,6 +429,7 @@ def smooth_image(image: Image.Image, sigma: float) -> Image.Image:
         (-1 * (np.arange(-3 * sigma, 3 * sigma + 1).astype(float) ** 2))
         / (2 * (sigma**2))
     )
+    # noinspection PyTypeChecker
     smoothed_array = np.array(image).astype(float)
     smoothed_array = convolve(smoothed_array, kernel[np.newaxis])
     smoothed_array = convolve(smoothed_array, kernel[np.newaxis].T)

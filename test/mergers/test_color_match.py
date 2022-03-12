@@ -13,7 +13,7 @@ from PIL import Image
 from pipescaler.common import temporary_filename
 from pipescaler.core import remove_palette_from_image
 from pipescaler.mergers import ColorMatchMerger
-from pipescaler.testing import get_infile, stage_fixture, xfail_unsupported_image_mode
+from pipescaler.testing import get_infile, stage_fixture
 
 
 @stage_fixture(cls=ColorMatchMerger, params=[{}])
@@ -24,14 +24,14 @@ def merger(request) -> ColorMatchMerger:
 @pytest.mark.parametrize(
     ("reference", "input"),
     [
-        xfail_unsupported_image_mode()("alt/L", "L"),
-        xfail_unsupported_image_mode()("alt/LA", "LA"),
+        ("alt/L", "L"),
+        ("alt/LA", "LA"),
         ("alt/RGB", "RGB"),
-        xfail_unsupported_image_mode()("alt/RGBA", "RGBA"),
-        xfail_unsupported_image_mode()("alt/PL", "PL"),
-        xfail_unsupported_image_mode()("alt/PLA", "PLA"),
+        ("alt/RGBA", "RGBA"),
+        ("alt/PL", "PL"),
+        ("alt/PLA", "PLA"),
         ("alt/PRGB", "PRGB"),
-        xfail_unsupported_image_mode()("alt/PRGBA", "PRGBA"),
+        ("alt/PRGBA", "PRGBA"),
     ],
 )
 def test(reference: str, input: str, merger: ColorMatchMerger):

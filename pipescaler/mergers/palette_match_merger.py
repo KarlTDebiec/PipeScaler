@@ -13,9 +13,10 @@ from typing import Dict, List
 
 import numpy as np
 from PIL import Image
+from scipy.spatial.distance import cdist
 from skimage.exposure import match_histograms
 
-from pipescaler.core import Merger, UnsupportedImageModeError
+from pipescaler.core import Merger
 
 
 class PaletteMatchMerger(Merger):
@@ -46,11 +47,27 @@ class PaletteMatchMerger(Merger):
         reference_image, input_image = input_images
 
         # noinspection PyTypeChecker
-        reference_array = np.array(reference_image)
-        # noinspection PyTypeChecker
         input_array = np.array(input_image)
-        output_array = match_histograms(input_array, reference_array, channel_axis=0)
-        output_array = np.clip(output_array, 0, 255).astype(np.uint8)
-        output_image = Image.fromarray(output_array)
+        reference_colors = np.array([a[1] for a in reference_image.getcolors(16581375)])
+        input_colors = np.array([a[1] for a in input_image.getcolors(16581375)])
+        dist = cdist(reference_colors, input_colors, self.weighted_distance)
+        best_fit_indexes = dist.argmin(axis=0)
+        output_array = np.zeros_like(input_array)
+        for old_color, best_fit_index in zip(input_colors, best_fit_indexes):
+            new_color = reference_colors[best_fit_index]
+            output_array[np.all(input_array == old_color, axis=2)] = new_color
 
+        output_image = Image.fromarray(output_array)
         return output_image
+
+    @staticmethod
+    def weighted_distance(color_1: np.ndarray, color_2: np.ndarray) -> float:
+        rmean = (color_1[0] + color_2[0]) / 2
+        dr = color_1[0] - color_2[0]
+        dg = color_1[1] - color_2[1]
+        db = color_1[2] - color_2[2]
+        return (
+            ((2 + (rmean / 256)) * (dr**2))
+            + (4 * (dg**2))
+            + ((2 + ((255 - rmean) / 256)) * (db**2))
+        )
