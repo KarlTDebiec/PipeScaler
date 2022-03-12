@@ -11,18 +11,29 @@ import pytest
 from PIL import Image
 
 from pipescaler.common import temporary_filename
-from pipescaler.core import get_colors, remove_palette_from_image, validate_image
+from pipescaler.core import get_colors, validate_image
 from pipescaler.mergers import PaletteMatchMerger
-from pipescaler.testing import get_infile, stage_fixture, xfail_unsupported_image_mode
+from pipescaler.testing import (
+    expected_output_mode,
+    get_infile,
+    stage_fixture,
+    xfail_unsupported_image_mode,
+)
 
 
-@stage_fixture(cls=PaletteMatchMerger, params=[{}])
+@stage_fixture(
+    cls=PaletteMatchMerger,
+    params=[
+        {"palette_match_mode": "BASIC"},
+        {"palette_match_mode": "LOCAL"},
+    ],
+)
 def merger(request) -> PaletteMatchMerger:
     return PaletteMatchMerger(**request.param)
 
 
 @pytest.mark.parametrize(
-    ("reference", "input"),
+    ("reference", "fit"),
     [
         xfail_unsupported_image_mode()("alt/L", "L"),
         xfail_unsupported_image_mode()("alt/LA", "LA"),
@@ -34,23 +45,19 @@ def merger(request) -> PaletteMatchMerger:
         xfail_unsupported_image_mode()("alt/PRGBA", "PRGBA"),
     ],
 )
-def test(reference: str, input: str, merger: PaletteMatchMerger):
+def test(reference: str, fit: str, merger: PaletteMatchMerger):
     reference = get_infile(reference)
-    input = get_infile(input)
+    fit = get_infile(fit)
 
     with temporary_filename(".png") as outfile:
         reference_image = validate_image(reference, "RGB")
-        input_image = Image.open(input)
-        if input_image.mode == "P":
-            expected_output_mode = remove_palette_from_image(input_image).mode
-        else:
-            expected_output_mode = input_image.mode
+        fit_image = Image.open(fit)
 
-        merger(reference=reference, input=input, outfile=outfile)
+        merger(reference=reference, fit=fit, outfile=outfile)
 
         with Image.open(outfile) as output_image:
             reference_colors = set(map(tuple, get_colors(reference_image)))
             output_colors = set(map(tuple, get_colors(output_image)))
             assert output_colors.issubset(reference_colors)
-            assert output_image.mode == expected_output_mode
-            assert output_image.size == input_image.size
+            assert output_image.mode == expected_output_mode(fit_image)
+            assert output_image.size == fit_image.size

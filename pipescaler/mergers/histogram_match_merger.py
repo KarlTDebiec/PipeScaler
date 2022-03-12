@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/mergers/color_match_merger.py
+#   pipescaler/mergers/histogram_match_merger.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
@@ -18,20 +18,20 @@ from skimage.exposure import match_histograms
 from pipescaler.core import Merger, UnsupportedImageModeError
 
 
-class ColorMatchMerger(Merger):
+class HistogramMatchMerger(Merger):
     """Matches an image's color histogram to that of a reference image"""
 
     @property
     def inlets(self) -> List[str]:
         """Inlets that flow into stage"""
-        return ["reference", "input"]
+        return ["reference", "fit"]
 
     @property
     def supported_input_modes(self) -> Dict[str, List[str]]:
         """Supported modes for input images"""
         return {
             "reference": ["L", "LA", "RGB", "RGBA"],
-            "input": ["L", "LA", "RGB", "RGBA"],
+            "fit": ["L", "LA", "RGB", "RGBA"],
         }
 
     def merge(self, *input_images: Image.Image) -> Image.Image:
@@ -43,23 +43,21 @@ class ColorMatchMerger(Merger):
         Returns:
             Merged output image
         """
-        reference_image, input_image = input_images
-        if reference_image.mode != input_image.mode:
+        ref_image, fit_image = input_images
+        if ref_image.mode != fit_image.mode:
             raise UnsupportedImageModeError(
-                f"Image mode '{reference_image.mode}' of reference image"
-                f" does not match mode '{input_image.mode}' of input image"
+                f"Image mode '{ref_image.mode}' of reference image"
+                f" does not match mode '{fit_image.mode}' of fit image"
             )
 
         # noinspection PyTypeChecker
-        reference_array = np.array(reference_image)
+        ref_array = np.array(ref_image)
         # noinspection PyTypeChecker
-        input_array = np.array(input_image)
-        if reference_image.mode == "L":
-            output_array = match_histograms(input_array, reference_array)
+        fit_array = np.array(fit_image)
+        if ref_image.mode == "L":
+            output_array = match_histograms(fit_array, ref_array)
         else:
-            output_array = match_histograms(
-                input_array, reference_array, channel_axis=0
-            )
+            output_array = match_histograms(fit_array, ref_array, channel_axis=0)
         output_array = np.clip(output_array, 0, 255).astype(np.uint8)
         output_image = Image.fromarray(output_array)
 
