@@ -68,5 +68,4 @@ def validate_image_and_convert_mode(
 
     if image.mode != convert_mode:
         return (image.convert(convert_mode), image.mode)
-    else:
-        return (image, image.mode)
+    return (image, image.mode)

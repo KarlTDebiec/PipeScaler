@@ -49,9 +49,8 @@ class RegexSorter(Sorter):
         if self.regex.match(name):
             info(f"{self}: '{name}' matches '{self.regex.pattern}'")
             return "matched"
-        else:
-            info(f"{self}: '{name}' does not match '{self.regex.pattern}'")
-            return "unmatched"
+        info(f"{self}: '{name}' does not match '{self.regex.pattern}'")
+        return "unmatched"
 
     @property
     def outlets(self) -> List[str]:

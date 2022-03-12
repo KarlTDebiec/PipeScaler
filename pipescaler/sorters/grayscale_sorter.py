@@ -23,7 +23,7 @@ class GrayscaleSorter(Sorter):
     """Sorts image based on presence and use of color channels"""
 
     def __init__(
-            self, mean_threshold: float = 1, max_threshold: float = 10, **kwargs: Any
+        self, mean_threshold: float = 1, max_threshold: float = 10, **kwargs: Any
     ) -> None:
         """
         Validate and store static configuration
@@ -56,17 +56,16 @@ class GrayscaleSorter(Sorter):
         if image.mode in ("RGB", "RGBA"):
             # noinspection PyTypeChecker
             rgb_array = np.array(image)[:, :, :3]
+            # noinspection PyTypeChecker
             l_array = np.array(Image.fromarray(rgb_array).convert("L").convert("RGB"))
             diff = np.abs(rgb_array - l_array)
             if diff.mean() <= self.mean_threshold and diff.max() <= self.max_threshold:
                 info(f"{self}: '{infile}' matches 'drop_rgb'")
                 return "drop_rgb"
-            else:
-                info(f"{self}: '{infile}' matches 'keep_rgb'")
-                return "keep_rgb"
-        else:
-            info(f"{self}: {infile}' matches 'no_rgb'")
-            return "no_rgb"
+            info(f"{self}: '{infile}' matches 'keep_rgb'")
+            return "keep_rgb"
+        info(f"{self}: {infile}' matches 'no_rgb'")
+        return "no_rgb"
 
     @property
     def outlets(self) -> List[str]:
