@@ -16,7 +16,8 @@ import numpy as np
 from PIL import Image
 
 from pipescaler.common import validate_enum
-from pipescaler.core import Splitter, fill_mask, is_monochrome
+from pipescaler.core import Splitter, is_monochrome
+from pipescaler.util import MaskFiller
 
 
 class AlphaMode(Enum):
@@ -42,6 +43,8 @@ class AlphaSplitter(Splitter):
         super().__init__(**kwargs)
 
         self.alpha_mode = validate_enum(alpha_mode, AlphaMode)
+        if self.alpha_mode == AlphaMode.L_OR_1_FILL:
+            self.mask_filler = MaskFiller()
 
     @property
     def outlets(self) -> List[str]:
@@ -74,6 +77,6 @@ class AlphaSplitter(Splitter):
             if is_monochrome(alpha_image):
                 alpha_image = alpha_image.convert("1")
         if self.alpha_mode == AlphaMode.L_OR_1_FILL and alpha_image.mode == "1":
-            color_image = fill_mask(color_image, alpha_image)
+            color_image = self.mask_filler.fill_mask(color_image, alpha_image)
 
         return color_image, alpha_image

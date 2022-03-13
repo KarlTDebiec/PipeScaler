@@ -11,10 +11,12 @@ from __future__ import annotations
 
 from typing import List
 
+from pipescaler.util.mask_filler import MaskFiller
 from pipescaler.util.scaled_pair_identifier import ScaledPairIdentifier
 from pipescaler.util.waifu_pytorch_pickler import WaifuPyTorchPickler
 
 __all__: List[str] = [
+    "MaskFiller",
     "ScaledPairIdentifier",
     "WaifuPyTorchPickler",
 ]

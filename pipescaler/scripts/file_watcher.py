@@ -10,7 +10,7 @@
 from __future__ import annotations
 
 import re
-from logging import debug, info
+from logging import debug, info, warn, warning
 from os import makedirs, remove, rmdir
 from os.path import basename, isdir, isfile, join, splitext
 from shutil import copy, move
@@ -77,7 +77,15 @@ class FileWater(ConfigurableCommandLineTool):
             """Validate input directory paths and make them absolute"""
             if isinstance(input_directories, str):
                 input_directories = [input_directories]
-            return [validate_input_directory(d) for d in input_directories]
+            validated_input_directories = []
+            for input_directory in input_directories:
+                try:
+                    validated_input_directories.append(
+                        validate_input_directory(input_directory)
+                    )
+                except DirectoryNotFoundError:
+                    warning(f"Configured directory '{input_directory}' does not exist")
+            return validated_input_directories
 
         # Validate input and output directory and file paths
         self.ignore_directories = []
