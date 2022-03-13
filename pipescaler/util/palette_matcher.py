@@ -9,8 +9,9 @@
 """
 Matches the palette of one image to another.
 """
-from typing import Union
+from typing import Union, no_type_check
 
+import numba as nb
 import numpy as np
 from PIL import Image
 from scipy.spatial.distance import cdist
@@ -62,16 +63,9 @@ class PaletteMatcher:
         scale = validate_int(fit_array_by_index.shape[0] / ref_array_by_index.shape[0])
         local_colors = cls.get_local_colors(ref_array_by_index)
 
-        output_array_by_index = np.zeros_like(fit_array_by_index)
-        for fit_x in range(fit_array_by_index.shape[0]):
-            for fit_y in range(fit_array_by_index.shape[1]):
-                ref_x = int(np.floor(fit_x / scale))
-                ref_y = int(np.floor(fit_y / scale))
-
-                dist_xy = np.copy(dist[:, fit_array_by_index[fit_x, fit_y]])
-                dist_xy[~local_colors[ref_x, ref_y]] = np.nan
-                best = np.nanargmin(dist_xy)
-                output_array_by_index[fit_x, fit_y] = best
+        output_array_by_index = cls.get_best_local_color(
+            fit_array_by_index, local_colors, scale, dist
+        )
 
         if len(ref_palette.shape) == 1:
             matched_array = np.zeros(fit_array_by_index.shape, np.uint8)
@@ -80,6 +74,28 @@ class PaletteMatcher:
         for i, color in enumerate(ref_palette):
             matched_array[output_array_by_index == i] = color
         return matched_array
+
+    @no_type_check
+    @staticmethod
+    @nb.jit(nopython=True, nogil=True, cache=True, fastmath=True)
+    def get_best_local_color(fit_array_by_index, local_colors, scale, dist):
+        output_array_by_index = np.zeros_like(fit_array_by_index)
+        for fit_x in range(fit_array_by_index.shape[0]):
+            for fit_y in range(fit_array_by_index.shape[1]):
+                ref_x = int(np.floor(fit_x / scale))
+                ref_y = int(np.floor(fit_y / scale))
+
+                best_i = -1
+                for i in range(dist[:, fit_array_by_index[fit_x, fit_y]].size):
+                    if local_colors[ref_x, ref_y, i] and (
+                        best_i == -1
+                        or dist[i, fit_array_by_index[fit_x, fit_y]]
+                        < dist[best_i, fit_array_by_index[fit_x, fit_y]]
+                    ):
+                        best_i = i
+
+                output_array_by_index[fit_x, fit_y] = best_i
+        return output_array_by_index
 
     @classmethod
     def get_weighted_distances(cls, ref_palette, fit_palette):
@@ -139,7 +155,9 @@ class PaletteMatcher:
 
         return palette, array_by_index
 
+    @no_type_check
     @staticmethod
+    @nb.jit(nopython=True, nogil=True, cache=True, fastmath=True)
     def get_weighted_distance(color_1: np.ndarray, color_2: np.ndarray) -> float:
         """Get the squared distance between two colors, adjusted for perception.
 
