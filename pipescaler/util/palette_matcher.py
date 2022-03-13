@@ -38,26 +38,20 @@ class PaletteMatcher:
                 f"'{fit_image.mode}' of fit image"
             )
 
-        # Get colors in reference
-        # noinspection PyTypeChecker
-        ref_array = np.array(ref_image)
+        # Get colors in reference and fit images
         ref_palette, ref_array_by_index = self.get_palette_and_array_by_index(ref_image)
-
-        # Get colors in fit
-        # noinspection PyTypeChecker
-        fit_array = np.array(fit_image)
         fit_palette, fit_array_by_index = self.get_palette_and_array_by_index(fit_image)
 
         # Calculate weighted distance between all reference and fit colors
         dist = self.get_weighted_distances(ref_palette, fit_palette)
 
+        # Match palette of fit image to that of reference image
         if self.palette_match_mode == PaletteMatchMode.BASIC:
             matched_array = self.get_basic_match(fit_array_by_index, ref_palette, dist)
         else:
             matched_array = self.get_local_match(
                 fit_array_by_index, ref_array_by_index, ref_palette, dist
             )
-
         matched_image = Image.fromarray(matched_array)
         return matched_image
 

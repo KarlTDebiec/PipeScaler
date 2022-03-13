@@ -11,7 +11,7 @@ import pytest
 from PIL import Image
 
 from pipescaler.common import temporary_filename
-from pipescaler.core import get_palette, validate_image
+from pipescaler.core import PaletteMatchMode, get_palette, validate_image
 from pipescaler.mergers import PaletteMatchMerger
 from pipescaler.testing import (
     expected_output_mode,
@@ -24,8 +24,8 @@ from pipescaler.testing import (
 @stage_fixture(
     cls=PaletteMatchMerger,
     params=[
-        {"palette_match_mode": "BASIC"},
-        {"palette_match_mode": "LOCAL"},
+        {"palette_match_mode": PaletteMatchMode.BASIC},
+        {"palette_match_mode": PaletteMatchMode.LOCAL},
     ],
 )
 def merger(request) -> PaletteMatchMerger:
@@ -35,14 +35,10 @@ def merger(request) -> PaletteMatchMerger:
 @pytest.mark.parametrize(
     ("reference", "fit"),
     [
-        xfail_unsupported_image_mode()("alt/L", "L"),
-        xfail_unsupported_image_mode()("alt/LA", "LA"),
+        ("PL", "L"),
+        xfail_unsupported_image_mode()("PLA", "LA"),
         ("PRGB", "RGB"),
-        xfail_unsupported_image_mode()("alt/RGBA", "RGBA"),
-        xfail_unsupported_image_mode()("alt/PL", "PL"),
-        xfail_unsupported_image_mode()("alt/PLA", "PLA"),
-        ("alt/PRGB", "PRGB"),
-        xfail_unsupported_image_mode()("alt/PRGBA", "PRGBA"),
+        xfail_unsupported_image_mode()("PRGBA", "RGBA"),
     ],
 )
 def test(reference: str, fit: str, merger: PaletteMatchMerger):
