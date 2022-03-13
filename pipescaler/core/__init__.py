@@ -12,7 +12,7 @@ from __future__ import annotations
 from typing import List
 
 from pipescaler.core.configurable_command_line_tool import ConfigurableCommandLineTool
-from pipescaler.core.enums import AlphaMode, FillMode, PaletteMatchMode
+from pipescaler.core.enum import AlphaMode, MaskFillMode, PaletteMatchMode
 from pipescaler.core.exception import TerminusReached, UnsupportedImageModeError
 from pipescaler.core.external_processor import ExternalProcessor
 from pipescaler.core.file import get_files
@@ -47,7 +47,7 @@ __all__: List[str] = [
     "AlphaMode",
     "ConfigurableCommandLineTool",
     "ExternalProcessor",
-    "FillMode",
+    "MaskFillMode",
     "ImageProcessor",
     "Merger",
     "PaletteMatchMode",

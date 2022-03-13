@@ -11,6 +11,7 @@ import pytest
 from PIL import Image
 
 from pipescaler.common import temporary_filename
+from pipescaler.core import AlphaMode, MaskFillMode
 from pipescaler.splitters import AlphaSplitter
 from pipescaler.testing import (
     expected_output_mode,
@@ -23,10 +24,22 @@ from pipescaler.testing import (
 @stage_fixture(
     cls=AlphaSplitter,
     params=[
-        {"alpha_mode": "L", "fill_mode": None},
-        {"alpha_mode": "L_OR_1", "fill_mode": None},
-        {"alpha_mode": "L_OR_1", "fill_mode": "BASIC"},
-        {"alpha_mode": "L_OR_1", "fill_mode": "MATCH_PALETTE"},
+        {
+            "alpha_mode": AlphaMode.GRAYSCALE,
+            "fill_mode": None,
+        },
+        {
+            "alpha_mode": AlphaMode.MONOCHROME_OR_GRAYSCALE,
+            "fill_mode": None,
+        },
+        {
+            "alpha_mode": AlphaMode.MONOCHROME_OR_GRAYSCALE,
+            "fill_mode": MaskFillMode.BASIC,
+        },
+        {
+            "alpha_mode": AlphaMode.MONOCHROME_OR_GRAYSCALE,
+            "fill_mode": MaskFillMode.MATCH_PALETTE,
+        },
     ],
 )
 def splitter(request) -> AlphaSplitter:

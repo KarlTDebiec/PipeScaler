@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/core/enums.py
+#   pipescaler/core/enum.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
@@ -13,14 +13,15 @@ from enum import Enum, auto
 
 
 class AlphaMode(Enum):
-    """Mode of output alpha image"""
+    """Mode of alpha image"""
 
-    L = auto()
-    L_OR_1 = auto()
-    L_OR_1_FILL = auto()
+    GRAYSCALE = auto()
+    MONOCHROME_OR_GRAYSCALE = auto()
 
 
-class FillMode(Enum):
+class MaskFillMode(Enum):
+    """Mode of mask filling to perform"""
+
     BASIC = auto()
     MATCH_PALETTE = auto()
 

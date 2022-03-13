@@ -15,7 +15,7 @@ import numpy as np
 from PIL import Image
 
 from pipescaler.common import ArgumentConflictError, validate_enum
-from pipescaler.core import AlphaMode, FillMode, Splitter, is_monochrome
+from pipescaler.core import AlphaMode, MaskFillMode, Splitter, is_monochrome
 from pipescaler.util import MaskFiller
 
 
@@ -24,8 +24,8 @@ class AlphaSplitter(Splitter):
 
     def __init__(
         self,
-        alpha_mode: Union[type(AlphaMode), str] = AlphaMode.L,
-        fill_mode: Optional[Union[type(FillMode), str]] = None,
+        alpha_mode: Union[type(AlphaMode), str] = AlphaMode.GRAYSCALE,
+        fill_mode: Optional[Union[type(MaskFillMode), str]] = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -39,9 +39,9 @@ class AlphaSplitter(Splitter):
         self.alpha_mode = validate_enum(alpha_mode, AlphaMode)
         self.fill_mode = None
         if fill_mode is not None:
-            if self.alpha_mode == AlphaMode.L:
+            if self.alpha_mode == AlphaMode.GRAYSCALE:
                 raise ArgumentConflictError()
-            self.fill_mode = validate_enum(fill_mode, FillMode)
+            self.fill_mode = validate_enum(fill_mode, MaskFillMode)
             self.mask_filler = MaskFiller(fill_mode=self.fill_mode)
 
     @property
@@ -71,8 +71,9 @@ class AlphaSplitter(Splitter):
         color_image = Image.fromarray(color_array)
         alpha_image = Image.fromarray(alpha_array)
 
-        if self.alpha_mode == AlphaMode.L_OR_1 and is_monochrome(alpha_image):
-            alpha_image = alpha_image.convert("1")
+        if self.alpha_mode == AlphaMode.MONOCHROME_OR_GRAYSCALE:
+            if is_monochrome(alpha_image):
+                alpha_image = alpha_image.convert("1")
         if self.fill_mode is not None and alpha_image.mode == "1":
             color_image = self.mask_filler.fill(color_image, alpha_image)
 

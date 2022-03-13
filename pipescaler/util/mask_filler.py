@@ -15,7 +15,7 @@ import numpy as np
 from PIL import Image
 
 from pipescaler.common import validate_enum
-from pipescaler.core import FillMode
+from pipescaler.core import MaskFillMode
 from pipescaler.util.palette_matcher import PaletteMatcher
 
 
@@ -26,15 +26,17 @@ class MaskFiller:
     pixels, iteratively.
     """
 
-    def __init__(self, fill_mode: Union[type(FillMode), str] = FillMode.BASIC) -> None:
+    def __init__(
+        self, fill_mode: Union[type(MaskFillMode), str] = MaskFillMode.BASIC
+    ) -> None:
         """
         Validate and store static configuration
 
         Arguments:
             **kwargs: Additional keyword arguments
         """
-        self.fill_mode = validate_enum(fill_mode, FillMode)
-        if self.fill_mode == FillMode.MATCH_PALETTE:
+        self.fill_mode = validate_enum(fill_mode, MaskFillMode)
+        if self.fill_mode == MaskFillMode.MATCH_PALETTE:
             self.palette_matcher = PaletteMatcher()
 
     def fill(self, image: Image.Image, mask: Image.Image) -> Image.Image:
