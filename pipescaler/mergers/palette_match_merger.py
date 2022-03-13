@@ -17,7 +17,7 @@ from PIL import Image
 from scipy.spatial.distance import cdist
 
 from pipescaler.common import validate_enum, validate_int
-from pipescaler.core import Merger, get_colors
+from pipescaler.core import Merger, UnsupportedImageModeError, get_colors
 
 
 class PaletteMatchMode(Enum):
@@ -54,8 +54,8 @@ class PaletteMatchMerger(Merger):
     def supported_input_modes(self) -> Dict[str, List[str]]:
         """Supported modes for input images"""
         return {
-            "reference": ["RGB"],
-            "fit": ["RGB"],
+            "reference": ["L", "RGB"],
+            "fit": ["L", "RGB"],
         }
 
     def merge(self, *input_images: Image.Image) -> Image.Image:
@@ -68,25 +68,45 @@ class PaletteMatchMerger(Merger):
             Merged output image
         """
         ref_image, fit_image = input_images
+        if ref_image.mode != fit_image.mode:
+            raise UnsupportedImageModeError(
+                f"Image mode '{ref_image.mode}' of reference image"
+                f" does not match mode '{fit_image.mode}' of fit image"
+            )
 
         # Get colors in reference
         # noinspection PyTypeChecker
         ref_array = np.array(ref_image)
         ref_colors = get_colors(ref_image)
-        ref_array_by_index = np.zeros(ref_array.shape[:-1], int)
-        for i, color in enumerate(ref_colors):
-            ref_array_by_index[np.all(ref_array == color, axis=2)] = i
 
         # Get colors in fit
         # noinspection PyTypeChecker
         fit_array = np.array(fit_image)
         fit_colors = get_colors(fit_image)
-        fit_array_by_index = np.zeros(fit_array.shape[:-1], int)
-        for i, color in enumerate(fit_colors):
-            fit_array_by_index[np.all(fit_array == color, axis=2)] = i
 
-        # Calculate weighted distance between all reference and fit colors
-        dist = cdist(ref_colors, fit_colors, self.weighted_distance)
+        if ref_image.mode == "L":
+            ref_array_by_index = np.zeros(ref_array.shape, int)
+            for i, color in enumerate(ref_colors):
+                ref_array_by_index[ref_array == color] = i
+            fit_array_by_index = np.zeros(fit_array.shape, int)
+            for i, color in enumerate(fit_colors):
+                fit_array_by_index[fit_array == color] = i
+
+            # Calculate distance between all reference and fit colors
+            dist = np.zeros((ref_colors.size, fit_colors.size), float)
+            for i, ref_color in enumerate(ref_colors):
+                for j, fit_color in enumerate(fit_colors):
+                    dist[i, j] = (ref_color - fit_color) ** 2
+        else:
+            ref_array_by_index = np.zeros(ref_array.shape[:-1], int)
+            for i, color in enumerate(ref_colors):
+                ref_array_by_index[np.all(ref_array == color, axis=2)] = i
+            fit_array_by_index = np.zeros(fit_array.shape[:-1], int)
+            for i, color in enumerate(fit_colors):
+                fit_array_by_index[np.all(fit_array == color, axis=2)] = i
+
+            # Calculate weighted distance between all reference and fit colors
+            dist = cdist(ref_colors, fit_colors, self.weighted_distance)
 
         if self.palette_match_mode == PaletteMatchMode.BASIC:
             # Replace each fit pixel's color with the closest reference color
