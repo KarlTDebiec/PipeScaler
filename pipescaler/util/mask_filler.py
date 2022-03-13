@@ -20,23 +20,14 @@ from pipescaler.util.palette_matcher import PaletteMatcher
 
 
 class MaskFiller:
-    """Erases masked pixels within an image.
-
-    Replaces the color of each masked pixel with the average color of adjacent unmasked
-    pixels, iteratively.
-    """
+    """Erases masked pixels within an image."""
 
     def __init__(
-        self, fill_mode: Union[type(MaskFillMode), str] = MaskFillMode.BASIC
+        self, mask_fill_mode: Union[type(MaskFillMode), str] = MaskFillMode.BASIC
     ) -> None:
-        """
-        Validate and store static configuration
-
-        Arguments:
-            **kwargs: Additional keyword arguments
-        """
-        self.fill_mode = validate_enum(fill_mode, MaskFillMode)
-        if self.fill_mode == MaskFillMode.MATCH_PALETTE:
+        """Validate and store static configuration."""
+        self.mask_fill_mode = validate_enum(mask_fill_mode, MaskFillMode)
+        if self.mask_fill_mode == MaskFillMode.MATCH_PALETTE:
             self.palette_matcher = PaletteMatcher()
 
     def fill(self, image: Image.Image, mask: Image.Image) -> Image.Image:
@@ -59,7 +50,10 @@ class MaskFiller:
         while mask_array.sum() > 0:
             image_array, mask_array = self.run_iteration(image_array, mask_array)
 
-        return Image.fromarray(image_array)
+        filled_image = Image.fromarray(image_array)
+        if self.mask_fill_mode == MaskFillMode.MATCH_PALETTE:
+            self.palette_matcher.match_palette(image, filled_image)
+        return filled_image
 
     def run_iteration(
         self, image_array: np.ndarray, mask_array: np.ndarray

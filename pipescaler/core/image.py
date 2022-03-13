@@ -171,7 +171,7 @@ def generate_normal_map_from_height_map_image(image: Image.Image) -> Image.Image
     return output_image
 
 
-def get_colors(image: Image.Image) -> np.ndarray:
+def get_palette(image: Image.Image) -> np.ndarray:
     """
     Get a numpy array of all colors present in an image
 

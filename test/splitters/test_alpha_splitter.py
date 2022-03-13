@@ -26,19 +26,19 @@ from pipescaler.testing import (
     params=[
         {
             "alpha_mode": AlphaMode.GRAYSCALE,
-            "fill_mode": None,
+            "mask_fill_mode": None,
         },
         {
             "alpha_mode": AlphaMode.MONOCHROME_OR_GRAYSCALE,
-            "fill_mode": None,
+            "mask_fill_mode": None,
         },
         {
             "alpha_mode": AlphaMode.MONOCHROME_OR_GRAYSCALE,
-            "fill_mode": MaskFillMode.BASIC,
+            "mask_fill_mode": MaskFillMode.BASIC,
         },
         {
             "alpha_mode": AlphaMode.MONOCHROME_OR_GRAYSCALE,
-            "fill_mode": MaskFillMode.MATCH_PALETTE,
+            "mask_fill_mode": MaskFillMode.MATCH_PALETTE,
         },
     ],
 )

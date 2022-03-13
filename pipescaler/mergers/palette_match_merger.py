@@ -9,7 +9,6 @@
 """Matches an image's color palette to that of a reference image"""
 from __future__ import annotations
 
-from enum import Enum, auto
 from typing import Any, Dict, List, Union
 
 import numpy as np
@@ -21,8 +20,9 @@ from pipescaler.core import (
     Merger,
     PaletteMatchMode,
     UnsupportedImageModeError,
-    get_colors,
+    get_palette,
 )
+from pipescaler.util import PaletteMatcher
 
 
 class PaletteMatchMerger(Merger):
@@ -30,7 +30,7 @@ class PaletteMatchMerger(Merger):
 
     def __init__(
         self,
-        palette_match_mode: Union[PaletteMatchMode, str] = PaletteMatchMode.BASIC,
+        palette_match_mode: Union[type(PaletteMatchMode), str] = PaletteMatchMode.BASIC,
         **kwargs: Any,
     ) -> None:
         """
@@ -42,6 +42,7 @@ class PaletteMatchMerger(Merger):
         super().__init__(**kwargs)
 
         self.palette_match_mode = validate_enum(palette_match_mode, PaletteMatchMode)
+        self.palette_match_mode = PaletteMatcher(self.palette_match_mode)
 
     @property
     def inlets(self) -> List[str]:
@@ -75,12 +76,12 @@ class PaletteMatchMerger(Merger):
         # Get colors in reference
         # noinspection PyTypeChecker
         ref_array = np.array(ref_image)
-        ref_colors = get_colors(ref_image)
+        ref_colors = get_palette(ref_image)
 
         # Get colors in fit
         # noinspection PyTypeChecker
         fit_array = np.array(fit_image)
-        fit_colors = get_colors(fit_image)
+        fit_colors = get_palette(fit_image)
 
         if ref_image.mode == "L":
             ref_array_by_index = np.zeros(ref_array.shape, int)

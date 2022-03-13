@@ -11,7 +11,7 @@ import pytest
 from PIL import Image
 
 from pipescaler.common import temporary_filename
-from pipescaler.core import get_colors, validate_image
+from pipescaler.core import get_palette, validate_image
 from pipescaler.mergers import PaletteMatchMerger
 from pipescaler.testing import (
     expected_output_mode,
@@ -57,11 +57,11 @@ def test(reference: str, fit: str, merger: PaletteMatchMerger):
 
         with Image.open(outfile) as output_image:
             if expected_output_mode(fit_image) == "L":
-                reference_colors = set(get_colors(reference_image))
-                output_colors = set(get_colors(output_image))
+                reference_colors = set(get_palette(reference_image))
+                output_colors = set(get_palette(output_image))
             else:
-                reference_colors = set(map(tuple, get_colors(reference_image)))
-                output_colors = set(map(tuple, get_colors(output_image)))
+                reference_colors = set(map(tuple, get_palette(reference_image)))
+                output_colors = set(map(tuple, get_palette(output_image)))
             assert output_colors.issubset(reference_colors)
             assert output_image.mode == expected_output_mode(fit_image)
             assert output_image.size == fit_image.size

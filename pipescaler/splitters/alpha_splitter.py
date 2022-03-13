@@ -25,7 +25,7 @@ class AlphaSplitter(Splitter):
     def __init__(
         self,
         alpha_mode: Union[type(AlphaMode), str] = AlphaMode.GRAYSCALE,
-        fill_mode: Optional[Union[type(MaskFillMode), str]] = None,
+        mask_fill_mode: Optional[Union[type(MaskFillMode), str]] = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -37,12 +37,12 @@ class AlphaSplitter(Splitter):
         super().__init__(**kwargs)
 
         self.alpha_mode = validate_enum(alpha_mode, AlphaMode)
-        self.fill_mode = None
-        if fill_mode is not None:
+        self.mask_fill_mode = None
+        if mask_fill_mode is not None:
             if self.alpha_mode == AlphaMode.GRAYSCALE:
                 raise ArgumentConflictError()
-            self.fill_mode = validate_enum(fill_mode, MaskFillMode)
-            self.mask_filler = MaskFiller(fill_mode=self.fill_mode)
+            self.mask_fill_mode = validate_enum(mask_fill_mode, MaskFillMode)
+            self.mask_filler = MaskFiller(mask_fill_mode=self.mask_fill_mode)
 
     @property
     def outlets(self) -> List[str]:
@@ -74,7 +74,7 @@ class AlphaSplitter(Splitter):
         if self.alpha_mode == AlphaMode.MONOCHROME_OR_GRAYSCALE:
             if is_monochrome(alpha_image):
                 alpha_image = alpha_image.convert("1")
-        if self.fill_mode is not None and alpha_image.mode == "1":
+        if self.mask_fill_mode is not None and alpha_image.mode == "1":
             color_image = self.mask_filler.fill(color_image, alpha_image)
 
         return color_image, alpha_image
