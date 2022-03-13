@@ -9,10 +9,14 @@
 """
 Erases masked pixels within an image.
 """
-from typing import Tuple
+from typing import Tuple, Union
 
 import numpy as np
 from PIL import Image
+
+from pipescaler.common import validate_enum
+from pipescaler.core import FillMode
+from pipescaler.util.palette_matcher import PaletteMatcher
 
 
 class MaskFiller:
@@ -22,32 +26,41 @@ class MaskFiller:
     pixels, iteratively.
     """
 
-    def fill_mask(
-        self, color_image: Image.Image, mask_image: Image.Image
-    ) -> Image.Image:
+    def __init__(self, fill_mode: Union[FillMode, str] = FillMode.BASIC) -> None:
+        """
+        Validate and store static configuration
+
+        Arguments:
+            **kwargs: Additional keyword arguments
+        """
+        self.fill_mode = validate_enum(fill_mode, FillMode)
+        if self.fill_mode == FillMode.MATCH_PALETTE:
+            self.palette_matcher = PaletteMatcher()
+
+    def fill(self, image: Image.Image, mask: Image.Image) -> Image.Image:
         """
         Erases masked pixels within an image, replacing the color of each masked pixel with
         the average color of adjacent unmasked pixels, iteratively
 
         Arguments:
-            color_image: Image
-            mask_image: Mask
+            image: Image
+            mask: Mask
         Returns:
             Image with masked pixels replaced
         """
 
         # noinspection PyTypeChecker
-        color_array = np.array(color_image)
+        image_array = np.array(image)
         # noinspection PyTypeChecker
-        mask_array = ~np.array(mask_image)
+        mask_array = ~np.array(mask)
 
         while mask_array.sum() > 0:
-            color_array, mask_array = self.run_iteration(color_array, mask_array)
+            image_array, mask_array = self.run_iteration(image_array, mask_array)
 
-        return Image.fromarray(color_array)
+        return Image.fromarray(image_array)
 
     def run_iteration(
-        self, color_array: np.ndarray, mask_array: np.ndarray
+        self, image_array: np.ndarray, mask_array: np.ndarray
     ) -> Tuple[np.ndarray, np.ndarray]:
 
         # count the number of opaque pixels adjacent to each pixel in image
@@ -66,7 +79,7 @@ class MaskFiller:
 
         # Calculate the color of pixels to fill
         sum_of_adjacent_opaque_pixels = self.sum_of_adjacent_opaque_pixels(
-            color_array, mask_array
+            image_array, mask_array
         )
         # noinspection PyArgumentList
         colors_of_pixels_to_fill = np.round(
@@ -74,9 +87,9 @@ class MaskFiller:
         ).astype(np.uint8)
 
         # Set colors, prepare updated mask, and return
-        color_array[pixels_to_fill] = colors_of_pixels_to_fill
+        image_array[pixels_to_fill] = colors_of_pixels_to_fill
         mask_array = mask_array & ~pixels_to_fill
-        return color_array, mask_array
+        return image_array, mask_array
 
     @staticmethod
     def adjacent_opaque_pixels(transparent_pixels):
@@ -104,11 +117,11 @@ class MaskFiller:
         return adjacent_opaque_pixels
 
     @staticmethod
-    def sum_of_adjacent_opaque_pixels(color_array, transparent_pixels):
-        weighted_color_array = np.copy(color_array)
+    def sum_of_adjacent_opaque_pixels(image_array, transparent_pixels):
+        weighted_color_array = np.copy(image_array)
         weighted_color_array[transparent_pixels] = 0
 
-        sum_of_adjacent_opaque_pixels = np.zeros(color_array.shape, int)
+        sum_of_adjacent_opaque_pixels = np.zeros(image_array.shape, int)
         sum_of_adjacent_opaque_pixels[:-1, :-1] += weighted_color_array[1:, 1:]
         sum_of_adjacent_opaque_pixels[:, :-1] += weighted_color_array[:, 1:]
         sum_of_adjacent_opaque_pixels[1:, :-1] += weighted_color_array[:-1, 1:]
