@@ -49,13 +49,13 @@ def splitter(request) -> AlphaSplitter:
 @pytest.mark.parametrize(
     ("infile"),
     [
-        # xfail_unsupported_image_mode()("1"),
-        # xfail_unsupported_image_mode()("L"),
-        # ("LA"),
-        # xfail_unsupported_image_mode()("RGB"),
-        # ("RGBA"),
-        # ("PLA"),
-        # ("PRGBA"),
+        xfail_unsupported_image_mode()("1"),
+        xfail_unsupported_image_mode()("L"),
+        ("LA"),
+        xfail_unsupported_image_mode()("RGB"),
+        ("RGBA"),
+        ("PLA"),
+        ("PRGBA"),
         ("novel/RGBA_monochrome"),
     ],
 )
