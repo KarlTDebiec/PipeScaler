@@ -47,11 +47,12 @@ PipeScaler includes the following image processors:
 following image splitters:
 * [AlphaSplitter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/splitters/alpha_splitter.py) - Splits image with transparency into separate alpha and color images.
 * [NormalSplitter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/splitters/normal_splitter.py) - Splits a normal map image into separate x, y, and z images.
+* [RepeatSplitter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/splitters/repeat_splitter.py) - Repeats an input image.
 
 **Mergers** combine two or more images into a single downstream image. PipeScaler includes
 the following image mergers:
 * [AlphaMerger](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/mergers/alpha_merger.py) - Merges alpha and color images into a single image with transparency.
-* [HistogramMatchMerger](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/mergers/color_match_merger.py) - Matches an image's color histogram to that of a reference image.
+* [HistogramMatchMerger](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/mergers/histogram_match_merger.py) - Matches an image's color histogram to that of a reference image.
 * [NormalMerger](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/mergers/normal_merger.py) - Merges x, y, and z images into a single normal map image.
 * [PaletteMatchMerger](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/mergers/palette_match_merger.py) - Matches an image's color palette to that of a reference image.
 
