@@ -24,8 +24,8 @@ class AlphaSplitter(Splitter):
 
     def __init__(
         self,
-        alpha_mode: Union[AlphaMode, str] = AlphaMode.L,
-        fill_mode: Optional[Union[FillMode, str]] = None,
+        alpha_mode: Union[type(AlphaMode), str] = AlphaMode.L,
+        fill_mode: Optional[Union[type(FillMode), str]] = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -37,11 +37,12 @@ class AlphaSplitter(Splitter):
         super().__init__(**kwargs)
 
         self.alpha_mode = validate_enum(alpha_mode, AlphaMode)
-        self.fill_mode = validate_enum(fill_mode, FillMode)
-        if self.alpha_mode == AlphaMode.L and self.fill_mode is not None:
-            raise ArgumentConflictError()
-        if self.fill_mode is not None:
-            self.mask_filler = MaskFiller()
+        self.fill_mode = None
+        if fill_mode is not None:
+            if self.alpha_mode == AlphaMode.L:
+                raise ArgumentConflictError()
+            self.fill_mode = validate_enum(fill_mode, FillMode)
+            self.mask_filler = MaskFiller(fill_mode=self.fill_mode)
 
     @property
     def outlets(self) -> List[str]:

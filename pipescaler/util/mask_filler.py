@@ -26,7 +26,7 @@ class MaskFiller:
     pixels, iteratively.
     """
 
-    def __init__(self, fill_mode: Union[FillMode, str] = FillMode.BASIC) -> None:
+    def __init__(self, fill_mode: Union[type(FillMode), str] = FillMode.BASIC) -> None:
         """
         Validate and store static configuration
 

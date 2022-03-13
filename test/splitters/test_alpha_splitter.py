@@ -11,17 +11,22 @@ import pytest
 from PIL import Image
 
 from pipescaler.common import temporary_filename
-from pipescaler.core import remove_palette_from_image
 from pipescaler.splitters import AlphaSplitter
-from pipescaler.testing import get_infile, stage_fixture, xfail_unsupported_image_mode
+from pipescaler.testing import (
+    expected_output_mode,
+    get_infile,
+    stage_fixture,
+    xfail_unsupported_image_mode,
+)
 
 
 @stage_fixture(
     cls=AlphaSplitter,
     params=[
-        {"alpha_mode": "L"},
-        {"alpha_mode": "L_OR_1"},
-        {"alpha_mode": "L_OR_1_FILL"},
+        {"alpha_mode": "L", "fill_mode": None},
+        {"alpha_mode": "L_OR_1", "fill_mode": None},
+        {"alpha_mode": "L_OR_1", "fill_mode": "BASIC"},
+        {"alpha_mode": "L_OR_1", "fill_mode": "MATCH_PALETTE"},
     ],
 )
 def splitter(request) -> AlphaSplitter:
@@ -47,12 +52,7 @@ def test(infile: str, splitter: AlphaSplitter) -> None:
     with temporary_filename(".png") as color_outfile:
         with temporary_filename(".png") as alpha_outfile:
             input_image = Image.open(infile)
-            if input_image.mode == "P":
-                expected_color_mode = remove_palette_from_image(
-                    input_image
-                ).mode.rstrip("A")
-            else:
-                expected_color_mode = input_image.mode.rstrip("A")
+            expected_color_mode = expected_output_mode(input_image).rstrip("A")
 
             splitter(infile, color=color_outfile, alpha=alpha_outfile)
 
