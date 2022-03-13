@@ -52,7 +52,7 @@ class MaskFiller:
 
         filled_image = Image.fromarray(image_array)
         if self.mask_fill_mode == MaskFillMode.MATCH_PALETTE:
-            self.palette_matcher.match_palette(image, filled_image)
+            filled_image = self.palette_matcher.match_palette(image, filled_image)
         return filled_image
 
     def run_iteration(
