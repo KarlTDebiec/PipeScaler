@@ -5,7 +5,7 @@ ImageHash==4.2.1
 ipython==8.1.1
 isort==5.10.1
 numba==0.55.1
-numpy==1.21.5
+numpy==1.22.3
 pandas==1.4.1
 Pillow==9.0.1
 prospector==1.7.7
