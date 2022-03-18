@@ -19,6 +19,6 @@ scipy==1.8.0
 setuptools==60.10.0
 svglib==1.2.1
 tables==3.7.0
-torch==1.10.2
+torch==1.11.0
 watchdog==2.1.6
 xbrz.py==1.0.2
