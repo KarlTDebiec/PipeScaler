@@ -41,7 +41,7 @@ class PngquantProcessor(ExternalProcessor):
         super().__init__(**kwargs)
 
         # Store configuration
-        self.quality = validate_int(quality, 1, 100)
+        self.quality = quality
         self.speed = validate_int(speed, 1, 100)
         self.floyd_steinberg = floyd_steinberg
 

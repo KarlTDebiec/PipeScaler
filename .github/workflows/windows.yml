@@ -9,6 +9,7 @@ on:
 jobs:
     build-windows:
         runs-on: windows-latest
+        if: github.event.pull_request.draft == false
         steps:
         - name: Checkout PipeScaler
           uses: actions/checkout@v2

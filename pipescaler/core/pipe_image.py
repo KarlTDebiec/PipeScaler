@@ -70,6 +70,7 @@ class PipeImage:
         if trim_suffixes is not None:
             for trim_suffix in trim_suffixes:
                 if trim_suffix in filename:
+                    filename = filename[: filename.rindex(trim_suffix)]
                     break
             filename = filename.rstrip("_")
 

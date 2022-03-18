@@ -9,29 +9,24 @@
 """Splits image with transparency into separate alpha and color images"""
 from __future__ import annotations
 
-from enum import Enum, auto
-from typing import Any, List, Tuple, Union
+from typing import Any, List, Optional, Tuple, Union
 
 import numpy as np
 from PIL import Image
 
-from pipescaler.common import validate_enum
-from pipescaler.core import Splitter, fill_mask, is_monochrome
-
-
-class AlphaMode(Enum):
-    """Mode of output alpha image"""
-
-    L = auto()
-    L_OR_1 = auto()
-    L_OR_1_FILL = auto()
+from pipescaler.common import ArgumentConflictError, validate_enum
+from pipescaler.core import AlphaMode, MaskFillMode, Splitter, is_monochrome
+from pipescaler.util import MaskFiller
 
 
 class AlphaSplitter(Splitter):
     """Splits image with transparency into separate alpha and color images"""
 
     def __init__(
-        self, alpha_mode: Union[AlphaMode, str] = AlphaMode.L, **kwargs: Any
+        self,
+        alpha_mode: Union[type(AlphaMode), str] = AlphaMode.GRAYSCALE,
+        mask_fill_mode: Optional[Union[type(MaskFillMode), str]] = None,
+        **kwargs: Any,
     ) -> None:
         """
         Validate and store static configuration
@@ -42,6 +37,12 @@ class AlphaSplitter(Splitter):
         super().__init__(**kwargs)
 
         self.alpha_mode = validate_enum(alpha_mode, AlphaMode)
+        self.mask_fill_mode = None
+        if mask_fill_mode is not None:
+            if self.alpha_mode == AlphaMode.GRAYSCALE:
+                raise ArgumentConflictError()
+            self.mask_fill_mode = validate_enum(mask_fill_mode, MaskFillMode)
+            self.mask_filler = MaskFiller(mask_fill_mode=self.mask_fill_mode)
 
     @property
     def outlets(self) -> List[str]:
@@ -70,10 +71,10 @@ class AlphaSplitter(Splitter):
         color_image = Image.fromarray(color_array)
         alpha_image = Image.fromarray(alpha_array)
 
-        if self.alpha_mode in (AlphaMode.L_OR_1, AlphaMode.L_OR_1_FILL):
+        if self.alpha_mode == AlphaMode.MONOCHROME_OR_GRAYSCALE:
             if is_monochrome(alpha_image):
                 alpha_image = alpha_image.convert("1")
-        if self.alpha_mode == AlphaMode.L_OR_1_FILL and alpha_image.mode == "1":
-            color_image = fill_mask(color_image, alpha_image)
+        if self.mask_fill_mode is not None and alpha_image.mode == "1":
+            color_image = self.mask_filler.fill(color_image, alpha_image)
 
         return color_image, alpha_image
