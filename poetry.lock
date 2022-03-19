@@ -1218,7 +1218,7 @@ wand = ["Wand (>=0.6.1,<1.0.0)"]
 [metadata]
 lock-version = "1.1"
 python-versions = "~3.8"
-content-hash = "bc816157fa0c1a8b31be0988321d8132d916eae72df01a1185277a96a1d15435"
+content-hash = "ae1862855ac6fc12394ca36d3eac572b5449f4a639015325bf10432b4c6c71b5"
 
 [metadata.files]
 appnope = [
