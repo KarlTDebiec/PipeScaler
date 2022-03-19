@@ -33,6 +33,7 @@ class ProspectorReporter(CommandLineTool):
     def __call__(self):
         """Perform operations."""
         self.report_summary()
+        self.report_messages()
 
     def report_messages(self):
         for prospector_message in self.report["messages"]:
