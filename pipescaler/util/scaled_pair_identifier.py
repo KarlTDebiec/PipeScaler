@@ -369,6 +369,7 @@ class ScaledPairIdentifier:
 
         parent_image = Image.open(self.filenames[parent])
         if self.alpha_sorter(self.filenames[parent]) == "keep_alpha":
+            # noinspection PyTypeChecker
             parent_array = np.array(parent_image)
             parent_color_image = Image.fromarray(np.squeeze(parent_array[:, :, :-1]))
             parent_alpha_image = Image.fromarray(parent_array[:, :, -1])
@@ -377,6 +378,7 @@ class ScaledPairIdentifier:
 
             for child, score in zip(children, scores):
                 child_image = Image.open(self.filenames[child])
+                # noinspection PyTypeChecker
                 child_array = np.array(child_image)
 
                 child_color_image = Image.fromarray(np.squeeze(child_array[:, :, :-1]))
@@ -416,6 +418,8 @@ class ScaledPairIdentifier:
             # Known children may change as parents are reviewed
             if parent_hash["filename"] in self.children:
                 continue
+            # tex1_256x256_CA43CF308C16B3C0_13
+            # tex1_256x64_D0656389A2DE2D87_5
 
             info(f"Searching for child images of '{parent_hash['filename']}'")
             known_pairs = self.get_pairs(parent_hash["filename"])
