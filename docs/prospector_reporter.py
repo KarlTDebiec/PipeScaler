@@ -59,7 +59,7 @@ class ProspectorReporter(CommandLineTool):
         parser = super().construct_argparser(description=description, **kwargs)
 
         parser.add_argument(
-            type=cls.input_path_arg(), help="Input prospector JSON file"
+            "infile", type=cls.input_path_arg(), help="Input prospector JSON file"
         )
 
         return parser
