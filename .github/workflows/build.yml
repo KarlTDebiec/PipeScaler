@@ -28,6 +28,8 @@ jobs:
             - name: Install
               run: |
                   poetry install
+            - name: Prospector Check
+              uses: jpetrucciani/prospector-check@1.5.3
             - name: prospector
               run: |
                   cd ${GITHUB_WORKSPACE}
