@@ -22,7 +22,7 @@ authors = ["Karl T Debiec <karl.t.debiec@gmail.com>"]
 license = "BSD"
 
 [tool.poetry.dependencies]
-python = "=3.8"
+python = "~3.8"
 Flask = "^2.0.3"
 ImageHash = "^4.2.1"
 ipython = "^8.1.1"
