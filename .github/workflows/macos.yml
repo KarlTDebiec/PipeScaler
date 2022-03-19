@@ -21,16 +21,13 @@ jobs:
               python-version: "3.8"
         - name: Install Poetry
           uses: snok/install-poetry@v1
-        - name: Install Dependencies
+        - name: Install External Dependencies
           run: |
-              poetry install
               brew install pngquant
               brew install potrace
         - name: Install
           run: |
-              cd ${GITHUB_WORKSPACE}
-              python setup.py build
-              python setup.py install
+              poetry install
         - name: Test with pytest
           run: |
               export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
