@@ -14,10 +14,9 @@ from os import environ
 from os.path import expandvars, normpath, splitext
 from typing import Any, Dict
 
-import yaml
 from flask import Flask, redirect, request, send_file, url_for
 
-from pipescaler.common import CommandLineTool, temporary_filename, validate_input_path
+from pipescaler.common import CommandLineTool, temporary_filename
 from pipescaler.core import Stage, initialize_stage
 from pipescaler.core.file import read_yaml
 

@@ -9,7 +9,6 @@
 from __future__ import annotations
 
 import itertools
-import logging
 from argparse import ArgumentParser
 from inspect import cleandoc
 from os.path import basename, splitext

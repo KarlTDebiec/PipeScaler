@@ -13,5 +13,6 @@ from typing import List
 
 from pipescaler.splitters.alpha_splitter import AlphaSplitter
 from pipescaler.splitters.normal_splitter import NormalSplitter
+from pipescaler.splitters.repeat_splitter import RepeatSplitter
 
-__all__: List[str] = ["AlphaSplitter", "NormalSplitter"]
+__all__: List[str] = ["AlphaSplitter", "NormalSplitter", "RepeatSplitter"]

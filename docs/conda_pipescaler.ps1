@@ -1,5 +1,6 @@
 #!/usr/bin/env pwsh
-# Script for creating a working conda environment on Windows
+# Script for creating a working conda environment on Windows,
+# with the latest version of required packages
 
 $ErrorActionPreference = "Stop"
 
@@ -18,6 +19,7 @@ pip install `
     numpy `
     pandas `
     pillow `
+    prospector `
     pytest `
     pytest-cov `
     pytest-xdist `
@@ -40,5 +42,3 @@ conda install -y -c pytorch `
     torchvision `
     torchaudio
 
-pip install `
-    numpy==1.20.3

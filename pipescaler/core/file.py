@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Core pipescaler functions for interacting with files"""
+"""Core functions for interacting with files"""
 from __future__ import annotations
 
 from mimetypes import guess_type
@@ -33,7 +33,6 @@ def get_files_in_directory(
           path, 'base' for the filename excluding extension, and 'full' for the filename
           including extension
         exclusions: Base names of files to exclude
-
     Returns:
         Filenames in configured style
     """
@@ -72,7 +71,6 @@ def get_files_in_text_file(
           path, 'base' for the filename excluding extension, and 'full' for the filename
           including extension
         exclusions: Base names of files to exclude
-
     Returns:
         Filenames in configured style
     """
@@ -83,8 +81,10 @@ def get_files_in_text_file(
     files = set()
 
     text_file = validate_input_path(text_file)
-    with open(text_file, "r") as f:
-        filenames = [line.strip() for line in f.readlines() if not line.startswith("#")]
+    with open(text_file, "r", encoding="utf8") as infile:
+        filenames = [
+            line.strip() for line in infile.readlines() if not line.startswith("#")
+        ]
     for filename in filenames:
         base = splitext(basename(filename))[0]
         if base not in exclusions:
@@ -115,7 +115,6 @@ def get_files(
           path, 'base' for the filename excluding extension, and 'full' for the filename
           including extension
         exclusions: Base filenames to exclude
-
     Returns:
         Filenames in configured style
     """
@@ -127,13 +126,12 @@ def get_files(
         sources = [sources]
     files = set()
 
-    def get_file(file_source):
+    def get_file(file_source: str) -> Optional[str]:
         """
         Gets a filename in configured style.
 
         Arguments:
             file_source: Filename
-
         Returns:
             Filename in configured style
         """
@@ -149,10 +147,10 @@ def get_files(
                 else:
                     absolute = validate_input_path(filename)
                 return absolute
-            elif style == "base":
+            if style == "base":
                 return base
-            else:
-                return filename
+            return filename
+        return None
 
     for source in sources:
         try:
@@ -178,9 +176,8 @@ def read_yaml(infile: str) -> Any:
 
     Arguments:
         infile: Path to input file
-
     Returns:
         Loaded yaml data structure
     """
-    with open(validate_input_path(infile), "r") as f:
-        return yaml.load(f, Loader=yaml.SafeLoader)
+    with open(validate_input_path(infile), "r", encoding="utf8") as yaml_file:
+        return yaml.load(yaml_file, Loader=yaml.SafeLoader)

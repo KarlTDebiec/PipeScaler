@@ -29,7 +29,7 @@ class ModeSorter(Sorter):
             Outlet
         """
         # Read image
-        image = validate_image(infile, ["L", "LA", "RGB", "RGBA"])
+        image = validate_image(infile, ["1", "L", "LA", "RGB", "RGBA"])
 
         # Sort image
         info(f"{self}: '{infile}' matches '{image.mode}'")
@@ -38,4 +38,4 @@ class ModeSorter(Sorter):
     @property
     def outlets(self) -> List[str]:
         """Outlets that flow out of stage"""
-        return ["rgba", "rgb", "la", "l"]
+        return ["rgba", "rgb", "la", "l", "1"]

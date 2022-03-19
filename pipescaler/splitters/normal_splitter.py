@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/splitter/normal_splitter.py
+#   pipescaler/splitter/alpha_splitter.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
@@ -9,50 +9,38 @@
 """Splits a normal map image into separate x, y, and z images"""
 from __future__ import annotations
 
-from logging import info
-from typing import Any, Dict, List
+from typing import List, Tuple
 
 import numpy as np
 from PIL import Image
 
-from pipescaler.core import Splitter, validate_image
+from pipescaler.core import Splitter
 
 
 class NormalSplitter(Splitter):
     """Splits a normal map image into separate x, y, and z images"""
 
-    def __call__(self, infile: str, **kwargs: Any) -> Dict[str, str]:
+    @property
+    def outlets(self) -> List[str]:
+        """Outlets that flow out of stage"""
+        return ["x", "y", "z"]
+
+    @property
+    def supported_input_modes(self) -> List[str]:
+        """Supported modes for input image"""
+        return ["RGB"]
+
+    def split(self, input_image: Image.Image) -> Tuple[Image.Image, ...]:
         """
-        Split image
+        Split an image
 
         Arguments:
-            infile: Input file
-            **kwargs: Additional keyword arguments
-
+            input_image: Input image to split
         Returns:
-            Dict whose keys are outlet names and whose values are the paths to each
-            outlet's associated outfile
+            Split output images
         """
-        outfiles = {k: kwargs.get(k) for k in self.outlets}
-        self.split(infile=infile, **outfiles)
-        return outfiles
-
-    def split(self, infile: str, x: str, y: str, z: str) -> None:
-        """
-        Split a normal map image into separate x, y, and z images
-
-        Arguments:
-            infile: Input file
-            x: X output file
-            y: Y output file
-            z: Z output file
-        """
-        # Read image
-        input_image = validate_image(infile, "RGB")
-
-        # Split image
+        # noinspection PyTypeChecker
         input_array = np.array(input_image)
-
         x_array = input_array[:, :, 0]
         y_array = input_array[:, :, 1]
         z_array = (input_array[:, :, 2].astype(float) - 128) * 2
@@ -62,15 +50,4 @@ class NormalSplitter(Splitter):
         y_image = Image.fromarray(y_array)
         z_image = Image.fromarray(z_array)
 
-        # Write images
-        x_image.save(x)
-        info(f"'{self}: '{x}' saved")
-        y_image.save(y)
-        info(f"'{self}: '{y}' saved")
-        z_image.save(z)
-        info(f"'{self}: '{z}' saved")
-
-    @property
-    def outlets(self) -> List[str]:
-        """Outlets that flow out of stage"""
-        return ["x", "y", "z"]
+        return x_image, y_image, z_image

@@ -11,46 +11,50 @@ from __future__ import annotations
 
 from typing import List
 
-from pipescaler.processors.apple_script_external_processor import (
-    AppleScriptExternalProcessor,
+from pipescaler.processors.external import (
+    AppleScriptProcessor,
+    AutomatorProcessor,
+    PngquantProcessor,
+    PotraceProcessor,
+    TexconvProcessor,
+    WaifuExternalProcessor,
 )
-from pipescaler.processors.automator_external_processor import (
-    AutomatorExternalProcessor,
+from pipescaler.processors.gui import GigapixelAiProcessor
+from pipescaler.processors.image import (
+    CropProcessor,
+    ESRGANProcessor,
+    ExpandProcessor,
+    HeightToNormalProcessor,
+    ModeProcessor,
+    ResizeProcessor,
+    SharpenProcessor,
+    SolidColorProcessor,
+    ThresholdProcessor,
+    WaifuProcessor,
+    XbrzProcessor,
 )
-from pipescaler.processors.crop_processor import CropProcessor
-from pipescaler.processors.esrgan_processor import ESRGANProcessor
-from pipescaler.processors.expand_processor import ExpandProcessor
-from pipescaler.processors.gigapixel_ai_proessor import GigapixelAiProcessor
-from pipescaler.processors.height_to_normal_processor import HeightToNormalProcessor
-from pipescaler.processors.mode_processor import ModeProcessor
-from pipescaler.processors.pngquant_external_processor import PngquantExternalProcessor
-from pipescaler.processors.potrace_external_processor import PotraceExternalProcessor
-from pipescaler.processors.resize_processor import ResizeProcessor
 from pipescaler.processors.side_channel_processor import SideChannelProcessor
-from pipescaler.processors.solid_color_processor import SolidColorProcessor
-from pipescaler.processors.texconv_external_processor import TexconvExternalProcessor
-from pipescaler.processors.threshold_processor import ThresholdProcessor
-from pipescaler.processors.waifu_external_processor import WaifuExternalProcessor
 from pipescaler.processors.web_processor import WebProcessor
-from pipescaler.processors.xbrz_processor import XbrzProcessor
 
 __all__: List[str] = [
-    "AppleScriptExternalProcessor",
-    "AutomatorExternalProcessor",
+    "AppleScriptProcessor",
+    "AutomatorProcessor",
     "CropProcessor",
     "ESRGANProcessor",
     "ExpandProcessor",
     "GigapixelAiProcessor",
     "HeightToNormalProcessor",
     "ModeProcessor",
-    "PngquantExternalProcessor",
-    "PotraceExternalProcessor",
+    "PngquantProcessor",
+    "PotraceProcessor",
     "ResizeProcessor",
+    "SharpenProcessor",
     "SideChannelProcessor",
     "SolidColorProcessor",
-    "TexconvExternalProcessor",
+    "TexconvProcessor",
     "ThresholdProcessor",
     "WaifuExternalProcessor",
+    "WaifuProcessor",
     "WebProcessor",
     "XbrzProcessor",
 ]

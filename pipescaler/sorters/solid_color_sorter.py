@@ -49,19 +49,26 @@ class SolidColorSorter(Sorter):
             Outlet
         """
         # Read image
-        image = validate_image(infile, ["L", "LA", "RGB", "RGBA"])
+        image = validate_image(infile, ["1", "L", "LA", "RGB", "RGBA"])
+        # noinspection PyTypeChecker
         array = np.array(image)
 
         # Sort image
-        if image.mode in ("LA", "RGB", "RGBA"):
-            diff = np.abs(array - array.mean(axis=(0, 1)))
-        else:
-            diff = np.abs(array - array.mean())
+        if image.mode in ("L", "LA", "RGB", "RGBA"):
+            if image.mode in ("LA", "RGB", "RGBA"):
+                diff = np.abs(array - array.mean(axis=(0, 1)))
+            else:
+                diff = np.abs(array - array.mean())
 
-        if diff.mean() <= self.mean_threshold and diff.max() <= self.max_threshold:
-            info(f"{self}: '{infile}' matches 'solid'")
-            return "solid"
+            if diff.mean() <= self.mean_threshold and diff.max() <= self.max_threshold:
+                info(f"{self}: '{infile}' matches 'solid'")
+                return "solid"
+            info(f"{self}: '{infile}' matches 'not_solid'")
+            return "not_solid"
         else:
+            if np.all(np.abs(array - array.mean()) == 0):
+                info(f"{self}: '{infile}' matches 'solid'")
+                return "solid"
             info(f"{self}: '{infile}' matches 'not_solid'")
             return "not_solid"
 

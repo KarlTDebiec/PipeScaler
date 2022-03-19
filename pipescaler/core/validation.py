@@ -9,7 +9,7 @@
 """Core pipescaler functions for validation"""
 from __future__ import annotations
 
-from typing import List, Optional, Tuple, Union
+from typing import List, Tuple, Union
 
 from PIL import Image
 
@@ -32,7 +32,11 @@ def validate_image(infile: str, valid_modes: Union[str, List[str]]) -> Image.Ima
     if isinstance(valid_modes, str):
         valid_modes = [valid_modes]
 
-    image = Image.open(validate_input_path(infile))
+    # If infile is a temporary file, and an UnsupportedImageModeError is raised, a
+    # PermissionError is raised when attempting to remove the temporary file. This
+    # appears to be due to a bug (or just unexpected behavior) in pillow that keeps the
+    # file open. Appending '.copy()' mysteriously works around this and closes the file
+    image = Image.open(validate_input_path(infile)).copy()
     if image.mode == "P":
         image = remove_palette_from_image(image)
     if image.mode not in valid_modes:
@@ -64,5 +68,4 @@ def validate_image_and_convert_mode(
 
     if image.mode != convert_mode:
         return (image.convert(convert_mode), image.mode)
-    else:
-        return (image, image.mode)
+    return (image, image.mode)
