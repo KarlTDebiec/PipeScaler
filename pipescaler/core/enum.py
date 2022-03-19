@@ -12,7 +12,6 @@ from __future__ import annotations
 from enum import Enum, auto
 
 import numpy as np
-from PIL import Image
 
 
 class AlphaMode(Enum):
