@@ -48,11 +48,13 @@ class ProspectorReporter(CommandLineTool):
 
     def report_summary(self):
         summary = self.report["summary"]
-        tools = summary["tools"]
+        tools = str(summary["tools"]).strip("[]").replace("'", "")
         message_count = summary["message_count"]
         github_message = (
             f"prospector reported {message_count} total messages from tools: {tools}"
         )
+        if message_count > 9:
+            github_message += "; only the first 9 will appear as annotations"
         print(f"::warning::{github_message}")
 
     @classmethod
