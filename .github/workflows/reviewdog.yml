@@ -1,4 +1,4 @@
-name: reviewdog
+name: Linux2
 
 on:
     push:
@@ -7,7 +7,7 @@ on:
         branches: [ master ]
 
 jobs:
-    pyflakes:
+    build-linux:
         runs-on: ubuntu-latest
         steps:
         - name: Checkout PipeScaler
