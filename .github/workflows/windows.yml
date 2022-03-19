@@ -19,14 +19,14 @@ jobs:
           uses: actions/setup-python@v2
           with:
               python-version: "3.8"
-        - name: Install dependencies
+        - name: Install Poetry
+          uses: snok/install-poetry@v1
+        - name: Install Dependencies
           run: |
               Set-PSDebug -Trace 1
               $ErrorView = 'NormalView'
               Set-Location -Path ${env:GITHUB_WORKSPACE}
-              python -m pip install --upgrade pip
-              pip install -r requirements.txt
-              pip install pywinauto
+              poetry install
               choco install pngquant
               New-Item -Path ${env:GITHUB_WORKSPACE} -Name "executables" -ItemType "directory"
               Invoke-WebRequest -Uri http://potrace.sourceforge.net/download/1.16/potrace-1.16.win64.zip -Outfile potrace-1.16.win64.zip
@@ -34,14 +34,6 @@ jobs:
               Move-Item -Path ${env:GITHUB_WORKSPACE}\potrace-1.16.win64\potrace-1.16.win64\* -Destination ${env:GITHUB_WORKSPACE}/executables
               Invoke-WebRequest -Uri https://github.com/microsoft/DirectXTex/releases/download/nov2021/texconv.exe -Outfile ${env:GITHUB_WORKSPACE}/executables/texconv.exe
               echo "${env:GITHUB_WORKSPACE}/executables" | Out-File -FilePath $env:GITHUB_PATH
-        - name: Install
-          run: |
-              Set-PSDebug -Trace 1
-              $ErrorView = 'NormalView'
-              Write-Output ${env:PATH}
-              Set-Location -Path ${env:GITHUB_WORKSPACE}
-              python setup.py build
-              python setup.py install
         - name: Test with pytest
           run: |
               Set-PSDebug -Trace 1
