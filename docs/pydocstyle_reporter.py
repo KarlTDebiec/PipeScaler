@@ -43,11 +43,11 @@ class PydocstyleReporter(CommandLineTool):
         self.report_messages()
 
     def report_messages(self):
-        for message in self.messages:
-            file = message["location"]["path"]
-            line = message["location"]["line"]
-            code = message["code"]
-            message = message["message"]
+        for pydocstyle_message in self.messages:
+            file = pydocstyle_message["file"]
+            line = pydocstyle_message["line"]
+            code = pydocstyle_message["code"]
+            message = pydocstyle_message["message"]
             github_message = f"pydocstyle[{code}]: {message}"
             print(f"::warning file={file},line={line}::{github_message}")
 
