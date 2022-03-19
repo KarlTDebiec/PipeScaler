@@ -36,7 +36,8 @@ jobs:
             - name: pydocstyle
               run: |
                   cd ${GITHUB_WORKSPACE}
-                  poetry run pydocstyle pipescaler || echo
+                  poetry run pydocstyle pipescaler > pydocstyle.txt
+                  poetry run docs/pydocstyle_reporter.py pydocstyle.txt
             - name: Test with pytest
               run: |
                   export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
