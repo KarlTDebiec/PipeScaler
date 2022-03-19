@@ -27,14 +27,15 @@ class ProspectorReporter(CommandLineTool):
         """
         super().__init__(**kwargs)
 
-        self.infile = validate_input_file(infile)
+        with open(validate_input_file(infile)) as file:
+            self.report = json.load(file)
 
     def __call__(self):
         """Perform operations."""
-        with open(self.infile) as file:
-            report = json.load(file)
+        self.report_summary()
 
-        for prospector_message in report["messages"]:
+    def report_messages(self):
+        for prospector_message in self.report["messages"]:
             source = prospector_message["source"]
             code = prospector_message["code"]
             message = prospector_message["message"]
@@ -43,6 +44,15 @@ class ProspectorReporter(CommandLineTool):
             col = prospector_message["location"]["character"]
             github_message = f"prospector[{source}:{code}]: {message}"
             print(f"::warning file={file},line={line},col={col}::{github_message}")
+
+    def report_summary(self):
+        summary = self.report["summary"]
+        tools = summary["tools"]
+        message_count = summary["message_count"]
+        github_message = (
+            f"prospector reported {message_count} total messages from tools: {tools}"
+        )
+        print(f"::warning::{github_message}")
 
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:

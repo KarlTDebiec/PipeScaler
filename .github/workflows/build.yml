@@ -31,7 +31,7 @@ jobs:
             - name: prospector
               run: |
                   cd ${GITHUB_WORKSPACE}
-                  poetry run prospector -0 -o json:prospector.json pipescaler
+                  poetry run prospector -0 -o json:prospector.json -o text pipescaler
                   poetry run docs/prospector_reporter.py prospector.json
             - name: pydocstyle
               run: |
