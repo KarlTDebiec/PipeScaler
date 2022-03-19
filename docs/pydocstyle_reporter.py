@@ -7,7 +7,6 @@
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
 """Prints pydocstyle results formatted for consumption by GitHub."""
-import json
 from argparse import ArgumentParser
 from inspect import cleandoc
 from itertools import zip_longest
