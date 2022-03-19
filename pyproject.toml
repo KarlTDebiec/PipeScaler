@@ -20,6 +20,7 @@ version = "0.1.0"
 description = ""
 authors = ["Karl T Debiec <karl.t.debiec@gmail.com>"]
 license = "BSD"
+include = ["pipescaler/data/**"]
 
 [tool.poetry.dependencies]
 python = "~3.8"
