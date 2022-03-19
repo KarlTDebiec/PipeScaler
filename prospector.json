@@ -1,0 +1,949 @@
+{
+  "summary": {
+    "started": "2022-03-19 16:25:59.481550",
+    "libraries": [
+      "flask"
+    ],
+    "strictness": null,
+    "profiles": "default, no_doc_warnings, no_test_warnings, strictness_medium, strictness_high, strictness_veryhigh, no_member_warnings",
+    "tools": [
+      "dodgy",
+      "mccabe",
+      "profile-validator",
+      "pycodestyle",
+      "pyflakes",
+      "pylint"
+    ],
+    "message_count": 77,
+    "completed": "2022-03-19 16:27:12.759109",
+    "time_taken": "73.28",
+    "external_config": "pylint: C:\\Users\\karls\\OneDrive\\code\\PipeScaler\\pyproject.toml",
+    "formatter": "json"
+  },
+  "messages": [
+    {
+      "source": "mccabe",
+      "code": "MC0001",
+      "location": {
+        "path": "pipescaler\\common\\validation.py",
+        "module": null,
+        "function": "validate_output_path",
+        "line": 286,
+        "character": 0
+      },
+      "message": "validate_output_path is too complex (16)"
+    },
+    {
+      "source": "mccabe",
+      "code": "MC0001",
+      "location": {
+        "path": "pipescaler\\core\\file.py",
+        "module": null,
+        "function": "get_files",
+        "line": 104,
+        "character": 0
+      },
+      "message": "get_files is too complex (16)"
+    },
+    {
+      "source": "pylint",
+      "code": "too-many-arguments",
+      "location": {
+        "path": "pipescaler\\scripts\\file_watcher.py",
+        "module": "file_watcher",
+        "function": "FileWater.__init__",
+        "line": 41,
+        "character": 4
+      },
+      "message": "Too many arguments (12/5)"
+    },
+    {
+      "source": "mccabe",
+      "code": "MC0001",
+      "location": {
+        "path": "pipescaler\\scripts\\file_watcher.py",
+        "module": null,
+        "function": "FileWater.__init__",
+        "line": 41,
+        "character": 0
+      },
+      "message": "FileWater.__init__ is too complex (16)"
+    },
+    {
+      "source": "pylint",
+      "code": "unused-import",
+      "location": {
+        "path": "pipescaler\\scripts\\file_watcher.py",
+        "module": "file_watcher",
+        "function": null,
+        "line": 13,
+        "character": 0
+      },
+      "message": "Unused warn imported from logging"
+    },
+    {
+      "source": "pylint",
+      "code": "line-too-long",
+      "location": {
+        "path": "pipescaler\\scripts\\file_watcher.py",
+        "module": "file_watcher",
+        "function": null,
+        "line": 212,
+        "character": 0
+      },
+      "message": "Line too long (90/88)"
+    },
+    {
+      "source": "pylint",
+      "code": "import-outside-toplevel",
+      "location": {
+        "path": "pipescaler\\scripts\\file_watcher.py",
+        "module": "file_watcher",
+        "function": "FileWater.watch_new_files_in_input_directory",
+        "line": 281,
+        "character": 12
+      },
+      "message": "Import outside toplevel (watchdog.events.FileSystemEventHandler)"
+    },
+    {
+      "source": "pylint",
+      "code": "import-outside-toplevel",
+      "location": {
+        "path": "pipescaler\\scripts\\file_watcher.py",
+        "module": "file_watcher",
+        "function": "FileWater.watch_new_files_in_input_directory",
+        "line": 282,
+        "character": 12
+      },
+      "message": "Import outside toplevel (watchdog.observers.Observer)"
+    },
+    {
+      "source": "pylint",
+      "code": "unspecified-encoding",
+      "location": {
+        "path": "pipescaler\\scripts\\file_watcher.py",
+        "module": "file_watcher",
+        "function": "FileWater.write_observed_filenames_to_outfile",
+        "line": 310,
+        "character": 13
+      },
+      "message": "Using open without explicitly specifying an encoding"
+    },
+    {
+      "source": "mccabe",
+      "code": "MC0001",
+      "location": {
+        "path": "pipescaler\\scripts\\scaled_image_identifier.py",
+        "module": null,
+        "function": "ScaledImageIdentifier.review_image",
+        "line": 151,
+        "character": 0
+      },
+      "message": "ScaledImageIdentifier.review_image is too complex (19)"
+    },
+    {
+      "source": "pylint",
+      "code": "unused-variable",
+      "location": {
+        "path": "pipescaler\\scripts\\scaled_image_identifier.py",
+        "module": "scaled_image_identifier",
+        "function": "ScaledImageIdentifier.__call__",
+        "line": 101,
+        "character": 8
+      },
+      "message": "Unused variable 'e'"
+    },
+    {
+      "source": "pyflakes",
+      "code": "F841",
+      "location": {
+        "path": "pipescaler\\scripts\\scaled_image_identifier.py",
+        "module": null,
+        "function": null,
+        "line": 103,
+        "character": 9
+      },
+      "message": "local variable 'e' is assigned to but never used"
+    },
+    {
+      "source": "pylint",
+      "code": "too-many-arguments",
+      "location": {
+        "path": "pipescaler\\scripts\\scaled_image_identifier.py",
+        "module": "scaled_image_identifier",
+        "function": "ScaledImageIdentifier.__init__",
+        "line": 40,
+        "character": 4
+      },
+      "message": "Too many arguments (6/5)"
+    },
+    {
+      "source": "pylint",
+      "code": "unexpected-keyword-arg",
+      "location": {
+        "path": "pipescaler\\scripts\\scaled_image_identifier.py",
+        "module": "scaled_image_identifier",
+        "function": "ScaledImageIdentifier.__init__",
+        "line": 66,
+        "character": 20
+      },
+      "message": "Unexpected keyword argument 'exclusion_sources' in function call"
+    },
+    {
+      "source": "pylint",
+      "code": "unspecified-encoding",
+      "location": {
+        "path": "pipescaler\\scripts\\scaled_image_identifier.py",
+        "module": "scaled_image_identifier",
+        "function": "ScaledImageIdentifier.quit",
+        "line": 146,
+        "character": 13
+      },
+      "message": "Using open without explicitly specifying an encoding"
+    },
+    {
+      "source": "pylint",
+      "code": "consider-using-sys-exit",
+      "location": {
+        "path": "pipescaler\\scripts\\scaled_image_identifier.py",
+        "module": "scaled_image_identifier",
+        "function": "ScaledImageIdentifier.quit",
+        "line": 149,
+        "character": 8
+      },
+      "message": "Consider using sys.exit()"
+    },
+    {
+      "source": "pylint",
+      "code": "unspecified-encoding",
+      "location": {
+        "path": "pipescaler\\scripts\\scaled_image_identifier.py",
+        "module": "scaled_image_identifier",
+        "function": "ScaledImageIdentifier.review_image",
+        "line": 203,
+        "character": 29
+      },
+      "message": "Using open without explicitly specifying an encoding"
+    },
+    {
+      "source": "pylint",
+      "code": "unspecified-encoding",
+      "location": {
+        "path": "pipescaler\\scripts\\scaled_image_identifier.py",
+        "module": "scaled_image_identifier",
+        "function": "ScaledImageIdentifier.review_image",
+        "line": 218,
+        "character": 29
+      },
+      "message": "Using open without explicitly specifying an encoding"
+    },
+    {
+      "source": "pycodestyle",
+      "code": "E722",
+      "location": {
+        "path": "pipescaler\\processors\\image\\esrgan_processor.py",
+        "module": null,
+        "function": null,
+        "line": 314,
+        "character": 9
+      },
+      "message": "do not use bare 'except'"
+    },
+    {
+      "source": "pylint",
+      "code": "too-many-arguments",
+      "location": {
+        "path": "pipescaler\\processors\\image\\esrgan_processor.py",
+        "module": "pipescaler.processors.image.esrgan_processor",
+        "function": "ESRGANProcessor.RRDBNet.__init__",
+        "line": 72,
+        "character": 8
+      },
+      "message": "Too many arguments (6/5)"
+    },
+    {
+      "source": "pylint",
+      "code": "arguments-differ",
+      "location": {
+        "path": "pipescaler\\processors\\image\\esrgan_processor.py",
+        "module": "pipescaler.processors.image.esrgan_processor",
+        "function": "ESRGANProcessor.RRDBNet.load_state_dict",
+        "line": 94,
+        "character": 8
+      },
+      "message": "Number of parameters was 3 in 'Module.load_state_dict' and is now 4 in overridden 'RRDBNet.load_state_dict' method"
+    },
+    {
+      "source": "pylint",
+      "code": "consider-using-f-string",
+      "location": {
+        "path": "pipescaler\\processors\\image\\esrgan_processor.py",
+        "module": "pipescaler.processors.image.esrgan_processor",
+        "function": "ESRGANProcessor.RRDBNet.load_state_dict",
+        "line": 100,
+        "character": 30
+      },
+      "message": "Formatting a regular string which could be a f-string"
+    },
+    {
+      "source": "pylint",
+      "code": "consider-using-f-string",
+      "location": {
+        "path": "pipescaler\\processors\\image\\esrgan_processor.py",
+        "module": "pipescaler.processors.image.esrgan_processor",
+        "function": "ESRGANProcessor.RRDBNet.forward",
+        "line": 111,
+        "character": 39
+      },
+      "message": "Formatting a regular string which could be a f-string"
+    },
+    {
+      "source": "pylint",
+      "code": "not-callable",
+      "location": {
+        "path": "pipescaler\\processors\\image\\esrgan_processor.py",
+        "module": "pipescaler.processors.image.esrgan_processor",
+        "function": "ESRGANProcessor.RRDBNetUpscaler.upscale",
+        "line": 146,
+        "character": 16
+      },
+      "message": "self.model is not callable"
+    },
+    {
+      "source": "pylint",
+      "code": "raise-missing-from",
+      "location": {
+        "path": "pipescaler\\processors\\image\\esrgan_processor.py",
+        "module": "pipescaler.processors.image.esrgan_processor",
+        "function": "ESRGANProcessor.get_old_scale_index",
+        "line": 316,
+        "character": 12
+      },
+      "message": "Consider explicitly re-raising using the 'from' keyword"
+    },
+    {
+      "source": "pycodestyle",
+      "code": "W605",
+      "location": {
+        "path": "pipescaler\\processors\\gui\\gigapixel_ai_proessor.py",
+        "module": null,
+        "function": null,
+        "line": 40,
+        "character": 16
+      },
+      "message": "invalid escape sequence '\\P'"
+    },
+    {
+      "source": "pycodestyle",
+      "code": "W605",
+      "location": {
+        "path": "pipescaler\\processors\\gui\\gigapixel_ai_proessor.py",
+        "module": null,
+        "function": null,
+        "line": 40,
+        "character": 30
+      },
+      "message": "invalid escape sequence '\\T'"
+    },
+    {
+      "source": "pycodestyle",
+      "code": "W605",
+      "location": {
+        "path": "pipescaler\\processors\\gui\\gigapixel_ai_proessor.py",
+        "module": null,
+        "function": null,
+        "line": 40,
+        "character": 45
+      },
+      "message": "invalid escape sequence '\\T'"
+    },
+    {
+      "source": "pycodestyle",
+      "code": "W605",
+      "location": {
+        "path": "pipescaler\\processors\\gui\\gigapixel_ai_proessor.py",
+        "module": null,
+        "function": null,
+        "line": 40,
+        "character": 64
+      },
+      "message": "invalid escape sequence '\\T'"
+    },
+    {
+      "source": "pycodestyle",
+      "code": "W605",
+      "location": {
+        "path": "pipescaler\\processors\\gui\\gigapixel_ai_proessor.py",
+        "module": null,
+        "function": null,
+        "line": 40,
+        "character": 16
+      },
+      "message": "invalid escape sequence '\\P'"
+    },
+    {
+      "source": "pycodestyle",
+      "code": "W605",
+      "location": {
+        "path": "pipescaler\\processors\\gui\\gigapixel_ai_proessor.py",
+        "module": null,
+        "function": null,
+        "line": 40,
+        "character": 30
+      },
+      "message": "invalid escape sequence '\\T'"
+    },
+    {
+      "source": "pycodestyle",
+      "code": "W605",
+      "location": {
+        "path": "pipescaler\\processors\\gui\\gigapixel_ai_proessor.py",
+        "module": null,
+        "function": null,
+        "line": 40,
+        "character": 45
+      },
+      "message": "invalid escape sequence '\\T'"
+    },
+    {
+      "source": "pycodestyle",
+      "code": "W605",
+      "location": {
+        "path": "pipescaler\\processors\\gui\\gigapixel_ai_proessor.py",
+        "module": null,
+        "function": null,
+        "line": 40,
+        "character": 64
+      },
+      "message": "invalid escape sequence '\\T'"
+    },
+    {
+      "source": "pylint",
+      "code": "unused-variable",
+      "location": {
+        "path": "pipescaler\\processors\\gui\\gigapixel_ai_proessor.py",
+        "module": "pipescaler.processors.gui.gigapixel_ai_proessor",
+        "function": "GigapixelAiProcessor.__call__",
+        "line": 68,
+        "character": 8
+      },
+      "message": "Unused variable 'command'"
+    },
+    {
+      "source": "pylint",
+      "code": "unused-import",
+      "location": {
+        "path": "pipescaler\\core\\enum.py",
+        "module": "pipescaler.core.enum",
+        "function": null,
+        "line": 14,
+        "character": 0
+      },
+      "message": "Unused numpy imported as np"
+    },
+    {
+      "source": "pylint",
+      "code": "unused-import",
+      "location": {
+        "path": "pipescaler\\splitters\\repeat_splitter.py",
+        "module": "pipescaler.splitters.repeat_splitter",
+        "function": null,
+        "line": 12,
+        "character": 0
+      },
+      "message": "Unused copy imported from copy"
+    },
+    {
+      "source": "pylint",
+      "code": "unused-import",
+      "location": {
+        "path": "pipescaler\\splitters\\repeat_splitter.py",
+        "module": "pipescaler.splitters.repeat_splitter",
+        "function": null,
+        "line": 15,
+        "character": 0
+      },
+      "message": "Unused numpy imported as np"
+    },
+    {
+      "source": "pylint",
+      "code": "too-many-arguments",
+      "location": {
+        "path": "pipescaler\\core\\image.py",
+        "module": "pipescaler.core.image",
+        "function": "expand_image",
+        "line": 61,
+        "character": 0
+      },
+      "message": "Too many arguments (6/5)"
+    },
+    {
+      "source": "pylint",
+      "code": "too-many-locals",
+      "location": {
+        "path": "pipescaler\\core\\image.py",
+        "module": "pipescaler.core.image",
+        "function": "expand_image",
+        "line": 61,
+        "character": 0
+      },
+      "message": "Too many local variables (16/15)"
+    },
+    {
+      "source": "pylint",
+      "code": "unused-variable",
+      "location": {
+        "path": "pipescaler\\core\\image.py",
+        "module": "pipescaler.core.image",
+        "function": "get_font_size",
+        "line": 207,
+        "character": 4
+      },
+      "message": "Unused variable 'observed_width'"
+    },
+    {
+      "source": "pylint",
+      "code": "arguments-differ",
+      "location": {
+        "path": "pipescaler\\core\\processor.py",
+        "module": "pipescaler.core.processor",
+        "function": "Processor.__call__",
+        "line": 41,
+        "character": 4
+      },
+      "message": "Variadics removed in overridden 'Processor.__call__' method"
+    },
+    {
+      "source": "pylint",
+      "code": "arguments-differ",
+      "location": {
+        "path": "pipescaler\\core\\terminus.py",
+        "module": "pipescaler.core.terminus",
+        "function": "Terminus.__call__",
+        "line": 22,
+        "character": 4
+      },
+      "message": "Variadics removed in overridden 'Terminus.__call__' method"
+    },
+    {
+      "source": "pylint",
+      "code": "line-too-long",
+      "location": {
+        "path": "pipescaler\\processors\\external\\apple_script_processor.py",
+        "module": "pipescaler.processors.external.apple_script_processor",
+        "function": null,
+        "line": 24,
+        "character": 0
+      },
+      "message": "Line too long (150/88)"
+    },
+    {
+      "source": "pylint",
+      "code": "unused-variable",
+      "location": {
+        "path": "pipescaler\\processors\\external\\pngquant_processor.py",
+        "module": "pipescaler.processors.external.pngquant_processor",
+        "function": "PngquantProcessor.process",
+        "line": 79,
+        "character": 18
+      },
+      "message": "Unused variable 'stdout'"
+    },
+    {
+      "source": "pylint",
+      "code": "too-many-arguments",
+      "location": {
+        "path": "pipescaler\\processors\\external\\potrace_processor.py",
+        "module": "pipescaler.processors.external.potrace_processor",
+        "function": "PotraceProcessor.__init__",
+        "line": 37,
+        "character": 4
+      },
+      "message": "Too many arguments (6/5)"
+    },
+    {
+      "source": "pylint",
+      "code": "redefined-builtin",
+      "location": {
+        "path": "pipescaler\\processors\\external\\texconv_processor.py",
+        "module": "pipescaler.processors.external.texconv_processor",
+        "function": "TexconvProcessor.__init__",
+        "line": 36,
+        "character": 8
+      },
+      "message": "Redefining built-in 'format'"
+    },
+    {
+      "source": "pylint",
+      "code": "raise-missing-from",
+      "location": {
+        "path": "pipescaler\\processors\\side_channel_processor.py",
+        "module": "pipescaler.processors.side_channel_processor",
+        "function": "SideChannelProcessor.__call__",
+        "line": 85,
+        "character": 12
+      },
+      "message": "Consider explicitly re-raising using the 'from' keyword"
+    },
+    {
+      "source": "pylint",
+      "code": "too-many-arguments",
+      "location": {
+        "path": "pipescaler\\scripts\\apng_creator.py",
+        "module": "apng_creator",
+        "function": "ApngCreator.__init__",
+        "line": 31,
+        "character": 4
+      },
+      "message": "Too many arguments (6/5)"
+    },
+    {
+      "source": "pylint",
+      "code": "consider-using-with",
+      "location": {
+        "path": "pipescaler\\scripts\\apng_creator.py",
+        "module": "apng_creator",
+        "function": "ApngCreator.__call__",
+        "line": 90,
+        "character": 29
+      },
+      "message": "Consider using 'with' for resource-allocating operations"
+    },
+    {
+      "source": "pylint",
+      "code": "consider-using-with",
+      "location": {
+        "path": "pipescaler\\scripts\\apng_creator.py",
+        "module": "apng_creator",
+        "function": "ApngCreator.__call__",
+        "line": 102,
+        "character": 8
+      },
+      "message": "Consider using 'with' for resource-allocating operations"
+    },
+    {
+      "source": "pylint",
+      "code": "arguments-differ",
+      "location": {
+        "path": "pipescaler\\scripts\\pipe_runner.py",
+        "module": "pipe_runner",
+        "function": "PipeRunner.__call__",
+        "line": 56,
+        "character": 4
+      },
+      "message": "Variadics removed in overridden 'PipeRunner.__call__' method"
+    },
+    {
+      "source": "pylint",
+      "code": "redefined-builtin",
+      "location": {
+        "path": "pipescaler\\scripts\\pipe_runner.py",
+        "module": "pipe_runner",
+        "function": "PipeRunner.insert_blocks",
+        "line": 59,
+        "character": 28
+      },
+      "message": "Redefining built-in 'input'"
+    },
+    {
+      "source": "pylint",
+      "code": "no-else-return",
+      "location": {
+        "path": "pipescaler\\scripts\\pipe_runner.py",
+        "module": "pipe_runner",
+        "function": "PipeRunner.insert_blocks",
+        "line": 62,
+        "character": 12
+      },
+      "message": "Unnecessary \"else\" after \"return\""
+    },
+    {
+      "source": "pylint",
+      "code": "redefined-builtin",
+      "location": {
+        "path": "pipescaler\\scripts\\pipe_runner.py",
+        "module": "pipe_runner",
+        "function": "PipeRunner.insert_subfiles",
+        "line": 78,
+        "character": 30
+      },
+      "message": "Redefining built-in 'input'"
+    },
+    {
+      "source": "pylint",
+      "code": "consider-merging-isinstance",
+      "location": {
+        "path": "pipescaler\\scripts\\pipe_runner.py",
+        "module": "pipe_runner",
+        "function": "PipeRunner.insert_subfiles",
+        "line": 88,
+        "character": 17
+      },
+      "message": "Consider merging these isinstance calls to isinstance(value, (dict, list))"
+    },
+    {
+      "source": "pylint",
+      "code": "consider-iterating-dictionary",
+      "location": {
+        "path": "pipescaler\\scripts\\pipescaler_host.py",
+        "module": "pipescaler_host",
+        "function": "PipescalerHost.__call__.entry_point",
+        "line": 82,
+        "character": 30
+      },
+      "message": "Consider iterating the dictionary directly instead of calling .keys()"
+    },
+    {
+      "source": "pylint",
+      "code": "no-else-return",
+      "location": {
+        "path": "pipescaler\\sorters\\solid_color_sorter.py",
+        "module": "pipescaler.sorters.solid_color_sorter",
+        "function": "SolidColorSorter.__call__",
+        "line": 57,
+        "character": 8
+      },
+      "message": "Unnecessary \"else\" after \"return\""
+    },
+    {
+      "source": "pylint",
+      "code": "consider-using-with",
+      "location": {
+        "path": "pipescaler\\termini\\copy_file_terminus.py",
+        "module": "pipescaler.termini.copy_file_terminus",
+        "function": "CopyFileTerminus.__call__",
+        "line": 56,
+        "character": 32
+      },
+      "message": "Consider using 'with' for resource-allocating operations"
+    },
+    {
+      "source": "pylint",
+      "code": "consider-using-with",
+      "location": {
+        "path": "pipescaler\\termini\\copy_file_terminus.py",
+        "module": "pipescaler.termini.copy_file_terminus",
+        "function": "CopyFileTerminus.__call__",
+        "line": 57,
+        "character": 33
+      },
+      "message": "Consider using 'with' for resource-allocating operations"
+    },
+    {
+      "source": "pylint",
+      "code": "no-else-return",
+      "location": {
+        "path": "pipescaler\\testing\\image.py",
+        "module": "pipescaler.testing.image",
+        "function": "expected_output_mode",
+        "line": 16,
+        "character": 4
+      },
+      "message": "Unnecessary \"else\" after \"return\""
+    },
+    {
+      "source": "pylint",
+      "code": "line-too-long",
+      "location": {
+        "path": "pipescaler\\util\\mask_filler.py",
+        "module": "pipescaler.util.mask_filler",
+        "function": null,
+        "line": 35,
+        "character": 0
+      },
+      "message": "Line too long (91/88)"
+    },
+    {
+      "source": "pylint",
+      "code": "too-many-arguments",
+      "location": {
+        "path": "pipescaler\\util\\scaled_pair_identifier.py",
+        "module": "pipescaler.util.scaled_pair_identifier",
+        "function": "ScaledPairIdentifier.__init__",
+        "line": 49,
+        "character": 4
+      },
+      "message": "Too many arguments (6/5)"
+    },
+    {
+      "source": "pylint",
+      "code": "consider-iterating-dictionary",
+      "location": {
+        "path": "pipescaler\\util\\scaled_pair_identifier.py",
+        "module": "pipescaler.util.scaled_pair_identifier",
+        "function": "ScaledPairIdentifier.__init__",
+        "line": 95,
+        "character": 37
+      },
+      "message": "Consider iterating the dictionary directly instead of calling .keys()"
+    },
+    {
+      "source": "pylint",
+      "code": "no-else-return",
+      "location": {
+        "path": "pipescaler\\util\\scaled_pair_identifier.py",
+        "module": "pipescaler.util.scaled_pair_identifier",
+        "function": "ScaledPairIdentifier.calculate_hamming_distance",
+        "line": 169,
+        "character": 8
+      },
+      "message": "Unnecessary \"else\" after \"return\""
+    },
+    {
+      "source": "pylint",
+      "code": "no-else-return",
+      "location": {
+        "path": "pipescaler\\util\\scaled_pair_identifier.py",
+        "module": "pipescaler.util.scaled_pair_identifier",
+        "function": "ScaledPairIdentifier.get_stacked_image",
+        "line": 277,
+        "character": 8
+      },
+      "message": "Unnecessary \"else\" after \"return\""
+    },
+    {
+      "source": "pylint",
+      "code": "inconsistent-return-statements",
+      "location": {
+        "path": "pipescaler\\util\\scaled_pair_identifier.py",
+        "module": "pipescaler.util.scaled_pair_identifier",
+        "function": "ScaledPairIdentifier.get_pair_scores",
+        "line": 316,
+        "character": 4
+      },
+      "message": "Either all return statements in a function should return an expression, or none of them should."
+    },
+    {
+      "source": "pylint",
+      "code": "too-many-locals",
+      "location": {
+        "path": "pipescaler\\util\\scaled_pair_identifier.py",
+        "module": "pipescaler.util.scaled_pair_identifier",
+        "function": "ScaledPairIdentifier.get_pair_score_image",
+        "line": 338,
+        "character": 4
+      },
+      "message": "Too many local variables (20/15)"
+    },
+    {
+      "source": "pylint",
+      "code": "no-else-return",
+      "location": {
+        "path": "pipescaler\\util\\scaled_pair_identifier.py",
+        "module": "pipescaler.util.scaled_pair_identifier",
+        "function": "ScaledPairIdentifier.get_pair_score_image",
+        "line": 353,
+        "character": 8
+      },
+      "message": "Unnecessary \"else\" after \"return\""
+    },
+    {
+      "source": "pylint",
+      "code": "inconsistent-return-statements",
+      "location": {
+        "path": "pipescaler\\util\\scaled_pair_identifier.py",
+        "module": "pipescaler.util.scaled_pair_identifier",
+        "function": "ScaledPairIdentifier.review_candidate_pairs",
+        "line": 441,
+        "character": 4
+      },
+      "message": "Either all return statements in a function should return an expression, or none of them should."
+    },
+    {
+      "source": "pylint",
+      "code": "no-else-return",
+      "location": {
+        "path": "pipescaler\\util\\scaled_pair_identifier.py",
+        "module": "pipescaler.util.scaled_pair_identifier",
+        "function": "ScaledPairIdentifier.review_candidate_pairs",
+        "line": 478,
+        "character": 8
+      },
+      "message": "Unnecessary \"elif\" after \"return\""
+    },
+    {
+      "source": "pylint",
+      "code": "inconsistent-return-statements",
+      "location": {
+        "path": "pipescaler\\util\\scaled_pair_identifier.py",
+        "module": "pipescaler.util.scaled_pair_identifier",
+        "function": "ScaledPairIdentifier.seek_best_child_score",
+        "line": 495,
+        "character": 4
+      },
+      "message": "Either all return statements in a function should return an expression, or none of them should."
+    },
+    {
+      "source": "pylint",
+      "code": "cell-var-from-loop",
+      "location": {
+        "path": "pipescaler\\util\\scaled_pair_identifier.py",
+        "module": "pipescaler.util.scaled_pair_identifier",
+        "function": "ScaledPairIdentifier.seek_candidate_child_scores.<lambda>",
+        "line": 578,
+        "character": 45
+      },
+      "message": "Cell variable hash_type defined in loop"
+    },
+    {
+      "source": "pylint",
+      "code": "cell-var-from-loop",
+      "location": {
+        "path": "pipescaler\\util\\scaled_pair_identifier.py",
+        "module": "pipescaler.util.scaled_pair_identifier",
+        "function": "ScaledPairIdentifier.seek_candidate_parent_scores.<lambda>",
+        "line": 623,
+        "character": 45
+      },
+      "message": "Cell variable hash_type defined in loop"
+    },
+    {
+      "source": "pylint",
+      "code": "line-too-long",
+      "location": {
+        "path": "pipescaler\\util\\waifu_pytorch_pickler.py",
+        "module": "pipescaler.util.waifu_pytorch_pickler",
+        "function": null,
+        "line": 34,
+        "character": 0
+      },
+      "message": "Line too long (98/88)"
+    },
+    {
+      "source": "pylint",
+      "code": "arguments-differ",
+      "location": {
+        "path": "pipescaler\\util\\waifu_pytorch_pickler.py",
+        "module": "pipescaler.util.waifu_pytorch_pickler",
+        "function": "WaifuPyTorchPickler.__call__",
+        "line": 61,
+        "character": 4
+      },
+      "message": "Variadics removed in overridden 'WaifuPyTorchPickler.__call__' method"
+    },
+    {
+      "source": "pylint",
+      "code": "unspecified-encoding",
+      "location": {
+        "path": "pipescaler\\util\\waifu_pytorch_pickler.py",
+        "module": "pipescaler.util.waifu_pytorch_pickler",
+        "function": "WaifuPyTorchPickler.__call__",
+        "line": 66,
+        "character": 13
+      },
+      "message": "Using open without explicitly specifying an encoding"
+    },
+    {
+      "source": "pylint",
+      "code": "unused-variable",
+      "location": {
+        "path": "pipescaler\\util\\waifu_pytorch_pickler.py",
+        "module": "pipescaler.util.waifu_pytorch_pickler",
+        "function": "WaifuPyTorchPickler.__call__",
+        "line": 73,
+        "character": 26
+      },
+      "message": "Unused variable 'parameter'"
+    }
+  ]
+}
