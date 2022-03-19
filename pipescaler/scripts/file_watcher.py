@@ -307,7 +307,7 @@ class FileWater(ConfigurableCommandLineTool):
 
     def write_observed_filenames_to_outfile(self):
         """Write observed filenames to outfile"""
-        with open(self.observed_filenames_outfile, "w") as outfile:
+        with open(self.observed_filenames_outfile, "w", encoding="utf8") as outfile:
             for filename in sorted(list(self.observed_filenames)):
                 outfile.write(f"{filename}\n")
             info(
