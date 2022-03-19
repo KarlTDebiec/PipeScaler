@@ -6,9 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license. See the LICENSE file for details.
-"""
-Matches the palette of one image to another.
-"""
+"""Matches the palette of one image to another."""
 from typing import Union, no_type_check
 
 import numba as nb
@@ -33,6 +31,14 @@ class PaletteMatcher:
     def match_palette(
         self, ref_image: Image.Image, fit_image: Image.Image
     ) -> Image.Image:
+        """Match the palette of an image to a reference
+
+        Arguments:
+            ref_image: Image whose palette to use as reference
+            fit_image: Image whose palette to fit to reference
+        Returns:
+            Image with palette fit to reference
+        """
         if ref_image.mode != fit_image.mode:
             raise UnsupportedImageModeError(
                 f"Image mode '{ref_image.mode}' of reference image does not match mode "
