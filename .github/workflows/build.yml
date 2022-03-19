@@ -31,12 +31,12 @@ jobs:
             - name: prospector
               run: |
                   cd ${GITHUB_WORKSPACE}
-                  poetry run prospector -0 -o json:prospector.json -o text pipescaler
+                  poetry run prospector -0 -o json:prospector.json pipescaler
                   poetry run docs/prospector_reporter.py prospector.json
             - name: pydocstyle
               run: |
                   cd ${GITHUB_WORKSPACE}
-                  poetry run pydocstyle pipescaler > pydocstyle.txt
+                  poetry run pydocstyle pipescaler > pydocstyle.txt || echo
                   poetry run docs/pydocstyle_reporter.py pydocstyle.txt
             - name: Test with pytest
               run: |
