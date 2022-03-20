@@ -1,7 +1,5 @@
 [![Python: =3.8](https://img.shields.io/badge/python-3.8-green.svg)](https://docs.python.org/3/whatsnew/3.8.html)
-[![Linux](https://github.com/KarlTDebiec/PipeScaler/actions/workflows/linux.yml/badge.svg)](https://github.com/KarlTDebiec/PipeScaler/actions/workflows/linux.yml)
-[![macOS](https://github.com/KarlTDebiec/PipeScaler/actions/workflows/macos.yml/badge.svg)](https://github.com/KarlTDebiec/PipeScaler/actions/workflows/macos.yml)
-[![Windows](https://github.com/KarlTDebiec/PipeScaler/actions/workflows/windows.yml/badge.svg)](https://github.com/KarlTDebiec/PipeScaler/actions/workflows/windows.yml)
+[![Build](https://github.com/KarlTDebiec/PipeScaler/actions/workflows/build.yml/badge.svg)](https://github.com/KarlTDebiec/PipeScaler/actions/workflows/build.yml)
 [![Coverage](https://img.shields.io/badge/coverage-78-yellowgreen)](https://app.travis-ci.com/github/KarlTDebiec/PipeScaler)
 [![Code Style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![License: BSD 3-Clause](https://img.shields.io/badge/license-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
