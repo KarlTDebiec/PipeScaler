@@ -31,7 +31,7 @@ class PaletteMatcher:
     def match_palette(
         self, ref_image: Image.Image, fit_image: Image.Image
     ) -> Image.Image:
-        """Match the palette of an image to a reference
+        """Match the palette of an image to a reference.
 
         Arguments:
             ref_image: Image whose palette to use as reference
