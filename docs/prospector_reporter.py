@@ -33,8 +33,8 @@ class ProspectorReporter(CommandLineTool):
             self.report = json.load(file)
 
         self.modified_files = None
-        if "GITHUB_HEAD_REF" in environ:
-            command = f"git diff --name-status {getenv('GITHUB_HEAD_REF')}"
+        if "GITHUB_BASE_REF" in environ:
+            command = f"git diff --name-status {getenv('GITHUB_BASE_REF')}"
             (exitcode, stdout, stderr) = run_command(command)
             self.modified_files = [
                 normpath(line[1:].strip()) for line in stdout.strip().split("\n")
