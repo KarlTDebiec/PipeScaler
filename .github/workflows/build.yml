@@ -42,6 +42,13 @@ jobs:
       - name: Install library
         run: |
           poetry install --no-interaction
+      - id: List changed files
+        uses: jitterbit/get-changed-files@v1
+        if:
+        with:
+         format: json
+        run: |
+          echo steps.files.outputs.added_modified || tee > modifed_files.json
       - name: prospector
         run: |
           cd ${GITHUB_WORKSPACE}
