@@ -81,7 +81,7 @@ class PydocstyleReporter(CommandLineTool):
         github_message = f"pydocstyle reported {message_count} total messages"
         if message_count > 9:
             github_message += "; only the first 9 will appear as annotations"
-        print(f"::warning::{github_message}")
+        print(f"::info::{github_message}")
 
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
