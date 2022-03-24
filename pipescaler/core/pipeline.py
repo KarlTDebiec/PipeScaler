@@ -78,11 +78,14 @@ class Pipeline:
         if len(pipeline) == 0:
             raise ValueError("Pipeline must contain at least one stage")
         source_name = pipeline.pop(0)
-        if source_name in self.stages:
-            source = self.stages[source_name]
-        else:
+        if source_name not in self.stages:
             raise KeyError(
                 f"Source {source_name} referenced by pipeline does not exist"
+            )
+        source = self.stages[source_name]
+        if not isinstance(source, Source):
+            raise ValueError(
+                f"First stage in pipeline must be a Source; {source} is not"
             )
         self.pipeline = self.build_source(source, pipeline)
         info(f"{self}: {pformat(self.pipeline)}")
