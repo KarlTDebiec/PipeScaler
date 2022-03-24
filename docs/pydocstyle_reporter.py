@@ -10,9 +10,11 @@
 from argparse import ArgumentParser
 from inspect import cleandoc
 from itertools import zip_longest
+from os import environ, getenv
+from os.path import normpath
 from typing import Any
 
-from pipescaler.common import CommandLineTool, validate_input_file
+from pipescaler.common import CommandLineTool, run_command, validate_input_file
 
 
 class PydocstyleReporter(CommandLineTool):
@@ -36,19 +38,40 @@ class PydocstyleReporter(CommandLineTool):
                     {"file": file, "line": line, "code": code, "message": message}
                 )
 
+        self.modified_files = None
+        if "GITHUB_HEAD_REF" in environ:
+            command = f"git diff --name-status {getenv('GITHUB_HEAD_REF')}"
+            (exitcode, stdout, stderr) = run_command(command)
+            self.modified_files = [
+                normpath(line[1:].strip()) for line in stdout.strip().split("\n")
+            ]
+
     def __call__(self):
         """Perform operations."""
         self.report_summary()
         self.report_messages()
 
     def report_messages(self):
+        info_messages = []
+        warning_messages = []
         for pydocstyle_message in self.messages:
-            file = pydocstyle_message["file"]
+            filename = normpath(pydocstyle_message["file"])
             line = pydocstyle_message["line"]
             code = pydocstyle_message["code"]
             message = pydocstyle_message["message"]
             github_message = f"pydocstyle[{code}]: {message}"
-            print(f"::warning file={file},line={line}::{github_message}")
+            if self.modified_files is None or filename in self.modified_files:
+                warning_messages.append(
+                    f"::warning file={filename},line={line}::{github_message}"
+                )
+            else:
+                info_messages.append(
+                    f"::info file={filename},line={line}::{github_message}"
+                )
+        for warning_message in warning_messages:
+            print(warning_message)
+        for info_message in info_messages:
+            print(info_message)
 
     def report_summary(self):
         message_count = len(self.messages)
