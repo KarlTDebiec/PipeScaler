@@ -9,10 +9,8 @@
 """Repeats an input image"""
 from __future__ import annotations
 
-from copy import copy
 from typing import List, Tuple
 
-import numpy as np
 from PIL import Image
 
 from pipescaler.core import Splitter

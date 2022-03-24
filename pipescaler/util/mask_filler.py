@@ -6,9 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license. See the LICENSE file for details.
-"""
-Erases masked pixels within an image.
-"""
+"""Erases masked pixels within an image."""
 from typing import Tuple, Union
 
 import numpy as np
@@ -31,9 +29,10 @@ class MaskFiller:
             self.palette_matcher = PaletteMatcher()
 
     def fill(self, image: Image.Image, mask: Image.Image) -> Image.Image:
-        """
-        Erases masked pixels within an image, replacing the color of each masked pixel with
-        the average color of adjacent unmasked pixels, iteratively
+        """Erases masked pixels within an image.
+
+        Each erased pixel is replaced with the average color of adjacent unmasked
+        pixels, iteratively.
 
         Arguments:
             image: Image

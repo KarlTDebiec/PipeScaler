@@ -155,14 +155,12 @@ class ScaledPairIdentifier:
     def calculate_hamming_distance(
         self, parent_hash: pd.Series, child_hash: pd.Series, hash_type: str
     ) -> int:
-        """
-        Calculate hamming distance of *hash_type* between *parent* and *child*
+        """Calculate hamming distance of hash_type between parent and child.
 
         Arguments:
             parent_hash: Parent hash
             child_hash: Child hash
             hash_type: Type of hash
-
         Returns:
             Hamming distance of *hash_type* between *parent* and *child*
         """
@@ -170,20 +168,18 @@ class ScaledPairIdentifier:
             return hex_to_flathash(
                 parent_hash[f"{hash_type} hash"], 14
             ) - hex_to_flathash(child_hash[f"{hash_type} hash"], 14)
-        else:
-            return hex_to_hash(parent_hash[f"{hash_type} hash"]) - hex_to_hash(
-                child_hash[f"{hash_type} hash"]
-            )
+
+        return hex_to_hash(parent_hash[f"{hash_type} hash"]) - hex_to_hash(
+            child_hash[f"{hash_type} hash"]
+        )
 
     def calculate_hashes(self, filename: str) -> pd.DataFrame:
-        """
-        Calculate hashes of *filename*, including original size and scaled versions
+        """Calculate hashes of filename, including original size and scaled versions.
 
         Arguments:
             filename: Basename of file
-
         Returns:
-            Hashes of *filename*, including original size and scaled versions
+            Hashes of filename, including original size and scaled versions
         """
         absolute_filename = self.filenames[filename]
         image = Image.open(absolute_filename)
@@ -278,6 +274,7 @@ class ScaledPairIdentifier:
             color_images = []
             alpha_images = []
             for filename in filenames:
+                # noinspection PyTypeChecker
                 array = np.array(Image.open(self.filenames[filename]))
                 color_images.append(Image.fromarray(np.squeeze(array[:, :, :-1])))
                 alpha_images.append(Image.fromarray(array[:, :, -1]))
@@ -351,6 +348,7 @@ class ScaledPairIdentifier:
 
         parent_image = Image.open(self.filenames[parent])
         if self.alpha_sorter(self.filenames[parent]) == "keep_alpha":
+            # noinspection PyTypeChecker
             parent_array = np.array(parent_image)
             parent_color_image = Image.fromarray(np.squeeze(parent_array[:, :, :-1]))
             parent_alpha_image = Image.fromarray(parent_array[:, :, -1])
@@ -359,6 +357,7 @@ class ScaledPairIdentifier:
 
             for child, score in zip(children, scores):
                 child_image = Image.open(self.filenames[child])
+                # noinspection PyTypeChecker
                 child_array = np.array(child_image)
 
                 child_color_image = Image.fromarray(np.squeeze(child_array[:, :, :-1]))

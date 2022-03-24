@@ -10,7 +10,7 @@
 from __future__ import annotations
 
 import re
-from logging import debug, info, warn, warning
+from logging import debug, info, warning
 from os import makedirs, remove, rmdir
 from os.path import basename, isdir, isfile, join, splitext
 from shutil import copy, move
@@ -18,6 +18,8 @@ from time import sleep
 from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
+from watchdog.events import FileSystemEventHandler
+from watchdog.observers import Observer
 
 from pipescaler.common import (
     DirectoryNotFoundError,
@@ -209,8 +211,9 @@ class FileWater(ConfigurableCommandLineTool):
                         join(self.scaled_directory, child),
                     )
                     info(
-                        f"'{child}' moved from reviewed directory '{reviewed_directory}' "
-                        f"to scaled directory '{self.scaled_directory}'"
+                        f"'{child}' moved from reviewed directory "
+                        f"'{reviewed_directory}' to scaled directory "
+                        f"'{self.scaled_directory}'"
                     )
 
     def perform_operation(self, filename: str, status: str) -> None:
@@ -277,11 +280,6 @@ class FileWater(ConfigurableCommandLineTool):
 
     def watch_new_files_in_input_directory(self):
         """Watch new files in input directory"""
-        try:
-            from watchdog.events import FileSystemEventHandler
-            from watchdog.observers import Observer
-        except ImportError as e:
-            raise e
 
         class FileCreatedEventHandler(FileSystemEventHandler):
             """event handler"""
