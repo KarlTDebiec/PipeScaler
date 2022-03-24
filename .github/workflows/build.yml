@@ -42,16 +42,15 @@ jobs:
       - name: Install library
         run: |
           poetry install --no-interaction
-      - id: List changed files
+      - name: List changed files
+        id: files
         uses: jitterbit/get-changed-files@v1
-        if:
         with:
          format: json
-        run: |
-          echo steps.files.outputs.added_modified || tee > modifed_files.json
       - name: prospector
         run: |
           cd ${GITHUB_WORKSPACE}
+          cat ${{ steps.files.outputs.added_modified }} > modified_files.json
           poetry run prospector -0 -o json:prospector.json pipescaler
           poetry run docs/prospector_reporter.py prospector.json
       - name: pydocstyle
