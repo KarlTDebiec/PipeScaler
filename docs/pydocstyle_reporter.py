@@ -20,17 +20,23 @@ from pipescaler.common import CommandLineTool, run_command, validate_input_file
 class PydocstyleReporter(CommandLineTool):
     """Prints pydocstyle results formatted for consumption by GitHub."""
 
-    def __init__(self, infile, **kwargs):
+    def __init__(
+        self,
+        pydocstyle_infile: str,
+        modified_files_infile: str,
+        **kwargs: Any,
+    ):
         """Validate and store static configuration.
 
         Arguments:
-            infile: Path to input prospector json output
+            prospector_infile: Path to input prospector json output
+            modified_files_infile: Path to input list of modified files
             **kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
 
         self.messages = []
-        with open(validate_input_file(infile)) as file:
+        with open(validate_input_file(pydocstyle_infile)) as file:
             for line, issue in zip_longest(*[file] * 2):
                 file, line = line.split()[0].split(":")
                 code, message = issue.strip().split(": ")
@@ -38,13 +44,10 @@ class PydocstyleReporter(CommandLineTool):
                     {"file": file, "line": line, "code": code, "message": message}
                 )
 
-        self.modified_files = None
-        if "GITHUB_BASE_REF" in environ:
-            command = f"git diff --name-status {getenv('GITHUB_BASE_REF')}"
-            (exitcode, stdout, stderr) = run_command(command)
-            self.modified_files = [
-                normpath(line[1:].strip()) for line in stdout.strip().split("\n")
-            ]
+        with open(validate_input_file(modified_files_infile)) as infile:
+            self.modified_files = list(
+                map(normpath, infile.read().strip("[]\n").split(","))
+            )
 
     def __call__(self):
         """Perform operations."""
@@ -60,7 +63,7 @@ class PydocstyleReporter(CommandLineTool):
             code = pydocstyle_message["code"]
             message = pydocstyle_message["message"]
             github_message = f"pydocstyle[{code}]: {message}"
-            if self.modified_files is None or filename in self.modified_files:
+            if filename in self.modified_files:
                 warning_messages.append(
                     f"::warning file={filename},line={line}::{github_message}"
                 )
@@ -95,7 +98,15 @@ class PydocstyleReporter(CommandLineTool):
         parser = super().construct_argparser(description=description, **kwargs)
 
         parser.add_argument(
-            "infile", type=cls.input_path_arg(), help="Input pydocstyle text file"
+            "pydocstyle_infile_infile",
+            type=cls.input_path_arg(),
+            help="Input pydocstyle output file",
+        )
+
+        parser.add_argument(
+            "modified_files_infile",
+            type=cls.input_path_arg(),
+            help="Input list of added or modified files",
         )
 
         return parser
