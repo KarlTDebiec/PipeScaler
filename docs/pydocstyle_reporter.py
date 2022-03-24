@@ -98,7 +98,7 @@ class PydocstyleReporter(CommandLineTool):
         parser = super().construct_argparser(description=description, **kwargs)
 
         parser.add_argument(
-            "pydocstyle_infile_infile",
+            "pydocstyle_infile",
             type=cls.input_path_arg(),
             help="Input pydocstyle output file",
         )
