@@ -10,9 +10,11 @@
 import json
 from argparse import ArgumentParser
 from inspect import cleandoc
+from os import environ, getenv
+from os.path import normpath
 from typing import Any
 
-from pipescaler.common import CommandLineTool, validate_input_file
+from pipescaler.common import CommandLineTool, run_command, validate_input_file
 
 
 class ProspectorReporter(CommandLineTool):
@@ -29,6 +31,14 @@ class ProspectorReporter(CommandLineTool):
 
         with open(validate_input_file(infile)) as file:
             self.report = json.load(file)
+        environ["GITHUB_HEAD_REF"] = "master"
+        self.modified_files = None
+        if "GITHUB_HEAD_REF" in environ:
+            command = f"git diff --name-status {getenv('GITHUB_HEAD_REF')}"
+            (exitcode, stdout, stderr) = run_command(command)
+            self.modified_files = [
+                normpath(line[1:].strip()) for line in stdout.strip().split("\n")
+            ]
 
     def __call__(self):
         """Perform operations."""
@@ -36,15 +46,28 @@ class ProspectorReporter(CommandLineTool):
         self.report_messages()
 
     def report_messages(self):
+        info_messages = []
+        warning_messages = []
         for prospector_message in self.report["messages"]:
             source = prospector_message["source"]
             code = prospector_message["code"]
             message = prospector_message["message"]
-            file = prospector_message["location"]["path"]
+            filename = normpath(prospector_message["location"]["path"])
             line = prospector_message["location"]["line"]
             col = prospector_message["location"]["character"]
             github_message = f"prospector[{source}:{code}]: {message}"
-            print(f"::warning file={file},line={line},col={col}::{github_message}")
+            if self.modified_files is None or filename in self.modified_files:
+                warning_messages.append(
+                    f"::warning file={filename},line={line},col={col}::{github_message}"
+                )
+            else:
+                info_messages.append(
+                    f"::info file={filename},line={line},col={col}::{github_message}"
+                )
+        for warning_message in warning_messages:
+            print(warning_message)
+        for info_message in info_messages:
+            print(info_message)
 
     def report_summary(self):
         summary = self.report["summary"]
