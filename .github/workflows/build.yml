@@ -51,9 +51,6 @@ jobs:
         run: |
           cd ${GITHUB_WORKSPACE}
           echo "${{ steps.files.outputs.added_modified  }}" > modified_files.json
-          echo "AAAAAA"
-          cat modified_files.json
-          echo "AAAAAA"
       - name: prospector
         run: |
           cd ${GITHUB_WORKSPACE}
