@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/scripts/file_watcher.py
+#   pipescaler/scripts/file_scanner.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
@@ -35,7 +35,7 @@ pd.set_option(
 )
 
 
-class FileWater(ConfigurableCommandLineTool):
+class FileScanner(ConfigurableCommandLineTool):
     """Watches files in a directory"""
 
     exclusions = {".DS_Store", "desktop"}
@@ -315,4 +315,4 @@ class FileWater(ConfigurableCommandLineTool):
 
 
 if __name__ == "__main__":
-    FileWater.main()
+    FileScanner.main()
