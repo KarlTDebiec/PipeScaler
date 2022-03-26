@@ -10,9 +10,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from argparse import ArgumentParser
-from inspect import cleandoc
-from typing import Any, List, Optional
+from typing import Any, Optional
 
 from pipescaler.common import CommandLineTool
 from pipescaler.core.stage import Stage
@@ -46,45 +44,14 @@ class Processor(Stage, CommandLineTool, ABC):
         """
         raise NotImplementedError()
 
+    @classmethod
     @property
-    def inlets(self) -> List[str]:
+    def inlets(self) -> list[str]:
         """Inlets that flow into stage"""
         return ["inlet"]
 
+    @classmethod
     @property
-    def outlets(self) -> List[str]:
+    def outlets(self) -> list[str]:
         """Outlets that flow out of stage"""
         return ["outlet"]
-
-    @classmethod
-    def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
-        """Construct argument parser.
-
-        Arguments:
-            **kwargs: Additional keyword arguments
-
-        Returns:
-            parser: Argument parser
-        """
-        name = kwargs.pop("name", cls.name if hasattr(cls, "name") else cls.__name__)
-        description = kwargs.pop(
-            "description", cleandoc(cls.__doc__) if cls.__doc__ is not None else ""
-        )
-        parser = super().construct_argparser(
-            name=name, description=description, **kwargs
-        )
-
-        # Input
-        parser.add_argument("infile", type=cls.input_path_arg(), help="input file")
-        parser.add_argument("outfile", type=cls.output_path_arg(), help="output file")
-
-        return parser
-
-    @classmethod
-    def main(cls) -> None:
-        """Parse arguments, initialize processor, and process file"""
-        parser = cls.construct_argparser()
-        kwargs = vars(parser.parse_args())
-        infile = kwargs.pop("infile")
-        outfile = kwargs.pop("outfile")
-        cls(**kwargs)(infile, outfile)

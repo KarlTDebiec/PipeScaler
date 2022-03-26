@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from logging import info
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from PIL import Image
 
@@ -25,7 +25,7 @@ class Merger(Stage, ABC):
     def __init__(
         self,
         suffix: Optional[str] = None,
-        trim_suffixes: Optional[List[str]] = None,
+        trim_suffixes: Optional[list[str]] = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -70,14 +70,16 @@ class Merger(Stage, ABC):
         output_image.save(outfile)
         info(f"'{self}: '{outfile}' saved")
 
+    @classmethod
     @property
-    def outlets(self) -> List[str]:
+    def outlets(self) -> list[str]:
         """Outlets that flow out of stage"""
         return ["outlet"]
 
+    @classmethod
     @property
     @abstractmethod
-    def supported_input_modes(self) -> Dict[str, List[str]]:
+    def supported_input_modes(self) -> dict[str, list[str]]:
         """Supported modes for input images"""
         raise NotImplementedError()
 

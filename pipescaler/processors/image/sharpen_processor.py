@@ -9,8 +9,6 @@
 """Sharpens an image"""
 from __future__ import annotations
 
-from typing import List
-
 import numpy as np
 from PIL import Image
 from scipy.signal import convolve2d
@@ -22,11 +20,6 @@ class SharpenProcessor(ImageProcessor):
     """Sharpens an image"""
 
     kernel = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]], float)
-
-    @property
-    def supported_input_modes(self) -> List[str]:
-        """Supported modes for input image"""
-        return ["L", "RGB"]
 
     def process(self, input_image: Image.Image) -> Image.Image:
         """Process image
@@ -52,6 +45,12 @@ class SharpenProcessor(ImageProcessor):
             output_image = Image.fromarray(hsv_array, mode="HSV").convert("RGB")
 
         return output_image
+
+    @classmethod
+    @property
+    def supported_input_modes(self) -> list[str]:
+        """Supported modes for input image"""
+        return ["L", "RGB"]
 
 
 if __name__ == "__main__":

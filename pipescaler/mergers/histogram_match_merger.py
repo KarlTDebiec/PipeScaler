@@ -9,8 +9,6 @@
 """Matches an image's color histogram to that of a reference image"""
 from __future__ import annotations
 
-from typing import Dict, List
-
 import numpy as np
 from PIL import Image
 from skimage.exposure import match_histograms
@@ -20,19 +18,6 @@ from pipescaler.core import Merger, UnsupportedImageModeError
 
 class HistogramMatchMerger(Merger):
     """Matches an image's color histogram to that of a reference image"""
-
-    @property
-    def inlets(self) -> List[str]:
-        """Inlets that flow into stage"""
-        return ["reference", "fit"]
-
-    @property
-    def supported_input_modes(self) -> Dict[str, List[str]]:
-        """Supported modes for input images"""
-        return {
-            "reference": ["L", "LA", "RGB", "RGBA"],
-            "fit": ["L", "LA", "RGB", "RGBA"],
-        }
 
     def merge(self, *input_images: Image.Image) -> Image.Image:
         """
@@ -62,3 +47,18 @@ class HistogramMatchMerger(Merger):
         output_image = Image.fromarray(output_array)
 
         return output_image
+
+    @classmethod
+    @property
+    def inlets(self) -> list[str]:
+        """Inlets that flow into stage"""
+        return ["reference", "fit"]
+
+    @classmethod
+    @property
+    def supported_input_modes(self) -> dict[str, list[str]]:
+        """Supported modes for input images"""
+        return {
+            "reference": ["L", "LA", "RGB", "RGBA"],
+            "fit": ["L", "LA", "RGB", "RGBA"],
+        }

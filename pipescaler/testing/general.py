@@ -8,13 +8,14 @@
 #   BSD license.
 """General functions for testing"""
 from inspect import getfile
-from typing import Type
 
 from pipescaler.common import run_command, temporary_filename
-from pipescaler.core import Processor
+from pipescaler.core.cl import ProcessorCommandLineTool
 
 
-def run_processor_on_command_line(processor: Type[Processor], args: str, infile: str):
+def run_processor_on_command_line(
+    processor: type[ProcessorCommandLineTool], args: str, infile: str
+):
     with temporary_filename(".png") as outfile:
         command = f"coverage run {getfile(processor)} {args} {infile} {outfile}"
         run_command(command)

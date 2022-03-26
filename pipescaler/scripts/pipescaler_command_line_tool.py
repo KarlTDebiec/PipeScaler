@@ -58,10 +58,7 @@ class PipeScalerCommandLineTool(CommandLineTool):
         Returns:
             parser: Argument parser
         """
-        description = kwargs.pop(
-            "description", cleandoc(cls.__doc__) if cls.__doc__ is not None else ""
-        )
-        parser = super().construct_argparser(description=description, **kwargs)
+        parser = super().construct_argparser(description=cls.description, **kwargs)
 
         subparsers = parser.add_subparsers()
         FileScanner.construct_argparser(parser=subparsers, name="scan")

@@ -12,8 +12,6 @@ interpolation
 """
 from __future__ import annotations
 
-from argparse import ArgumentParser
-from inspect import cleandoc
 from typing import Any
 
 import numpy as np
@@ -96,39 +94,3 @@ class ResizeProcessor(ImageProcessor):
             output_image = input_image.resize(size, resample=self.resample)
 
         return output_image
-
-    @classmethod
-    def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
-        """
-        Construct argument parser
-
-        Arguments:
-            **kwargs: Additional keyword arguments
-
-        Returns:
-            parser: Argument parser
-        """
-        description = kwargs.pop(
-            "description", cleandoc(cls.__doc__) if cls.__doc__ is not None else ""
-        )
-        parser = super().construct_argparser(description=description, **kwargs)
-
-        # Operations
-        parser.add_argument(
-            "--scale",
-            default=2,
-            type=cls.float_arg(min_value=0),
-            help="scaling factor (default: %(default)s)",
-        )
-        parser.add_argument(
-            "--resample",
-            default="lanczos",
-            type=cls.str_arg(options=cls.resample_methods.keys()),
-            help="background color (default: %(default)s)",
-        )
-
-        return parser
-
-
-if __name__ == "__main__":
-    ResizeProcessor.main()

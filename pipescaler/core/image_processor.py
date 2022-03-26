@@ -11,7 +11,6 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from logging import info
-from typing import List
 
 from PIL import Image
 
@@ -37,8 +36,9 @@ class ImageProcessor(Processor, ABC):
         output_image.save(outfile)
         info(f"{self}: '{outfile}' saved")
 
+    @classmethod
     @property
-    def supported_input_modes(self) -> List[str]:
+    def supported_input_modes(self) -> list[str]:
         """Supported modes for input image"""
         return ["1", "L", "LA", "RGB", "RGBA"]
 

@@ -9,7 +9,7 @@
 """Matches an image's color palette to that of a reference image"""
 from __future__ import annotations
 
-from typing import Any, Dict, List, Union
+from typing import Any, Union
 
 from PIL import Image
 
@@ -37,19 +37,6 @@ class PaletteMatchMerger(Merger):
         self.palette_match_mode = validate_enum(palette_match_mode, PaletteMatchMode)
         self.palette_matcher = PaletteMatcher(self.palette_match_mode)
 
-    @property
-    def inlets(self) -> List[str]:
-        """Inlets that flow into stage"""
-        return ["reference", "fit"]
-
-    @property
-    def supported_input_modes(self) -> Dict[str, List[str]]:
-        """Supported modes for input images"""
-        return {
-            "reference": ["L", "RGB"],
-            "fit": ["L", "RGB"],
-        }
-
     def merge(self, *input_images: Image.Image) -> Image.Image:
         """
         Merge images
@@ -69,3 +56,18 @@ class PaletteMatchMerger(Merger):
         output_image = self.palette_matcher.match_palette(ref_image, fit_image)
 
         return output_image
+
+    @classmethod
+    @property
+    def inlets(self) -> list[str]:
+        """Inlets that flow into stage"""
+        return ["reference", "fit"]
+
+    @classmethod
+    @property
+    def supported_input_modes(self) -> dict[str, list[str]]:
+        """Supported modes for input images"""
+        return {
+            "reference": ["L", "RGB"],
+            "fit": ["L", "RGB"],
+        }

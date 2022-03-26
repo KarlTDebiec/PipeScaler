@@ -9,8 +9,6 @@
 """Merges alpha and color images into a single image with transparency"""
 from __future__ import annotations
 
-from typing import Dict, List
-
 import numpy as np
 from PIL import Image
 
@@ -19,19 +17,6 @@ from pipescaler.core import Merger
 
 class AlphaMerger(Merger):
     """Merges alpha and color images into a single image with transparency"""
-
-    @property
-    def inlets(self) -> List[str]:
-        """Inlets that flow into stage"""
-        return ["color", "alpha"]
-
-    @property
-    def supported_input_modes(self) -> Dict[str, List[str]]:
-        """Supported modes for input images"""
-        return {
-            "color": ["L", "RGB"],
-            "alpha": ["1", "L"],
-        }
 
     def merge(self, *input_images: Image.Image) -> Image.Image:
         """
@@ -62,3 +47,18 @@ class AlphaMerger(Merger):
         output_image = Image.fromarray(output_array)
 
         return output_image
+
+    @classmethod
+    @property
+    def inlets(self) -> list[str]:
+        """Inlets that flow into stage"""
+        return ["color", "alpha"]
+
+    @classmethod
+    @property
+    def supported_input_modes(self) -> dict[str, list[str]]:
+        """Supported modes for input images"""
+        return {
+            "color": ["L", "RGB"],
+            "alpha": ["1", "L"],
+        }

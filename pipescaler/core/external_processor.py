@@ -13,7 +13,6 @@ from abc import ABC, abstractmethod
 from logging import debug, info
 from os.path import splitext
 from shutil import copyfile
-from typing import Set
 
 from pipescaler.common import run_command, temporary_filename
 from pipescaler.common.validation import validate_executable
@@ -53,7 +52,7 @@ class ExternalProcessor(Processor, ABC):
         raise NotImplementedError()
 
     @property
-    def supported_platforms(self) -> Set[str]:
+    def supported_platforms(self) -> set[str]:
         """Platforms on which processor is supported"""
         return {"Darwin", "Linux", "Windows"}
 

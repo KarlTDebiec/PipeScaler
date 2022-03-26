@@ -56,16 +56,3 @@ def test(infile: str, processor: CropProcessor) -> None:
                 input_image.size[0] - processor.left - processor.right,
                 input_image.size[1] - processor.top - processor.bottom,
             )
-
-
-@pytest.mark.parametrize(
-    ("infile", "args"),
-    [
-        ("RGB", "-h"),
-        ("RGB", "--pixels 4 4 4 4"),
-    ],
-)
-def test_cl(infile: str, args: str) -> None:
-    infile = get_infile(infile)
-
-    run_processor_on_command_line(CropProcessor, args, infile)

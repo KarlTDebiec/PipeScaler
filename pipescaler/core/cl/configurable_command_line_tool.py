@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/configurable_command_line_tool.py
+#   pipescaler/core/cl/configurable_command_line_tool.py
 #
 #   Copyright (C) 2017-2022 Karl T Debiec
 #   All rights reserved.
@@ -7,6 +7,7 @@
 #   This software may be modified and distributed under the terms of the
 #   BSD license. See the LICENSE file for details.
 """General-purpose configurable command-line tool base class"""
+from abc import ABC
 from argparse import ArgumentParser
 from inspect import cleandoc
 from logging import info
@@ -18,7 +19,7 @@ from pipescaler.common import CommandLineTool
 from pipescaler.core.file import read_yaml
 
 
-class ConfigurableCommandLineTool(CommandLineTool):
+class ConfigurableCommandLineTool(CommandLineTool, ABC):
     """General-purpose configurable command-line tool base class"""
 
     @classmethod

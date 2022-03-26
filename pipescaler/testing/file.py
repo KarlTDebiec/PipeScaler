@@ -50,10 +50,10 @@ def get_model_infile(name: str):
     return infile
 
 
-def get_script(filename: str):
+def get_script(filename: str, sub_directory: str = "scripts"):
     if splitext(filename)[-1] == "":
         filename = f"{filename}.py"
-    return validate_input_file(join(package_root, "scripts", filename))
+    return validate_input_file(join(package_root, normpath(sub_directory), filename))
 
 
 def get_sub_directory(sub_directory: str):

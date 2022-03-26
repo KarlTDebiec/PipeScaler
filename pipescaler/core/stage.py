@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from importlib.util import module_from_spec, spec_from_file_location
-from typing import Any, List, Optional
+from typing import Any, Optional
 
 from pipescaler.common import validate_input_path
 
@@ -90,14 +90,14 @@ class Stage(ABC):
         """Simple representation of stage"""
         return self.name
 
+    @classmethod
     @property
-    @abstractmethod
-    def inlets(self) -> List[str]:
+    def inlets(self) -> list[str]:
         """Inlets that flow into stage"""
         raise NotImplementedError()
 
+    @classmethod
     @property
-    @abstractmethod
-    def outlets(self) -> List[str]:
+    def outlets(self) -> list[str]:
         """Outlets that flow out of stage"""
         raise NotImplementedError()

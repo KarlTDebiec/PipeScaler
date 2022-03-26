@@ -30,6 +30,7 @@ class Sorter(Stage, ABC):
         """
         raise NotImplementedError()
 
+    @classmethod
     @property
     def inlets(self) -> List[str]:
         """Inlets that flow into stage"""

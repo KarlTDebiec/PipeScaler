@@ -9,8 +9,6 @@
 """Converts mode of image"""
 from __future__ import annotations
 
-from argparse import ArgumentParser
-from inspect import cleandoc
 from typing import Any
 
 from PIL import Image, ImageColor
@@ -60,40 +58,3 @@ class ModeProcessor(ImageProcessor):
                 output_image = output_image.convert(self.mode)
 
         return output_image
-
-    @classmethod
-    def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
-        """
-        Construct argument parser
-
-        Arguments:
-            **kwargs: Additional keyword arguments
-
-        Returns:
-            parser: Argument parser
-        """
-        description = kwargs.pop(
-            "description", cleandoc(cls.__doc__) if cls.__doc__ is not None else ""
-        )
-        parser = super().construct_argparser(description=description, **kwargs)
-
-        # Operations
-        parser.add_argument(
-            "--mode",
-            default="RGBA",
-            type=cls.str_arg(options=["1", "L", "LA", "RGB", "RGBA"]),
-            help="image mode ('RGBA', 'RGB', 'LA', 'L', or '1', default: %(default)s)",
-        )
-        parser.add_argument(
-            "--background_color",
-            default="#000000",
-            type=str,
-            help="background color of output image; only relevant if input image is "
-            "RGBA or LA (default: %(default)s)",
-        )
-
-        return parser
-
-
-if __name__ == "__main__":
-    ModeProcessor.main()

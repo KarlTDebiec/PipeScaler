@@ -9,8 +9,6 @@
 """Merges x, y, and z images into a single normal map image"""
 from __future__ import annotations
 
-from typing import Dict, List
-
 import numpy as np
 from PIL import Image
 
@@ -19,20 +17,6 @@ from pipescaler.core import Merger
 
 class NormalMerger(Merger):
     """Merges x, y, and z images into a single normal map image"""
-
-    @property
-    def inlets(self) -> List[str]:
-        """Inlets that flow into stage"""
-        return ["x", "y", "z"]
-
-    @property
-    def supported_input_modes(self) -> Dict[str, List[str]]:
-        """Supported modes for input images"""
-        return {
-            "x": ["L"],
-            "y": ["L"],
-            "z": ["L"],
-        }
 
     def merge(self, *input_images: Image.Image) -> Image.Image:
         """
@@ -62,3 +46,19 @@ class NormalMerger(Merger):
         output_image = Image.fromarray(output_array)
 
         return output_image
+
+    @classmethod
+    @property
+    def inlets(self) -> list[str]:
+        """Inlets that flow into stage"""
+        return ["x", "y", "z"]
+
+    @classmethod
+    @property
+    def supported_input_modes(self) -> dict[str, list[str]]:
+        """Supported modes for input images"""
+        return {
+            "x": ["L"],
+            "y": ["L"],
+            "z": ["L"],
+        }
