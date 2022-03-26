@@ -8,12 +8,12 @@
 #   BSD license.
 from __future__ import annotations
 
-from argparse import ArgumentParser
+from argparse import ArgumentParser, _SubParsersAction
 from copy import deepcopy
 from inspect import cleandoc
 from os import environ
 from os.path import expandvars, normpath
-from typing import Any
+from typing import Any, Union
 
 from pipescaler.common import CommandLineTool, validate_input_path
 from pipescaler.core.file import read_yaml
@@ -93,9 +93,10 @@ class PipeRunner(CommandLineTool):
         return output
 
     @classmethod
-    def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
-        """
-        Constructs argument parser.
+    def construct_argparser(
+        cls, **kwargs: Any
+    ) -> Union[ArgumentParser, _SubParsersAction]:
+        """Constructs argument parser.
 
         Arguments:
             kwargs (Any): Additional keyword arguments

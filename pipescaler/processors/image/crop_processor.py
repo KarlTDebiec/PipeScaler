@@ -22,6 +22,8 @@ from pipescaler.core import ImageProcessor, crop_image
 class CropProcessor(ImageProcessor):
     """Crops image canvas"""
 
+    name = "crop"
+
     def __init__(self, pixels: Tuple[int], **kwargs: Any) -> None:
         """
         Validate and store static configuration
@@ -69,10 +71,15 @@ class CropProcessor(ImageProcessor):
         Returns:
             parser: Argument parser
         """
+        name = kwargs.pop(
+            "name", cls.name if hasattr(cls, "name") else cls.__class__.__name__
+        )
         description = kwargs.pop(
             "description", cleandoc(cls.__doc__) if cls.__doc__ is not None else ""
         )
-        parser = super().construct_argparser(description=description, **kwargs)
+        parser = super().construct_argparser(
+            name=name, description=description, **kwargs
+        )
 
         # Operations
         parser.add_argument(
