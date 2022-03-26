@@ -9,37 +9,36 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser, _SubParsersAction
-from typing import Optional, Union
+from typing import Union
 
 from pipescaler.common import CommandLineTool
-from pipescaler.scripts.processors import CropCommandLineTool
+from pipescaler.scripts import processors
 
 
 class ProcessCommandLineTool(CommandLineTool):
+    processors = {
+        processor.name: processor
+        for processor in map(processors.__dict__.get, processors.__all__)
+    }
+
     @classmethod
-    def construct_argparser(
+    def add_arguments_to_argparser(
         cls,
-        parser: Optional[_SubParsersAction] = None,
-    ) -> Union[ArgumentParser, _SubParsersAction]:
-        """Construct argument parser.
+        parser: Union[ArgumentParser, _SubParsersAction],
+    ) -> None:
+        super().add_arguments_to_argparser(parser)
 
-        Arguments:
-            **kwargs: Additional keyword arguments
-        Returns:
-            parser: Argument parser
-        """
-        parser = super().construct_argparser(parser=parser)
-
-        subparsers = parser.add_subparsers()
-        CropCommandLineTool.construct_argparser(parser=subparsers)
-
-        return parser
+        subparsers = parser.add_subparsers(dest="processor")
+        for name in sorted(cls.processors):
+            cls.processors[name].construct_argparser(parser=subparsers)
 
     @classmethod
     def main(cls) -> None:
         """Parse arguments, initialize processor, and process file"""
         parser = cls.construct_argparser()
         kwargs = vars(parser.parse_args())
+        processor = cls.processors[kwargs.pop("processor")]
+        processor.process(**kwargs)
 
 
 if __name__ == "__main__":

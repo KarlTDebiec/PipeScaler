@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from argparse import ArgumentParser, _SubParsersAction
-from typing import Union
+from typing import Any, Union
 
 from pipescaler.common import CommandLineTool
 
@@ -28,18 +28,19 @@ class ProcessorCommandLineTool(CommandLineTool, ABC):
 
     @classmethod
     def main(cls) -> None:
-        """Parse arguments, initialize processor, and process file."""
         parser = cls.construct_argparser()
         kwargs = vars(parser.parse_args())
-        infile = kwargs.pop("infile")
-        outfile = kwargs.pop("outfile")
+        cls.process(**kwargs)
+
+    @classmethod
+    def process(cls, infile: str, outfile: str, **kwargs: Any) -> None:
         processor = cls.processor(**kwargs)
         processor(infile, outfile)
 
     @classmethod
     @property
     def name(cls) -> str:
-        return cls.__name__.rstrip("CommandLineTool")
+        return cls.__name__.removesuffix("CommandLineTool").lower()
 
     @classmethod
     @property
