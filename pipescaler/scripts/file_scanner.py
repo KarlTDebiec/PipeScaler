@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/scripts/file_watcher.py
+#   pipescaler/scripts/file scanner.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
@@ -10,7 +10,7 @@
 from __future__ import annotations
 
 import re
-from logging import debug, info, warn, warning
+from logging import debug, info, warning
 from os import makedirs, remove, rmdir
 from os.path import basename, isdir, isfile, join, splitext
 from shutil import copy, move
@@ -33,7 +33,7 @@ pd.set_option(
 )
 
 
-class FileWater(ConfigurableCommandLineTool):
+class FileScanner(ConfigurableCommandLineTool):
     """Watches files in a directory"""
 
     exclusions = {".DS_Store", "desktop"}
@@ -53,8 +53,7 @@ class FileWater(ConfigurableCommandLineTool):
         scaled_pair_identifier: Optional[Dict[str:Any]] = None,
         **kwargs: Any,
     ) -> None:
-        """
-        Validate and store static configuration
+        """Validate and store static configuration.
 
         Arguments:
             input_directory: Directory or directories from which to read input files
@@ -151,8 +150,7 @@ class FileWater(ConfigurableCommandLineTool):
             )
 
     def __call__(self, **kwargs: Any) -> Any:
-        """
-        Perform operations
+        """Perform operations.
 
         Arguments:
             **kwargs: Additional keyword arguments
@@ -180,7 +178,7 @@ class FileWater(ConfigurableCommandLineTool):
         # self.watch_new_files_in_input_directory()
 
     def get_status(self, filename: str) -> str:
-        """Select operation for filename"""
+        """Select operation for filename."""
 
         if self.scaled_pair_identifier is not None:
             if filename in self.scaled_pair_identifier.children:
@@ -199,7 +197,7 @@ class FileWater(ConfigurableCommandLineTool):
         return "copy"
 
     def move_children_to_scaled_directory(self):
-        """Move children to scaled directory"""
+        """Move children to scaled directory."""
         for child_filename in self.scaled_directory:
             child = basename(self.filenames[child_filename])
             for reviewed_directory in self.reviewed_directories:
@@ -214,7 +212,7 @@ class FileWater(ConfigurableCommandLineTool):
                     )
 
     def perform_operation(self, filename: str, status: str) -> None:
-        """Perform operations for filename"""
+        """Perform operations for filename."""
         if status == "known":
             self.observed_filenames.add(filename)
             debug(f"'{self.filenames[filename]}' known")
@@ -276,7 +274,7 @@ class FileWater(ConfigurableCommandLineTool):
             info(f"'{self.remove_directory}' removed")
 
     def watch_new_files_in_input_directory(self):
-        """Watch new files in input directory"""
+        """Watch new files in input directory."""
         try:
             from watchdog.events import FileSystemEventHandler
             from watchdog.observers import Observer
@@ -306,7 +304,7 @@ class FileWater(ConfigurableCommandLineTool):
         observer.join()
 
     def write_observed_filenames_to_outfile(self):
-        """Write observed filenames to outfile"""
+        """Write observed filenames to outfile."""
         with open(self.observed_filenames_outfile, "w", encoding="utf8") as outfile:
             for filename in sorted(list(self.observed_filenames)):
                 outfile.write(f"{filename}\n")
@@ -317,4 +315,4 @@ class FileWater(ConfigurableCommandLineTool):
 
 
 if __name__ == "__main__":
-    FileWater.main()
+    FileScanner.main()
