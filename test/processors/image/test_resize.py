@@ -56,16 +56,3 @@ def test(infile: str, processor: ResizeProcessor) -> None:
                 input_image.size[0] * processor.scale,
                 input_image.size[1] * processor.scale,
             )
-
-
-@pytest.mark.parametrize(
-    ("infile", "args"),
-    [
-        ("RGB", "-h"),
-        ("RGB", "--scale 2"),
-    ],
-)
-def test_cl(infile: str, args: str) -> None:
-    infile = get_infile(infile)
-
-    run_processor_on_command_line(ResizeProcessor, args, infile)

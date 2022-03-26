@@ -52,16 +52,3 @@ def test(infile: str, processor: ModeProcessor) -> None:
         with Image.open(infile) as input_image, Image.open(outfile) as output_image:
             assert output_image.size == input_image.size
             assert output_image.mode == processor.mode
-
-
-@pytest.mark.parametrize(
-    ("infile", "args"),
-    [
-        ("RGB", "-h"),
-        ("RGB", "--mode L"),
-    ],
-)
-def test_cl(infile: str, args: str) -> None:
-    infile = get_infile(infile)
-
-    run_processor_on_command_line(ModeProcessor, args, infile)
