@@ -10,7 +10,8 @@
 import json
 from argparse import ArgumentParser
 from inspect import cleandoc
-from typing import Any
+from os.path import normpath
+from typing import Any, Optional
 
 from pipescaler.common import CommandLineTool, validate_input_file
 
@@ -18,17 +19,28 @@ from pipescaler.common import CommandLineTool, validate_input_file
 class ProspectorReporter(CommandLineTool):
     """Prints prospector results formatted for consumption by GitHub."""
 
-    def __init__(self, infile, **kwargs):
+    def __init__(
+        self,
+        prospector_infile: str,
+        modified_files_infile: str,
+        **kwargs: Any,
+    ):
         """Validate and store static configuration.
 
         Arguments:
-            infile: Path to input prospector json output
+            prospector_infile: Path to input prospector json output
+            modified_files_infile: Path to input list of modified files
             **kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
 
-        with open(validate_input_file(infile)) as file:
-            self.report = json.load(file)
+        with open(validate_input_file(prospector_infile)) as infile:
+            self.report = json.load(infile)
+
+        with open(validate_input_file(modified_files_infile)) as infile:
+            self.modified_files = list(
+                map(normpath, infile.read().strip("[]\n").split(","))
+            )
 
     def __call__(self):
         """Perform operations."""
@@ -36,15 +48,28 @@ class ProspectorReporter(CommandLineTool):
         self.report_messages()
 
     def report_messages(self):
+        info_messages = []
+        warning_messages = []
         for prospector_message in self.report["messages"]:
             source = prospector_message["source"]
             code = prospector_message["code"]
             message = prospector_message["message"]
-            file = prospector_message["location"]["path"]
+            filename = normpath(prospector_message["location"]["path"])
             line = prospector_message["location"]["line"]
             col = prospector_message["location"]["character"]
             github_message = f"prospector[{source}:{code}]: {message}"
-            print(f"::warning file={file},line={line},col={col}::{github_message}")
+            if filename in self.modified_files:
+                warning_messages.append(
+                    f"::warning file={filename},line={line},col={col}::{github_message}"
+                )
+            else:
+                info_messages.append(
+                    f"::info file={filename},line={line},col={col}::{github_message}"
+                )
+        for warning_message in warning_messages:
+            print(warning_message)
+        for info_message in info_messages:
+            print(info_message)
 
     def report_summary(self):
         summary = self.report["summary"]
@@ -55,7 +80,7 @@ class ProspectorReporter(CommandLineTool):
         )
         if message_count > 9:
             github_message += "; only the first 9 will appear as annotations"
-        print(f"::warning::{github_message}")
+        print(f"::info::{github_message}")
 
     @classmethod
     def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
@@ -72,7 +97,15 @@ class ProspectorReporter(CommandLineTool):
         parser = super().construct_argparser(description=description, **kwargs)
 
         parser.add_argument(
-            "infile", type=cls.input_path_arg(), help="Input prospector JSON file"
+            "prospector_infile",
+            type=cls.input_path_arg(),
+            help="Input prospector JSON file",
+        )
+
+        parser.add_argument(
+            "modified_files_infile",
+            type=cls.input_path_arg(),
+            help="Input list of added or modified files",
         )
 
         return parser

@@ -42,16 +42,25 @@ jobs:
       - name: Install library
         run: |
           poetry install --no-interaction
+      - name: Identify changes
+        id: files
+        uses: jitterbit/get-changed-files@v1
+        with:
+         format: json
+      - name: List changes
+        run: |
+          cd ${GITHUB_WORKSPACE}
+          echo "${{ steps.files.outputs.added_modified  }}" > modified_files.json
       - name: prospector
         run: |
           cd ${GITHUB_WORKSPACE}
           poetry run prospector -0 -o json:prospector.json pipescaler
-          poetry run docs/prospector_reporter.py prospector.json
+          poetry run docs/prospector_reporter.py prospector.json modified_files.json
       - name: pydocstyle
         run: |
           cd ${GITHUB_WORKSPACE}
           poetry run pydocstyle pipescaler > pydocstyle.txt || echo
-          poetry run docs/pydocstyle_reporter.py pydocstyle.txt
+          poetry run docs/pydocstyle_reporter.py pydocstyle.txt modified_files.json
       - name: Test with pytest
         run: |
           export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
