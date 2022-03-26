@@ -23,7 +23,7 @@ license = "BSD"
 include = ["pipescaler/data/**"]
 
 [tool.poetry.dependencies]
-python = "~3.8"
+python = "~3.9"
 Flask = "^2.0.3"
 ImageHash = "^4.2.1"
 ipython = "^8.1.1"
