@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-#   pipescaler/termini/copy_file_terminus.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
 #

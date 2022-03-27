@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-#   pipescaler/processors/image/height_to_normal_processor.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
 #

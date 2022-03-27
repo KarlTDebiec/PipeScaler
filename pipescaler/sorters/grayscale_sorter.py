@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-#   pipescaler/sorters/grayscale_sorter.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
 #

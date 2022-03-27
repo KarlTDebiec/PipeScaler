@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-#   pipescaler/models/waifu_upconv7.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
 #

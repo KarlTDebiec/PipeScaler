@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-#   test/scripts/processors/test_mode_cl.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
 #

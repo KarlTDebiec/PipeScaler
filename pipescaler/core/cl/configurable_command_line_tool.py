@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-#   pipescaler/core/cl/configurable_command_line_tool.py
-#
 #   Copyright (C) 2017-2022 Karl T Debiec
 #   All rights reserved.
 #

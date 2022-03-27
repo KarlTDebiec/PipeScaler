@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-#   pipescaler/scripts/scaled_image_identifier.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
 #

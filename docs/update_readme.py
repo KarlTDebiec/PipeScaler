@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-#   update_readme.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
 #

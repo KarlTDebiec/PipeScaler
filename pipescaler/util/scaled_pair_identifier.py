@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-#   pipescaler/util/scaled_pair_identifier.py
-#
 #   Copyright (C) 2017-2022 Karl T Debiec
 #   All rights reserved.
 #
