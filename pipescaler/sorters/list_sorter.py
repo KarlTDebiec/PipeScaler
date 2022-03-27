@@ -8,7 +8,7 @@ from __future__ import annotations
 from logging import info, warning
 from os.path import basename, dirname, splitext
 from pprint import pformat
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from pipescaler.common import validate_output_directory
 from pipescaler.core import Sorter, get_files
@@ -22,7 +22,7 @@ class ListSorter(Sorter):
 
     def __init__(
         self,
-        outlets: Dict[str, List[str]],
+        outlets: dict[str, list[str]],
         wip_directory: Optional[str] = None,
         **kwargs: Any,
     ) -> None:

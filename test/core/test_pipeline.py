@@ -5,7 +5,7 @@
 """Tests for Pipeline"""
 from os import environ
 from tempfile import TemporaryDirectory
-from typing import Any, Dict, List, Union
+from typing import Any, Union
 
 import pytest
 import yaml
@@ -74,8 +74,8 @@ def pipeline():
 
 
 def test_pipeline(
-    stages: Dict[str, Dict[str, Dict[str, Any]]],
-    pipeline: List[Union[str, Dict[str, Any]]],
+    stages: dict[str, dict[str, dict[str, Any]]],
+    pipeline: list[Union[str, dict[str, Any]]],
 ):
     with TemporaryDirectory() as wip_directory, TemporaryDirectory() as output_directory:
         environ["INPUT_DIRECTORY"] = get_sub_directory("basic")

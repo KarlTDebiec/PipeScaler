@@ -5,7 +5,7 @@
 """Converts height map image to a normal map image."""
 from __future__ import annotations
 
-from typing import Any, List, Optional
+from typing import Any, Optional
 
 from PIL import Image
 
@@ -51,5 +51,5 @@ class HeightToNormalProcessor(ImageProcessor):
 
     @classmethod
     @property
-    def supported_input_modes(self) -> List[str]:
+    def supported_input_modes(self) -> list[str]:
         return ["L"]

@@ -5,8 +5,6 @@
 """External executable processor stages"""
 from __future__ import annotations
 
-from typing import List
-
 from pipescaler.processors.external.apple_script_processor import AppleScriptProcessor
 from pipescaler.processors.external.automator_processor import AutomatorProcessor
 from pipescaler.processors.external.pngquant_processor import PngquantProcessor
@@ -16,7 +14,7 @@ from pipescaler.processors.external.waifu_external_processor import (
     WaifuExternalProcessor,
 )
 
-__all__: List[str] = [
+__all__: list[str] = [
     "AppleScriptProcessor",
     "AutomatorProcessor",
     "PngquantProcessor",

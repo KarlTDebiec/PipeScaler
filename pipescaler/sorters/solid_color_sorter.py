@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from logging import info
-from typing import Any, List
+from typing import Any
 
 import numpy as np
 
@@ -68,8 +68,7 @@ class SolidColorSorter(Sorter):
             info(f"{self}: '{infile}' matches 'not_solid'")
             return "not_solid"
 
-    @classmethod
     @property
-    def outlets(self) -> List[str]:
+    def outlets(self) -> list[str]:
         """Outlets that flow out of stage"""
         return ["not_solid", "solid"]

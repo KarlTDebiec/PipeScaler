@@ -5,8 +5,6 @@
 """Terminus stages"""
 from __future__ import annotations
 
-from typing import List
-
 from pipescaler.termini.copy_file_terminus import CopyFileTerminus
 
-__all__: List[str] = ["CopyFileTerminus"]
+__all__: list[str] = ["CopyFileTerminus"]

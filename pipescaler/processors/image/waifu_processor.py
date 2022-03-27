@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from logging import warning
-from typing import Any, List
+from typing import Any
 
 import numpy as np
 import torch
@@ -93,6 +93,6 @@ class WaifuProcessor(ImageProcessor):
 
     @classmethod
     @property
-    def supported_input_modes(self) -> List[str]:
+    def supported_input_modes(self) -> list[str]:
         """Supported modes for input image"""
         return ["L", "RGB"]

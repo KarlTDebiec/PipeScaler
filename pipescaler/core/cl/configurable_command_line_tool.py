@@ -2,7 +2,7 @@
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
-"""General-purpose configurable command-line tool base class"""
+"""General-purpose configurable command-line tool base class."""
 from abc import ABC
 from argparse import ArgumentParser, _SubParsersAction
 from logging import info
@@ -15,7 +15,7 @@ from pipescaler.core.file import read_yaml
 
 
 class ConfigurableCommandLineTool(CommandLineTool, ABC):
-    """General-purpose configurable command-line tool base class"""
+    """General-purpose configurable command-line tool base class."""
 
     @classmethod
     def add_arguments_to_argparser(
@@ -27,7 +27,8 @@ class ConfigurableCommandLineTool(CommandLineTool, ABC):
         Arguments:
             parser: Nascent argument parser
         """
-        parser.add_argument(
+        required = cls.get_required_arguments_group(parser)
+        required.add_argument(
             "conf_file",
             type=cls.input_path_arg(),
             help="path to yaml file from which to read configuration",

@@ -6,7 +6,6 @@
 from __future__ import annotations
 
 from logging import info
-from typing import List
 
 from pipescaler.core import Sorter, validate_image
 
@@ -33,6 +32,6 @@ class ModeSorter(Sorter):
 
     @classmethod
     @property
-    def outlets(self) -> List[str]:
+    def outlets(self) -> list[str]:
         """Outlets that flow out of stage"""
         return ["rgba", "rgb", "la", "l", "1"]

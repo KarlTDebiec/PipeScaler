@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from logging import info
-from typing import Any, List
+from typing import Any
 
 import numpy as np
 
@@ -57,6 +57,6 @@ class AlphaSorter(Sorter):
 
     @classmethod
     @property
-    def outlets(self) -> List[str]:
+    def outlets(self) -> list[str]:
         """Outlets that flow out of stage"""
         return ["drop_alpha", "keep_alpha", "no_alpha"]

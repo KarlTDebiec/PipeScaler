@@ -8,7 +8,7 @@ from __future__ import annotations
 import re
 from logging import info
 from os.path import basename, dirname
-from typing import Any, List
+from typing import Any
 
 from pipescaler.core import Sorter
 
@@ -48,8 +48,7 @@ class RegexSorter(Sorter):
         info(f"{self}: '{name}' does not match '{self.regex.pattern}'")
         return "unmatched"
 
-    @classmethod
     @property
-    def outlets(self) -> List[str]:
+    def outlets(self) -> list[str]:
         """Outlets that flow out of stage"""
         return ["matched", "unmatched"]

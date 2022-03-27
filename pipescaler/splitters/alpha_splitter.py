@@ -5,14 +5,14 @@
 """Splits image with transparency into separate alpha and color images."""
 from __future__ import annotations
 
-from typing import Any, List, Optional, Tuple, Union
+from typing import Any, Optional, Union
 
 import numpy as np
 from PIL import Image
 
 from pipescaler.common import ArgumentConflictError, validate_enum
 from pipescaler.core import AlphaMode, MaskFillMode, Splitter, is_monochrome
-from pipescaler.util import MaskFiller
+from pipescaler.utilities import MaskFiller
 
 
 class AlphaSplitter(Splitter):
@@ -40,7 +40,7 @@ class AlphaSplitter(Splitter):
             self.mask_fill_mode = validate_enum(mask_fill_mode, MaskFillMode)
             self.mask_filler = MaskFiller(mask_fill_mode=self.mask_fill_mode)
 
-    def split(self, input_image: Image.Image) -> Tuple[Image.Image, ...]:
+    def split(self, input_image: Image.Image) -> tuple[Image.Image, ...]:
         """
         Split an image
 
@@ -66,12 +66,12 @@ class AlphaSplitter(Splitter):
         return color_image, alpha_image
 
     @property
-    def outlets(self) -> List[str]:
+    def outlets(self) -> list[str]:
         """Outlets that flow out of stage"""
         return ["color", "alpha"]
 
     @classmethod
     @property
-    def supported_input_modes(self) -> List[str]:
+    def supported_input_modes(self) -> list[str]:
         """Supported modes for input image"""
         return ["LA", "RGBA"]

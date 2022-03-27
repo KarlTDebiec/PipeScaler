@@ -5,10 +5,8 @@
 """GUI-based Processor stages"""
 from __future__ import annotations
 
-from typing import List
-
 from pipescaler.processors.gui.gigapixel_ai_proessor import GigapixelAiProcessor
 
-__all__: List[str] = [
+__all__: list[str] = [
     "GigapixelAiProcessor",
 ]

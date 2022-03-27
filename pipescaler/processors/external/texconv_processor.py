@@ -8,7 +8,7 @@ from __future__ import annotations
 from logging import debug
 from os.path import basename, dirname, join, splitext
 from shutil import copyfile
-from typing import Any, Optional, Set
+from typing import Any, Optional
 
 from pipescaler.common import run_command, validate_executable
 from pipescaler.core import ExternalProcessor
@@ -93,7 +93,7 @@ class TexconvProcessor(ExternalProcessor):
 
     @classmethod
     @property
-    def supported_platforms(self) -> Set[str]:
+    def supported_platforms(self) -> set[str]:
         """Platforms on which processor is supported"""
         return {"Windows"}
 

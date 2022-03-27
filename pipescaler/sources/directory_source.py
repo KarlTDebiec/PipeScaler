@@ -5,7 +5,7 @@
 """Yields images from a directory."""
 from __future__ import annotations
 
-from typing import Any, List, Union
+from typing import Any, Union
 
 from pipescaler.common import validate_input_directory
 from pipescaler.core import Source, get_files
@@ -19,8 +19,8 @@ class DirectorySource(Source):
 
     def __init__(
         self,
-        directory: Union[str, List[str]],
-        exclusions: Union[str, List[str]] = None,
+        directory: Union[str, list[str]],
+        exclusions: Union[str, list[str]] = None,
         **kwargs: Any,
     ) -> None:
         """

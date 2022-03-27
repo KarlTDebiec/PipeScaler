@@ -8,7 +8,7 @@ from __future__ import annotations
 import collections
 from functools import partial
 from logging import warning
-from typing import Any, Dict, List, OrderedDict, Tuple
+from typing import Any
 
 import numpy as np
 import torch
@@ -19,7 +19,7 @@ from pipescaler.common import validate_input_path
 from pipescaler.core import ImageProcessor, convert_mode
 
 
-class ESRGANProcessor(ImageProcessor):
+class EsrganProcessor(ImageProcessor):
     """Upscales and/or denoises image using ESRGAN.
 
     See [ESRGAN](https://github.com/xinntao/ESRGAN). Supports both old and new
@@ -53,9 +53,9 @@ class ESRGANProcessor(ImageProcessor):
     class RRDB(torch.nn.Module):
         def __init__(self, nf, gc=32):
             super().__init__()
-            self.RDB1 = ESRGANProcessor.ResidualDenseBlock5C(nf, gc)
-            self.RDB2 = ESRGANProcessor.ResidualDenseBlock5C(nf, gc)
-            self.RDB3 = ESRGANProcessor.ResidualDenseBlock5C(nf, gc)
+            self.RDB1 = EsrganProcessor.ResidualDenseBlock5C(nf, gc)
+            self.RDB2 = EsrganProcessor.ResidualDenseBlock5C(nf, gc)
+            self.RDB3 = EsrganProcessor.ResidualDenseBlock5C(nf, gc)
 
         def forward(self, x):
             out = self.RDB1(x)
@@ -72,7 +72,7 @@ class ESRGANProcessor(ImageProcessor):
                 return Sequential(*layers)
 
             super().__init__()
-            RRDB_block_f = partial(ESRGANProcessor.RRDB, nf=nf, gc=gc)
+            RRDB_block_f = partial(EsrganProcessor.RRDB, nf=nf, gc=gc)
 
             self.conv_first = Conv2d(in_nc, nf, 3, 1, 1, bias=True)
             self.RRDB_trunk = make_layer(RRDB_block_f, nb)
@@ -118,9 +118,9 @@ class ESRGANProcessor(ImageProcessor):
 
     class RRDBNetUpscaler:
         def __init__(self, model_infile, device):
-            net, scale = ESRGANProcessor.load_model(model_infile)
+            net, scale = EsrganProcessor.load_model(model_infile)
 
-            model_net = ESRGANProcessor.RRDBNet(3, 3, 64, 23)
+            model_net = EsrganProcessor.RRDBNet(3, 3, 64, 23)
             model_net.load_state_dict(net, scale, strict=True)
             model_net.eval()
 
@@ -165,10 +165,10 @@ class ESRGANProcessor(ImageProcessor):
         self.model_infile = validate_input_path(model_infile)
         if device == "cuda":
             try:
-                self.upscaler = ESRGANProcessor.RRDBNetUpscaler(
+                self.upscaler = EsrganProcessor.RRDBNetUpscaler(
                     self.model_infile, torch.device(device)
                 )
-                self.cpu_upscaler = ESRGANProcessor.RRDBNetUpscaler(
+                self.cpu_upscaler = EsrganProcessor.RRDBNetUpscaler(
                     self.model_infile, torch.device("cpu")
                 )
             except AssertionError as e:
@@ -176,12 +176,12 @@ class ESRGANProcessor(ImageProcessor):
                     f"{self}: CUDA ESRGAN upscaler raised exception: '{e}'; "
                     f"trying CPU upscaler"
                 )
-                self.upscaler = ESRGANProcessor.RRDBNetUpscaler(
+                self.upscaler = EsrganProcessor.RRDBNetUpscaler(
                     self.model_infile, torch.device("cpu")
                 )
                 self.cpu_upscaler = None
         else:
-            self.upscaler = ESRGANProcessor.RRDBNetUpscaler(
+            self.upscaler = EsrganProcessor.RRDBNetUpscaler(
                 self.model_infile, torch.device(device)
             )
             self.cpu_upscaler = None
@@ -229,7 +229,7 @@ class ESRGANProcessor(ImageProcessor):
     @classmethod
     def load_model(
         cls, model_infile: str
-    ) -> Tuple[torch.jit.RecursiveScriptModule, int]:
+    ) -> tuple[torch.jit.RecursiveScriptModule, int]:
         state_dict = torch.load(model_infile)
 
         # check for old model format
@@ -245,12 +245,12 @@ class ESRGANProcessor(ImageProcessor):
 
     @classmethod
     @property
-    def supported_input_modes(self) -> List[str]:
+    def supported_input_modes(self) -> list[str]:
         """Supported modes for input image"""
         return ["1", "L", "RGB"]
 
     @staticmethod
-    def build_old_keymap(n_upscale: int) -> OrderedDict[str, str]:
+    def build_old_keymap(n_upscale: int) -> dict[str, str]:
         # Build initial keymap
         keymap = collections.OrderedDict()
         keymap["model.0"] = "conv_first"
@@ -277,7 +277,7 @@ class ESRGANProcessor(ImageProcessor):
         return keymap_final
 
     @staticmethod
-    def get_old_scale_index(state_dict: Dict[str, str]) -> int:
+    def get_old_scale_index(state_dict: dict[str, str]) -> int:
         try:
             # get the largest model index from keys like "model.X.weight"
             max_index = max([int(n.split(".")[1]) for n in state_dict.keys()])
@@ -288,7 +288,7 @@ class ESRGANProcessor(ImageProcessor):
         return (max_index - 4) // 3
 
     @staticmethod
-    def get_scale_index(state_dict: Dict[str, str]) -> int:
+    def get_scale_index(state_dict: dict[str, str]) -> int:
         max_index = 0
 
         for k in state_dict.keys():

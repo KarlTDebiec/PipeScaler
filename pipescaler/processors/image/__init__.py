@@ -5,10 +5,8 @@
 """Image-based Processor stages"""
 from __future__ import annotations
 
-from typing import List
-
 from pipescaler.processors.image.crop_processor import CropProcessor
-from pipescaler.processors.image.esrgan_processor import ESRGANProcessor
+from pipescaler.processors.image.esrgan_processor import EsrganProcessor
 from pipescaler.processors.image.expand_processor import ExpandProcessor
 from pipescaler.processors.image.height_to_normal_processor import (
     HeightToNormalProcessor,
@@ -21,9 +19,9 @@ from pipescaler.processors.image.threshold_processor import ThresholdProcessor
 from pipescaler.processors.image.waifu_processor import WaifuProcessor
 from pipescaler.processors.image.xbrz_processor import XbrzProcessor
 
-__all__: List[str] = [
+__all__: list[str] = [
     "CropProcessor",
-    "ESRGANProcessor",
+    "EsrganProcessor",
     "ExpandProcessor",
     "HeightToNormalProcessor",
     "ModeProcessor",

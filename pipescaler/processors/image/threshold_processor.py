@@ -5,7 +5,7 @@
 """Converts image to black and white using threshold, optionally denoising."""
 from __future__ import annotations
 
-from typing import Any, List, no_type_check
+from typing import Any, no_type_check
 
 import numba as nb
 import numpy as np
@@ -56,7 +56,7 @@ class ThresholdProcessor(ImageProcessor):
 
     @classmethod
     @property
-    def supported_input_modes(self) -> List[str]:
+    def supported_input_modes(self) -> list[str]:
         """Supported modes for input image"""
         return ["L"]
 

@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from logging import info
-from typing import Any, List
+from typing import Any
 
 import numpy as np
 from PIL import Image
@@ -63,8 +63,7 @@ class GrayscaleSorter(Sorter):
         info(f"{self}: {infile}' matches 'no_rgb'")
         return "no_rgb"
 
-    @classmethod
     @property
-    def outlets(self) -> List[str]:
+    def outlets(self) -> list[str]:
         """Outlets that flow out of stage"""
         return ["drop_rgb", "keep_rgb", "no_rgb"]

@@ -4,14 +4,14 @@
 #   the terms of the BSD license. See the LICENSE file for details.
 """Fixtures for testing"""
 from functools import partial
-from typing import Any, Dict, List, Type
+from typing import Any, Type
 
 from pytest import fixture
 
 from pipescaler.core import Stage
 
 
-def stage_fixture(cls: Type[Stage], params: List[Dict[str, Any]]):
+def stage_fixture(cls: Type[Stage], params: list[dict[str, Any]]):
     """
     Decorator for Pipescaler Stage test fixtures, which provides clearer ids that make
     test output easier to read

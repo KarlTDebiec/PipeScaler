@@ -10,9 +10,9 @@ from subprocess import PIPE, Popen
 import pytest
 from PIL import Image
 
+from pipescaler.cl.utilities.host_cl import HostCL
 from pipescaler.common import temporary_filename
 from pipescaler.processors import WebProcessor
-from pipescaler.scripts.pipescaler_host import PipescalerHost
 from pipescaler.testing import expected_output_mode, get_infile, stage_fixture
 
 
@@ -49,7 +49,7 @@ def test(conf: str, infile: str, processor: WebProcessor):
         with open(conf_outfile_name, "w") as conf_outfile:
             conf_outfile.write(conf)
 
-        command = f"coverage run {getfile(PipescalerHost)} {conf_outfile_name}"
+        command = f"coverage run {getfile(HostCL)} {conf_outfile_name}"
         with Popen(command, shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE) as child:
             child.stderr.readline()
             with temporary_filename(".png") as outfile:

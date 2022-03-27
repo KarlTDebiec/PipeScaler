@@ -55,7 +55,7 @@ class ProcessorCommandLineTool(CommandLineTool, ABC):
     @property
     def name(cls) -> str:
         """Name of this tool used to define it when it is a subparser."""
-        return cls.__name__.removesuffix("CommandLineTool").lower()
+        return cls.__name__.removesuffix("CL").lower()
 
     @classmethod
     @property

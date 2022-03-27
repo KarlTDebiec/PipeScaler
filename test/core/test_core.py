@@ -5,7 +5,7 @@
 """Tests for core"""
 from os import listdir
 from os.path import basename
-from typing import List, Set, Union
+from typing import Union
 
 import pytest
 
@@ -30,7 +30,7 @@ infiles = get_files(get_sub_directory("basic"), style="absolute")
     ],
 )
 def test_get_files_in_directory(
-    sources: Union[str, List[str]], style: str, exclusions: Set[str]
+    sources: Union[str, list[str]], style: str, exclusions: set[str]
 ) -> None:
     get_files(sources, style, exclusions)
 

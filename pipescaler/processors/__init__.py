@@ -5,8 +5,6 @@
 """Processor stages"""
 from __future__ import annotations
 
-from typing import List
-
 from pipescaler.processors.external import (
     AppleScriptProcessor,
     AutomatorProcessor,
@@ -18,7 +16,7 @@ from pipescaler.processors.external import (
 from pipescaler.processors.gui import GigapixelAiProcessor
 from pipescaler.processors.image import (
     CropProcessor,
-    ESRGANProcessor,
+    EsrganProcessor,
     ExpandProcessor,
     HeightToNormalProcessor,
     ModeProcessor,
@@ -32,11 +30,11 @@ from pipescaler.processors.image import (
 from pipescaler.processors.side_channel_processor import SideChannelProcessor
 from pipescaler.processors.web_processor import WebProcessor
 
-__all__: List[str] = [
+__all__: list[str] = [
     "AppleScriptProcessor",
     "AutomatorProcessor",
     "CropProcessor",
-    "ESRGANProcessor",
+    "EsrganProcessor",
     "ExpandProcessor",
     "GigapixelAiProcessor",
     "HeightToNormalProcessor",

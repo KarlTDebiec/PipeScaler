@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from logging import info
-from typing import Any, List
+from typing import Any
 
 from pipescaler.common import validate_float
 from pipescaler.core import Sorter, is_monochrome, validate_image
@@ -55,8 +55,7 @@ class MonochromeSorter(Sorter):
         info(f"{self}: {infile}' matches 'no_gray'")
         return "no_gray"
 
-    @classmethod
     @property
-    def outlets(self) -> List[str]:
+    def outlets(self) -> list[str]:
         """Outlets that flow out of stage"""
         return ["drop_gray", "keep_gray", "no_gray"]

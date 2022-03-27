@@ -5,10 +5,8 @@
 """Splitter stages"""
 from __future__ import annotations
 
-from typing import List
-
 from pipescaler.splitters.alpha_splitter import AlphaSplitter
 from pipescaler.splitters.normal_splitter import NormalSplitter
 from pipescaler.splitters.repeat_splitter import RepeatSplitter
 
-__all__: List[str] = ["AlphaSplitter", "NormalSplitter", "RepeatSplitter"]
+__all__: list[str] = ["AlphaSplitter", "NormalSplitter", "RepeatSplitter"]

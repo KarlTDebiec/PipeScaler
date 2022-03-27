@@ -5,8 +5,6 @@
 """Functions for testing"""
 from __future__ import annotations
 
-from typing import List
-
 from pipescaler.testing.file import (
     get_infile,
     get_model_infile,
@@ -23,7 +21,7 @@ from pipescaler.testing.mark import (
     xfail_value,
 )
 
-__all__: List[str] = [
+__all__: list[str] = [
     "expected_output_mode",
     "get_infile",
     "get_model_infile",

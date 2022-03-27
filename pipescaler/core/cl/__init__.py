@@ -9,8 +9,10 @@ from pipescaler.core.cl.configurable_command_line_tool import (
     ConfigurableCommandLineTool,
 )
 from pipescaler.core.cl.processor_command_line_tool import ProcessorCommandLineTool
+from pipescaler.core.cl.utility_command_line_tool import UtilityCommandLineTool
 
 __all__: list[str] = [
     "ConfigurableCommandLineTool",
     "ProcessorCommandLineTool",
+    "UtilityCommandLineTool",
 ]

@@ -6,7 +6,7 @@
 from functools import partial
 from os import getenv
 from platform import system
-from typing import Set, Type
+from typing import Type
 
 from pytest import mark, param
 
@@ -34,7 +34,7 @@ def xfail_file_not_found(inner=None):
 
 
 def xfail_if_platform(
-    unsupported_platforms: Set[str] = None,
+    unsupported_platforms: set[str] = None,
     raises: Type[Exception] = UnsupportedPlatformError,
     inner=None,
 ):

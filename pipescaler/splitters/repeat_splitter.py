@@ -5,8 +5,6 @@
 """Repeats an input image."""
 from __future__ import annotations
 
-from typing import List, Tuple
-
 from PIL import Image
 
 from pipescaler.core import Splitter
@@ -15,7 +13,7 @@ from pipescaler.core import Splitter
 class RepeatSplitter(Splitter):
     """Repeats an input image."""
 
-    def split(self, input_image: Image.Image) -> Tuple[Image.Image, ...]:
+    def split(self, input_image: Image.Image) -> tuple[Image.Image, ...]:
         """
         Split an image
 
@@ -27,6 +25,6 @@ class RepeatSplitter(Splitter):
         return input_image.copy(), input_image.copy()
 
     @property
-    def outlets(self) -> List[str]:
+    def outlets(self) -> list[str]:
         """Outlets that flow out of stage"""
         return ["one", "two"]
