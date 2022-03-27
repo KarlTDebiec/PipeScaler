@@ -21,8 +21,7 @@ class XbrzProcessor(ImageProcessor):
     See [xbrz](https://github.com/ioistired/xbrz.py)."""
 
     def __init__(self, scale: int = 4, **kwargs: Any) -> None:
-        """
-        Validate and store static configuration
+        """Validate and store configuration.
 
         Arguments:
             scale: Factor by which to scale output image relative to input
