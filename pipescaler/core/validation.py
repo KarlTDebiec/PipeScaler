@@ -9,7 +9,7 @@
 """Core pipescaler functions for validation"""
 from __future__ import annotations
 
-from typing import List, Tuple, Union
+from typing import Union
 
 from PIL import Image
 
@@ -18,7 +18,7 @@ from pipescaler.core.exception import UnsupportedImageModeError
 from pipescaler.core.image import remove_palette_from_image
 
 
-def validate_image(infile: str, valid_modes: Union[str, List[str]]) -> Image.Image:
+def validate_image(infile: str, valid_modes: Union[str, list[str]]) -> Image.Image:
     """
     Validate that image exists and is of a valid mode, and remove palette if present
 
@@ -49,9 +49,9 @@ def validate_image(infile: str, valid_modes: Union[str, List[str]]) -> Image.Ima
 
 def validate_image_and_convert_mode(
     infile: str,
-    valid_modes: Union[str, List[str]],
+    valid_modes: Union[str, list[str]],
     convert_mode: str,
-) -> Tuple[Image.Image, str]:
+) -> tuple[Image.Image, str]:
     """
     Validate that image exists and is of a valid mode, remove palette if present, and
     convert it to provided mode

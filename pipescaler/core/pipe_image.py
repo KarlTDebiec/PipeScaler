@@ -10,7 +10,7 @@
 from __future__ import annotations
 
 from os.path import basename, dirname, join, splitext
-from typing import List, Optional
+from typing import Optional
 
 
 class PipeImage:
@@ -48,7 +48,7 @@ class PipeImage:
         self,
         directory: str,
         suffix: str,
-        trim_suffixes: Optional[List[str]] = None,
+        trim_suffixes: Optional[list[str]] = None,
         extension="png",
     ) -> PipeImage:
         """

@@ -7,14 +7,12 @@
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
 """Prints pydocstyle results formatted for consumption by GitHub."""
-from argparse import ArgumentParser
-from inspect import cleandoc
+from argparse import ArgumentParser, _SubParsersAction
 from itertools import zip_longest
-from os import environ, getenv
 from os.path import normpath
-from typing import Any
+from typing import Any, Union
 
-from pipescaler.common import CommandLineTool, run_command, validate_input_file
+from pipescaler.common import CommandLineTool, validate_input_file
 
 
 class PydocstyleReporter(CommandLineTool):
@@ -84,18 +82,10 @@ class PydocstyleReporter(CommandLineTool):
         print(f"::info::{github_message}")
 
     @classmethod
-    def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
-        """Construct argument parser.
-
-        Arguments:
-            **kwargs: Additional keyword arguments
-        Returns:
-            parser: Argument parser
-        """
-        description = kwargs.pop(
-            "description", cleandoc(cls.__doc__) if cls.__doc__ is not None else ""
-        )
-        parser = super().construct_argparser(description=description, **kwargs)
+    def add_arguments_to_argparser(
+        cls,
+        parser: Union[ArgumentParser, _SubParsersAction],
+    ) -> None:
 
         parser.add_argument(
             "pydocstyle_infile",
@@ -108,8 +98,6 @@ class PydocstyleReporter(CommandLineTool):
             type=cls.input_path_arg(),
             help="Input list of added or modified files",
         )
-
-        return parser
 
 
 if __name__ == "__main__":

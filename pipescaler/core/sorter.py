@@ -10,7 +10,6 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import List
 
 from pipescaler.core.stage import Stage
 
@@ -32,6 +31,6 @@ class Sorter(Stage, ABC):
 
     @classmethod
     @property
-    def inlets(self) -> List[str]:
+    def inlets(self) -> list[str]:
         """Inlets that flow into stage"""
         return ["inlet"]

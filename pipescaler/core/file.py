@@ -12,7 +12,7 @@ from __future__ import annotations
 from mimetypes import guess_type
 from os import listdir
 from os.path import basename, dirname, isabs, join, splitext
-from typing import Any, List, Optional, Set, Union
+from typing import Any, Optional, Union
 
 import yaml
 
@@ -22,8 +22,8 @@ from pipescaler.common import DirectoryNotFoundError, NotAFileError, validate_in
 def get_files_in_directory(
     directory: str,
     style: str = "base",
-    exclusions: Optional[Union[str, List[str], Set[str]]] = None,
-) -> Set[str]:
+    exclusions: Optional[Union[str, list[str], set[str]]] = None,
+) -> set[str]:
     """
     Get filenames within provided directory.
 
@@ -60,8 +60,8 @@ def get_files_in_directory(
 def get_files_in_text_file(
     text_file: str,
     style: str = "base",
-    exclusions: Optional[Union[str, List[str], Set[str]]] = None,
-) -> Set[str]:
+    exclusions: Optional[Union[str, list[str], set[str]]] = None,
+) -> set[str]:
     """
     Get filenames within provided text file.
 
@@ -102,10 +102,10 @@ def get_files_in_text_file(
 
 
 def get_files(
-    sources: Union[str, List[str]],
+    sources: Union[str, list[str]],
     style: str = "base",
-    exclusions: Optional[Set[str]] = None,
-) -> Set[str]:
+    exclusions: Optional[set[str]] = None,
+) -> set[str]:
     """
     Get filenames from provided sources, which may be either directories or text files.
 

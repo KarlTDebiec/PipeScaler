@@ -10,7 +10,6 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import List
 
 from pipescaler.core.stage import Stage
 
@@ -23,12 +22,12 @@ class Source(Stage):
         raise NotImplementedError()
 
     @property
-    def inlets(self) -> List[str]:
+    def inlets(self) -> list[str]:
         """Inlets that flow into stage"""
         return []
 
     @property
-    def outlets(self) -> List[str]:
+    def outlets(self) -> list[str]:
         """Outlets that flow out of stage"""
         return ["default"]
 
