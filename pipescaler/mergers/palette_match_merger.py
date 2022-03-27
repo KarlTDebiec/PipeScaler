@@ -11,7 +11,7 @@ from PIL import Image
 
 from pipescaler.common import validate_enum
 from pipescaler.core import Merger, PaletteMatchMode, UnsupportedImageModeError
-from pipescaler.util import PaletteMatcher
+from pipescaler.utilities import PaletteMatcher
 
 
 class PaletteMatchMerger(Merger):

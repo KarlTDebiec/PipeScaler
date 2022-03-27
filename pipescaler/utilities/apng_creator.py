@@ -90,8 +90,7 @@ class ApngCreator:
             f"-d {self.duration} "
             f"--force"
         )
-        if self.verbosity >= 1:
-            print(command)
+        print(command)
         Popen(command, shell=True, close_fds=True).wait()
         for tempfile in tempfiles:
             remove(tempfile.name)

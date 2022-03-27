@@ -9,7 +9,7 @@ from inspect import getfile
 
 from pytest import fixture, mark
 
-from pipescaler.cl.utilities import ScaledPairIdentifierCL, WaifuPyTorchPicklerCL
+from pipescaler.cl.utilities import ScaledPairIdentifierCL
 from pipescaler.common import run_command
 
 
