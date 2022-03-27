@@ -7,8 +7,8 @@ from inspect import getfile
 from signal import SIGTERM
 from subprocess import PIPE, Popen
 
-import pytest
 from PIL import Image
+from pytest import fixture, mark
 
 from pipescaler.cl.utilities.host_cl import HostCL
 from pipescaler.common import temporary_filename
@@ -16,7 +16,7 @@ from pipescaler.processors import WebProcessor
 from pipescaler.testing import expected_output_mode, get_infile, stage_fixture
 
 
-@pytest.fixture()
+@fixture()
 def conf():
     return """
 stages:
@@ -36,7 +36,7 @@ def processor(request) -> WebProcessor:
     return WebProcessor(**request.param)
 
 
-@pytest.mark.parametrize(
+@mark.parametrize(
     ("infile"),
     [
         ("RGB"),
