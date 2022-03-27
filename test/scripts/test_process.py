@@ -42,7 +42,7 @@ def script(request) -> str:
         ("RGB", "solidcolor -h"),
         ("RGB", "solidcolor --scale 2"),
         ("RGB", "threshold -h"),
-        ("RGB", "threshold --threshold 64 --denoise"),
+        ("L", "threshold --threshold 64 --denoise"),
         ("RGB", "waifu -h"),
         skip_if_ci()("RGB", f"waifu --model {get_model_infile('WaifuUpConv7/a-2-3')}"),
         ("RGB", "web -h"),
