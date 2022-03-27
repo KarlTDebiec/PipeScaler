@@ -6,16 +6,20 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+"""Command-line interface for CropProcessor."""
 from __future__ import annotations
 
 from argparse import ArgumentParser, _SubParsersAction
-from typing import Union
+from typing import Type, Union
 
+from pipescaler.core import Processor
 from pipescaler.core.cl import ProcessorCommandLineTool
 from pipescaler.processors import CropProcessor
 
 
 class CropCommandLineTool(ProcessorCommandLineTool):
+    """Command-line interface for CropProcessor."""
+
     @classmethod
     def add_arguments_to_argparser(
         cls,
@@ -40,7 +44,8 @@ class CropCommandLineTool(ProcessorCommandLineTool):
 
     @classmethod
     @property
-    def processor(cls) -> type:
+    def processor(cls) -> Type[Processor]:
+        """Type of processor wrapped by command-line tool."""
         return CropProcessor
 
 

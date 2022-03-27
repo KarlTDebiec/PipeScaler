@@ -6,6 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+"""Command-line interface for Processors."""
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -18,6 +19,8 @@ from pipescaler.core import Processor
 
 
 class ProcessorCommandLineTool(CommandLineTool, ABC):
+    """Command-line interface for Processors."""
+
     @classmethod
     def add_arguments_to_argparser(
         cls,

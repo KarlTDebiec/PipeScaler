@@ -6,6 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+"""Command-line interface for WaifuProcessor."""
 from __future__ import annotations
 
 from argparse import ArgumentParser, _SubParsersAction
@@ -17,6 +18,8 @@ from pipescaler.processors import WaifuProcessor
 
 
 class WaifuCommandLineTool(ProcessorCommandLineTool):
+    """Command-line interface for WaifuProcessor."""
+
     @classmethod
     def add_arguments_to_argparser(
         cls,

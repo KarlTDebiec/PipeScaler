@@ -6,6 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+"""Command-line interface for WebProcessor."""
 from __future__ import annotations
 
 from argparse import ArgumentParser, _SubParsersAction
@@ -17,6 +18,8 @@ from pipescaler.processors import WebProcessor
 
 
 class WebCommandLineTool(ProcessorCommandLineTool):
+    """Command-line interface for WebProcessor."""
+
     @classmethod
     def add_arguments_to_argparser(
         cls,
@@ -30,7 +33,7 @@ class WebCommandLineTool(ProcessorCommandLineTool):
         super().add_arguments_to_argparser(parser)
 
         required = cls.get_required_arguments_group(parser)
-        parser.add_argument("--url", type=str, help="URL to which to POST image")
+        required.add_argument("--url", type=str, help="URL to which to POST image")
 
     @classmethod
     @property

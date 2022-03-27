@@ -6,16 +6,20 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
+"""Command-line interface for ESRGANProcessor."""
 from __future__ import annotations
 
 from argparse import ArgumentParser, _SubParsersAction
-from typing import Union
+from typing import Type, Union
 
+from pipescaler.core import Processor
 from pipescaler.core.cl import ProcessorCommandLineTool
 from pipescaler.processors import ESRGANProcessor
 
 
 class ESRGANCommandLineTool(ProcessorCommandLineTool):
+    """Command-line interface for ESRGANProcessor."""
+
     @classmethod
     def add_arguments_to_argparser(
         cls,
@@ -47,7 +51,8 @@ class ESRGANCommandLineTool(ProcessorCommandLineTool):
 
     @classmethod
     @property
-    def processor(cls) -> type:
+    def processor(cls) -> Type[Processor]:
+        """Type of processor wrapped by command-line tool."""
         return ESRGANProcessor
 
 
