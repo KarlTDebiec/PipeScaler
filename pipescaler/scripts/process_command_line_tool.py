@@ -5,23 +5,24 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser, _SubParsersAction
-from typing import Union
+from typing import Type, Union
 
 from pipescaler.common import CommandLineTool
+from pipescaler.core import Processor
 from pipescaler.scripts import processors
 
 
 class ProcessCommandLineTool(CommandLineTool):
-    processors = {
-        processor.name: processor
-        for processor in map(processors.__dict__.get, processors.__all__)
-    }
-
     @classmethod
     def add_arguments_to_argparser(
         cls,
         parser: Union[ArgumentParser, _SubParsersAction],
     ) -> None:
+        """Add arguments to a nascent argument parser.
+
+        Arguments:
+            parser: Nascent argument parser
+        """
         super().add_arguments_to_argparser(parser)
 
         subparsers = parser.add_subparsers(dest="processor")
@@ -30,11 +31,20 @@ class ProcessCommandLineTool(CommandLineTool):
 
     @classmethod
     def main(cls) -> None:
-        """Parse arguments, initialize processor, and process file"""
+        """Parse arguments, initialize processor, and process file."""
         parser = cls.construct_argparser()
         kwargs = vars(parser.parse_args())
         processor = cls.processors[kwargs.pop("processor")]
         processor.process(**kwargs)
+
+    @classmethod
+    @property
+    def processors(cls) -> dict[str : Type[Processor]]:
+        """Names and Types of processors wrapped by command-line tool."""
+        return {
+            processor.name: processor
+            for processor in map(processors.__dict__.get, processors.__all__)
+        }
 
 
 if __name__ == "__main__":

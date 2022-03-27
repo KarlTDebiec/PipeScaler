@@ -22,6 +22,7 @@ from pipescaler.scripts.processors.threshold_command_line_tool import (
     ThresholdCommandLineTool,
 )
 from pipescaler.scripts.processors.waifu_command_line_tool import WaifuCommandLineTool
+from pipescaler.scripts.processors.web_command_line_tool import WebCommandLineTool
 from pipescaler.scripts.processors.xbrz_command_line_tool import XbrzCommandLineTool
 
 __all__: list[str] = [
@@ -35,5 +36,6 @@ __all__: list[str] = [
     "SolidColorCommandLineTool",
     "ThresholdCommandLineTool",
     "WaifuCommandLineTool",
+    "WebCommandLineTool",
     "XbrzCommandLineTool",
 ]
