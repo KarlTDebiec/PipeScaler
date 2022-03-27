@@ -61,7 +61,7 @@ class ScaledPairIdentifier:
             pairs_file: CSV file to read/write scaled image pairs
             hash_file: CSV file to read/write cache of image hashes
             image_directory: Directory to which to write stacked scaled image sets
-            interactive: Whether or not to prompt for interactive review
+            interactive: Whether to prompt for interactive review
         """
         # Store input and output paths
         self.filenames = filenames
@@ -294,7 +294,7 @@ class ScaledPairIdentifier:
             child: Basename of child
 
         Returns:
-            Pair of *child*
+            Pair of child
         """
         return self.pairs.loc[self.pairs["scaled filename"] == child]
 

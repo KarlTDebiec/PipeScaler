@@ -27,7 +27,8 @@ from pipescaler.common import (
     validate_output_directory,
     validate_output_file,
 )
-from pipescaler.core import ConfigurableCommandLineTool, get_files
+from pipescaler.core import get_files
+from pipescaler.core.cl import ConfigurableCommandLineTool
 from pipescaler.util import ScaledPairIdentifier
 
 pd.set_option(

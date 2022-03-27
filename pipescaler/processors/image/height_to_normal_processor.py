@@ -9,8 +9,6 @@
 """Converts height map image to a normal map image."""
 from __future__ import annotations
 
-from argparse import ArgumentParser
-from inspect import cleandoc
 from typing import Any, List, Optional
 
 from PIL import Image

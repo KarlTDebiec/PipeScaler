@@ -63,7 +63,7 @@ class WaifuPyTorchPickler(CommandLineTool):
         model = self.architectures[self.architecture]()
         info(f"{self}: Waifu {self.architecture} model built")
 
-        with open(self.infile) as infile:
+        with open(self.infile, "r", encoding="utf-8") as infile:
             weights = json.load(infile)
         box = []
         for weight in weights:

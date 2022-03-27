@@ -9,9 +9,8 @@
 """Prints prospector results formatted for consumption by GitHub."""
 import json
 from argparse import ArgumentParser, _SubParsersAction
-from inspect import cleandoc
 from os.path import normpath
-from typing import Any, Optional, Union
+from typing import Any, Union
 
 from pipescaler.common import CommandLineTool, validate_input_file
 

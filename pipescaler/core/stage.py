@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Base class for stages"""
+"""Base class for stages."""
 from __future__ import annotations
 
 from abc import ABC
@@ -58,7 +58,7 @@ def initialize_stage(stage_name, stage_conf, modules):
 
 
 class Stage(ABC):
-    """Base class for stages"""
+    """Base class for stages."""
 
     trim_suffixes = None
     extension = "png"
@@ -66,8 +66,7 @@ class Stage(ABC):
     def __init__(
         self, name: Optional[str] = None, desc: Optional[str] = None, **kwargs: Any
     ) -> None:
-        """
-        Validate and store static configuration
+        """Validate and store configuration.
 
         Arguments:
             name: Name of stage
@@ -84,11 +83,11 @@ class Stage(ABC):
             self.desc = self.name
 
     def __repr__(self) -> str:
-        """Detailed representation of stage"""
+        """Detailed representation of stage."""
         return self.desc
 
     def __str__(self) -> str:
-        """Simple representation of stage"""
+        """Simple representation of stage."""
         return self.name
 
     @property

@@ -34,15 +34,16 @@ class PydocstyleReporter(CommandLineTool):
         super().__init__(**kwargs)
 
         self.messages = []
-        with open(validate_input_file(pydocstyle_infile)) as file:
-            for line, issue in zip_longest(*[file] * 2):
+        pydocstyle_infile = validate_input_file(pydocstyle_infile)
+        with open(pydocstyle_infile, "r", encoding="utf-8") as infile:
+            for line, issue in zip_longest(*[infile] * 2):
                 file, line = line.split()[0].split(":")
                 code, message = issue.strip().split(": ")
                 self.messages.append(
                     {"file": file, "line": line, "code": code, "message": message}
                 )
-
-        with open(validate_input_file(modified_files_infile)) as infile:
+        modified_files_infile = validate_input_file(modified_files_infile)
+        with open(modified_files_infile, "r", encoding="utf-8") as infile:
             self.modified_files = list(
                 map(normpath, infile.read().strip("[]\n").split(","))
             )

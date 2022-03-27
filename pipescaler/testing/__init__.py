@@ -18,7 +18,6 @@ from pipescaler.testing.file import (
     get_sub_directory,
 )
 from pipescaler.testing.fixture import stage_fixture
-from pipescaler.testing.general import run_processor_on_command_line
 from pipescaler.testing.image import expected_output_mode
 from pipescaler.testing.mark import (
     skip_if_ci,
@@ -36,7 +35,6 @@ __all__: List[str] = [
     "get_sub_directory",
     "skip_if_ci",
     "stage_fixture",
-    "run_processor_on_command_line",
     "xfail_file_not_found",
     "xfail_if_platform",
     "xfail_unsupported_image_mode",

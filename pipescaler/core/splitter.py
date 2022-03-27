@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Base class for splitters"""
+"""Base class for splitters."""
 from __future__ import annotations
 
 from abc import ABC
@@ -20,13 +20,12 @@ from pipescaler.core.validation import validate_image
 
 
 class Splitter(Stage, ABC):
-    """Base class for splitters"""
+    """Base class for splitters."""
 
     def __init__(
         self, suffixes: Optional[dict[str, str]] = None, **kwargs: Any
     ) -> None:
-        """
-        Validate and store static configuration
+        """Validate and store configuration.
 
         Arguments:
             suffixes: Suffixes to add to split outfiles
@@ -41,8 +40,7 @@ class Splitter(Stage, ABC):
             self.suffixes = {outlet: outlet for outlet in self.outlets}
 
     def __call__(self, infile: str, **kwargs: Any) -> dict[str, str]:
-        """
-        Split infile into outfiles
+        """Split infile into outfiles.
 
         Arguments:
             infile: Input file
@@ -67,18 +65,17 @@ class Splitter(Stage, ABC):
 
     @property
     def inlets(self) -> list[str]:
-        """Inlets that flow into stage"""
+        """Inlets that flow into stage."""
         return ["infile"]
 
     @classmethod
     @property
     def supported_input_modes(self) -> list[str]:
-        """Supported modes for input image"""
+        """Supported modes for input image."""
         return ["1", "L", "LA", "RGB", "RGBA"]
 
     def split(self, input_image: Image.Image) -> tuple[Image.Image, ...]:
-        """
-        Split an image
+        """Split an image.
 
         Arguments:
             input_image: Input image to split

@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Base class for sorters"""
+"""Base class for sorters."""
 from __future__ import annotations
 
 from abc import ABC
@@ -15,11 +15,10 @@ from pipescaler.core.stage import Stage
 
 
 class Sorter(Stage, ABC):
-    """Base class for sorters"""
+    """Base class for sorters."""
 
     def __call__(self, infile: str) -> str:
-        """
-        Sort image into an outlet
+        """Sort image into an outlet.
 
         Arguments:
             infile: Input file
@@ -29,8 +28,7 @@ class Sorter(Stage, ABC):
         """
         raise NotImplementedError()
 
-    @classmethod
     @property
     def inlets(self) -> list[str]:
-        """Inlets that flow into stage"""
+        """Inlets that flow into stage."""
         return ["inlet"]

@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Base class for processors"""
+"""Base class for processors."""
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -16,10 +16,10 @@ from pipescaler.core.stage import Stage
 
 
 class Processor(Stage, ABC):
-    """Base class for processors"""
+    """Base class for processors."""
 
     def __init__(self, suffix: Optional[str] = None, **kwargs: Any) -> None:
-        """Validate and store static configuration.
+        """Validate and store configuration.
 
         Arguments:
             suffix: Suffix to append to images
@@ -45,10 +45,10 @@ class Processor(Stage, ABC):
 
     @property
     def inlets(self) -> list[str]:
-        """Inlets that flow into stage"""
+        """Inlets that flow into stage."""
         return ["inlet"]
 
     @property
     def outlets(self) -> list[str]:
-        """Outlets that flow out of stage"""
+        """Outlets that flow out of stage."""
         return ["outlet"]

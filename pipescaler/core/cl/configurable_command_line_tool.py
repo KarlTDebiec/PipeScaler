@@ -8,12 +8,11 @@
 #   BSD license. See the LICENSE file for details.
 """General-purpose configurable command-line tool base class"""
 from abc import ABC
-from argparse import ArgumentParser
-from inspect import cleandoc
+from argparse import ArgumentParser, _SubParsersAction
 from logging import info
 from os import environ
 from os.path import expandvars, normpath
-from typing import Any
+from typing import Union
 
 from pipescaler.common import CommandLineTool
 from pipescaler.core.file import read_yaml
@@ -23,28 +22,20 @@ class ConfigurableCommandLineTool(CommandLineTool, ABC):
     """General-purpose configurable command-line tool base class"""
 
     @classmethod
-    def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
-        """
-        Construct argument parser
+    def add_arguments_to_argparser(
+        cls,
+        parser: Union[ArgumentParser, _SubParsersAction],
+    ) -> None:
+        """Add arguments to a nascent argument parser.
 
         Arguments:
-            kwargs: Additional keyword arguments
-        Returns:
-            parser: Argument parser
+            parser: Nascent argument parser
         """
-        description = kwargs.pop(
-            "description", cleandoc(cls.__doc__) if cls.__doc__ is not None else ""
-        )
-        parser = super().construct_argparser(description=description, **kwargs)
-
-        # Input
         parser.add_argument(
             "conf_file",
             type=cls.input_path_arg(),
             help="path to yaml file from which to read configuration",
         )
-
-        return parser
 
     @classmethod
     def main(cls) -> None:

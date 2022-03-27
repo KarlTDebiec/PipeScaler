@@ -17,7 +17,7 @@ from typing import Any, Dict
 from flask import Flask, redirect, request, send_file, url_for
 
 from pipescaler.common import CommandLineTool, temporary_filename
-from pipescaler.core import Stage, initialize_stage
+from pipescaler.core import Processor, Stage, initialize_stage
 from pipescaler.core.file import read_yaml
 
 
@@ -41,7 +41,7 @@ class PipescalerHost(CommandLineTool):
                 "termini",
             ]
         ]
-        self.stages: Dict[str, Stage] = {}
+        self.stages: Dict[str, Processor] = {}
         for stage_name, stage_conf in stages.items():
             self.stages[stage_name] = initialize_stage(
                 stage_name, stage_conf, stage_modules
@@ -61,11 +61,11 @@ class PipescalerHost(CommandLineTool):
             extension = splitext(request.files["image"].filename)[-1]
 
             # Process image
-            stage = self.stages[stage_name]
+            processor = self.stages[stage_name]
             with temporary_filename(extension) as infile:
                 image_file.save(infile)
                 with temporary_filename(extension) as outfile:
-                    stage(infile, outfile)
+                    processor(infile, outfile)
                     with open(outfile, "rb") as output_file:
                         output_bytes = output_file.read()
 

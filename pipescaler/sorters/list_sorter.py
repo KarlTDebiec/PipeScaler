@@ -36,7 +36,7 @@ class ListSorter(Sorter):
         Arguments:
             outlets: Outlet configuration
             wip_directory: Work-in-progress directory; workaround used to handle
-              potential file locations both inside and outside of a pipeline's
+              potential file locations both inside and outside a pipeline's
               wip_directory
             **kwargs: Additional keyword arguments
         """

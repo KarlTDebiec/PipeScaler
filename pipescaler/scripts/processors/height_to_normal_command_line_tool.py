@@ -11,6 +11,7 @@ from __future__ import annotations
 from argparse import ArgumentParser, _SubParsersAction
 from typing import Union
 
+from pipescaler.core import Processor
 from pipescaler.core.cl import ProcessorCommandLineTool
 from pipescaler.processors import HeightToNormalProcessor
 
@@ -21,10 +22,15 @@ class HeightToNormalCommandLineTool(ProcessorCommandLineTool):
         cls,
         parser: Union[ArgumentParser, _SubParsersAction],
     ) -> None:
+        """Add arguments to a nascent argument parser.
+
+        Arguments:
+            parser: Nascent argument parser
+        """
         super().add_arguments_to_argparser(parser)
 
         optional = cls.get_optional_arguments_group(parser)
-        parser.add_argument(
+        optional.add_argument(
             "--sigma",
             default=None,
             type=cls.float_arg(min_value=0),
@@ -34,7 +40,8 @@ class HeightToNormalCommandLineTool(ProcessorCommandLineTool):
 
     @classmethod
     @property
-    def processor(cls) -> type:
+    def processor(cls) -> type[Processor]:
+        """Type of processor wrapped by command-line tool."""
         return HeightToNormalProcessor
 
 

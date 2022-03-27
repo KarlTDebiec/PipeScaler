@@ -11,11 +11,11 @@ from __future__ import annotations
 import itertools
 from argparse import ArgumentParser
 from inspect import cleandoc
-from os import environ
 from os.path import basename, splitext
 from pprint import pprint
 from shutil import move
-from typing import Any, List, Optional, Union
+from sys import exit
+from typing import Any, Optional, Union
 
 import numpy as np
 import yaml
@@ -33,14 +33,14 @@ from pipescaler.core import get_files
 from pipescaler.core.file import read_yaml
 
 
-class ScaledImageIdentifier(CommandLineTool):
+class ScaledPairIdentifierCommandLineTool(CommandLineTool):
     """"""
 
     exclusions = {".DS_Store", "desktop"}
 
     def __init__(
         self,
-        input_directory: Union[str, List[str]],
+        input_directory: Union[str, list[str]],
         outfile: str,
         infile: str = None,
         output_directory: Optional[str] = None,
@@ -65,7 +65,7 @@ class ScaledImageIdentifier(CommandLineTool):
             for d in input_directory
         ]
         filenames = get_files(
-            input_directories, style="absolute", exclusion_sources=self.exclusions
+            input_directories, style="absolute", exclusions=self.exclusions
         )
         self.filenames = {splitext(basename(f))[0]: f for f in filenames}
 
@@ -93,15 +93,11 @@ class ScaledImageIdentifier(CommandLineTool):
                 # Loop over images at this size
                 for name in self.data[size].keys():
                     print(f"Reviewing {name}")
-                    # if "_m_" not in name:
-                    #     continue
                     self.review_image(name, size)
 
-        # Move file
-
-        except EOFError as e:
+        except EOFError:
             self.quit()
-        except KeyboardInterrupt as e:
+        except KeyboardInterrupt:
             self.quit()
 
     @property
@@ -144,7 +140,7 @@ class ScaledImageIdentifier(CommandLineTool):
 
     def quit(self):
         # pprint(self.scalesets)
-        with open(self.outfile, "w") as outfile:
+        with open(self.outfile, "w", encoding="utf-8") as outfile:
             yaml.dump(self.scalesets, outfile)
         print(f"Saved to {self.outfile}")
         exit()
@@ -201,7 +197,7 @@ class ScaledImageIdentifier(CommandLineTool):
                             self.scalesets[original_name] = {}
                         self.scalesets[original_name][scale] = small_name
                         pprint(self.scalesets[original_name])
-                        with open(self.outfile, "w") as outfile:
+                        with open(self.outfile, "w", encoding="utf-8") as outfile:
                             yaml.dump(self.scalesets, outfile)
                         print(f"Saved to {self.outfile}")
                         move(self.filenames[small_name], self.output_directory)
@@ -216,7 +212,7 @@ class ScaledImageIdentifier(CommandLineTool):
                             self.scalesets[original_name]["rejected"] = []
                         self.scalesets[original_name]["rejected"].append(small_name)
                         pprint(self.scalesets[original_name])
-                        with open(self.outfile, "w") as outfile:
+                        with open(self.outfile, "w", encoding="utf-8") as outfile:
                             yaml.dump(self.scalesets, outfile)
                         print(f"Saved to {self.outfile}")
                     elif confirmation.startswith("e"):
@@ -314,6 +310,7 @@ class ScaledImageIdentifier(CommandLineTool):
 
     @staticmethod
     def get_scaled(datum, size):
+        # noinspection PyTypeChecker
         return np.array(Image.fromarray(datum).resize(size, resample=Image.LANCZOS))
 
     @staticmethod
@@ -327,4 +324,4 @@ class ScaledImageIdentifier(CommandLineTool):
 
 
 if __name__ == "__main__":
-    ScaledImageIdentifier.main()
+    ScaledPairIdentifierCommandLineTool.main()

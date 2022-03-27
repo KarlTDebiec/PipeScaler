@@ -21,6 +21,11 @@ class ExpandCommandLineTool(ProcessorCommandLineTool):
         cls,
         parser: Union[ArgumentParser, _SubParsersAction],
     ) -> None:
+        """Add arguments to a nascent argument parser.
+
+        Arguments:
+            parser: Nascent argument parser
+        """
         super().add_arguments_to_argparser(parser)
 
         required = cls.get_required_arguments_group(parser)

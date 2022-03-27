@@ -11,6 +11,7 @@ from __future__ import annotations
 from argparse import ArgumentParser, _SubParsersAction
 from typing import Union
 
+from pipescaler.core import Processor
 from pipescaler.core.cl import ProcessorCommandLineTool
 from pipescaler.processors import XbrzProcessor
 
@@ -21,6 +22,11 @@ class XbrzCommandLineTool(ProcessorCommandLineTool):
         cls,
         parser: Union[ArgumentParser, _SubParsersAction],
     ) -> None:
+        """Add arguments to a nascent argument parser.
+
+        Arguments:
+            parser: Nascent argument parser
+        """
         super().add_arguments_to_argparser(parser)
 
         required = cls.get_required_arguments_group(parser)
@@ -33,7 +39,8 @@ class XbrzCommandLineTool(ProcessorCommandLineTool):
 
     @classmethod
     @property
-    def processor(cls) -> type:
+    def processor(cls) -> type[Processor]:
+        """Type of processor wrapped by command-line tool."""
         return XbrzProcessor
 
 

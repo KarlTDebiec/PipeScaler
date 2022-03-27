@@ -283,7 +283,7 @@ class ESRGANProcessor(ImageProcessor):
     @staticmethod
     def get_old_scale_index(state_dict: Dict[str, str]) -> int:
         try:
-            # get largest model index from keys like "model.X.weight"
+            # get the largest model index from keys like "model.X.weight"
             max_index = max([int(n.split(".")[1]) for n in state_dict.keys()])
         except:
             # invalid model dict format?

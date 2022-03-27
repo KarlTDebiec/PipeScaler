@@ -11,6 +11,7 @@ from __future__ import annotations
 from argparse import ArgumentParser, _SubParsersAction
 from typing import Union
 
+from pipescaler.core import Processor
 from pipescaler.core.cl import ProcessorCommandLineTool
 from pipescaler.processors import ThresholdProcessor
 
@@ -21,6 +22,11 @@ class ThresholdCommandLineTool(ProcessorCommandLineTool):
         cls,
         parser: Union[ArgumentParser, _SubParsersAction],
     ) -> None:
+        """Add arguments to a nascent argument parser.
+
+        Arguments:
+            parser: Nascent argument parser
+        """
         super().add_arguments_to_argparser(parser)
 
         optional = cls.get_optional_arguments_group(parser)
@@ -41,7 +47,8 @@ class ThresholdCommandLineTool(ProcessorCommandLineTool):
 
     @classmethod
     @property
-    def processor(cls) -> type:
+    def processor(cls) -> type[Processor]:
+        """Type of processor wrapped by command-line tool."""
         return ThresholdProcessor
 
 

@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Base class for merger stages"""
+"""Base class for mergers."""
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -20,7 +20,7 @@ from pipescaler.core.validation import validate_image
 
 
 class Merger(Stage, ABC):
-    """Base class for merger stages"""
+    """Base class for mergers."""
 
     def __init__(
         self,
@@ -28,8 +28,7 @@ class Merger(Stage, ABC):
         trim_suffixes: Optional[list[str]] = None,
         **kwargs: Any,
     ) -> None:
-        """
-        Validate and store static configuration
+        """Validate and store configuration.
 
         Arguments:
             suffix: Suffix to add to merged outfiles
@@ -49,8 +48,7 @@ class Merger(Stage, ABC):
             self.trim_suffixes = self.inlets
 
     def __call__(self, outfile: str, **kwargs: Any) -> None:
-        """
-        Merge infiles into an outfile
+        """Merge infiles into an outfile.
 
         Arguments:
             outfile: Path to output file
@@ -72,20 +70,19 @@ class Merger(Stage, ABC):
 
     @property
     def outlets(self) -> list[str]:
-        """Outlets that flow out of stage"""
+        """Outlets that flow out of stage."""
         return ["outlet"]
 
     @classmethod
     @property
     @abstractmethod
     def supported_input_modes(self) -> dict[str, list[str]]:
-        """Supported modes for input images"""
+        """Supported modes for input images."""
         raise NotImplementedError()
 
     @abstractmethod
     def merge(self, *input_images: Image.Image) -> Image.Image:
-        """
-        Merge images
+        """Merge images.
 
         Arguments:
             *input_images: Input images to merge

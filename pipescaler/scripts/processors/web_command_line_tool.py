@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#   pipescaler/scripts/processors/mode_command_line_tool.py
+#   pipescaler/scripts/processors/web_command_line_tool.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved.
@@ -13,10 +13,10 @@ from typing import Union
 
 from pipescaler.core import Processor
 from pipescaler.core.cl import ProcessorCommandLineTool
-from pipescaler.processors import ModeProcessor
+from pipescaler.processors import WebProcessor
 
 
-class ModeCommandLineTool(ProcessorCommandLineTool):
+class WebCommandLineTool(ProcessorCommandLineTool):
     @classmethod
     def add_arguments_to_argparser(
         cls,
@@ -30,28 +30,14 @@ class ModeCommandLineTool(ProcessorCommandLineTool):
         super().add_arguments_to_argparser(parser)
 
         required = cls.get_required_arguments_group(parser)
-        required.add_argument(
-            "--mode",
-            required=True,
-            type=cls.str_arg(options=cls.processor.supported_input_modes),
-            help=f"image mode ({ModeProcessor.supported_input_modes})",
-        )
-
-        optional = cls.get_optional_arguments_group(parser)
-        optional.add_argument(
-            "--background_color",
-            default="#000000",
-            type=str,
-            help="background color of output image; only relevant if input image is "
-            "RGBA or LA (default: %(default)s)",
-        )
+        parser.add_argument("--url", type=str, help="URL to which to POST image")
 
     @classmethod
     @property
     def processor(cls) -> type[Processor]:
         """Type of processor wrapped by command-line tool."""
-        return ModeProcessor
+        return WebProcessor
 
 
 if __name__ == "__main__":
-    ModeCommandLineTool.main()
+    WebCommandLineTool.main()

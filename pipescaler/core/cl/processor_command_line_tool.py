@@ -14,6 +14,7 @@ from inspect import cleandoc
 from typing import Any, Union
 
 from pipescaler.common import CommandLineTool
+from pipescaler.core import Processor
 
 
 class ProcessorCommandLineTool(CommandLineTool, ABC):
@@ -22,6 +23,11 @@ class ProcessorCommandLineTool(CommandLineTool, ABC):
         cls,
         parser: Union[ArgumentParser, _SubParsersAction],
     ) -> None:
+        """Add arguments to a nascent argument parser.
+
+        Arguments:
+            parser: Nascent argument parser
+        """
         super().add_arguments_to_argparser(parser)
 
         parser.add_argument("infile", type=cls.input_path_arg(), help="input file")
@@ -55,5 +61,6 @@ class ProcessorCommandLineTool(CommandLineTool, ABC):
     @classmethod
     @property
     @abstractmethod
-    def processor(cls) -> type:
+    def processor(cls) -> type[Processor]:
+        """Type of processor wrapped by command-line tool."""
         raise NotImplementedError()
