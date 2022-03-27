@@ -12,13 +12,7 @@ from PIL import Image
 
 from pipescaler.common import temporary_filename
 from pipescaler.processors import AppleScriptProcessor
-from pipescaler.testing import (
-    get_infile,
-    run_processor_on_command_line,
-    skip_if_ci,
-    stage_fixture,
-    xfail_if_platform,
-)
+from pipescaler.testing import get_infile, skip_if_ci, stage_fixture, xfail_if_platform
 
 
 @stage_fixture(
@@ -51,19 +45,3 @@ def test(infile: str, processor: AppleScriptProcessor) -> None:
                 input_image.size[0] * int(processor.args),
                 input_image.size[1] * int(processor.args),
             )
-
-
-@pytest.mark.serial
-@pytest.mark.parametrize(
-    ("infile", "args"),
-    [
-        ("RGB", "-h"),
-        skip_if_ci(xfail_if_platform({"Linux", "Windows"}, raises=ValueError))(
-            "RGB", "--script pixelmator/ml_super_resolution.scpt --args 2"
-        ),
-    ],
-)
-def test_cl(infile: str, args: str) -> None:
-    infile = get_infile(infile)
-
-    run_processor_on_command_line(AppleScriptProcessor, args, infile)

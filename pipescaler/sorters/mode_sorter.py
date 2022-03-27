@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Sorts image based on mode"""
+"""Sorts image based on mode."""
 from __future__ import annotations
 
 from logging import info
@@ -16,7 +16,7 @@ from pipescaler.core import Sorter, validate_image
 
 
 class ModeSorter(Sorter):
-    """Sorts image based on mode"""
+    """Sorts image based on mode."""
 
     def __call__(self, infile: str) -> str:
         """
@@ -35,6 +35,7 @@ class ModeSorter(Sorter):
         info(f"{self}: '{infile}' matches '{image.mode}'")
         return image.mode.lower()
 
+    @classmethod
     @property
     def outlets(self) -> List[str]:
         """Outlets that flow out of stage"""

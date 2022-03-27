@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Matches an image's color palette to that of a reference image"""
+"""Matches an image's color palette to that of a reference image."""
 from __future__ import annotations
 
 from typing import Any, Union
@@ -19,7 +19,7 @@ from pipescaler.util import PaletteMatcher
 
 
 class PaletteMatchMerger(Merger):
-    """Matches an image's color palette to that of a reference image"""
+    """Matches an image's color palette to that of a reference image."""
 
     def __init__(
         self,

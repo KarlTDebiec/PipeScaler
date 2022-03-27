@@ -41,20 +41,9 @@ class ExternalProcessor(Processor, ABC):
 
     @property
     @abstractmethod
-    def command_template(self):
+    def command_template(self) -> str:
         """String template with which to generate command"""
         raise NotImplementedError()
-
-    @property
-    @abstractmethod
-    def executable(self) -> str:
-        """Name of executable"""
-        raise NotImplementedError()
-
-    @property
-    def supported_platforms(self) -> set[str]:
-        """Platforms on which processor is supported"""
-        return {"Darwin", "Linux", "Windows"}
 
     def process(self, infile: str, outfile: str) -> None:
         """
@@ -71,3 +60,15 @@ class ExternalProcessor(Processor, ABC):
         # If command template lacks outfile, assume infile is processed in place
         if "{outfile}" not in self.command_template:
             copyfile(infile, outfile)
+
+    @classmethod
+    @property
+    def executable(self) -> str:
+        """Name of executable"""
+        raise NotImplementedError()
+
+    @classmethod
+    @property
+    def supported_platforms(self) -> set[str]:
+        """Platforms on which processor is supported"""
+        return {"Darwin", "Linux", "Windows"}

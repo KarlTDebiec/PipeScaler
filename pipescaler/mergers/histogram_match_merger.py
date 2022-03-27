@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Matches an image's color histogram to that of a reference image"""
+"""Matches an image's color histogram to that of a reference image."""
 from __future__ import annotations
 
 import numpy as np
@@ -17,7 +17,7 @@ from pipescaler.core import Merger, UnsupportedImageModeError
 
 
 class HistogramMatchMerger(Merger):
-    """Matches an image's color histogram to that of a reference image"""
+    """Matches an image's color histogram to that of a reference image."""
 
     def merge(self, *input_images: Image.Image) -> Image.Image:
         """

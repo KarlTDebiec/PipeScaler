@@ -12,12 +12,7 @@ from PIL import Image
 
 from pipescaler.common import temporary_filename
 from pipescaler.processors import TexconvProcessor
-from pipescaler.testing import (
-    get_infile,
-    run_processor_on_command_line,
-    stage_fixture,
-    xfail_if_platform,
-)
+from pipescaler.testing import get_infile, stage_fixture, xfail_if_platform
 
 
 @stage_fixture(
@@ -53,16 +48,3 @@ def test(infile: str, processor: TexconvProcessor) -> None:
         with Image.open(infile) as input_image, Image.open(outfile) as output_image:
             assert output_image.mode == "RGBA"
             assert output_image.size == input_image.size
-
-
-@pytest.mark.parametrize(
-    ("infile", "args"),
-    [
-        ("RGB", "-h"),
-        xfail_if_platform({"Darwin", "Linux"}, raises=ValueError)("RGB", ""),
-    ],
-)
-def test_cl(infile: str, args: str) -> None:
-    infile = get_infile(infile)
-
-    run_processor_on_command_line(TexconvProcessor, args, infile)

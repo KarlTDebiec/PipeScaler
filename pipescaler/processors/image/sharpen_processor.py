@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Sharpens an image"""
+"""Sharpens an image."""
 from __future__ import annotations
 
 import numpy as np
@@ -17,7 +17,7 @@ from pipescaler.core import ImageProcessor
 
 
 class SharpenProcessor(ImageProcessor):
-    """Sharpens an image"""
+    """Sharpens an image."""
 
     kernel = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]], float)
 

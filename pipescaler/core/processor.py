@@ -12,11 +12,10 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Any, Optional
 
-from pipescaler.common import CommandLineTool
 from pipescaler.core.stage import Stage
 
 
-class Processor(Stage, CommandLineTool, ABC):
+class Processor(Stage, ABC):
     """Base class for processors"""
 
     def __init__(self, suffix: Optional[str] = None, **kwargs: Any) -> None:

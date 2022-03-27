@@ -6,11 +6,9 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Upscales and/or denoises image using Waifu2x"""
+"""Upscales and/or denoises image using Waifu2x via PyTorch."""
 from __future__ import annotations
 
-from argparse import ArgumentParser
-from inspect import cleandoc
 from logging import warning
 from typing import Any, List
 
@@ -23,8 +21,9 @@ from pipescaler.core import ImageProcessor, convert_mode
 
 
 class WaifuProcessor(ImageProcessor):
-    """
-    Upscales and/or denoises image using [waifu2x](https://github.com/nagadomi/waifu2x)
+    """Upscales and/or denoises image using Waifu2x via PyTorch.
+
+    See [waifu2x](https://github.com/nagadomi/waifu2x).
     """
 
     def __init__(self, model_infile: str, device: str = "cuda", **kwargs: Any) -> None:
@@ -48,13 +47,10 @@ class WaifuProcessor(ImageProcessor):
             device = "cpu"
             self.model = model.to(device)
             self.device = device
-            warning(f"{self}: Torch raised '{error}' with device '{device}', "
-                    f"falling back to cpu")
-
-    @property
-    def supported_input_modes(self) -> List[str]:
-        """Supported modes for input image"""
-        return ["L", "RGB"]
+            warning(
+                f"{self}: Torch raised '{error}' with device '{device}', "
+                f"falling back to cpu"
+            )
 
     def process(self, input_image: Image.Image) -> Image.Image:
         """
@@ -91,40 +87,16 @@ class WaifuProcessor(ImageProcessor):
         return output_array
 
     @classmethod
-    def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
-        """
-        Construct argument parser
-
-        Arguments:
-            **kwargs: Additional keyword arguments
-
-        Returns:
-            parser: Argument parser
-        """
-        description = kwargs.pop(
-            "description", cleandoc(cls.__doc__) if cls.__doc__ is not None else ""
-        )
-        parser = super().construct_argparser(description=description, **kwargs)
-
-        # Input
-        parser.add_argument(
-            "--model",
-            dest="model_infile",
-            required=True,
-            type=cls.input_path_arg(),
-            help="model input file",
+    @property
+    def help_markdown(cls) -> str:
+        """Short description of this tool in markdown, with links."""
+        return (
+            "Upscales and/or denoises image using [Waifu2x]"
+            "(https://github.com/nagadomi/waifu2x) via PyTorch."
         )
 
-        # Operations
-        parser.add_argument(
-            "--device",
-            default="cuda",
-            type=cls.str_arg(options=["cpu", "cuda"]),
-            help="device (default: %(default)s)",
-        )
-
-        return parser
-
-
-if __name__ == "__main__":
-    WaifuProcessor.main()
+    @classmethod
+    @property
+    def supported_input_modes(self) -> List[str]:
+        """Supported modes for input image"""
+        return ["L", "RGB"]

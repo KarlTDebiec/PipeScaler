@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Sorts image based on filename using a set of configured lists"""
+"""Sorts image based on filename using a set of configured lists."""
 from __future__ import annotations
 
 from logging import info, warning
@@ -19,7 +19,7 @@ from pipescaler.core import Sorter, get_files
 
 
 class ListSorter(Sorter):
-    """Sorts image based on filename using a set of configured lists"""
+    """Sorts image based on filename using a set of configured lists."""
 
     exclusions = {".DS_Store", "desktop"}
     """Base filenames to exclude"""

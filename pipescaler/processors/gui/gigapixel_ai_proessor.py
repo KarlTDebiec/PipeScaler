@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Upscales image using [Gigapixel AI](https://www.topazlabs.com/gigapixel-ai)"""
+"""Upscales image using Gigapixel AI."""
 from __future__ import annotations
 
 from os.path import basename, dirname, splitext
@@ -31,7 +31,10 @@ else:
 
 
 class GigapixelAiProcessor(Processor):
-    """Upscales image using [Gigapixel AI](https://www.topazlabs.com/gigapixel-ai)"""
+    """Upscales image using Gigapixel AI.
+
+    See [Gigapixel AI](https://www.topazlabs.com/gigapixel-ai).
+    """
 
     def __init__(
         self,
@@ -181,6 +184,11 @@ class GigapixelAiProcessor(Processor):
         dialog.FolderEdit.set_text(directory)
         dialog.SelectFolderButton.click()
 
-
-if __name__ == "__main__":
-    GigapixelAiProcessor.main()
+    @classmethod
+    @property
+    def help_markdown(cls) -> str:
+        """Short description of this tool in markdown, with links."""
+        return (
+            "Upscales image using [Gigapixel AI]"
+            "(https://www.topazlabs.com/gigapixel-ai)."
+        )

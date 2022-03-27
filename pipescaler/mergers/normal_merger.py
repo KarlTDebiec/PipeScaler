@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Merges x, y, and z images into a single normal map image"""
+"""Merges x, y, and z images into a single normal map image."""
 from __future__ import annotations
 
 import numpy as np
@@ -16,7 +16,7 @@ from pipescaler.core import Merger
 
 
 class NormalMerger(Merger):
-    """Merges x, y, and z images into a single normal map image"""
+    """Merges x, y, and z images into a single normal map image."""
 
     def merge(self, *input_images: Image.Image) -> Image.Image:
         """

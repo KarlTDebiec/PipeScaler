@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Copies images to a defined output directory"""
+"""Copies images to a defined output directory."""
 from __future__ import annotations
 
 from hashlib import md5
@@ -21,7 +21,7 @@ from pipescaler.core import Terminus, get_files
 
 
 class CopyFileTerminus(Terminus):
-    """Copies images to a defined output directory"""
+    """Copies images to a defined output directory."""
 
     def __init__(self, directory: str, purge: bool = False, **kwargs: Any) -> None:
         """

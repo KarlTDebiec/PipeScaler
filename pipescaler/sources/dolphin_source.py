@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Yields images dumped by Dolphin"""
+"""Yields images dumped by Dolphin."""
 from __future__ import annotations
 
 from logging import error
@@ -16,7 +16,16 @@ from pipescaler.sources.directory_source import DirectorySource
 
 
 class DolphinSource(DirectorySource):
-    """Yields images dumped by [Dolphin](https://dolphin-emu.org/)"""
+    """Yields images dumped by Dolphin.
+
+    See [Dolphin](https://dolphin-emu.org/)
+    """
+
+    @classmethod
+    @property
+    def help_markdown(cls) -> str:
+        """Short description of this tool in markdown, with links."""
+        return "Yields images dumped by [Dolphin](https://dolphin-emu.org/)."
 
     @staticmethod
     def sort(filename):

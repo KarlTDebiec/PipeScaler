@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Sorts image based on presence and use of alpha channel"""
+"""Sorts image based on presence and use of alpha channel."""
 from __future__ import annotations
 
 from logging import info
@@ -19,7 +19,7 @@ from pipescaler.core import Sorter, validate_image
 
 
 class AlphaSorter(Sorter):
-    """Sorts image based on presence and use of alpha channel"""
+    """Sorts image based on presence and use of alpha channel."""
 
     def __init__(self, threshold: int = 255, **kwargs: Any) -> None:
         """
@@ -59,6 +59,7 @@ class AlphaSorter(Sorter):
         info(f"{self}: {infile}' matches 'no_alpha'")
         return "no_alpha"
 
+    @classmethod
     @property
     def outlets(self) -> List[str]:
         """Outlets that flow out of stage"""

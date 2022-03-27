@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Sorts image based on presence and use of colors other than black and white"""
+"""Sorts image based on presence and use of colors other than black and white."""
 from __future__ import annotations
 
 from logging import info
@@ -17,7 +17,7 @@ from pipescaler.core import Sorter, is_monochrome, validate_image
 
 
 class MonochromeSorter(Sorter):
-    """Sorts image based on presence and use of colors other than black and white"""
+    """Sorts image based on presence and use of colors other than black and white."""
 
     def __init__(
         self, mean_threshold: float = 0, max_threshold: float = 0, **kwargs: Any
@@ -59,6 +59,7 @@ class MonochromeSorter(Sorter):
         info(f"{self}: {infile}' matches 'no_gray'")
         return "no_gray"
 
+    @classmethod
     @property
     def outlets(self) -> List[str]:
         """Outlets that flow out of stage"""

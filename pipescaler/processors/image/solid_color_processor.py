@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Sets entire image color to its average color, optionally resizing"""
+"""Sets entire image color to its average color, optionally resizing."""
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -21,7 +21,7 @@ from pipescaler.core import ImageProcessor
 
 
 class SolidColorProcessor(ImageProcessor):
-    """Sets entire image color to its average color, optionally resizing"""
+    """Sets entire image color to its average color, optionally resizing."""
 
     def __init__(self, scale: float = 1, **kwargs: Any) -> None:
         """
@@ -62,33 +62,3 @@ class SolidColorProcessor(ImageProcessor):
         output_image = Image.new(input_image.mode, size, color)
 
         return output_image
-
-    @classmethod
-    def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
-        """
-        Construct argument parser
-
-        Arguments:
-            **kwargs: Additional keyword arguments
-
-        Returns:
-            parser: Argument parser
-        """
-        description = kwargs.pop(
-            "description", cleandoc(cls.__doc__) if cls.__doc__ is not None else ""
-        )
-        parser = super().construct_argparser(description=description, **kwargs)
-
-        # Operations
-        parser.add_argument(
-            "--scale",
-            default=1,
-            type=cls.float_arg(min_value=0),
-            help="scaling factor (default: %(default)s)",
-        )
-
-        return parser
-
-
-if __name__ == "__main__":
-    SolidColorProcessor.main()

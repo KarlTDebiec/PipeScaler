@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Repeats an input image"""
+"""Repeats an input image."""
 from __future__ import annotations
 
 from typing import List, Tuple
@@ -17,12 +17,7 @@ from pipescaler.core import Splitter
 
 
 class RepeatSplitter(Splitter):
-    """Repeats an input image"""
-
-    @property
-    def outlets(self) -> List[str]:
-        """Outlets that flow out of stage"""
-        return ["one", "two"]
+    """Repeats an input image."""
 
     def split(self, input_image: Image.Image) -> Tuple[Image.Image, ...]:
         """
@@ -34,3 +29,9 @@ class RepeatSplitter(Splitter):
             Split output images
         """
         return input_image.copy(), input_image.copy()
+
+    @classmethod
+    @property
+    def outlets(self) -> List[str]:
+        """Outlets that flow out of stage"""
+        return ["one", "two"]

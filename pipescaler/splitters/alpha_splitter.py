@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Splits image with transparency into separate alpha and color images"""
+"""Splits image with transparency into separate alpha and color images."""
 from __future__ import annotations
 
 from typing import Any, List, Optional, Tuple, Union
@@ -20,7 +20,7 @@ from pipescaler.util import MaskFiller
 
 
 class AlphaSplitter(Splitter):
-    """Splits image with transparency into separate alpha and color images"""
+    """Splits image with transparency into separate alpha and color images."""
 
     def __init__(
         self,
@@ -43,16 +43,6 @@ class AlphaSplitter(Splitter):
                 raise ArgumentConflictError()
             self.mask_fill_mode = validate_enum(mask_fill_mode, MaskFillMode)
             self.mask_filler = MaskFiller(mask_fill_mode=self.mask_fill_mode)
-
-    @property
-    def outlets(self) -> List[str]:
-        """Outlets that flow out of stage"""
-        return ["color", "alpha"]
-
-    @property
-    def supported_input_modes(self) -> List[str]:
-        """Supported modes for input image"""
-        return ["LA", "RGBA"]
 
     def split(self, input_image: Image.Image) -> Tuple[Image.Image, ...]:
         """
@@ -78,3 +68,15 @@ class AlphaSplitter(Splitter):
             color_image = self.mask_filler.fill(color_image, alpha_image)
 
         return color_image, alpha_image
+
+    @classmethod
+    @property
+    def outlets(self) -> List[str]:
+        """Outlets that flow out of stage"""
+        return ["color", "alpha"]
+
+    @classmethod
+    @property
+    def supported_input_modes(self) -> List[str]:
+        """Supported modes for input image"""
+        return ["LA", "RGBA"]

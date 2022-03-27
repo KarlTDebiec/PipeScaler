@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Crops image canvas"""
+"""Crops image canvas."""
 from __future__ import annotations
 
 from typing import Any
@@ -18,7 +18,7 @@ from pipescaler.core import ImageProcessor, crop_image
 
 
 class CropProcessor(ImageProcessor):
-    """Crops image canvas"""
+    """Crops image canvas."""
 
     def __init__(self, pixels: tuple[int], **kwargs: Any) -> None:
         """

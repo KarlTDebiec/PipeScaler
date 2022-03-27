@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""POSTs image to a defined URL, which responds with processed image"""
+"""POSTs image to a defined URL, which responds with processed image."""
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -21,7 +21,7 @@ from pipescaler.core import Processor
 
 
 class WebProcessor(Processor):
-    """POSTs image to a defined URL, which responds with processed image"""
+    """POSTs image to a defined URL, which responds with processed image."""
 
     def __init__(self, url: str, **kwargs: Any) -> None:
         """

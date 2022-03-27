@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Sorts image based on presence and use of color channels"""
+"""Sorts image based on presence and use of color channels."""
 from __future__ import annotations
 
 from logging import info
@@ -20,7 +20,7 @@ from pipescaler.core import Sorter, validate_image
 
 
 class GrayscaleSorter(Sorter):
-    """Sorts image based on presence and use of color channels"""
+    """Sorts image based on presence and use of color channels."""
 
     def __init__(
         self, mean_threshold: float = 1, max_threshold: float = 10, **kwargs: Any
@@ -67,6 +67,7 @@ class GrayscaleSorter(Sorter):
         info(f"{self}: {infile}' matches 'no_rgb'")
         return "no_rgb"
 
+    @classmethod
     @property
     def outlets(self) -> List[str]:
         """Outlets that flow out of stage"""

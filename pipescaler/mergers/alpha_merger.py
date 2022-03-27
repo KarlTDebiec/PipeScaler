@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Merges alpha and color images into a single image with transparency"""
+"""Merges alpha and color images into a single image with transparency."""
 from __future__ import annotations
 
 import numpy as np
@@ -16,7 +16,7 @@ from pipescaler.core import Merger
 
 
 class AlphaMerger(Merger):
-    """Merges alpha and color images into a single image with transparency"""
+    """Merges alpha and color images into a single image with transparency."""
 
     def merge(self, *input_images: Image.Image) -> Image.Image:
         """

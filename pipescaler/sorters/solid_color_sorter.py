@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Sorts image based on presence of multiple colors"""
+"""Sorts image based on presence of multiple colors."""
 from __future__ import annotations
 
 from logging import info
@@ -19,7 +19,7 @@ from pipescaler.core import Sorter, validate_image
 
 
 class SolidColorSorter(Sorter):
-    """Sorts image based on presence of multiple colors"""
+    """Sorts image based on presence of multiple colors."""
 
     def __init__(
         self, mean_threshold: float = 1, max_threshold: float = 10, **kwargs: Any
@@ -72,6 +72,7 @@ class SolidColorSorter(Sorter):
             info(f"{self}: '{infile}' matches 'not_solid'")
             return "not_solid"
 
+    @classmethod
     @property
     def outlets(self) -> List[str]:
         """Outlets that flow out of stage"""

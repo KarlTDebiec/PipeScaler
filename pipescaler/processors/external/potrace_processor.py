@@ -6,11 +6,9 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Traces image using Potrace and re-rasterizes, optionally resizing"""
+"""Traces image using potrace and re-rasterizes, optionally resizing."""
 from __future__ import annotations
 
-from argparse import ArgumentParser
-from inspect import cleandoc
 from logging import debug
 from typing import Any
 
@@ -29,9 +27,9 @@ from pipescaler.core import ExternalProcessor, validate_image
 
 
 class PotraceProcessor(ExternalProcessor):
-    """
-    Traces image using [Potrace](http://potrace.sourceforge.net/) and re-rasterizes,
-    optionally resizing
+    """Traces image using potrace and re-rasterizes, optionally resizing.
+
+    See [Potrace](http://potrace.sourceforge.net/).
     """
 
     def __init__(
@@ -63,7 +61,7 @@ class PotraceProcessor(ExternalProcessor):
         self.scale = validate_float(scale, min_value=0)
 
     @property
-    def command_template(self):
+    def command_template(self) -> str:
         """String template with which to generate command"""
         return (
             f"{validate_executable(self.executable, self.supported_platforms)}"
@@ -74,11 +72,6 @@ class PotraceProcessor(ExternalProcessor):
             f" -O {self.opttolerance}"
             " -o {svgfile}"
         )
-
-    @property
-    def executable(self) -> str:
-        """Name of executable"""
-        return "potrace"
 
     def process(self, infile: str, outfile: str) -> None:
         """
@@ -117,53 +110,16 @@ class PotraceProcessor(ExternalProcessor):
         output_image.save(outfile)
 
     @classmethod
-    def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
-        """
-        Construct argument parser
+    @property
+    def executable(self) -> str:
+        """Name of executable"""
+        return "potrace"
 
-        Arguments:
-            **kwargs: Additional keyword arguments
-
-        Returns:
-            parser: Argument parser
-        """
-        description = kwargs.pop(
-            "description", cleandoc(cls.__doc__) if cls.__doc__ is not None else ""
+    @classmethod
+    @property
+    def help_markdown(cls) -> str:
+        """Short description of this tool in markdown, with links."""
+        return (
+            "Traces image using [Potrace](http://potrace.sourceforge.net/) and "
+            "re-rasterizes,optionally resizing."
         )
-        parser = super().construct_argparser(description=description, **kwargs)
-
-        parser.add_argument(
-            "--invert",
-            action="store_true",
-            help="invert image before tracing, and revert afterwards",
-        )
-        parser.add_argument(
-            "--blacklevel",
-            default=0.3,
-            type=cls.float_arg(min_value=0),
-            help="black/white cutoff in input file (0.0-1.0, default: %(default)s)",
-        )
-        parser.add_argument(
-            "--alphamax",
-            default=1.34,
-            type=cls.float_arg(min_value=0),
-            help="corner threshold parameter (default: %(default)s)",
-        )
-        parser.add_argument(
-            "--opttolerance",
-            default=0.2,
-            type=cls.float_arg(min_value=0),
-            help="curve optimization tolerance (default: %(default)s)",
-        )
-        parser.add_argument(
-            "--scale",
-            default=1.0,
-            type=cls.float_arg(min_value=0),
-            help="curve optimization tolerance (default: %(default)s)",
-        )
-
-        return parser
-
-
-if __name__ == "__main__":
-    PotraceProcessor.main()

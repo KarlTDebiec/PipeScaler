@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Replaces image with an alternative sourced from a defined directory"""
+"""Replaces image with an alternative sourced from a defined directory."""
 from __future__ import annotations
 
 from logging import info
@@ -21,7 +21,7 @@ from pipescaler.core import Processor, get_files
 
 
 class SideChannelProcessor(Processor):
-    """Replaces image with an alternative sourced from a defined directory"""
+    """Replaces image with an alternative sourced from a defined directory."""
 
     def __init__(
         self,

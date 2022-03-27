@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Sorts image based on canvas size"""
+"""Sorts image based on canvas size."""
 from __future__ import annotations
 
 from logging import info
@@ -19,7 +19,7 @@ from pipescaler.core import Sorter
 
 
 class SizeSorter(Sorter):
-    """Sorts image based on canvas size"""
+    """Sorts image based on canvas size."""
 
     def __init__(self, cutoff: int = 32, **kwargs: Any) -> None:
         """
@@ -56,6 +56,7 @@ class SizeSorter(Sorter):
         )
         return "greater_than_or_equal_to"
 
+    @classmethod
     @property
     def outlets(self):
         """Outlets that flow out of stage"""

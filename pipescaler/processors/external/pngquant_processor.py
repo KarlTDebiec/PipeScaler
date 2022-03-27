@@ -6,11 +6,9 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Compresses image palette using pngquant"""
+"""Reduces image palette using pngquant."""
 from __future__ import annotations
 
-from argparse import ArgumentParser
-from inspect import cleandoc
 from logging import debug
 from shutil import copyfile
 from typing import Any
@@ -20,7 +18,9 @@ from pipescaler.core import ExternalProcessor
 
 
 class PngquantProcessor(ExternalProcessor):
-    """Compresses image palette using [pngquant](https://pngquant.org/)"""
+    """Reduces image palette using pngquant.
+
+    See [pngquant](https://pngquant.org/)."""
 
     def __init__(
         self,
@@ -46,7 +46,7 @@ class PngquantProcessor(ExternalProcessor):
         self.floyd_steinberg = floyd_steinberg
 
     @property
-    def command_template(self):
+    def command_template(self) -> str:
         """String template with which to generate command"""
         command = (
             f"{validate_executable(self.executable, self.supported_platforms)}"
@@ -60,11 +60,6 @@ class PngquantProcessor(ExternalProcessor):
         command += " --output {outfile} {infile}"
 
         return command
-
-    @property
-    def executable(self) -> str:
-        """Name of executable"""
-        return "pngquant"
 
     def process(self, infile: str, outfile: str) -> None:
         """
@@ -84,44 +79,13 @@ class PngquantProcessor(ExternalProcessor):
             copyfile(infile, outfile)
 
     @classmethod
-    def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
-        """
-        Construct argument parser
+    @property
+    def executable(self) -> str:
+        """Name of executable"""
+        return "pngquant"
 
-        Arguments:
-            **kwargs: Additional keyword arguments
-
-        Returns:
-            parser: Argument parser
-        """
-        description = kwargs.pop(
-            "description", cleandoc(cls.__doc__) if cls.__doc__ is not None else ""
-        )
-        parser = super().construct_argparser(description=description, **kwargs)
-
-        parser.add_argument(
-            "--quality",
-            default="100",
-            type=cls.int_arg(1, 100),
-            help="minimum quality below which output image will not be saved, "
-            "and maximum quality above which fewer colors will be used, "
-            "(1-100, default: %(default)s)",
-        )
-        parser.add_argument(
-            "--speed",
-            default=1,
-            type=cls.int_arg(1, 100),
-            help="speed/quality balance (1-100, default: %(default)s)",
-        )
-        parser.add_argument(
-            "--nofs",
-            action="store_false",
-            dest="floyd_steinberg",
-            help="disable Floyd-Steinberg dithering",
-        )
-
-        return parser
-
-
-if __name__ == "__main__":
-    PngquantProcessor.main()
+    @classmethod
+    @property
+    def help_markdown(cls) -> str:
+        """Short description of this tool in markdown, with links."""
+        return "Reduces image palette using [pngquant](https://pngquant.org/)."

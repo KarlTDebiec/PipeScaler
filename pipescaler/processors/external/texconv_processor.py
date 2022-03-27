@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Compresses image using Texconv"""
+"""Processes image using Texconv."""
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -21,9 +21,9 @@ from pipescaler.core import ExternalProcessor
 
 
 class TexconvProcessor(ExternalProcessor):
-    """
-    Compresses image using
-    [Texconv](https://github.com/Microsoft/DirectXTex/wiki/Texconv)
+    """Processes image using Texconv.
+
+    See [Texconv](https://github.com/Microsoft/DirectXTex/wiki/Texconv).
     """
 
     extension = "dds"
@@ -73,16 +73,6 @@ class TexconvProcessor(ExternalProcessor):
 
         return command
 
-    @property
-    def executable(self) -> str:
-        """Name of executable"""
-        return "texconv.exe"
-
-    @property
-    def supported_platforms(self) -> Set[str]:
-        """Platforms on which processor is supported"""
-        return {"Windows"}
-
     def process(self, infile: str, outfile: str) -> None:
         """
         Read image from infile, process it, and save to outfile
@@ -102,45 +92,22 @@ class TexconvProcessor(ExternalProcessor):
         )
 
     @classmethod
-    def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
-        """
-        Construct argument parser
+    @property
+    def executable(self) -> str:
+        """Name of executable"""
+        return "texconv.exe"
 
-        Arguments:
-            **kwargs: Additional keyword arguments
+    @classmethod
+    @property
+    def supported_platforms(self) -> Set[str]:
+        """Platforms on which processor is supported"""
+        return {"Windows"}
 
-        Returns:
-            parser: Argument parser
-        """
-        description = kwargs.pop(
-            "description", cleandoc(cls.__doc__) if cls.__doc__ is not None else ""
+    @classmethod
+    @property
+    def help_markdown(cls) -> str:
+        """Short description of this tool in markdown, with links."""
+        return (
+            "Processes image using [Texconv]"
+            "(https://github.com/Microsoft/DirectXTex/wiki/Texconv)."
         )
-        parser = super().construct_argparser(description=description, **kwargs)
-
-        parser.add_argument(
-            "--mipmaps",
-            action="store_true",
-            help="generate mipmaps",
-        )
-        parser.add_argument(
-            "--sepalpha",
-            action="store_true",
-            help="generate mips alpha channel separately from color channels",
-        )
-        parser.add_argument(
-            "--filetype",
-            type=str,
-            help="output file type",
-        )
-        parser.add_argument(
-            "--format",
-            default="BC7_UNORM",
-            type=str,
-            help="output format",
-        )
-
-        return parser
-
-
-if __name__ == "__main__":
-    TexconvProcessor.main()

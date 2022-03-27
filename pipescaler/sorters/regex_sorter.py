@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Sorts image based on filename using a regular expression"""
+"""Sorts image based on filename using a regular expression."""
 from __future__ import annotations
 
 import re
@@ -18,7 +18,7 @@ from pipescaler.core import Sorter
 
 
 class RegexSorter(Sorter):
-    """Sorts image based on filename using a regular expression"""
+    """Sorts image based on filename using a regular expression."""
 
     def __init__(self, regex: str, **kwargs: Any) -> None:
         """
@@ -52,6 +52,7 @@ class RegexSorter(Sorter):
         info(f"{self}: '{name}' does not match '{self.regex.pattern}'")
         return "unmatched"
 
+    @classmethod
     @property
     def outlets(self) -> List[str]:
         """Outlets that flow out of stage"""

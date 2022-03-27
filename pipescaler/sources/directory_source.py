@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Yields images from a directory"""
+"""Yields images from a directory."""
 from __future__ import annotations
 
 from typing import Any, List, Union
@@ -16,7 +16,7 @@ from pipescaler.core import Source, get_files
 
 
 class DirectorySource(Source):
-    """Yields images from a directory"""
+    """Yields images from a directory."""
 
     exclusions = {".DS_Store", "desktop"}
     """Base filenames to exclude"""

@@ -6,10 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""
-Resizes image canvas using bicubic, bilinear, lanczos, or nearest-neighbor
-interpolation
-"""
+"""Resizes image canvas."""
 from __future__ import annotations
 
 from typing import Any
@@ -22,10 +19,7 @@ from pipescaler.core import ImageProcessor
 
 
 class ResizeProcessor(ImageProcessor):
-    """
-    Resizes image canvas using bicubic, bilinear, lanczos, or nearest-neighbor
-    interpolation
-    """
+    """Resizes image canvas."""
 
     resample_methods = {
         "bicubic": Image.BICUBIC,

@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from argparse import ArgumentParser, _SubParsersAction
+from inspect import cleandoc
 from typing import Any, Union
 
 from pipescaler.common import CommandLineTool
@@ -39,7 +40,16 @@ class ProcessorCommandLineTool(CommandLineTool, ABC):
 
     @classmethod
     @property
+    def description(cls) -> str:
+        """Long description of this tool displayed below usage."""
+        if cls.processor.__doc__:
+            return cleandoc(cls.processor.__doc__)
+        return ""
+
+    @classmethod
+    @property
     def name(cls) -> str:
+        """Name of this tool used to define it when it is a subparser."""
         return cls.__name__.removesuffix("CommandLineTool").lower()
 
     @classmethod

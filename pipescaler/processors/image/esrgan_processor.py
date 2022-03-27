@@ -6,13 +6,11 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Upscales and/or denoises image using ESRGAN"""
+"""Upscale and/or denoises image using ESRGAN."""
 from __future__ import annotations
 
 import collections
-from argparse import ArgumentParser
 from functools import partial
-from inspect import cleandoc
 from logging import warning
 from typing import Any, Dict, List, OrderedDict, Tuple
 
@@ -26,13 +24,14 @@ from pipescaler.core import ImageProcessor, convert_mode
 
 
 class ESRGANProcessor(ImageProcessor):
-    """
-    Upscales and/or denoises image using [ESRGAN](https://github.com/xinntao/ESRGAN);
-    supports old and new architectures
+    """Upscales and/or denoises image using ESRGAN.
 
-    Adapted from ESRGAN (https://github.com/xinntao/ESRGAN) and Colab-ESRGAN
-    (https://github.com/styler00dollar/Colab-ESRGAN), both licensed under the
-    `Apache 2.0 License
+    See [ESRGAN](https://github.com/xinntao/ESRGAN). Supports both old and new
+    architectures.
+
+    Adapted from [ESRGAN](https://github.com/xinntao/ESRGAN) and
+    [Colab-ESRGAN](https://github.com/styler00dollar/Colab-ESRGAN), both licensed under
+    the [Apache 2.0 License]
     (https://raw.githubusercontent.com/xinntao/ESRGAN/master/LICENSE)
     """
 
@@ -192,11 +191,6 @@ class ESRGANProcessor(ImageProcessor):
             self.cpu_upscaler = None
         # TODO: Determine output scale and store as self.scale
 
-    @property
-    def supported_input_modes(self) -> List[str]:
-        """Supported modes for input image"""
-        return ["1", "L", "RGB"]
-
     def process(self, input_image: Image.Image) -> Image.Image:
         """
         Process an image
@@ -228,39 +222,13 @@ class ESRGANProcessor(ImageProcessor):
         return output_image
 
     @classmethod
-    def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
-        """
-        Construct argument parser
-
-        Arguments:
-            **kwargs: Additional keyword arguments
-
-        Returns:
-            parser: Argument parser
-        """
-        description = kwargs.pop(
-            "description", cleandoc(cls.__doc__) if cls.__doc__ is not None else ""
+    @property
+    def help_markdown(cls) -> str:
+        """Short description of this tool in markdown, with links."""
+        return (
+            "Upscales and/or denoises image using "
+            "[ESRGAN](https://github.com/xinntao/ESRGAN)."
         )
-        parser = super().construct_argparser(description=description, **kwargs)
-
-        # Input
-        parser.add_argument(
-            "--model",
-            dest="model_infile",
-            required=True,
-            type=cls.input_path_arg(),
-            help="model input file",
-        )
-
-        # Operations
-        parser.add_argument(
-            "--device",
-            default="cuda",
-            type=cls.str_arg(options=["cpu", "cuda"]),
-            help="device (default: %(default)s)",
-        )
-
-        return parser
 
     @classmethod
     def load_model(
@@ -278,6 +246,12 @@ class ESRGANProcessor(ImageProcessor):
             scale_index = cls.get_scale_index(state_dict)
 
         return state_dict, scale_index
+
+    @classmethod
+    @property
+    def supported_input_modes(self) -> List[str]:
+        """Supported modes for input image"""
+        return ["1", "L", "RGB"]
 
     @staticmethod
     def build_old_keymap(n_upscale: int) -> OrderedDict[str, str]:
@@ -326,7 +300,3 @@ class ESRGANProcessor(ImageProcessor):
                 max_index = max(max_index, int(k[6:-7]))
 
         return max_index
-
-
-if __name__ == "__main__":
-    ESRGANProcessor.main()

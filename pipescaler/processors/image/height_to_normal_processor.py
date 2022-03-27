@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""Converts height map image to a normal map image"""
+"""Converts height map image to a normal map image."""
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -26,7 +26,7 @@ from pipescaler.core import (
 
 
 class HeightToNormalProcessor(ImageProcessor):
-    """Converts height map image to a normal map image"""
+    """Converts height map image to a normal map image."""
 
     def __init__(self, sigma: Optional[int] = None, **kwargs: Any) -> None:
         """
@@ -43,10 +43,6 @@ class HeightToNormalProcessor(ImageProcessor):
             self.sigma = validate_float(sigma, min_value=0)
         else:
             self.sigma = None
-
-    @property
-    def supported_input_modes(self) -> List[str]:
-        return ["L"]
 
     def process(self, input_image: Image.Image) -> Image.Image:
         """
@@ -67,32 +63,6 @@ class HeightToNormalProcessor(ImageProcessor):
         return output_image
 
     @classmethod
-    def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
-        """
-        Construct argument parser
-
-        Arguments:
-            **kwargs: Additional keyword arguments
-
-        Returns:
-            parser: Argument parser
-        """
-        description = kwargs.pop(
-            "description", cleandoc(cls.__doc__) if cls.__doc__ is not None else ""
-        )
-        parser = super().construct_argparser(description=description, **kwargs)
-
-        # Operations
-        parser.add_argument(
-            "--sigma",
-            default=None,
-            type=cls.float_arg(min_value=0),
-            help="Gaussian smoothing to apply to image before calculating normal map "
-            "(default: %(default)s)",
-        )
-
-        return parser
-
-
-if __name__ == "__main__":
-    HeightToNormalProcessor.main()
+    @property
+    def supported_input_modes(self) -> List[str]:
+        return ["L"]

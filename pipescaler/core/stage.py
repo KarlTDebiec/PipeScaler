@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from importlib.util import module_from_spec, spec_from_file_location
+from inspect import cleandoc
 from typing import Any, Optional
 
 from pipescaler.common import validate_input_path
@@ -93,11 +94,19 @@ class Stage(ABC):
     @classmethod
     @property
     def inlets(self) -> list[str]:
-        """Inlets that flow into stage"""
+        """Inlets that flow into stage."""
         raise NotImplementedError()
 
     @classmethod
     @property
     def outlets(self) -> list[str]:
-        """Outlets that flow out of stage"""
+        """Outlets that flow out of stage."""
         raise NotImplementedError()
+
+    @classmethod
+    @property
+    def help_markdown(cls) -> str:
+        """Short description of this tool in markdown, with links."""
+        if cls.__doc__:
+            return cleandoc(cls.__doc__).split(". ")[0]
+        return ""
