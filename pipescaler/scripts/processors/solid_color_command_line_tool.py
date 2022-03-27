@@ -1,11 +1,7 @@
 #!/usr/bin/env python
-#   pipescaler/scripts/processors/solid_color_command_line_tool.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license.
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
 """Command-line interface for SolidColorProcessor."""
 from __future__ import annotations
 
