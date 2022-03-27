@@ -2,7 +2,7 @@
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
-"""Tests for ThresholdProcessor"""
+"""Tests for ThresholdProcessor."""
 import numpy as np
 import pytest
 from PIL import Image
@@ -49,14 +49,3 @@ def test(infile: str, processor: ThresholdProcessor) -> None:
             assert output_image.mode == "L"
             assert output_image.size == input_image.size
             assert np.logical_or(output_datum == 0, output_datum == 255).all()
-
-
-@pytest.mark.parametrize(
-    ("infile", "args"),
-    [
-        ("RGB", "-h"),
-        ("L", ""),
-    ],
-)
-def test_cl(infile: str, args: str) -> None:
-    infile = get_infile(infile)

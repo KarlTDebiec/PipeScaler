@@ -2,7 +2,7 @@
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
-"""Tests for ExpandProcessor"""
+"""Tests for ExpandProcessor."""
 import pytest
 from PIL import Image
 
@@ -47,14 +47,3 @@ def test(infile: str, processor: ExpandProcessor) -> None:
                 input_image.size[0] + processor.left + processor.right,
                 input_image.size[1] + processor.top + processor.bottom,
             )
-
-
-@pytest.mark.parametrize(
-    ("infile", "args"),
-    [
-        ("RGB", "-h"),
-        ("RGB", "--pixels 4 4 4 4"),
-    ],
-)
-def test_cl(infile: str, args: str) -> None:
-    infile = get_infile(infile)

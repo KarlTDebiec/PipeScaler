@@ -2,9 +2,7 @@
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
-"""
-Identifies pairs of images in which one is rescaled from another by a power of two
-"""
+"""Identifies pairs of images in which one is rescaled from another."""
 import re
 from logging import info
 from os.path import isfile, join
@@ -30,9 +28,7 @@ from pipescaler.sorters import AlphaSorter, GrayscaleSorter
 
 
 class ScaledPairIdentifier:
-    """
-    Identifies pairs of images in which one is rescaled from another by a power of two
-    """
+    """Identifies pairs of images in which one is rescaled from another."""
 
     hash_types = {
         "average": average_hash,
@@ -50,8 +46,9 @@ class ScaledPairIdentifier:
         image_directory: Optional[str] = None,
         interactive: bool = True,
     ):
-        """
-        Args:
+        """Validate and store configuration.
+
+        Arguments:
             filenames: Filenames to review; keys are base filenames and values are
               absolute paths
             pairs_file: CSV file to read/write scaled image pairs

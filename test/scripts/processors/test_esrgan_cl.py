@@ -2,6 +2,7 @@
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
+"""Tests for ESRGANCommandLineTool."""
 from __future__ import annotations
 
 from inspect import getfile
@@ -10,7 +11,7 @@ from pytest import fixture, mark
 
 from pipescaler.common import run_command, temporary_filename
 from pipescaler.scripts.processors import ESRGANCommandLineTool
-from pipescaler.testing import get_infile
+from pipescaler.testing import get_infile, get_model_infile, skip_if_ci
 
 
 @fixture
@@ -22,7 +23,7 @@ def script(request) -> str:
     ("infile", "args"),
     [
         ("RGB", "-h"),
-        ("RGB", ""),
+        skip_if_ci()("RGB", f"--model {get_model_infile('ESRGAN/1x_BC1-smooth2')}"),
     ],
 )
 def test(script: str, infile: str, args: str) -> None:

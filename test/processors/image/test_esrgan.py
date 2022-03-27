@@ -2,7 +2,7 @@
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
-"""Tests for ESRGANProcessor"""
+"""Tests for ESRGANProcessor."""
 import pytest
 from PIL import Image
 
@@ -53,15 +53,3 @@ def test(infile: str, processor: ESRGANProcessor) -> None:
 
         with Image.open(infile) as input_image, Image.open(outfile) as output_image:
             assert output_image.mode == expected_output_mode(input_image)
-
-
-@pytest.mark.serial
-@pytest.mark.parametrize(
-    ("infile", "args"),
-    [
-        ("RGB", "-h"),
-        skip_if_ci()("RGB", f"--model {get_model_infile('ESRGAN/1x_BC1-smooth2')}"),
-    ],
-)
-def test_cl(infile: str, args: str) -> None:
-    infile = get_infile(infile)

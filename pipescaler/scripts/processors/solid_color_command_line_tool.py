@@ -31,7 +31,7 @@ class SolidColorCommandLineTool(ProcessorCommandLineTool):
         required = cls.get_required_arguments_group(parser)
         required.add_argument(
             "--scale",
-            default=2,
+            default=1,
             type=cls.float_arg(min_value=0),
             help="scaling factor (default: %(default)s)",
         )
