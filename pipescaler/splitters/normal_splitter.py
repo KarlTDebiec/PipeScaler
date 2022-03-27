@@ -42,7 +42,6 @@ class NormalSplitter(Splitter):
 
         return x_image, y_image, z_image
 
-    @classmethod
     @property
     def outlets(self) -> List[str]:
         """Outlets that flow out of stage"""

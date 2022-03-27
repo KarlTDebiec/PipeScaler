@@ -9,7 +9,7 @@
 """Base class for stages"""
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABC
 from importlib.util import module_from_spec, spec_from_file_location
 from inspect import cleandoc
 from typing import Any, Optional
@@ -91,13 +91,11 @@ class Stage(ABC):
         """Simple representation of stage"""
         return self.name
 
-    @classmethod
     @property
     def inlets(self) -> list[str]:
         """Inlets that flow into stage."""
         raise NotImplementedError()
 
-    @classmethod
     @property
     def outlets(self) -> list[str]:
         """Outlets that flow out of stage."""

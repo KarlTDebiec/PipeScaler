@@ -10,7 +10,6 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import List
 
 from pipescaler.common import CommandLineTool
 from pipescaler.core.stage import Stage
@@ -30,11 +29,11 @@ class Terminus(Stage, CommandLineTool, ABC):
         raise NotImplementedError()
 
     @property
-    def inlets(self) -> List[str]:
+    def inlets(self) -> list[str]:
         """Inlets that flow into stage"""
         return ["inlet"]
 
     @property
-    def outlets(self) -> List[str]:
+    def outlets(self) -> list[str]:
         """Outlets that flow out of stage"""
         return []

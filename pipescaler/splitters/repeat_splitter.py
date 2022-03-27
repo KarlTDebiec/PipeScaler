@@ -30,7 +30,6 @@ class RepeatSplitter(Splitter):
         """
         return input_image.copy(), input_image.copy()
 
-    @classmethod
     @property
     def outlets(self) -> List[str]:
         """Outlets that flow out of stage"""

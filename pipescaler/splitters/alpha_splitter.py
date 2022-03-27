@@ -69,7 +69,6 @@ class AlphaSplitter(Splitter):
 
         return color_image, alpha_image
 
-    @classmethod
     @property
     def outlets(self) -> List[str]:
         """Outlets that flow out of stage"""

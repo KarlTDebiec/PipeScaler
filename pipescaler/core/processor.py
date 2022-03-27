@@ -43,13 +43,11 @@ class Processor(Stage, ABC):
         """
         raise NotImplementedError()
 
-    @classmethod
     @property
     def inlets(self) -> list[str]:
         """Inlets that flow into stage"""
         return ["inlet"]
 
-    @classmethod
     @property
     def outlets(self) -> list[str]:
         """Outlets that flow out of stage"""

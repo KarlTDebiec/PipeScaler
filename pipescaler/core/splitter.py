@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from abc import ABC
 from logging import info
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Optional
 
 from PIL import Image
 
@@ -23,7 +23,7 @@ class Splitter(Stage, ABC):
     """Base class for splitters"""
 
     def __init__(
-        self, suffixes: Optional[Dict[str, str]] = None, **kwargs: Any
+        self, suffixes: Optional[dict[str, str]] = None, **kwargs: Any
     ) -> None:
         """
         Validate and store static configuration
@@ -40,7 +40,7 @@ class Splitter(Stage, ABC):
         else:
             self.suffixes = {outlet: outlet for outlet in self.outlets}
 
-    def __call__(self, infile: str, **kwargs: Any) -> Dict[str, str]:
+    def __call__(self, infile: str, **kwargs: Any) -> dict[str, str]:
         """
         Split infile into outfiles
 
@@ -66,16 +66,17 @@ class Splitter(Stage, ABC):
         return outfiles
 
     @property
-    def inlets(self) -> List[str]:
+    def inlets(self) -> list[str]:
         """Inlets that flow into stage"""
         return ["infile"]
 
+    @classmethod
     @property
-    def supported_input_modes(self) -> List[str]:
+    def supported_input_modes(self) -> list[str]:
         """Supported modes for input image"""
         return ["1", "L", "LA", "RGB", "RGBA"]
 
-    def split(self, input_image: Image.Image) -> Tuple[Image.Image, ...]:
+    def split(self, input_image: Image.Image) -> tuple[Image.Image, ...]:
         """
         Split an image
 

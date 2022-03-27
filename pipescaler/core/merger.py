@@ -70,7 +70,6 @@ class Merger(Stage, ABC):
         output_image.save(outfile)
         info(f"'{self}: '{outfile}' saved")
 
-    @classmethod
     @property
     def outlets(self) -> list[str]:
         """Outlets that flow out of stage"""

@@ -48,7 +48,6 @@ class HistogramMatchMerger(Merger):
 
         return output_image
 
-    @classmethod
     @property
     def inlets(self) -> list[str]:
         """Inlets that flow into stage"""
