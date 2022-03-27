@@ -36,6 +36,10 @@ class HostCL(UtilityCommandLineTool):
             help="path to yaml file from which to read configuration",
         )
 
+    def __call__(self):
+        """Perform operations."""
+        raise NotImplementedError()
+
     @classmethod
     def main(cls) -> None:
         """Parse arguments, construct tool, and call tool"""
@@ -50,8 +54,8 @@ class HostCL(UtilityCommandLineTool):
             environ[key] = normpath(expandvars(value))
             info(f"Environment variable '{key}' set to '{value}'")
 
-        tool = cls(**{**kwargs, **conf})
-        tool()
+        utility = cls.utility(**{**kwargs, **conf})
+        utility()
 
     @classmethod
     @property
