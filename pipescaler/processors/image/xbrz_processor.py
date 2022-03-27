@@ -60,4 +60,4 @@ class XbrzProcessor(ImageProcessor):
     @property
     def help_markdown(cls) -> str:
         """Short description of this tool in markdown, with links."""
-        return "Upscales image using xbrz[xbrz](https://github.com/ioistired/xbrz.py)."
+        return "Upscales image using [xbrz](https://github.com/ioistired/xbrz.py)."

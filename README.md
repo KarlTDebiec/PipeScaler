@@ -39,7 +39,7 @@ PipeScaler includes the following image processors:
 * [WaifuExternalProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/external/waifu_external_processor.py) - Upscales and/or denoises image using [Waifu2x](https://github.com/nagadomi/waifu2x) via an external executable.
 * [WaifuProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/image/waifu_processor.py) - Upscales and/or denoises image using [Waifu2x](https://github.com/nagadomi/waifu2x) via PyTorch.
 * [WebProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/web_processor.py) - POSTs image to a defined URL, which responds with processed image.
-* [XbrzProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/image/xbrz_processor.py) - Upscales image using xbrz[xbrz](https://github.com/ioistired/xbrz.py).
+* [XbrzProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/image/xbrz_processor.py) - Upscales image using [xbrz](https://github.com/ioistired/xbrz.py).
 
 **Splitters** separate one image into two or more downstream images. PipeScaler includes the
 following image splitters:
@@ -56,14 +56,14 @@ the following image mergers:
 
 **Sorters** direct images through different downstream pipeline sections. PipeScaler
 includes the following image sorters:
-* [AlphaSorter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/sorters/alpha_sorter.py) - Sorts image based on presence and use of alpha channel
-* [GrayscaleSorter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/sorters/grayscale_sorter.py) - Sorts image based on presence and use of color channels
-* [ListSorter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/sorters/list_sorter.py) - Sorts image based on filename using a set of configured lists
-* [ModeSorter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/sorters/mode_sorter.py) - Sorts image based on mode
-* [MonochromeSorter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/sorters/monochrome_sorter.py) - Sorts image based on presence and use of colors other than black and white
-* [RegexSorter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/sorters/regex_sorter.py) - Sorts image based on filename using a regular expression
-* [SizeSorter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/sorters/size_sorter.py) - Sorts image based on canvas size
-* [SolidColorSorter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/sorters/solid_color_sorter.py) - Sorts image based on presence of multiple colors
+* [AlphaSorter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/sorters/alpha_sorter.py) - Sorts image based on presence and use of alpha channel.
+* [GrayscaleSorter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/sorters/grayscale_sorter.py) - Sorts image based on presence and use of color channels.
+* [ListSorter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/sorters/list_sorter.py) - Sorts image based on filename using a set of configured lists.
+* [ModeSorter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/sorters/mode_sorter.py) - Sorts image based on mode.
+* [MonochromeSorter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/sorters/monochrome_sorter.py) - Sorts image based on presence and use of colors other than black and white.
+* [RegexSorter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/sorters/regex_sorter.py) - Sorts image based on filename using a regular expression.
+* [SizeSorter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/sorters/size_sorter.py) - Sorts image based on canvas size.
+* [SolidColorSorter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/sorters/solid_color_sorter.py) - Sorts image based on presence of multiple colors.
 
 **Termini** perform final operations on images. PipeScaler includes the following image
 termini:
