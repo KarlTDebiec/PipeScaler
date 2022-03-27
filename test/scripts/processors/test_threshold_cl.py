@@ -23,7 +23,7 @@ def script(request) -> str:
     ("infile", "args"),
     [
         ("RGB", "-h"),
-        ("RGB", "--threshold 64 --denoise"),
+        ("L", "--threshold 64 --denoise"),
     ],
 )
 def test(script: str, infile: str, args: str) -> None:

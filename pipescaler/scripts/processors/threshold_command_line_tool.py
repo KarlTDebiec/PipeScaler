@@ -32,14 +32,13 @@ class ThresholdCommandLineTool(ProcessorCommandLineTool):
         optional.add_argument(
             "--threshold",
             default=128,
-            type=int,
+            type=cls.int_arg(0, 255),
             help="threshold differentiating black and white (0-255, default: "
             "%(default)s)",
         )
         optional.add_argument(
             "--denoise",
-            default=False,
-            type=bool,
+            action="store_true",
             help="Flip color of pixels bordered by less than 5 pixels of "
             "the same color",
         )

@@ -120,16 +120,16 @@ class ScaledPairIdentifier:
 
     @property
     def children(self) -> Set[str]:
-        """Child images"""
+        """Child images."""
         return set(self.pairs["scaled filename"])
 
     @property
     def parents(self) -> Set[str]:
-        """Parent images"""
+        """Parent images."""
         return set(self.pairs["filename"])
 
     def _calculate_all_hashes(self):
-        """Calculate all image hashes"""
+        """Calculate all image hashes."""
         hashes_changed = False
         hashed_filenames = set(self.hashes["filename"])
 
@@ -215,13 +215,11 @@ class ScaledPairIdentifier:
     def calculate_pair_score(
         self, parent_hash: pd.Series, child_hash: pd.Series
     ) -> pd.Series:
-        """
-        Calculate hamming sum between a potential *parent_hash* and *child_hash*
+        """Calculate hamming sum between a potential parent_hash and child_hash.
 
         Arguments:
             parent_hash: Hash of potential parent
             child_hash: Hash of potential child
-
         Returns:
             Potential parent/child pair information and score
         """
@@ -239,13 +237,11 @@ class ScaledPairIdentifier:
         return score
 
     def get_hashes(self, filename: str, scale: float = 1.0) -> pd.Series:
-        """
-        Get hashes of *filename* at *scale*
+        """Get hashes of filename at scale.
 
         Arguments:
             filename: Base filename whose hashes to get
             scale: Scale at which to get hashes
-
         Returns:
             Hashes of *filename* at *scale*
         """
@@ -254,12 +250,10 @@ class ScaledPairIdentifier:
         ].iloc[0]
 
     def get_stacked_image(self, filenames: List[str]) -> Image.Image:
-        """
-        Get stacked images, rescaled to match first image, if necessary
+        """Get stacked images, rescaled to match first image, if necessary.
 
         Arguments:
             filenames: Basenames of files to stack
-
         Returns:s
             Stacked images, rescaled to match first image, if necessary
         """
@@ -280,36 +274,30 @@ class ScaledPairIdentifier:
             )
 
     def get_pair(self, child: str) -> pd.DataFrame:
-        """
-        Get pair of *child*
+        """Get pair of child.
 
         Arguments:
             child: Basename of child
-
         Returns:
             Pair of child
         """
         return self.pairs.loc[self.pairs["scaled filename"] == child]
 
     def get_pairs(self, parent: str) -> pd.DataFrame:
-        """
-        Get pairs of *parent*
+        """Get pairs of parent.
 
         Arguments:
             parent: Basename of parent
-
         Returns:
             Pairs of *parent*
         """
         return self.pairs.loc[self.pairs["filename"] == parent]
 
     def get_pair_scores(self, parent: str) -> Optional[pd.DataFrame]:
-        """
-        Get pair scores of *parent*
+        """Get pair scores of parent.
 
         Arguments:
             parent: Base filename of parent whose pairs to get
-
         Returns:
             Pair scores of *parent*
         """
@@ -326,12 +314,10 @@ class ScaledPairIdentifier:
             return scores
 
     def get_pair_score_image(self, pair_scores) -> Image.Image:
-        """
-        Gets a concatenated image of images in *pair_scores*
+        """Gets a concatenated image of images in pair_scores.
 
         Arguments:
             pair_scores: Pair scores
-
         Returns:
             Concatenated image of images in *pair_scores*
         """
@@ -380,7 +366,7 @@ class ScaledPairIdentifier:
             return hstack_images(parent_image, *child_images)
 
     def identify_pairs(self):
-        """Identify pairs"""
+        """Identify pairs."""
         # Loop over potential parent images starting from the largest
         parent_hashes = self.hashes.loc[
             (self.hashes["scale"] == 1.0)
@@ -436,15 +422,12 @@ class ScaledPairIdentifier:
         new_pairs: pd.DataFrame,
         new_pair_scores: pd.DataFrame,
     ) -> int:
-        """
-        Review candidate pairs of parent image
+        """Review candidate pairs of parent image.
 
         Arguments:
             known_pairs: Known pairs of parent
             new_pairs: Proposed new pairs of parent
-
         Returns:
-
         """
         info(
             f"To known pairs:\n"
@@ -487,17 +470,15 @@ class ScaledPairIdentifier:
     def seek_best_child_score(
         self, parent_hash: pd.Series, scale: float
     ) -> Optional[pd.Series]:
-        """
-        Get best child of provided *parent* at *scale*
+        """Get the best child of provided parent at scale.
 
         Arguments:
             parent_hash: Parent hash
             scale: Scale of child relative to parent
-
         Returns:
-            Score of best candidate child of *parent* at *scale*
+            Score of the best candidate child of *parent* at *scale*
         """
-        # Find best candidate child
+        # Find the best candidate child
         candidate_child_hashes = self.seek_candidate_child_scores(parent_hash, scale)
         if len(candidate_child_hashes) >= 2:
             best_idx = candidate_child_hashes["hamming sum z score"].idxmin()
@@ -542,13 +523,11 @@ class ScaledPairIdentifier:
     def seek_candidate_child_scores(
         self, parent_hash: pd.Series, scale: float
     ) -> pd.DataFrame:
-        """
-        Get scores of all candidate children of provided *parent* at *scale*
+        """Get scores of all candidate children of provided parent at scale.
 
         Arguments:
             parent_hash: Parent hash
             scale: Scale of child relative to parent
-
         Returns:
             Scores of candidate children of *parent* at *scale*
         """
@@ -587,15 +566,13 @@ class ScaledPairIdentifier:
     def seek_candidate_parent_scores(
         self, child_hash: pd.Series, scale: float
     ) -> pd.DataFrame:
-        """
-        Get scores of all candidate parents of provided *child_hash* at *scale
+        """Get scores of all candidate parents of provided child_hash at scale.
 
         Arguments:
             child_hash: Child hash
             scale: Scale of child relative to parent
-
         Returns:
-            Scores of candidate parents of *child* at *scale*
+            Scores of candidate parents of child at scale
         """
         # Select potential parent images
         candidates = self.hashes.loc[
