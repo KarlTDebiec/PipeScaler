@@ -2,10 +2,8 @@
 #   pipescaler/scripts/processors/esrgan_command_line_tool.py
 #
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license.
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
 """Command-line interface for ESRGANProcessor."""
 from __future__ import annotations
 
