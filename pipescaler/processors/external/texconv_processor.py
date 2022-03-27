@@ -9,8 +9,6 @@
 """Processes image using Texconv."""
 from __future__ import annotations
 
-from argparse import ArgumentParser
-from inspect import cleandoc
 from logging import debug
 from os.path import basename, dirname, join, splitext
 from shutil import copyfile

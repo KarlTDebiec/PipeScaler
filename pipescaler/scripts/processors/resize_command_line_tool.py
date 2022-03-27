@@ -9,7 +9,7 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser, _SubParsersAction
-from typing import Union
+from typing import Type, Union
 
 from pipescaler.core import Processor
 from pipescaler.core.cl import ProcessorCommandLineTool
@@ -47,7 +47,7 @@ class ResizeCommandLineTool(ProcessorCommandLineTool):
 
     @classmethod
     @property
-    def processor(cls) -> type[Processor]:
+    def processor(cls) -> Type[Processor]:
         """Type of processor wrapped by command-line tool."""
         return ResizeProcessor
 

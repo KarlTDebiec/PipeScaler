@@ -16,7 +16,6 @@ from pipescaler.testing import (
     expected_output_mode,
     get_infile,
     get_model_infile,
-    run_processor_on_command_line,
     skip_if_ci,
     stage_fixture,
     xfail_unsupported_image_mode,
@@ -70,5 +69,3 @@ def test(infile: str, processor: ESRGANProcessor) -> None:
 )
 def test_cl(infile: str, args: str) -> None:
     infile = get_infile(infile)
-
-    run_processor_on_command_line(ESRGANProcessor, args, infile)

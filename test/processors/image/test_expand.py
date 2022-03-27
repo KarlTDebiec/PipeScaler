@@ -12,12 +12,7 @@ from PIL import Image
 
 from pipescaler.common import temporary_filename
 from pipescaler.processors import ExpandProcessor
-from pipescaler.testing import (
-    expected_output_mode,
-    get_infile,
-    run_processor_on_command_line,
-    stage_fixture,
-)
+from pipescaler.testing import expected_output_mode, get_infile, stage_fixture
 
 
 @stage_fixture(
@@ -67,5 +62,3 @@ def test(infile: str, processor: ExpandProcessor) -> None:
 )
 def test_cl(infile: str, args: str) -> None:
     infile = get_infile(infile)
-
-    run_processor_on_command_line(ExpandProcessor, args, infile)

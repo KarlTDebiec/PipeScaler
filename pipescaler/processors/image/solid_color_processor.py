@@ -9,8 +9,6 @@
 """Sets entire image color to its average color, optionally resizing."""
 from __future__ import annotations
 
-from argparse import ArgumentParser
-from inspect import cleandoc
 from typing import Any
 
 import numpy as np

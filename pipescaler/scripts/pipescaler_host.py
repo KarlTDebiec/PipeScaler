@@ -17,7 +17,7 @@ from typing import Any, Dict
 from flask import Flask, redirect, request, send_file, url_for
 
 from pipescaler.common import CommandLineTool, temporary_filename
-from pipescaler.core import Processor, Stage, initialize_stage
+from pipescaler.core import Processor, initialize_stage
 from pipescaler.core.file import read_yaml
 
 

@@ -8,6 +8,8 @@
 #   BSD license.
 from __future__ import annotations
 
+from typing import Type
+
 from pipescaler.core import Processor
 from pipescaler.core.cl import ProcessorCommandLineTool
 from pipescaler.processors import SharpenProcessor
@@ -16,7 +18,7 @@ from pipescaler.processors import SharpenProcessor
 class SharpenCommandLineTool(ProcessorCommandLineTool):
     @classmethod
     @property
-    def processor(cls) -> type[Processor]:
+    def processor(cls) -> Type[Processor]:
         """Type of processor wrapped by command-line tool."""
         return SharpenProcessor
 

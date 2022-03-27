@@ -12,13 +12,14 @@ from inspect import getfile
 from os.path import dirname, join, splitext
 from pathlib import Path
 from types import ModuleType
+from typing import Type
 
 from pipescaler import mergers, processors, sorters, sources, splitters, termini
 from pipescaler.common import package_root, validate_input_path
 from pipescaler.core import Stage
 
 
-def get_github_link(cls: type[Stage]) -> str:
+def get_github_link(cls: Type[Stage]) -> str:
     """
     Get the GitHub master branch link to the file containing a class
 
@@ -55,7 +56,7 @@ def get_module_regexes(modules: list[ModuleType]) -> dict[ModuleType, re.Pattern
     return module_regexes
 
 
-def get_stage_description(stage: Stage) -> str:
+def get_stage_description(stage: Type[Stage]) -> str:
     """
     Get the formatted description of a stage, including GitHub link
 

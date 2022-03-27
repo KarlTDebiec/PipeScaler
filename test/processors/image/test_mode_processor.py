@@ -12,7 +12,7 @@ from PIL import Image
 
 from pipescaler.common import temporary_filename
 from pipescaler.processors import ModeProcessor
-from pipescaler.testing import get_infile, run_processor_on_command_line, stage_fixture
+from pipescaler.testing import get_infile, stage_fixture
 
 
 @stage_fixture(

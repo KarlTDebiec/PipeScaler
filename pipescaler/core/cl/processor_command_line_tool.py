@@ -11,7 +11,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from argparse import ArgumentParser, _SubParsersAction
 from inspect import cleandoc
-from typing import Any, Union
+from typing import Any, Type, Union
 
 from pipescaler.common import CommandLineTool
 from pipescaler.core import Processor
@@ -61,6 +61,6 @@ class ProcessorCommandLineTool(CommandLineTool, ABC):
     @classmethod
     @property
     @abstractmethod
-    def processor(cls) -> type[Processor]:
+    def processor(cls) -> Type[Processor]:
         """Type of processor wrapped by command-line tool."""
         raise NotImplementedError()

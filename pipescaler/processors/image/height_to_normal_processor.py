@@ -43,13 +43,6 @@ class HeightToNormalProcessor(ImageProcessor):
             self.sigma = None
 
     def process(self, input_image: Image.Image) -> Image.Image:
-        """
-        Read image from infile, process it, and save to outfile
-
-        Arguments:
-            infile: Input file path
-            outfile: Output file path
-        """
         expanded_image = expand_image(input_image, 8, 8, 8, 8)
         if self.sigma is not None:
             smoothed_image = smooth_image(expanded_image, self.sigma)

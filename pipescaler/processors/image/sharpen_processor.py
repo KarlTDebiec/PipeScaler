@@ -51,7 +51,3 @@ class SharpenProcessor(ImageProcessor):
     def supported_input_modes(self) -> list[str]:
         """Supported modes for input image"""
         return ["L", "RGB"]
-
-
-if __name__ == "__main__":
-    SharpenProcessor.main()
