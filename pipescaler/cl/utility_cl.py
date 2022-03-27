@@ -28,6 +28,7 @@ class UtilityCL(CommandLineTool):
         super().add_arguments_to_argparser(parser)
 
         subparsers = parser.add_subparsers(dest="utility")
+        # noinspection PyTypeChecker
         for name in sorted(cls.utilities):
             cls.utilities[name].construct_argparser(parser=subparsers)
 
@@ -38,6 +39,24 @@ class UtilityCL(CommandLineTool):
         kwargs = vars(parser.parse_args())
         utility = cls.utilities[kwargs.pop("processor")]
         utility.process(**kwargs)
+
+    @classmethod
+    @property
+    def description(cls) -> str:
+        """Long description of this tool displayed below usage."""
+        return "Runs utilities."
+
+    @classmethod
+    @property
+    def help(cls) -> str:
+        """Short description of this tool used when it is a subparser."""
+        return "run utilities"
+
+    @classmethod
+    @property
+    def name(cls) -> str:
+        """Name of this tool used to define it when it is a subparser."""
+        return cls.__name__.removesuffix("CL").lower()
 
     @classmethod
     @property

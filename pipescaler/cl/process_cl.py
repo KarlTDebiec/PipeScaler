@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser, _SubParsersAction
+from inspect import cleandoc
 from typing import Type, Union
 
 from pipescaler.cl import processors
@@ -29,6 +30,7 @@ class ProcessCL(CommandLineTool):
         super().add_arguments_to_argparser(parser)
 
         subparsers = parser.add_subparsers(dest="processor")
+        # noinspection PyTypeChecker
         for name in sorted(cls.processors):
             cls.processors[name].construct_argparser(parser=subparsers)
 
@@ -39,6 +41,24 @@ class ProcessCL(CommandLineTool):
         kwargs = vars(parser.parse_args())
         processor = cls.processors[kwargs.pop("processor")]
         processor.process(**kwargs)
+
+    @classmethod
+    @property
+    def description(cls) -> str:
+        """Long description of this tool displayed below usage."""
+        return "Processes images."
+
+    @classmethod
+    @property
+    def help(cls) -> str:
+        """Short description of this tool used when it is a subparser."""
+        return "process image"
+
+    @classmethod
+    @property
+    def name(cls) -> str:
+        """Name of this tool used to define it when it is a subparser."""
+        return cls.__name__.removesuffix("CL").lower()
 
     @classmethod
     @property

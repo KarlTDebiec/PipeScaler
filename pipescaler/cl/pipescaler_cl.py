@@ -5,8 +5,8 @@
 """Command-line interface for PipeScaler."""
 from __future__ import annotations
 
-from argparse import ArgumentParser
-from typing import Any
+from argparse import ArgumentParser, _SubParsersAction
+from typing import Any, Union
 
 from pipescaler.cl.process_cl import ProcessCL
 from pipescaler.cl.run_cl import RunCL
@@ -24,22 +24,21 @@ class PipeScalerCL(CommandLineTool):
         pass
 
     @classmethod
-    def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
-        """Construct argument parser.
+    def add_arguments_to_argparser(
+        cls,
+        parser: Union[ArgumentParser, _SubParsersAction],
+    ) -> None:
+        """Add arguments to a nascent argument parser.
 
         Arguments:
-            kwargs: Additional keyword arguments
-        Returns:
-            parser: Argument parser
+            parser: Nascent argument parser
         """
-        parser = super().construct_argparser(description=cls.description, **kwargs)
+        super().add_arguments_to_argparser(parser)
 
-        subparsers = parser.add_subparsers()
-        ProcessCL.construct_argparser(parser=subparsers, name="run")
-        RunCL.construct_argparser(parser=subparsers, name="run")
-        UtilityCL.construct_argparser(parser=subparsers, name="run")
-
-        return parser
+        subparsers = parser.add_subparsers(dest="subgroup")
+        ProcessCL.construct_argparser(parser=subparsers)
+        RunCL.construct_argparser(parser=subparsers)
+        UtilityCL.construct_argparser(parser=subparsers)
 
 
 if __name__ == "__main__":

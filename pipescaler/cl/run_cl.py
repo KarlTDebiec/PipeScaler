@@ -90,28 +90,42 @@ class RunCL(CommandLineTool):
         return output
 
     @classmethod
-    def construct_argparser(
-        cls, **kwargs: Any
-    ) -> Union[ArgumentParser, _SubParsersAction]:
-        """Constructs argument parser.
+    def add_arguments_to_argparser(
+        cls,
+        parser: Union[ArgumentParser, _SubParsersAction],
+    ) -> None:
+        """Add arguments to a nascent argument parser.
 
         Arguments:
-            kwargs (Any): Additional keyword arguments
-
-        Returns:
-            parser (ArgumentParser): Argument parser
+            parser: Nascent argument parser
         """
-        description = kwargs.pop(
-            "description", cleandoc(cls.__doc__) if cls.__doc__ is not None else ""
-        )
-        parser = super().construct_argparser(description=description, **kwargs)
+        super().add_arguments_to_argparser(parser)
 
         # Input
-        parser.add_argument(
+        required = cls.get_required_arguments_group(parser)
+        required.add_argument(
             "conf_file", type=cls.input_path_arg(), help="configuration file"
         )
 
         return parser
+
+    @classmethod
+    @property
+    def description(cls) -> str:
+        """Long description of this tool displayed below usage."""
+        return "Runs a pipeline"
+
+    @classmethod
+    @property
+    def help(cls) -> str:
+        """Short description of this tool used when it is a subparser."""
+        return "run a pipeline"
+
+    @classmethod
+    @property
+    def name(cls) -> str:
+        """Name of this tool used to define it when it is a subparser."""
+        return cls.__name__.removesuffix("CL").lower()
 
 
 if __name__ == "__main__":
