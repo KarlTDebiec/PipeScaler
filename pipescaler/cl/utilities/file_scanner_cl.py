@@ -11,6 +11,7 @@ from os import environ
 from os.path import expandvars, normpath
 from typing import Any, Type, Union
 
+from pipescaler.common import validate_int
 from pipescaler.core.cl import UtilityCommandLineTool
 from pipescaler.core.file import read_yaml
 from pipescaler.utilities import FileScanner
@@ -33,6 +34,8 @@ class FileScannerCL(UtilityCommandLineTool):
         Arguments:
             parser: Nascent argument parser
         """
+        super().add_arguments_to_argparser(parser)
+
         required = cls.get_required_arguments_group(parser)
         required.add_argument(
             "conf_file",
@@ -56,6 +59,9 @@ class FileScannerCL(UtilityCommandLineTool):
             value = normpath(expandvars(value))
             environ[key] = normpath(expandvars(value))
             info(f"Environment variable '{key}' set to '{value}'")
+
+        verbosity = validate_int(kwargs.pop("verbosity", 0), min_value=0)
+        cls.set_logging_verbosity(verbosity)
 
         utility = cls.utility(**{**kwargs, **conf})
         utility()
