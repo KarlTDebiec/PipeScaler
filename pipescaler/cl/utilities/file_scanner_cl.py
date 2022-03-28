@@ -19,6 +19,10 @@ from pipescaler.utilities import FileScanner
 class FileScannerCL(UtilityCommandLineTool):
     """Command-line interface for FileScanner."""
 
+    def __call__(self):
+        """Perform operations."""
+        raise NotImplementedError()
+
     @classmethod
     def add_arguments_to_argparser(
         cls,

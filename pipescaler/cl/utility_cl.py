@@ -10,6 +10,7 @@ from typing import Any, Type, Union
 
 from pipescaler.cl import utilities
 from pipescaler.common import CommandLineTool
+from pipescaler.core.cl import UtilityCommandLineTool
 
 
 class UtilityCL(CommandLineTool):
@@ -41,7 +42,7 @@ class UtilityCL(CommandLineTool):
 
     @classmethod
     def main2(cls, **kwargs: Any) -> None:
-        utility = cls.utilities[kwargs.pop("processor")]
+        utility = cls.utilities[kwargs.pop("utility")]
         utility(**kwargs)
 
     @classmethod
@@ -64,7 +65,7 @@ class UtilityCL(CommandLineTool):
 
     @classmethod
     @property
-    def utilities(cls) -> dict[str:Type]:
+    def utilities(cls) -> dict[str : Type[UtilityCommandLineTool]]:
         """Names and types of utilities wrapped by command-line tool."""
         return {
             utility.name: utility

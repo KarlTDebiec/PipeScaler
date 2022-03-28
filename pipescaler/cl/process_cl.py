@@ -10,7 +10,7 @@ from typing import Any, Type, Union
 
 from pipescaler.cl import processors
 from pipescaler.common import CommandLineTool
-from pipescaler.core import Processor
+from pipescaler.core.cl import ProcessorCommandLineTool
 
 
 class ProcessCL(CommandLineTool):
@@ -65,7 +65,7 @@ class ProcessCL(CommandLineTool):
 
     @classmethod
     @property
-    def processors(cls) -> dict[str, Type[Processor]]:
+    def processors(cls) -> dict[str, Type[ProcessorCommandLineTool]]:
         """Names and types of processors wrapped by command-line tool."""
         return {
             processor.name: processor
