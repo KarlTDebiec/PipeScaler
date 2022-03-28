@@ -69,7 +69,7 @@ class FileScanner:
               directory or directories
             **kwargs: Additional keyword arguments
         """
-        super().__init__(**kwargs)
+        super().__init__()
 
         def validate_input_directories(input_directories: Union[str, list[str]]):
             """Validate input directory paths and make them absolute"""

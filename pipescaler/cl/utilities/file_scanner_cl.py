@@ -9,7 +9,7 @@ from argparse import ArgumentParser, _SubParsersAction
 from logging import info
 from os import environ
 from os.path import expandvars, normpath
-from typing import Type, Union
+from typing import Any, Type, Union
 
 from pipescaler.core.cl import UtilityCommandLineTool
 from pipescaler.core.file import read_yaml
@@ -45,7 +45,10 @@ class FileScannerCL(UtilityCommandLineTool):
         """Parse arguments, construct tool, and call tool"""
         parser = cls.construct_argparser()
         kwargs = vars(parser.parse_args())
+        cls.main2(**kwargs)
 
+    @classmethod
+    def main2(cls, **kwargs: Any) -> None:
         conf = read_yaml(kwargs.pop("conf_file"))
 
         # Set environment variables
@@ -54,8 +57,8 @@ class FileScannerCL(UtilityCommandLineTool):
             environ[key] = normpath(expandvars(value))
             info(f"Environment variable '{key}' set to '{value}'")
 
-        tool = cls(**{**kwargs, **conf})
-        tool()
+        utility = cls.utility(**{**kwargs, **conf})
+        utility()
 
     @classmethod
     @property

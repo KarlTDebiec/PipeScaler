@@ -43,7 +43,7 @@ class UtilityCL(CommandLineTool):
     @classmethod
     def main2(cls, **kwargs: Any) -> None:
         utility = cls.utilities[kwargs.pop("utility")]
-        utility(**kwargs)
+        utility.main2(**kwargs)
 
     @classmethod
     @property
