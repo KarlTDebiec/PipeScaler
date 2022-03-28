@@ -1,11 +1,7 @@
 #!/usr/bin/env python
-#   test/processors/external/test_waifu_external.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license. See the LICENSE file for details.
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
 """Tests for WaifuExternalProcessor"""
 import pytest
 from PIL import Image
@@ -15,7 +11,6 @@ from pipescaler.processors import WaifuExternalProcessor
 from pipescaler.testing import (
     expected_output_mode,
     get_infile,
-    run_processor_on_command_line,
     skip_if_ci,
     stage_fixture,
     xfail_unsupported_image_mode,
@@ -60,17 +55,3 @@ def test(infile: str, waifu_external_processor: WaifuExternalProcessor) -> None:
                 input_image.size[0] * waifu_external_processor.scale,
                 input_image.size[1] * waifu_external_processor.scale,
             )
-
-
-@pytest.mark.serial
-@pytest.mark.parametrize(
-    ("infile", "args"),
-    [
-        ("RGB", "-h"),
-        skip_if_ci()("RGB", f" --type a --denoise 0 --scale 2"),
-    ],
-)
-def test_cl(infile: str, args: str) -> None:
-    infile = get_infile(infile)
-
-    run_processor_on_command_line(WaifuExternalProcessor, args, infile)

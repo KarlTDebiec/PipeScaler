@@ -1,16 +1,12 @@
 #!/usr/bin/env python
-#   pipescaler/core/pipe_image.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license.
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
 """Image within a pipeline"""
 from __future__ import annotations
 
 from os.path import basename, dirname, join, splitext
-from typing import List, Optional
+from typing import Optional
 
 
 class PipeImage:
@@ -48,7 +44,7 @@ class PipeImage:
         self,
         directory: str,
         suffix: str,
-        trim_suffixes: Optional[List[str]] = None,
+        trim_suffixes: Optional[list[str]] = None,
         extension="png",
     ) -> PipeImage:
         """

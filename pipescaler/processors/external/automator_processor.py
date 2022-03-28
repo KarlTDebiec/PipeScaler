@@ -1,29 +1,22 @@
 #!/usr/bin/env python
-#   pipescaler/processors/external/automator_processor.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license.
-"""Applies an Automator QuickAction to an image"""
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
+"""Applies an Automator QuickAction to an image."""
 from __future__ import annotations
 
-from argparse import ArgumentParser
-from inspect import cleandoc
 from os.path import join, split
-from typing import Any, Set
+from typing import Any
 
 from pipescaler.common import package_root, validate_executable, validate_input_path
 from pipescaler.core import ExternalProcessor
 
 
 class AutomatorProcessor(ExternalProcessor):
-    """
-    Applies an
-    [Automator QuickAction](https://support.apple.com/guide/automator/welcome/mac) to an
-    image; for example using
-    [Pixelmator Pro](https://www.pixelmator.com/support/guide/pixelmator-pro/1270/)
+    """Applies an Automator QuickAction to an image.
+
+    See [Automator QuickAction](https://support.apple.com/guide/automator/welcome/mac)
+    and [Pixelmator Pro](https://www.pixelmator.com/support/guide/pixelmator-pro/1270/)
     """
 
     def __init__(self, workflow: str, **kwargs: Any) -> None:
@@ -45,7 +38,7 @@ class AutomatorProcessor(ExternalProcessor):
         )
 
     @property
-    def command_template(self):
+    def command_template(self) -> str:
         """String template with which to generate command"""
         return (
             f"{validate_executable(self.executable, self.supported_platforms)}"
@@ -53,45 +46,25 @@ class AutomatorProcessor(ExternalProcessor):
             f" {self.workflow}"
         )
 
+    @classmethod
     @property
     def executable(self) -> str:
         """Name of executable"""
         return "automator"
 
+    @classmethod
     @property
-    def supported_platforms(self) -> Set[str]:
-        """Platforms on which processor is supported"""
-        return {"Darwin"}
+    def help_markdown(cls) -> str:
+        """Short description of this tool in markdown, with links."""
+        return (
+            "Applies an [Automator QuickAction]"
+            "(https://support.apple.com/guide/automator/welcome/mac) "
+            "to an image; for example using [Pixelmator Pro]"
+            "(https://www.pixelmator.com/support/guide/pixelmator-pro/1270/)."
+        )
 
     @classmethod
-    def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
-        """
-        Construct argument parser
-
-        Arguments:
-            **kwargs: Additional keyword arguments
-
-        Returns:
-            parser: Argument parser
-        """
-        description = kwargs.pop(
-            "description", cleandoc(cls.__doc__) if cls.__doc__ is not None else ""
-        )
-        parser = super().construct_argparser(description=description, **kwargs)
-
-        # Operations
-        parser.add_argument(
-            "--workflow",
-            type=cls.input_path_arg(
-                file_ok=False,
-                directory_ok=True,
-                default_directory=join(*split(package_root), "data", "workflows"),
-            ),
-            help="path to workflow",
-        )
-
-        return parser
-
-
-if __name__ == "__main__":
-    AutomatorProcessor.main()
+    @property
+    def supported_platforms(self) -> set[str]:
+        """Platforms on which processor is supported"""
+        return {"Darwin"}

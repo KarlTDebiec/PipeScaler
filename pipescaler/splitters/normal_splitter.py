@@ -1,15 +1,9 @@
 #!/usr/bin/env python
-#   pipescaler/splitter/alpha_splitter.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license.
-"""Splits a normal map image into separate x, y, and z images"""
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
+"""Splits a normal map image into separate x, y, and z images."""
 from __future__ import annotations
-
-from typing import List, Tuple
 
 import numpy as np
 from PIL import Image
@@ -18,19 +12,9 @@ from pipescaler.core import Splitter
 
 
 class NormalSplitter(Splitter):
-    """Splits a normal map image into separate x, y, and z images"""
+    """Splits a normal map image into separate x, y, and z images."""
 
-    @property
-    def outlets(self) -> List[str]:
-        """Outlets that flow out of stage"""
-        return ["x", "y", "z"]
-
-    @property
-    def supported_input_modes(self) -> List[str]:
-        """Supported modes for input image"""
-        return ["RGB"]
-
-    def split(self, input_image: Image.Image) -> Tuple[Image.Image, ...]:
+    def split(self, input_image: Image.Image) -> tuple[Image.Image, ...]:
         """
         Split an image
 
@@ -51,3 +35,14 @@ class NormalSplitter(Splitter):
         z_image = Image.fromarray(z_array)
 
         return x_image, y_image, z_image
+
+    @property
+    def outlets(self) -> list[str]:
+        """Outlets that flow out of stage"""
+        return ["x", "y", "z"]
+
+    @classmethod
+    @property
+    def supported_input_modes(self) -> list[str]:
+        """Supported modes for input image"""
+        return ["RGB"]

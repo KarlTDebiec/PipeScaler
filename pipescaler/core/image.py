@@ -1,15 +1,9 @@
 #!/usr/bin/env python
-#   pipescaler/core/image.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license.
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
 """Core pipescaler functions for interacting with images"""
 from __future__ import annotations
-
-from typing import Tuple
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
@@ -19,7 +13,7 @@ from pipescaler.common import validate_float
 from pipescaler.core.exception import UnsupportedImageModeError
 
 
-def convert_mode(image: Image.Image, mode: str) -> Tuple[Image.Image, str]:
+def convert_mode(image: Image.Image, mode: str) -> tuple[Image.Image, str]:
     """
     Convert image to specified mode, if necessary, returning image and original mode
 
@@ -210,7 +204,7 @@ def get_font_size(
 
 def get_text_size(
     text: str, width: int, height: int, font: str = "Arial", size: int = 100
-) -> Tuple[int, int]:
+) -> tuple[int, int]:
     """
     Get the size of *text* drawn with *font* at *size* on image of *width* and *height*
 

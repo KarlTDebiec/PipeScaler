@@ -1,26 +1,22 @@
 #!/usr/bin/env python
-#   pipescaler/splitter/alpha_splitter.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license.
-"""Splits image with transparency into separate alpha and color images"""
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
+"""Splits image with transparency into separate alpha and color images."""
 from __future__ import annotations
 
-from typing import Any, List, Optional, Tuple, Union
+from typing import Any, Optional, Union
 
 import numpy as np
 from PIL import Image
 
 from pipescaler.common import ArgumentConflictError, validate_enum
 from pipescaler.core import AlphaMode, MaskFillMode, Splitter, is_monochrome
-from pipescaler.util import MaskFiller
+from pipescaler.utilities import MaskFiller
 
 
 class AlphaSplitter(Splitter):
-    """Splits image with transparency into separate alpha and color images"""
+    """Splits image with transparency into separate alpha and color images."""
 
     def __init__(
         self,
@@ -44,17 +40,7 @@ class AlphaSplitter(Splitter):
             self.mask_fill_mode = validate_enum(mask_fill_mode, MaskFillMode)
             self.mask_filler = MaskFiller(mask_fill_mode=self.mask_fill_mode)
 
-    @property
-    def outlets(self) -> List[str]:
-        """Outlets that flow out of stage"""
-        return ["color", "alpha"]
-
-    @property
-    def supported_input_modes(self) -> List[str]:
-        """Supported modes for input image"""
-        return ["LA", "RGBA"]
-
-    def split(self, input_image: Image.Image) -> Tuple[Image.Image, ...]:
+    def split(self, input_image: Image.Image) -> tuple[Image.Image, ...]:
         """
         Split an image
 
@@ -78,3 +64,14 @@ class AlphaSplitter(Splitter):
             color_image = self.mask_filler.fill(color_image, alpha_image)
 
         return color_image, alpha_image
+
+    @property
+    def outlets(self) -> list[str]:
+        """Outlets that flow out of stage"""
+        return ["color", "alpha"]
+
+    @classmethod
+    @property
+    def supported_input_modes(self) -> list[str]:
+        """Supported modes for input image"""
+        return ["LA", "RGBA"]

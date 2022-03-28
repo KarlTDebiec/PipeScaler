@@ -1,15 +1,11 @@
 #!/usr/bin/env python
-#   test/core/test_core.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license. See the LICENSE file for details.
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
 """Tests for core"""
 from os import listdir
 from os.path import basename
-from typing import List, Set, Union
+from typing import Union
 
 import pytest
 
@@ -34,7 +30,7 @@ infiles = get_files(get_sub_directory("basic"), style="absolute")
     ],
 )
 def test_get_files_in_directory(
-    sources: Union[str, List[str]], style: str, exclusions: Set[str]
+    sources: Union[str, list[str]], style: str, exclusions: set[str]
 ) -> None:
     get_files(sources, style, exclusions)
 

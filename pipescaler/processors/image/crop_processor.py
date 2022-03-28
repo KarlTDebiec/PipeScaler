@@ -1,17 +1,11 @@
 #!/usr/bin/env python
-#   pipescaler/processors/image/crop_processor.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license.
-"""Crops image canvas"""
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
+"""Crops image canvas."""
 from __future__ import annotations
 
-from argparse import ArgumentParser
-from inspect import cleandoc
-from typing import Any, Tuple
+from typing import Any
 
 from PIL import Image
 
@@ -20,9 +14,9 @@ from pipescaler.core import ImageProcessor, crop_image
 
 
 class CropProcessor(ImageProcessor):
-    """Crops image canvas"""
+    """Crops image canvas."""
 
-    def __init__(self, pixels: Tuple[int], **kwargs: Any) -> None:
+    def __init__(self, pixels: tuple[int], **kwargs: Any) -> None:
         """
         Validate and store static configuration
 
@@ -57,36 +51,3 @@ class CropProcessor(ImageProcessor):
         )
 
         return output_image
-
-    @classmethod
-    def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
-        """
-        Construct argument parser
-
-        Arguments:
-            **kwargs: Additional keyword arguments
-
-        Returns:
-            parser: Argument parser
-        """
-        description = kwargs.pop(
-            "description", cleandoc(cls.__doc__) if cls.__doc__ is not None else ""
-        )
-        parser = super().construct_argparser(description=description, **kwargs)
-
-        # Operations
-        parser.add_argument(
-            "--pixels",
-            default=(8, 8, 8, 8),
-            metavar=("LEFT", "TOP", "RIGHT", "BOTTOM"),
-            nargs=4,
-            type=cls.int_arg(0),
-            help="number of pixels to remove from left, top, right, and bottom "
-            "(default: %(default)s)",
-        )
-
-        return parser
-
-
-if __name__ == "__main__":
-    CropProcessor.main()

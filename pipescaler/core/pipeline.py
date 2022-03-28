@@ -1,11 +1,7 @@
 #!/usr/bin/env python
-#   pipescaler/core/pipeline.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license.
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
 """Image processing pipeline"""
 from __future__ import annotations
 
@@ -16,7 +12,7 @@ from os import listdir, makedirs, remove, rmdir
 from os.path import isdir, isfile, join
 from pprint import pformat
 from shutil import copyfile
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Optional, Union
 
 from pipescaler.common import UnsupportedPlatformError, validate_output_directory
 from pipescaler.core.exception import TerminusReached
@@ -36,8 +32,8 @@ class Pipeline:
     def __init__(
         self,
         wip_directory: str,
-        stages: Dict[str, Dict[str, Dict[str, Any]]],
-        pipeline: List[Union[str, Dict[str, Any]]],
+        stages: dict[str, dict[str, dict[str, Any]]],
+        pipeline: list[Union[str, dict[str, Any]]],
         purge_wip: bool = False,
     ) -> None:
         """
@@ -68,7 +64,7 @@ class Pipeline:
         ]
 
         # Initialize stages
-        self.stages: Dict[str, Stage] = {}
+        self.stages: dict[str, Stage] = {}
         for stage_name, stage_conf in stages.items():
             self.stages[stage_name] = initialize_stage(
                 stage_name, stage_conf, stage_modules
@@ -136,9 +132,9 @@ class Pipeline:
     def build_merger(
         self,
         stage: Merger,
-        stage_conf: Optional[Union[str, Dict[str, Any]]],
-        downstream_pipeline_conf: List[Union[str, Dict[str, Any]]],
-    ) -> List[Union[Stage, Dict[Stage, Any]]]:
+        stage_conf: Optional[Union[str, dict[str, Any]]],
+        downstream_pipeline_conf: list[Union[str, dict[str, Any]]],
+    ) -> list[Union[Stage, dict[Stage, Any]]]:
         """
         Build a merger and its downstream pipeline
 
@@ -164,9 +160,9 @@ class Pipeline:
     def build_processor(
         self,
         stage: Processor,
-        stage_conf: Optional[Union[str, Dict[str, Any]]],
-        downstream_pipeline_conf: List[Union[str, Dict[str, Any]]],
-    ) -> List[Union[Stage, Dict[Stage, Any]]]:
+        stage_conf: Optional[Union[str, dict[str, Any]]],
+        downstream_pipeline_conf: list[Union[str, dict[str, Any]]],
+    ) -> list[Union[Stage, dict[Stage, Any]]]:
         """
         Build a Processor and its downstream pipeline
 
@@ -187,8 +183,8 @@ class Pipeline:
         return pipeline
 
     def build_route(
-        self, pipeline_conf: List[Union[str, Dict[str, Any]]]
-    ) -> List[Union[Stage, Dict[Stage, Any]]]:
+        self, pipeline_conf: list[Union[str, dict[str, Any]]]
+    ) -> list[Union[Stage, dict[Stage, Any]]]:
         """
         Build a downstream pipeline
 
@@ -203,7 +199,7 @@ class Pipeline:
             return []
         if isinstance(pipeline_conf, str):
             pipeline_conf = [pipeline_conf]
-        if not isinstance(pipeline_conf, List):
+        if not isinstance(pipeline_conf, list):
             raise ValueError()
         if len(pipeline_conf) == 0:
             return []
@@ -233,9 +229,9 @@ class Pipeline:
     def build_sorter(
         self,
         stage: Sorter,
-        stage_conf: Optional[Union[str, Dict[str, Any]]],
-        downstream_pipeline_conf: List[Union[str, Dict[str, Any]]],
-    ) -> List[Union[Stage, Dict[Stage, Any]]]:
+        stage_conf: Optional[Union[str, dict[str, Any]]],
+        downstream_pipeline_conf: list[Union[str, dict[str, Any]]],
+    ) -> list[Union[Stage, dict[Stage, Any]]]:
         """
         Build a Sorter and its downstream pipeline
 
@@ -263,8 +259,8 @@ class Pipeline:
         return pipeline
 
     def build_source(
-        self, stage: Source, downstream_pipeline_conf: List[Union[str, Dict[str, Any]]]
-    ) -> List[Union[Stage, Dict[Stage, Any]]]:
+        self, stage: Source, downstream_pipeline_conf: list[Union[str, dict[str, Any]]]
+    ) -> list[Union[Stage, dict[Stage, Any]]]:
         """
         Build a Source stage and its downstream pipeline
 
@@ -283,9 +279,9 @@ class Pipeline:
     def build_splitter(
         self,
         stage: Splitter,
-        stage_conf: Optional[Union[str, Dict[str, Any]]],
-        downstream_pipeline_conf: List[Union[str, Dict[str, Any]]],
-    ) -> List[Union[Stage, Dict[Stage, Any]]]:
+        stage_conf: Optional[Union[str, dict[str, Any]]],
+        downstream_pipeline_conf: list[Union[str, dict[str, Any]]],
+    ) -> list[Union[Stage, dict[Stage, Any]]]:
         """
         Build a Splitter and its downstream pipeline
 
@@ -311,9 +307,9 @@ class Pipeline:
     def build_terminus(
         self,
         stage: Terminus,
-        stage_conf: Optional[Union[str, Dict[str, Any]]],
-        downstream_pipeline_conf: List[Union[str, Dict[str, Any]]],
-    ) -> List[Union[Stage, Dict[Stage, Any]]]:
+        stage_conf: Optional[Union[str, dict[str, Any]]],
+        downstream_pipeline_conf: list[Union[str, dict[str, Any]]],
+    ) -> list[Union[Stage, dict[Stage, Any]]]:
         """
         Build a Terminus and its downstream pipeline
 
@@ -366,9 +362,9 @@ class Pipeline:
     def run_merger(
         self,
         stage: Merger,
-        stage_pipeline: Optional[Union[Stage, Dict[Union[Stage, str], Any]]],
-        downstream_pipeline: List[Union[Stage, Dict[Stage, Any]]],
-        image: Union[PipeImage, Dict[str, PipeImage]],
+        stage_pipeline: Optional[Union[Stage, dict[Union[Stage, str], Any]]],
+        downstream_pipeline: list[Union[Stage, dict[Stage, Any]]],
+        image: Union[PipeImage, dict[str, PipeImage]],
     ):
         """
         Run input images through a Merger and routes output image into downstream
@@ -415,9 +411,9 @@ class Pipeline:
     def run_processor(
         self,
         stage: Processor,
-        stage_pipeline: Optional[Union[Stage, Dict[Union[Stage, str], Any]]],
-        downstream_pipeline: List[Union[Stage, Dict[Stage, Any]]],
-        image: Union[PipeImage, Dict[str, PipeImage]],
+        stage_pipeline: Optional[Union[Stage, dict[Union[Stage, str], Any]]],
+        downstream_pipeline: list[Union[Stage, dict[Stage, Any]]],
+        image: Union[PipeImage, dict[str, PipeImage]],
     ):
         """
         Run input image through a Processor and routes output image into
@@ -459,8 +455,8 @@ class Pipeline:
 
     def run_route(
         self,
-        pipeline: List[Union[Stage, Dict[Stage, Any]]],
-        image: Union[PipeImage, Dict[str, PipeImage]],
+        pipeline: list[Union[Stage, dict[Stage, Any]]],
+        image: Union[PipeImage, dict[str, PipeImage]],
     ):
         """
         Route image to downstream pipeline
@@ -500,9 +496,9 @@ class Pipeline:
     def run_sorter(
         self,
         stage: Sorter,
-        stage_pipeline: Optional[Union[Stage, Dict[Union[Stage, str], Any]]],
-        downstream_pipeline: List[Union[Stage, Dict[Stage, Any]]],
-        image: Union[PipeImage, Dict[str, PipeImage]],
+        stage_pipeline: Optional[Union[Stage, dict[Union[Stage, str], Any]]],
+        downstream_pipeline: list[Union[Stage, dict[Stage, Any]]],
+        image: Union[PipeImage, dict[str, PipeImage]],
     ):
         """
         Run input image through an outlet pipeline selected by a Sorter, then
@@ -537,9 +533,9 @@ class Pipeline:
     def run_splitter(
         self,
         stage: Splitter,
-        stage_pipeline: Optional[Union[Stage, Dict[Union[Stage, str], Any]]],
-        downstream_pipeline: List[Union[Stage, Dict[Stage, Any]]],
-        image: Union[PipeImage, Dict[str, PipeImage]],
+        stage_pipeline: Optional[Union[Stage, dict[Union[Stage, str], Any]]],
+        downstream_pipeline: list[Union[Stage, dict[Stage, Any]]],
+        image: Union[PipeImage, dict[str, PipeImage]],
     ):
         """
         Run an input image through a Splitter, and each output image through
@@ -618,9 +614,9 @@ class Pipeline:
     def run_terminus(
         self,
         stage: Terminus,
-        stage_pipeline: Optional[Union[Stage, Dict[Union[Stage, str], Any]]],
-        downstream_pipeline: List[Union[Stage, Dict[Stage, Any]]],
-        image: Union[PipeImage, Dict[str, PipeImage]],
+        stage_pipeline: Optional[Union[Stage, dict[Union[Stage, str], Any]]],
+        downstream_pipeline: list[Union[Stage, dict[Stage, Any]]],
+        image: Union[PipeImage, dict[str, PipeImage]],
     ) -> None:
         """
         Run input image through a Terminus

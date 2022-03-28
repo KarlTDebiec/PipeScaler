@@ -1,17 +1,12 @@
 #!/usr/bin/env python
-#   prospector_reporter.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license.
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
 """Prints prospector results formatted for consumption by GitHub."""
 import json
-from argparse import ArgumentParser
-from inspect import cleandoc
+from argparse import ArgumentParser, _SubParsersAction
 from os.path import normpath
-from typing import Any, Optional
+from typing import Any, Union
 
 from pipescaler.common import CommandLineTool, validate_input_file
 
@@ -83,32 +78,20 @@ class ProspectorReporter(CommandLineTool):
         print(f"::info::{github_message}")
 
     @classmethod
-    def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
-        """Construct argument parser.
-
-        Arguments:
-            **kwargs: Additional keyword arguments
-        Returns:
-            parser: Argument parser
-        """
-        description = kwargs.pop(
-            "description", cleandoc(cls.__doc__) if cls.__doc__ is not None else ""
-        )
-        parser = super().construct_argparser(description=description, **kwargs)
-
+    def add_arguments_to_argparser(
+        cls,
+        parser: Union[ArgumentParser, _SubParsersAction],
+    ) -> None:
         parser.add_argument(
             "prospector_infile",
             type=cls.input_path_arg(),
             help="Input prospector JSON file",
         )
-
         parser.add_argument(
             "modified_files_infile",
             type=cls.input_path_arg(),
             help="Input list of added or modified files",
         )
-
-        return parser
 
 
 if __name__ == "__main__":

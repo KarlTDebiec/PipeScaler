@@ -1,15 +1,9 @@
 #!/usr/bin/env python
-#   pipescaler/processors/image/sharpen_processor.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license.
-"""Sharpens an image"""
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
+"""Sharpens an image."""
 from __future__ import annotations
-
-from typing import List
 
 import numpy as np
 from PIL import Image
@@ -19,14 +13,9 @@ from pipescaler.core import ImageProcessor
 
 
 class SharpenProcessor(ImageProcessor):
-    """Sharpens an image"""
+    """Sharpens an image."""
 
     kernel = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]], float)
-
-    @property
-    def supported_input_modes(self) -> List[str]:
-        """Supported modes for input image"""
-        return ["L", "RGB"]
 
     def process(self, input_image: Image.Image) -> Image.Image:
         """Process image
@@ -53,6 +42,8 @@ class SharpenProcessor(ImageProcessor):
 
         return output_image
 
-
-if __name__ == "__main__":
-    SharpenProcessor.main()
+    @classmethod
+    @property
+    def supported_input_modes(self) -> list[str]:
+        """Supported modes for input image"""
+        return ["L", "RGB"]

@@ -1,15 +1,9 @@
 #!/usr/bin/env python
-#   pipescaler/mergers/alpha_merger.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license.
-"""Merges alpha and color images into a single image with transparency"""
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
+"""Merges alpha and color images into a single image with transparency."""
 from __future__ import annotations
-
-from typing import Dict, List
 
 import numpy as np
 from PIL import Image
@@ -18,20 +12,7 @@ from pipescaler.core import Merger
 
 
 class AlphaMerger(Merger):
-    """Merges alpha and color images into a single image with transparency"""
-
-    @property
-    def inlets(self) -> List[str]:
-        """Inlets that flow into stage"""
-        return ["color", "alpha"]
-
-    @property
-    def supported_input_modes(self) -> Dict[str, List[str]]:
-        """Supported modes for input images"""
-        return {
-            "color": ["L", "RGB"],
-            "alpha": ["1", "L"],
-        }
+    """Merges alpha and color images into a single image with transparency."""
 
     def merge(self, *input_images: Image.Image) -> Image.Image:
         """
@@ -62,3 +43,17 @@ class AlphaMerger(Merger):
         output_image = Image.fromarray(output_array)
 
         return output_image
+
+    @property
+    def inlets(self) -> list[str]:
+        """Inlets that flow into stage"""
+        return ["color", "alpha"]
+
+    @classmethod
+    @property
+    def supported_input_modes(self) -> dict[str, list[str]]:
+        """Supported modes for input images"""
+        return {
+            "color": ["L", "RGB"],
+            "alpha": ["1", "L"],
+        }

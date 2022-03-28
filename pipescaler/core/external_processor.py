@@ -1,11 +1,7 @@
 #!/usr/bin/env python
-#   pipescaler/core/image_processor.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license.
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
 """Base class for processors that perform their processing using an external tool"""
 from __future__ import annotations
 
@@ -13,7 +9,6 @@ from abc import ABC, abstractmethod
 from logging import debug, info
 from os.path import splitext
 from shutil import copyfile
-from typing import Set
 
 from pipescaler.common import run_command, temporary_filename
 from pipescaler.common.validation import validate_executable
@@ -42,20 +37,9 @@ class ExternalProcessor(Processor, ABC):
 
     @property
     @abstractmethod
-    def command_template(self):
+    def command_template(self) -> str:
         """String template with which to generate command"""
         raise NotImplementedError()
-
-    @property
-    @abstractmethod
-    def executable(self) -> str:
-        """Name of executable"""
-        raise NotImplementedError()
-
-    @property
-    def supported_platforms(self) -> Set[str]:
-        """Platforms on which processor is supported"""
-        return {"Darwin", "Linux", "Windows"}
 
     def process(self, infile: str, outfile: str) -> None:
         """
@@ -72,3 +56,15 @@ class ExternalProcessor(Processor, ABC):
         # If command template lacks outfile, assume infile is processed in place
         if "{outfile}" not in self.command_template:
             copyfile(infile, outfile)
+
+    @classmethod
+    @property
+    def executable(self) -> str:
+        """Name of executable"""
+        raise NotImplementedError()
+
+    @classmethod
+    @property
+    def supported_platforms(self) -> set[str]:
+        """Platforms on which processor is supported"""
+        return {"Darwin", "Linux", "Windows"}

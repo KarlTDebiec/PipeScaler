@@ -1,15 +1,9 @@
 #!/usr/bin/env python
-#   pipescaler/mergers/histogram_match_merger.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license.
-"""Matches an image's color histogram to that of a reference image"""
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
+"""Matches an image's color histogram to that of a reference image."""
 from __future__ import annotations
-
-from typing import Dict, List
 
 import numpy as np
 from PIL import Image
@@ -19,20 +13,7 @@ from pipescaler.core import Merger, UnsupportedImageModeError
 
 
 class HistogramMatchMerger(Merger):
-    """Matches an image's color histogram to that of a reference image"""
-
-    @property
-    def inlets(self) -> List[str]:
-        """Inlets that flow into stage"""
-        return ["reference", "fit"]
-
-    @property
-    def supported_input_modes(self) -> Dict[str, List[str]]:
-        """Supported modes for input images"""
-        return {
-            "reference": ["L", "LA", "RGB", "RGBA"],
-            "fit": ["L", "LA", "RGB", "RGBA"],
-        }
+    """Matches an image's color histogram to that of a reference image."""
 
     def merge(self, *input_images: Image.Image) -> Image.Image:
         """
@@ -62,3 +43,17 @@ class HistogramMatchMerger(Merger):
         output_image = Image.fromarray(output_array)
 
         return output_image
+
+    @property
+    def inlets(self) -> list[str]:
+        """Inlets that flow into stage"""
+        return ["reference", "fit"]
+
+    @classmethod
+    @property
+    def supported_input_modes(self) -> dict[str, list[str]]:
+        """Supported modes for input images"""
+        return {
+            "reference": ["L", "LA", "RGB", "RGBA"],
+            "fit": ["L", "LA", "RGB", "RGBA"],
+        }

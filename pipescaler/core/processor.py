@@ -1,29 +1,21 @@
 #!/usr/bin/env python
-#   pipescaler/core/processor.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license.
-"""Base class for processors"""
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
+"""Base class for processors."""
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from argparse import ArgumentParser
-from inspect import cleandoc
-from typing import Any, List, Optional
+from typing import Any, Optional
 
-from pipescaler.common import CommandLineTool
 from pipescaler.core.stage import Stage
 
 
-class Processor(Stage, CommandLineTool, ABC):
-    """Base class for processors"""
+class Processor(Stage, ABC):
+    """Base class for processors."""
 
     def __init__(self, suffix: Optional[str] = None, **kwargs: Any) -> None:
-        """
-        Validate and store static configuration
+        """Validate and store configuration.
 
         Arguments:
             suffix: Suffix to append to images
@@ -39,8 +31,7 @@ class Processor(Stage, CommandLineTool, ABC):
 
     @abstractmethod
     def __call__(self, infile: str, outfile: str) -> None:
-        """
-        Read image from infile, process it, and save to outfile
+        """Read image from infile, process it, and save to outfile.
 
         Arguments:
             infile: Input file path
@@ -49,42 +40,11 @@ class Processor(Stage, CommandLineTool, ABC):
         raise NotImplementedError()
 
     @property
-    def inlets(self) -> List[str]:
-        """Inlets that flow into stage"""
+    def inlets(self) -> list[str]:
+        """Inlets that flow into stage."""
         return ["inlet"]
 
     @property
-    def outlets(self) -> List[str]:
-        """Outlets that flow out of stage"""
+    def outlets(self) -> list[str]:
+        """Outlets that flow out of stage."""
         return ["outlet"]
-
-    @classmethod
-    def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
-        """
-        Construct argument parser
-
-        Arguments:
-            **kwargs: Additional keyword arguments
-
-        Returns:
-            parser: Argument parser
-        """
-        description = kwargs.pop(
-            "description", cleandoc(cls.__doc__) if cls.__doc__ is not None else ""
-        )
-        parser = super().construct_argparser(description=description, **kwargs)
-
-        # Input
-        parser.add_argument("infile", type=cls.input_path_arg(), help="input file")
-        parser.add_argument("outfile", type=cls.output_path_arg(), help="output file")
-
-        return parser
-
-    @classmethod
-    def main(cls) -> None:
-        """Parse arguments, initialize processor, and process file"""
-        parser = cls.construct_argparser()
-        kwargs = vars(parser.parse_args())
-        infile = kwargs.pop("infile")
-        outfile = kwargs.pop("outfile")
-        cls(**kwargs)(infile, outfile)

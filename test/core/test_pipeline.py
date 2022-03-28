@@ -1,15 +1,11 @@
 #!/usr/bin/env python
-#   test/core/test_pipeline.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license. See the LICENSE file for details.
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
 """Tests for Pipeline"""
 from os import environ
 from tempfile import TemporaryDirectory
-from typing import Any, Dict, List, Union
+from typing import Any, Union
 
 import pytest
 import yaml
@@ -78,8 +74,8 @@ def pipeline():
 
 
 def test_pipeline(
-    stages: Dict[str, Dict[str, Dict[str, Any]]],
-    pipeline: List[Union[str, Dict[str, Any]]],
+    stages: dict[str, dict[str, dict[str, Any]]],
+    pipeline: list[Union[str, dict[str, Any]]],
 ):
     with TemporaryDirectory() as wip_directory, TemporaryDirectory() as output_directory:
         environ["INPUT_DIRECTORY"] = get_sub_directory("basic")

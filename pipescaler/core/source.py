@@ -1,16 +1,11 @@
 #!/usr/bin/env python
-#   pipescaler/core/source.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license.
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
 """Base class for sources"""
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import List
 
 from pipescaler.core.stage import Stage
 
@@ -23,12 +18,12 @@ class Source(Stage):
         raise NotImplementedError()
 
     @property
-    def inlets(self) -> List[str]:
+    def inlets(self) -> list[str]:
         """Inlets that flow into stage"""
         return []
 
     @property
-    def outlets(self) -> List[str]:
+    def outlets(self) -> list[str]:
         """Outlets that flow out of stage"""
         return ["default"]
 

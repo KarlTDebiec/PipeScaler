@@ -1,16 +1,10 @@
 #!/usr/bin/env python
-#   pipescaler/processors/external/waifu_external_processor.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license.
-"""Upscales and/or denoises image using waifu2x"""
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
+"""Upscales and/or denoises image using Waifu2x via an external executable."""
 from __future__ import annotations
 
-from argparse import ArgumentParser
-from inspect import cleandoc
 from logging import debug
 from platform import system
 from typing import Any
@@ -33,8 +27,9 @@ from pipescaler.core import (
 
 
 class WaifuExternalProcessor(ExternalProcessor):
-    """
-    Upscales and/or denoises image using [waifu2x](https://github.com/nagadomi/waifu2x)
+    """Upscales and/or denoises image using Waifu2x via an external executable.
+
+    See [waifu2x](https://github.com/nagadomi/waifu2x).
 
     On Windows, requires [waifu2x-caffe](https://github.com/lltcggie/waifu2x-caffe) in
     the executor's path.
@@ -93,13 +88,6 @@ class WaifuExternalProcessor(ExternalProcessor):
 
         return command
 
-    @property
-    def executable(self) -> str:
-        """Name of executable"""
-        if system() == "Windows":
-            return "waifu2x-caffe-cui.exe"
-        return "waifu2x"
-
     def process(self, infile: str, outfile: str) -> None:
         """
         Read image from infile, process it, and save to outfile
@@ -141,48 +129,18 @@ class WaifuExternalProcessor(ExternalProcessor):
         output_image.save(outfile)
 
     @classmethod
-    def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
-        """
-        Construct argument parser
+    @property
+    def executable(self) -> str:
+        """Name of executable"""
+        if system() == "Windows":
+            return "waifu2x-caffe-cui.exe"
+        return "waifu2x"
 
-        Arguments:
-            **kwargs: Additional keyword arguments
-
-        Returns:
-            parser: Argument parser
-        """
-        description = kwargs.pop(
-            "description", cleandoc(cls.__doc__) if cls.__doc__ is not None else ""
+    @classmethod
+    @property
+    def help_markdown(cls) -> str:
+        """Short description of this tool in markdown, with links."""
+        return (
+            "Upscales and/or denoises image using [Waifu2x]"
+            "(https://github.com/nagadomi/waifu2x) via an external executable."
         )
-        parser = super().construct_argparser(description=description, **kwargs)
-
-        # Operations
-        parser.add_argument(
-            "--type",
-            default="a",
-            dest="imagetype",
-            type=cls.str_arg(
-                cls.models["windows"] if system() == "Windows" else cls.models["unix"],
-            ),
-            help="image type - a for anime, p for photo, (default: " "%(default)s)",
-        )
-        parser.add_argument(
-            "--denoise",
-            default=1,
-            dest="denoise",
-            type=cls.int_arg(min_value=0, max_value=4),
-            help="denoise level (0-4, default: %(default)s)",
-        )
-        parser.add_argument(
-            "--scale",
-            default=2,
-            dest="scale",
-            type=cls.int_arg(min_value=1, max_value=2),
-            help="scale factor (1 or 2, default: %(default)s)",
-        )
-
-        return parser
-
-
-if __name__ == "__main__":
-    WaifuExternalProcessor.main()

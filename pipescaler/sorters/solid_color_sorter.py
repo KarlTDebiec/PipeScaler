@@ -1,16 +1,12 @@
 #!/usr/bin/env python
-#   pipescaler/sorters/solid_color_sorter.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license.
-"""Sorts image based on presence of multiple colors"""
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
+"""Sorts image based on presence of multiple colors."""
 from __future__ import annotations
 
 from logging import info
-from typing import Any, List
+from typing import Any
 
 import numpy as np
 
@@ -19,7 +15,7 @@ from pipescaler.core import Sorter, validate_image
 
 
 class SolidColorSorter(Sorter):
-    """Sorts image based on presence of multiple colors"""
+    """Sorts image based on presence of multiple colors."""
 
     def __init__(
         self, mean_threshold: float = 1, max_threshold: float = 10, **kwargs: Any
@@ -73,6 +69,6 @@ class SolidColorSorter(Sorter):
             return "not_solid"
 
     @property
-    def outlets(self) -> List[str]:
+    def outlets(self) -> list[str]:
         """Outlets that flow out of stage"""
         return ["not_solid", "solid"]

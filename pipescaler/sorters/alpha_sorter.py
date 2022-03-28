@@ -1,16 +1,12 @@
 #!/usr/bin/env python
-#   pipescaler/sorters/alpha_sorter.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license.
-"""Sorts image based on presence and use of alpha channel"""
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
+"""Sorts image based on presence and use of alpha channel."""
 from __future__ import annotations
 
 from logging import info
-from typing import Any, List
+from typing import Any
 
 import numpy as np
 
@@ -19,7 +15,7 @@ from pipescaler.core import Sorter, validate_image
 
 
 class AlphaSorter(Sorter):
-    """Sorts image based on presence and use of alpha channel"""
+    """Sorts image based on presence and use of alpha channel."""
 
     def __init__(self, threshold: int = 255, **kwargs: Any) -> None:
         """
@@ -59,7 +55,8 @@ class AlphaSorter(Sorter):
         info(f"{self}: {infile}' matches 'no_alpha'")
         return "no_alpha"
 
+    @classmethod
     @property
-    def outlets(self) -> List[str]:
+    def outlets(self) -> list[str]:
         """Outlets that flow out of stage"""
         return ["drop_alpha", "keep_alpha", "no_alpha"]

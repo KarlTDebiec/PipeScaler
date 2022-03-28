@@ -1,12 +1,8 @@
 #!/usr/bin/env python
-#   pipescaler/processors/side_channel_processor.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license.
-"""Replaces image with an alternative sourced from a defined directory"""
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
+"""Replaces image with an alternative sourced from a defined directory."""
 from __future__ import annotations
 
 from logging import info
@@ -21,7 +17,7 @@ from pipescaler.core import Processor, get_files
 
 
 class SideChannelProcessor(Processor):
-    """Replaces image with an alternative sourced from a defined directory"""
+    """Replaces image with an alternative sourced from a defined directory."""
 
     def __init__(
         self,

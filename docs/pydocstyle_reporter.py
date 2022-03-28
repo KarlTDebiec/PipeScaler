@@ -1,20 +1,14 @@
 #!/usr/bin/env python
-#   pydocstyle_reporter.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license.
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
 """Prints pydocstyle results formatted for consumption by GitHub."""
-from argparse import ArgumentParser
-from inspect import cleandoc
+from argparse import ArgumentParser, _SubParsersAction
 from itertools import zip_longest
-from os import environ, getenv
 from os.path import normpath
-from typing import Any
+from typing import Any, Union
 
-from pipescaler.common import CommandLineTool, run_command, validate_input_file
+from pipescaler.common import CommandLineTool, validate_input_file
 
 
 class PydocstyleReporter(CommandLineTool):
@@ -36,15 +30,16 @@ class PydocstyleReporter(CommandLineTool):
         super().__init__(**kwargs)
 
         self.messages = []
-        with open(validate_input_file(pydocstyle_infile)) as file:
-            for line, issue in zip_longest(*[file] * 2):
+        pydocstyle_infile = validate_input_file(pydocstyle_infile)
+        with open(pydocstyle_infile, "r", encoding="utf-8") as infile:
+            for line, issue in zip_longest(*[infile] * 2):
                 file, line = line.split()[0].split(":")
                 code, message = issue.strip().split(": ")
                 self.messages.append(
                     {"file": file, "line": line, "code": code, "message": message}
                 )
-
-        with open(validate_input_file(modified_files_infile)) as infile:
+        modified_files_infile = validate_input_file(modified_files_infile)
+        with open(modified_files_infile, "r", encoding="utf-8") as infile:
             self.modified_files = list(
                 map(normpath, infile.read().strip("[]\n").split(","))
             )
@@ -84,18 +79,10 @@ class PydocstyleReporter(CommandLineTool):
         print(f"::info::{github_message}")
 
     @classmethod
-    def construct_argparser(cls, **kwargs: Any) -> ArgumentParser:
-        """Construct argument parser.
-
-        Arguments:
-            **kwargs: Additional keyword arguments
-        Returns:
-            parser: Argument parser
-        """
-        description = kwargs.pop(
-            "description", cleandoc(cls.__doc__) if cls.__doc__ is not None else ""
-        )
-        parser = super().construct_argparser(description=description, **kwargs)
+    def add_arguments_to_argparser(
+        cls,
+        parser: Union[ArgumentParser, _SubParsersAction],
+    ) -> None:
 
         parser.add_argument(
             "pydocstyle_infile",
@@ -108,8 +95,6 @@ class PydocstyleReporter(CommandLineTool):
             type=cls.input_path_arg(),
             help="Input list of added or modified files",
         )
-
-        return parser
 
 
 if __name__ == "__main__":

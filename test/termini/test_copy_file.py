@@ -1,15 +1,10 @@
 #!/usr/bin/env python
-#   test/termini/test_copy_file.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license. See the LICENSE file for details.
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
 """Tests for CopyFileTerminus"""
 from os.path import basename, join
 from tempfile import TemporaryDirectory
-from typing import Set
 
 from pytest import fixture
 
@@ -19,16 +14,16 @@ from pipescaler.testing import get_sub_directory
 
 
 @fixture()
-def infiles() -> Set[str]:
+def infiles() -> set[str]:
     return get_files(get_sub_directory("basic"), style="absolute")
 
 
 @fixture()
-def alt_infiles() -> Set[str]:
+def alt_infiles() -> set[str]:
     return get_files(get_sub_directory("alt"), style="absolute")
 
 
-def test(infiles: Set[str], alt_infiles: Set[str]) -> None:
+def test(infiles: set[str], alt_infiles: set[str]) -> None:
     with TemporaryDirectory() as output_directory:
         terminus = CopyFileTerminus(directory=output_directory)
 

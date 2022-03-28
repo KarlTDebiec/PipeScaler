@@ -1,23 +1,14 @@
 #!/usr/bin/env python
-#   test/processors/image/test_resize.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license. See the LICENSE file for details.
-"""Tests for ResizeProcessor"""
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
+"""Tests for ResizeProcessor."""
 import pytest
 from PIL import Image
 
 from pipescaler.common import temporary_filename
 from pipescaler.processors import ResizeProcessor
-from pipescaler.testing import (
-    expected_output_mode,
-    get_infile,
-    run_processor_on_command_line,
-    stage_fixture,
-)
+from pipescaler.testing import expected_output_mode, get_infile, stage_fixture
 
 
 @stage_fixture(
@@ -56,16 +47,3 @@ def test(infile: str, processor: ResizeProcessor) -> None:
                 input_image.size[0] * processor.scale,
                 input_image.size[1] * processor.scale,
             )
-
-
-@pytest.mark.parametrize(
-    ("infile", "args"),
-    [
-        ("RGB", "-h"),
-        ("RGB", "--scale 2"),
-    ],
-)
-def test_cl(infile: str, args: str) -> None:
-    infile = get_infile(infile)
-
-    run_processor_on_command_line(ResizeProcessor, args, infile)

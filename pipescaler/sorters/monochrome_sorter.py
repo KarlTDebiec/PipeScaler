@@ -1,23 +1,19 @@
 #!/usr/bin/env python
-#   pipescaler/sorters/monoochrome_sorter.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license.
-"""Sorts image based on presence and use of colors other than black and white"""
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
+"""Sorts image based on presence and use of colors other than black and white."""
 from __future__ import annotations
 
 from logging import info
-from typing import Any, List
+from typing import Any
 
 from pipescaler.common import validate_float
 from pipescaler.core import Sorter, is_monochrome, validate_image
 
 
 class MonochromeSorter(Sorter):
-    """Sorts image based on presence and use of colors other than black and white"""
+    """Sorts image based on presence and use of colors other than black and white."""
 
     def __init__(
         self, mean_threshold: float = 0, max_threshold: float = 0, **kwargs: Any
@@ -60,6 +56,6 @@ class MonochromeSorter(Sorter):
         return "no_gray"
 
     @property
-    def outlets(self) -> List[str]:
+    def outlets(self) -> list[str]:
         """Outlets that flow out of stage"""
         return ["drop_gray", "keep_gray", "no_gray"]

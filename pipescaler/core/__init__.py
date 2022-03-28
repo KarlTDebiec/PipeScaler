@@ -1,17 +1,10 @@
 #!/usr/bin/env python
-#   pipescaler/core/__init__.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license.
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
 """Core pipescaler functions, classes, and exceptions"""
 from __future__ import annotations
 
-from typing import List
-
-from pipescaler.core.configurable_command_line_tool import ConfigurableCommandLineTool
 from pipescaler.core.enum import AlphaMode, MaskFillMode, PaletteMatchMode
 from pipescaler.core.exception import TerminusReached, UnsupportedImageModeError
 from pipescaler.core.external_processor import ExternalProcessor
@@ -43,9 +36,8 @@ from pipescaler.core.stage import Stage, initialize_stage
 from pipescaler.core.terminus import Terminus
 from pipescaler.core.validation import validate_image, validate_image_and_convert_mode
 
-__all__: List[str] = [
+__all__: list[str] = [
     "AlphaMode",
-    "ConfigurableCommandLineTool",
     "ExternalProcessor",
     "MaskFillMode",
     "ImageProcessor",

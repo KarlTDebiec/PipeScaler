@@ -1,17 +1,12 @@
 #!/usr/bin/env python
-#   pipescaler/core/image_processor.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license.
-"""Base class for processors that perform their processing within python"""
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
+"""Base class for processors that perform their processing within python."""
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from logging import info
-from typing import List
 
 from PIL import Image
 
@@ -20,7 +15,7 @@ from pipescaler.core.validation import validate_image
 
 
 class ImageProcessor(Processor, ABC):
-    """Base class for processors that perform their processing within python"""
+    """Base class for processors that perform their processing within python."""
 
     def __call__(self, infile: str, outfile: str) -> None:
         """
@@ -37,11 +32,6 @@ class ImageProcessor(Processor, ABC):
         output_image.save(outfile)
         info(f"{self}: '{outfile}' saved")
 
-    @property
-    def supported_input_modes(self) -> List[str]:
-        """Supported modes for input image"""
-        return ["1", "L", "LA", "RGB", "RGBA"]
-
     @abstractmethod
     def process(self, input_image: Image.Image) -> Image.Image:
         """
@@ -53,3 +43,9 @@ class ImageProcessor(Processor, ABC):
             Processed output image
         """
         raise NotImplementedError()
+
+    @classmethod
+    @property
+    def supported_input_modes(self) -> list[str]:
+        """Supported modes for input image"""
+        return ["1", "L", "LA", "RGB", "RGBA"]

@@ -1,26 +1,20 @@
 #!/usr/bin/env python
-#   pipescaler/core/sorter.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license.
-"""Base class for sorters"""
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
+"""Base class for sorters."""
 from __future__ import annotations
 
 from abc import ABC
-from typing import List
 
 from pipescaler.core.stage import Stage
 
 
 class Sorter(Stage, ABC):
-    """Base class for sorters"""
+    """Base class for sorters."""
 
     def __call__(self, infile: str) -> str:
-        """
-        Sort image into an outlet
+        """Sort image into an outlet.
 
         Arguments:
             infile: Input file
@@ -31,6 +25,6 @@ class Sorter(Stage, ABC):
         raise NotImplementedError()
 
     @property
-    def inlets(self) -> List[str]:
-        """Inlets that flow into stage"""
+    def inlets(self) -> list[str]:
+        """Inlets that flow into stage."""
         return ["inlet"]

@@ -1,11 +1,7 @@
 #!/usr/bin/env python
-#   test/sources/test_directory.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license. See the LICENSE file for details.
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
 """Tests for DirectorySource"""
 from pipescaler.sources import DirectorySource
 from pipescaler.testing import get_sub_directory, stage_fixture

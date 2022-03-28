@@ -1,15 +1,11 @@
 #!/usr/bin/env python
-#   pipescaler/processors/gui/gigapixel_ai_processor.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license.
-"""Upscales image using [Gigapixel AI](https://www.topazlabs.com/gigapixel-ai)"""
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
+"""Upscales image using Gigapixel AI."""
 from __future__ import annotations
 
-from os.path import basename, dirname, splitext
+from os.path import basename, dirname, normpath, splitext
 from platform import system
 from typing import Any, Optional
 
@@ -31,18 +27,20 @@ else:
 
 
 class GigapixelAiProcessor(Processor):
-    """Upscales image using [Gigapixel AI](https://www.topazlabs.com/gigapixel-ai)"""
+    """Upscales image using Gigapixel AI.
+
+    See [Gigapixel AI](https://www.topazlabs.com/gigapixel-ai).
+    """
 
     def __init__(
         self,
-        command: Optional[
-            str
-        ] = "C:\Program Files\Topaz Labs LLC\Topaz Gigapixel AI\Topaz Gigapixel AI.exe",
+        command: Optional[str] = normpath(
+            r"C:\Program Files\Topaz Labs LLC\Topaz Gigapixel AI\Topaz Gigapixel AI.exe"
+        ),
         match_input_mode: bool = True,
         **kwargs: Any,
     ) -> None:
-        """
-        Validate and store configuration
+        """Validate and store configuration.
 
         Arguments:
             command: Path to Gigapixel AI executable
@@ -65,7 +63,7 @@ class GigapixelAiProcessor(Processor):
             infile: Input file path
             outfile: Output file path
         """
-        command = validate_executable(self.command, {"Windows"})
+        validate_executable(self.command, {"Windows"})
 
         input_image = validate_image(infile, ["L", "LA", "RGB", "RGBA"])
 
@@ -181,6 +179,11 @@ class GigapixelAiProcessor(Processor):
         dialog.FolderEdit.set_text(directory)
         dialog.SelectFolderButton.click()
 
-
-if __name__ == "__main__":
-    GigapixelAiProcessor.main()
+    @classmethod
+    @property
+    def help_markdown(cls) -> str:
+        """Short description of this tool in markdown, with links."""
+        return (
+            "Upscales image using [Gigapixel AI]"
+            "(https://www.topazlabs.com/gigapixel-ai)."
+        )

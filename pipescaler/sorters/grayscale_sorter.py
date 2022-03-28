@@ -1,16 +1,12 @@
 #!/usr/bin/env python
-#   pipescaler/sorters/grayscale_sorter.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license.
-"""Sorts image based on presence and use of color channels"""
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
+"""Sorts image based on presence and use of color channels."""
 from __future__ import annotations
 
 from logging import info
-from typing import Any, List
+from typing import Any
 
 import numpy as np
 from PIL import Image
@@ -20,7 +16,7 @@ from pipescaler.core import Sorter, validate_image
 
 
 class GrayscaleSorter(Sorter):
-    """Sorts image based on presence and use of color channels"""
+    """Sorts image based on presence and use of color channels."""
 
     def __init__(
         self, mean_threshold: float = 1, max_threshold: float = 10, **kwargs: Any
@@ -68,6 +64,6 @@ class GrayscaleSorter(Sorter):
         return "no_rgb"
 
     @property
-    def outlets(self) -> List[str]:
+    def outlets(self) -> list[str]:
         """Outlets that flow out of stage"""
         return ["drop_rgb", "keep_rgb", "no_rgb"]

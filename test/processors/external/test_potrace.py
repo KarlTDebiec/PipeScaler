@@ -1,30 +1,21 @@
 #!/usr/bin/env python
-#   test/processors/external/test_potrace.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license. See the LICENSE file for details.
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
 """Tests for PotraceProcessor"""
 import pytest
 from PIL import Image
 
 from pipescaler.common import temporary_filename
 from pipescaler.processors import PotraceProcessor
-from pipescaler.testing import (
-    get_infile,
-    run_processor_on_command_line,
-    stage_fixture,
-    xfail_unsupported_image_mode,
-)
+from pipescaler.testing import get_infile, stage_fixture, xfail_unsupported_image_mode
 
 
 @stage_fixture(
     cls=PotraceProcessor,
     params=[
         {},
-        # {"scale": 2},
+        {"scale": 2},
     ],
 )
 def processor(request) -> PotraceProcessor:
@@ -57,16 +48,3 @@ def test(infile: str, processor: PotraceProcessor) -> None:
                 input_image.size[0] * processor.scale,
                 input_image.size[1] * processor.scale,
             )
-
-
-@pytest.mark.parametrize(
-    ("infile", "args"),
-    [
-        ("RGB", "-h"),
-        ("L", ""),
-    ],
-)
-def test_cl(infile: str, args: str) -> None:
-    infile = get_infile(infile)
-
-    run_processor_on_command_line(PotraceProcessor, args, infile)

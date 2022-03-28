@@ -1,17 +1,13 @@
 #!/usr/bin/env python
-#   pipescaler/core/merger.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license.
-"""Base class for merger stages"""
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
+"""Base class for mergers."""
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from logging import info
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from PIL import Image
 
@@ -20,16 +16,15 @@ from pipescaler.core.validation import validate_image
 
 
 class Merger(Stage, ABC):
-    """Base class for merger stages"""
+    """Base class for mergers."""
 
     def __init__(
         self,
         suffix: Optional[str] = None,
-        trim_suffixes: Optional[List[str]] = None,
+        trim_suffixes: Optional[list[str]] = None,
         **kwargs: Any,
     ) -> None:
-        """
-        Validate and store static configuration
+        """Validate and store configuration.
 
         Arguments:
             suffix: Suffix to add to merged outfiles
@@ -49,8 +44,7 @@ class Merger(Stage, ABC):
             self.trim_suffixes = self.inlets
 
     def __call__(self, outfile: str, **kwargs: Any) -> None:
-        """
-        Merge infiles into an outfile
+        """Merge infiles into an outfile.
 
         Arguments:
             outfile: Path to output file
@@ -71,20 +65,20 @@ class Merger(Stage, ABC):
         info(f"'{self}: '{outfile}' saved")
 
     @property
-    def outlets(self) -> List[str]:
-        """Outlets that flow out of stage"""
+    def outlets(self) -> list[str]:
+        """Outlets that flow out of stage."""
         return ["outlet"]
 
+    @classmethod
     @property
     @abstractmethod
-    def supported_input_modes(self) -> Dict[str, List[str]]:
-        """Supported modes for input images"""
+    def supported_input_modes(self) -> dict[str, list[str]]:
+        """Supported modes for input images."""
         raise NotImplementedError()
 
     @abstractmethod
     def merge(self, *input_images: Image.Image) -> Image.Image:
-        """
-        Merge images
+        """Merge images.
 
         Arguments:
             *input_images: Input images to merge
