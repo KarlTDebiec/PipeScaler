@@ -7,7 +7,6 @@ from __future__ import annotations
 
 from argparse import ArgumentParser, _SubParsersAction
 from copy import deepcopy
-from inspect import cleandoc
 from os import environ
 from os.path import expandvars, normpath
 from typing import Any, Union
@@ -108,6 +107,18 @@ class RunCL(CommandLineTool):
         )
 
         return parser
+
+    @classmethod
+    def main(cls) -> None:
+        """Parse arguments, construct tool, and call tool."""
+        parser = cls.construct_argparser()
+        kwargs = vars(parser.parse_args())
+        cls.main2(**kwargs)
+
+    @classmethod
+    def main2(cls, **kwargs: Any) -> None:
+        tool = cls(**kwargs)
+        tool()
 
     @classmethod
     @property

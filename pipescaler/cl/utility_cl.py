@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser, _SubParsersAction
-from typing import Type, Union
+from typing import Any, Type, Union
 
 from pipescaler.cl import utilities
 from pipescaler.common import CommandLineTool
@@ -37,8 +37,12 @@ class UtilityCL(CommandLineTool):
         """Parse arguments, initialize processor, and process file."""
         parser = cls.construct_argparser()
         kwargs = vars(parser.parse_args())
+        cls.main2(**kwargs)
+
+    @classmethod
+    def main2(cls, **kwargs: Any) -> None:
         utility = cls.utilities[kwargs.pop("processor")]
-        utility.process(**kwargs)
+        utility(**kwargs)
 
     @classmethod
     @property

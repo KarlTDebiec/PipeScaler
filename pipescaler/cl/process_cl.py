@@ -6,8 +6,7 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser, _SubParsersAction
-from inspect import cleandoc
-from typing import Type, Union
+from typing import Any, Type, Union
 
 from pipescaler.cl import processors
 from pipescaler.common import CommandLineTool
@@ -29,7 +28,7 @@ class ProcessCL(CommandLineTool):
         """
         super().add_arguments_to_argparser(parser)
 
-        subparsers = parser.add_subparsers(dest="processor")
+        subparsers = parser.add_subparsers(dest="subparser")
         # noinspection PyTypeChecker
         for name in sorted(cls.processors):
             cls.processors[name].construct_argparser(parser=subparsers)
@@ -39,7 +38,11 @@ class ProcessCL(CommandLineTool):
         """Parse arguments, initialize processor, and process file."""
         parser = cls.construct_argparser()
         kwargs = vars(parser.parse_args())
-        processor = cls.processors[kwargs.pop("processor")]
+        cls.main2(**kwargs)
+
+    @classmethod
+    def main2(cls, **kwargs: Any) -> None:
+        processor = cls.processors[kwargs.pop("subparser")]
         processor.process(**kwargs)
 
     @classmethod
@@ -62,7 +65,7 @@ class ProcessCL(CommandLineTool):
 
     @classmethod
     @property
-    def processors(cls) -> dict[str : Type[Processor]]:
+    def processors(cls) -> dict[str, Type[Processor]]:
         """Names and types of processors wrapped by command-line tool."""
         return {
             processor.name: processor
