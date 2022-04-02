@@ -2,7 +2,7 @@
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
-"""Command-line interface for FileScanner."""
+"""Command line interface for FileScanner."""
 from __future__ import annotations
 
 from argparse import ArgumentParser, _SubParsersAction
@@ -11,13 +11,14 @@ from os import environ
 from os.path import expandvars, normpath
 from typing import Any, Type, Union
 
+from pipescaler.common import set_logging_verbosity, validate_int
 from pipescaler.core.cl import UtilityCommandLineTool
 from pipescaler.core.file import read_yaml
 from pipescaler.utilities import FileScanner
 
 
 class FileScannerCL(UtilityCommandLineTool):
-    """Command-line interface for FileScanner."""
+    """Command line interface for FileScanner."""
 
     def __call__(self):
         """Perform operations."""
@@ -33,6 +34,8 @@ class FileScannerCL(UtilityCommandLineTool):
         Arguments:
             parser: Nascent argument parser
         """
+        super().add_arguments_to_argparser(parser)
+
         required = cls.get_required_arguments_group(parser)
         required.add_argument(
             "conf_file",
@@ -42,13 +45,14 @@ class FileScannerCL(UtilityCommandLineTool):
 
     @classmethod
     def main(cls) -> None:
-        """Parse arguments, construct tool, and call tool"""
+        """Parse arguments."""
         parser = cls.construct_argparser()
         kwargs = vars(parser.parse_args())
         cls.main2(**kwargs)
 
     @classmethod
     def main2(cls, **kwargs: Any) -> None:
+        """Read configuration, configure environment, and build and call utility."""
         conf = read_yaml(kwargs.pop("conf_file"))
 
         # Set environment variables
@@ -57,13 +61,16 @@ class FileScannerCL(UtilityCommandLineTool):
             environ[key] = normpath(expandvars(value))
             info(f"Environment variable '{key}' set to '{value}'")
 
+        verbosity = validate_int(kwargs.pop("verbosity", 0), min_value=0)
+        set_logging_verbosity(verbosity)
+
         utility = cls.utility(**{**kwargs, **conf})
         utility()
 
     @classmethod
     @property
     def utility(cls) -> Type:
-        """Type of utility wrapped by command-line tool."""
+        """Type of utility wrapped by command-line interface."""
         return FileScanner
 
 

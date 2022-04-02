@@ -100,13 +100,10 @@ class RunCL(CommandLineTool):
         """
         super().add_arguments_to_argparser(parser)
 
-        # Input
         required = cls.get_required_arguments_group(parser)
         required.add_argument(
             "conf_file", type=cls.input_path_arg(), help="configuration file"
         )
-
-        return parser
 
     @classmethod
     def main(cls) -> None:
