@@ -7,7 +7,6 @@ from __future__ import annotations
 
 from collections import OrderedDict
 from logging import info
-from typing import Any
 
 import torch
 from torch import Tensor
@@ -17,30 +16,20 @@ from pipescaler.models.esrgan import Esrgan1x, Esrgan4x
 
 
 class EsrganSerializer:
-    """Converts Waifu models in JSON format to PyTorch's serialized pth format.
+    """Converts ESRGAN models to PyTorch's serialized pth format."""
 
-    Input JSON is available from [yu45020/Waifu2x on GitHub]
-    (https://github.com/yu45020/Waifu2x/tree/master/model_check_points)
-    """
-
-    def __init__(self, infile: str, outfile: str, **kwargs: Any) -> None:
-        """Validate and store configuration.
+    def __call__(self, infile: str, outfile: str) -> None:
+        """Converts infile to outfile.
 
         Arguments:
             infile: Input file
             outfile: Output file
-            **kwargs: Additional keyword arguments
         """
-        super().__init__(**kwargs)
-
         self.infile = validate_input_file(infile)
         self.outfile = validate_output_file(outfile)
 
-    def __call__(self, infile: str, outfile: str) -> None:
-        """Convert infile to outfile."""
-
         state_dict, scale = self.load_model(infile)
-        if scale == 1:
+        if scale == 0:
             model = Esrgan1x(3, 3, 64, 23)
         else:
             model = Esrgan4x(3, 3, 64, 23)

@@ -7,13 +7,19 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from inspect import cleandoc
-from typing import Type
+from typing import Any, Type
 
 from pipescaler.common import CommandLineInterface
 
 
 class UtilityCommandLineInterface(CommandLineInterface, ABC):
     """Command line interface for utilities."""
+
+    @classmethod
+    def main2(cls, **kwargs: Any) -> None:
+        utility = cls.utility()
+        del kwargs["verbosity"]
+        utility(**kwargs)
 
     @classmethod
     @property

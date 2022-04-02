@@ -30,7 +30,7 @@ class Esrgan4x(Esrgan):
             Processed outputs
         """
         fea = self.conv_first(tensor)
-        trunk = self.conv_trunk(self.RRDB_trunk(fea))
+        trunk = self.trunk_conv(self.RRDB_trunk(fea))
         fea = fea + trunk
 
         # apply upconv layers
@@ -45,12 +45,6 @@ class Esrgan4x(Esrgan):
         fea = self.leaky_relu(
             self.upconv2(interpolate(fea, scale_factor=2, mode="nearest"))
         )
-        fea = self.leaky_relu(
-            self.upconv3(interpolate(fea, scale_factor=2, mode="nearest"))
-        )
-        fea = self.leaky_relu(
-            self.upconv4(interpolate(fea, scale_factor=2, mode="nearest"))
-        )
 
         out = self.conv_last(self.leaky_relu(self.HRconv(fea)))
 
@@ -61,8 +55,6 @@ class Esrgan4x(Esrgan):
     ):
         self.upconv1 = Conv2d(self.n_features, self.n_features, 3, 1, 1)
         self.upconv2 = Conv2d(self.n_features, self.n_features, 3, 1, 1)
-        self.upconv3 = Conv2d(self.n_features, self.n_features, 3, 1, 1)
-        self.upconv4 = Conv2d(self.n_features, self.n_features, 3, 1, 1)
 
         return super().load_state_dict(state_dict, strict)
 
