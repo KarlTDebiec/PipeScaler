@@ -1,55 +1,51 @@
 #!/usr/bin/env python
-#   pipescaler/processors/__init__.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license.
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
 """Processor stages"""
 from __future__ import annotations
 
-from typing import List
-
-from pipescaler.processors.apple_script_external_processor import (
-    AppleScriptExternalProcessor,
+from pipescaler.processors.external import (
+    AppleScriptProcessor,
+    AutomatorProcessor,
+    PngquantProcessor,
+    PotraceProcessor,
+    TexconvProcessor,
+    WaifuExternalProcessor,
 )
-from pipescaler.processors.automator_external_processor import (
-    AutomatorExternalProcessor,
+from pipescaler.processors.gui import GigapixelAiProcessor
+from pipescaler.processors.image import (
+    CropProcessor,
+    EsrganProcessor,
+    ExpandProcessor,
+    HeightToNormalProcessor,
+    ModeProcessor,
+    ResizeProcessor,
+    SharpenProcessor,
+    SolidColorProcessor,
+    ThresholdProcessor,
+    WaifuProcessor,
+    XbrzProcessor,
 )
-from pipescaler.processors.crop_processor import CropProcessor
-from pipescaler.processors.esrgan_processor import ESRGANProcessor
-from pipescaler.processors.expand_processor import ExpandProcessor
-from pipescaler.processors.gigapixel_ai_proessor import GigapixelAiProcessor
-from pipescaler.processors.height_to_normal_processor import HeightToNormalProcessor
-from pipescaler.processors.mode_processor import ModeProcessor
-from pipescaler.processors.pngquant_external_processor import PngquantExternalProcessor
-from pipescaler.processors.potrace_external_processor import PotraceExternalProcessor
-from pipescaler.processors.resize_processor import ResizeProcessor
 from pipescaler.processors.side_channel_processor import SideChannelProcessor
-from pipescaler.processors.solid_color_processor import SolidColorProcessor
-from pipescaler.processors.texconv_external_processor import TexconvExternalProcessor
-from pipescaler.processors.threshold_processor import ThresholdProcessor
-from pipescaler.processors.waifu_external_processor import WaifuExternalProcessor
-from pipescaler.processors.waifu_processor import WaifuProcessor
 from pipescaler.processors.web_processor import WebProcessor
-from pipescaler.processors.xbrz_processor import XbrzProcessor
 
-__all__: List[str] = [
-    "AppleScriptExternalProcessor",
-    "AutomatorExternalProcessor",
+__all__: list[str] = [
+    "AppleScriptProcessor",
+    "AutomatorProcessor",
     "CropProcessor",
-    "ESRGANProcessor",
+    "EsrganProcessor",
     "ExpandProcessor",
     "GigapixelAiProcessor",
     "HeightToNormalProcessor",
     "ModeProcessor",
-    "PngquantExternalProcessor",
-    "PotraceExternalProcessor",
+    "PngquantProcessor",
+    "PotraceProcessor",
     "ResizeProcessor",
+    "SharpenProcessor",
     "SideChannelProcessor",
     "SolidColorProcessor",
-    "TexconvExternalProcessor",
+    "TexconvProcessor",
     "ThresholdProcessor",
     "WaifuExternalProcessor",
     "WaifuProcessor",

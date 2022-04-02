@@ -1,31 +1,30 @@
 #!/usr/bin/env python
-#   pipescaler/core/merger.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license.
-"""Base class for merger stages"""
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
+"""Base class for mergers."""
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any, List, Optional
+from logging import info
+from typing import Any, Optional
+
+from PIL import Image
 
 from pipescaler.core.stage import Stage
+from pipescaler.core.validation import validate_image
 
 
 class Merger(Stage, ABC):
-    """Base class for merger stages"""
+    """Base class for mergers."""
 
     def __init__(
         self,
         suffix: Optional[str] = None,
-        trim_suffixes: Optional[List[str]] = None,
-        **kwargs: Any
+        trim_suffixes: Optional[list[str]] = None,
+        **kwargs: Any,
     ) -> None:
-        """
-        Validate and store static configuration
+        """Validate and store configuration.
 
         Arguments:
             suffix: Suffix to add to merged outfiles
@@ -44,10 +43,8 @@ class Merger(Stage, ABC):
         else:
             self.trim_suffixes = self.inlets
 
-    @abstractmethod
     def __call__(self, outfile: str, **kwargs: Any) -> None:
-        """
-        Merge infiles into an outfile
+        """Merge infiles into an outfile.
 
         Arguments:
             outfile: Path to output file
@@ -55,9 +52,37 @@ class Merger(Stage, ABC):
               inlet, whose key is the name of that inlet and whose value is the path to
               the associated infile
         """
-        raise NotImplementedError()
+        infiles = {k: kwargs.get(k) for k in self.inlets}
+        input_images = []
+        for inlet in self.inlets:
+            input_images.append(
+                validate_image((infiles[inlet]), self.supported_input_modes[inlet])
+            )
+
+        output_image = self.merge(*input_images)
+
+        output_image.save(outfile)
+        info(f"'{self}: '{outfile}' saved")
 
     @property
-    def outlets(self) -> List[str]:
-        """Outlets that flow out of stage"""
+    def outlets(self) -> list[str]:
+        """Outlets that flow out of stage."""
         return ["outlet"]
+
+    @classmethod
+    @property
+    @abstractmethod
+    def supported_input_modes(self) -> dict[str, list[str]]:
+        """Supported modes for input images."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def merge(self, *input_images: Image.Image) -> Image.Image:
+        """Merge images.
+
+        Arguments:
+            *input_images: Input images to merge
+        Returns:
+            Merged output image
+        """
+        raise NotImplementedError()

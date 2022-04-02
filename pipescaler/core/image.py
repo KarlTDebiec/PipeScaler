@@ -1,17 +1,32 @@
 #!/usr/bin/env python
-#   pipescaler/core/image.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license.
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
 """Core pipescaler functions for interacting with images"""
 from __future__ import annotations
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from scipy.ndimage import convolve
+
+from pipescaler.common import validate_float
+from pipescaler.core.exception import UnsupportedImageModeError
+
+
+def convert_mode(image: Image.Image, mode: str) -> tuple[Image.Image, str]:
+    """
+    Convert image to specified mode, if necessary, returning image and original mode
+
+    Arguments:
+        image: Image to convert
+        mode: Mode to which to convert, if image is not already in mode
+
+    Returns:
+        Converted image, image's original mode
+    """
+    if image.mode != mode:
+        return image.convert(mode), image.mode
+    return image, image.mode
 
 
 def crop_image(
@@ -61,26 +76,49 @@ def expand_image(
     Returns:
         Expanded image
     """
-    w, h = image.size
-    new_w = max(min_size, left + w + right)
-    new_h = max(min_size, top + h + bottom)
+    width, height = image.size
+    new_w = max(min_size, left + width + right)
+    new_h = max(min_size, top + height + bottom)
 
-    transposed_h = image.transpose(Image.FLIP_LEFT_RIGHT)
-    transposed_v = image.transpose(Image.FLIP_TOP_BOTTOM)
-    transposed_hv = transposed_h.transpose(Image.FLIP_TOP_BOTTOM)
+    transposed_horizontally = image.transpose(Image.FLIP_LEFT_RIGHT)
+    transposed_vertically = image.transpose(Image.FLIP_TOP_BOTTOM)
+    transposed_horizontally_and_vertically = transposed_horizontally.transpose(
+        Image.FLIP_TOP_BOTTOM
+    )
 
+    # noinspection PyTypeChecker
     expanded = Image.new(image.mode, (new_w, new_h))
-    x = expanded.size[0] // 2
-    y = expanded.size[1] // 2
-    expanded.paste(image, (x - w // 2, y - h // 2))
-    expanded.paste(transposed_h, (x + w // 2, y - h // 2))
-    expanded.paste(transposed_h, (x - w - w // 2, y - h // 2))
-    expanded.paste(transposed_v, (x - w // 2, y - h - h // 2))
-    expanded.paste(transposed_v, (x - w // 2, y + h // 2))
-    expanded.paste(transposed_hv, (x + w // 2, y - h - h // 2))
-    expanded.paste(transposed_hv, (x - w - w // 2, y - h - h // 2))
-    expanded.paste(transposed_hv, (x - w - w // 2, y + h // 2))
-    expanded.paste(transposed_hv, (x + w // 2, y + h // 2))
+    center_x = expanded.size[0] // 2
+    center_y = expanded.size[1] // 2
+    expanded.paste(image, (center_x - width // 2, center_y - height // 2))
+    expanded.paste(
+        transposed_horizontally, (center_x + width // 2, center_y - height // 2)
+    )
+    expanded.paste(
+        transposed_horizontally, (center_x - width - width // 2, center_y - height // 2)
+    )
+    expanded.paste(
+        transposed_vertically, (center_x - width // 2, center_y - height - height // 2)
+    )
+    expanded.paste(
+        transposed_vertically, (center_x - width // 2, center_y + height // 2)
+    )
+    expanded.paste(
+        transposed_horizontally_and_vertically,
+        (center_x + width // 2, center_y - height - height // 2),
+    )
+    expanded.paste(
+        transposed_horizontally_and_vertically,
+        (center_x - width - width // 2, center_y - height - height // 2),
+    )
+    expanded.paste(
+        transposed_horizontally_and_vertically,
+        (center_x - width - width // 2, center_y + height // 2),
+    )
+    expanded.paste(
+        transposed_horizontally_and_vertically,
+        (center_x + width // 2, center_y + height // 2),
+    )
 
     return expanded
 
@@ -95,6 +133,7 @@ def generate_normal_map_from_height_map_image(image: Image.Image) -> Image.Image
     Returns:
         Normal map image
     """
+    # noinspection PyTypeChecker
     input_array = np.array(image)
 
     # Prepare normal map
@@ -102,6 +141,7 @@ def generate_normal_map_from_height_map_image(image: Image.Image) -> Image.Image
     gradient_x = convolve(input_array.astype(float), kernel)
     gradient_y = convolve(input_array.astype(float), kernel.T)
     output_array = np.zeros((input_array.shape[0], input_array.shape[1], 3))
+    # noinspection PyArgumentList
     max_dimension = max(gradient_x.max(), gradient_y.max())
     output_array[..., 0] = gradient_x / max_dimension
     output_array[..., 1] = gradient_y / max_dimension
@@ -125,12 +165,24 @@ def generate_normal_map_from_height_map_image(image: Image.Image) -> Image.Image
     return output_image
 
 
+def get_palette(image: Image.Image) -> np.ndarray:
+    """
+    Get a numpy array of all colors present in an image
+
+    Arguments:
+        image: Input image
+    Returns:
+        numpy array of all colors present in an image
+    """
+    return np.array([a[1] for a in image.getcolors(16581375)])
+
+
 def get_font_size(
     text: str,
     width: int,
     height: int,
     proportional_height: float = 0.2,
-    font: str = "arial",
+    font: str = "Arial",
 ):
     """
     Get the font size at which *text* drawn with *font* will take up
@@ -151,8 +203,8 @@ def get_font_size(
 
 
 def get_text_size(
-    text: str, width: int, height: int, font: str = "arial", size: int = 100
-):
+    text: str, width: int, height: int, font: str = "Arial", size: int = 100
+) -> tuple[int, int]:
     """
     Get the size of *text* drawn with *font* at *size* on image of *width* and *height*
 
@@ -162,12 +214,16 @@ def get_text_size(
         height: Height of image
         font: Font
         size: Font size
-
     Returns:
-
+        Width and height of text
     """
     image = Image.new("L", (width, height))
-    return ImageDraw.Draw(image).textsize(text, ImageFont.truetype(font, size))
+    draw = ImageDraw.Draw(image)
+    try:
+        font = ImageFont.truetype(font, size)
+    except OSError:
+        font = ImageFont.truetype(font.lower(), size)
+    return draw.textsize(text, font)
 
 
 def hstack_images(*images: Image.Image) -> Image.Image:
@@ -190,7 +246,36 @@ def hstack_images(*images: Image.Image) -> Image.Image:
     return stacked
 
 
-def label_image(image: Image.Image, text: str) -> Image.Image:
+def is_monochrome(
+    image: Image.Image, mean_threshold: float = 0, max_threshold: float = 0
+) -> bool:
+    """
+    Check whether a grayscale image contains only pure black and white
+
+    Args:
+        image: Image to check
+        mean_threshold:
+        max_threshold:
+
+    Returns:
+        Whether image contains only purge black and white
+    """
+    if image.mode != "L":
+        raise UnsupportedImageModeError()
+    mean_threshold = validate_float(mean_threshold, 0, 255)
+    max_threshold = validate_float(max_threshold, 0, 255)
+
+    # noinspection PyTypeChecker
+    l_array = np.array(image)
+    # noinspection PyTypeChecker
+    one_array = np.array(image.convert("1").convert("L"))
+    diff = np.abs(l_array - one_array)
+    if diff.mean() <= mean_threshold and diff.max() <= max_threshold:
+        return True
+    return False
+
+
+def label_image(image: Image.Image, text: str, font: str = "Arial") -> Image.Image:
     """
     Label an image in its upper left corner
 
@@ -203,16 +288,19 @@ def label_image(image: Image.Image, text: str) -> Image.Image:
     """
     labeled_image = image.copy()
 
+    size = get_font_size(text, image.width, image.height, font=font)
+    try:
+        font = ImageFont.truetype(font, size)
+    except OSError:
+        font = ImageFont.truetype(font.lower(), size)
+
     ImageDraw.Draw(labeled_image).text(
         (
             round(image.width * 0.025),
             round(image.height * 0.025),
         ),
         text,
-        font=ImageFont.truetype(
-            "arial",
-            get_font_size(text, image.width, image.height),
-        ),
+        font=font,
         stroke="white",
         stroke_fill="black",
         stroke_width=2,
@@ -222,12 +310,10 @@ def label_image(image: Image.Image, text: str) -> Image.Image:
 
 
 def remove_palette_from_image(image: Image.Image) -> Image.Image:
-    """
-    Remove palette from a paletted image
+    """Remove palette from a paletted image.
 
     Arguments:
         image: Image in 'P' mode
-
     Returns:
         Image in 'L', 'LA', 'RGB', or 'RGBA' mode
     """
@@ -240,6 +326,7 @@ def remove_palette_from_image(image: Image.Image) -> Image.Image:
         )[0]
     )
     if "transparency" in image.info:
+        # noinspection PyTypeChecker
         array = np.array(image)
         fully_transparent_colors = set(
             np.where(np.array(list(image.info["transparency"])) == 0)[0]
@@ -252,12 +339,10 @@ def remove_palette_from_image(image: Image.Image) -> Image.Image:
         )
         if pixels_per_non_grayscale_color.sum() == 0:
             return image.convert("RGBA").convert("LA")
-        else:
-            return image.convert("RGBA")
-    elif len(non_grayscale_colors) == 0:
+        return image.convert("RGBA")
+    if len(non_grayscale_colors) == 0:
         return image.convert("L")
-    else:
-        return image.convert("RGB")
+    return image.convert("RGB")
 
 
 def smooth_image(image: Image.Image, sigma: float) -> Image.Image:
@@ -273,8 +358,9 @@ def smooth_image(image: Image.Image, sigma: float) -> Image.Image:
     """
     kernel = np.exp(
         (-1 * (np.arange(-3 * sigma, 3 * sigma + 1).astype(float) ** 2))
-        / (2 * (sigma ** 2))
+        / (2 * (sigma**2))
     )
+    # noinspection PyTypeChecker
     smoothed_array = np.array(image).astype(float)
     smoothed_array = convolve(smoothed_array, kernel[np.newaxis])
     smoothed_array = convolve(smoothed_array, kernel[np.newaxis].T)

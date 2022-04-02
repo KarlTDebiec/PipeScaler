@@ -1,30 +1,26 @@
 #!/usr/bin/env python
-#   pipescaler/sources/directory_source.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license.
-"""Yields images from a directory"""
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
+"""Yields images from a directory."""
 from __future__ import annotations
 
-from typing import Any, List, Union
+from typing import Any, Union
 
 from pipescaler.common import validate_input_directory
 from pipescaler.core import Source, get_files
 
 
 class DirectorySource(Source):
-    """Yields images from a directory"""
+    """Yields images from a directory."""
 
     exclusions = {".DS_Store", "desktop"}
     """Base filenames to exclude"""
 
     def __init__(
         self,
-        directory: Union[str, List[str]],
-        exclusions: Union[str, List[str]] = None,
+        directory: Union[str, list[str]],
+        exclusions: Union[str, list[str]] = None,
         **kwargs: Any,
     ) -> None:
         """

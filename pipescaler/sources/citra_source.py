@@ -1,12 +1,8 @@
 #!/usr/bin/env python
-#   pipescaler/sources/citra_source.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license.
-"""Yields images dumped by Citra"""
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
+"""Yields images dumped by Citra."""
 from __future__ import annotations
 
 from logging import error
@@ -16,7 +12,16 @@ from pipescaler.sources.directory_source import DirectorySource
 
 
 class CitraSource(DirectorySource):
-    """Yields images dumped by [Citra](https://citra-emu.org)"""
+    """Yields images dumped by Citra.
+
+    See [Citra](https://citra-emu.org).
+    """
+
+    @classmethod
+    @property
+    def help_markdown(cls) -> str:
+        """Short description of this tool in markdown, with links."""
+        return "Yields images dumped by [Citra](https://citra-emu.org)."
 
     @staticmethod
     def sort(filename):

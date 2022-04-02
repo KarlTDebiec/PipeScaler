@@ -1,32 +1,28 @@
 #!/usr/bin/env python
-#   pipescaler/sorters/list_sorter.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license.
-"""Sorts image based on filename using a set of configured lists"""
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
+"""Sorts image based on filename using a set of configured lists."""
 from __future__ import annotations
 
 from logging import info, warning
 from os.path import basename, dirname, splitext
 from pprint import pformat
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from pipescaler.common import validate_output_directory
 from pipescaler.core import Sorter, get_files
 
 
 class ListSorter(Sorter):
-    """Sorts image based on filename using a set of configured lists"""
+    """Sorts image based on filename using a set of configured lists."""
 
     exclusions = {".DS_Store", "desktop"}
     """Base filenames to exclude"""
 
     def __init__(
         self,
-        outlets: Dict[str, List[str]],
+        outlets: dict[str, list[str]],
         wip_directory: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
@@ -36,7 +32,7 @@ class ListSorter(Sorter):
         Arguments:
             outlets: Outlet configuration
             wip_directory: Work-in-progress directory; workaround used to handle
-              potential file locations both inside and outside of a pipeline's
+              potential file locations both inside and outside a pipeline's
               wip_directory
             **kwargs: Additional keyword arguments
         """

@@ -1,12 +1,8 @@
 #!/usr/bin/env python
-#   pipescaler/sorters/size_sorter.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license.
-"""Sorts image based on canvas size"""
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
+"""Sorts image based on canvas size."""
 from __future__ import annotations
 
 from logging import info
@@ -19,7 +15,7 @@ from pipescaler.core import Sorter
 
 
 class SizeSorter(Sorter):
-    """Sorts image based on canvas size"""
+    """Sorts image based on canvas size."""
 
     def __init__(self, cutoff: int = 32, **kwargs: Any) -> None:
         """
@@ -50,13 +46,13 @@ class SizeSorter(Sorter):
         if image.size[0] < self.cutoff or image.size[1] < self.cutoff:
             info(f"{self}: {infile}'s smallest dimension is less than{self.cutoff}")
             return "less_than"
-        else:
-            info(
-                f"{self}: {infile}'s smallest dimension is greater than or equal to"
-                f" {self.cutoff}"
-            )
-            return "greater_than_or_equal_to"
+        info(
+            f"{self}: {infile}'s smallest dimension is greater than or equal to"
+            f" {self.cutoff}"
+        )
+        return "greater_than_or_equal_to"
 
+    @classmethod
     @property
     def outlets(self):
         """Outlets that flow out of stage"""

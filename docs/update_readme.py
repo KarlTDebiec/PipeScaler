@@ -1,25 +1,21 @@
 #!/usr/bin/env python
-#   update_readme.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license.
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
 """Updates readme"""
 import re
-from inspect import cleandoc, getfile
+from inspect import getfile
 from os.path import dirname, join, splitext
 from pathlib import Path
 from types import ModuleType
-from typing import Dict, List, Type
+from typing import Type
 
 from pipescaler import mergers, processors, sorters, sources, splitters, termini
 from pipescaler.common import package_root, validate_input_path
 from pipescaler.core import Stage
 
 
-def get_github_link(cls: Type) -> str:
+def get_github_link(cls: Type[Stage]) -> str:
     """
     Get the GitHub master branch link to the file containing a class
 
@@ -35,7 +31,7 @@ def get_github_link(cls: Type) -> str:
     )
 
 
-def get_module_regexes(modules: List[ModuleType]) -> Dict[ModuleType, re.Pattern]:
+def get_module_regexes(modules: list[ModuleType]) -> dict[ModuleType, re.Pattern]:
     """
     Get regular expressions to identify README sections for provided modules
 
@@ -56,7 +52,7 @@ def get_module_regexes(modules: List[ModuleType]) -> Dict[ModuleType, re.Pattern
     return module_regexes
 
 
-def get_stage_description(stage: Stage) -> str:
+def get_stage_description(stage: Type[Stage]) -> str:
     """
     Get the formatted description of a stage, including GitHub link
 
@@ -68,18 +64,7 @@ def get_stage_description(stage: Stage) -> str:
     Returns:
         Formatted description of stage
     """
-    name = stage.__name__
-    link = get_github_link(stage)
-    doc = stage.__doc__
-    if doc is None:
-        return f"* [{name}]({link})\n"
-    else:
-        doc_lines = cleandoc(stage.__doc__).split("\n")
-        try:
-            doc_head = " ".join(line for line in doc_lines[: doc_lines.index("")])
-        except ValueError:
-            doc_head = " ".join(line for line in doc_lines)
-        return f"* [{name}]({link}) - {doc_head}.\n"
+    return f"* [{stage.__name__}]({get_github_link(stage)}) - {stage.help_markdown}\n"
 
 
 def get_stage_descriptions(module: ModuleType) -> str:

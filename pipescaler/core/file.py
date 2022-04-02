@@ -1,18 +1,14 @@
 #!/usr/bin/env python
-#   pipescaler/core/file.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license.
-"""Core pipescaler functions for interacting with files"""
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
+"""Core functions for interacting with files"""
 from __future__ import annotations
 
 from mimetypes import guess_type
 from os import listdir
 from os.path import basename, dirname, isabs, join, splitext
-from typing import Any, List, Optional, Set, Union
+from typing import Any, Optional, Union
 
 import yaml
 
@@ -22,8 +18,8 @@ from pipescaler.common import DirectoryNotFoundError, NotAFileError, validate_in
 def get_files_in_directory(
     directory: str,
     style: str = "base",
-    exclusions: Optional[Union[str, List[str], Set[str]]] = None,
-) -> Set[str]:
+    exclusions: Optional[Union[str, list[str], set[str]]] = None,
+) -> set[str]:
     """
     Get filenames within provided directory.
 
@@ -33,7 +29,6 @@ def get_files_in_directory(
           path, 'base' for the filename excluding extension, and 'full' for the filename
           including extension
         exclusions: Base names of files to exclude
-
     Returns:
         Filenames in configured style
     """
@@ -61,8 +56,8 @@ def get_files_in_directory(
 def get_files_in_text_file(
     text_file: str,
     style: str = "base",
-    exclusions: Optional[Union[str, List[str], Set[str]]] = None,
-) -> Set[str]:
+    exclusions: Optional[Union[str, list[str], set[str]]] = None,
+) -> set[str]:
     """
     Get filenames within provided text file.
 
@@ -72,7 +67,6 @@ def get_files_in_text_file(
           path, 'base' for the filename excluding extension, and 'full' for the filename
           including extension
         exclusions: Base names of files to exclude
-
     Returns:
         Filenames in configured style
     """
@@ -83,8 +77,10 @@ def get_files_in_text_file(
     files = set()
 
     text_file = validate_input_path(text_file)
-    with open(text_file, "r") as f:
-        filenames = [line.strip() for line in f.readlines() if not line.startswith("#")]
+    with open(text_file, "r", encoding="utf8") as infile:
+        filenames = [
+            line.strip() for line in infile.readlines() if not line.startswith("#")
+        ]
     for filename in filenames:
         base = splitext(basename(filename))[0]
         if base not in exclusions:
@@ -102,10 +98,10 @@ def get_files_in_text_file(
 
 
 def get_files(
-    sources: Union[str, List[str]],
+    sources: Union[str, list[str]],
     style: str = "base",
-    exclusions: Optional[Set[str]] = None,
-) -> Set[str]:
+    exclusions: Optional[set[str]] = None,
+) -> set[str]:
     """
     Get filenames from provided sources, which may be either directories or text files.
 
@@ -115,7 +111,6 @@ def get_files(
           path, 'base' for the filename excluding extension, and 'full' for the filename
           including extension
         exclusions: Base filenames to exclude
-
     Returns:
         Filenames in configured style
     """
@@ -127,13 +122,12 @@ def get_files(
         sources = [sources]
     files = set()
 
-    def get_file(file_source):
+    def get_file(file_source: str) -> Optional[str]:
         """
         Gets a filename in configured style.
 
         Arguments:
             file_source: Filename
-
         Returns:
             Filename in configured style
         """
@@ -149,10 +143,10 @@ def get_files(
                 else:
                     absolute = validate_input_path(filename)
                 return absolute
-            elif style == "base":
+            if style == "base":
                 return base
-            else:
-                return filename
+            return filename
+        return None
 
     for source in sources:
         try:
@@ -178,9 +172,8 @@ def read_yaml(infile: str) -> Any:
 
     Arguments:
         infile: Path to input file
-
     Returns:
         Loaded yaml data structure
     """
-    with open(validate_input_path(infile), "r") as f:
-        return yaml.load(f, Loader=yaml.SafeLoader)
+    with open(validate_input_path(infile), "r", encoding="utf8") as yaml_file:
+        return yaml.load(yaml_file, Loader=yaml.SafeLoader)

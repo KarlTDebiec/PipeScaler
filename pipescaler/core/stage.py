@@ -1,17 +1,14 @@
 #!/usr/bin/env python
-#   pipescaler/core/stage.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license.
-"""Base class for stages"""
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
+"""Base class for stages."""
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABC
 from importlib.util import module_from_spec, spec_from_file_location
-from typing import Any, List, Optional
+from inspect import cleandoc
+from typing import Any, Optional
 
 from pipescaler.common import validate_input_path
 
@@ -57,7 +54,7 @@ def initialize_stage(stage_name, stage_conf, modules):
 
 
 class Stage(ABC):
-    """Base class for stages"""
+    """Base class for stages."""
 
     trim_suffixes = None
     extension = "png"
@@ -65,8 +62,7 @@ class Stage(ABC):
     def __init__(
         self, name: Optional[str] = None, desc: Optional[str] = None, **kwargs: Any
     ) -> None:
-        """
-        Validate and store static configuration
+        """Validate and store configuration.
 
         Arguments:
             name: Name of stage
@@ -83,21 +79,27 @@ class Stage(ABC):
             self.desc = self.name
 
     def __repr__(self) -> str:
-        """Detailed representation of stage"""
+        """Detailed representation of stage."""
         return self.desc
 
     def __str__(self) -> str:
-        """Simple representation of stage"""
+        """Simple representation of stage."""
         return self.name
 
     @property
-    @abstractmethod
-    def inlets(self) -> List[str]:
-        """Inlets that flow into stage"""
+    def inlets(self) -> list[str]:
+        """Inlets that flow into stage."""
         raise NotImplementedError()
 
     @property
-    @abstractmethod
-    def outlets(self) -> List[str]:
-        """Outlets that flow out of stage"""
+    def outlets(self) -> list[str]:
+        """Outlets that flow out of stage."""
         raise NotImplementedError()
+
+    @classmethod
+    @property
+    def help_markdown(cls) -> str:
+        """Short description of this tool in markdown, with links."""
+        if cls.__doc__:
+            return cleandoc(cls.__doc__).split(". ")[0]
+        return ""

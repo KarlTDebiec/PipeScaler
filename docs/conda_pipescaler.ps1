@@ -1,11 +1,12 @@
 #!/usr/bin/env pwsh
-# Script for creating a working conda environment on Windows
+# Script for creating a working conda environment on Windows,
+# with the latest version of required packages
 
 $ErrorActionPreference = "Stop"
 
 conda deactivate
 conda remove -y --name pipescaler --all
-conda create -y --name pipescaler python=3.8
+conda create -y --name pipescaler python=3.9
 conda activate pipescaler
 
 pip install `
@@ -18,6 +19,7 @@ pip install `
     numpy `
     pandas `
     pillow `
+    prospector `
     pytest `
     pytest-cov `
     pytest-xdist `
@@ -40,5 +42,3 @@ conda install -y -c pytorch `
     torchvision `
     torchaudio
 
-pip install `
-    numpy==1.20.3
