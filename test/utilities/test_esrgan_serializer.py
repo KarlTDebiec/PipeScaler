@@ -20,8 +20,8 @@ def utility(request) -> EsrganSerializer:
 @mark.parametrize(
     ("infile"),
     [
-        # skip_if_ci()("ESRGAN/1x_BC1-smooth2"),
-        # skip_if_ci()("ESRGAN/RRDB_ESRGAN_x4"),
+        skip_if_ci()("ESRGAN/1x_BC1-smooth2"),
+        skip_if_ci()("ESRGAN/RRDB_ESRGAN_x4"),
         skip_if_ci()("ESRGAN/RRDB_ESRGAN_x4_old_arch"),
     ],
 )
