@@ -36,4 +36,11 @@ class WaifuUpConv7(Module):
         )
 
     def forward(self, tensor: Tensor) -> Tensor:
+        """Forward pass.
+
+        Arguments:
+            tensor: Batch of inputs
+        Returns:
+            Processed outputs
+        """
         return self.sequential.forward(self.pad(tensor))

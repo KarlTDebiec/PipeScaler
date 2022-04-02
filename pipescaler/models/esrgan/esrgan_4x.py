@@ -6,7 +6,7 @@
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
-"""ESRGAN module."""
+"""ESRGAN 4X module."""
 from __future__ import annotations
 
 from collections import OrderedDict
@@ -55,4 +55,5 @@ class Esrgan4x(Esrgan):
     @classmethod
     @property
     def scale(cls) -> int:
+        """Scale of model."""
         return 4

@@ -36,4 +36,5 @@ class Esrgan1x(Esrgan):
     @classmethod
     @property
     def scale(cls) -> int:
+        """Scale of model."""
         return 1
