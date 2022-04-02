@@ -9,6 +9,7 @@
 """ESRGAN module."""
 from __future__ import annotations
 
+from abc import ABC
 from functools import partial
 
 from torch.nn import Conv2d, LeakyReLU, Module, Sequential
@@ -18,7 +19,7 @@ from pipescaler.models.esrgan.residual_in_residual_dense_block import (
 )
 
 
-class Esrgan(Module):
+class Esrgan(Module, ABC):
     """ESRGAN module."""
 
     def __init__(

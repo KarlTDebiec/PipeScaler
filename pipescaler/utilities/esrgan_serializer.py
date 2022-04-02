@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from collections import OrderedDict
 from logging import info
+from typing import Union
 
 import torch
 from torch import Tensor
@@ -28,12 +29,21 @@ class EsrganSerializer:
         self.infile = validate_input_file(infile)
         self.outfile = validate_output_file(outfile)
 
-        state_dict, scale = self.load_model(infile)
+        state_dict = torch.load(self.infile)
+        model = self.get_model(state_dict)
+
+        torch.save(model, self.outfile)
+        info(f"{self}: Complete serialized model saved to '{self.outfile}'")
+
+    @classmethod
+    def get_model(
+        cls, state_dict: OrderedDict[str, Tensor]
+    ) -> Union[Esrgan1x | Esrgan4x]:
+        state_dict, scale = cls.parse_state_dict(state_dict)
         if scale == 0:
             model = Esrgan1x(3, 3, 64, 23)
         else:
             model = Esrgan4x(3, 3, 64, 23)
-        info(f"{self}: Esrgan model built")
 
         model.load_state_dict(state_dict, strict=True)
         model.eval()
@@ -41,11 +51,23 @@ class EsrganSerializer:
         for _, v in model.named_parameters():
             v.requires_grad = False
 
-        torch.save(model, self.outfile)
-        info(f"{self}: Complete serialized model saved to '{self.outfile}'")
+        return model
+
+    @classmethod
+    def parse_state_dict(
+        cls, state_dict: OrderedDict[str, Tensor]
+    ) -> tuple[OrderedDict[str, Tensor], int]:
+        if "model.0.weight" in state_dict:
+            scale = cls.get_old_scale_index(state_dict)
+            keymap = cls.build_old_keymap(scale)
+            state_dict = {keymap[k]: v for k, v in state_dict.items()}
+        else:
+            scale = cls.get_scale_index(state_dict)
+
+        return state_dict, scale
 
     @staticmethod
-    def build_old_keymap(n_upscale: int) -> dict[str, str]:
+    def build_old_keymap(scale: int) -> dict[str, str]:
         # Build initial keymap
         keymap = OrderedDict()
         keymap["model.0"] = "conv_first"
@@ -57,7 +79,7 @@ class EsrganSerializer:
                     ] = f"RRDB_trunk.{i}.RDB{j}.conv{k}"
         keymap["model.1.sub.23"] = "trunk_conv"
         n = 0
-        for i in range(1, n_upscale + 1):
+        for i in range(1, scale + 1):
             n += 3
             keymap[f"model.{n}"] = f"upconv{i}"
         keymap[f"model.{(n + 2)}"] = "HRconv"
@@ -72,7 +94,7 @@ class EsrganSerializer:
         return keymap_final
 
     @staticmethod
-    def get_old_scale_index(state_dict: dict[str, str]) -> int:
+    def get_old_scale_index(state_dict: dict[str, Tensor]) -> int:
         try:
             # get the largest model index from keys like "model.X.weight"
             max_index = max([int(n.split(".")[1]) for n in state_dict.keys()])
@@ -83,7 +105,7 @@ class EsrganSerializer:
         return (max_index - 4) // 3
 
     @staticmethod
-    def get_scale_index(state_dict: dict[str, str]) -> int:
+    def get_scale_index(state_dict: dict[str, Tensor]) -> int:
         max_index = 0
 
         for k in state_dict.keys():
@@ -91,18 +113,3 @@ class EsrganSerializer:
                 max_index = max(max_index, int(k[6:-7]))
 
         return max_index
-
-    @classmethod
-    def load_model(cls, model_infile: str) -> tuple[OrderedDict[str, Tensor], int]:
-        state_dict = torch.load(model_infile)
-
-        # check for old model format
-        if "model.0.weight" in state_dict:
-            # remap dict keys to new format
-            scale = cls.get_old_scale_index(state_dict)
-            keymap = cls.build_old_keymap(scale)
-            state_dict = {keymap[k]: v for k, v in state_dict.items()}
-        else:
-            scale = cls.get_scale_index(state_dict)
-
-        return state_dict, scale

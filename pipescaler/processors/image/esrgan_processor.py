@@ -9,6 +9,7 @@
 """Upscales and/or denoises image using ESRGAN."""
 from __future__ import annotations
 
+from collections import OrderedDict
 from logging import warning
 from typing import Any
 
@@ -18,6 +19,8 @@ from PIL import Image
 
 from pipescaler.common import validate_input_path
 from pipescaler.core import ImageProcessor, convert_mode
+from pipescaler.models.esrgan import Esrgan1x, Esrgan4x
+from pipescaler.utilities.esrgan_serializer import EsrganSerializer
 
 
 class EsrganProcessor(ImageProcessor):
@@ -44,6 +47,14 @@ class EsrganProcessor(ImageProcessor):
 
         self.model_infile = validate_input_path(model_infile)
         model = torch.load(model_infile)
+
+        if isinstance(model, OrderedDict):
+            model = EsrganSerializer().get_model(model)
+
+        if isinstance(model, Esrgan1x):
+            self.scale = 1
+        elif isinstance(model, Esrgan4x):
+            self.scale = 4
         model.eval()
         try:
             self.model = model.to(device)

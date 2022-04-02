@@ -21,8 +21,11 @@ from pipescaler.testing import (
 @parametrized_fixture(
     cls=EsrganProcessor,
     params=[
+        {"model_infile": get_model_infile("ESRGAN/1x_BC1-smooth2")},
         {"model_infile": get_model_infile("ESRGAN/1x_BC1-smooth2_out")},
+        {"model_infile": get_model_infile("ESRGAN/RRDB_ESRGAN_x4")},
         {"model_infile": get_model_infile("ESRGAN/RRDB_ESRGAN_x4_out")},
+        {"model_infile": get_model_infile("ESRGAN/RRDB_ESRGAN_x4_old_arch")},
         {"model_infile": get_model_infile("ESRGAN/RRDB_ESRGAN_x4_old_arch_out")},
     ],
 )
