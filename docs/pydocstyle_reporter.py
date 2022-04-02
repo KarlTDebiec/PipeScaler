@@ -8,10 +8,10 @@ from itertools import zip_longest
 from os.path import normpath
 from typing import Any, Union
 
-from pipescaler.common import CommandLineTool, validate_input_file
+from pipescaler.common import CommandLineInterface, validate_input_file
 
 
-class PydocstyleReporter(CommandLineTool):
+class PydocstyleReporter(CommandLineInterface):
     """Prints pydocstyle results formatted for consumption by GitHub."""
 
     def __init__(

@@ -9,10 +9,10 @@ from abc import ABC, abstractmethod
 from inspect import cleandoc
 from typing import Type
 
-from pipescaler.common import CommandLineTool
+from pipescaler.common import CommandLineInterface
 
 
-class UtilityCommandLineTool(CommandLineTool, ABC):
+class UtilityCommandLineInterface(CommandLineInterface, ABC):
     """Command line interface for utilities."""
 
     @classmethod
@@ -33,5 +33,5 @@ class UtilityCommandLineTool(CommandLineTool, ABC):
     @property
     @abstractmethod
     def utility(cls) -> Type:
-        """Type of utility wrapped by command-line tool."""
+        """Type of utility wrapped by command line interface."""
         raise NotImplementedError()

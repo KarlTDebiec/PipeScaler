@@ -2,20 +2,22 @@
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
-"""General-purpose configurable command line interface base class."""
-from abc import ABC
+"""Command line interface for Host."""
+from __future__ import annotations
+
 from argparse import ArgumentParser, _SubParsersAction
 from logging import info
 from os import environ
 from os.path import expandvars, normpath
-from typing import Union
+from typing import Type, Union
 
-from pipescaler.common import CommandLineInterface
+from pipescaler.core.cl import UtilityCommandLineInterface
 from pipescaler.core.file import read_yaml
+from pipescaler.utilities import Host
 
 
-class ConfigurableCommandLineInterface(CommandLineInterface, ABC):
-    """General-purpose configurable command line interface base class."""
+class HostCli(UtilityCommandLineInterface):
+    """Command line interface for Host."""
 
     @classmethod
     def add_arguments_to_argparser(
@@ -34,6 +36,10 @@ class ConfigurableCommandLineInterface(CommandLineInterface, ABC):
             help="path to yaml file from which to read configuration",
         )
 
+    def __call__(self):
+        """Perform operations."""
+        raise NotImplementedError()
+
     @classmethod
     def main(cls) -> None:
         """Parse arguments, construct tool, and call tool"""
@@ -48,5 +54,15 @@ class ConfigurableCommandLineInterface(CommandLineInterface, ABC):
             environ[key] = normpath(expandvars(value))
             info(f"Environment variable '{key}' set to '{value}'")
 
-        tool = cls(**{**kwargs, **conf})
-        tool()
+        utility = cls.utility(**{**kwargs, **conf})
+        utility()
+
+    @classmethod
+    @property
+    def utility(cls) -> Type:
+        """Type of utility wrapped by command line interface."""
+        return Host
+
+
+if __name__ == "__main__":
+    HostCli.main()
