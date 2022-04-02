@@ -40,7 +40,7 @@ class FileScannerCli(UtilityCommandLineInterface):
         required.add_argument(
             "conf_file",
             type=cls.input_path_arg(),
-            help="path to yaml file from which to read configuration",
+            help="yaml file from which to read configuration",
         )
 
     @classmethod
@@ -58,7 +58,7 @@ class FileScannerCli(UtilityCommandLineInterface):
         # Set environment variables
         for key, value in conf.pop("environment", {}).items():
             value = normpath(expandvars(value))
-            environ[key] = normpath(expandvars(value))
+            environ[key] = value
             info(f"Environment variable '{key}' set to '{value}'")
 
         verbosity = validate_int(kwargs.pop("verbosity", 0), min_value=0)

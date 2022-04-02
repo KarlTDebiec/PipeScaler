@@ -33,7 +33,7 @@ class WaifuProcessor(ImageProcessor):
         super().__init__(**kwargs)
 
         self.model_infile = validate_input_path(model_infile)
-        model = torch.load(model_infile)
+        model = torch.load(self.model_infile)
         model.eval()
         try:
             self.model = model.to(device)

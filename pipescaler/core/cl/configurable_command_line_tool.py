@@ -45,7 +45,7 @@ class ConfigurableCommandLineInterface(CommandLineInterface, ABC):
         # Set environment variables
         for key, value in conf.pop("environment", {}).items():
             value = normpath(expandvars(value))
-            environ[key] = normpath(expandvars(value))
+            environ[key] = value
             info(f"Environment variable '{key}' set to '{value}'")
 
         tool = cls(**{**kwargs, **conf})
