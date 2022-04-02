@@ -44,7 +44,7 @@ watchdog = "^2.1.6"
 "xbrz.py" = "^1.0.2"
 
 [tool.poetry.dev-dependencies]
-black = "^22.1.0"
+black = "^22.3.0"
 coverage = "^6.3.2"
 isort = "^5.10.1"
 prospector = "^1.7.7"
