@@ -17,10 +17,10 @@ import torch
 from PIL import Image
 
 from pipescaler.common import validate_input_path
-from pipescaler.core import Processor, convert_mode
+from pipescaler.core import ImageProcessor, convert_mode
 
 
-class EsrganProcessor(Processor):
+class EsrganProcessor(ImageProcessor):
     """Upscales and/or denoises image using ESRGAN.
 
     See [ESRGAN](https://github.com/xinntao/ESRGAN). Supports both old and new

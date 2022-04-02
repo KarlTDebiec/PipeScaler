@@ -33,12 +33,6 @@ class Esrgan4x(Esrgan):
         trunk = self.trunk_conv(self.RRDB_trunk(fea))
         fea = fea + trunk
 
-        # apply upconv layers
-        for n in range(1, self.n_upscale + 1):
-            upconv = getattr(self, "upconv%d" % n)
-            fea = self.leaky_relu(
-                upconv(interpolate(fea, scale_factor=2, mode="nearest"))
-            )
         fea = self.leaky_relu(
             self.upconv1(interpolate(fea, scale_factor=2, mode="nearest"))
         )
