@@ -132,7 +132,7 @@ class RunCli(CommandLineInterface):
     @property
     def name(cls) -> str:
         """Name of this tool used to define it when it is a subparser."""
-        return cls.__name__.removesuffix("CL").lower()
+        return cls.__name__.removesuffix("Cli").lower()
 
 
 if __name__ == "__main__":

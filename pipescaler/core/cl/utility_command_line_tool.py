@@ -27,7 +27,7 @@ class UtilityCommandLineInterface(CommandLineInterface, ABC):
     @property
     def name(cls) -> str:
         """Name of this tool used to define it when it is a subparser."""
-        return cls.__name__.removesuffix("CL").lower()
+        return cls.__name__.removesuffix("Cli").lower()
 
     @classmethod
     @property
