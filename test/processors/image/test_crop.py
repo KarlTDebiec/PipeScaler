@@ -8,10 +8,10 @@ from PIL import Image
 
 from pipescaler.common import temporary_filename
 from pipescaler.processors import CropProcessor
-from pipescaler.testing import expected_output_mode, get_infile, stage_fixture
+from pipescaler.testing import expected_output_mode, get_infile, parametrized_fixture
 
 
-@stage_fixture(
+@parametrized_fixture(
     cls=CropProcessor,
     params=[
         {"pixels": (4, 4, 4, 4)},

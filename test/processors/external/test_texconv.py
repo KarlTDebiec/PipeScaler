@@ -8,10 +8,10 @@ from PIL import Image
 
 from pipescaler.common import temporary_filename
 from pipescaler.processors import TexconvProcessor
-from pipescaler.testing import get_infile, stage_fixture, xfail_if_platform
+from pipescaler.testing import get_infile, parametrized_fixture, xfail_if_platform
 
 
-@stage_fixture(
+@parametrized_fixture(
     cls=TexconvProcessor,
     params=[
         {},

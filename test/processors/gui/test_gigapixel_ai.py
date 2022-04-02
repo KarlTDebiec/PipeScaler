@@ -11,13 +11,13 @@ from pipescaler.processors import GigapixelAiProcessor
 from pipescaler.testing import (
     expected_output_mode,
     get_infile,
+    parametrized_fixture,
     skip_if_ci,
-    stage_fixture,
     xfail_if_platform,
 )
 
 
-@stage_fixture(
+@parametrized_fixture(
     cls=GigapixelAiProcessor,
     params=[
         {},

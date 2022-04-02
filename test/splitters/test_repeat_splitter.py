@@ -9,10 +9,10 @@ from PIL import Image
 
 from pipescaler.common import temporary_filename
 from pipescaler.splitters import RepeatSplitter
-from pipescaler.testing import get_infile, stage_fixture
+from pipescaler.testing import get_infile, parametrized_fixture
 
 
-@stage_fixture(cls=RepeatSplitter, params=[{}])
+@parametrized_fixture(cls=RepeatSplitter, params=[{}])
 def splitter(request) -> RepeatSplitter:
     return RepeatSplitter(**request.param)
 

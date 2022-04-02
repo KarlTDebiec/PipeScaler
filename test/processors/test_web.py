@@ -13,7 +13,7 @@ from pytest import fixture, mark
 from pipescaler.cli.utilities.host_cli import HostCli
 from pipescaler.common import temporary_filename
 from pipescaler.processors import WebProcessor
-from pipescaler.testing import expected_output_mode, get_infile, stage_fixture
+from pipescaler.testing import expected_output_mode, get_infile, parametrized_fixture
 
 
 @fixture()
@@ -26,7 +26,7 @@ stages:
 """
 
 
-@stage_fixture(
+@parametrized_fixture(
     cls=WebProcessor,
     params=[
         {"url": "http://127.0.0.1:5000/xbrz-2"},

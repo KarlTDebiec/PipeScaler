@@ -4,10 +4,10 @@
 #   the terms of the BSD license. See the LICENSE file for details.
 """Tests for DirectorySource"""
 from pipescaler.sources import DirectorySource
-from pipescaler.testing import get_sub_directory, stage_fixture
+from pipescaler.testing import get_sub_directory, parametrized_fixture
 
 
-@stage_fixture(
+@parametrized_fixture(
     cls=DirectorySource,
     params=[
         {"directory": get_sub_directory("basic")},

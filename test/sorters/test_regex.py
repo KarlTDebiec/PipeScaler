@@ -6,10 +6,10 @@
 import pytest
 
 from pipescaler.sorters import RegexSorter
-from pipescaler.testing import stage_fixture
+from pipescaler.testing import parametrized_fixture
 
 
-@stage_fixture(
+@parametrized_fixture(
     cls=RegexSorter,
     params=[
         {"regex": ".*L.*"},

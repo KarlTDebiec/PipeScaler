@@ -8,10 +8,15 @@ from PIL import Image
 
 from pipescaler.common import temporary_filename
 from pipescaler.processors import AppleScriptProcessor
-from pipescaler.testing import get_infile, skip_if_ci, stage_fixture, xfail_if_platform
+from pipescaler.testing import (
+    get_infile,
+    parametrized_fixture,
+    skip_if_ci,
+    xfail_if_platform,
+)
 
 
-@stage_fixture(
+@parametrized_fixture(
     cls=AppleScriptProcessor,
     params=[
         {"script": "pixelmator/ml_super_resolution.scpt", "args": "2"},

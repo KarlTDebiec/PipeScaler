@@ -9,10 +9,14 @@ from PIL import Image
 
 from pipescaler.common import temporary_filename
 from pipescaler.processors import HeightToNormalProcessor
-from pipescaler.testing import get_infile, stage_fixture, xfail_unsupported_image_mode
+from pipescaler.testing import (
+    get_infile,
+    parametrized_fixture,
+    xfail_unsupported_image_mode,
+)
 
 
-@stage_fixture(
+@parametrized_fixture(
     cls=HeightToNormalProcessor,
     params=[{"sigma": 0.5}, {"sigma": 1.0}],
 )

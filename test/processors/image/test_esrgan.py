@@ -12,13 +12,13 @@ from pipescaler.testing import (
     expected_output_mode,
     get_infile,
     get_model_infile,
+    parametrized_fixture,
     skip_if_ci,
-    stage_fixture,
     xfail_unsupported_image_mode,
 )
 
 
-@stage_fixture(
+@parametrized_fixture(
     cls=EsrganProcessor,
     params=[
         {"model_infile": get_model_infile("ESRGAN/1x_BC1-smooth2")},

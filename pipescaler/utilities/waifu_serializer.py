@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import json
 from logging import info
-from typing import Any
 
 import torch
 
@@ -27,30 +26,22 @@ class WaifuSerializer:
         "vgg7": WaifuVgg7,
     }
 
-    def __init__(
-        self, architecture: str, infile: str, outfile: str, **kwargs: Any
-    ) -> None:
-        """Validate and store configuration.
+    def __call__(self, architecture: str, infile: str, outfile: str) -> None:
+        """Converts infile to outfile.
 
         Arguments:
             architecture: Model architecture
             infile: Input file
             outfile: Output file
-            **kwargs: Additional keyword arguments
         """
-        super().__init__(**kwargs)
+        architecture = validate_str(architecture, self.architectures.keys())
+        infile = validate_input_file(infile)
+        outfile = validate_output_file(outfile)
 
-        self.architecture = validate_str(architecture, self.architectures.keys())
-        self.infile = validate_input_file(infile)
-        self.outfile = validate_output_file(outfile)
+        model = self.architectures[architecture]()
+        info(f"{self}: Waifu {architecture} model built")
 
-    def __call__(self) -> None:
-        """Converts infile to outfile."""
-
-        model = self.architectures[self.architecture]()
-        info(f"{self}: Waifu {self.architecture} model built")
-
-        with open(self.infile, "r", encoding="utf-8") as infile:
+        with open(infile, "r", encoding="utf-8") as infile:
             weights = json.load(infile)
         box = []
         for weight in weights:
@@ -59,7 +50,7 @@ class WaifuSerializer:
         state_dict = model.state_dict()
         for index, (name, parameter) in enumerate(state_dict.items()):
             state_dict[name].copy_(torch.FloatTensor(box[index]))
-        info(f"{self}: Model parameters loaded from '{self.infile}'")
+        info(f"{self}: Model parameters loaded from '{infile}'")
 
-        torch.save(model, self.outfile)
-        info(f"{self}: Complete serialized model saved to '{self.outfile}'")
+        torch.save(model, outfile)
+        info(f"{self}: Complete serialized model saved to '{outfile}'")

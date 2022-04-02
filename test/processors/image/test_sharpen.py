@@ -11,12 +11,12 @@ from pipescaler.processors.image import SharpenProcessor
 from pipescaler.testing import (
     expected_output_mode,
     get_infile,
-    stage_fixture,
+    parametrized_fixture,
     xfail_unsupported_image_mode,
 )
 
 
-@stage_fixture(cls=SharpenProcessor, params=[{}])
+@parametrized_fixture(cls=SharpenProcessor, params=[{}])
 def processor(request) -> SharpenProcessor:
     return SharpenProcessor(**request.param)
 
