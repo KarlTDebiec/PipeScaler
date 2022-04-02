@@ -15,7 +15,7 @@ from pipescaler.common import validate_input_file, validate_output_file, validat
 from pipescaler.models import WaifuUpConv7, WaifuVgg7
 
 
-class WaifuPyTorchPickler:
+class WaifuSerializer:
     """Converts Waifu models in JSON format to PyTorch's serialized pth format.
 
     Input JSON is available from [yu45020/Waifu2x on GitHub]
@@ -30,7 +30,7 @@ class WaifuPyTorchPickler:
     def __init__(
         self, architecture: str, infile: str, outfile: str, **kwargs: Any
     ) -> None:
-        """Validate and store configuration
+        """Validate and store configuration.
 
         Arguments:
             architecture: Model architecture
@@ -45,7 +45,8 @@ class WaifuPyTorchPickler:
         self.outfile = validate_output_file(outfile)
 
     def __call__(self) -> None:
-        """Converts infile to outfile"""
+        """Converts infile to outfile."""
+
         model = self.architectures[self.architecture]()
         info(f"{self}: Waifu {self.architecture} model built")
 

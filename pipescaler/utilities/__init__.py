@@ -10,7 +10,7 @@ from pipescaler.utilities.host import Host
 from pipescaler.utilities.mask_filler import MaskFiller
 from pipescaler.utilities.palette_matcher import PaletteMatcher
 from pipescaler.utilities.scaled_pair_identifier import ScaledPairIdentifier
-from pipescaler.utilities.waifu_pytorch_pickler import WaifuPyTorchPickler
+from pipescaler.utilities.waifu_serializer import WaifuSerializer
 
 __all__: list[str] = [
     "FileScanner",
@@ -18,5 +18,5 @@ __all__: list[str] = [
     "MaskFiller",
     "PaletteMatcher",
     "ScaledPairIdentifier",
-    "WaifuPyTorchPickler",
+    "WaifuSerializer",
 ]

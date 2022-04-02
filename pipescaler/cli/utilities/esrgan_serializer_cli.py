@@ -2,18 +2,22 @@
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
-"""Command line interface for WaifuPyTorchPickler."""
+"""Command line interface for EsrganSerializer."""
 from __future__ import annotations
 
 from argparse import ArgumentParser, _SubParsersAction
 from typing import Type, Union
 
 from pipescaler.core.cl import UtilityCommandLineInterface
-from pipescaler.utilities import WaifuPyTorchPickler
+from pipescaler.utilities.esrgan_serializer import EsrganSerializer
 
 
-class WaifuPyTorchPicklerCli(UtilityCommandLineInterface):
-    """Command line interface for WaifuPyTorchPickler."""
+class EsrganSerializerCli(UtilityCommandLineInterface):
+    """Command line interface for EsrganSerializer."""
+
+    def __call__(self):
+        """Perform operations."""
+        raise NotImplementedError()
 
     @classmethod
     def add_arguments_to_argparser(
@@ -29,12 +33,7 @@ class WaifuPyTorchPicklerCli(UtilityCommandLineInterface):
 
         required = cls.get_required_arguments_group(parser)
         required.add_argument(
-            "architecture",
-            type=cls.str_arg(cls.utility.architectures.keys()),
-            help=f"model architecture {cls.utility.architectures.keys()}",
-        )
-        required.add_argument(
-            "infile", type=cls.input_path_arg(), help="input json file"
+            "infile", type=cls.input_path_arg(), help="input pth file"
         )
         required.add_argument(
             "outfile", type=cls.output_path_arg(), help="output pth file"
@@ -44,8 +43,8 @@ class WaifuPyTorchPicklerCli(UtilityCommandLineInterface):
     @property
     def utility(cls) -> Type:
         """Type of utility wrapped by command line interface."""
-        return WaifuPyTorchPickler
+        return EsrganSerializer
 
 
 if __name__ == "__main__":
-    WaifuPyTorchPicklerCli.main()
+    EsrganSerializerCli.main()
