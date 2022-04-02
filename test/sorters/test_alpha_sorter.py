@@ -6,10 +6,10 @@
 import pytest
 
 from pipescaler.sorters import AlphaSorter
-from pipescaler.testing import get_infile, stage_fixture
+from pipescaler.testing import get_infile, parametrized_fixture
 
 
-@stage_fixture(
+@parametrized_fixture(
     cls=AlphaSorter,
     params=[
         {"threshold": 255},

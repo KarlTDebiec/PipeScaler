@@ -2,32 +2,26 @@
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
-"""Tests for UtilityCli."""
+"""Tests for WaifuSerializerCli."""
 from __future__ import annotations
 
 from inspect import getfile
 
 from pytest import fixture, mark
 
-from pipescaler.cli import UtilityCli
+from pipescaler.cli.utilities import WaifuSerializerCli
 from pipescaler.common import run_command
 
 
 @fixture
 def script(request) -> str:
-    return getfile(UtilityCli)
+    return getfile(WaifuSerializerCli)
 
 
 @mark.parametrize(
     ("args"),
     [
         ("-h"),
-        ("apngcreator -h"),
-        ("esrganserializer -h"),
-        ("filescanner -h"),
-        ("host -h"),
-        ("scaledpairidentifier -h"),
-        ("waifuserializer -h"),
     ],
 )
 def test(script: str, args: str) -> None:

@@ -8,10 +8,10 @@ from PIL import Image
 
 from pipescaler.common import temporary_filename
 from pipescaler.processors import SolidColorProcessor
-from pipescaler.testing import expected_output_mode, get_infile, stage_fixture
+from pipescaler.testing import expected_output_mode, get_infile, parametrized_fixture
 
 
-@stage_fixture(cls=SolidColorProcessor, params=[{}])
+@parametrized_fixture(cls=SolidColorProcessor, params=[{}])
 def processor(request) -> SolidColorProcessor:
     return SolidColorProcessor(**request.param)
 

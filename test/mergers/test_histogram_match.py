@@ -9,10 +9,10 @@ from PIL import Image
 from pipescaler.common import temporary_filename
 from pipescaler.core import remove_palette_from_image
 from pipescaler.mergers import HistogramMatchMerger
-from pipescaler.testing import get_infile, stage_fixture
+from pipescaler.testing import get_infile, parametrized_fixture
 
 
-@stage_fixture(cls=HistogramMatchMerger, params=[{}])
+@parametrized_fixture(cls=HistogramMatchMerger, params=[{}])
 def merger(request) -> HistogramMatchMerger:
     return HistogramMatchMerger(**request.param)
 

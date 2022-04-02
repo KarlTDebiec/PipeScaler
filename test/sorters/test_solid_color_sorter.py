@@ -6,10 +6,10 @@
 import pytest
 
 from pipescaler.sorters import SolidColorSorter
-from pipescaler.testing import get_infile, stage_fixture
+from pipescaler.testing import get_infile, parametrized_fixture
 
 
-@stage_fixture(
+@parametrized_fixture(
     cls=SolidColorSorter,
     params=[
         {"mean_threshold": 1, "max_threshold": 10},

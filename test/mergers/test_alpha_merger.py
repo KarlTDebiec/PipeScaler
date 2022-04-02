@@ -9,10 +9,14 @@ from PIL import Image
 from pipescaler.common import temporary_filename
 from pipescaler.core import remove_palette_from_image
 from pipescaler.mergers import AlphaMerger
-from pipescaler.testing import get_infile, stage_fixture, xfail_unsupported_image_mode
+from pipescaler.testing import (
+    get_infile,
+    parametrized_fixture,
+    xfail_unsupported_image_mode,
+)
 
 
-@stage_fixture(cls=AlphaMerger, params=[{}])
+@parametrized_fixture(cls=AlphaMerger, params=[{}])
 def merger(request) -> AlphaMerger:
     return AlphaMerger(**request.param)
 

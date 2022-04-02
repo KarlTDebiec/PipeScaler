@@ -11,13 +11,13 @@ from pipescaler.processors import WaifuExternalProcessor
 from pipescaler.testing import (
     expected_output_mode,
     get_infile,
+    parametrized_fixture,
     skip_if_ci,
-    stage_fixture,
     xfail_unsupported_image_mode,
 )
 
 
-@stage_fixture(
+@parametrized_fixture(
     cls=WaifuExternalProcessor,
     params=[
         {"imagetype": "a", "denoise": 3, "scale": 1},

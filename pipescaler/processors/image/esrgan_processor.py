@@ -1,22 +1,26 @@
 #!/usr/bin/env python
+#   pipescaler/processors/esrgan_processor.py
+#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
-"""Upscale and/or denoises image using ESRGAN."""
+#   All rights reserved.
+#
+#   This software may be modified and distributed under the terms of the
+#   BSD license.
+"""Upscales and/or denoises image using ESRGAN."""
 from __future__ import annotations
 
-import collections
-from functools import partial
+from collections import OrderedDict
 from logging import warning
 from typing import Any
 
 import numpy as np
 import torch
 from PIL import Image
-from torch.nn import Conv2d, LeakyReLU, Sequential
 
 from pipescaler.common import validate_input_path
 from pipescaler.core import ImageProcessor, convert_mode
+from pipescaler.models.esrgan import Esrgan1x, Esrgan4x
+from pipescaler.utilities.esrgan_serializer import EsrganSerializer
 
 
 class EsrganProcessor(ImageProcessor):
@@ -31,128 +35,8 @@ class EsrganProcessor(ImageProcessor):
     (https://raw.githubusercontent.com/xinntao/ESRGAN/master/LICENSE)
     """
 
-    class ResidualDenseBlock5C(torch.nn.Module):
-        def __init__(self, nf=64, gc=32, bias=True):
-            super().__init__()
-
-            self.conv1 = torch.nn.Conv2d(nf, gc, 3, 1, 1, bias=bias)
-            self.conv2 = torch.nn.Conv2d(nf + gc, gc, 3, 1, 1, bias=bias)
-            self.conv3 = torch.nn.Conv2d(nf + 2 * gc, gc, 3, 1, 1, bias=bias)
-            self.conv4 = torch.nn.Conv2d(nf + 3 * gc, gc, 3, 1, 1, bias=bias)
-            self.conv5 = torch.nn.Conv2d(nf + 4 * gc, nf, 3, 1, 1, bias=bias)
-            self.lrelu = torch.nn.LeakyReLU(negative_slope=0.2, inplace=True)
-
-        def forward(self, x):
-            x1 = self.lrelu(self.conv1(x))
-            x2 = self.lrelu(self.conv2(torch.cat((x, x1), 1)))
-            x3 = self.lrelu(self.conv3(torch.cat((x, x1, x2), 1)))
-            x4 = self.lrelu(self.conv4(torch.cat((x, x1, x2, x3), 1)))
-            x5 = self.conv5(torch.cat((x, x1, x2, x3, x4), 1))
-            return x5 * 0.2 + x
-
-    class RRDB(torch.nn.Module):
-        def __init__(self, nf, gc=32):
-            super().__init__()
-            self.RDB1 = EsrganProcessor.ResidualDenseBlock5C(nf, gc)
-            self.RDB2 = EsrganProcessor.ResidualDenseBlock5C(nf, gc)
-            self.RDB3 = EsrganProcessor.ResidualDenseBlock5C(nf, gc)
-
-        def forward(self, x):
-            out = self.RDB1(x)
-            out = self.RDB2(out)
-            out = self.RDB3(out)
-            return out * 0.2 + x
-
-    class RRDBNet(torch.nn.Module):
-        def __init__(self, in_nc, out_nc, nf, nb, gc=32):
-            def make_layer(block, n_layers):
-                layers = []
-                for _ in range(n_layers):
-                    layers.append(block())
-                return Sequential(*layers)
-
-            super().__init__()
-            RRDB_block_f = partial(EsrganProcessor.RRDB, nf=nf, gc=gc)
-
-            self.conv_first = Conv2d(in_nc, nf, 3, 1, 1, bias=True)
-            self.RRDB_trunk = make_layer(RRDB_block_f, nb)
-            self.trunk_conv = Conv2d(nf, nf, 3, 1, 1, bias=True)
-
-            self.HRconv = Conv2d(nf, nf, 3, 1, 1, bias=True)
-            self.conv_last = Conv2d(nf, out_nc, 3, 1, 1, bias=True)
-
-            self.lrelu = LeakyReLU(negative_slope=0.2, inplace=True)
-
-            self.n_upscale = 0
-            self.nf = nf
-
-        def load_state_dict(self, state_dict, scale, strict=True):
-            self.n_upscale = scale
-
-            # build upconv layers based on model scale
-            for n in range(1, self.n_upscale + 1):
-                upconv = Conv2d(self.nf, self.nf, 3, 1, 1, bias=True)
-                setattr(self, "upconv%d" % n, upconv)
-
-            return super().load_state_dict(state_dict, strict)
-
-        def forward(self, x):
-            fea = self.conv_first(x)
-            trunk = self.trunk_conv(self.RRDB_trunk(fea))
-            fea = fea + trunk
-
-            # apply upconv layers
-            for n in range(1, self.n_upscale + 1):
-                upconv = getattr(self, "upconv%d" % n)
-                fea = self.lrelu(
-                    upconv(
-                        torch.nn.functional.interpolate(
-                            fea, scale_factor=2, mode="nearest"
-                        )
-                    )
-                )
-
-            out = self.conv_last(self.lrelu(self.HRconv(fea)))
-
-            return out
-
-    class RRDBNetUpscaler:
-        def __init__(self, model_infile, device):
-            net, scale = EsrganProcessor.load_model(model_infile)
-
-            model_net = EsrganProcessor.RRDBNet(3, 3, 64, 23)
-            model_net.load_state_dict(net, scale, strict=True)
-            model_net.eval()
-
-            for _, v in model_net.named_parameters():
-                v.requires_grad = False
-
-            self.model = model_net.to(device)
-            self.device = device
-            self.scale_factor = 2**scale
-
-        def upscale(self, input_datum):
-            input_datum = input_datum * 1.0 / 255
-            input_datum = np.transpose(input_datum[:, :, [2, 1, 0]], (2, 0, 1))
-            input_datum = torch.from_numpy(input_datum).float()
-            input_datum = input_datum.unsqueeze(0).to(self.device)
-
-            output_datum = (
-                self.model(input_datum)
-                .data.squeeze()
-                .float()
-                .cpu()
-                .clamp_(0, 1)
-                .numpy()
-            )
-            output_datum = np.transpose(output_datum[[2, 1, 0], :, :], (1, 2, 0))
-            output_datum = np.array(output_datum * 255, np.uint8)
-
-            return output_datum
-
     def __init__(self, model_infile: str, device: str = "cuda", **kwargs: Any) -> None:
-        """
-        Validate and store static configuration
+        """Validate configuration and initialize.
 
         Arguments:
             model_infile: Path to model infile
@@ -161,35 +45,31 @@ class EsrganProcessor(ImageProcessor):
         """
         super().__init__(**kwargs)
 
-        # Store configuration
         self.model_infile = validate_input_path(model_infile)
-        if device == "cuda":
-            try:
-                self.upscaler = EsrganProcessor.RRDBNetUpscaler(
-                    self.model_infile, torch.device(device)
-                )
-                self.cpu_upscaler = EsrganProcessor.RRDBNetUpscaler(
-                    self.model_infile, torch.device("cpu")
-                )
-            except AssertionError as e:
-                warning(
-                    f"{self}: CUDA ESRGAN upscaler raised exception: '{e}'; "
-                    f"trying CPU upscaler"
-                )
-                self.upscaler = EsrganProcessor.RRDBNetUpscaler(
-                    self.model_infile, torch.device("cpu")
-                )
-                self.cpu_upscaler = None
-        else:
-            self.upscaler = EsrganProcessor.RRDBNetUpscaler(
-                self.model_infile, torch.device(device)
+        model = torch.load(model_infile)
+
+        if isinstance(model, OrderedDict):
+            model = EsrganSerializer().get_model(model)
+
+        if isinstance(model, Esrgan1x):
+            self.scale = 1
+        elif isinstance(model, Esrgan4x):
+            self.scale = 4
+        model.eval()
+        try:
+            self.model = model.to(device)
+            self.device = device
+        except AssertionError as error:
+            device = "cpu"
+            self.model = model.to(device)
+            self.device = device
+            warning(
+                f"{self}: Torch raised '{error}' with device '{device}', "
+                f"falling back to cpu"
             )
-            self.cpu_upscaler = None
-        # TODO: Determine output scale and store as self.scale
 
     def process(self, input_image: Image.Image) -> Image.Image:
-        """
-        Process an image
+        """Process an image.
 
         Arguments:
             input_image: Input image to process
@@ -198,24 +78,28 @@ class EsrganProcessor(ImageProcessor):
         """
         input_image, input_mode = convert_mode(input_image, "RGB")
         # noinspection PyTypeChecker
-        input_datum = np.array(input_image)
+        input_array = np.array(input_image)
 
-        try:
-            output_datum = self.upscaler.upscale(input_datum)
-        except RuntimeError as e:
-            if self.cpu_upscaler is not None:
-                warning(
-                    f"{self}: CUDA ESRGAN upscaler raised exception: '{e}'; "
-                    f"trying CPU upscaler"
-                )
-                output_datum = self.cpu_upscaler.upscale(input_datum)
-            else:
-                raise e
-        output_image = Image.fromarray(output_datum)
+        output_array = self.upscale(input_array)
+        output_image = Image.fromarray(output_array)
         if output_image.mode != input_mode:
             output_image = output_image.convert(input_mode)
 
         return output_image
+
+    def upscale(self, input_array):
+        input_array = input_array * 1.0 / 255
+        input_array = np.transpose(input_array[:, :, [2, 1, 0]], (2, 0, 1))
+        input_array = torch.from_numpy(input_array).float()
+        input_array = input_array.unsqueeze(0).to(self.device)
+
+        output_array = (
+            self.model(input_array).data.squeeze().float().cpu().clamp_(0, 1).numpy()
+        )
+        output_array = np.transpose(output_array[[2, 1, 0], :, :], (1, 2, 0))
+        output_array = np.array(output_array * 255, np.uint8)
+
+        return output_array
 
     @classmethod
     @property
@@ -223,76 +107,11 @@ class EsrganProcessor(ImageProcessor):
         """Short description of this tool in markdown, with links."""
         return (
             "Upscales and/or denoises image using "
-            "[ESRGAN](https://github.com/xinntao/ESRGAN)."
+            "[ESRGAN](https://github.com/xinntao/ESRGAN) via PyTorch."
         )
-
-    @classmethod
-    def load_model(
-        cls, model_infile: str
-    ) -> tuple[torch.jit.RecursiveScriptModule, int]:
-        state_dict = torch.load(model_infile)
-
-        # check for old model format
-        if "model.0.weight" in state_dict:
-            # remap dict keys to new format
-            scale_index = cls.get_old_scale_index(state_dict)
-            keymap = cls.build_old_keymap(scale_index)
-            state_dict = {keymap[k]: v for k, v in state_dict.items()}
-        else:
-            scale_index = cls.get_scale_index(state_dict)
-
-        return state_dict, scale_index
 
     @classmethod
     @property
     def supported_input_modes(self) -> list[str]:
-        """Supported modes for input image"""
+        """Supported modes for input image."""
         return ["1", "L", "RGB"]
-
-    @staticmethod
-    def build_old_keymap(n_upscale: int) -> dict[str, str]:
-        # Build initial keymap
-        keymap = collections.OrderedDict()
-        keymap["model.0"] = "conv_first"
-        for i in range(23):
-            for j in range(1, 4):
-                for k in range(1, 6):
-                    keymap[
-                        f"model.1.sub.{i}.RDB{j}.conv{k}.0"
-                    ] = f"RRDB_trunk.{i}.RDB{j}.conv{k}"
-        keymap["model.1.sub.23"] = "trunk_conv"
-        n = 0
-        for i in range(1, n_upscale + 1):
-            n += 3
-            keymap[f"model.{n}"] = f"upconv{i}"
-        keymap[f"model.{(n + 2)}"] = "HRconv"
-        keymap[f"model.{(n + 4)}"] = "conv_last"
-
-        # Build final keymap
-        keymap_final = collections.OrderedDict()
-        for k1, k2 in keymap.items():
-            keymap_final[f"{k1}.weight"] = f"{k2}.weight"
-            keymap_final[f"{k1}.bias"] = f"{k2}.bias"
-
-        return keymap_final
-
-    @staticmethod
-    def get_old_scale_index(state_dict: dict[str, str]) -> int:
-        try:
-            # get the largest model index from keys like "model.X.weight"
-            max_index = max([int(n.split(".")[1]) for n in state_dict.keys()])
-        except:
-            # invalid model dict format?
-            raise RuntimeError("Unable to determine scale index for model")
-
-        return (max_index - 4) // 3
-
-    @staticmethod
-    def get_scale_index(state_dict: dict[str, str]) -> int:
-        max_index = 0
-
-        for k in state_dict.keys():
-            if k.startswith("upconv") and k.endswith(".weight"):
-                max_index = max(max_index, int(k[6:-7]))
-
-        return max_index

@@ -7,10 +7,10 @@
 import pytest
 
 from pipescaler.sorters import ListSorter
-from pipescaler.testing import get_sub_directory, stage_fixture
+from pipescaler.testing import get_sub_directory, parametrized_fixture
 
 
-@stage_fixture(
+@parametrized_fixture(
     cls=ListSorter,
     params=[
         {

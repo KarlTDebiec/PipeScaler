@@ -23,8 +23,7 @@ class WaifuProcessor(ImageProcessor):
     """
 
     def __init__(self, model_infile: str, device: str = "cuda", **kwargs: Any) -> None:
-        """
-        Validate and store static configuration
+        """Validate configuration and initialize.
 
         Arguments:
             model_infile: Path to model infile
@@ -49,8 +48,7 @@ class WaifuProcessor(ImageProcessor):
             )
 
     def process(self, input_image: Image.Image) -> Image.Image:
-        """
-        Process an image
+        """Process an image.
 
         Arguments:
             input_image: Input image to process
@@ -63,8 +61,8 @@ class WaifuProcessor(ImageProcessor):
 
         output_array = self.upscale(input_array)
         output_image = Image.fromarray(output_array)
-        if input_mode == "L":
-            output_image = output_image.convert("L")
+        if output_image.mode != input_mode:
+            output_image = output_image.convert(input_mode)
 
         return output_image
 
@@ -94,5 +92,5 @@ class WaifuProcessor(ImageProcessor):
     @classmethod
     @property
     def supported_input_modes(self) -> list[str]:
-        """Supported modes for input image"""
-        return ["L", "RGB"]
+        """Supported modes for input image."""
+        return ["1", "L", "RGB"]

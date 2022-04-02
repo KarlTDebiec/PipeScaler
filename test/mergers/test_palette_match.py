@@ -12,12 +12,12 @@ from pipescaler.mergers import PaletteMatchMerger
 from pipescaler.testing import (
     expected_output_mode,
     get_infile,
-    stage_fixture,
+    parametrized_fixture,
     xfail_unsupported_image_mode,
 )
 
 
-@stage_fixture(
+@parametrized_fixture(
     cls=PaletteMatchMerger,
     params=[
         {"palette_match_mode": PaletteMatchMode.BASIC},

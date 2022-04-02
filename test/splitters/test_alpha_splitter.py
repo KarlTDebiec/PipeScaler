@@ -12,12 +12,12 @@ from pipescaler.splitters import AlphaSplitter
 from pipescaler.testing import (
     expected_output_mode,
     get_infile,
-    stage_fixture,
+    parametrized_fixture,
     xfail_unsupported_image_mode,
 )
 
 
-@stage_fixture(
+@parametrized_fixture(
     cls=AlphaSplitter,
     params=[
         {

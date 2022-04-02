@@ -8,10 +8,15 @@ from PIL import Image
 
 from pipescaler.common import temporary_filename
 from pipescaler.processors import AutomatorProcessor
-from pipescaler.testing import get_infile, skip_if_ci, stage_fixture, xfail_if_platform
+from pipescaler.testing import (
+    get_infile,
+    parametrized_fixture,
+    skip_if_ci,
+    xfail_if_platform,
+)
 
 
-@stage_fixture(
+@parametrized_fixture(
     cls=AutomatorProcessor,
     params=[
         {"workflow": "pixelmator/denoise.workflow"},

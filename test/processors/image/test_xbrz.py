@@ -8,10 +8,10 @@ from PIL import Image
 
 from pipescaler.common import temporary_filename
 from pipescaler.processors import XbrzProcessor
-from pipescaler.testing import expected_output_mode, get_infile, stage_fixture
+from pipescaler.testing import expected_output_mode, get_infile, parametrized_fixture
 
 
-@stage_fixture(
+@parametrized_fixture(
     cls=XbrzProcessor,
     params=[
         {"scale": 2},

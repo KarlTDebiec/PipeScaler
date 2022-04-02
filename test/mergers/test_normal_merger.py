@@ -8,10 +8,14 @@ from PIL import Image
 
 from pipescaler.common import temporary_filename
 from pipescaler.mergers import NormalMerger
-from pipescaler.testing import get_infile, stage_fixture, xfail_unsupported_image_mode
+from pipescaler.testing import (
+    get_infile,
+    parametrized_fixture,
+    xfail_unsupported_image_mode,
+)
 
 
-@stage_fixture(cls=NormalMerger, params=[{}])
+@parametrized_fixture(cls=NormalMerger, params=[{}])
 def merger(request) -> NormalMerger:
     return NormalMerger(**request.param)
 
