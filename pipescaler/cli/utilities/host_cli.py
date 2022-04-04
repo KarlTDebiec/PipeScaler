@@ -11,7 +11,7 @@ from os import environ
 from os.path import expandvars, normpath
 from typing import Type, Union
 
-from pipescaler.core.cl import UtilityCommandLineInterface
+from pipescaler.core.cli import UtilityCommandLineInterface
 from pipescaler.core.file import read_yaml
 from pipescaler.utilities import Host
 

@@ -19,11 +19,10 @@ class WaifuProcessor(PyTorchProcessor):
     See [waifu2x](https://github.com/nagadomi/waifu2x).
     """
 
-    def __init__(self, model_infile: str, device: str = "cuda", **kwargs: Any) -> None:
+    def __init__(self, device: str = "cuda", **kwargs: Any) -> None:
         """Validate configuration and initialize.
 
         Arguments:
-            model_infile: Path to model infile
             device: Device on which to compute
             **kwargs: Additional keyword arguments
         """

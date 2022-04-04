@@ -32,11 +32,10 @@ class EsrganProcessor(PyTorchProcessor):
     (https://raw.githubusercontent.com/xinntao/ESRGAN/master/LICENSE)
     """
 
-    def __init__(self, model_infile: str, device: str = "cuda", **kwargs: Any) -> None:
+    def __init__(self, device: str = "cuda", **kwargs: Any) -> None:
         """Validate configuration and initialize.
 
         Arguments:
-            model_infile: Path to model infile
             device: Device on which to compute
             **kwargs: Additional keyword arguments
         """

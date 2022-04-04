@@ -9,7 +9,7 @@ from argparse import ArgumentParser, _SubParsersAction
 from typing import Type, Union
 
 from pipescaler.core import Processor
-from pipescaler.core.cl import ProcessorCommandLineInterface
+from pipescaler.core.cli import ProcessorCommandLineInterface
 from pipescaler.processors import WebProcessor
 
 

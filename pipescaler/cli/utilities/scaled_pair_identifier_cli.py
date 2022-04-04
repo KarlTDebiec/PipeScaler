@@ -8,7 +8,7 @@ from __future__ import annotations
 from argparse import ArgumentParser, _SubParsersAction
 from typing import Type, Union
 
-from pipescaler.core.cl import UtilityCommandLineInterface
+from pipescaler.core.cli import UtilityCommandLineInterface
 from pipescaler.utilities import ScaledPairIdentifier
 
 

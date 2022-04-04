@@ -10,7 +10,7 @@ from typing import Any, Type, Union
 
 from pipescaler.cli import processors
 from pipescaler.common import CommandLineInterface
-from pipescaler.core.cl import ProcessorCommandLineInterface
+from pipescaler.core.cli import ProcessorCommandLineInterface
 
 
 class ProcessCli(CommandLineInterface):

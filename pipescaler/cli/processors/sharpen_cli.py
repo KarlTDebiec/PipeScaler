@@ -8,7 +8,7 @@ from __future__ import annotations
 from typing import Type
 
 from pipescaler.core import Processor
-from pipescaler.core.cl import ProcessorCommandLineInterface
+from pipescaler.core.cli import ProcessorCommandLineInterface
 from pipescaler.processors import SharpenProcessor
 
 

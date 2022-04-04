@@ -10,7 +10,7 @@ from typing import Any, Type, Union
 
 from pipescaler.cli import utilities
 from pipescaler.common import CommandLineInterface
-from pipescaler.core.cl import UtilityCommandLineInterface
+from pipescaler.core.cli import UtilityCommandLineInterface
 
 
 class UtilityCli(CommandLineInterface):
