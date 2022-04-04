@@ -30,6 +30,7 @@ class RunCli(CommandLineInterface):
         super().__init__(**kwargs)
 
     def __call__(self) -> None:
+        """TODO: Remove"""
         pass
 
     @classmethod
@@ -72,22 +73,29 @@ class RunCli(CommandLineInterface):
         return input
 
     @classmethod
-    def insert_subfiles(cls, input):
-        output = {}
-        for key, value in input.items():
+    def insert_subfiles(cls, input_section: dict[str, Any]) -> dict[str, Any]:
+        """Insert contents of subfiles into a nascent section of a configuration.
+
+        Arguments:
+            input_section: Section into which subfile contents are to be inserted
+        Returns:
+            Updated section
+        """
+        output_section = {}
+        for key, value in input_section.items():
             if isinstance(value, str):
                 subfile = cls.insert_subfiles(read_yaml(validate_input_path(value)))
                 for sub_key, sub_value in subfile.items():
-                    if sub_key not in output:
-                        output[sub_key] = sub_value
+                    if sub_key not in output_section:
+                        output_section[sub_key] = sub_value
                     else:
                         raise KeyError(f"'{sub_key}' specified multiple times")
             elif isinstance(value, dict) or isinstance(value, list):
-                if key not in output:
-                    output[key] = value
+                if key not in output_section:
+                    output_section[key] = value
                 else:
                     raise KeyError(f"'{key}' specified multiple times")
-        return output
+        return output_section
 
     @classmethod
     def main(cls) -> None:

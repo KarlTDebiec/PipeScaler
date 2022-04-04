@@ -29,6 +29,7 @@ from pipescaler.core.merger import Merger
 from pipescaler.core.pipe_image import PipeImage
 from pipescaler.core.pipeline import Pipeline
 from pipescaler.core.processor import Processor
+from pipescaler.core.pytorch_processor import PyTorchProcessor
 from pipescaler.core.sorter import Sorter
 from pipescaler.core.source import Source
 from pipescaler.core.splitter import Splitter
@@ -46,6 +47,7 @@ __all__: list[str] = [
     "PipeImage",
     "Pipeline",
     "Processor",
+    "PyTorchProcessor",
     "Sorter",
     "Source",
     "Splitter",

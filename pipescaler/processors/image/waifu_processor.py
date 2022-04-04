@@ -8,15 +8,12 @@ from __future__ import annotations
 from logging import warning
 from typing import Any
 
-import numpy as np
 import torch
-from PIL import Image
 
-from pipescaler.common import validate_input_path
-from pipescaler.core import ImageProcessor, convert_mode
+from pipescaler.core import PyTorchProcessor
 
 
-class WaifuProcessor(ImageProcessor):
+class WaifuProcessor(PyTorchProcessor):
     """Upscales and/or denoises image using Waifu2x via PyTorch.
 
     See [waifu2x](https://github.com/nagadomi/waifu2x).
@@ -32,7 +29,6 @@ class WaifuProcessor(ImageProcessor):
         """
         super().__init__(**kwargs)
 
-        self.model_infile = validate_input_path(model_infile)
         model = torch.load(self.model_infile)
         model.eval()
         try:
@@ -47,39 +43,6 @@ class WaifuProcessor(ImageProcessor):
                 f"falling back to cpu"
             )
 
-    def process(self, input_image: Image.Image) -> Image.Image:
-        """Process an image.
-
-        Arguments:
-            input_image: Input image to process
-        Returns:
-            Processed output image
-        """
-        input_image, input_mode = convert_mode(input_image, "RGB")
-        # noinspection PyTypeChecker
-        input_array = np.array(input_image)
-
-        output_array = self.upscale(input_array)
-        output_image = Image.fromarray(output_array)
-        if output_image.mode != input_mode:
-            output_image = output_image.convert(input_mode)
-
-        return output_image
-
-    def upscale(self, input_array):
-        input_array = input_array * 1.0 / 255
-        input_array = np.transpose(input_array[:, :, [2, 1, 0]], (2, 0, 1))
-        input_array = torch.from_numpy(input_array).float()
-        input_array = input_array.unsqueeze(0).to(self.device)
-
-        output_array = (
-            self.model(input_array).data.squeeze().float().cpu().clamp_(0, 1).numpy()
-        )
-        output_array = np.transpose(output_array[[2, 1, 0], :, :], (1, 2, 0))
-        output_array = np.array(output_array * 255, np.uint8)
-
-        return output_array
-
     @classmethod
     @property
     def help_markdown(cls) -> str:
@@ -88,9 +51,3 @@ class WaifuProcessor(ImageProcessor):
             "Upscales and/or denoises image using [Waifu2x]"
             "(https://github.com/nagadomi/waifu2x) via PyTorch."
         )
-
-    @classmethod
-    @property
-    def supported_input_modes(self) -> list[str]:
-        """Supported modes for input image."""
-        return ["1", "L", "RGB"]
