@@ -30,8 +30,8 @@ class RunCli(CommandLineInterface):
         super().__init__(**kwargs)
 
     def __call__(self) -> None:
-        """TODO: Remove"""
-        pass
+        """TODO: Refactor and remove requirement that this builtin be implemented."""
+        return
 
     @classmethod
     def add_arguments_to_argparser(
@@ -53,24 +53,35 @@ class RunCli(CommandLineInterface):
         )
 
     @classmethod
-    def insert_blocks(cls, input, blocks):
-        # TODO: Make this readable, most likely by creating output fresh
-        if isinstance(input, dict):
-            if len(input) == 1 and next(iter(input)) == "block":
-                return deepcopy(blocks[input["block"]])
+    def insert_blocks(
+        cls, input_section: Union[dict[str, Any], list[str]], blocks: dict[str, Any]
+    ) -> Union[dict[str, Any], list[str]]:
+        """Substitute blocks into a nascent configuration section.
+
+        Arguments:
+            input_section: Nascent configuration section
+            blocks: Available blocks
+        Returns:
+            Pipeline with blocks inserted
+        """
+        if isinstance(input_section, dict):
+            output_dict = {}
+            if len(input_section) == 1 and next(iter(input_section)) == "block":
+                return deepcopy(blocks[input_section["block"]])
             else:
-                for key in input:
-                    input[key] = cls.insert_blocks(input[key], blocks)
-        elif isinstance(input, list):
-            output = []
-            for yat in input:
-                new_stuff = cls.insert_blocks(yat, blocks)
-                if isinstance(new_stuff, list):
-                    output.extend(new_stuff)
+                for key in input_section:
+                    output_dict[key] = cls.insert_blocks(input_section[key], blocks)
+            return output_dict
+        elif isinstance(input_section, list):
+            output_list = []
+            for key in input_section:
+                new_contents = cls.insert_blocks(key, blocks)
+                if isinstance(new_contents, list):
+                    output_list.extend(new_contents)
                 else:
-                    output.append(new_stuff)
-            input = output
-        return input
+                    output_list.append(new_contents)
+            return output_list
+        return deepcopy(input_section)
 
     @classmethod
     def insert_subfiles(cls, input_section: dict[str, Any]) -> dict[str, Any]:
