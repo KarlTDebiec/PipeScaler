@@ -62,17 +62,16 @@ class RunCli(CommandLineInterface):
             input_section: Nascent configuration section
             blocks: Available blocks
         Returns:
-            Pipeline with blocks inserted
+            Configuration section with blocks inserted
         """
         if isinstance(input_section, dict):
             output_dict = {}
             if len(input_section) == 1 and next(iter(input_section)) == "block":
                 return deepcopy(blocks[input_section["block"]])
-            else:
-                for key in input_section:
-                    output_dict[key] = cls.insert_blocks(input_section[key], blocks)
+            for key in input_section:
+                output_dict[key] = cls.insert_blocks(input_section[key], blocks)
             return output_dict
-        elif isinstance(input_section, list):
+        if isinstance(input_section, list):
             output_list = []
             for key in input_section:
                 new_contents = cls.insert_blocks(key, blocks)
@@ -101,7 +100,7 @@ class RunCli(CommandLineInterface):
                         output_section[sub_key] = sub_value
                     else:
                         raise KeyError(f"'{sub_key}' specified multiple times")
-            elif isinstance(value, dict) or isinstance(value, list):
+            elif isinstance(value, (dict, list)):
                 if key not in output_section:
                     output_section[key] = value
                 else:

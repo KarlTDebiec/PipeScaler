@@ -11,6 +11,7 @@ from typing import Any
 import numpy as np
 import torch
 from PIL import Image
+from torch.nn import Module
 
 from pipescaler.common import validate_input_path
 from pipescaler.core import convert_mode
@@ -53,7 +54,7 @@ class PyTorchProcessor(ImageProcessor, ABC):
     def upscale(self, input_array):
         """Upscale an image array.
 
-        Argumentss:
+        Arguments:
             input_array: Array to upscale
         Returns:
             Upscaled array
@@ -72,19 +73,21 @@ class PyTorchProcessor(ImageProcessor, ABC):
         return output_array
 
     @property
-    def device(self):
+    def device(self) -> str:
+        """Name of device on which to run neural network model."""
         return self._device
 
     @device.setter
-    def device(self, value):
+    def device(self, value: str) -> None:
         self._device = value
 
     @property
-    def model(self):
+    def model(self) -> Module:
+        """Neural network model."""
         return self._model
 
     @model.setter
-    def model(self, value):
+    def model(self, value: Module):
         self._model = value
 
     @classmethod
