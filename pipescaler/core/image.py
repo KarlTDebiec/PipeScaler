@@ -238,8 +238,10 @@ def is_monochrome(
 
     Args:
         image: Image to check
-        mean_threshold:
-        max_threshold:
+        mean_threshold: Threshold which mean difference between image and true
+          monochrome must be below
+        max_threshold:  Threshold which max difference between image and true
+          monochrome must be below
     Returns:
         Whether image contains only purge black and white
     """
@@ -264,6 +266,7 @@ def label_image(image: Image.Image, text: str, font: str = "Arial") -> Image.Ima
     Arguments:
         image: Image to label
         text: Text with which to label image
+        font: Font with which to draw text
     Returns:
         Labeled image
     """

@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from torch import Tensor
 
-from pipescaler.models.esrgan import Esrgan
+from pipescaler.models.esrgan.esrgan import Esrgan
 
 
 class Esrgan1x(Esrgan):

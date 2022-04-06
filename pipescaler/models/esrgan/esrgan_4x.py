@@ -15,7 +15,7 @@ from torch import Tensor
 from torch.nn import Conv2d
 from torch.nn.functional import interpolate
 
-from pipescaler.models.esrgan import Esrgan
+from pipescaler.models.esrgan.esrgan import Esrgan
 
 
 class Esrgan4x(Esrgan):

@@ -42,7 +42,7 @@ class HostCli(UtilityCli):
 
     @classmethod
     def main(cls) -> None:
-        """Parse arguments, construct tool, and call tool"""
+        """Parse arguments, construct tool, and call tool."""
         parser = cls.construct_argparser()
         kwargs = vars(parser.parse_args())
 
