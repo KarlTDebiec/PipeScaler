@@ -9,21 +9,21 @@ from enum import Enum, auto
 
 
 class AlphaMode(Enum):
-    """Mode of alpha image"""
+    """Mode of alpha image."""
 
     GRAYSCALE = auto()
     MONOCHROME_OR_GRAYSCALE = auto()
 
 
 class MaskFillMode(Enum):
-    """Mode of mask filling to perform"""
+    """Mode of mask filling to perform."""
 
     BASIC = auto()
     MATCH_PALETTE = auto()
 
 
 class PaletteMatchMode(Enum):
-    """Mode of matching to perform"""
+    """Mode of matching to perform."""
 
     BASIC = auto()
     LOCAL = auto()

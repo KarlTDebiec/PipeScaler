@@ -12,7 +12,8 @@ from typing import Any, Optional
 from PIL import Image
 
 from pipescaler.common import validate_executable
-from pipescaler.core import Processor, validate_image
+from pipescaler.core import validate_image
+from pipescaler.core.stages import Processor
 
 if system() == "Windows":
     from pywinauto.application import (

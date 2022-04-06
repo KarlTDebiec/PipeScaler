@@ -10,7 +10,7 @@ from typing import Any
 from PIL import Image, ImageColor
 
 from pipescaler.common import validate_str
-from pipescaler.core import ImageProcessor
+from pipescaler.core.stages.processors import ImageProcessor
 
 
 class ModeProcessor(ImageProcessor):

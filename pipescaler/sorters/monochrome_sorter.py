@@ -9,7 +9,8 @@ from logging import info
 from typing import Any
 
 from pipescaler.common import validate_float
-from pipescaler.core import Sorter, is_monochrome, validate_image
+from pipescaler.core import is_monochrome, validate_image
+from pipescaler.core.stages import Sorter
 
 
 class MonochromeSorter(Sorter):

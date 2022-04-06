@@ -8,7 +8,7 @@ from __future__ import annotations
 import numpy as np
 from PIL import Image
 
-from pipescaler.core import Merger
+from pipescaler.core.stages import Merger
 
 
 class NormalMerger(Merger):

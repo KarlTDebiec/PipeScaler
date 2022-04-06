@@ -11,12 +11,12 @@ from PIL import Image
 
 from pipescaler.common import validate_float
 from pipescaler.core import (
-    ImageProcessor,
     crop_image,
     expand_image,
     generate_normal_map_from_height_map_image,
     smooth_image,
 )
+from pipescaler.core.stages.processors import ImageProcessor
 
 
 class HeightToNormalProcessor(ImageProcessor):
@@ -52,4 +52,5 @@ class HeightToNormalProcessor(ImageProcessor):
     @classmethod
     @property
     def supported_input_modes(self) -> list[str]:
+        """Supported modes for input image."""
         return ["L"]

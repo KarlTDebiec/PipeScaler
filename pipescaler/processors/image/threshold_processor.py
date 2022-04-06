@@ -12,7 +12,7 @@ import numpy as np
 from PIL import Image
 
 from pipescaler.common import validate_int
-from pipescaler.core import ImageProcessor
+from pipescaler.core.stages.processors import ImageProcessor
 
 
 class ThresholdProcessor(ImageProcessor):
@@ -57,7 +57,7 @@ class ThresholdProcessor(ImageProcessor):
     @classmethod
     @property
     def supported_input_modes(self) -> list[str]:
-        """Supported modes for input image"""
+        """Supported modes for input image."""
         return ["L"]
 
     @no_type_check

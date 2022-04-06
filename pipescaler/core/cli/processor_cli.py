@@ -2,7 +2,7 @@
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
-"""Command line interface for Processors."""
+"""Abstract base class for Processor command line interfaces."""
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -11,11 +11,11 @@ from inspect import cleandoc
 from typing import Any, Type, Union
 
 from pipescaler.common import CommandLineInterface
-from pipescaler.core import Processor
+from pipescaler.core.stages import Processor
 
 
-class ProcessorCommandLineInterface(CommandLineInterface, ABC):
-    """Command line interface for Processors."""
+class ProcessorCli(CommandLineInterface, ABC):
+    """Abstract base class for Processor command line interfaces."""
 
     @classmethod
     def add_arguments_to_argparser(

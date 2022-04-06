@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from PIL import Image
 
-from pipescaler.core import Splitter
+from pipescaler.core.stages import Splitter
 
 
 class RepeatSplitter(Splitter):

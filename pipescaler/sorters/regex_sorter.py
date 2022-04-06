@@ -10,7 +10,7 @@ from logging import info
 from os.path import basename, dirname
 from typing import Any
 
-from pipescaler.core import Sorter
+from pipescaler.core.stages import Sorter
 
 
 class RegexSorter(Sorter):

@@ -2,7 +2,7 @@
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
-"""Image within a pipeline"""
+"""Image within a pipeline."""
 from __future__ import annotations
 
 from os.path import basename, dirname, join, splitext
@@ -13,8 +13,7 @@ class PipeImage:
     """Image within a pipeline"""
 
     def __init__(self, absolute_path: str, parent: PipeImage = None) -> None:
-        """
-        Validate and store static configuration
+        """Validate and store configuration.
 
         Arguments:
             absolute_path: Path to image file

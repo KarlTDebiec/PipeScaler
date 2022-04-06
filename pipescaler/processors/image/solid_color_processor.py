@@ -11,7 +11,7 @@ import numpy as np
 from PIL import Image
 
 from pipescaler.common import validate_float
-from pipescaler.core import ImageProcessor
+from pipescaler.core.stages.processors import ImageProcessor
 
 
 class SolidColorProcessor(ImageProcessor):

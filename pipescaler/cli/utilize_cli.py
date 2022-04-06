@@ -10,10 +10,10 @@ from typing import Any, Type, Union
 
 from pipescaler.cli import utilities
 from pipescaler.common import CommandLineInterface
-from pipescaler.core.cli import UtilityCommandLineInterface
+from pipescaler.core.cli import UtilityCli
 
 
-class UtilityCli(CommandLineInterface):
+class UtilizeCli(CommandLineInterface):
     """Command line interface for PipeScaler utilities."""
 
     @classmethod
@@ -65,7 +65,7 @@ class UtilityCli(CommandLineInterface):
 
     @classmethod
     @property
-    def utilities(cls) -> dict[str : Type[UtilityCommandLineInterface]]:
+    def utilities(cls) -> dict[str : Type[UtilizeCli]]:
         """Names and types of utilities wrapped by command line interface."""
         return {
             utility.name: utility
@@ -74,4 +74,4 @@ class UtilityCli(CommandLineInterface):
 
 
 if __name__ == "__main__":
-    UtilityCli.main()
+    UtilizeCli.main()

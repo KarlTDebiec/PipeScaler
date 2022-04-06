@@ -7,12 +7,12 @@ from __future__ import annotations
 
 from typing import Type
 
-from pipescaler.core import Processor
-from pipescaler.core.cli import ProcessorCommandLineInterface
+from pipescaler.core.cli import ProcessorCli
+from pipescaler.core.stages import Processor
 from pipescaler.processors import SharpenProcessor
 
 
-class SharpenCli(ProcessorCommandLineInterface):
+class SharpenCli(ProcessorCli):
     """Command line interface for SharpenProcessor."""
 
     @classmethod

@@ -19,7 +19,8 @@ from pipescaler.common import (
     validate_executable,
     validate_float,
 )
-from pipescaler.core import ExternalProcessor, validate_image
+from pipescaler.core import validate_image
+from pipescaler.core.stages.processors import ExternalProcessor
 
 
 class PotraceProcessor(ExternalProcessor):

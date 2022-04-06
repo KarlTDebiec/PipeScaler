@@ -15,7 +15,7 @@ from typing import Any
 
 import torch
 
-from pipescaler.core import PyTorchProcessor
+from pipescaler.core.stages.processors import PyTorchProcessor
 from pipescaler.models.esrgan import Esrgan1x, Esrgan4x
 from pipescaler.utilities.esrgan_serializer import EsrganSerializer
 

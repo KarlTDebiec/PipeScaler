@@ -10,7 +10,7 @@ from typing import Any
 
 import torch
 
-from pipescaler.core import PyTorchProcessor
+from pipescaler.core.stages.processors import PyTorchProcessor
 
 
 class WaifuProcessor(PyTorchProcessor):

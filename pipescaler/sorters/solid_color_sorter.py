@@ -11,7 +11,8 @@ from typing import Any
 import numpy as np
 
 from pipescaler.common import validate_float, validate_int
-from pipescaler.core import Sorter, validate_image
+from pipescaler.core import validate_image
+from pipescaler.core.stages import Sorter
 
 
 class SolidColorSorter(Sorter):

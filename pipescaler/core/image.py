@@ -2,7 +2,7 @@
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
-"""Core pipescaler functions for interacting with images"""
+"""Functions for interacting with images."""
 from __future__ import annotations
 
 import numpy as np
@@ -14,13 +14,11 @@ from pipescaler.core.exception import UnsupportedImageModeError
 
 
 def convert_mode(image: Image.Image, mode: str) -> tuple[Image.Image, str]:
-    """
-    Convert image to specified mode, if necessary, returning image and original mode
+    """Convert image to specified mode, if necessary, returning image and original mode.
 
     Arguments:
         image: Image to convert
         mode: Mode to which to convert, if image is not already in mode
-
     Returns:
         Converted image, image's original mode
     """
@@ -32,8 +30,7 @@ def convert_mode(image: Image.Image, mode: str) -> tuple[Image.Image, str]:
 def crop_image(
     image: Image.Image, left: int = 0, top: int = 0, right: int = 0, bottom: int = 0
 ) -> Image.Image:
-    """
-    Crop an image
+    """Crop an image.
 
     TODO: Validate parameters
 
@@ -43,7 +40,6 @@ def crop_image(
         top: Pixels to remove from top
         right: Pixels to remove from right side
         bottom: Pixels to remove from bottom
-
     Returns:
         Cropped Image
     """
@@ -60,8 +56,7 @@ def expand_image(
     bottom: int = 0,
     min_size: int = 1,
 ) -> Image.Image:
-    """
-    Expand an image by reflecting it around its edges
+    """Expand an image by reflecting it around its edges.
 
     TODO: Implement option to tile rather than reflect
 
@@ -72,7 +67,6 @@ def expand_image(
         right: Pixels to add to right side
         bottom: Pixels to add to bottom
         min_size: Minimum size of expanded image
-
     Returns:
         Expanded image
     """
@@ -124,12 +118,10 @@ def expand_image(
 
 
 def generate_normal_map_from_height_map_image(image: Image.Image) -> Image.Image:
-    """
-    Generate normal map image from a height map image
+    """Generate normal map image from a height map image.
 
     Arguments:
         image: Height map image
-
     Returns:
         Normal map image
     """
@@ -166,8 +158,7 @@ def generate_normal_map_from_height_map_image(image: Image.Image) -> Image.Image
 
 
 def get_palette(image: Image.Image) -> np.ndarray:
-    """
-    Get a numpy array of all colors present in an image
+    """Get a numpy array of all colors present in an image.
 
     Arguments:
         image: Input image
@@ -184,9 +175,7 @@ def get_font_size(
     proportional_height: float = 0.2,
     font: str = "Arial",
 ):
-    """
-    Get the font size at which *text* drawn with *font* will take up
-    *proportional_height* of an image of *width* and *height*
+    """Get the font size at which text will take up defined portion of image's height.
 
     Arguments:
         text: Text to get size of
@@ -194,7 +183,6 @@ def get_font_size(
         height: Height of image
         proportional_height: Proportion of height which text should take up
         font: Font
-
     Returns:
         Font size at which text will take up proportional height of image
     """
@@ -205,8 +193,7 @@ def get_font_size(
 def get_text_size(
     text: str, width: int, height: int, font: str = "Arial", size: int = 100
 ) -> tuple[int, int]:
-    """
-    Get the size of *text* drawn with *font* at *size* on image of *width* and *height*
+    """Get the size text would take up if drawn on an image.
 
     Arguments:
         text: Text to get size of
@@ -227,12 +214,10 @@ def get_text_size(
 
 
 def hstack_images(*images: Image.Image) -> Image.Image:
-    """
-    Horizontally stack images; rescaled to size of first image
+    """Horizontally stack images; rescaled to size of first image.
 
     Arguments:
         *images: Images to stack
-
     Returns:
         Horizontally stacked images
     """
@@ -249,14 +234,12 @@ def hstack_images(*images: Image.Image) -> Image.Image:
 def is_monochrome(
     image: Image.Image, mean_threshold: float = 0, max_threshold: float = 0
 ) -> bool:
-    """
-    Check whether a grayscale image contains only pure black and white
+    """Check whether a grayscale image contains only pure black and white.
 
     Args:
         image: Image to check
         mean_threshold:
         max_threshold:
-
     Returns:
         Whether image contains only purge black and white
     """
@@ -276,13 +259,11 @@ def is_monochrome(
 
 
 def label_image(image: Image.Image, text: str, font: str = "Arial") -> Image.Image:
-    """
-    Label an image in its upper left corner
+    """Label an image in its upper left corner.
 
     Arguments:
         image: Image to label
         text: Text with which to label image
-
     Returns:
         Labeled image
     """
@@ -346,13 +327,11 @@ def remove_palette_from_image(image: Image.Image) -> Image.Image:
 
 
 def smooth_image(image: Image.Image, sigma: float) -> Image.Image:
-    """
-    Smooth an image using a Gaussian kernel
+    """Smooth an image using a Gaussian kernel.
 
     Arguments:
         image: Image to smooth
         sigma: Sigma of Gaussian with which to smooth
-
     Returns:
         Smoothed image
     """
@@ -371,12 +350,10 @@ def smooth_image(image: Image.Image, sigma: float) -> Image.Image:
 
 
 def vstack_images(*images: Image.Image) -> Image.Image:
-    """
-    Vertically stack images; rescaled to size of first image
+    """Vertically stack images; rescaled to size of first image.
 
     Arguments:
         *images: Images to stack
-
     Returns:
         Vertically stacked images
     """

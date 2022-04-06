@@ -12,7 +12,8 @@ import xbrz
 from PIL import Image
 
 from pipescaler.common import validate_int
-from pipescaler.core import ImageProcessor, convert_mode
+from pipescaler.core import convert_mode
+from pipescaler.core.stages.processors import ImageProcessor
 
 
 class XbrzProcessor(ImageProcessor):

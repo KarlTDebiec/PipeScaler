@@ -12,7 +12,8 @@ import numpy as np
 from PIL import Image
 
 from pipescaler.common import validate_float
-from pipescaler.core import Sorter, validate_image
+from pipescaler.core import validate_image
+from pipescaler.core.stages import Sorter
 
 
 class GrayscaleSorter(Sorter):

@@ -2,7 +2,7 @@
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
-"""Base class for processors that perform their processing within python."""
+"""Abstract base class for processors that use PyTorch."""
 from __future__ import annotations
 
 from abc import ABC
@@ -15,11 +15,11 @@ from torch.nn import Module
 
 from pipescaler.common import validate_input_path
 from pipescaler.core import convert_mode
-from pipescaler.core.image_processor import ImageProcessor
+from pipescaler.core.stages.processors.image_processor import ImageProcessor
 
 
 class PyTorchProcessor(ImageProcessor, ABC):
-    """Base class for processors that perform their processing using PyTorch."""
+    """Abstract base class for processors that use PyTorch."""
 
     def __init__(self, model_infile: str, **kwargs: Any) -> None:
         """Validate configuration and initialize.

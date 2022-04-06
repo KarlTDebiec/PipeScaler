@@ -10,7 +10,8 @@ from typing import Any, Union
 from PIL import Image
 
 from pipescaler.common import validate_enum
-from pipescaler.core import Merger, PaletteMatchMode, UnsupportedImageModeError
+from pipescaler.core import PaletteMatchMode, UnsupportedImageModeError
+from pipescaler.core.stages import Merger
 from pipescaler.utilities import PaletteMatcher
 
 

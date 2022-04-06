@@ -11,7 +11,7 @@ from typing import Any
 
 import requests
 
-from pipescaler.core import Processor
+from pipescaler.core.stages import Processor
 
 
 class WebProcessor(Processor):

@@ -8,12 +8,12 @@ from __future__ import annotations
 from argparse import ArgumentParser, _SubParsersAction
 from typing import Type, Union
 
-from pipescaler.core import Processor
-from pipescaler.core.cli import ProcessorCommandLineInterface
+from pipescaler.core.cli import ProcessorCli
+from pipescaler.core.stages import Processor
 from pipescaler.processors import WaifuProcessor
 
 
-class WaifuCli(ProcessorCommandLineInterface):
+class WaifuCli(ProcessorCli):
     """Command line interface for WaifuProcessor."""
 
     @classmethod

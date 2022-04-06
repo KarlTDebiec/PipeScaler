@@ -18,12 +18,8 @@ from pipescaler.common import (
     validate_int,
     validate_str,
 )
-from pipescaler.core import (
-    ExternalProcessor,
-    crop_image,
-    expand_image,
-    validate_image_and_convert_mode,
-)
+from pipescaler.core import crop_image, expand_image, validate_image_and_convert_mode
+from pipescaler.core.stages.processors import ExternalProcessor
 
 
 class WaifuExternalProcessor(ExternalProcessor):

@@ -11,7 +11,7 @@ from shutil import copyfile
 from typing import Any, Optional
 
 from pipescaler.common import run_command, validate_executable
-from pipescaler.core import ExternalProcessor
+from pipescaler.core.stages.processors import ExternalProcessor
 
 
 class TexconvProcessor(ExternalProcessor):

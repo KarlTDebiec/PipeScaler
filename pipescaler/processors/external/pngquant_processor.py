@@ -10,7 +10,7 @@ from shutil import copyfile
 from typing import Any
 
 from pipescaler.common import run_command, validate_executable, validate_int
-from pipescaler.core import ExternalProcessor
+from pipescaler.core.stages.processors import ExternalProcessor
 
 
 class PngquantProcessor(ExternalProcessor):

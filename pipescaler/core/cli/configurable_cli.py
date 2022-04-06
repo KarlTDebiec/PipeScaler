@@ -2,7 +2,7 @@
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
-"""General-purpose configurable command line interface base class."""
+"""Abstract base class for configurable command line interfaces."""
 from abc import ABC
 from argparse import ArgumentParser, _SubParsersAction
 from logging import info
@@ -14,8 +14,8 @@ from pipescaler.common import CommandLineInterface
 from pipescaler.core.file import read_yaml
 
 
-class ConfigurableCommandLineInterface(CommandLineInterface, ABC):
-    """General-purpose configurable command line interface base class."""
+class ConfigurableCli(CommandLineInterface, ABC):
+    """Abstract base class for configurable command line interfaces."""
 
     @classmethod
     def add_arguments_to_argparser(
@@ -36,7 +36,7 @@ class ConfigurableCommandLineInterface(CommandLineInterface, ABC):
 
     @classmethod
     def main(cls) -> None:
-        """Parse arguments, construct tool, and call tool"""
+        """Parse arguments, construct tool, and call tool."""
         parser = cls.construct_argparser()
         kwargs = vars(parser.parse_args())
 

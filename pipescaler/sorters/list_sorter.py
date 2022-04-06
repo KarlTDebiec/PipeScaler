@@ -11,7 +11,8 @@ from pprint import pformat
 from typing import Any, Optional
 
 from pipescaler.common import validate_output_directory
-from pipescaler.core import Sorter, get_files
+from pipescaler.core import get_files
+from pipescaler.core.stages import Sorter
 
 
 class ListSorter(Sorter):

@@ -10,7 +10,8 @@ from typing import Any
 from PIL import Image
 
 from pipescaler.common import validate_ints
-from pipescaler.core import ImageProcessor, expand_image
+from pipescaler.core import expand_image
+from pipescaler.core.stages.processors import ImageProcessor
 
 
 class ExpandProcessor(ImageProcessor):

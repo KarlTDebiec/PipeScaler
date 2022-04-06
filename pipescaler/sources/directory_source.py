@@ -8,7 +8,8 @@ from __future__ import annotations
 from typing import Any, Union
 
 from pipescaler.common import validate_input_directory
-from pipescaler.core import Source, get_files
+from pipescaler.core import get_files
+from pipescaler.core.stages import Source
 
 
 class DirectorySource(Source):

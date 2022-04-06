@@ -2,7 +2,7 @@
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
-"""Image processing pipeline"""
+"""Image processing pipeline."""
 from __future__ import annotations
 
 from glob import glob
@@ -16,18 +16,14 @@ from typing import Any, Optional, Union
 
 from pipescaler.common import UnsupportedPlatformError, validate_output_directory
 from pipescaler.core.exception import TerminusReached
-from pipescaler.core.merger import Merger
 from pipescaler.core.pipe_image import PipeImage
-from pipescaler.core.processor import Processor
-from pipescaler.core.sorter import Sorter
-from pipescaler.core.source import Source
-from pipescaler.core.splitter import Splitter
 from pipescaler.core.stage import Stage, initialize_stage
-from pipescaler.core.terminus import Terminus
+from pipescaler.core.stages import Merger, Processor, Sorter, Source, Splitter
+from pipescaler.core.stages.terminus import Terminus
 
 
 class Pipeline:
-    """Image processing pipeline"""
+    """Image processing pipeline."""
 
     def __init__(
         self,
@@ -36,8 +32,7 @@ class Pipeline:
         pipeline: list[Union[str, dict[str, Any]]],
         purge_wip: bool = False,
     ) -> None:
-        """
-        Validate and store static configuration
+        """Validate and store configuration and initialize.
 
         Arguments:
             wip_directory: Directory in which to store intermediate image files
@@ -135,14 +130,12 @@ class Pipeline:
         stage_conf: Optional[Union[str, dict[str, Any]]],
         downstream_pipeline_conf: list[Union[str, dict[str, Any]]],
     ) -> list[Union[Stage, dict[Stage, Any]]]:
-        """
-        Build a merger and its downstream pipeline
+        """Build a merger and its downstream pipeline.
 
         Arguments:
             stage: Stage being built
             stage_conf: Configuration of this stage
             downstream_pipeline_conf: Configuration of pipeline downstream from stage
-
         Returns:
              Pipeline including this stage and those downstream
         """
@@ -163,14 +156,12 @@ class Pipeline:
         stage_conf: Optional[Union[str, dict[str, Any]]],
         downstream_pipeline_conf: list[Union[str, dict[str, Any]]],
     ) -> list[Union[Stage, dict[Stage, Any]]]:
-        """
-        Build a Processor and its downstream pipeline
+        """Build a Processor and its downstream pipeline.
 
         Arguments:
             stage: Stage being built
             stage_conf: Configuration of this stage
             downstream_pipeline_conf: Configuration of pipeline downstream from stage
-
         Returns:
              Pipeline including this stage and those downstream
         """
@@ -185,12 +176,10 @@ class Pipeline:
     def build_route(
         self, pipeline_conf: list[Union[str, dict[str, Any]]]
     ) -> list[Union[Stage, dict[Stage, Any]]]:
-        """
-        Build a downstream pipeline
+        """Build a downstream pipeline.
 
         Arguments:
             pipeline_conf: Configuration of pipeline
-
         Returns:
             Pipeline
         """
@@ -232,14 +221,12 @@ class Pipeline:
         stage_conf: Optional[Union[str, dict[str, Any]]],
         downstream_pipeline_conf: list[Union[str, dict[str, Any]]],
     ) -> list[Union[Stage, dict[Stage, Any]]]:
-        """
-        Build a Sorter and its downstream pipeline
+        """Build a Sorter and its downstream pipeline.
 
         Arguments:
             stage: Stage being built
             stage_conf: Configuration of this stage
             downstream_pipeline_conf: Configuration of pipeline downstream from stage
-
         Returns:
             Pipeline including this stage and those downstream
         """
@@ -261,13 +248,11 @@ class Pipeline:
     def build_source(
         self, stage: Source, downstream_pipeline_conf: list[Union[str, dict[str, Any]]]
     ) -> list[Union[Stage, dict[Stage, Any]]]:
-        """
-        Build a Source stage and its downstream pipeline
+        """Build a Source stage and its downstream pipeline.
 
         Arguments:
             stage: Stage being built
             downstream_pipeline_conf: Configuration of pipeline downstream from stage
-
         Returns:
              Pipeline including this stage and those downstream
         """
@@ -282,14 +267,12 @@ class Pipeline:
         stage_conf: Optional[Union[str, dict[str, Any]]],
         downstream_pipeline_conf: list[Union[str, dict[str, Any]]],
     ) -> list[Union[Stage, dict[Stage, Any]]]:
-        """
-        Build a Splitter and its downstream pipeline
+        """Build a Splitter and its downstream pipeline.
 
         Arguments:
             stage: Stage being built
             stage_conf: Configuration of this stage
             downstream_pipeline_conf: Configuration of pipeline downstream from stage
-
         Returns:
              Pipeline including this stage and those downstream
         """
@@ -310,14 +293,12 @@ class Pipeline:
         stage_conf: Optional[Union[str, dict[str, Any]]],
         downstream_pipeline_conf: list[Union[str, dict[str, Any]]],
     ) -> list[Union[Stage, dict[Stage, Any]]]:
-        """
-        Build a Terminus and its downstream pipeline
+        """Build a Terminus and its downstream pipeline.
 
         Arguments:
             stage: Stage being built
             stage_conf: Configuration of this stage
             downstream_pipeline_conf: Configuration of pipeline downstream from stage
-
         Returns:
              Pipeline including this stage and those downstream
         """
@@ -351,8 +332,7 @@ class Pipeline:
         return initial_image
 
     def log_wip_file(self, wip_filename: str) -> None:
-        """
-        Mark an intermediate file as having been covered by this pipeline
+        """Mark an intermediate file as having been covered by this pipeline.
 
         Arguments:
             wip_filename: Intermediate file path
@@ -366,9 +346,7 @@ class Pipeline:
         downstream_pipeline: list[Union[Stage, dict[Stage, Any]]],
         image: Union[PipeImage, dict[str, PipeImage]],
     ):
-        """
-        Run input images through a Merger and routes output image into downstream
-        pipeline
+        """Run input images through a Merger and routes output image downstream.
 
         Arguments:
             stage: Merger to run
@@ -377,7 +355,6 @@ class Pipeline:
               that all inlets should be satisfied and Merger is ready to run
             downstream_pipeline: Pipeline downstream from stage
             image: Input images; keys are inlet names and values are images
-
         Returns:
             Output of downstream pipeline
         """
@@ -415,16 +392,13 @@ class Pipeline:
         downstream_pipeline: list[Union[Stage, dict[Stage, Any]]],
         image: Union[PipeImage, dict[str, PipeImage]],
     ):
-        """
-        Run input image through a Processor and routes output image into
-        downstream pipeline
+        """Run input image through a Processor and routes output image downstream.
 
         Arguments:
             stage: Stage to run
             stage_pipeline: Pipeline of this stage
             downstream_pipeline: Pipeline downstream from this stage
             image: Input image
-
         Returns:
             Output of downstream pipeline
         """
@@ -458,13 +432,11 @@ class Pipeline:
         pipeline: list[Union[Stage, dict[Stage, Any]]],
         image: Union[PipeImage, dict[str, PipeImage]],
     ):
-        """
-        Route image to downstream pipeline
+        """Route image downstream.
 
         Arguments:
             pipeline: Pipeline to route to
             image: Input image(s)
-
         Returns:
             Output of downstream pipeline
         """
@@ -500,17 +472,15 @@ class Pipeline:
         downstream_pipeline: list[Union[Stage, dict[Stage, Any]]],
         image: Union[PipeImage, dict[str, PipeImage]],
     ):
-        """
-        Run input image through an outlet pipeline selected by a Sorter, then
+        """Run input image through an outlet pipeline selected by a Sorter, then
         run output image of that outlet pipeline through a further downstream
-        pipeline
+        pipeline.
 
         Arguments:
             stage: Stage to run
             stage_pipeline: Pipeline of stage
             downstream_pipeline: Pipeline downstream from stage
             image: Input image
-
         Returns:
             Output of downstream pipeline
         """
@@ -537,17 +507,15 @@ class Pipeline:
         downstream_pipeline: list[Union[Stage, dict[Stage, Any]]],
         image: Union[PipeImage, dict[str, PipeImage]],
     ):
-        """
-        Run an input image through a Splitter, and each output image through
+        """Run an input image through a Splitter, and each output image through
         the Splitter's associated outlet pipeline. Collects the outputs of each
-        outlet pipeline, and route all of them into downstream pipeline
+        outlet pipeline, and route all of them into downstream pipeline.
 
         Arguments:
             stage: Splitter to run
             stage_pipeline: Pipelines of this Splitter
             downstream_pipeline: Pipeline downstream from this splitter
             image: Input image
-
         Returns:
             Output of downstream pipeline
         """
@@ -618,15 +586,13 @@ class Pipeline:
         downstream_pipeline: list[Union[Stage, dict[Stage, Any]]],
         image: Union[PipeImage, dict[str, PipeImage]],
     ) -> None:
-        """
-        Run input image through a Terminus
+        """Run input image through a Terminus.
 
         Arguments:
             stage: Stage to run
             stage_pipeline: Pipeline of this stage
             downstream_pipeline: Pipeline downstream from this stage
             image: Input image
-
         Raises:
             TerminusReached: Terminus has been run successfully
         """

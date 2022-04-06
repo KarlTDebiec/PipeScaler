@@ -2,7 +2,7 @@
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
-"""Command line interface for utilities."""
+"""Abstract base class for Utility command line interfaces."""
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -12,8 +12,8 @@ from typing import Any, Type
 from pipescaler.common import CommandLineInterface
 
 
-class UtilityCommandLineInterface(CommandLineInterface, ABC):
-    """Command line interface for utilities."""
+class UtilityCli(CommandLineInterface, ABC):
+    """Abstract base class for Utility command line interfaces."""
 
     @classmethod
     def main2(cls, **kwargs: Any) -> None:

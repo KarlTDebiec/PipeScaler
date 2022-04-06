@@ -12,12 +12,12 @@ from os.path import expandvars, normpath
 from typing import Any, Type, Union
 
 from pipescaler.common import set_logging_verbosity, validate_int
-from pipescaler.core.cli import UtilityCommandLineInterface
+from pipescaler.core.cli import UtilityCli
 from pipescaler.core.file import read_yaml
 from pipescaler.utilities import FileScanner
 
 
-class FileScannerCli(UtilityCommandLineInterface):
+class FileScannerCli(UtilityCli):
     """Command line interface for FileScanner."""
 
     def __call__(self):

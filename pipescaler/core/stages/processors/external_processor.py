@@ -2,7 +2,7 @@
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
-"""Base class for processors that perform their processing using an external tool"""
+"""Abstract base class for processors that use an external command line tool."""
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -12,15 +12,14 @@ from shutil import copyfile
 
 from pipescaler.common import run_command, temporary_filename
 from pipescaler.common.validation import validate_executable
-from pipescaler.core.processor import Processor
+from pipescaler.core.stages.processor import Processor
 
 
 class ExternalProcessor(Processor, ABC):
-    """Base class for processors that perform their processing using an external tool"""
+    """Abstract base class for processors that use an external command line tool."""
 
     def __call__(self, infile: str, outfile: str) -> None:
-        """
-        Read image from infile, process it, and save to outfile
+        """Read image from infile, process it, and save to outfile.
 
         Arguments:
             infile: Input file path
@@ -38,12 +37,11 @@ class ExternalProcessor(Processor, ABC):
     @property
     @abstractmethod
     def command_template(self) -> str:
-        """String template with which to generate command"""
+        """String template with which to generate command."""
         raise NotImplementedError()
 
     def process(self, infile: str, outfile: str) -> None:
-        """
-        Read image from infile, process it, and save to outfile
+        """Read image from infile, process it, and save to outfile.
 
         Arguments:
             infile: Input file path
@@ -60,11 +58,11 @@ class ExternalProcessor(Processor, ABC):
     @classmethod
     @property
     def executable(self) -> str:
-        """Name of executable"""
+        """Name of executable."""
         raise NotImplementedError()
 
     @classmethod
     @property
     def supported_platforms(self) -> set[str]:
-        """Platforms on which processor is supported"""
+        """Platforms on which processor is supported."""
         return {"Darwin", "Linux", "Windows"}

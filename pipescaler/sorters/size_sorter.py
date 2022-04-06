@@ -11,7 +11,7 @@ from typing import Any
 from PIL import Image
 
 from pipescaler.common import validate_int
-from pipescaler.core import Sorter
+from pipescaler.core.stages import Sorter
 
 
 class SizeSorter(Sorter):

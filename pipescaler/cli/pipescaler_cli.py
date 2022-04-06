@@ -10,7 +10,7 @@ from typing import Any, Type, Union
 
 from pipescaler.cli.process_cli import ProcessCli
 from pipescaler.cli.run_cli import RunCli
-from pipescaler.cli.utility_cli import UtilityCli
+from pipescaler.cli.utilize_cli import UtilizeCli
 from pipescaler.common import CommandLineInterface
 
 
@@ -38,7 +38,7 @@ class PipeScalerCli(CommandLineInterface):
         subparsers = parser.add_subparsers(dest="subtool")
         ProcessCli.construct_argparser(parser=subparsers)
         RunCli.construct_argparser(parser=subparsers)
-        UtilityCli.construct_argparser(parser=subparsers)
+        UtilizeCli.construct_argparser(parser=subparsers)
 
     @classmethod
     def main(cls) -> None:
@@ -56,7 +56,7 @@ class PipeScalerCli(CommandLineInterface):
     @property
     def subtools(cls) -> dict[str, Type[CommandLineInterface]]:
         """Names and types of tools wrapped by command line interface."""
-        return {tool.name: tool for tool in [ProcessCli, RunCli, UtilityCli]}
+        return {tool.name: tool for tool in [ProcessCli, RunCli, UtilizeCli]}
 
 
 if __name__ == "__main__":

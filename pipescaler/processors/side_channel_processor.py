@@ -13,7 +13,8 @@ from typing import Any
 from PIL import Image
 
 from pipescaler.common import validate_input_path
-from pipescaler.core import Processor, get_files
+from pipescaler.core import get_files
+from pipescaler.core.stages import Processor
 
 
 class SideChannelProcessor(Processor):
