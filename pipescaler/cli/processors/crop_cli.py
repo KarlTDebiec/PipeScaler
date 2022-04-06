@@ -8,12 +8,12 @@ from __future__ import annotations
 from argparse import ArgumentParser, _SubParsersAction
 from typing import Type, Union
 
-from pipescaler.core.cli import ProcessorCliBase
+from pipescaler.core.cli import ProcessorCli
 from pipescaler.core.stages import Processor
-from pipescaler.processors import CropProcessor
+from pipescaler.processors.image import CropProcessor
 
 
-class CropCli(ProcessorCliBase):
+class CropCli(ProcessorCli):
     """Command line interface for CropProcessor."""
 
     @classmethod

@@ -15,8 +15,7 @@ class NormalSplitter(Splitter):
     """Splits a normal map image into separate x, y, and z images."""
 
     def split(self, input_image: Image.Image) -> tuple[Image.Image, ...]:
-        """
-        Split an image
+        """Split an image.
 
         Arguments:
             input_image: Input image to split
@@ -38,11 +37,11 @@ class NormalSplitter(Splitter):
 
     @property
     def outlets(self) -> list[str]:
-        """Outlets that flow out of stage"""
+        """Outlets that flow out of stage."""
         return ["x", "y", "z"]
 
     @classmethod
     @property
     def supported_input_modes(self) -> list[str]:
-        """Supported modes for input image"""
+        """Supported modes for input image."""
         return ["RGB"]

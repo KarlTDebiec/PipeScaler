@@ -18,8 +18,7 @@ class ExpandProcessor(ImageProcessor):
     """Expands image canvas by mirroring image around edges."""
 
     def __init__(self, pixels: tuple[int], **kwargs: Any) -> None:
-        """
-        Validate and store static configuration
+        """Validate and store configuration and initialize.
 
         Arguments:
             pixels: Number of pixels to add to left, top, right, and bottom
@@ -33,8 +32,7 @@ class ExpandProcessor(ImageProcessor):
         )
 
     def process(self, input_image: Image.Image) -> Image.Image:
-        """
-        Process an image
+        """Process an image.
 
         Arguments:
             input_image: Input image to process

@@ -27,8 +27,7 @@ class ListSorter(Sorter):
         wip_directory: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
-        """
-        Validate and store configuration
+        """Validate and store configuration and initialize.
 
         Arguments:
             outlets: Outlet configuration
@@ -70,8 +69,7 @@ class ListSorter(Sorter):
             )
 
     def __call__(self, infile: str) -> str:
-        """
-        Sort image based on filename using a set of configured lists
+        """Sort image based on filename using a set of configured lists.
 
         Arguments:
             infile: Input image
@@ -95,5 +93,5 @@ class ListSorter(Sorter):
 
     @property
     def outlets(self):
-        """Outlets that flow out of stage"""
+        """Outlets that flow out of stage."""
         return self._outlets

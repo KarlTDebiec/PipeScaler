@@ -12,12 +12,12 @@ from os.path import expandvars, normpath
 from typing import Any, Type, Union
 
 from pipescaler.common import set_logging_verbosity, validate_int
-from pipescaler.core.cli import UtilityCliBase
+from pipescaler.core.cli import UtilityCli
 from pipescaler.core.file import read_yaml
 from pipescaler.utilities import FileScanner
 
 
-class FileScannerCli(UtilityCliBase):
+class FileScannerCli(UtilityCli):
     """Command line interface for FileScanner."""
 
     def __call__(self):
@@ -64,6 +64,7 @@ class FileScannerCli(UtilityCliBase):
         verbosity = validate_int(kwargs.pop("verbosity", 0), min_value=0)
         set_logging_verbosity(verbosity)
 
+        # noinspection PyCallingNonCallable
         utility = cls.utility(**{**kwargs, **conf})
         utility()
 

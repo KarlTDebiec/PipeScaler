@@ -27,8 +27,7 @@ class SideChannelProcessor(Processor):
         match_input_mode: bool = True,
         **kwargs: Any,
     ) -> None:
-        """
-        Validate and store static configuration
+        """Validate and store configuration and initialize.
 
         Arguments:
             directory: Directory from which to load alternative images
@@ -57,8 +56,7 @@ class SideChannelProcessor(Processor):
         self.match_input_mode = match_input_mode
 
     def __call__(self, infile: str, outfile: str) -> None:
-        """
-        Read image from infile, process it, and save to outfile
+        """Read image from infile, process it, and save to outfile.
 
         Arguments:
             infile: Input file path

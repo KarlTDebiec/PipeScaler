@@ -15,8 +15,7 @@ class ModeSorter(Sorter):
     """Sorts image based on mode."""
 
     def __call__(self, infile: str) -> str:
-        """
-        Sort image based on mode
+        """Sort image based on mode.
 
         Arguments:
             infile: Input image
@@ -34,5 +33,5 @@ class ModeSorter(Sorter):
     @classmethod
     @property
     def outlets(self) -> list[str]:
-        """Outlets that flow out of stage"""
+        """Outlets that flow out of stage."""
         return ["rgba", "rgb", "la", "l", "1"]

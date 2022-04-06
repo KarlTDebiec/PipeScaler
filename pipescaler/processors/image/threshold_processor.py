@@ -21,8 +21,7 @@ class ThresholdProcessor(ImageProcessor):
     def __init__(
         self, threshold: int = 128, denoise: bool = False, **kwargs: Any
     ) -> None:
-        """
-        Validate and store static configuration
+        """Validate and store configuration and initialize.
 
         Arguments:
             threshold: Threshold differentiating black and white
@@ -37,8 +36,7 @@ class ThresholdProcessor(ImageProcessor):
         self.denoise = denoise
 
     def process(self, input_image: Image.Image) -> Image.Image:
-        """
-        Process an image
+        """Process an image.
 
         Arguments:
             input_image: Input image to process
@@ -64,8 +62,7 @@ class ThresholdProcessor(ImageProcessor):
     @staticmethod
     @nb.jit(nopython=True, nogil=True, cache=True, fastmath=True)
     def denoise_data(data: np.ndarray) -> None:
-        """
-        Flip color of pixels bordered by less than 5 pixels of the same color
+        """Flip color of pixels bordered by less than 5 pixels of the same color.
 
         Arguments:
             data: Input image array; modified in-place

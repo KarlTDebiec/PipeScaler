@@ -25,8 +25,7 @@ class PngquantProcessor(ExternalProcessor):
         floyd_steinberg: bool = True,
         **kwargs: Any,
     ) -> None:
-        """
-        Validate and store static configuration
+        """Validate and store configuration and initialize.
 
         Arguments:
             quality: Minimum quality below which output image will not be saved, and
@@ -43,7 +42,7 @@ class PngquantProcessor(ExternalProcessor):
 
     @property
     def command_template(self) -> str:
-        """String template with which to generate command"""
+        """String template with which to generate command."""
         command = (
             f"{validate_executable(self.executable, self.supported_platforms)}"
             " --skip-if-larger"
@@ -58,8 +57,7 @@ class PngquantProcessor(ExternalProcessor):
         return command
 
     def process(self, infile: str, outfile: str) -> None:
-        """
-        Read image from infile, process it, and save to outfile
+        """Read image from infile, process it, and save to outfile.
 
         Arguments:
             infile: Input file path
@@ -77,7 +75,7 @@ class PngquantProcessor(ExternalProcessor):
     @classmethod
     @property
     def executable(self) -> str:
-        """Name of executable"""
+        """Name of executable."""
         return "pngquant"
 
     @classmethod

@@ -27,7 +27,7 @@ class TexmodSource(DirectorySource):
 
     @staticmethod
     def sort(filename):
-        """Sort outfiles to be yielded by source"""
+        """Sort outfiles to be yielded by source."""
         try:
             return int(f"1{int(splitext(basename(filename))[0][2:10], 16):022d}")
         except ValueError as e:

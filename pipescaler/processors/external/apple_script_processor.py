@@ -20,8 +20,7 @@ class AppleScriptProcessor(ExternalProcessor):
     """
 
     def __init__(self, script: str, args: str = "", **kwargs: Any) -> None:
-        """
-        Validate and store static configuration
+        """Validate and store configuration and initialize.
 
         Arguments:
             script: Path to AppleScript to run
@@ -41,7 +40,7 @@ class AppleScriptProcessor(ExternalProcessor):
 
     @property
     def command_template(self) -> str:
-        """String template with which to generate command"""
+        """String template with which to generate command."""
         return (
             f"{validate_executable(self.executable, self.supported_platforms)}"
             f' "{self.script}"'
@@ -52,7 +51,7 @@ class AppleScriptProcessor(ExternalProcessor):
     @classmethod
     @property
     def executable(self) -> str:
-        """Name of executable"""
+        """Name of executable."""
         return "osascript"
 
     @classmethod
@@ -70,5 +69,5 @@ class AppleScriptProcessor(ExternalProcessor):
     @classmethod
     @property
     def supported_platforms(self) -> set[str]:
-        """Platforms on which processor is supported"""
+        """Platforms on which processor is supported."""
         return {"Darwin"}

@@ -8,12 +8,12 @@ from __future__ import annotations
 from argparse import ArgumentParser, _SubParsersAction
 from typing import Type, Union
 
-from pipescaler.core.cli import ProcessorCliBase
+from pipescaler.core.cli import ProcessorCli
 from pipescaler.core.stages import Processor
 from pipescaler.processors import WebProcessor
 
 
-class WebCli(ProcessorCliBase):
+class WebCli(ProcessorCli):
     """Command line interface for WebProcessor."""
 
     @classmethod

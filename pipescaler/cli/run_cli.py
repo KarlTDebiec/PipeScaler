@@ -141,6 +141,7 @@ class RunCli(CommandLineInterface):
         conf["pipeline"] = pipeline
 
         # Run pipeline
+        # noinspection PyCallingNonCallable
         utility = cls.utility(**{**kwargs, **conf})
         utility()
 

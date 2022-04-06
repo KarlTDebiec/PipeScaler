@@ -14,7 +14,7 @@ from pipescaler.common import CommandLineInterface
 from pipescaler.core.file import read_yaml
 
 
-class ConfigurableCliBase(CommandLineInterface, ABC):
+class ConfigurableCli(CommandLineInterface, ABC):
     """Abstract base class for configurable command line interfaces."""
 
     @classmethod

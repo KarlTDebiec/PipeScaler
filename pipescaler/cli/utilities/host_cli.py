@@ -11,12 +11,12 @@ from os import environ
 from os.path import expandvars, normpath
 from typing import Type, Union
 
-from pipescaler.core.cli import UtilityCliBase
+from pipescaler.core.cli import UtilityCli
 from pipescaler.core.file import read_yaml
 from pipescaler.utilities import Host
 
 
-class HostCli(UtilityCliBase):
+class HostCli(UtilityCli):
     """Command line interface for Host."""
 
     @classmethod
@@ -54,6 +54,7 @@ class HostCli(UtilityCliBase):
             environ[key] = normpath(expandvars(value))
             info(f"Environment variable '{key}' set to '{value}'")
 
+        # noinspection PyCallingNonCallable
         utility = cls.utility(**{**kwargs, **conf})
         utility()
 

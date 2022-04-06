@@ -25,8 +25,7 @@ class AlphaSplitter(Splitter):
         mask_fill_mode: Optional[Union[type(MaskFillMode), str]] = None,
         **kwargs: Any,
     ) -> None:
-        """
-        Validate and store static configuration
+        """Validate and store configuration and initialize.
 
         Arguments:
             **kwargs: Additional keyword arguments
@@ -42,8 +41,7 @@ class AlphaSplitter(Splitter):
             self.mask_filler = MaskFiller(mask_fill_mode=self.mask_fill_mode)
 
     def split(self, input_image: Image.Image) -> tuple[Image.Image, ...]:
-        """
-        Split an image
+        """Split an image.
 
         Arguments:
             input_image: Input image to split
@@ -68,11 +66,11 @@ class AlphaSplitter(Splitter):
 
     @property
     def outlets(self) -> list[str]:
-        """Outlets that flow out of stage"""
+        """Outlets that flow out of stage."""
         return ["color", "alpha"]
 
     @classmethod
     @property
     def supported_input_modes(self) -> list[str]:
-        """Supported modes for input image"""
+        """Supported modes for input image."""
         return ["LA", "RGBA"]

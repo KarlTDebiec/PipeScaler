@@ -22,8 +22,7 @@ class ModeProcessor(ImageProcessor):
         background_color: str = "#000000",
         **kwargs: Any,
     ) -> None:
-        """
-        Validate and store static configuration
+        """Validate and store configuration and initialize.
 
         Arguments:
             mode: Output mode
@@ -37,8 +36,7 @@ class ModeProcessor(ImageProcessor):
         self.background_color = ImageColor.getrgb(background_color)  # TODO: Validate
 
     def process(self, input_image: Image.Image) -> Image.Image:
-        """
-        Process an image
+        """Process an image.
 
         Arguments:
             input_image: Input image to process

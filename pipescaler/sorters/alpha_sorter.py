@@ -19,8 +19,7 @@ class AlphaSorter(Sorter):
     """Sorts image based on presence and use of alpha channel."""
 
     def __init__(self, threshold: int = 255, **kwargs: Any) -> None:
-        """
-        Validate and store static configuration
+        """Validate and store configuration and initialize.
 
         Arguments:
             threshold: Sort as 'drop_alpha' if all pixels' alpha is above this threshold
@@ -32,8 +31,7 @@ class AlphaSorter(Sorter):
         self.threshold = validate_int(threshold, 0, 255)
 
     def __call__(self, infile: str) -> str:
-        """
-        Sort image based on presence and use of alpha channel
+        """Sort image based on presence and use of alpha channel.
 
         Arguments:
             infile: Input image
@@ -59,5 +57,5 @@ class AlphaSorter(Sorter):
     @classmethod
     @property
     def outlets(self) -> list[str]:
-        """Outlets that flow out of stage"""
+        """Outlets that flow out of stage."""
         return ["drop_alpha", "keep_alpha", "no_alpha"]

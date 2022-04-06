@@ -18,8 +18,7 @@ class SolidColorProcessor(ImageProcessor):
     """Sets entire image color to its average color, optionally resizing."""
 
     def __init__(self, scale: float = 1, **kwargs: Any) -> None:
-        """
-        Validate and store static configuration
+        """Validate and store configuration and initialize.
 
         Arguments:
             scale: Factor by which to scale output image relative to input
@@ -31,8 +30,7 @@ class SolidColorProcessor(ImageProcessor):
         self.scale = validate_float(scale)
 
     def process(self, input_image: Image.Image) -> Image.Image:
-        """
-        Process an image
+        """Process an image.
 
         Arguments:
             input_image: Input image to process

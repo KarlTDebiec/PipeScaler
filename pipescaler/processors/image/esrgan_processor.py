@@ -33,7 +33,7 @@ class EsrganProcessor(PyTorchProcessor):
     """
 
     def __init__(self, device: str = "cuda", **kwargs: Any) -> None:
-        """Validate configuration and initialize.
+        """Validate and store configuration and initialize.
 
         Arguments:
             device: Device on which to compute

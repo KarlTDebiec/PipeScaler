@@ -18,7 +18,7 @@ class SharpenProcessor(ImageProcessor):
     kernel = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]], float)
 
     def process(self, input_image: Image.Image) -> Image.Image:
-        """Process image
+        """Process an image.
 
         Arguments:
             input_image: Input image

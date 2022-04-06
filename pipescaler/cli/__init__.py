@@ -6,13 +6,13 @@
 from __future__ import annotations
 
 from pipescaler.cli.pipescaler_cli import PipeScalerCli
-from pipescaler.cli.process_cli import ProcessCli
+from pipescaler.cli.processors_cli import ProcessorsCli
 from pipescaler.cli.run_cli import RunCli
-from pipescaler.cli.utilize_cli import UtilizeCli
+from pipescaler.cli.utilities_cli import UtilitiesCli
 
 __all__: list[str] = [
     "PipeScalerCli",
-    "ProcessCli",
+    "ProcessorsCli",
     "RunCli",
-    "UtilizeCli",
+    "UtilitiesCli",
 ]

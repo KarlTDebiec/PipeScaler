@@ -8,9 +8,9 @@ from __future__ import annotations
 from argparse import ArgumentParser, _SubParsersAction
 from typing import Any, Type, Union
 
-from pipescaler.cli.process_cli import ProcessCli
+from pipescaler.cli.processors_cli import ProcessorsCli
 from pipescaler.cli.run_cli import RunCli
-from pipescaler.cli.utilize_cli import UtilizeCli
+from pipescaler.cli.utilities_cli import UtilitiesCli
 from pipescaler.common import CommandLineInterface
 
 
@@ -36,9 +36,9 @@ class PipeScalerCli(CommandLineInterface):
         super().add_arguments_to_argparser(parser)
 
         subparsers = parser.add_subparsers(dest="subtool")
-        ProcessCli.construct_argparser(parser=subparsers)
+        ProcessorsCli.construct_argparser(parser=subparsers)
         RunCli.construct_argparser(parser=subparsers)
-        UtilizeCli.construct_argparser(parser=subparsers)
+        UtilitiesCli.construct_argparser(parser=subparsers)
 
     @classmethod
     def main(cls) -> None:
@@ -56,7 +56,7 @@ class PipeScalerCli(CommandLineInterface):
     @property
     def subtools(cls) -> dict[str, Type[CommandLineInterface]]:
         """Names and types of tools wrapped by command line interface."""
-        return {tool.name: tool for tool in [ProcessCli, RunCli, UtilizeCli]}
+        return {tool.name: tool for tool in [ProcessorsCli, RunCli, UtilitiesCli]}
 
 
 if __name__ == "__main__":

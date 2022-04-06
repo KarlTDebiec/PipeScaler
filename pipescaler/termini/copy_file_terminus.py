@@ -20,8 +20,7 @@ class CopyFileTerminus(Terminus):
     """Copies images to a defined output directory."""
 
     def __init__(self, directory: str, purge: bool = False, **kwargs: Any) -> None:
-        """
-        Validate and store static configuration
+        """Validate and store configuration and initialize.
 
         Arguments:
             directory: Directory to which to copy images
@@ -41,8 +40,7 @@ class CopyFileTerminus(Terminus):
                 info(f"{self}: '{filename}' removed")
 
     def __call__(self, infile: str, outfile: str) -> None:
-        """
-        Copy image to a defined output directory
+        """Copy image to a defined output directory.
 
         Arguments:
             infile: Input file

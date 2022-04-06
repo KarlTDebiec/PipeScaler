@@ -24,8 +24,7 @@ class DirectorySource(Source):
         exclusions: Union[str, list[str]] = None,
         **kwargs: Any,
     ) -> None:
-        """
-        Validate and store static configuration
+        """Validate and store configuration and initialize.
 
         Arguments:
             directory: Directory from which to yield files
@@ -50,11 +49,11 @@ class DirectorySource(Source):
         self.filenames = filenames
 
     def __iter__(self):
-        """Yield next image"""
+        """Yield next image."""
         for filename in self.filenames:
             yield filename
 
     @staticmethod
     def sort(filename):
-        """Sort outfiles to be yielded by source"""
+        """Sort outfiles to be yielded by source."""
         return "".join([f"{ord(c):03d}" for c in filename.lower()])

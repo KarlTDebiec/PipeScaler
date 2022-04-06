@@ -57,8 +57,7 @@ class GigapixelAiProcessor(Processor):
         self._window = None
 
     def __call__(self, infile: str, outfile: str) -> None:
-        """
-        Read image from infile, process it, and save to outfile
+        """Read image from infile, process it, and save to outfile.
 
         Arguments:
             infile: Input file path
@@ -114,7 +113,7 @@ class GigapixelAiProcessor(Processor):
 
     @property
     def application(self) -> Application:
-        """Gigapixel AI application"""
+        """Gigapixel AI application."""
         if self._application is None:
             try:
                 self._application = Application(backend="uia").connect(
@@ -126,7 +125,7 @@ class GigapixelAiProcessor(Processor):
 
     @property
     def window(self) -> WindowSpecification:
-        """Gigapixel AI window"""
+        """Gigapixel AI window."""
         return self._window
 
     @window.setter
@@ -134,9 +133,10 @@ class GigapixelAiProcessor(Processor):
         self._window = value
 
     def click_button(self, button: WindowSpecification) -> None:
-        """
-        Click a provided button; uses click_input rather than click, which doesn't
-        seem to work for this application
+        """Click a provided button.
+
+        Uses click_input rather than click, which doesn't seem to work for this
+        application.
 
         Arguments:
             button: Button to click
@@ -157,8 +157,7 @@ class GigapixelAiProcessor(Processor):
     def complete_open_file_dialog(
         self, dialog: WindowSpecification, filename: str
     ) -> None:
-        """
-        Completes an open file dialog with a provided filename
+        """Completes an open file dialog with a provided filename.
 
         Arguments:
             dialog: Open file dialog to complete
@@ -170,8 +169,7 @@ class GigapixelAiProcessor(Processor):
     def complete_select_folder_dialog(
         self, dialog: WindowSpecification, directory: str
     ) -> None:
-        """
-        Completes a select folder dialog
+        """Completes a select folder dialog.
 
         Arguments:
             dialog: Select folder dialog to complete

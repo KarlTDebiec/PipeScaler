@@ -2,19 +2,20 @@
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
-"""Command line interface for PipeScaler utilities."""
+"""Abstract base class for Processor command line interfaces."""
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from argparse import ArgumentParser, _SubParsersAction
+from inspect import cleandoc
 from typing import Any, Type, Union
 
-from pipescaler.cli import utilities
 from pipescaler.common import CommandLineInterface
-from pipescaler.core.cli import UtilityCliBase
+from pipescaler.core.stages import Processor
 
 
-class UtilizeCli(CommandLineInterface):
-    """Command line interface for PipeScaler utilities."""
+class ProcessorCli(CommandLineInterface, ABC):
+    """Abstract base class for Processor command line interfaces."""
 
     @classmethod
     def add_arguments_to_argparser(
@@ -28,34 +29,28 @@ class UtilizeCli(CommandLineInterface):
         """
         super().add_arguments_to_argparser(parser)
 
-        subparsers = parser.add_subparsers(dest="utility")
-        # noinspection PyTypeChecker
-        for name in sorted(cls.utilities):
-            cls.utilities[name].construct_argparser(parser=subparsers)
+        parser.add_argument("infile", type=cls.input_path_arg(), help="input file")
+        parser.add_argument("outfile", type=cls.output_path_arg(), help="output file")
 
     @classmethod
     def main(cls) -> None:
-        """Parse arguments, initialize processor, and process file."""
         parser = cls.construct_argparser()
         kwargs = vars(parser.parse_args())
-        cls.main2(**kwargs)
+        cls.process(**kwargs)
 
     @classmethod
-    def main2(cls, **kwargs: Any) -> None:
-        utility = cls.utilities[kwargs.pop("utility")]
-        utility.main2(**kwargs)
+    def process(cls, infile: str, outfile: str, **kwargs: Any) -> None:
+        # noinspection PyCallingNonCallable
+        processor = cls.processor(**kwargs)
+        processor(infile, outfile)
 
     @classmethod
     @property
     def description(cls) -> str:
         """Long description of this tool displayed below usage."""
-        return "Runs utilities."
-
-    @classmethod
-    @property
-    def help(cls) -> str:
-        """Short description of this tool used when it is a subparser."""
-        return "run utilities"
+        if cls.processor.__doc__:
+            return cleandoc(cls.processor.__doc__)
+        return ""
 
     @classmethod
     @property
@@ -65,13 +60,7 @@ class UtilizeCli(CommandLineInterface):
 
     @classmethod
     @property
-    def utilities(cls) -> dict[str : Type[UtilizeCli]]:
-        """Names and types of utilities wrapped by command line interface."""
-        return {
-            utility.name: utility
-            for utility in map(utilities.__dict__.get, utilities.__all__)
-        }
-
-
-if __name__ == "__main__":
-    UtilizeCli.main()
+    @abstractmethod
+    def processor(cls) -> Type[Processor]:
+        """Type of processor wrapped by command line interface."""
+        raise NotImplementedError()

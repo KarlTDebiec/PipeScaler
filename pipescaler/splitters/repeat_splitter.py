@@ -14,8 +14,7 @@ class RepeatSplitter(Splitter):
     """Repeats an input image."""
 
     def split(self, input_image: Image.Image) -> tuple[Image.Image, ...]:
-        """
-        Split an image
+        """Split an image.
 
         Arguments:
             input_image: Input image to split
@@ -26,5 +25,5 @@ class RepeatSplitter(Splitter):
 
     @property
     def outlets(self) -> list[str]:
-        """Outlets that flow out of stage"""
+        """Outlets that flow out of stage."""
         return ["one", "two"]

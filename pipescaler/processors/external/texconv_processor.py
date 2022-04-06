@@ -30,8 +30,7 @@ class TexconvProcessor(ExternalProcessor):
         format: Optional[str] = "BC7_UNORM",
         **kwargs: Any,
     ) -> None:
-        """
-        Validate and store static configuration
+        """Validate and store configuration and initialize.
 
         Arguments:
             mipmaps: Whether to generate mipmaps
@@ -51,7 +50,7 @@ class TexconvProcessor(ExternalProcessor):
 
     @property
     def command_template(self):
-        """String template with which to generate command"""
+        """String template with which to generate command."""
         command = f"{validate_executable(self.executable, self.supported_platforms)}"
         if self.mipmaps:
             if self.sepalpha:
@@ -68,8 +67,7 @@ class TexconvProcessor(ExternalProcessor):
         return command
 
     def process(self, infile: str, outfile: str) -> None:
-        """
-        Read image from infile, process it, and save to outfile
+        """Read image from infile, process it, and save to outfile.
 
         Arguments:
             infile: Input file path
@@ -88,13 +86,13 @@ class TexconvProcessor(ExternalProcessor):
     @classmethod
     @property
     def executable(self) -> str:
-        """Name of executable"""
+        """Name of executable."""
         return "texconv.exe"
 
     @classmethod
     @property
     def supported_platforms(self) -> set[str]:
-        """Platforms on which processor is supported"""
+        """Platforms on which processor is supported."""
         return {"Windows"}
 
     @classmethod

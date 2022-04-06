@@ -38,8 +38,7 @@ class PotraceProcessor(ExternalProcessor):
         scale: float = 1.0,
         **kwargs: Any,
     ) -> None:
-        """
-        Validate and store static configuration
+        """Validate and store configuration and initialize.
 
         Arguments:
             invert: Invert bitmap
@@ -59,7 +58,7 @@ class PotraceProcessor(ExternalProcessor):
 
     @property
     def command_template(self) -> str:
-        """String template with which to generate command"""
+        """String template with which to generate command."""
         return (
             f"{validate_executable(self.executable, self.supported_platforms)}"
             " {bmpfile}"
@@ -71,8 +70,7 @@ class PotraceProcessor(ExternalProcessor):
         )
 
     def process(self, infile: str, outfile: str) -> None:
-        """
-        Read image from infile, process it, and save to outfile
+        """Read image from infile, process it, and save to outfile.
 
         Arguments:
             infile: Input file path
@@ -109,7 +107,7 @@ class PotraceProcessor(ExternalProcessor):
     @classmethod
     @property
     def executable(self) -> str:
-        """Name of executable"""
+        """Name of executable."""
         return "potrace"
 
     @classmethod

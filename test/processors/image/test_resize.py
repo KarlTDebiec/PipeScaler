@@ -7,7 +7,7 @@ import pytest
 from PIL import Image
 
 from pipescaler.common import temporary_filename
-from pipescaler.processors import ResizeProcessor
+from pipescaler.processors.image import ResizeProcessor
 from pipescaler.testing import expected_output_mode, get_infile, parametrized_fixture
 
 

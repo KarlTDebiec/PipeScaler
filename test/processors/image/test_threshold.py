@@ -8,7 +8,7 @@ import pytest
 from PIL import Image
 
 from pipescaler.common import temporary_filename
-from pipescaler.processors import ThresholdProcessor
+from pipescaler.processors.image import ThresholdProcessor
 from pipescaler.testing import (
     get_infile,
     parametrized_fixture,

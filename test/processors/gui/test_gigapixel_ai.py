@@ -7,7 +7,7 @@ import pytest
 from PIL import Image
 
 from pipescaler.common import temporary_filename
-from pipescaler.processors import GigapixelAiProcessor
+from pipescaler.processors.gui import GigapixelAiProcessor
 from pipescaler.testing import (
     expected_output_mode,
     get_infile,

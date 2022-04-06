@@ -24,7 +24,7 @@ def script(request) -> str:
         ("-h"),
         ("process -h"),
         ("run -h"),
-        ("utilize -h"),
+        ("utility -h"),
     ],
 )
 def test(script: str, args: str) -> None:

@@ -17,8 +17,7 @@ class HistogramMatchMerger(Merger):
     """Matches an image's color histogram to that of a reference image."""
 
     def merge(self, *input_images: Image.Image) -> Image.Image:
-        """
-        Merge images
+        """Merge images.
 
         Arguments:
             *input_images: Input images to merge
@@ -47,13 +46,13 @@ class HistogramMatchMerger(Merger):
 
     @property
     def inlets(self) -> list[str]:
-        """Inlets that flow into stage"""
+        """Inlets that flow into stage."""
         return ["reference", "fit"]
 
     @classmethod
     @property
     def supported_input_modes(self) -> dict[str, list[str]]:
-        """Supported modes for input images"""
+        """Supported modes for input images."""
         return {
             "reference": ["L", "LA", "RGB", "RGBA"],
             "fit": ["L", "LA", "RGB", "RGBA"],

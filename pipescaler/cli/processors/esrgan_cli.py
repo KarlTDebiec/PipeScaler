@@ -8,12 +8,12 @@ from __future__ import annotations
 from argparse import ArgumentParser, _SubParsersAction
 from typing import Type, Union
 
-from pipescaler.core.cli import ProcessorCliBase
+from pipescaler.core.cli import ProcessorCli
 from pipescaler.core.stages import Processor
-from pipescaler.processors import EsrganProcessor
+from pipescaler.processors.image import EsrganProcessor
 
 
-class EsrganCli(ProcessorCliBase):
+class EsrganCli(ProcessorCli):
     """Command line interface for EsrganProcessor."""
 
     @classmethod

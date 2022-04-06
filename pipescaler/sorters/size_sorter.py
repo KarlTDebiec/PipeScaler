@@ -18,8 +18,7 @@ class SizeSorter(Sorter):
     """Sorts image based on canvas size."""
 
     def __init__(self, cutoff: int = 32, **kwargs: Any) -> None:
-        """
-        Validate and store static configuration
+        """Validate and store configuration and initialize.
 
         Arguments:
             cutoff: Sort as 'less_than' if smallest dimension is below threshold
@@ -31,8 +30,7 @@ class SizeSorter(Sorter):
         self.cutoff = validate_int(cutoff, min_value=1)
 
     def __call__(self, infile: str) -> str:
-        """
-        Sort image based on canvas size
+        """Sort image based on canvas size.
 
         Arguments:
             infile: Input image
@@ -55,5 +53,5 @@ class SizeSorter(Sorter):
     @classmethod
     @property
     def outlets(self):
-        """Outlets that flow out of stage"""
+        """Outlets that flow out of stage."""
         return ["less_than", "greater_than_or_equal_to"]
