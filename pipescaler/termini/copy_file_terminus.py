@@ -13,7 +13,8 @@ from shutil import copyfile
 from typing import Any
 
 from pipescaler.common import validate_output_path
-from pipescaler.core import Terminus, get_files
+from pipescaler.core import get_files
+from pipescaler.core.stages import Terminus
 
 
 class CopyFileTerminus(Terminus):
