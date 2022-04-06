@@ -17,12 +17,6 @@ from pipescaler.common import CommandLineInterface
 class PipeScalerCli(CommandLineInterface):
     """Command line interface for PipeScaler."""
 
-    def __init__(self, **kwargs: Any) -> None:
-        super().__init__(**kwargs)
-
-    def __call__(self) -> None:
-        pass
-
     @classmethod
     def add_arguments_to_argparser(
         cls,
@@ -35,26 +29,22 @@ class PipeScalerCli(CommandLineInterface):
         """
         super().add_arguments_to_argparser(parser)
 
-        subparsers = parser.add_subparsers(dest="subtool")
+        subparsers = parser.add_subparsers(dest="sub_cli")
         ProcessorsCli.construct_argparser(parser=subparsers)
         RunCli.construct_argparser(parser=subparsers)
         UtilitiesCli.construct_argparser(parser=subparsers)
 
     @classmethod
     def main(cls) -> None:
-        """Parse arguments, initialize processor, and process file."""
         parser = cls.construct_argparser()
         kwargs = vars(parser.parse_args())
-        cls.main2(**kwargs)
 
-    @classmethod
-    def main2(cls, **kwargs: Any) -> None:
-        subtool = cls.subtools[kwargs.pop("subtool")]
-        subtool.main2(**kwargs)
+        sub_cli = cls.sub_clis[kwargs.pop("sub_cli")]
+        sub_cli.main2(**kwargs)
 
     @classmethod
     @property
-    def subtools(cls) -> dict[str, Type[CommandLineInterface]]:
+    def sub_clis(cls) -> dict[str, Type[CommandLineInterface]]:
         """Names and types of tools wrapped by command line interface."""
         return {tool.name: tool for tool in [ProcessorsCli, RunCli, UtilitiesCli]}
 

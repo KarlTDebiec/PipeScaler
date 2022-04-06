@@ -35,13 +35,10 @@ class UtilitiesCli(CommandLineInterface):
 
     @classmethod
     def main(cls) -> None:
-        """Parse arguments, initialize processor, and process file."""
+        """Parse arguments and perform operations."""
         parser = cls.construct_argparser()
         kwargs = vars(parser.parse_args())
-        cls.main2(**kwargs)
 
-    @classmethod
-    def main2(cls, **kwargs: Any) -> None:
         utility = cls.utilities[kwargs.pop("utility")]
         utility.main2(**kwargs)
 

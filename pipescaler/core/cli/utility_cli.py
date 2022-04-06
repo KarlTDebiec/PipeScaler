@@ -16,10 +16,17 @@ class UtilityCli(CommandLineInterface, ABC):
     """Abstract base class for Utility command line interfaces."""
 
     @classmethod
-    def main2(cls, **kwargs: Any) -> None:
+    def main(cls) -> None:
+        """Parse arguments."""
+        parser = cls.construct_argparser()
+        kwargs = vars(parser.parse_args())
+
+        cls.main2(**kwargs)
+
+    @classmethod
+    def main2(cls, **kwargs: Any):
         # noinspection PyCallingNonCallable
-        utility = cls.utility()
-        del kwargs["verbosity"]
+        utility = cls.utility(verbosity=kwargs.pop("verbosity", 1))
         utility(**kwargs)
 
     @classmethod

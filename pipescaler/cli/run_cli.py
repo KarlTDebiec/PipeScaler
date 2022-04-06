@@ -25,14 +25,6 @@ from pipescaler.core.pipeline import Pipeline
 class RunCli(CommandLineInterface):
     """Command line interface for PipelineRunner."""
 
-    def __init__(self, **kwargs: Any) -> None:
-        """Initializes."""
-        super().__init__(**kwargs)
-
-    def __call__(self) -> None:
-        """TODO: Refactor and remove requirement that this builtin be implemented."""
-        return
-
     @classmethod
     def add_arguments_to_argparser(
         cls,
@@ -112,11 +104,6 @@ class RunCli(CommandLineInterface):
         """Parse arguments."""
         parser = cls.construct_argparser()
         kwargs = vars(parser.parse_args())
-        cls.main2(**kwargs)
-
-    @classmethod
-    def main2(cls, **kwargs: Any) -> None:
-        """Read configuration, configure environment, and build and call utility."""
         conf = read_yaml(kwargs.pop("conf_file"))
 
         # Set environment variables

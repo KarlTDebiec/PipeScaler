@@ -34,15 +34,17 @@ class ProcessorCli(CommandLineInterface, ABC):
 
     @classmethod
     def main(cls) -> None:
+        """Parse arguments and perform operations."""
         parser = cls.construct_argparser()
         kwargs = vars(parser.parse_args())
-        cls.process(**kwargs)
+
+        cls.main2(**kwargs)
 
     @classmethod
-    def process(cls, infile: str, outfile: str, **kwargs: Any) -> None:
+    def main2(cls, **kwargs: Any):
         # noinspection PyCallingNonCallable
         processor = cls.processor(**kwargs)
-        processor(infile, outfile)
+        processor(kwargs.pop("infile"), kwargs.pop("outfile"))
 
     @classmethod
     @property

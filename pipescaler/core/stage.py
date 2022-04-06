@@ -99,5 +99,5 @@ class Stage(ABC):
     def help_markdown(cls) -> str:
         """Short description of this tool in markdown, with links."""
         if cls.__doc__:
-            return cleandoc(cls.__doc__).split(". ")[0]
+            return cleandoc(cls.__doc__).split(". ", maxsplit=1)[0]
         return ""

@@ -36,10 +36,6 @@ class HostCli(UtilityCli):
             help="path to yaml file from which to read configuration",
         )
 
-    def __call__(self):
-        """Perform operations."""
-        raise NotImplementedError()
-
     @classmethod
     def main(cls) -> None:
         """Parse arguments, construct tool, and call tool."""
