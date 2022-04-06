@@ -12,7 +12,7 @@ from typing import Any, Type
 from pipescaler.common import CommandLineInterface
 
 
-class UtilityCli(CommandLineInterface, ABC):
+class UtilityCliBase(CommandLineInterface, ABC):
     """Abstract base class for Utility command line interfaces."""
 
     @classmethod

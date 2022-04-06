@@ -14,7 +14,7 @@ from pipescaler.common import CommandLineInterface
 from pipescaler.core.stages import Processor
 
 
-class ProcessorCli(CommandLineInterface, ABC):
+class ProcessorCliBase(CommandLineInterface, ABC):
     """Abstract base class for Processor command line interfaces."""
 
     @classmethod

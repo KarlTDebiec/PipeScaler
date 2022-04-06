@@ -8,12 +8,12 @@ from __future__ import annotations
 from argparse import ArgumentParser, _SubParsersAction
 from typing import Type, Union
 
-from pipescaler.core.cli import ProcessorCli
+from pipescaler.core.cli import ProcessorCliBase
 from pipescaler.core.stages import Processor
 from pipescaler.processors import ResizeProcessor
 
 
-class ResizeCli(ProcessorCli):
+class ResizeCli(ProcessorCliBase):
     """Command line interface for ResizeProcessor."""
 
     @classmethod

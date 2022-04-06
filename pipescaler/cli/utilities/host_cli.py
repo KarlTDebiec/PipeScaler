@@ -11,12 +11,12 @@ from os import environ
 from os.path import expandvars, normpath
 from typing import Type, Union
 
-from pipescaler.core.cli import UtilityCli
+from pipescaler.core.cli import UtilityCliBase
 from pipescaler.core.file import read_yaml
 from pipescaler.utilities import Host
 
 
-class HostCli(UtilityCli):
+class HostCli(UtilityCliBase):
     """Command line interface for Host."""
 
     @classmethod

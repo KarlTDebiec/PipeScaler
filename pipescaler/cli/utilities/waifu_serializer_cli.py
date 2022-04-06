@@ -8,11 +8,11 @@ from __future__ import annotations
 from argparse import ArgumentParser, _SubParsersAction
 from typing import Type, Union
 
-from pipescaler.core.cli import UtilityCli
+from pipescaler.core.cli import UtilityCliBase
 from pipescaler.utilities import WaifuSerializer
 
 
-class WaifuSerializerCli(UtilityCli):
+class WaifuSerializerCli(UtilityCliBase):
     """Command line interface for WaifuSerializer."""
 
     @classmethod

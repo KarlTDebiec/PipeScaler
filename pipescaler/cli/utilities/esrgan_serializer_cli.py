@@ -8,11 +8,11 @@ from __future__ import annotations
 from argparse import ArgumentParser, _SubParsersAction
 from typing import Type, Union
 
-from pipescaler.core.cli import UtilityCli
+from pipescaler.core.cli import UtilityCliBase
 from pipescaler.utilities.esrgan_serializer import EsrganSerializer
 
 
-class EsrganSerializerCli(UtilityCli):
+class EsrganSerializerCli(UtilityCliBase):
     """Command line interface for EsrganSerializer."""
 
     def __call__(self):

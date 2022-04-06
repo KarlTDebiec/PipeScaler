@@ -5,12 +5,12 @@
 """Abstract base classes for command line interfaces."""
 from __future__ import annotations
 
-from pipescaler.core.cli.configurable_cli import ConfigurableCli
-from pipescaler.core.cli.processor_cli import ProcessorCli
-from pipescaler.core.cli.utility_cli import UtilityCli
+from pipescaler.core.cli.configurable_cli_base import ConfigurableCliBase
+from pipescaler.core.cli.processor_cli_base import ProcessorCliBase
+from pipescaler.core.cli.utility_cli_base import UtilityCliBase
 
 __all__: list[str] = [
-    "ConfigurableCli",
-    "ProcessorCli",
-    "UtilityCli",
+    "ConfigurableCliBase",
+    "ProcessorCliBase",
+    "UtilityCliBase",
 ]

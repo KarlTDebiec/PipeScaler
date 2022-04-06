@@ -8,11 +8,11 @@ from __future__ import annotations
 from argparse import ArgumentParser, _SubParsersAction
 from typing import Type, Union
 
-from pipescaler.core.cli import UtilityCli
+from pipescaler.core.cli import UtilityCliBase
 from pipescaler.utilities import ScaledPairIdentifier
 
 
-class ScaledPairIdentifierCli(UtilityCli):
+class ScaledPairIdentifierCli(UtilityCliBase):
     """Command line interface for ScaledPairIdentifier."""
 
     @classmethod
