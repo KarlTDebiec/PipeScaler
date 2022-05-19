@@ -35,7 +35,7 @@ pywin32 = [{ version = '^304', platform = "win32"}]
 PyYAML = "^6.0"
 requests = "^2.27.1"
 scikit-image = "^0.19.2"
-scipy = "^1.8.0"
+scipy = "^1.8.1"
 svglib = "^1.2.1"
 tables = "^3.7.0"
 torch = "^1.11.0"
