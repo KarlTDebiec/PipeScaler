@@ -24,29 +24,30 @@ include = ["pipescaler/data/**"]
 
 [tool.poetry.dependencies]
 python = "~3.9"
-Flask = "^2.1.1"
+Flask = "^2.1.2"
 ImageHash = "^4.2.1"
 numba = "^0.55.1"
 numpy = "^1.21.5"
 pandas = "^1.4.1"
-Pillow = "^9.0.1"
+Pillow = "^9.1.1"
 pywinauto = [{ version = '^0.6.8', platform = "win32"}]
-pywin32 = [{ version = '^303', platform = "win32"}]
+pywin32 = [{ version = '^304', platform = "win32"}]
 PyYAML = "^6.0"
 requests = "^2.27.1"
 scikit-image = "^0.19.2"
-scipy = "^1.8.0"
-svglib = "^1.2.1"
+scipy = "^1.8.1"
+svglib = "^1.3.0"
+tables = "^3.7.0"
 torch = "^1.11.0"
-watchdog = "^2.1.6"
+watchdog = "^2.1.8"
 "xbrz.py" = "^1.0.2"
 
 [tool.poetry.dev-dependencies]
 black = "^22.1.0"
-coverage = "^6.3.2"
+coverage = "^6.3.3"
 isort = "^5.10.1"
 prospector = "^1.7.7"
-pytest = "^7.1.1"
+pytest = "^7.1.2"
 pytest-cov = "^3.0.0"
 pytest-xdist = "^2.5.0"
 
