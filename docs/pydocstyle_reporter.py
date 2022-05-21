@@ -83,7 +83,11 @@ class PydocstyleReporter(CommandLineInterface):
         cls,
         parser: Union[ArgumentParser, _SubParsersAction],
     ) -> None:
+        """Add arguments to a nascent argument parser.
 
+        Arguments:
+            parser: Nascent argument parser
+        """
         parser.add_argument(
             "pydocstyle_infile",
             type=cls.input_path_arg(),
@@ -95,6 +99,14 @@ class PydocstyleReporter(CommandLineInterface):
             type=cls.input_path_arg(),
             help="Input list of added or modified files",
         )
+
+    @classmethod
+    def main(cls) -> None:
+        """Parse arguments and perform operations."""
+        parser = cls.construct_argparser()
+        kwargs = vars(parser.parse_args())
+
+        cls(**kwargs)()
 
 
 if __name__ == "__main__":
