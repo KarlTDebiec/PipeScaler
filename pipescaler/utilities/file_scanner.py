@@ -51,8 +51,7 @@ class FileScanner:
         scaled_pair_identifier: Optional[dict[str:Any]] = None,
         **kwargs: Any,
     ) -> None:
-        """
-        Validate and store static configuration
+        """Validate and store configuration and initialize.
 
         Arguments:
             input_directory: Directory or directories from which to read input files

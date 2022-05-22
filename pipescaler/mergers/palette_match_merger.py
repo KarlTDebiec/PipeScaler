@@ -26,6 +26,7 @@ class PaletteMatchMerger(Merger):
         """Validate and store configuration and initialize.
 
         Arguments:
+            palette_match_mode: Mode of palette matching to perform
             **kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)

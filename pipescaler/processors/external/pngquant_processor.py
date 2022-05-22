@@ -16,7 +16,8 @@ from pipescaler.core.stages.processors import ExternalProcessor
 class PngquantProcessor(ExternalProcessor):
     """Reduces image palette using pngquant.
 
-    See [pngquant](https://pngquant.org/)."""
+    See [pngquant](https://pngquant.org/).
+    """
 
     def __init__(
         self,

@@ -19,7 +19,8 @@ from pipescaler.core.stages.processors import ImageProcessor
 class XbrzProcessor(ImageProcessor):
     """Upscales image using xbrz.
 
-    See [xbrz](https://github.com/ioistired/xbrz.py)."""
+    See [xbrz](https://github.com/ioistired/xbrz.py).
+    """
 
     def __init__(self, scale: int = 4, **kwargs: Any) -> None:
         """Validate and store configuration and initialize.

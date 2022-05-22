@@ -88,7 +88,7 @@ class Pipeline:
         self.wip_files = set()
 
     def __call__(self, **kwargs: Any) -> None:
-        """Perform operations"""
+        """Perform operations."""
 
         source = self.pipeline[0]
         for infile in source:

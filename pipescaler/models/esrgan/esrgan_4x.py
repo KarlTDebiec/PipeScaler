@@ -10,6 +10,7 @@
 from __future__ import annotations
 
 from collections import OrderedDict
+from typing import NamedTuple
 
 from torch import Tensor
 from torch.nn import Conv2d
@@ -46,7 +47,15 @@ class Esrgan4x(Esrgan):
 
     def load_state_dict(
         self, state_dict: OrderedDict[str, Tensor], strict: bool = True
-    ):
+    ) -> NamedTuple:
+        """Copy parameters and buffers from state_dict.
+
+        Args:
+            state_dict: Parameters and persistent buffers
+            strict: Whether to strictly enforce that keys in state_dict match
+        Returns:
+            Named tuple with missing and unexpected keys
+        """
         self.upconv1 = Conv2d(self.n_features, self.n_features, 3, 1, 1)
         self.upconv2 = Conv2d(self.n_features, self.n_features, 3, 1, 1)
 

@@ -150,7 +150,7 @@ class GigapixelAiProcessor(Processor):
         button.click_input(coords=coords, absolute=True)
 
     def close_application(self) -> None:
-        """Click 'X' to close application"""
+        """Click 'X' to close application."""
         self.click_button(self.window.TitleBar.CloseButton)
         self._application = None
 
