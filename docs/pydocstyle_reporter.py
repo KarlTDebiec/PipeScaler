@@ -93,7 +93,6 @@ class PydocstyleReporter(CommandLineInterface):
             type=cls.input_path_arg(),
             help="Input pydocstyle output file",
         )
-
         parser.add_argument(
             "modified_files_infile",
             type=cls.input_path_arg(),
@@ -101,11 +100,12 @@ class PydocstyleReporter(CommandLineInterface):
         )
 
     @classmethod
-    def main(cls) -> None:
-        """Parse arguments and perform operations."""
-        parser = cls.construct_argparser()
-        kwargs = vars(parser.parse_args())
+    def execute(cls, **kwargs: Any) -> None:
+        """Execute with provided keyword arguments.
 
+        Args:
+            **kwargs: Command-line arguments
+        """
         cls(**kwargs)()
 
 

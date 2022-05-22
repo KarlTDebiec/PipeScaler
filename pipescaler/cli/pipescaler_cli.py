@@ -35,12 +35,14 @@ class PipeScalerCli(CommandLineInterface):
         UtilitiesCli.construct_argparser(parser=subparsers)
 
     @classmethod
-    def main(cls) -> None:
-        parser = cls.construct_argparser()
-        kwargs = vars(parser.parse_args())
+    def execute(cls, **kwargs: Any) -> None:
+        """Execute with provided keyword arguments.
 
+        Args:
+            **kwargs: Command-line arguments
+        """
         sub_cli = cls.sub_clis[kwargs.pop("sub_cli")]
-        sub_cli.main2(**kwargs)
+        sub_cli.execute(**kwargs)
 
     @classmethod
     @property

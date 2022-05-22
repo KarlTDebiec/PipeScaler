@@ -33,18 +33,25 @@ class ProcessorCli(CommandLineInterface, ABC):
         parser.add_argument("outfile", type=cls.output_path_arg(), help="output file")
 
     @classmethod
-    def main(cls) -> None:
-        """Parse arguments and perform operations."""
-        parser = cls.construct_argparser()
-        kwargs = vars(parser.parse_args())
+    def execute(cls, **kwargs: Any) -> None:
+        """Execute with provided keyword arguments.
 
-        cls.main2(**kwargs)
+        TODO: Decide on a consistent way for ProcessorCli and UtilityCli to manage
+          arguments destined for __init__ and arguments destined for __call__
 
-    @classmethod
-    def main2(cls, **kwargs: Any):
+        Args:
+            **kwargs: Command-line arguments
+        """
         # noinspection PyCallingNonCallable
         processor = cls.processor(**kwargs)
         processor(kwargs.pop("infile"), kwargs.pop("outfile"))
+
+    @classmethod
+    def main(cls) -> None:
+        """Execute from command line."""
+        parser = cls.construct_argparser()
+        kwargs = vars(parser.parse_args())
+        cls.execute(**kwargs)
 
     @classmethod
     @property

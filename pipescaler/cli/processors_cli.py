@@ -34,13 +34,14 @@ class ProcessorsCli(CommandLineInterface):
             cls.processors[name].construct_argparser(parser=subparsers)
 
     @classmethod
-    def main(cls) -> None:
-        """Parse arguments and perform operations."""
-        parser = cls.construct_argparser()
-        kwargs = vars(parser.parse_args())
+    def execute(cls, **kwargs: Any) -> None:
+        """Execute with provided keyword arguments.
 
+        Args:
+            **kwargs: Command-line arguments
+        """
         processor = cls.processors[kwargs.pop("processor")]
-        processor.main2(**kwargs)
+        processor.execute(**kwargs)
 
     @classmethod
     @property

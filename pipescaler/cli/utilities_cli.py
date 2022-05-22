@@ -34,13 +34,14 @@ class UtilitiesCli(CommandLineInterface):
             cls.utilities[name].construct_argparser(parser=subparsers)
 
     @classmethod
-    def main(cls) -> None:
-        """Parse arguments and perform operations."""
-        parser = cls.construct_argparser()
-        kwargs = vars(parser.parse_args())
+    def execute(cls, **kwargs: Any) -> None:
+        """Execute with provided keyword arguments.
 
+        Args:
+            **kwargs: Command-line arguments
+        """
         utility = cls.utilities[kwargs.pop("utility")]
-        utility.main2(**kwargs)
+        utility.execute(**kwargs)
 
     @classmethod
     @property

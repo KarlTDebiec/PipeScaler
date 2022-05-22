@@ -100,10 +100,12 @@ class RunCli(CommandLineInterface):
         return output_section
 
     @classmethod
-    def main(cls) -> None:
-        """Parse arguments."""
-        parser = cls.construct_argparser()
-        kwargs = vars(parser.parse_args())
+    def execute(cls, **kwargs: Any) -> None:
+        """Execute with provided keyword arguments.
+
+        Args:
+            **kwargs: Command-line arguments
+        """
         conf = read_yaml(kwargs.pop("conf_file"))
 
         # Set environment variables

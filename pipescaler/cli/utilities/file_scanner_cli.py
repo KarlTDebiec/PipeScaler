@@ -40,15 +40,12 @@ class FileScannerCli(UtilityCli):
         )
 
     @classmethod
-    def main(cls) -> None:
-        """Parse arguments."""
-        parser = cls.construct_argparser()
-        kwargs = vars(parser.parse_args())
-        cls.main2(**kwargs)
+    def execute(cls, **kwargs: Any) -> None:
+        """Execute with provided keyword arguments.
 
-    @classmethod
-    def main2(cls, **kwargs: Any) -> None:
-        """Read configuration, configure environment, and build and call utility."""
+        Args:
+            **kwargs: Command-line arguments
+        """
         conf = read_yaml(kwargs.pop("conf_file"))
 
         # Set environment variables
@@ -57,7 +54,7 @@ class FileScannerCli(UtilityCli):
             environ[key] = value
             info(f"Environment variable '{key}' set to '{value}'")
 
-        verbosity = validate_int(kwargs.pop("verbosity", 0), min_value=0)
+        verbosity = validate_int(kwargs.pop("verbosity", 1), min_value=0)
         set_logging_verbosity(verbosity)
 
         # noinspection PyCallingNonCallable

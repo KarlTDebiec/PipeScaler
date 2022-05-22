@@ -90,7 +90,7 @@ class ProspectorReporter(CommandLineInterface):
         parser.add_argument(
             "prospector_infile",
             type=cls.input_path_arg(),
-            help="Input prospector JSON file",
+            help="Input prospector output file in JSON format",
         )
         parser.add_argument(
             "modified_files_infile",
@@ -99,11 +99,12 @@ class ProspectorReporter(CommandLineInterface):
         )
 
     @classmethod
-    def main(cls) -> None:
-        """Parse arguments and perform operations."""
-        parser = cls.construct_argparser()
-        kwargs = vars(parser.parse_args())
+    def execute(cls, **kwargs: Any) -> None:
+        """Execute with provided keyword arguments.
 
+        Args:
+            **kwargs: Command-line arguments
+        """
         cls(**kwargs)()
 
 
