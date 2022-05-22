@@ -18,9 +18,9 @@ def skip_if_ci(inner: partial = None) -> partial:
     """Mark test to skip if running within continuous integration pipeline.
 
     Args:
-        inner: Nascent partial function of pytest.param with additional mark(s)
+        inner: Nascent partial function of pytest.param with additional marks
     Returns:
-        Partial function of pytest.param with mark(s)
+        Partial function of pytest.param with marks
     """
     marks = [
         mark.skipif(
@@ -37,9 +37,9 @@ def xfail_file_not_found(inner: partial = None) -> partial:
     """Mark test to be expected to fail due to a file that cannot be found.
 
     Args:
-        inner: Nascent partial function of pytest.param with additional mark(s)
+        inner: Nascent partial function of pytest.param with additional marks
     Returns:
-        Partial function of pytest.param with mark(s)
+        Partial function of pytest.param with marks
     """
     marks = mark.xfail(raises=FileNotFoundError)
     if inner is not None:
@@ -57,9 +57,9 @@ def xfail_if_platform(
     Args:
         unsupported_platforms: Platforms on which test should be expected to fail
         raises: Error test should be expected to raise
-        inner: Nascent partial function of pytest.param with additional mark(s)
+        inner: Nascent partial function of pytest.param with additional marks
     Returns:
-        Partial function of pytest.param with mark(s)
+        Partial function of pytest.param with marks
     """
     marks = mark.xfail(
         system() in unsupported_platforms,
@@ -76,9 +76,9 @@ def xfail_unsupported_image_mode(inner: partial = None) -> partial:
     """Mark test to be expected to fail due to an unsupported image mode.
 
     Args:
-        inner: Nascent partial function of pytest.param with additional mark(s)
+        inner: Nascent partial function of pytest.param with additional marks
     Returns:
-        Partial function of pytest.param with mark(s)
+        Partial function of pytest.param with marks
     """
     marks = mark.xfail(raises=UnsupportedImageModeError)
     if inner is not None:
@@ -87,12 +87,12 @@ def xfail_unsupported_image_mode(inner: partial = None) -> partial:
 
 
 def xfail_value(inner: partial = None) -> partial:
-    """Mark test to be expected to fail due to a value error
+    """Mark test to be expected to fail due to a value error.
 
     Args:
-        inner: Nascent partial function of pytest.param with additional mark(s)
+        inner: Nascent partial function of pytest.param with additional marks
     Returns:
-        Partial function of pytest.param with mark(s)
+        Partial function of pytest.param with marks
     """
     marks = mark.xfail(raises=ValueError)
     if inner is not None:

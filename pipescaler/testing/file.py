@@ -60,7 +60,7 @@ def get_model_infile(name: str) -> str:
     return infile
 
 
-def get_sub_directory(sub_directory: str) -> str:
+def get_sub_directory(name: str) -> str:
     """Get full path of sub-directory within test data directory.
 
     Args:
@@ -70,4 +70,4 @@ def get_sub_directory(sub_directory: str) -> str:
     """
     base_directory = join(dirname(package_root), "test", "data", "infiles")
 
-    return validate_input_directory(join(base_directory, sub_directory))
+    return validate_input_directory(join(base_directory, name))
