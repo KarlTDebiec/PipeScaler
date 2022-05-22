@@ -511,9 +511,7 @@ class Pipeline:
         downstream_pipeline: list[Union[Stage, dict[Stage, Any]]],
         image: Union[PipeImage, dict[str, PipeImage]],
     ):
-        """Run an input image through a Splitter, and each output image through
-        the Splitter's associated outlet pipeline. Collects the outputs of each
-        outlet pipeline, and route all of them into downstream pipeline.
+        """Run image through a Splitter, then each outlet pipeline, then downstream.
 
         Arguments:
             stage: Splitter to run
