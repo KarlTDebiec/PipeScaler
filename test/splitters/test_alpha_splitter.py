@@ -10,7 +10,7 @@ from pipescaler.common import temporary_filename
 from pipescaler.core import AlphaMode, MaskFillMode
 from pipescaler.splitters import AlphaSplitter
 from pipescaler.testing import (
-    expected_output_mode,
+    get_expected_output_mode,
     get_infile,
     parametrized_fixture,
     xfail_unsupported_image_mode,
@@ -61,7 +61,7 @@ def test(infile: str, splitter: AlphaSplitter) -> None:
     with temporary_filename(".png") as color_outfile:
         with temporary_filename(".png") as alpha_outfile:
             input_image = Image.open(infile)
-            expected_color_mode = expected_output_mode(input_image).rstrip("A")
+            expected_color_mode = get_expected_output_mode(input_image).rstrip("A")
 
             splitter(infile, color=color_outfile, alpha=alpha_outfile)
 

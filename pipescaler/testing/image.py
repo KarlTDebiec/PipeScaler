@@ -8,7 +8,14 @@ from PIL import Image
 from pipescaler.core import remove_palette_from_image
 
 
-def expected_output_mode(input_image: Image.Image):
+def get_expected_output_mode(input_image: Image.Image) -> str:
+    """Get expected output mode of image after processing.
+
+    Args:
+        input_image: Input image
+    Returns:
+        Expected output mode of image after processing
+    """
     if input_image.mode == "P":
         return remove_palette_from_image(input_image).mode
     else:

@@ -8,7 +8,11 @@ from PIL import Image
 
 from pipescaler.common import temporary_filename
 from pipescaler.processors.image import ResizeProcessor
-from pipescaler.testing import expected_output_mode, get_infile, parametrized_fixture
+from pipescaler.testing import (
+    get_expected_output_mode,
+    get_infile,
+    parametrized_fixture,
+)
 
 
 @parametrized_fixture(
@@ -42,7 +46,7 @@ def test(infile: str, processor: ResizeProcessor) -> None:
         processor(infile, outfile)
 
         with Image.open(infile) as input_image, Image.open(outfile) as output_image:
-            assert output_image.mode == expected_output_mode(input_image)
+            assert output_image.mode == get_expected_output_mode(input_image)
             assert output_image.size == (
                 input_image.size[0] * processor.scale,
                 input_image.size[1] * processor.scale,

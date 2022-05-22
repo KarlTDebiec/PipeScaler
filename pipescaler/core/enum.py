@@ -9,7 +9,7 @@ from enum import Enum, auto
 
 
 class AlphaMode(Enum):
-    """Mode of alpha image."""
+    """Mode of alpha channel handling to perform."""
 
     GRAYSCALE = auto()
     MONOCHROME_OR_GRAYSCALE = auto()

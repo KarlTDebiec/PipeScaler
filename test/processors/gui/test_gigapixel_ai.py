@@ -9,7 +9,7 @@ from PIL import Image
 from pipescaler.common import temporary_filename
 from pipescaler.processors.gui import GigapixelAiProcessor
 from pipescaler.testing import (
-    expected_output_mode,
+    get_expected_output_mode,
     get_infile,
     parametrized_fixture,
     skip_if_ci,
@@ -42,7 +42,7 @@ def test(infile: str, processor: GigapixelAiProcessor) -> None:
         processor(infile, outfile)
 
         with Image.open(infile) as input_image, Image.open(outfile) as output_image:
-            assert output_image.mode == expected_output_mode(input_image)
+            assert output_image.mode == get_expected_output_mode(input_image)
             assert output_image.size == (
                 input_image.size[0] * 4,
                 input_image.size[1] * 4,

@@ -27,7 +27,9 @@ class AlphaSplitter(Splitter):
     ) -> None:
         """Validate and store configuration and initialize.
 
-        Arguments:
+        Args:
+            alpha_mode: Mode of alpha channel handling to perform
+            mask_fill_mode: Mode of mask filling to perform
             **kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)

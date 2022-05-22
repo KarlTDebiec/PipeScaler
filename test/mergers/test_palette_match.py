@@ -10,7 +10,7 @@ from pipescaler.common import temporary_filename
 from pipescaler.core import PaletteMatchMode, get_palette, validate_image
 from pipescaler.mergers import PaletteMatchMerger
 from pipescaler.testing import (
-    expected_output_mode,
+    get_expected_output_mode,
     get_infile,
     parametrized_fixture,
     xfail_unsupported_image_mode,
@@ -48,12 +48,12 @@ def test(reference: str, fit: str, merger: PaletteMatchMerger):
         merger(reference=reference, fit=fit, outfile=outfile)
 
         with Image.open(outfile) as output_image:
-            if expected_output_mode(fit_image) == "L":
+            if get_expected_output_mode(fit_image) == "L":
                 reference_colors = set(get_palette(reference_image))
                 output_colors = set(get_palette(output_image))
             else:
                 reference_colors = set(map(tuple, get_palette(reference_image)))
                 output_colors = set(map(tuple, get_palette(output_image)))
             assert output_colors.issubset(reference_colors)
-            assert output_image.mode == expected_output_mode(fit_image)
+            assert output_image.mode == get_expected_output_mode(fit_image)
             assert output_image.size == fit_image.size
