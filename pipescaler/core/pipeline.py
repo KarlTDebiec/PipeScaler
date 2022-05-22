@@ -89,7 +89,6 @@ class Pipeline:
 
     def __call__(self, **kwargs: Any) -> None:
         """Perform operations."""
-
         source = self.pipeline[0]
         for infile in source:
             info(f"{self}: '{infile}' processing started")
@@ -117,11 +116,11 @@ class Pipeline:
                     info(f"{self}: '{wip_subdirectory}' removed")
 
     def __repr__(self) -> str:
-        """Detailed representation of pipeline"""
+        """Detailed representation of pipeline."""
         return self.__class__.__name__.lower()
 
     def __str__(self) -> str:
-        """Simple representation of image"""
+        """Simple representation of image."""
         return self.__class__.__name__.lower()
 
     def build_merger(
@@ -311,6 +310,13 @@ class Pipeline:
         return pipeline
 
     def create_image_wip_directory(self, source_image: PipeImage):
+        """Creates an image in the WIP directory.
+
+        Args:
+            source_image: Image to create
+        Returns:
+            Created image
+        """
         # Create image working directory
         image_wip_directory = validate_output_directory(
             join(self.wip_directory, source_image.base_filename), create_directory=True
@@ -436,7 +442,7 @@ class Pipeline:
 
         Arguments:
             pipeline: Pipeline to route to
-            image: Input image(s)
+            image: Input image or images
         Returns:
             Output of downstream pipeline
         """
@@ -472,9 +478,7 @@ class Pipeline:
         downstream_pipeline: list[Union[Stage, dict[Stage, Any]]],
         image: Union[PipeImage, dict[str, PipeImage]],
     ):
-        """Run input image through an outlet pipeline selected by a Sorter, then
-        run output image of that outlet pipeline through a further downstream
-        pipeline.
+        """Run image through an outlet pipeline selected by a Sorter, then downstream.
 
         Arguments:
             stage: Stage to run

@@ -73,7 +73,7 @@ class FileScanner:
         super().__init__()
 
         def validate_input_directories(input_directories: Union[str, list[str]]):
-            """Validate input directory paths and make them absolute"""
+            """Validate input directory paths and make them absolute."""
             if isinstance(input_directories, str):
                 input_directories = [input_directories]
             validated_input_directories = []
@@ -155,7 +155,6 @@ class FileScanner:
         Arguments:
             **kwargs: Additional keyword arguments
         """
-
         # Prepare to for run
         if isdir(self.copy_directory):
             for filename in get_files(self.copy_directory, style="absolute"):
@@ -179,7 +178,6 @@ class FileScanner:
 
     def get_status(self, filename: str) -> str:
         """Select operation for filename."""
-
         if self.scaled_pair_identifier is not None:
             if filename in self.scaled_pair_identifier.children:
                 return "scaled"
