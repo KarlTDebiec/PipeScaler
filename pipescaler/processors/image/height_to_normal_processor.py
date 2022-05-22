@@ -11,20 +11,19 @@ from PIL import Image
 
 from pipescaler.common import validate_float
 from pipescaler.core import (
-    ImageProcessor,
     crop_image,
     expand_image,
     generate_normal_map_from_height_map_image,
     smooth_image,
 )
+from pipescaler.core.stages.processors import ImageProcessor
 
 
 class HeightToNormalProcessor(ImageProcessor):
     """Converts height map image to a normal map image."""
 
     def __init__(self, sigma: Optional[int] = None, **kwargs: Any) -> None:
-        """
-        Validate and store static configuration
+        """Validate and store configuration and initialize.
 
         Arguments:
             sigma: Gaussian smoothing to apply to image
@@ -39,6 +38,13 @@ class HeightToNormalProcessor(ImageProcessor):
             self.sigma = None
 
     def process(self, input_image: Image.Image) -> Image.Image:
+        """Process an image.
+
+        Arguments:
+            input_image: Input image to process
+        Returns:
+            Processed output image
+        """
         expanded_image = expand_image(input_image, 8, 8, 8, 8)
         if self.sigma is not None:
             smoothed_image = smooth_image(expanded_image, self.sigma)
@@ -52,4 +58,5 @@ class HeightToNormalProcessor(ImageProcessor):
     @classmethod
     @property
     def supported_input_modes(self) -> list[str]:
+        """Supported modes for input image."""
         return ["L"]

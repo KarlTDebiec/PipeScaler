@@ -51,8 +51,7 @@ class FileScanner:
         scaled_pair_identifier: Optional[dict[str:Any]] = None,
         **kwargs: Any,
     ) -> None:
-        """
-        Validate and store static configuration
+        """Validate and store configuration and initialize.
 
         Arguments:
             input_directory: Directory or directories from which to read input files
@@ -61,18 +60,20 @@ class FileScanner:
             rules: Rules by which to process images
             reviewed_directory: Directory or directories of reviewed images
             ignore_directory: Directory or directories of reviewed images to ignore
+            scaled_directory: Directory of scaled image sets
+            remove_directory: Directory of reviewed images to remove from input
+              directory or directories
             observed_filenames_infile: Text file from which to read list of observed
               files
             observed_filenames_outfile: Text file to which to write list of observed
               files
-            remove_directory: Directory of reviewed images to remove from input
-              directory or directories
+            scaled_pair_identifier: Initialized scaled pair identifier
             **kwargs: Additional keyword arguments
         """
         super().__init__()
 
         def validate_input_directories(input_directories: Union[str, list[str]]):
-            """Validate input directory paths and make them absolute"""
+            """Validate input directory paths and make them absolute."""
             if isinstance(input_directories, str):
                 input_directories = [input_directories]
             validated_input_directories = []
@@ -149,13 +150,11 @@ class FileScanner:
             )
 
     def __call__(self, **kwargs: Any) -> Any:
-        """
-        Perform operations
+        """Perform operations.
 
         Arguments:
             **kwargs: Additional keyword arguments
         """
-
         # Prepare to for run
         if isdir(self.copy_directory):
             for filename in get_files(self.copy_directory, style="absolute"):
@@ -178,8 +177,7 @@ class FileScanner:
         # self.watch_new_files_in_input_directory()
 
     def get_status(self, filename: str) -> str:
-        """Select operation for filename"""
-
+        """Select operation for filename."""
         if self.scaled_pair_identifier is not None:
             if filename in self.scaled_pair_identifier.children:
                 return "scaled"
@@ -197,7 +195,7 @@ class FileScanner:
         return "copy"
 
     def move_children_to_scaled_directory(self):
-        """Move children to scaled directory"""
+        """Move children to scaled directory."""
         for child_filename in self.scaled_directory:
             child = basename(self.filenames[child_filename])
             for reviewed_directory in self.reviewed_directories:
@@ -213,7 +211,7 @@ class FileScanner:
                     )
 
     def perform_operation(self, filename: str, status: str) -> None:
-        """Perform operations for filename"""
+        """Perform operations for filename."""
         if status == "known":
             self.observed_filenames.add(filename)
             debug(f"'{self.filenames[filename]}' known")
@@ -253,10 +251,7 @@ class FileScanner:
             raise ValueError()
 
     def remove_files_in_remove_directory(self):
-        """
-        Remove existing files in the remove directory, as well as their source files in
-        the input directories; afterwards remove the remove directory itself
-        """
+        """Purge files in the remove directory as well as their source files."""
         if self.remove_directory is not None:
             remove_filenames = get_files(self.remove_directory, style="full")
             for filename in remove_filenames:
@@ -275,16 +270,16 @@ class FileScanner:
             info(f"'{self.remove_directory}' removed")
 
     def watch_new_files_in_input_directory(self):
-        """Watch new files in input directory"""
+        """Watch new files in input directory."""
 
         class FileCreatedEventHandler(FileSystemEventHandler):
-            """event handler"""
+            """Event handler."""
 
             def __init__(self, host) -> None:
                 self.host = host
 
             def on_created(self, event):
-                """action"""
+                """Action."""
                 filename = splitext(basename(event.key[1]))[0]
                 self.host.perform_operation(filename)
 
@@ -300,7 +295,7 @@ class FileScanner:
         observer.join()
 
     def write_observed_filenames_to_outfile(self):
-        """Write observed filenames to outfile"""
+        """Write observed filenames to outfile."""
         with open(self.observed_filenames_outfile, "w", encoding="utf8") as outfile:
             for filename in sorted(list(self.observed_filenames)):
                 outfile.write(f"{filename}\n")

@@ -5,14 +5,9 @@
 """Functions for testing."""
 from __future__ import annotations
 
-from pipescaler.testing.file import (
-    get_infile,
-    get_model_infile,
-    get_script,
-    get_sub_directory,
-)
+from pipescaler.testing.file import get_infile, get_model_infile, get_sub_directory
 from pipescaler.testing.fixture import parametrized_fixture
-from pipescaler.testing.image import expected_output_mode
+from pipescaler.testing.image import get_expected_output_mode
 from pipescaler.testing.mark import (
     skip_if_ci,
     xfail_file_not_found,
@@ -22,10 +17,9 @@ from pipescaler.testing.mark import (
 )
 
 __all__: list[str] = [
-    "expected_output_mode",
+    "get_expected_output_mode",
     "get_infile",
     "get_model_infile",
-    "get_script",
     "get_sub_directory",
     "skip_if_ci",
     "parametrized_fixture",

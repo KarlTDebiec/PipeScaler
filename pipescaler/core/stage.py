@@ -14,14 +14,12 @@ from pipescaler.common import validate_input_path
 
 
 def initialize_stage(stage_name, stage_conf, modules):
-    """
-    Import and initialize a stage
+    """Import and initialize a stage.
 
     Arguments:
         stage_name: Name with which to initialize stage
         stage_conf: Configuration with which to initialize stage
         modules: Modules from which stage may be imported
-
     Returns:
         Initialized stage
     """
@@ -101,5 +99,5 @@ class Stage(ABC):
     def help_markdown(cls) -> str:
         """Short description of this tool in markdown, with links."""
         if cls.__doc__:
-            return cleandoc(cls.__doc__).split(". ")[0]
+            return cleandoc(cls.__doc__).split(". ", maxsplit=1)[0]
         return ""

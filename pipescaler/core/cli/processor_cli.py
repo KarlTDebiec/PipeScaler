@@ -2,7 +2,7 @@
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
-"""Command line interface for Processors."""
+"""Abstract base class for Processor command line interfaces."""
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -11,11 +11,11 @@ from inspect import cleandoc
 from typing import Any, Type, Union
 
 from pipescaler.common import CommandLineInterface
-from pipescaler.core import Processor
+from pipescaler.core.stages import Processor
 
 
-class ProcessorCommandLineInterface(CommandLineInterface, ABC):
-    """Command line interface for Processors."""
+class ProcessorCli(CommandLineInterface, ABC):
+    """Abstract base class for Processor command line interfaces."""
 
     @classmethod
     def add_arguments_to_argparser(
@@ -33,15 +33,25 @@ class ProcessorCommandLineInterface(CommandLineInterface, ABC):
         parser.add_argument("outfile", type=cls.output_path_arg(), help="output file")
 
     @classmethod
-    def main(cls) -> None:
-        parser = cls.construct_argparser()
-        kwargs = vars(parser.parse_args())
-        cls.process(**kwargs)
+    def execute(cls, **kwargs: Any) -> None:
+        """Execute with provided keyword arguments.
+
+        TODO: Decide on a consistent way for ProcessorCli and UtilityCli to manage
+          arguments destined for __init__ and arguments destined for __call__
+
+        Args:
+            **kwargs: Command-line arguments
+        """
+        # noinspection PyCallingNonCallable
+        processor = cls.processor(**kwargs)
+        processor(kwargs.pop("infile"), kwargs.pop("outfile"))
 
     @classmethod
-    def process(cls, infile: str, outfile: str, **kwargs: Any) -> None:
-        processor = cls.processor(**kwargs)
-        processor(infile, outfile)
+    def main(cls) -> None:
+        """Execute from command line."""
+        parser = cls.construct_argparser()
+        kwargs = vars(parser.parse_args())
+        cls.execute(**kwargs)
 
     @classmethod
     @property

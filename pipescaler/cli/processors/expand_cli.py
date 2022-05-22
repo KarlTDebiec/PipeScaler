@@ -8,12 +8,12 @@ from __future__ import annotations
 from argparse import ArgumentParser, _SubParsersAction
 from typing import Type, Union
 
-from pipescaler.core import Processor
-from pipescaler.core.cl import ProcessorCommandLineInterface
-from pipescaler.processors import ExpandProcessor
+from pipescaler.core.cli import ProcessorCli
+from pipescaler.core.stages import Processor
+from pipescaler.processors.image import ExpandProcessor
 
 
-class ExpandCli(ProcessorCommandLineInterface):
+class ExpandCli(ProcessorCli):
     """Command line interface for ExpandProcessor."""
 
     @classmethod

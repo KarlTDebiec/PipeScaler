@@ -7,7 +7,7 @@ import pytest
 from PIL import Image
 
 from pipescaler.common import temporary_filename
-from pipescaler.processors import ModeProcessor
+from pipescaler.processors.image import ModeProcessor
 from pipescaler.testing import get_infile, parametrized_fixture
 
 

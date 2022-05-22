@@ -11,7 +11,8 @@ from typing import Any
 import numpy as np
 
 from pipescaler.common import validate_float, validate_int
-from pipescaler.core import Sorter, validate_image
+from pipescaler.core import validate_image
+from pipescaler.core.stages import Sorter
 
 
 class SolidColorSorter(Sorter):
@@ -20,8 +21,7 @@ class SolidColorSorter(Sorter):
     def __init__(
         self, mean_threshold: float = 1, max_threshold: float = 10, **kwargs: Any
     ) -> None:
-        """
-        Validate and store static configuration
+        """Validate and store configuration and initialize.
 
         Arguments:
             mean_threshold: Sort as 'solid' if mean diff is below this threshold
@@ -35,8 +35,7 @@ class SolidColorSorter(Sorter):
         self.max_threshold = validate_int(max_threshold, 0, 255)
 
     def __call__(self, infile: str) -> str:
-        """
-        Sort image based on presence of multiple colors
+        """Sort image based on presence of multiple colors.
 
         Arguments:
             infile: Input image
@@ -70,5 +69,5 @@ class SolidColorSorter(Sorter):
 
     @property
     def outlets(self) -> list[str]:
-        """Outlets that flow out of stage"""
+        """Outlets that flow out of stage."""
         return ["not_solid", "solid"]

@@ -13,7 +13,11 @@ from pytest import fixture, mark
 from pipescaler.cli.utilities.host_cli import HostCli
 from pipescaler.common import temporary_filename
 from pipescaler.processors import WebProcessor
-from pipescaler.testing import expected_output_mode, get_infile, parametrized_fixture
+from pipescaler.testing import (
+    get_expected_output_mode,
+    get_infile,
+    parametrized_fixture,
+)
 
 
 @fixture()
@@ -60,4 +64,4 @@ def test(conf: str, infile: str, processor: WebProcessor):
                 with Image.open(infile) as input_image, Image.open(
                     outfile
                 ) as output_image:
-                    assert output_image.mode == expected_output_mode(input_image)
+                    assert output_image.mode == get_expected_output_mode(input_image)

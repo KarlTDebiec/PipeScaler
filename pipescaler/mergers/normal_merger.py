@@ -8,15 +8,14 @@ from __future__ import annotations
 import numpy as np
 from PIL import Image
 
-from pipescaler.core import Merger
+from pipescaler.core.stages import Merger
 
 
 class NormalMerger(Merger):
     """Merges x, y, and z images into a single normal map image."""
 
     def merge(self, *input_images: Image.Image) -> Image.Image:
-        """
-        Merge images
+        """Merge images.
 
         Arguments:
             *input_images: Input images to merge
@@ -45,13 +44,13 @@ class NormalMerger(Merger):
 
     @property
     def inlets(self) -> list[str]:
-        """Inlets that flow into stage"""
+        """Inlets that flow into stage."""
         return ["x", "y", "z"]
 
     @classmethod
     @property
     def supported_input_modes(self) -> dict[str, list[str]]:
-        """Supported modes for input images"""
+        """Supported modes for input images."""
         return {
             "x": ["L"],
             "y": ["L"],

@@ -10,18 +10,18 @@ from logging import info
 from os.path import basename, dirname
 from typing import Any
 
-from pipescaler.core import Sorter
+from pipescaler.core.stages import Sorter
 
 
 class RegexSorter(Sorter):
     """Sorts image based on filename using a regular expression."""
 
     def __init__(self, regex: str, **kwargs: Any) -> None:
-        """
-        Validate and store static configuration
-            Arguments:
-                regex: Sort as 'matched' if image name matches this regular expression
-                **kwargs: Additional keyword arguments
+        """Validate and store configuration and initialize.
+
+        Arguments:
+            regex: Sort as 'matched' if image name matches this regular expression
+            **kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
 
@@ -29,8 +29,7 @@ class RegexSorter(Sorter):
         self.regex = re.compile(regex)
 
     def __call__(self, infile: str) -> str:
-        """
-        Sort image based on filename using a regular expression
+        """Sort image based on filename using a regular expression.
 
         Arguments:
             infile: Input image
@@ -50,5 +49,5 @@ class RegexSorter(Sorter):
 
     @property
     def outlets(self) -> list[str]:
-        """Outlets that flow out of stage"""
+        """Outlets that flow out of stage."""
         return ["matched", "unmatched"]

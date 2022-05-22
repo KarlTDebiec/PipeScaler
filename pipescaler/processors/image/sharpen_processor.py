@@ -9,7 +9,7 @@ import numpy as np
 from PIL import Image
 from scipy.signal import convolve2d
 
-from pipescaler.core import ImageProcessor
+from pipescaler.core.stages.processors import ImageProcessor
 
 
 class SharpenProcessor(ImageProcessor):
@@ -18,7 +18,7 @@ class SharpenProcessor(ImageProcessor):
     kernel = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]], float)
 
     def process(self, input_image: Image.Image) -> Image.Image:
-        """Process image
+        """Process an image.
 
         Arguments:
             input_image: Input image
@@ -45,5 +45,5 @@ class SharpenProcessor(ImageProcessor):
     @classmethod
     @property
     def supported_input_modes(self) -> list[str]:
-        """Supported modes for input image"""
+        """Supported modes for input image."""
         return ["L", "RGB"]

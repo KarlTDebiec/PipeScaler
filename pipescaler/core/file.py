@@ -2,7 +2,7 @@
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
-"""Core functions for interacting with files"""
+"""Functions for interacting with files."""
 from __future__ import annotations
 
 from mimetypes import guess_type
@@ -20,8 +20,7 @@ def get_files_in_directory(
     style: str = "base",
     exclusions: Optional[Union[str, list[str], set[str]]] = None,
 ) -> set[str]:
-    """
-    Get filenames within provided directory.
+    """Get filenames within provided directory.
 
     Arguments:
         directory: Directory from which to get filenames
@@ -58,8 +57,7 @@ def get_files_in_text_file(
     style: str = "base",
     exclusions: Optional[Union[str, list[str], set[str]]] = None,
 ) -> set[str]:
-    """
-    Get filenames within provided text file.
+    """Get filenames within provided text file.
 
     Arguments:
         text_file: Text file from which to get filenames
@@ -102,8 +100,7 @@ def get_files(
     style: str = "base",
     exclusions: Optional[set[str]] = None,
 ) -> set[str]:
-    """
-    Get filenames from provided sources, which may be either directories or text files.
+    """Get filenames from provided sources; either directories or text files.
 
     Arguments:
         sources: Directories and text files from which to get filenames
@@ -123,8 +120,7 @@ def get_files(
     files = set()
 
     def get_file(file_source: str) -> Optional[str]:
-        """
-        Gets a filename in configured style.
+        """Get a filename in configured style.
 
         Arguments:
             file_source: Filename
@@ -167,8 +163,7 @@ def get_files(
 
 
 def read_yaml(infile: str) -> Any:
-    """
-    Reads a yaml file and returns the contents.
+    """Read a yaml file and returns the contents.
 
     Arguments:
         infile: Path to input file

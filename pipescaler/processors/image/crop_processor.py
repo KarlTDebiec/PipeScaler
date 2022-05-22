@@ -10,15 +10,15 @@ from typing import Any
 from PIL import Image
 
 from pipescaler.common import validate_ints
-from pipescaler.core import ImageProcessor, crop_image
+from pipescaler.core import crop_image
+from pipescaler.core.stages.processors import ImageProcessor
 
 
 class CropProcessor(ImageProcessor):
     """Crops image canvas."""
 
     def __init__(self, pixels: tuple[int], **kwargs: Any) -> None:
-        """
-        Validate and store static configuration
+        """Validate and store configuration and initialize.
 
         Arguments:
             pixels: Number of pixels to remove from left, top, right, and bottom
@@ -32,8 +32,7 @@ class CropProcessor(ImageProcessor):
         )
 
     def process(self, input_image: Image.Image) -> Image.Image:
-        """
-        Process an image
+        """Process an image.
 
         Arguments:
             input_image: Input image to process

@@ -18,12 +18,8 @@ from pipescaler.common import (
     validate_int,
     validate_str,
 )
-from pipescaler.core import (
-    ExternalProcessor,
-    crop_image,
-    expand_image,
-    validate_image_and_convert_mode,
-)
+from pipescaler.core import crop_image, expand_image, validate_image_and_convert_mode
+from pipescaler.core.stages.processors import ExternalProcessor
 
 
 class WaifuExternalProcessor(ExternalProcessor):
@@ -54,8 +50,7 @@ class WaifuExternalProcessor(ExternalProcessor):
         expand: bool = True,
         **kwargs: Any,
     ) -> None:
-        """
-        Validate and store static configuration
+        """Validate and store configuration and initialize.
 
         Arguments:
             imagetype: Image type
@@ -76,7 +71,7 @@ class WaifuExternalProcessor(ExternalProcessor):
 
     @property
     def command_template(self):
-        """String template with which to generate command"""
+        """String template with which to generate command."""
         command = (
             f"{validate_executable(self.executable, self.supported_platforms)}"
             f" -s {self.scale}"
@@ -89,8 +84,7 @@ class WaifuExternalProcessor(ExternalProcessor):
         return command
 
     def process(self, infile: str, outfile: str) -> None:
-        """
-        Read image from infile, process it, and save to outfile
+        """Read image from infile, process it, and save to outfile.
 
         Arguments:
             infile: Input file path
@@ -131,7 +125,7 @@ class WaifuExternalProcessor(ExternalProcessor):
     @classmethod
     @property
     def executable(self) -> str:
-        """Name of executable"""
+        """Name of executable."""
         if system() == "Windows":
             return "waifu2x-caffe-cui.exe"
         return "waifu2x"

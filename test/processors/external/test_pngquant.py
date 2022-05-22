@@ -9,7 +9,7 @@ import pytest
 from PIL import Image
 
 from pipescaler.common import temporary_filename
-from pipescaler.processors import PngquantProcessor
+from pipescaler.processors.external import PngquantProcessor
 from pipescaler.testing import get_infile, parametrized_fixture
 
 

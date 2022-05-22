@@ -12,16 +12,18 @@ import xbrz
 from PIL import Image
 
 from pipescaler.common import validate_int
-from pipescaler.core import ImageProcessor, convert_mode
+from pipescaler.core import convert_mode
+from pipescaler.core.stages.processors import ImageProcessor
 
 
 class XbrzProcessor(ImageProcessor):
     """Upscales image using xbrz.
 
-    See [xbrz](https://github.com/ioistired/xbrz.py)."""
+    See [xbrz](https://github.com/ioistired/xbrz.py).
+    """
 
     def __init__(self, scale: int = 4, **kwargs: Any) -> None:
-        """Validate and store configuration.
+        """Validate and store configuration and initialize.
 
         Arguments:
             scale: Factor by which to scale output image relative to input
@@ -33,8 +35,7 @@ class XbrzProcessor(ImageProcessor):
         self.scale = validate_int(scale, 2, 6)
 
     def process(self, input_image: Image.Image) -> Image.Image:
-        """
-        Process an image
+        """Process an image.
 
         Arguments:
             input_image: Input image to process

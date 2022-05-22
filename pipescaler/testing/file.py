@@ -2,7 +2,7 @@
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
-"""File-related functions for testing"""
+"""File-related functions for testing."""
 from os import environ, getenv
 from os.path import dirname, join, normpath, sep, splitext
 
@@ -14,7 +14,14 @@ else:
     from pipescaler.common import package_root
 
 
-def get_infile(name: str):
+def get_infile(name: str) -> str:
+    """Get full path of infile within test data directory.
+
+    Args:
+        name: Name of infile
+    Returns:
+        Full path to infile
+    """
     base_directory = join(dirname(package_root), "test", "data", "infiles")
     split_name = normpath(name).split(sep)
     if len(split_name) == 1:
@@ -28,7 +35,14 @@ def get_infile(name: str):
     return validate_input_file(join(base_directory, sub_directory, filename))
 
 
-def get_model_infile(name: str):
+def get_model_infile(name: str) -> str:
+    """Get full path of model within test data directory.
+
+    Args:
+        name: Name of model
+    Returns:
+        Full path to model
+    """
     base_directory = join(dirname(package_root), "test", "data", "models")
     split_name = normpath(name).split(sep)
     if len(split_name) == 1:
@@ -46,13 +60,14 @@ def get_model_infile(name: str):
     return infile
 
 
-def get_script(filename: str, sub_directory: str = "scripts"):
-    if splitext(filename)[-1] == "":
-        filename = f"{filename}.py"
-    return validate_input_file(join(package_root, normpath(sub_directory), filename))
+def get_sub_directory(name: str) -> str:
+    """Get full path of sub-directory within test data directory.
 
-
-def get_sub_directory(sub_directory: str):
+    Args:
+        name: Name of sub-directory
+    Returns:
+        Full path to sub-directory
+    """
     base_directory = join(dirname(package_root), "test", "data", "infiles")
 
-    return validate_input_directory(join(base_directory, sub_directory))
+    return validate_input_directory(join(base_directory, name))

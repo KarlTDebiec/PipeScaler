@@ -25,7 +25,7 @@ class DolphinSource(DirectorySource):
 
     @staticmethod
     def sort(filename):
-        """Sort outfiles to be yielded by source"""
+        """Sort outfiles to be yielded by source."""
         try:
             components = splitext(basename(filename))[0].split("_")
             if len(components) == 4:

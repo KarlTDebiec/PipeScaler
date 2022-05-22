@@ -9,14 +9,15 @@ from argparse import ArgumentParser, _SubParsersAction
 from logging import info
 from os import environ
 from os.path import expandvars, normpath
-from typing import Type, Union
+from typing import Any, Type, Union
 
-from pipescaler.core.cl import UtilityCommandLineInterface
+from pipescaler.common import set_logging_verbosity, validate_int
+from pipescaler.core.cli import UtilityCli
 from pipescaler.core.file import read_yaml
 from pipescaler.utilities import Host
 
 
-class HostCli(UtilityCommandLineInterface):
+class HostCli(UtilityCli):
     """Command line interface for Host."""
 
     @classmethod
@@ -29,23 +30,22 @@ class HostCli(UtilityCommandLineInterface):
         Arguments:
             parser: Nascent argument parser
         """
+        super().add_arguments_to_argparser(parser)
+
         required = cls.get_required_arguments_group(parser)
         required.add_argument(
             "conf_file",
             type=cls.input_path_arg(),
-            help="path to yaml file from which to read configuration",
+            help="yaml file from which to read configuration",
         )
 
-    def __call__(self):
-        """Perform operations."""
-        raise NotImplementedError()
-
     @classmethod
-    def main(cls) -> None:
-        """Parse arguments, construct tool, and call tool"""
-        parser = cls.construct_argparser()
-        kwargs = vars(parser.parse_args())
+    def execute(cls, **kwargs: Any) -> None:
+        """Execute with provided keyword arguments.
 
+        Args:
+            **kwargs: Command-line arguments
+        """
         conf = read_yaml(kwargs.pop("conf_file"))
 
         # Set environment variables
@@ -54,6 +54,10 @@ class HostCli(UtilityCommandLineInterface):
             environ[key] = normpath(expandvars(value))
             info(f"Environment variable '{key}' set to '{value}'")
 
+        verbosity = validate_int(kwargs.pop("verbosity", 1), min_value=0)
+        set_logging_verbosity(verbosity)
+
+        # noinspection PyCallingNonCallable
         utility = cls.utility(**{**kwargs, **conf})
         utility()
 

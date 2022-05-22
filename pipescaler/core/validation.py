@@ -2,7 +2,7 @@
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
-"""Core pipescaler functions for validation"""
+"""Functions for validation."""
 from __future__ import annotations
 
 from typing import Union
@@ -15,13 +15,11 @@ from pipescaler.core.image import remove_palette_from_image
 
 
 def validate_image(infile: str, valid_modes: Union[str, list[str]]) -> Image.Image:
-    """
-    Validate that image exists and is of a valid mode, and remove palette if present
+    """Validate that image exists and is of a valid mode, and remove palette if present.
 
     Arguments:
         infile: Image infile
         valid_modes: Valid image modes
-
     Returns:
         Image
     """
@@ -48,15 +46,12 @@ def validate_image_and_convert_mode(
     valid_modes: Union[str, list[str]],
     convert_mode: str,
 ) -> tuple[Image.Image, str]:
-    """
-    Validate that image exists and is of a valid mode, remove palette if present, and
-    convert it to provided mode
+    """Validate that image exists and is of a valid mode, and convert mode if necessary.
 
     Arguments:
         infile: Image infile
         valid_modes: Valid image modes
         convert_mode: Mode to which to convert image
-
     Returns:
         Tuple of image and image's original mode
     """

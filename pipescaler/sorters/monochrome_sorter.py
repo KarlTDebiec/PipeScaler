@@ -9,7 +9,8 @@ from logging import info
 from typing import Any
 
 from pipescaler.common import validate_float
-from pipescaler.core import Sorter, is_monochrome, validate_image
+from pipescaler.core import is_monochrome, validate_image
+from pipescaler.core.stages import Sorter
 
 
 class MonochromeSorter(Sorter):
@@ -18,8 +19,7 @@ class MonochromeSorter(Sorter):
     def __init__(
         self, mean_threshold: float = 0, max_threshold: float = 0, **kwargs: Any
     ) -> None:
-        """
-        Validate and store static configuration
+        """Validate and store configuration and initialize.
 
         Arguments:
             mean_threshold: Sort as 'drop_gray' if mean diff is below this threshold
@@ -33,8 +33,7 @@ class MonochromeSorter(Sorter):
         self.max_threshold = validate_float(max_threshold, 0, 255)
 
     def __call__(self, infile: str) -> str:
-        """
-        Sort image based on presence and use of colors other than black and white
+        """Sort image based on presence and use of colors other than black and white.
 
         Arguments:
             infile: Input image
@@ -57,5 +56,5 @@ class MonochromeSorter(Sorter):
 
     @property
     def outlets(self) -> list[str]:
-        """Outlets that flow out of stage"""
+        """Outlets that flow out of stage."""
         return ["drop_gray", "keep_gray", "no_gray"]

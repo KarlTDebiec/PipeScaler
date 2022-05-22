@@ -8,11 +8,11 @@ from __future__ import annotations
 from argparse import ArgumentParser, _SubParsersAction
 from typing import Type, Union
 
-from pipescaler.core.cl import UtilityCommandLineInterface
+from pipescaler.core.cli import UtilityCli
 from pipescaler.utilities.apng_creator import ApngCreator
 
 
-class ApngCreatorCli(UtilityCommandLineInterface):
+class ApngCreatorCli(UtilityCli):
     """Command line interface for ApngCreator."""
 
     @classmethod

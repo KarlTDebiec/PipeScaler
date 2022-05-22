@@ -11,14 +11,14 @@ from typing import Any
 
 import requests
 
-from pipescaler.core import Processor
+from pipescaler.core.stages import Processor
 
 
 class WebProcessor(Processor):
     """POSTs image to a defined URL, which responds with processed image."""
 
     def __init__(self, url: str, **kwargs: Any) -> None:
-        """Validate and store configuration.
+        """Validate and store configuration and initialize.
 
         Arguments:
             url: URL to which to POST image for processing

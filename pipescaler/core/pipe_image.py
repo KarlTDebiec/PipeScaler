@@ -2,7 +2,7 @@
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
-"""Image within a pipeline"""
+"""Image within a pipeline."""
 from __future__ import annotations
 
 from os.path import basename, dirname, join, splitext
@@ -10,11 +10,10 @@ from typing import Optional
 
 
 class PipeImage:
-    """Image within a pipeline"""
+    """Image within a pipeline."""
 
     def __init__(self, absolute_path: str, parent: PipeImage = None) -> None:
-        """
-        Validate and store static configuration
+        """Validate and store configuration.
 
         Arguments:
             absolute_path: Path to image file
@@ -33,11 +32,11 @@ class PipeImage:
             self.name = self.parent.name
 
     def __repr__(self) -> str:
-        """Detailed representation of image"""
+        """Detailed representation of image."""
         return self.base_filename
 
     def __str__(self) -> str:
-        """Simple representation of image"""
+        """Simple representation of image."""
         return self.base_filename
 
     def get_child(
@@ -47,15 +46,13 @@ class PipeImage:
         trim_suffixes: Optional[list[str]] = None,
         extension="png",
     ) -> PipeImage:
-        """
-        Get a new PipeImage descended from this one
+        """Get a new PipeImage descended from this one.
 
         Arguments:
             directory: Directory in which to place child image's path
             suffix: Suffix to append to child image's name
             trim_suffixes: Suffixes to trim from child image's name if present in parent
             extension: Extension to use for child image
-
         Returns:
             New PipeImage descended from this one
         """

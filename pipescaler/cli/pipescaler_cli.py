@@ -8,20 +8,14 @@ from __future__ import annotations
 from argparse import ArgumentParser, _SubParsersAction
 from typing import Any, Type, Union
 
-from pipescaler.cli.process_cli import ProcessCli
+from pipescaler.cli.processors_cli import ProcessorsCli
 from pipescaler.cli.run_cli import RunCli
-from pipescaler.cli.utility_cli import UtilityCli
+from pipescaler.cli.utilities_cli import UtilitiesCli
 from pipescaler.common import CommandLineInterface
 
 
 class PipeScalerCli(CommandLineInterface):
     """Command line interface for PipeScaler."""
-
-    def __init__(self, **kwargs: Any) -> None:
-        super().__init__(**kwargs)
-
-    def __call__(self) -> None:
-        pass
 
     @classmethod
     def add_arguments_to_argparser(
@@ -35,28 +29,26 @@ class PipeScalerCli(CommandLineInterface):
         """
         super().add_arguments_to_argparser(parser)
 
-        subparsers = parser.add_subparsers(dest="subtool")
-        ProcessCli.construct_argparser(parser=subparsers)
+        subparsers = parser.add_subparsers(dest="sub_cli")
+        ProcessorsCli.construct_argparser(parser=subparsers)
         RunCli.construct_argparser(parser=subparsers)
-        UtilityCli.construct_argparser(parser=subparsers)
+        UtilitiesCli.construct_argparser(parser=subparsers)
 
     @classmethod
-    def main(cls) -> None:
-        """Parse arguments, initialize processor, and process file."""
-        parser = cls.construct_argparser()
-        kwargs = vars(parser.parse_args())
-        cls.main2(**kwargs)
+    def execute(cls, **kwargs: Any) -> None:
+        """Execute with provided keyword arguments.
 
-    @classmethod
-    def main2(cls, **kwargs: Any) -> None:
-        subtool = cls.subtools[kwargs.pop("subtool")]
-        subtool.main2(**kwargs)
+        Args:
+            **kwargs: Command-line arguments
+        """
+        sub_cli = cls.sub_clis[kwargs.pop("sub_cli")]
+        sub_cli.execute(**kwargs)
 
     @classmethod
     @property
-    def subtools(cls) -> dict[str, Type[CommandLineInterface]]:
+    def sub_clis(cls) -> dict[str, Type[CommandLineInterface]]:
         """Names and types of tools wrapped by command line interface."""
-        return {tool.name: tool for tool in [ProcessCli, RunCli, UtilityCli]}
+        return {tool.name: tool for tool in [ProcessorsCli, RunCli, UtilitiesCli]}
 
 
 if __name__ == "__main__":

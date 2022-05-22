@@ -9,7 +9,7 @@ from os.path import join, split
 from typing import Any
 
 from pipescaler.common import package_root, validate_executable, validate_input_path
-from pipescaler.core import ExternalProcessor
+from pipescaler.core.stages.processors import ExternalProcessor
 
 
 class AutomatorProcessor(ExternalProcessor):
@@ -20,8 +20,7 @@ class AutomatorProcessor(ExternalProcessor):
     """
 
     def __init__(self, workflow: str, **kwargs: Any) -> None:
-        """
-        Validate and store static configuration
+        """Validate and store configuration and initialize.
 
         Arguments:
             workflow: Automator workflow to run
@@ -39,7 +38,7 @@ class AutomatorProcessor(ExternalProcessor):
 
     @property
     def command_template(self) -> str:
-        """String template with which to generate command"""
+        """String template with which to generate command."""
         return (
             f"{validate_executable(self.executable, self.supported_platforms)}"
             " -i {infile}"
@@ -49,7 +48,7 @@ class AutomatorProcessor(ExternalProcessor):
     @classmethod
     @property
     def executable(self) -> str:
-        """Name of executable"""
+        """Name of executable."""
         return "automator"
 
     @classmethod
@@ -66,5 +65,5 @@ class AutomatorProcessor(ExternalProcessor):
     @classmethod
     @property
     def supported_platforms(self) -> set[str]:
-        """Platforms on which processor is supported"""
+        """Platforms on which processor is supported."""
         return {"Darwin"}

@@ -7,7 +7,7 @@ import pytest
 from PIL import Image
 
 from pipescaler.common import temporary_filename
-from pipescaler.processors import TexconvProcessor
+from pipescaler.processors.external import TexconvProcessor
 from pipescaler.testing import get_infile, parametrized_fixture, xfail_if_platform
 
 

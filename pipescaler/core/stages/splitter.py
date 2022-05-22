@@ -2,7 +2,7 @@
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
-"""Base class for splitters."""
+"""Abstract base class for splitters."""
 from __future__ import annotations
 
 from abc import ABC
@@ -16,7 +16,7 @@ from pipescaler.core.validation import validate_image
 
 
 class Splitter(Stage, ABC):
-    """Base class for splitters."""
+    """Abstract base class for splitters."""
 
     def __init__(
         self, suffixes: Optional[dict[str, str]] = None, **kwargs: Any

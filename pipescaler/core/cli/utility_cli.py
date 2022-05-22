@@ -2,7 +2,7 @@
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
-"""Command line interface for utilities."""
+"""Abstract base class for Utility command line interfaces."""
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -12,14 +12,29 @@ from typing import Any, Type
 from pipescaler.common import CommandLineInterface
 
 
-class UtilityCommandLineInterface(CommandLineInterface, ABC):
-    """Command line interface for utilities."""
+class UtilityCli(CommandLineInterface, ABC):
+    """Abstract base class for Utility command line interfaces."""
 
     @classmethod
-    def main2(cls, **kwargs: Any) -> None:
-        utility = cls.utility()
-        del kwargs["verbosity"]
+    def execute(cls, **kwargs: Any) -> None:
+        """Execute with provided keyword arguments.
+
+        TODO: Decide on a consistent way for ProcessorCli and UtilityCli to manage
+          arguments destined for __init__ and arguments destined for __call__
+
+        Args:
+            **kwargs: Command-line arguments
+        """
+        # noinspection PyCallingNonCallable
+        utility = cls.utility(verbosity=kwargs.pop("verbosity", 1))
         utility(**kwargs)
+
+    @classmethod
+    def main(cls) -> None:
+        """Execute from command line."""
+        parser = cls.construct_argparser()
+        kwargs = vars(parser.parse_args())
+        cls.execute(**kwargs)
 
     @classmethod
     @property

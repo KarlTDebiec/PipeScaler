@@ -2,6 +2,7 @@
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
+"""Hosts stages on a web API."""
 from importlib import import_module
 from io import BytesIO
 from os.path import splitext
@@ -10,13 +11,22 @@ from typing import Any
 from flask import Flask, redirect, request, send_file, url_for
 
 from pipescaler.common import temporary_filename
-from pipescaler.core import Processor, initialize_stage
+from pipescaler.core import initialize_stage
+from pipescaler.core.stages import Processor
 
 
 class Host:
+    """Hosts stages on a web API."""
+
     def __init__(
         self, stages: dict[str, dict[str, dict[str, Any]]], **kwargs: Any
     ) -> None:
+        """Validate and store configuration and initialize.
+
+        Args:
+            stages: Stages to make available
+            **kwargs: Additional keyword arguments
+        """
         super().__init__(**kwargs)
 
         # Load configuration
@@ -37,7 +47,13 @@ class Host:
                 stage_name, stage_conf, stage_modules
             )
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, *args, **kwargs) -> None:
+        """Perform operations.
+
+        Args:
+            *args: Additional arguments
+            **kwargs: Additional keyword arguments
+        """
         app = Flask(__name__, instance_relative_config=True)
         app.secret_key = "super secret key"
 

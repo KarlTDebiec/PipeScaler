@@ -10,7 +10,8 @@ from typing import Any, Union
 from PIL import Image
 
 from pipescaler.common import validate_enum
-from pipescaler.core import Merger, PaletteMatchMode, UnsupportedImageModeError
+from pipescaler.core import PaletteMatchMode, UnsupportedImageModeError
+from pipescaler.core.stages import Merger
 from pipescaler.utilities import PaletteMatcher
 
 
@@ -22,10 +23,10 @@ class PaletteMatchMerger(Merger):
         palette_match_mode: Union[type(PaletteMatchMode), str] = PaletteMatchMode.BASIC,
         **kwargs: Any,
     ) -> None:
-        """
-        Validate and store static configuration
+        """Validate and store configuration and initialize.
 
         Arguments:
+            palette_match_mode: Mode of palette matching to perform
             **kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
@@ -34,8 +35,7 @@ class PaletteMatchMerger(Merger):
         self.palette_matcher = PaletteMatcher(self.palette_match_mode)
 
     def merge(self, *input_images: Image.Image) -> Image.Image:
-        """
-        Merge images
+        """Merge images.
 
         Arguments:
             *input_images: Input images to merge
@@ -55,13 +55,13 @@ class PaletteMatchMerger(Merger):
 
     @property
     def inlets(self) -> list[str]:
-        """Inlets that flow into stage"""
+        """Inlets that flow into stage."""
         return ["reference", "fit"]
 
     @classmethod
     @property
     def supported_input_modes(self) -> dict[str, list[str]]:
-        """Supported modes for input images"""
+        """Supported modes for input images."""
         return {
             "reference": ["L", "RGB"],
             "fit": ["L", "RGB"],

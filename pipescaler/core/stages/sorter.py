@@ -2,7 +2,7 @@
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
-"""Base class for termini."""
+"""Abstract base class for sorters."""
 from __future__ import annotations
 
 from abc import ABC
@@ -10,15 +10,17 @@ from abc import ABC
 from pipescaler.core.stage import Stage
 
 
-class Terminus(Stage, ABC):
-    """Base class for termini."""
+class Sorter(Stage, ABC):
+    """Base class for sorters."""
 
-    def __call__(self, infile: str, outfile: str) -> None:
-        """Terminates an image.
+    def __call__(self, infile: str) -> str:
+        """Sort image into an outlet.
 
         Arguments:
             infile: Input file
-            outfile: Output file
+
+        Returns:
+            Outlet
         """
         raise NotImplementedError()
 
@@ -26,8 +28,3 @@ class Terminus(Stage, ABC):
     def inlets(self) -> list[str]:
         """Inlets that flow into stage."""
         return ["inlet"]
-
-    @property
-    def outlets(self) -> list[str]:
-        """Outlets that flow out of stage."""
-        return []

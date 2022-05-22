@@ -8,16 +8,12 @@ from __future__ import annotations
 from argparse import ArgumentParser, _SubParsersAction
 from typing import Type, Union
 
-from pipescaler.core.cl import UtilityCommandLineInterface
+from pipescaler.core.cli import UtilityCli
 from pipescaler.utilities.esrgan_serializer import EsrganSerializer
 
 
-class EsrganSerializerCli(UtilityCommandLineInterface):
+class EsrganSerializerCli(UtilityCli):
     """Command line interface for EsrganSerializer."""
-
-    def __call__(self):
-        """Perform operations."""
-        raise NotImplementedError()
 
     @classmethod
     def add_arguments_to_argparser(

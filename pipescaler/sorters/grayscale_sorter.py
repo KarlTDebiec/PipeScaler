@@ -12,7 +12,8 @@ import numpy as np
 from PIL import Image
 
 from pipescaler.common import validate_float
-from pipescaler.core import Sorter, validate_image
+from pipescaler.core import validate_image
+from pipescaler.core.stages import Sorter
 
 
 class GrayscaleSorter(Sorter):
@@ -21,8 +22,7 @@ class GrayscaleSorter(Sorter):
     def __init__(
         self, mean_threshold: float = 1, max_threshold: float = 10, **kwargs: Any
     ) -> None:
-        """
-        Validate and store static configuration
+        """Validate and store configuration and initialize.
 
         Arguments:
             mean_threshold: Sort as 'drop_rgb' if mean diff is below this threshold
@@ -36,8 +36,7 @@ class GrayscaleSorter(Sorter):
         self.max_threshold = validate_float(max_threshold, 0, 255)
 
     def __call__(self, infile: str) -> str:
-        """
-        Sort image based on presence and use of color channels
+        """Sort image based on presence and use of color channels.
 
         Arguments:
             infile: Input image
@@ -65,5 +64,5 @@ class GrayscaleSorter(Sorter):
 
     @property
     def outlets(self) -> list[str]:
-        """Outlets that flow out of stage"""
+        """Outlets that flow out of stage."""
         return ["drop_rgb", "keep_rgb", "no_rgb"]

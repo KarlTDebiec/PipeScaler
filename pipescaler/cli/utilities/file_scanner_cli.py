@@ -12,17 +12,13 @@ from os.path import expandvars, normpath
 from typing import Any, Type, Union
 
 from pipescaler.common import set_logging_verbosity, validate_int
-from pipescaler.core.cl import UtilityCommandLineInterface
+from pipescaler.core.cli import UtilityCli
 from pipescaler.core.file import read_yaml
 from pipescaler.utilities import FileScanner
 
 
-class FileScannerCli(UtilityCommandLineInterface):
+class FileScannerCli(UtilityCli):
     """Command line interface for FileScanner."""
-
-    def __call__(self):
-        """Perform operations."""
-        raise NotImplementedError()
 
     @classmethod
     def add_arguments_to_argparser(
@@ -40,30 +36,28 @@ class FileScannerCli(UtilityCommandLineInterface):
         required.add_argument(
             "conf_file",
             type=cls.input_path_arg(),
-            help="path to yaml file from which to read configuration",
+            help="yaml file from which to read configuration",
         )
 
     @classmethod
-    def main(cls) -> None:
-        """Parse arguments."""
-        parser = cls.construct_argparser()
-        kwargs = vars(parser.parse_args())
-        cls.main2(**kwargs)
+    def execute(cls, **kwargs: Any) -> None:
+        """Execute with provided keyword arguments.
 
-    @classmethod
-    def main2(cls, **kwargs: Any) -> None:
-        """Read configuration, configure environment, and build and call utility."""
+        Args:
+            **kwargs: Command-line arguments
+        """
         conf = read_yaml(kwargs.pop("conf_file"))
 
         # Set environment variables
         for key, value in conf.pop("environment", {}).items():
             value = normpath(expandvars(value))
-            environ[key] = normpath(expandvars(value))
+            environ[key] = value
             info(f"Environment variable '{key}' set to '{value}'")
 
-        verbosity = validate_int(kwargs.pop("verbosity", 0), min_value=0)
+        verbosity = validate_int(kwargs.pop("verbosity", 1), min_value=0)
         set_logging_verbosity(verbosity)
 
+        # noinspection PyCallingNonCallable
         utility = cls.utility(**{**kwargs, **conf})
         utility()
 

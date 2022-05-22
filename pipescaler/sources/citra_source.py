@@ -25,7 +25,7 @@ class CitraSource(DirectorySource):
 
     @staticmethod
     def sort(filename):
-        """Sort outfiles to be yielded by source"""
+        """Sort outfiles to be yielded by source."""
         try:
             _, size, code, _ = splitext(basename(filename))[0].split("_")
             width, height = size.split("x")

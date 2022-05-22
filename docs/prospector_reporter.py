@@ -82,16 +82,30 @@ class ProspectorReporter(CommandLineInterface):
         cls,
         parser: Union[ArgumentParser, _SubParsersAction],
     ) -> None:
+        """Add arguments to a nascent argument parser.
+
+        Arguments:
+            parser: Nascent argument parser
+        """
         parser.add_argument(
             "prospector_infile",
             type=cls.input_path_arg(),
-            help="Input prospector JSON file",
+            help="Input prospector output file in JSON format",
         )
         parser.add_argument(
             "modified_files_infile",
             type=cls.input_path_arg(),
             help="Input list of added or modified files",
         )
+
+    @classmethod
+    def execute(cls, **kwargs: Any) -> None:
+        """Execute with provided keyword arguments.
+
+        Args:
+            **kwargs: Command-line arguments
+        """
+        cls(**kwargs)()
 
 
 if __name__ == "__main__":

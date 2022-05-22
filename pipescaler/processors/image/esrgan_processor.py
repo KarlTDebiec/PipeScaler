@@ -13,17 +13,14 @@ from collections import OrderedDict
 from logging import warning
 from typing import Any
 
-import numpy as np
 import torch
-from PIL import Image
 
-from pipescaler.common import validate_input_path
-from pipescaler.core import ImageProcessor, convert_mode
+from pipescaler.core.stages.processors import PyTorchProcessor
 from pipescaler.models.esrgan import Esrgan1x, Esrgan4x
 from pipescaler.utilities.esrgan_serializer import EsrganSerializer
 
 
-class EsrganProcessor(ImageProcessor):
+class EsrganProcessor(PyTorchProcessor):
     """Upscales and/or denoises image using ESRGAN.
 
     See [ESRGAN](https://github.com/xinntao/ESRGAN). Supports both old and new
@@ -35,18 +32,16 @@ class EsrganProcessor(ImageProcessor):
     (https://raw.githubusercontent.com/xinntao/ESRGAN/master/LICENSE)
     """
 
-    def __init__(self, model_infile: str, device: str = "cuda", **kwargs: Any) -> None:
-        """Validate configuration and initialize.
+    def __init__(self, device: str = "cuda", **kwargs: Any) -> None:
+        """Validate and store configuration and initialize.
 
         Arguments:
-            model_infile: Path to model infile
             device: Device on which to compute
             **kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
 
-        self.model_infile = validate_input_path(model_infile)
-        model = torch.load(model_infile)
+        model = torch.load(self.model_infile)
 
         if isinstance(model, OrderedDict):
             model = EsrganSerializer().get_model(model)
@@ -68,39 +63,6 @@ class EsrganProcessor(ImageProcessor):
                 f"falling back to cpu"
             )
 
-    def process(self, input_image: Image.Image) -> Image.Image:
-        """Process an image.
-
-        Arguments:
-            input_image: Input image to process
-        Returns:
-            Processed output image
-        """
-        input_image, input_mode = convert_mode(input_image, "RGB")
-        # noinspection PyTypeChecker
-        input_array = np.array(input_image)
-
-        output_array = self.upscale(input_array)
-        output_image = Image.fromarray(output_array)
-        if output_image.mode != input_mode:
-            output_image = output_image.convert(input_mode)
-
-        return output_image
-
-    def upscale(self, input_array):
-        input_array = input_array * 1.0 / 255
-        input_array = np.transpose(input_array[:, :, [2, 1, 0]], (2, 0, 1))
-        input_array = torch.from_numpy(input_array).float()
-        input_array = input_array.unsqueeze(0).to(self.device)
-
-        output_array = (
-            self.model(input_array).data.squeeze().float().cpu().clamp_(0, 1).numpy()
-        )
-        output_array = np.transpose(output_array[[2, 1, 0], :, :], (1, 2, 0))
-        output_array = np.array(output_array * 255, np.uint8)
-
-        return output_array
-
     @classmethod
     @property
     def help_markdown(cls) -> str:
@@ -109,9 +71,3 @@ class EsrganProcessor(ImageProcessor):
             "Upscales and/or denoises image using "
             "[ESRGAN](https://github.com/xinntao/ESRGAN) via PyTorch."
         )
-
-    @classmethod
-    @property
-    def supported_input_modes(self) -> list[str]:
-        """Supported modes for input image."""
-        return ["1", "L", "RGB"]

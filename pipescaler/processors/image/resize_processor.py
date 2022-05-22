@@ -11,7 +11,7 @@ import numpy as np
 from PIL import Image
 
 from pipescaler.common import validate_float, validate_str
-from pipescaler.core import ImageProcessor
+from pipescaler.core.stages.processors import ImageProcessor
 
 
 class ResizeProcessor(ImageProcessor):
@@ -25,8 +25,7 @@ class ResizeProcessor(ImageProcessor):
     }
 
     def __init__(self, scale: float, resample: str = "lanczos", **kwargs: Any) -> None:
-        """
-        Validate and store static configuration
+        """Validate and store configuration and initialize.
 
         Arguments:
             scale: Output image scale relative to input image
@@ -42,8 +41,7 @@ class ResizeProcessor(ImageProcessor):
         ]
 
     def process(self, input_image: Image.Image) -> Image.Image:
-        """
-        Process an image
+        """Process an image.
 
         Arguments:
             input_image: Input image to process
