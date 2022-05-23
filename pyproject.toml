@@ -44,7 +44,7 @@ watchdog = "^2.1.8"
 
 [tool.poetry.dev-dependencies]
 black = "^22.1.0"
-coverage = "^6.3.3"
+coverage = "^6.4"
 isort = "^5.10.1"
 prospector = "^1.7.7"
 pytest = "^7.1.2"
