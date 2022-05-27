@@ -41,7 +41,7 @@ class FileScanner:
         input_directory: Union[str, list[str]],
         copy_directory: str,
         move_directory: str,
-        rules: list[list[str, str]],
+        rules: list[list[str, str]] = None,
         reviewed_directory: Optional[Union[str, list[str]]] = None,
         ignore_directory: Optional[Union[str, list[str]]] = None,
         scaled_directory: Optional[str] = None,
@@ -118,6 +118,8 @@ class FileScanner:
         """Base filenames of images in classified directories"""
         self.ignored_filenames = get_files(self.ignore_directories, style="base")
         """Base filenames of images to ignore"""
+        if rules is None:
+            rules = [".*", "copy"]
         self.rules = [(re.compile(regex), action) for regex, action in rules]
         """Rules by which to classify images"""
         absolute_filenames = get_files(self.input_directories, style="absolute")
