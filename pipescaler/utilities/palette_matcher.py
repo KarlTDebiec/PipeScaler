@@ -45,13 +45,15 @@ class PaletteMatcher:
         ref_palette, ref_array_by_index = self.get_palette_and_array_by_index(ref_image)
         fit_palette, fit_array_by_index = self.get_palette_and_array_by_index(fit_image)
 
-        # Calculate weighted distance between all reference and fit colors
-        dist = self.get_weighted_distances(ref_palette, fit_palette)
-
         # Match palette of fit image to that of reference image
         if self.palette_match_mode == PaletteMatchMode.BASIC:
+            # Calculate weighted distance between all reference and fit colors
+            dist = self.get_weighted_distances(ref_palette, fit_palette)
             matched_array = self.get_basic_match(fit_array_by_index, ref_palette, dist)
+
         else:
+            # Calculate weighted distance between all reference and fit colors
+            dist = self.get_weighted_distances(ref_palette, fit_palette)
             matched_array = self.get_local_match(
                 fit_array_by_index, ref_array_by_index, ref_palette, dist
             )
@@ -114,6 +116,17 @@ class PaletteMatcher:
 
     @staticmethod
     def get_basic_match(fit_array_by_index, ref_palette, dist):
+        """Replace each fit pixel's color with the closest reference color."""
+        if len(ref_palette.shape) == 1:
+            matched_array = np.zeros(fit_array_by_index.shape, np.uint8)
+        else:
+            matched_array = np.zeros((*fit_array_by_index.shape, 3), np.uint8)
+        for fit_index, ref_index in enumerate(dist.argmin(axis=0)):
+            matched_array[fit_array_by_index == fit_index] = ref_palette[ref_index]
+        return matched_array
+
+    @staticmethod
+    def get_basic_match_2(fit_array_by_index, ref_palette, dist):
         """Replace each fit pixel's color with the closest reference color."""
         if len(ref_palette.shape) == 1:
             matched_array = np.zeros(fit_array_by_index.shape, np.uint8)
