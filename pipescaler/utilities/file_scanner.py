@@ -14,6 +14,7 @@ from time import sleep
 from typing import Any, Optional, Union
 
 import pandas as pd
+from PIL import Image
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
@@ -235,8 +236,27 @@ class FileScanner:
                 makedirs(self.copy_directory)
                 info(f"'{self.copy_directory}' created")
             source = self.filenames[filename]
-            destination = join(self.copy_directory, basename(source))
-            copy(source, destination)
+            remove_prefix = "JETSETRADIO.EXE_"
+            output_extension = "png"
+            if remove_prefix is not None:
+                destination = join(
+                    self.copy_directory, basename(source).removeprefix(remove_prefix)
+                )
+            else:
+                destination = join(self.copy_directory, basename(source))
+            if output_extension is not None:
+                source_extension = splitext(source)[-1].lstrip(".")
+                if source_extension != output_extension:
+                    destination = (
+                        f"{destination.removesuffix(source_extension)}"
+                        f"{output_extension}"
+                    )
+                    with Image.open(source) as source_image:
+                        source_image.save(destination)
+                else:
+                    copy(source, destination)
+            else:
+                copy(source, destination)
             info(f"'{source}' copied to '{destination}'")
         elif status == "move":
             if not isdir(self.move_directory):
