@@ -51,6 +51,9 @@ class PaletteMatcher:
 
             start = time.time()
             fit_palette = get_palette(fit_image).astype(np.uint8)
+            print(f"fit_palette: {time.time() - start}")
+
+            start = time.time()
             # noinspection PyTypeChecker
             fit_array = np.array(fit_image)
             fit_array_by_index = get_array_by_index(fit_array, fit_palette)
@@ -183,6 +186,7 @@ def get_array_by_index(array: np.ndarray, palette: np.ndarray) -> np.ndarray:
     for i in range(array.shape[0]):
         for j in range(array.shape[1]):
             array_by_index[i, j] = color_to_index[tuple(array[i, j])]
+
     return array_by_index
 
 

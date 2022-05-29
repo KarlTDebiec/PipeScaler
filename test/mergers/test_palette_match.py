@@ -31,7 +31,7 @@ def merger(request) -> PaletteMatchMerger:
 @pytest.mark.parametrize(
     ("reference", "fit"),
     [
-        ("PL", "L"),
+        xfail_unsupported_image_mode()("PL", "L"),
         xfail_unsupported_image_mode()("PLA", "LA"),
         ("PRGB", "RGB"),
         xfail_unsupported_image_mode()("PRGBA", "RGBA"),
@@ -57,25 +57,3 @@ def test(reference: str, fit: str, merger: PaletteMatchMerger):
             assert output_colors.issubset(reference_colors)
             assert output_image.mode == get_expected_output_mode(fit_image)
             assert output_image.size == fit_image.size
-
-
-# def test2(merger: PaletteMatchMerger):
-#     reference = r"D:\Projects\MarioKartWii\wip\tex1_1024x512_m_f0e1ef04a74d3a0c_14\color_one.png"
-#     fit = r"D:\Projects\MarioKartWii\wip\tex1_1024x512_m_f0e1ef04a74d3a0c_14\color_two_bc1s2.png"
-#
-#     with temporary_filename(".png") as outfile:
-#         reference_image = validate_image(reference, ["L", "RGB"])
-#         fit_image = Image.open(fit)
-#
-#         merger(reference=reference, fit=fit, outfile=outfile)
-#
-#         with Image.open(outfile) as output_image:
-#             if get_expected_output_mode(fit_image) == "L":
-#                 reference_colors = set(get_palette(reference_image))
-#                 output_colors = set(get_palette(output_image))
-#             else:
-#                 reference_colors = set(map(tuple, get_palette(reference_image)))
-#                 output_colors = set(map(tuple, get_palette(output_image)))
-#             assert output_colors.issubset(reference_colors)
-#             assert output_image.mode == get_expected_output_mode(fit_image)
-#             assert output_image.size == fit_image.size
