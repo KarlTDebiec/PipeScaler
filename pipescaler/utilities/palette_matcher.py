@@ -3,6 +3,7 @@
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
 """Matches the palette of one image to another."""
+import time
 from typing import Union, no_type_check
 
 import numba as nb
@@ -41,24 +42,58 @@ class PaletteMatcher:
                 f"'{fit_image.mode}' of fit image"
             )
 
-        # Get colors in reference and fit images
-        ref_palette, ref_array_by_index = self.get_palette_and_array_by_index(ref_image)
-        fit_palette, fit_array_by_index = self.get_palette_and_array_by_index(fit_image)
-
         # Match palette of fit image to that of reference image
         if self.palette_match_mode == PaletteMatchMode.BASIC:
+            print()
             # Calculate weighted distance between all reference and fit colors
-            dist = self.get_weighted_distances(ref_palette, fit_palette)
-            matched_array = self.get_basic_match(fit_array_by_index, ref_palette, dist)
+            start = time.time()
+            ref_palette = get_palette(ref_image).astype(np.uint8)
+            print(f"ref palette ({ref_palette.shape}): {time.time() - start}")
 
+            start = time.time()
+            ref_palette_by_cell = self.get_palette_by_cell(ref_palette)
+            print(f"ref palette by cell: {time.time() - start}")
+
+            start = time.time()
+            fit_palette = get_palette(fit_image).astype(np.uint8)
+            # noinspection PyTypeChecker
+            fit_array = np.array(fit_image)
+            fit_array_by_index = get_array_by_index(fit_array, fit_palette)
+            print(f"fit palette ({fit_palette.shape}): {time.time() - start}")
+
+            start = time.time()
+            out_palette = get_out_palette(fit_palette, ref_palette_by_cell)
+            print(f"best color: {time.time() - start}")
+
+            start = time.time()
+            matched_array = np.zeros_like(fit_array)
+            for i in range(fit_array.shape[0]):
+                for j in range(fit_array.shape[1]):
+                    color_index = fit_array_by_index[i, j]
+                    matched_array[i, j, :] = out_palette[color_index]
         else:
-            # Calculate weighted distance between all reference and fit colors
+            ref_palette, ref_array_by_index = get_palette_and_array_by_index(ref_image)
+            fit_palette, fit_array_by_index = get_palette_and_array_by_index(fit_image)
             dist = self.get_weighted_distances(ref_palette, fit_palette)
             matched_array = self.get_local_match(
                 fit_array_by_index, ref_array_by_index, ref_palette, dist
             )
         matched_image = Image.fromarray(matched_array)
         return matched_image
+
+    def get_palette_by_cell(self, palette):
+        palette_by_cell = {}
+
+        for color in palette:
+            cell = (color[0] // 16, color[1] // 16, color[2] // 16)
+            if cell not in palette_by_cell:
+                palette_by_cell[cell] = []
+            palette_by_cell[cell].append(color)
+
+        for cell in palette_by_cell:
+            palette_by_cell[cell] = np.array(palette_by_cell[cell])
+
+        return palette_by_cell
 
     @classmethod
     def get_local_match(cls, fit_array_by_index, ref_array_by_index, ref_palette, dist):
@@ -126,17 +161,6 @@ class PaletteMatcher:
         return matched_array
 
     @staticmethod
-    def get_basic_match_2(fit_array_by_index, ref_palette, dist):
-        """Replace each fit pixel's color with the closest reference color."""
-        if len(ref_palette.shape) == 1:
-            matched_array = np.zeros(fit_array_by_index.shape, np.uint8)
-        else:
-            matched_array = np.zeros((*fit_array_by_index.shape, 3), np.uint8)
-        for fit_index, ref_index in enumerate(dist.argmin(axis=0)):
-            matched_array[fit_array_by_index == fit_index] = ref_palette[ref_index]
-        return matched_array
-
-    @staticmethod
     def get_local_colors(array_by_index):
         local_colors = np.zeros((*array_by_index.shape, array_by_index.max() + 1), bool)
         for i in range(array_by_index.max() + 1):
@@ -153,41 +177,89 @@ class PaletteMatcher:
 
         return local_colors
 
-    @staticmethod
-    def get_palette_and_array_by_index(image: Image.Image):
-        # noinspection PyTypeChecker
-        array = np.array(image)
-        palette = get_palette(image)
 
-        if image.mode == "L":
-            array_by_index = np.zeros(array.shape, int)
-            for i, color in enumerate(palette):
-                array_by_index[array == color] = i
-        else:
-            array_by_index = np.zeros(array.shape[:-1], int)
-            for i, color in enumerate(palette):
-                array_by_index[np.all(array == color, axis=2)] = i
+def get_palette_and_array_by_index(image: Image.Image):
+    palette = get_palette(image).astype(np.uint8)
+    # noinspection PyTypeChecker
+    array_by_index = get_array_by_index(np.array(image), palette)
 
-        return palette, array_by_index
+    return palette, array_by_index
 
-    @no_type_check
-    @staticmethod
-    @nb.jit(nopython=True, nogil=True, cache=True, fastmath=True)
-    def get_weighted_distance(color_1: np.ndarray, color_2: np.ndarray) -> float:
-        """Get the squared distance between two colors, adjusted for perception.
 
-        Arguments:
-            color_1: Color 1
-            color_2: Color 2
-        Returns:
-            Squared distance between two colors
-        """
-        rmean = (color_1[0] + color_2[0]) / 2
-        dr = color_1[0] - color_2[0]
-        dg = color_1[1] - color_2[1]
-        db = color_1[2] - color_2[2]
-        return (
-            ((2 + (rmean / 256)) * (dr**2))
-            + (4 * (dg**2))
-            + ((2 + ((255 - rmean) / 256)) * (db**2))
-        )
+def get_array_by_index(array: np.ndarray, palette: np.ndarray):
+    color_to_index = {tuple(color): i for i, color in enumerate(palette)}
+    array_by_index = np.zeros((array.shape[0], array.shape[1]), np.int32)
+    for i in range(array.shape[0]):
+        for j in range(array.shape[1]):
+            array_by_index[i, j] = color_to_index[tuple(array[i, j])]
+    return array_by_index
+
+
+def get_out_palette(fit_palette, ref_palette_by_cell):
+    out_palette = np.zeros(fit_palette.shape, np.uint8)
+    for i, color in enumerate(fit_palette):
+        breaking = False
+        best_dist = None
+        best_color = None
+        cell = (color[0] // 16, color[1] // 16, color[2] // 16)
+        for red_i in range(max(0, cell[0] - 1), min(15, cell[0] + 1) + 1):
+            for green_i in range(max(0, cell[1] - 1), min(15, cell[1] + 1) + 1):
+                for blue_i in range(max(0, cell[2] - 1), min(15, cell[2] + 1) + 1):
+                    if (red_i, green_i, blue_i) not in ref_palette_by_cell:
+                        continue
+                    candidate_colors = ref_palette_by_cell[(red_i, green_i, blue_i)]
+                    best_dist_in_cell, best_color_in_cell = get_closest_color(
+                        color, candidate_colors
+                    )
+                    if best_dist_in_cell == 0.0:
+                        best_color = best_color_in_cell
+                        breaking = True
+                        break
+                    if best_dist is None or best_dist_in_cell < best_dist:
+                        best_dist = best_dist_in_cell
+                        best_color = best_color_in_cell
+                if breaking:
+                    break
+            if breaking:
+                break
+        out_palette[i] = best_color
+    return out_palette
+
+
+@no_type_check
+@nb.njit(nogil=True, cache=True, fastmath=True)
+def get_closest_color(
+    color: np.ndarray, candidate_colors: np.ndarray
+) -> tuple[float, np.ndarray]:
+    best_dist = -1.0
+    best_color = np.array([0, 0, 0], np.uint8)
+    for candidate_color in candidate_colors:
+        dist = get_weighted_distance(color, candidate_color)
+        if dist == 0.0:
+            return 0.0, candidate_color
+        if best_dist < 0 or dist < best_dist:
+            best_dist = dist
+            best_color = candidate_color
+    return best_dist, best_color
+
+
+@no_type_check
+@nb.njit(nogil=True, cache=True, fastmath=True)
+def get_weighted_distance(color_1: np.ndarray, color_2: np.ndarray) -> float:
+    """Get the squared distance between two colors, adjusted for perception.
+
+    Arguments:
+        color_1: Color 1
+        color_2: Color 2
+    Returns:
+        Squared distance between two colors
+    """
+    rmean = (color_1[0] + color_2[0]) / 2
+    dr = color_1[0] - color_2[0]
+    dg = color_1[1] - color_2[1]
+    db = color_1[2] - color_2[2]
+    return (
+        ((2 + (rmean / 256)) * (dr**2))
+        + (4 * (dg**2))
+        + ((2 + ((255 - rmean) / 256)) * (db**2))
+    )
