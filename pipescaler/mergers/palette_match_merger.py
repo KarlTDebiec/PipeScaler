@@ -32,7 +32,10 @@ class PaletteMatchMerger(Merger):
         super().__init__(**kwargs)
 
         self.palette_match_mode = validate_enum(palette_match_mode, PaletteMatchMode)
-        self.palette_matcher = PaletteMatcher(self.palette_match_mode)
+        if self.palette_match_mode == PaletteMatchMode.BASIC:
+            self.palette_matcher = PaletteMatcher()
+        else:
+            self.palette_matcher = PaletteMatcher()
 
     def merge(self, *input_images: Image.Image) -> Image.Image:
         """Merge images.
