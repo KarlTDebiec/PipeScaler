@@ -7,8 +7,8 @@ import time
 from itertools import product
 from typing import Optional, no_type_check
 
-import numba as nb
 import numpy as np
+from numba import njit
 from PIL import Image
 
 from pipescaler.core import UnsupportedImageModeError, get_palette
@@ -139,7 +139,7 @@ class PaletteMatcher:
 
     @no_type_check
     @staticmethod
-    @nb.njit(nogil=True, cache=True, fastmath=True)
+    @njit(nogil=True, cache=True, fastmath=True)
     def get_best_fit_color_in_palette(
         color: np.ndarray, palette: np.ndarray
     ) -> tuple[float, np.ndarray]:

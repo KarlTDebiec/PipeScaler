@@ -31,7 +31,7 @@ def merger(request) -> PaletteMatchMerger:
 @pytest.mark.parametrize(
     ("reference", "fit"),
     [
-        xfail_unsupported_image_mode()("PL", "L"),
+        ("PL", "L"),
         xfail_unsupported_image_mode()("PLA", "LA"),
         ("PRGB", "RGB"),
         xfail_unsupported_image_mode()("PRGBA", "RGBA"),

@@ -66,6 +66,6 @@ class PaletteMatchMerger(Merger):
     def supported_input_modes(self) -> dict[str, list[str]]:
         """Supported modes for input images."""
         return {
-            "reference": ["RGB"],
-            "fit": ["RGB"],
+            "reference": ["L", "RGB"],
+            "fit": ["L", "RGB"],
         }
