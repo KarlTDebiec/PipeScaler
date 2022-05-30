@@ -52,12 +52,12 @@ class PyTorchProcessor(ImageProcessor, ABC):
         return output_image
 
     def upscale(self, input_array):
-        """Upscale an image rgb_array.
+        """Upscale an image array.
 
         Arguments:
             input_array: Array to upscale
         Returns:
-            Upscaled rgb_array
+            Upscaled array
         """
         input_array = input_array * 1.0 / 255
         input_array = np.transpose(input_array[:, :, [2, 1, 0]], (2, 0, 1))

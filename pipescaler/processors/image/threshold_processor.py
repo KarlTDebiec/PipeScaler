@@ -65,7 +65,7 @@ class ThresholdProcessor(ImageProcessor):
         """Flip color of pixels bordered by less than 5 pixels of the same color.
 
         Arguments:
-            data: Input image rgb_array; modified in-place
+            data: Input image array; modified in-place
         """
         for x in range(1, data.shape[1] - 1):
             for y in range(1, data.shape[0] - 1):
