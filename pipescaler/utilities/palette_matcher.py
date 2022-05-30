@@ -101,7 +101,7 @@ class PaletteMatcher:
         color: np.ndarray,
         ref_palette_by_cell: dict[tuple[int, int, int], np.ndarray],
     ) -> Optional[np.ndarray]:
-        """Get best fit color drawn from a palette, searching within a given range.
+        """Get best fit color drawn from a palette, searching within nearby cells.
 
         Arguments:
             color: Color to find best match of
