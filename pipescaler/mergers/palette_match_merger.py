@@ -12,7 +12,7 @@ from PIL import Image
 from pipescaler.common import validate_enum
 from pipescaler.core import PaletteMatchMode, UnsupportedImageModeError
 from pipescaler.core.stages import Merger
-from pipescaler.utilities import PaletteMatcher
+from pipescaler.utilities import LocalPaletteMatcher, PaletteMatcher
 
 
 class PaletteMatchMerger(Merger):
@@ -35,7 +35,7 @@ class PaletteMatchMerger(Merger):
         if self.palette_match_mode == PaletteMatchMode.BASIC:
             self.palette_matcher = PaletteMatcher()
         else:
-            self.palette_matcher = PaletteMatcher()
+            self.palette_matcher = LocalPaletteMatcher()
 
     def merge(self, *input_images: Image.Image) -> Image.Image:
         """Merge images.

@@ -20,8 +20,8 @@ from pipescaler.testing import (
 @parametrized_fixture(
     cls=PaletteMatchMerger,
     params=[
-        {"palette_match_mode": PaletteMatchMode.BASIC},
-        # {"palette_match_mode": PaletteMatchMode.LOCAL},
+        # {"palette_match_mode": PaletteMatchMode.BASIC},
+        {"palette_match_mode": PaletteMatchMode.LOCAL},
     ],
 )
 def merger(request) -> PaletteMatchMerger:
@@ -31,10 +31,10 @@ def merger(request) -> PaletteMatchMerger:
 @pytest.mark.parametrize(
     ("reference", "fit"),
     [
-        ("PL", "L"),
-        xfail_unsupported_image_mode()("PLA", "LA"),
+        # ("PL", "L"),
+        # xfail_unsupported_image_mode()("PLA", "LA"),
         ("PRGB", "RGB"),
-        xfail_unsupported_image_mode()("PRGBA", "RGBA"),
+        # xfail_unsupported_image_mode()("PRGBA", "RGBA"),
     ],
 )
 def test(reference: str, fit: str, merger: PaletteMatchMerger):

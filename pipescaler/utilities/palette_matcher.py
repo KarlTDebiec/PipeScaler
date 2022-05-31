@@ -3,7 +3,6 @@
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
 """Matches the palette of one image to another."""
-import time
 from itertools import product
 from typing import Optional, no_type_check
 
