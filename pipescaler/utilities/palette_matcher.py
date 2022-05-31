@@ -34,35 +34,32 @@ class PaletteMatcher:
                 f"Image mode '{ref_image.mode}' of reference image does not match mode "
                 f"'{fit_image.mode}' of fit image"
             )
-
-        print()
-        start = time.time()
         ref_palette = get_palette(ref_image).astype(np.uint8)
-        print(f"ref_palette ({ref_palette.shape}): {time.time() - start}")
-
-        start = time.time()
         fit_palette = get_palette(fit_image).astype(np.uint8)
-        print(f"fit_palette ({fit_palette.shape}): {time.time() - start}")
-
-        start = time.time()
         # noinspection PyTypeChecker
         fit_array = np.array(fit_image)
-        fit_array_by_index = self.get_indexed_array_from_rgb_array(
-            fit_array, fit_palette
-        )
-        print(f"fit_array_by_index: {time.time() - start}")
+        if fit_image.mode == "L":
+            color_to_index = {color: i for i, color in enumerate(fit_palette)}
+            fit_array_by_index = np.zeros(fit_array.shape[:2], np.int32)
+            for i in range(fit_array.shape[0]):
+                for j in range(fit_array.shape[1]):
+                    fit_array_by_index[i, j] = color_to_index[fit_array[i, j]]
+            dist = (ref_palette.astype(float) - fit_palette.astype(float)[:, None]) ** 2
+            best_fit_palette = ref_palette[dist.argmin(axis=1)]
+            matched_array = np.zeros_like(fit_array)
+            for i in range(fit_array.shape[0]):
+                for j in range(fit_array.shape[1]):
+                    matched_array[i, j] = best_fit_palette[fit_array_by_index[i, j]]
+        else:
+            fit_array_by_index = self.get_indexed_array_from_rgb_array(
+                fit_array, fit_palette
+            )
+            best_fit_palette = self.get_best_fit_palette(fit_palette, ref_palette)
+            matched_array = self.get_rgb_array_from_indexed_array(
+                fit_array_by_index, best_fit_palette
+            )
 
-        start = time.time()
-        best_fit_palette = self.get_best_fit_palette(fit_palette, ref_palette)
-        print(f"best_fit_palette: {time.time() - start}")
-
-        start = time.time()
-        matched_array = self.get_rgb_array_from_indexed_array(
-            fit_array_by_index, best_fit_palette
-        )
         matched_image = Image.fromarray(matched_array)
-        print(f"matched_array: {time.time() - start}")
-
         return matched_image
 
     @classmethod
@@ -165,10 +162,10 @@ class PaletteMatcher:
     def get_indexed_array_from_rgb_array(
         rgb_array: np.ndarray, palette: np.ndarray
     ) -> np.ndarray:
-        """Convert rgb image array to indexed image array using provided palette.
+        """Convert RGB image array to indexed image array using provided palette.
 
         Arguments:
-            rgb_array: Array whose values are the rgb channels of an image
+            rgb_array: Array whose values are the RGB channels of an image
             palette: Image palette
         Returns:
             Array whose values are the indexes of colors within palette
@@ -221,13 +218,13 @@ class PaletteMatcher:
     def get_rgb_array_from_indexed_array(
         indexed_array: np.ndarray, palette: np.ndarray
     ) -> np.ndarray:
-        """Convert indexed image array to rgb image using provided palette.
+        """Convert indexed image array to RGB image using provided palette.
 
         Arguments:
             indexed_array: Array whose values are the indexes of colors within palette
             palette: Image palette
         Returns:
-            Array whose values are the rgb channels of an image
+            Array whose values are the RGB channels of an image
         """
         rgb_array = np.zeros((*indexed_array.shape[:2], 3), np.uint8)
         for i in range(indexed_array.shape[0]):
