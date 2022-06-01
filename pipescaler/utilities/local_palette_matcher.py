@@ -68,6 +68,14 @@ class LocalPaletteMatcher:
     @staticmethod
     @nb.jit(nopython=True, nogil=True, cache=True, fastmath=True)
     def get_local_match_l(fit_array: np.ndarray, ref_array: np.ndarray) -> np.ndarray:
+        """Get locally palette-matched image array for an L image array.
+
+        Args:
+            fit_array: Image array whose palette to fit to reference
+            ref_array: Image array whose palette to use as reference
+        Returns:
+            Matched imaged array
+        """
         scale = fit_array.shape[0] // ref_array.shape[0]
         matched_array = np.zeros_like(fit_array)
         dists = dict()
@@ -102,6 +110,14 @@ class LocalPaletteMatcher:
     @staticmethod
     @nb.jit(nopython=True, nogil=True, cache=True, fastmath=True)
     def get_local_match_rgb(fit_array: np.ndarray, ref_array: np.ndarray) -> np.ndarray:
+        """Get locally palette-matched image array for an RGB image array.
+
+        Args:
+            fit_array: Image array whose palette to fit to reference
+            ref_array: Image array whose palette to use as reference
+        Returns:
+            Matched imaged array
+        """
         scale = fit_array.shape[0] // ref_array.shape[0]
         matched_array = np.zeros_like(fit_array)
         dists = dict()

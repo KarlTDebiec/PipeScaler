@@ -74,7 +74,7 @@ class PaletteMatcher:
             Palette whose size matches that of fit_palette, and whose colors are those
             from ref_palette that are most similar to fit_palette
         """
-        ref_palette_set = set([tuple(color) for color in ref_palette])
+        ref_palette_set = {tuple(color) for color in ref_palette}
         ref_palette_by_cell = cls.get_palette_by_cell(ref_palette)
 
         best_fit_palette = np.zeros_like(fit_palette)
@@ -208,7 +208,7 @@ class PaletteMatcher:
                 palette_by_cell[cell] = []
             palette_by_cell[cell].append(color)
 
-        for cell in palette_by_cell:
+        for cell in palette_by_cell.copy():
             palette_by_cell[cell] = np.array(palette_by_cell[cell])
 
         return palette_by_cell
