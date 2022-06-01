@@ -11,7 +11,7 @@ import numpy as np
 from PIL import Image
 
 from pipescaler.core import UnsupportedImageModeError
-from pipescaler.core.image import get_perceptually_weighted_distance
+from pipescaler.core.image import get_palette, get_perceptually_weighted_distance
 
 
 class LocalPaletteMatcher:
@@ -33,18 +33,35 @@ class LocalPaletteMatcher:
                 f"Image mode '{ref_image.mode}' of reference image does not match mode "
                 f"'{fit_image.mode}' of fit image"
             )
+
+        print()
+
+        start = time.time()
+        ref_palette = get_palette(ref_image).astype(np.uint8)
+        print(f"ref_palette {ref_palette.shape}: {time.time() - start}")
+
+        start = time.time()
+        fit_palette = get_palette(fit_image).astype(np.uint8)
+        print(f"fit_palette {fit_palette.shape}: {time.time() - start}")
+
         # noinspection PyTypeChecker
         ref_array = np.array(ref_image)
         # noinspection PyTypeChecker
         fit_array = np.array(fit_image)
+
         start = time.time()
         if fit_image.mode == "L":
             matched_array = self.get_local_match_l(fit_array, ref_array)
         else:
             matched_array = self.get_local_match_rgb(fit_array, ref_array)
-        print(f"matched_array ({matched_array.shape}): {time.time() - start}")
+        print(f"matched_array: {time.time() - start}")
 
         matched_image = Image.fromarray(matched_array)
+
+        start = time.time()
+        matched_palette = get_palette(matched_image).astype(np.uint8)
+        print(f"matched_palette {matched_palette.shape}: {time.time() - start}")
+
         return matched_image
 
     @no_type_check
@@ -71,10 +88,7 @@ class LocalPaletteMatcher:
                         min(ref_array.shape[1] - 1, ref_center_y + 1) + 1,
                     ):
                         ref_color = ref_array[ref_x, ref_y]
-                        key = (
-                            fit_color,
-                            ref_color,
-                        )
+                        key = (fit_color, ref_color)
                         if key not in dists:
                             dists[key] = (fit_color - ref_color) ** 2
                         dist = dists[key]
