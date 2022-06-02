@@ -2,8 +2,7 @@
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
-"""Matches the palette of one image to another."""
-import time
+"""Matches the palette of one image to another, restricted to nearby colors."""
 from typing import no_type_check
 
 import numba as nb
@@ -11,11 +10,11 @@ import numpy as np
 from PIL import Image
 
 from pipescaler.core import UnsupportedImageModeError
-from pipescaler.core.image import get_palette, get_perceptually_weighted_distance
+from pipescaler.core.image import get_perceptually_weighted_distance
 
 
 class LocalPaletteMatcher:
-    """Matches the palette of one image to another."""
+    """Matches the palette of one image to another, restricted to nearby colors."""
 
     def match_palette(
         self, ref_image: Image.Image, fit_image: Image.Image
@@ -33,35 +32,17 @@ class LocalPaletteMatcher:
                 f"Image mode '{ref_image.mode}' of reference image does not match mode "
                 f"'{fit_image.mode}' of fit image"
             )
-
-        print()
-
-        start = time.time()
-        ref_palette = get_palette(ref_image).astype(np.uint8)
-        print(f"ref_palette {ref_palette.shape}: {time.time() - start}")
-
-        start = time.time()
-        fit_palette = get_palette(fit_image).astype(np.uint8)
-        print(f"fit_palette {fit_palette.shape}: {time.time() - start}")
-
         # noinspection PyTypeChecker
         ref_array = np.array(ref_image)
         # noinspection PyTypeChecker
         fit_array = np.array(fit_image)
 
-        start = time.time()
         if fit_image.mode == "L":
             matched_array = self.get_local_match_l(fit_array, ref_array)
         else:
             matched_array = self.get_local_match_rgb(fit_array, ref_array)
-        print(f"matched_array: {time.time() - start}")
 
         matched_image = Image.fromarray(matched_array)
-
-        start = time.time()
-        matched_palette = get_palette(matched_image).astype(np.uint8)
-        print(f"matched_palette {matched_palette.shape}: {time.time() - start}")
-
         return matched_image
 
     @no_type_check
@@ -89,7 +70,7 @@ class LocalPaletteMatcher:
                 ref_center_y = fit_y // scale
                 for ref_x in range(
                     max(0, ref_center_x - 1),
-                    min(ref_array.shape[1] - 1, ref_center_x + 1) + 1,
+                    min(ref_array.shape[0] - 1, ref_center_x + 1) + 1,
                 ):
                     for ref_y in range(
                         max(0, ref_center_y - 1),
@@ -131,7 +112,7 @@ class LocalPaletteMatcher:
                 ref_center_y = fit_y // scale
                 for ref_x in range(
                     max(0, ref_center_x - 1),
-                    min(ref_array.shape[1] - 1, ref_center_x + 1) + 1,
+                    min(ref_array.shape[0] - 1, ref_center_x + 1) + 1,
                 ):
                     for ref_y in range(
                         max(0, ref_center_y - 1),

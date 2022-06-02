@@ -37,6 +37,7 @@ class PaletteMatcher:
         fit_palette = get_palette(fit_image).astype(np.uint8)
         # noinspection PyTypeChecker
         fit_array = np.array(fit_image)
+
         if fit_image.mode == "L":
             color_to_index = {color: i for i, color in enumerate(fit_palette)}
             fit_array_by_index = np.zeros(fit_array.shape[:2], np.int32)
