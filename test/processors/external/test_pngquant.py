@@ -26,15 +26,15 @@ def processor(request) -> PngquantProcessor:
 @pytest.mark.parametrize(
     ("infile"),
     [
-        xfail_if_platform({"Windows", ExecutableNotFoundError})("1"),
-        xfail_if_platform({"Windows", ExecutableNotFoundError})("L"),
-        xfail_if_platform({"Windows", ExecutableNotFoundError})("LA"),
-        xfail_if_platform({"Windows", ExecutableNotFoundError})("RGB"),
-        xfail_if_platform({"Windows", ExecutableNotFoundError})("RGBA"),
-        xfail_if_platform({"Windows", ExecutableNotFoundError})("PL"),
-        xfail_if_platform({"Windows", ExecutableNotFoundError})("PLA"),
-        xfail_if_platform({"Windows", ExecutableNotFoundError})("PRGB"),
-        xfail_if_platform({"Windows", ExecutableNotFoundError})("PRGBA"),
+        xfail_if_platform({"Windows"}, ExecutableNotFoundError)("1"),
+        xfail_if_platform({"Windows"}, ExecutableNotFoundError)("L"),
+        xfail_if_platform({"Windows"}, ExecutableNotFoundError)("LA"),
+        xfail_if_platform({"Windows"}, ExecutableNotFoundError)("RGB"),
+        xfail_if_platform({"Windows"}, ExecutableNotFoundError)("RGBA"),
+        xfail_if_platform({"Windows"}, ExecutableNotFoundError)("PL"),
+        xfail_if_platform({"Windows"}, ExecutableNotFoundError)("PLA"),
+        xfail_if_platform({"Windows"}, ExecutableNotFoundError)("PRGB"),
+        xfail_if_platform({"Windows"}, ExecutableNotFoundError)("PRGBA"),
     ],
 )
 def test(infile: str, processor: PngquantProcessor) -> None:
