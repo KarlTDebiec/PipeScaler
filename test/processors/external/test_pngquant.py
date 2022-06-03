@@ -8,9 +8,9 @@ from os.path import getsize
 import pytest
 from PIL import Image
 
-from pipescaler.common import temporary_filename
+from pipescaler.common import ExecutableNotFoundError, temporary_filename
 from pipescaler.processors.external import PngquantProcessor
-from pipescaler.testing import get_infile, parametrized_fixture
+from pipescaler.testing import get_infile, parametrized_fixture, xfail_if_platform
 
 
 @parametrized_fixture(
@@ -26,15 +26,15 @@ def processor(request) -> PngquantProcessor:
 @pytest.mark.parametrize(
     ("infile"),
     [
-        ("1"),
-        ("L"),
-        ("LA"),
-        ("RGB"),
-        ("RGBA"),
-        ("PL"),
-        ("PLA"),
-        ("PRGB"),
-        ("PRGBA"),
+        xfail_if_platform({"Windows", ExecutableNotFoundError})("1"),
+        xfail_if_platform({"Windows", ExecutableNotFoundError})("L"),
+        xfail_if_platform({"Windows", ExecutableNotFoundError})("LA"),
+        xfail_if_platform({"Windows", ExecutableNotFoundError})("RGB"),
+        xfail_if_platform({"Windows", ExecutableNotFoundError})("RGBA"),
+        xfail_if_platform({"Windows", ExecutableNotFoundError})("PL"),
+        xfail_if_platform({"Windows", ExecutableNotFoundError})("PLA"),
+        xfail_if_platform({"Windows", ExecutableNotFoundError})("PRGB"),
+        xfail_if_platform({"Windows", ExecutableNotFoundError})("PRGBA"),
     ],
 )
 def test(infile: str, processor: PngquantProcessor) -> None:
