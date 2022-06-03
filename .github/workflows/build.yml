@@ -123,7 +123,6 @@ jobs:
           Set-PSDebug -Trace 1
           $ErrorView = 'NormalView'
           Set-Location -Path ${env:GITHUB_WORKSPACE}
-          choco install pngquant
           New-Item -Path ${env:GITHUB_WORKSPACE} -Name "executables" -ItemType "directory"
           Invoke-WebRequest -Uri http://potrace.sourceforge.net/download/1.16/potrace-1.16.win64.zip -Outfile potrace-1.16.win64.zip
           Expand-Archive potrace-1.16.win64.zip
