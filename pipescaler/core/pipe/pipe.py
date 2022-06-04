@@ -38,11 +38,11 @@ class Pipe(ABC):
     @property
     @abstractmethod
     def inlets(self) -> list[str]:
-        """Inlets that flow into stage."""
+        """Inlets that flow into pipe."""
         raise NotImplementedError()
 
     @property
     @abstractmethod
     def outlets(self) -> list[str]:
-        """Outlets that flow out of stage."""
+        """Outlets that flow out of pipe."""
         raise NotImplementedError()

@@ -5,8 +5,15 @@
 """Abstract base class for source pipes."""
 from abc import ABC
 
-from pipescaler.core.pipe.pipe import Pipe
 
+class Source(ABC):
+    """Abstract base class for source pipes."""
 
-class SourcePipe(Pipe, ABC):
-    pass
+    def __iter__(self):
+        """Yield next image."""
+        raise NotImplementedError()
+
+    @property
+    def outlets(self) -> list[str]:
+        """Outlets that flow out of pipe."""
+        return ["outlet"]

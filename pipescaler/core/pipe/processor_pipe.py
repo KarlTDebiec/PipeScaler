@@ -12,6 +12,8 @@ from pipescaler.core.stages import Processor
 
 
 class ProcessorPipe(Pipe, ABC):
+    """Abstract base class for processor pipes."""
+
     def __init__(self, suffix: Optional[str] = None, **kwargs: Any) -> None:
         """Validate and store configuration and initialize.
 

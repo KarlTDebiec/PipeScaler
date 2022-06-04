@@ -5,4 +5,6 @@
 """Merger pipes."""
 from __future__ import annotations
 
-__all__: list[str] = []
+from pipescaler.pipe.mergers.alpha_merger_pipe import AlphaMergerPipe
+
+__all__: list[str] = [AlphaMergerPipe]

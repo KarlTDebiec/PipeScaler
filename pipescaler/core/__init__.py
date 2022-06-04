@@ -25,6 +25,7 @@ from pipescaler.core.image import (
 )
 from pipescaler.core.pipe_image import PipeImage
 from pipescaler.core.pipeline import Pipeline
+from pipescaler.core.sort import basic_sort, citra_sort, dolphin_sort, texmod_sort
 from pipescaler.core.stage import Stage, initialize_stage
 from pipescaler.core.validation import validate_image, validate_image_and_convert_mode
 
@@ -37,8 +38,11 @@ __all__: list[str] = [
     "Stage",
     "TerminusReached",
     "UnsupportedImageModeError",
+    "basic_sort",
+    "citra_sort",
     "convert_mode",
     "crop_image",
+    "dolphin_sort",
     "expand_image",
     "initialize_stage",
     "smooth_image",
@@ -47,10 +51,11 @@ __all__: list[str] = [
     "get_files",
     "get_font_size",
     "get_text_size",
+    "hstack_images",
     "is_monochrome",
     "label_image",
     "remove_palette_from_image",
-    "hstack_images",
+    "texmod_sort",
     "validate_image",
     "validate_image_and_convert_mode",
     "vstack_images",

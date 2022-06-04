@@ -18,5 +18,5 @@ class XbrzProcessorPipe(ProcessorPipe):
     @classmethod
     @property
     def processor(cls) -> Type[Processor]:
-        """Type of processor wrapped by command line interface."""
+        """Type of processor wrapped by pipe."""
         return XbrzProcessor

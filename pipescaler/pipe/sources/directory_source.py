@@ -5,11 +5,13 @@
 """Yields images from a directory."""
 from __future__ import annotations
 
-from typing import Any, Union
+from typing import Any, Callable, Union
+
+from PIL import Image
 
 from pipescaler.common import validate_input_directory
-from pipescaler.core import get_files
-from pipescaler.core.stages import Source
+from pipescaler.core import PipeImage, basic_sort, get_files
+from pipescaler.core.pipe import Source
 
 
 class DirectorySource(Source):
@@ -22,6 +24,7 @@ class DirectorySource(Source):
         self,
         directory: Union[str, list[str]],
         exclusions: Union[str, list[str]] = None,
+        sort: Callable[[str], int] = basic_sort,
         **kwargs: Any,
     ) -> None:
         """Validate and store configuration and initialize.
@@ -41,6 +44,7 @@ class DirectorySource(Source):
         if isinstance(directory, str):
             directory = [directory]
         self.directories = [validate_input_directory(d) for d in directory]
+        self.sort = sort
 
         # Store list of filenames
         filenames = get_files(self.directories, style="absolute", exclusions=exclusions)
@@ -51,9 +55,4 @@ class DirectorySource(Source):
     def __iter__(self):
         """Yield next image."""
         for filename in self.filenames:
-            yield filename
-
-    @staticmethod
-    def sort(filename):
-        """Sort outfiles to be yielded by source."""
-        return "".join([f"{ord(c):03d}" for c in filename.lower()])
+            yield {"outlet": PipeImage(Image.open(filename))}

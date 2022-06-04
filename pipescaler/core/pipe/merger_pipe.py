@@ -40,7 +40,7 @@ class MergerPipe(Pipe, ABC):
 
     @property
     def outlets(self) -> list[str]:
-        """Outlets that flow out of stage."""
+        """Outlets that flow out of pipe."""
         return ["outlet"]
 
     @classmethod

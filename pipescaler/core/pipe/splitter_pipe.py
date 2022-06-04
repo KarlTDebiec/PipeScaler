@@ -42,7 +42,7 @@ class SplitterPipe(Pipe, ABC):
 
     @property
     def inlets(self) -> list[str]:
-        """Inlets that flow into stage."""
+        """Inlets that flow into pipe."""
         return ["inlet"]
 
     @classmethod

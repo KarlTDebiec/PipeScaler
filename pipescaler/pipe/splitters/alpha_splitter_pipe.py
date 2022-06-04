@@ -17,7 +17,7 @@ class AlphaSplitterPipe(SplitterPipe):
 
     @property
     def outlets(self) -> list[str]:
-        """Outlets that flow out of stage."""
+        """Outlets that flow out of pipe."""
         return ["color", "alpha"]
 
     @classmethod

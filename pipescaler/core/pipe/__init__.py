@@ -8,7 +8,7 @@ from __future__ import annotations
 from pipescaler.core.pipe.merger_pipe import MergerPipe
 from pipescaler.core.pipe.processor_pipe import ProcessorPipe
 from pipescaler.core.pipe.sorter_pipe import SorterPipe
-from pipescaler.core.pipe.source_pipe import SourcePipe
+from pipescaler.core.pipe.source_pipe import Source
 from pipescaler.core.pipe.splitter_pipe import SplitterPipe
 from pipescaler.core.pipe.terminus_pipe import TerminusPipe
 
@@ -16,7 +16,7 @@ __all__: list[str] = [
     "MergerPipe",
     "ProcessorPipe",
     "SorterPipe",
-    "SourcePipe",
+    "Source",
     "SplitterPipe",
     "TerminusPipe",
 ]
