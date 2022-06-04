@@ -15,8 +15,21 @@ from pipescaler.processors.image import XbrzProcessor
 class XbrzProcessorPipe(ProcessorPipe):
     """Pipe for XbrzProcessor."""
 
+    async def coroutine(self):
+        while True:
+            inlets = yield
+            outlets = self(inlets)
+            print(outlets)
+
     @classmethod
     @property
     def processor(cls) -> Type[Processor]:
         """Type of processor wrapped by pipe."""
         return XbrzProcessor
+
+
+async def processor_coroutine(processor, downstream_pipe=None):
+    while True:
+        inlets = yield
+        outlets = processor(inlets)
+        downstream_pipe.send(outlets)

@@ -28,11 +28,11 @@ class Pipe(ABC):
         raise NotImplementedError()
 
     def __repr__(self) -> str:
-        """Detailed representation of stage."""
+        """Detailed representation of pipe."""
         return self.desc
 
     def __str__(self) -> str:
-        """Simple representation of stage."""
+        """Simple representation of pipe."""
         return self.name
 
     @property

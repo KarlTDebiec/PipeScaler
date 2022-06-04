@@ -51,8 +51,11 @@ class DirectorySource(Source):
         filenames = list(filenames)
         filenames.sort(key=self.sort, reverse=True)
         self.filenames = filenames
+        self.index = 0
 
-    def __iter__(self):
-        """Yield next image."""
-        for filename in self.filenames:
-            yield {"outlet": PipeImage(Image.open(filename))}
+    def __next__(self):
+        if self.index < len(self.filenames):
+            filename = self.filenames[self.index]
+            self.index += 1
+            return {"outlet": PipeImage(Image.open(filename))}
+        raise StopIteration

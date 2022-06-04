@@ -8,6 +8,7 @@ from typing import Any, Optional, Type
 
 from pipescaler.core import PipeImage
 from pipescaler.core.pipe.pipe import Pipe
+from pipescaler.core.pipe.pipeline import Pipeline
 from pipescaler.core.stages import Processor
 
 
@@ -35,6 +36,9 @@ class ProcessorPipe(Pipe, ABC):
         inlet_image = inlets["inlet"].image
         outlet_image = self.processor_object(inlet_image)
         return {"outlet": PipeImage(outlet_image, list(inlets.values()))}
+
+    def flow_into(self, *pipes) -> Pipeline:
+        pass
 
     @property
     def inlets(self) -> list[str]:
