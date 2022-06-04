@@ -2,12 +2,12 @@
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
-"""Abstract base class for source pipes."""
+"""Abstract base class for sources."""
 from abc import ABC
 
 
 class Source(ABC):
-    """Abstract base class for source pipes."""
+    """Abstract base class for sources."""
 
     def __iter__(self):
         """Yield next image."""
@@ -15,5 +15,5 @@ class Source(ABC):
 
     @property
     def outlets(self) -> list[str]:
-        """Outlets that flow out of pipe."""
+        """Outlets that flow out of source."""
         return ["outlet"]

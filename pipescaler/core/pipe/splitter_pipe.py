@@ -12,6 +12,8 @@ from pipescaler.core.stages import Splitter
 
 
 class SplitterPipe(Pipe, ABC):
+    """Abstract base class for splitter pipes."""
+
     def __init__(
         self, suffixes: Optional[dict[str, str]] = None, **kwargs: Any
     ) -> None:

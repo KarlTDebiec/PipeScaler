@@ -9,7 +9,11 @@ from os.path import basename, splitext
 
 def basic_sort(filename):
     """Sort filenames."""
-    return "".join([f"{ord(c):03d}" for c in filename.lower()])
+    try:
+        return "".join([f"{ord(c):03d}" for c in filename.lower()])
+    except ValueError as e:
+        error(f"Error encountered while sorting {filename}")
+        raise e
 
 
 def citra_sort(filename):
@@ -53,7 +57,7 @@ def dolphin_sort(filename):
 
 
 def texmod_sort(filename):
-    """Sort filenames dumped by TexMpd.
+    """Sort filenames dumped by TexMod.
 
     See [TexMod](https://www.moddb.com/downloads/texmod4).
     """
