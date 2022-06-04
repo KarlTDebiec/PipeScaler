@@ -5,7 +5,7 @@
 """Tests for MonochromeSorter"""
 import pytest
 
-from pipescaler.sorters import MonochromeSorter
+from pipescaler.pipe.sorters import MonochromeSorter
 from pipescaler.testing import get_infile, parametrized_fixture
 
 

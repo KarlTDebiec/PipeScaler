@@ -5,7 +5,7 @@
 """Tests for GrayscaleSorter"""
 import pytest
 
-from pipescaler.sorters import GrayscaleSorter
+from pipescaler.pipe.sorters import GrayscaleSorter
 from pipescaler.testing import get_infile, parametrized_fixture
 
 

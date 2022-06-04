@@ -34,14 +34,7 @@ class XbrzProcessor(ImageProcessor):
         # Store configuration
         self.scale = validate_int(scale, 2, 6)
 
-    def process(self, input_image: Image.Image) -> Image.Image:
-        """Process an image.
-
-        Arguments:
-            input_image: Input image to process
-        Returns:
-            Processed output image
-        """
+    def __call__(self, input_image: Image.Image) -> Image.Image:
         input_image, input_mode = convert_mode(input_image, "RGBA")
 
         output_image = xbrz.scale_pillow(input_image, self.scale)

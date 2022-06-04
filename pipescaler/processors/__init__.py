@@ -5,6 +5,7 @@
 """Processor stages."""
 from __future__ import annotations
 
+from pipescaler.pipe.processors.side_channel_processor import SideChannelProcessor
 from pipescaler.processors.external import (
     AppleScriptProcessor,
     AutomatorProcessor,
@@ -27,7 +28,6 @@ from pipescaler.processors.image import (
     WaifuProcessor,
     XbrzProcessor,
 )
-from pipescaler.processors.side_channel_processor import SideChannelProcessor
 from pipescaler.processors.web_processor import WebProcessor
 
 __all__: list[str] = [

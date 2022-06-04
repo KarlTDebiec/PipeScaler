@@ -5,7 +5,7 @@
 """Tests for AlphaSorter"""
 import pytest
 
-from pipescaler.sorters import AlphaSorter
+from pipescaler.pipe.sorters import AlphaSorter
 from pipescaler.testing import get_infile, parametrized_fixture
 
 

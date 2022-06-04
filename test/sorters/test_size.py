@@ -5,7 +5,7 @@
 """Tests for SizeSorter"""
 import pytest
 
-from pipescaler.sorters import SizeSorter
+from pipescaler.pipe.sorters import SizeSorter
 from pipescaler.testing import get_infile, parametrized_fixture
 
 

@@ -5,7 +5,7 @@
 """Tests for ModeSorter"""
 import pytest
 
-from pipescaler.sorters import ModeSorter
+from pipescaler.pipe.sorters import ModeSorter
 from pipescaler.testing import get_infile, parametrized_fixture
 
 

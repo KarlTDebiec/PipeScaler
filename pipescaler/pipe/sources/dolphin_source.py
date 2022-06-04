@@ -8,7 +8,7 @@ from __future__ import annotations
 from logging import error
 from os.path import basename, splitext
 
-from pipescaler.sources.directory_source import DirectorySource
+from pipescaler.pipe.sources.directory_source import DirectorySource
 
 
 class DolphinSource(DirectorySource):

@@ -5,7 +5,7 @@
 """Tests for RegexSorter"""
 import pytest
 
-from pipescaler.sorters import RegexSorter
+from pipescaler.pipe.sorters import RegexSorter
 from pipescaler.testing import parametrized_fixture
 
 

@@ -14,23 +14,15 @@ from pipescaler.core.stages import Merger
 class AlphaMerger(Merger):
     """Merges alpha and color images into a single image with transparency."""
 
-    def merge(self, *input_images: Image.Image) -> Image.Image:
-        """Merge images.
-
-        Arguments:
-            *input_images: Input images to merge
-        Returns:
-            Merged output image
-        """
+    def __call__(self, *input_images: tuple[Image.Image, ...]) -> Image.Image:
         color_image, alpha_image = input_images
+        # validate_image(color_image, ["L", "RGB"])
+        # validate_image(alpha_image, ["1", "L"])
 
-        # noinspection PyTypeChecker
         color_array = np.array(color_image)
         if alpha_image.mode == "L":
-            # noinspection PyTypeChecker
             alpha_array = np.array(alpha_image)
         else:
-            # noinspection PyTypeChecker
             alpha_array = np.array(alpha_image.convert("L"))
         if color_image.mode == "L":
             output_array = np.zeros((*color_array.shape, 2), np.uint8)
@@ -42,17 +34,3 @@ class AlphaMerger(Merger):
         output_image = Image.fromarray(output_array)
 
         return output_image
-
-    @property
-    def inlets(self) -> list[str]:
-        """Inlets that flow into stage."""
-        return ["color", "alpha"]
-
-    @classmethod
-    @property
-    def supported_input_modes(self) -> dict[str, list[str]]:
-        """Supported modes for input images."""
-        return {
-            "color": ["L", "RGB"],
-            "alpha": ["1", "L"],
-        }

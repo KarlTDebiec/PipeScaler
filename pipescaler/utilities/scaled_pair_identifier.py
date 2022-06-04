@@ -24,7 +24,7 @@ from scipy.stats import zscore
 
 from pipescaler.common import validate_output_directory, validate_output_file
 from pipescaler.core import hstack_images, label_image, vstack_images
-from pipescaler.sorters import AlphaSorter, GrayscaleSorter
+from pipescaler.pipe.sorters import AlphaSorter, GrayscaleSorter
 
 
 class ScaledPairIdentifier:

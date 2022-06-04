@@ -6,7 +6,7 @@
 
 import pytest
 
-from pipescaler.sorters import ListSorter
+from pipescaler.pipe.sorters import ListSorter
 from pipescaler.testing import get_sub_directory, parametrized_fixture
 
 

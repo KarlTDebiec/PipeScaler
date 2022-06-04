@@ -42,15 +42,9 @@ class AlphaSplitter(Splitter):
             self.mask_fill_mode = validate_enum(mask_fill_mode, MaskFillMode)
             self.mask_filler = MaskFiller(mask_fill_mode=self.mask_fill_mode)
 
-    def split(self, input_image: Image.Image) -> tuple[Image.Image, ...]:
-        """Split an image.
+    def __call__(self, input_image: Image.Image) -> tuple[Image.Image, ...]:
+        # input_image = validate_image(input_image, ["LA", "RGBA"])
 
-        Arguments:
-            input_image: Input image to split
-        Returns:
-            Split output images
-        """
-        # noinspection PyTypeChecker
         input_array = np.array(input_image)
         color_array = np.squeeze(input_array[:, :, :-1])
         alpha_array = input_array[:, :, -1]
@@ -65,14 +59,3 @@ class AlphaSplitter(Splitter):
             color_image = self.mask_filler.fill(color_image, alpha_image)
 
         return color_image, alpha_image
-
-    @property
-    def outlets(self) -> list[str]:
-        """Outlets that flow out of stage."""
-        return ["color", "alpha"]
-
-    @classmethod
-    @property
-    def supported_input_modes(self) -> list[str]:
-        """Supported modes for input image."""
-        return ["LA", "RGBA"]
