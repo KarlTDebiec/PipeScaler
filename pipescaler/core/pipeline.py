@@ -566,7 +566,7 @@ class Pipeline:
                 if isinstance(outlet_output, dict):
                     downstream_input.update(outlet_output)
                 else:
-                    raise ValueError()
+                    continue
             except UnsupportedPlatformError as error:
                 warning(
                     f"{self}: While processing '{outlet_input.name}', "
