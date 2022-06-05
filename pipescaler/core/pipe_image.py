@@ -15,7 +15,7 @@ class PipeImage:
 
     def __init__(
         self,
-        image: Image,
+        image: Image.Image,
         parent: Union[PipeImage, list[PipeImage]] = None,
     ) -> None:
         """Validate and store configuration.
@@ -26,6 +26,16 @@ class PipeImage:
         """
         self.image = image
         self.parent = parent
+
+    def __repr__(self):
+        return f"PipeImage of mode {self.image.mode} and size {self.image.size} with {self.count_parents()} parents"
+
+    def count_parents(self):
+        if isinstance(self.parent, PipeImage):
+            return 1 + self.parent.count_parents()
+        elif isinstance(self.parent, list):
+            return len(self.parent) + sum([p.count_parents() for p in self.parent])
+        return 0
 
     def filename(self):
         raise NotImplementedError()

@@ -6,9 +6,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Optional, Type
 
-from pipescaler.core import PipeImage
 from pipescaler.core.pipe.pipe import Pipe
-from pipescaler.core.pipe.pipeline import Pipeline
 from pipescaler.core.stages import Processor
 
 
@@ -31,14 +29,6 @@ class ProcessorPipe(Pipe, ABC):
             self.suffix = self.name
 
         self.processor_object = self.processor(**kwargs)
-
-    def __call__(self, inlets: dict[str, PipeImage]) -> dict[str, PipeImage]:
-        inlet_image = inlets["inlet"].image
-        outlet_image = self.processor_object(inlet_image)
-        return {"outlet": PipeImage(outlet_image, list(inlets.values()))}
-
-    def flow_into(self, *pipes) -> Pipeline:
-        pass
 
     @property
     def inlets(self) -> list[str]:

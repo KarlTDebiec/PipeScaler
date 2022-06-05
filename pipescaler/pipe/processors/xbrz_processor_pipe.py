@@ -5,8 +5,9 @@
 """Pipe for XbrzProcessor."""
 from __future__ import annotations
 
-from typing import Type
+from typing import Iterator, Type
 
+from pipescaler.core import PipeImage
 from pipescaler.core.pipe import ProcessorPipe
 from pipescaler.core.stages import Processor
 from pipescaler.processors.image import XbrzProcessor
@@ -15,21 +16,21 @@ from pipescaler.processors.image import XbrzProcessor
 class XbrzProcessorPipe(ProcessorPipe):
     """Pipe for XbrzProcessor."""
 
-    async def coroutine(self):
-        while True:
-            inlets = yield
-            outlets = self(inlets)
-            print(outlets)
+    def get_outlets(self, upstream_outlets) -> dict[str, Iterator[PipeImage]]:
+        # TODO: Do some checks to make sure inlets and outlets align
+        inlet = next(iter(upstream_outlets.values()))
+
+        def outlet() -> Iterator[PipeImage]:
+            for inlet_pipe_image in inlet:
+                inlet_image = inlet_pipe_image.image
+                outlet_image = self.processor_object(inlet_image)
+                yield PipeImage(outlet_image, inlet_pipe_image)
+
+        outlets = {"outlet": outlet()}
+        return outlets
 
     @classmethod
     @property
     def processor(cls) -> Type[Processor]:
         """Type of processor wrapped by pipe."""
         return XbrzProcessor
-
-
-async def processor_coroutine(processor, downstream_pipe=None):
-    while True:
-        inlets = yield
-        outlets = processor(inlets)
-        downstream_pipe.send(outlets)

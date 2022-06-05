@@ -5,8 +5,9 @@
 """Pipe for AlphaMerger."""
 from __future__ import annotations
 
-from typing import Type
+from typing import Iterator, Type
 
+from pipescaler.core import PipeImage
 from pipescaler.core.pipe import MergerPipe
 from pipescaler.core.stages import Merger
 from pipescaler.mergers import AlphaMerger
@@ -14,6 +15,20 @@ from pipescaler.mergers import AlphaMerger
 
 class AlphaMergerPipe(MergerPipe):
     """Pipe for AlphaMerger."""
+
+    def get_outlets(self, upstream_outlets):
+        # TODO: Do some checks to make sure inlets and outlets align
+        color_inlet, alpha_inlet = tuple(upstream_outlets.values())
+
+        def outlet() -> Iterator[PipeImage]:
+            for color_inlet_image, alpha_inlet_image in zip(color_inlet, alpha_inlet):
+                outlet_image = self.merger_object(
+                    color_inlet_image.image, alpha_inlet_image.image
+                )
+                yield PipeImage(outlet_image, [color_inlet_image, alpha_inlet_image])
+
+        outlets = {"outlet": outlet()}
+        return outlets
 
     @property
     def inlets(self) -> list[str]:

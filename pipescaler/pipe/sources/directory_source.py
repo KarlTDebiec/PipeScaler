@@ -5,7 +5,7 @@
 """Yields images from a directory."""
 from __future__ import annotations
 
-from typing import Any, Callable, Union
+from typing import Any, Callable, Iterator, Union
 
 from PIL import Image
 
@@ -51,11 +51,11 @@ class DirectorySource(Source):
         filenames = list(filenames)
         filenames.sort(key=self.sort, reverse=True)
         self.filenames = filenames
-        self.index = 0
 
-    def __next__(self):
-        if self.index < len(self.filenames):
-            filename = self.filenames[self.index]
-            self.index += 1
-            return {"outlet": PipeImage(Image.open(filename))}
-        raise StopIteration
+    def get_outlets(self) -> dict[str, Iterator[PipeImage]]:
+        def outlet() -> Iterator[PipeImage]:
+            for filename in self.filenames:
+                yield PipeImage(Image.open(filename))
+
+        outlets = {"outlet": outlet()}
+        return outlets

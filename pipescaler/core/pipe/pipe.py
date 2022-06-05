@@ -6,8 +6,6 @@
 from abc import ABC, abstractmethod
 from typing import Any, Optional
 
-from pipescaler.core import PipeImage
-
 
 class Pipe(ABC):
     def __init__(
@@ -22,10 +20,6 @@ class Pipe(ABC):
         """
         self.name = name if name is not None else self.__class__.__name__
         self.desc = desc if desc is not None else self.name
-
-    @abstractmethod
-    def __call__(self, inlets: dict[str, PipeImage]) -> dict[str, PipeImage]:
-        raise NotImplementedError()
 
     def __repr__(self) -> str:
         """Detailed representation of pipe."""

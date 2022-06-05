@@ -6,7 +6,6 @@
 from abc import ABC, abstractmethod
 from typing import Any, Optional, Type
 
-from pipescaler.core import PipeImage
 from pipescaler.core.pipe.pipe import Pipe
 from pipescaler.core.stages import Splitter
 
@@ -33,14 +32,6 @@ class SplitterPipe(Pipe, ABC):
         )
 
         self.splitter_object = self.splitter(**kwargs)
-
-    def __call__(self, inlets: dict[str, PipeImage]) -> dict[str, PipeImage]:
-        inlet_image = inlets["inlet"].image
-        outlet_images = self.splitter_object(inlet_image)
-        return {
-            outlet: PipeImage(outlet_images[i], list(inlets.values()))
-            for i, outlet in enumerate(self.outlets)
-        }
 
     @property
     def inlets(self) -> list[str]:

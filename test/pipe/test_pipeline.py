@@ -3,29 +3,33 @@
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
 """Tests for pipelines"""
-from pytest import mark
-
 from pipescaler.pipe.mergers import AlphaMergerPipe
 from pipescaler.pipe.processors import XbrzProcessorPipe
-from pipescaler.pipe.processors.xbrz_processor_pipe import processor_coroutine
 from pipescaler.pipe.sources import DirectorySource
 from pipescaler.pipe.splitters.alpha_splitter_pipe import AlphaSplitterPipe
-from pipescaler.processors import XbrzProcessor
 from pipescaler.testing import get_sub_directory
 
 
-@mark.asyncio
-async def test() -> None:
-    directory_source = DirectorySource(get_sub_directory("basic"))
-    alpha_merger = AlphaMergerPipe()
-    alpha_splitter = AlphaSplitterPipe()
-    xbrz_processor = XbrzProcessorPipe()
+def test() -> None:
+    print()
 
-    # source.flow_into(alpha_splitter).flow_into(
-    #     xbrz_processor.flow_into(xbrz_processor),
-    #     xbrz_processor.flow_into(xbrz_processor),
-    # ).flow_into(alpha_merger)
-    xbrz_processor = processor_coroutine(XbrzProcessor())
-    for outlets in directory_source:
-        nay = await xbrz_processor(outlets)
-        print(nay)
+    directory_source = DirectorySource(get_sub_directory("basic_temp"))
+    xbrz_processor_pipe = XbrzProcessorPipe()
+    alpha_splitter_pipe = AlphaSplitterPipe()
+    alpha_merger_pipe = AlphaMergerPipe()
+
+    source_outlets = directory_source.get_outlets()
+    alpha_splitter_outlets = alpha_splitter_pipe.get_outlets(source_outlets)
+    yat = xbrz_processor_pipe.get_outlets({"color": alpha_splitter_outlets["color"]})
+    yat = xbrz_processor_pipe.get_outlets(yat)
+    eee = xbrz_processor_pipe.get_outlets({"alpha": alpha_splitter_outlets["alpha"]})
+    eee = xbrz_processor_pipe.get_outlets(eee)
+    alpha_merger_outlets = alpha_merger_pipe.get_outlets(
+        {
+            "color": next(iter(yat.values())),
+            "alpha": next(iter(eee.values())),
+        }
+    )
+    print(alpha_merger_outlets)
+    for image in alpha_merger_outlets["outlet"]:
+        print(image)
