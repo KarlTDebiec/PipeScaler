@@ -17,23 +17,26 @@ from pipescaler.splitters import AlphaSplitter
 class AlphaSplitterPipe(SplitterPipe):
     """Pipe for AlphaSplitter."""
 
-    def get_outlets(self, upstream_outlets):
-        # TODO: Do some checks to make sure inlets and outlets align
-        inlet = next(iter(upstream_outlets.values()))
-
+    def route(
+        self, inlets: dict[str, Iterator[PipeImage]]
+    ) -> dict[str, Iterator[PipeImage]]:
         def outlet() -> Iterator[PipeImage]:
-            for inlet_pipe_image in inlet:
-                inlet_image = inlet_pipe_image.image
-                outlet_images = self.splitter_object(inlet_image)
+            for input_pipe_images in zip(*inlets.values()):
+                input_images = (image.image for image in input_pipe_images)
+                outlet_images = self.splitter_object(*input_images)
                 yield {
-                    outlet: PipeImage(outlet_images[i], inlet_pipe_image)
+                    outlet: PipeImage(outlet_images[i], input_pipe_images)
                     for i, outlet in enumerate(self.outlets)
                 }
 
-        color_outlet, alpha_outlet = tee(outlet())
-        color_outlet = (elem["color"] for elem in color_outlet)
-        alpha_outlet = (elem["alpha"] for elem in alpha_outlet)
-        outlets = {"color": color_outlet, "alpha": alpha_outlet}
+        if len(self.outlets) > 1:
+            outlets = tee(outlet(), len(self.outlets))
+            outlets = {
+                outlet: (elem[outlet] for elem in outlets[i])
+                for i, outlet in enumerate(self.outlets)
+            }
+        else:
+            outlets = {self.outlets[0]: outlet()}
         return outlets
 
     @property

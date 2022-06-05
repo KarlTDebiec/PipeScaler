@@ -5,7 +5,7 @@
 """Image within a pipeline."""
 from __future__ import annotations
 
-from typing import Union
+from typing import Sequence, Union
 
 from PIL import Image
 
@@ -16,7 +16,7 @@ class PipeImage:
     def __init__(
         self,
         image: Image.Image,
-        parent: Union[PipeImage, list[PipeImage]] = None,
+        parent: Union[PipeImage, Sequence[PipeImage]] = None,
     ) -> None:
         """Validate and store configuration.
 
@@ -33,7 +33,7 @@ class PipeImage:
     def count_parents(self):
         if isinstance(self.parent, PipeImage):
             return 1 + self.parent.count_parents()
-        elif isinstance(self.parent, list):
+        elif isinstance(self.parent, Sequence):
             return len(self.parent) + sum([p.count_parents() for p in self.parent])
         return 0
 

@@ -5,6 +5,7 @@
 """Pipe for AlphaMerger."""
 from __future__ import annotations
 
+from itertools import tee
 from typing import Iterator, Type
 
 from pipescaler.core import PipeImage
@@ -16,18 +17,24 @@ from pipescaler.mergers import AlphaMerger
 class AlphaMergerPipe(MergerPipe):
     """Pipe for AlphaMerger."""
 
-    def get_outlets(self, upstream_outlets):
-        # TODO: Do some checks to make sure inlets and outlets align
-        color_inlet, alpha_inlet = tuple(upstream_outlets.values())
-
+    def route(
+        self, inlets: dict[str, Iterator[PipeImage]]
+    ) -> dict[str, Iterator[PipeImage]]:
         def outlet() -> Iterator[PipeImage]:
-            for color_inlet_image, alpha_inlet_image in zip(color_inlet, alpha_inlet):
-                outlet_image = self.merger_object(
-                    color_inlet_image.image, alpha_inlet_image.image
-                )
-                yield PipeImage(outlet_image, [color_inlet_image, alpha_inlet_image])
+            for input_pipe_images in zip(*inlets.values()):
+                input_images = (image.image for image in input_pipe_images)
+                output_image = self.merger_object(*input_images)
+                output_pipe_image = PipeImage(output_image, input_pipe_images)
+                yield output_pipe_image
 
-        outlets = {"outlet": outlet()}
+        if len(self.outlets) > 1:
+            outlets = tee(outlet(), len(self.outlets))
+            outlets = {
+                outlet: (elem[outlet] for elem in outlets[i])
+                for i, outlet in enumerate(self.outlets)
+            }
+        else:
+            outlets = {self.outlets[0]: outlet()}
         return outlets
 
     @property

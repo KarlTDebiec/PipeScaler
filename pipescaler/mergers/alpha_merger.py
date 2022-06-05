@@ -34,3 +34,18 @@ class AlphaMerger(Merger):
         output_image = Image.fromarray(output_array)
 
         return output_image
+
+    @classmethod
+    @property
+    def inputs(cls) -> dict[str, tuple[str, ...]]:
+        return {
+            "color": ("L", "RGB"),
+            "alpha": ("1", "L"),
+        }
+
+    @classmethod
+    @property
+    def outputs(cls) -> dict[str, tuple[str, ...]]:
+        return {
+            "outlet": ("LA", "RGBA"),
+        }

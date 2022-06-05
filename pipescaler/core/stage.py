@@ -5,9 +5,11 @@
 """Abstract base class for stages."""
 from __future__ import annotations
 
-from abc import ABC
+from abc import ABC, abstractmethod
 from importlib.util import module_from_spec, spec_from_file_location
 from inspect import cleandoc
+
+from PIL import Image
 
 from pipescaler.common import validate_input_path
 
@@ -53,6 +55,10 @@ def initialize_stage(stage_name, stage_conf, modules):
 class Stage(ABC):
     """Base class for stages."""
 
+    @abstractmethod
+    def __call__(self, input_image: Image.Image) -> tuple[Image.Image, ...]:
+        raise NotImplementedError()
+
     @classmethod
     @property
     def help_markdown(cls) -> str:
@@ -60,3 +66,13 @@ class Stage(ABC):
         if cls.__doc__:
             return cleandoc(cls.__doc__).split(". ", maxsplit=1)[0]
         return ""
+
+    @classmethod
+    @property
+    def inputs(cls) -> dict[str, tuple[str, ...]]:
+        raise NotImplementedError()
+
+    @classmethod
+    @property
+    def outputs(cls) -> dict[str, tuple[str, ...]]:
+        raise NotImplementedError()

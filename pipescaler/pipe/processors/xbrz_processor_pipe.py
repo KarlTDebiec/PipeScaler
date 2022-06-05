@@ -5,6 +5,7 @@
 """Pipe for XbrzProcessor."""
 from __future__ import annotations
 
+from itertools import tee
 from typing import Iterator, Type
 
 from pipescaler.core import PipeImage
@@ -16,17 +17,24 @@ from pipescaler.processors.image import XbrzProcessor
 class XbrzProcessorPipe(ProcessorPipe):
     """Pipe for XbrzProcessor."""
 
-    def get_outlets(self, upstream_outlets) -> dict[str, Iterator[PipeImage]]:
-        # TODO: Do some checks to make sure inlets and outlets align
-        inlet = next(iter(upstream_outlets.values()))
-
+    def route(
+        self, inlets: dict[str, Iterator[PipeImage]]
+    ) -> dict[str, Iterator[PipeImage]]:
         def outlet() -> Iterator[PipeImage]:
-            for inlet_pipe_image in inlet:
-                inlet_image = inlet_pipe_image.image
-                outlet_image = self.processor_object(inlet_image)
-                yield PipeImage(outlet_image, inlet_pipe_image)
+            for input_pipe_images in zip(*inlets.values()):
+                input_images = (image.image for image in input_pipe_images)
+                output_image = self.processor_object(*input_images)
+                output_pipe_image = PipeImage(output_image, input_pipe_images)
+                yield output_pipe_image
 
-        outlets = {"outlet": outlet()}
+        if len(self.outlets) > 1:
+            outlets = tee(outlet(), len(self.outlets))
+            outlets = {
+                outlet: (elem[outlet] for elem in outlets[i])
+                for i, outlet in enumerate(self.outlets)
+            }
+        else:
+            outlets = {self.outlets[0]: outlet()}
         return outlets
 
     @classmethod

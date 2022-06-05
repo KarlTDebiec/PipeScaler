@@ -54,3 +54,17 @@ class XbrzProcessor(ImageProcessor):
     def help_markdown(cls) -> str:
         """Short description of this tool in markdown, with links."""
         return "Upscales image using [xbrz](https://github.com/ioistired/xbrz.py)."
+
+    @classmethod
+    @property
+    def inputs(cls) -> dict[str, tuple[str, ...]]:
+        return {
+            "inlet": ("1", "L", "LA", "RGB", "RGBA"),
+        }
+
+    @classmethod
+    @property
+    def outputs(cls) -> dict[str, tuple[str, ...]]:
+        return {
+            "outlet": ("1", "L", "LA", "RGB", "RGBA"),
+        }

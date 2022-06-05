@@ -3,33 +3,71 @@
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
 """Tests for pipelines"""
-from pipescaler.pipe.mergers import AlphaMergerPipe
-from pipescaler.pipe.processors import XbrzProcessorPipe
+from itertools import tee
+from typing import Iterator
+
+from PIL import Image
+
+from pipescaler.core import PipeImage, Stage
+from pipescaler.mergers import AlphaMerger
 from pipescaler.pipe.sources import DirectorySource
-from pipescaler.pipe.splitters.alpha_splitter_pipe import AlphaSplitterPipe
+from pipescaler.processors import XbrzProcessor
+from pipescaler.splitters import AlphaSplitter
 from pipescaler.testing import get_sub_directory
+
+
+def route(
+    stage: Stage, inlets: dict[str, Iterator[PipeImage]]
+) -> dict[str, Iterator[PipeImage]]:
+    def generator() -> Iterator[PipeImage]:
+        for input_pipe_images in zip(*inlets.values()):
+            input_images = tuple(image.image for image in input_pipe_images)
+            output_images = stage(*input_images)
+            if isinstance(output_images, Image.Image):
+                output_images = (output_images,)
+            output_pipe_images = {
+                outlet: PipeImage(output_images[i], input_pipe_images)
+                for i, outlet in enumerate(stage.outputs)
+            }
+            yield output_pipe_images
+
+    generator_for_all_outlets = generator()
+    generators_for_individual_outlets = {}
+    if len(stage.outputs) == 1:
+        key = next(iter(stage.outputs.keys()))
+        generators_for_individual_outlets[key] = (
+            elem[key] for elem in generator_for_all_outlets
+        )
+    else:
+        tees = tee(generator_for_all_outlets)
+        for i, key in enumerate(stage.outputs.keys()):
+            generators_for_individual_outlets[key] = eval(
+                f"(elem['{key}'] for elem in tees[{i}])"
+            )
+    return generators_for_individual_outlets
 
 
 def test() -> None:
     print()
 
     directory_source = DirectorySource(get_sub_directory("basic_temp"))
-    xbrz_processor_pipe = XbrzProcessorPipe()
-    alpha_splitter_pipe = AlphaSplitterPipe()
-    alpha_merger_pipe = AlphaMergerPipe()
+
+    xbrz_processor = XbrzProcessor()
+    alpha_splitter = AlphaSplitter()
+    alpha_merger = AlphaMerger()
 
     source_outlets = directory_source.get_outlets()
-    alpha_splitter_outlets = alpha_splitter_pipe.get_outlets(source_outlets)
-    yat = xbrz_processor_pipe.get_outlets({"color": alpha_splitter_outlets["color"]})
-    yat = xbrz_processor_pipe.get_outlets(yat)
-    eee = xbrz_processor_pipe.get_outlets({"alpha": alpha_splitter_outlets["alpha"]})
-    eee = xbrz_processor_pipe.get_outlets(eee)
-    alpha_merger_outlets = alpha_merger_pipe.get_outlets(
+    alpha_splitter_outlets = route(alpha_splitter, source_outlets)
+    color_outlets = route(xbrz_processor, {"color": alpha_splitter_outlets["color"]})
+    alpha_outlets = route(xbrz_processor, {"alpha": alpha_splitter_outlets["alpha"]})
+
+    alpha_merger_outlets = route(
+        alpha_merger,
         {
-            "color": next(iter(yat.values())),
-            "alpha": next(iter(eee.values())),
-        }
+            "color": color_outlets["outlet"],
+            "alpha": alpha_outlets["outlet"],
+        },
     )
-    print(alpha_merger_outlets)
     for image in alpha_merger_outlets["outlet"]:
         print(image)
+        image.image.show()

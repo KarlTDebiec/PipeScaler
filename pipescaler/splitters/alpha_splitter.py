@@ -59,3 +59,18 @@ class AlphaSplitter(Splitter):
             color_image = self.mask_filler.fill(color_image, alpha_image)
 
         return color_image, alpha_image
+
+    @classmethod
+    @property
+    def inputs(cls) -> dict[str, tuple[str, ...]]:
+        return {
+            "inlet": ("LA", "RGBA"),
+        }
+
+    @classmethod
+    @property
+    def outputs(cls) -> dict[str, tuple[str, ...]]:
+        return {
+            "color": ("L", "RGB"),
+            "alpha": ("1", "L"),
+        }
