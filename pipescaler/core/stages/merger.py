@@ -15,6 +15,4 @@ from pipescaler.core.stage import Stage
 class Merger(Stage, ABC):
     """Abstract base class for mergers."""
 
-    @abstractmethod
-    def __call__(self, *input_images: tuple[Image.Image, ...]) -> Image.Image:
-        raise NotImplementedError()
+    pass

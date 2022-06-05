@@ -13,8 +13,4 @@ from pipescaler.core.stages.processor import Processor
 class ImageProcessor(Processor, ABC):
     """Abstract base class for processors that process within Python."""
 
-    @classmethod
-    @property
-    def supported_input_modes(self) -> list[str]:
-        """Supported modes for input image."""
-        return ["1", "L", "LA", "RGB", "RGBA"]
+    pass

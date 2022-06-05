@@ -5,9 +5,7 @@
 """Abstract base class for processors."""
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
-
-from PIL import Image
+from abc import ABC
 
 from pipescaler.core.stage import Stage
 
@@ -15,6 +13,4 @@ from pipescaler.core.stage import Stage
 class Processor(Stage, ABC):
     """Abstract base class for processors."""
 
-    @abstractmethod
-    def __call__(self, input_image: Image.Image) -> Image.Image:
-        raise NotImplementedError()
+    pass

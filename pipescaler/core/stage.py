@@ -8,6 +8,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from importlib.util import module_from_spec, spec_from_file_location
 from inspect import cleandoc
+from typing import Union
 
 from PIL import Image
 
@@ -56,7 +57,9 @@ class Stage(ABC):
     """Base class for stages."""
 
     @abstractmethod
-    def __call__(self, input_image: Image.Image) -> tuple[Image.Image, ...]:
+    def __call__(
+        self, *input_images: Union[Image.Image, tuple[Image.Image, ...]]
+    ) -> Union[Image.Image, tuple[Image.Image, ...]]:
         raise NotImplementedError()
 
     @classmethod

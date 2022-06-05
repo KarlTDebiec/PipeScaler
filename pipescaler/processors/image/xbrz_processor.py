@@ -5,7 +5,7 @@
 """Upscales image using xbrz."""
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Union
 
 import numpy as np
 import xbrz
@@ -34,8 +34,10 @@ class XbrzProcessor(ImageProcessor):
         # Store configuration
         self.scale = validate_int(scale, 2, 6)
 
-    def __call__(self, input_image: Image.Image) -> Image.Image:
-        input_image, input_mode = convert_mode(input_image, "RGBA")
+    def __call__(
+        self, *input_images: Union[Image.Image, tuple[Image.Image, ...]]
+    ) -> Union[Image.Image, tuple[Image.Image, ...]]:
+        input_image, input_mode = convert_mode(input_images[0], "RGBA")
 
         output_image = xbrz.scale_pillow(input_image, self.scale)
         if input_mode == "RGB":

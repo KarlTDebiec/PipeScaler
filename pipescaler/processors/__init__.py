@@ -5,7 +5,7 @@
 """Processor stages."""
 from __future__ import annotations
 
-from pipescaler.pipe.processors.side_channel_processor import SideChannelProcessor
+from pipescaler.pipe.side_channel_processor import SideChannelProcessor
 from pipescaler.processors.external import (
     AppleScriptProcessor,
     AutomatorProcessor,

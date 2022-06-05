@@ -42,10 +42,12 @@ class AlphaSplitter(Splitter):
             self.mask_fill_mode = validate_enum(mask_fill_mode, MaskFillMode)
             self.mask_filler = MaskFiller(mask_fill_mode=self.mask_fill_mode)
 
-    def __call__(self, input_image: Image.Image) -> tuple[Image.Image, ...]:
+    def __call__(
+        self, *input_images: Union[Image.Image, tuple[Image.Image, ...]]
+    ) -> Union[Image.Image, tuple[Image.Image, ...]]:
         # input_image = validate_image(input_image, ["LA", "RGBA"])
 
-        input_array = np.array(input_image)
+        input_array = np.array(input_images[0])
         color_array = np.squeeze(input_array[:, :, :-1])
         alpha_array = input_array[:, :, -1]
 
