@@ -11,7 +11,7 @@ import numpy as np
 from PIL import Image
 
 from pipescaler.common import ArgumentConflictError, validate_enum
-from pipescaler.core import AlphaMode, MaskFillMode, is_monochrome
+from pipescaler.core import AlphaMode, MaskFillMode, is_monochrome, validate_mode
 from pipescaler.core.stages import Splitter
 from pipescaler.utilities import MaskFiller
 
@@ -45,9 +45,9 @@ class AlphaSplitter(Splitter):
     def __call__(
         self, *input_images: Union[Image.Image, tuple[Image.Image, ...]]
     ) -> Union[Image.Image, tuple[Image.Image, ...]]:
-        # input_image = validate_image(input_image, ["LA", "RGBA"])
+        input_image, _ = validate_mode(input_images[0], self.inputs["input"])
 
-        input_array = np.array(input_images[0])
+        input_array = np.array(input_image)
         color_array = np.squeeze(input_array[:, :, :-1])
         alpha_array = input_array[:, :, -1]
 
@@ -66,7 +66,7 @@ class AlphaSplitter(Splitter):
     @property
     def inputs(cls) -> dict[str, tuple[str, ...]]:
         return {
-            "inlet": ("LA", "RGBA"),
+            "input": ("LA", "RGBA"),
         }
 
     @classmethod

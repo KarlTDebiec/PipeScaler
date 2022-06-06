@@ -12,7 +12,7 @@ import xbrz
 from PIL import Image
 
 from pipescaler.common import validate_int
-from pipescaler.core import validate_and_convert_mode
+from pipescaler.core import validate_mode
 from pipescaler.core.stages.processors import ImageProcessor
 
 
@@ -37,7 +37,7 @@ class XbrzProcessor(ImageProcessor):
     def __call__(
         self, *input_images: Union[Image.Image, tuple[Image.Image, ...]]
     ) -> Union[Image.Image, tuple[Image.Image, ...]]:
-        input_image, input_mode = validate_and_convert_mode(
+        input_image, input_mode = validate_mode(
             input_images[0], self.inputs["input"], "RGBA"
         )
 

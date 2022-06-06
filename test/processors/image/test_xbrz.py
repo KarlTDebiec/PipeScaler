@@ -42,7 +42,7 @@ def test(infile: str, processor: XbrzProcessor) -> None:
     input_image = Image.open(infile)
     output_image = processor(input_image)
 
-    assert output_image.mode in processor.outputs[next(iter(processor.outputs))]
+    assert output_image.mode in processor.outputs["output"]
     assert output_image.mode == get_expected_output_mode(input_image)
     assert output_image.size == (
         input_image.size[0] * processor.scale,
