@@ -10,6 +10,7 @@ from typing import Union
 import numpy as np
 from PIL import Image
 
+from pipescaler.core import validate_mode
 from pipescaler.core.stages import Merger
 
 
@@ -19,10 +20,12 @@ class AlphaMerger(Merger):
     def __call__(
         self, *input_images: Union[Image.Image, tuple[Image.Image, ...]]
     ) -> Union[Image.Image, tuple[Image.Image, ...]]:
-        color_image, alpha_image = input_images
-        # validate_image(color_image, ["L", "RGB"])
-        # validate_image(alpha_image, ["1", "L"])
+        color_image, _ = validate_mode(input_images[0], self.inputs["color"])
+        alpha_image, _ = validate_mode(input_images[1], self.inputs["alpha"])
 
+        return self.merge(color_image, alpha_image)
+
+    def merge(self, color_image: Image.Image, alpha_image: Image.Image) -> Image.Image:
         color_array = np.array(color_image)
         if alpha_image.mode == "L":
             alpha_array = np.array(alpha_image)
@@ -51,5 +54,5 @@ class AlphaMerger(Merger):
     @property
     def outputs(cls) -> dict[str, tuple[str, ...]]:
         return {
-            "outlet": ("LA", "RGBA"),
+            "output": ("LA", "RGBA"),
         }

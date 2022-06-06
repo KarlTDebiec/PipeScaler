@@ -37,16 +37,18 @@ class XbrzProcessor(ImageProcessor):
     def __call__(
         self, *input_images: Union[Image.Image, tuple[Image.Image, ...]]
     ) -> Union[Image.Image, tuple[Image.Image, ...]]:
-        input_image, input_mode = validate_mode(
+        input_image, output_mode = validate_mode(
             input_images[0], self.inputs["input"], "RGBA"
         )
+        return self.process(input_image, output_mode)
 
+    def process(self, input_image: Image.Image, output_mode: str) -> Image.Image:
         output_image = xbrz.scale_pillow(input_image, self.scale)
-        if input_mode == "RGB":
+        if output_mode == "RGB":
             output_image = Image.fromarray(np.array(output_image)[:, :, :3])
-        elif input_mode == "LA":
+        elif output_mode == "LA":
             output_image = output_image.convert("LA")
-        elif input_mode in ("1", "L"):
+        elif output_mode in ("1", "L"):
             output_image = Image.fromarray(np.array(output_image)[:, :, :3]).convert(
                 "L"
             )

@@ -6,7 +6,6 @@
 import pytest
 from PIL import Image
 
-from pipescaler.common import temporary_filename
 from pipescaler.core import remove_palette_from_image
 from pipescaler.mergers import AlphaMerger
 from pipescaler.testing import (
@@ -40,20 +39,19 @@ def merger(request) -> AlphaMerger:
     ],
 )
 def test(color: str, alpha: str, merger: AlphaMerger) -> None:
-    color = get_infile(color)
-    alpha = get_infile(alpha)
+    color_infile = get_infile(color)
+    color_image = Image.open(color_infile)
+    alpha_infile = get_infile(alpha)
+    alpha_image = Image.open(alpha_infile)
 
-    with temporary_filename(".png") as outfile:
-        color_image = Image.open(color)
-        if color_image.mode == "P":
-            color_image_mode = remove_palette_from_image(color_image).mode
-        else:
-            color_image_mode = color_image.mode
+    if color_image.mode == "P":
+        color_image_mode = remove_palette_from_image(color_image).mode
+    else:
+        color_image_mode = color_image.mode
 
-        merger(color=color, alpha=alpha, outfile=outfile)
-        with Image.open(outfile) as output_image:
-            if color_image_mode == "L":
-                assert output_image.mode == "LA"
-            else:
-                assert output_image.mode == "RGBA"
-            assert output_image.size == color_image.size
+    output_image = merger(color_image, alpha_image)
+    if color_image_mode == "L":
+        assert output_image.mode == "LA"
+    else:
+        assert output_image.mode == "RGBA"
+    assert output_image.size == color_image.size

@@ -47,10 +47,13 @@ class AlphaSplitter(Splitter):
     ) -> Union[Image.Image, tuple[Image.Image, ...]]:
         input_image, _ = validate_mode(input_images[0], self.inputs["input"])
 
+        return self.split(input_image)
+
+    def split(self, input_image: Image.Image) -> tuple[Image.Image, Image.Image]:
         input_array = np.array(input_image)
+
         color_array = np.squeeze(input_array[:, :, :-1])
         alpha_array = input_array[:, :, -1]
-
         color_image = Image.fromarray(color_array)
         alpha_image = Image.fromarray(alpha_array)
 
