@@ -11,13 +11,12 @@ import numpy as np
 from PIL import Image
 
 from pipescaler.common import ArgumentConflictError, validate_enum
-from pipescaler.core import AlphaMode, MaskFillMode, is_monochrome, validate_mode
-from pipescaler.core.stages import Splitter
+from pipescaler.core import AlphaMode, MaskFillMode, Stage, is_monochrome, validate_mode
 from pipescaler.utilities import MaskFiller
 
 
-class AlphaSplitter(Splitter):
-    """Splits image with transparency into separate alpha and color images."""
+class AlphaSplitter(Stage):
+    """Splits image with transparency into separate color and alpha images."""
 
     def __init__(
         self,

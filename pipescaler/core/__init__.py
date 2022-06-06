@@ -24,7 +24,6 @@ from pipescaler.core.image import (
     vstack_images,
 )
 from pipescaler.core.pipe_image import PipeImage
-from pipescaler.core.pipeline import Pipeline
 from pipescaler.core.sort import basic_sort, citra_sort, dolphin_sort, texmod_sort
 from pipescaler.core.stage import Stage, initialize_stage
 from pipescaler.core.validation import (
@@ -38,7 +37,6 @@ __all__: list[str] = [
     "MaskFillMode",
     "PaletteMatchMode",
     "PipeImage",
-    "Pipeline",
     "Stage",
     "TerminusReached",
     "UnsupportedImageModeError",

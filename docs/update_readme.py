@@ -10,10 +10,10 @@ from pathlib import Path
 from types import ModuleType
 from typing import Type
 
-from pipescaler import mergers, processors, splitters, termini
+from pipescaler import mergers, processors, splitters
 from pipescaler.common import package_root, validate_input_path
 from pipescaler.core import Stage
-from pipescaler.pipe import sorters, sources
+from pipescaler.pipe import sorters, sources, termini
 
 
 def get_github_link(cls: Type[Stage]) -> str:

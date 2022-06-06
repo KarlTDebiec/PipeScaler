@@ -10,12 +10,11 @@ from typing import Union
 import numpy as np
 from PIL import Image
 
-from pipescaler.core import validate_mode
-from pipescaler.core.stages import Merger
+from pipescaler.core import Stage, validate_mode
 
 
-class AlphaMerger(Merger):
-    """Merges alpha and color images into a single image with transparency."""
+class AlphaMerger(Stage):
+    """Merges color and alpha images into a single image with transparency."""
 
     def __call__(
         self, *input_images: Union[Image.Image, tuple[Image.Image, ...]]

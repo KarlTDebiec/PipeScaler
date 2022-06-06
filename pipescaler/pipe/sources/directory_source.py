@@ -7,8 +7,6 @@ from __future__ import annotations
 
 from typing import Any, Callable, Union
 
-from PIL import Image
-
 from pipescaler.common import validate_input_directory
 from pipescaler.core import PipeImage, basic_sort, get_files
 from pipescaler.core.pipe import Source
@@ -57,5 +55,5 @@ class DirectorySource(Source):
         if self.index < len(self.filenames):
             filename = self.filenames[self.index]
             self.index += 1
-            return PipeImage(Image.open(filename))
+            return PipeImage(path=filename)
         raise StopIteration

@@ -5,12 +5,11 @@
 """Abstract base classes for stages."""
 from __future__ import annotations
 
+from pipescaler.core.pipe.terminus import Terminus
 from pipescaler.core.stages.merger import Merger
 from pipescaler.core.stages.processor import Processor
 from pipescaler.core.stages.sorter import Sorter
-from pipescaler.core.stages.source import Source
 from pipescaler.core.stages.splitter import Splitter
-from pipescaler.core.stages.terminus import Terminus
 
 __all__: list[str] = [
     "Merger",

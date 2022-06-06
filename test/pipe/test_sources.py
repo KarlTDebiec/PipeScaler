@@ -18,4 +18,4 @@ from pipescaler.testing import get_sub_directory
 )
 def test(source: Source) -> None:
     for image in source:
-        assert image.parent is None
+        assert image.parents is None

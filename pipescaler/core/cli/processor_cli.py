@@ -10,6 +10,8 @@ from argparse import ArgumentParser, _SubParsersAction
 from inspect import cleandoc
 from typing import Any, Type, Union
 
+from PIL import Image
+
 from pipescaler.common import CommandLineInterface
 from pipescaler.core.stages import Processor
 
@@ -44,7 +46,12 @@ class ProcessorCli(CommandLineInterface, ABC):
         """
         # noinspection PyCallingNonCallable
         processor = cls.processor(**kwargs)
-        processor(kwargs.pop("infile"), kwargs.pop("outfile"))
+        infile = kwargs.pop("infile")
+        outfile = kwargs.pop("outfile")
+        with Image.open(infile) as input_image:
+            output_image = processor(input_image)
+            output_image.save(outfile)
+            print(f"{cls}: '{outfile}' saved")
 
     @classmethod
     def main(cls) -> None:
