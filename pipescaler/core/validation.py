@@ -5,13 +5,27 @@
 """Functions for validation."""
 from __future__ import annotations
 
-from typing import Union
+from typing import Collection, Union
 
 from PIL import Image
 
 from pipescaler.common import validate_input_path
 from pipescaler.core.exception import UnsupportedImageModeError
 from pipescaler.core.image import remove_palette_from_image
+
+
+def validate_and_convert_mode(
+    image: Image.Image,
+    valid_modes: Union[str, Collection[str]],
+    convert_mode: str,
+) -> tuple[Image.Image, str]:
+    if image.mode == "P":
+        image = remove_palette_from_image(image)
+    if image.mode not in valid_modes:
+        raise UnsupportedImageModeError(f"Mode '{image.mode}' is not supported")
+    if image.mode != convert_mode:
+        return (image.convert(convert_mode), image.mode)
+    return (image, image.mode)
 
 
 def validate_image(infile: str, valid_modes: Union[str, list[str]]) -> Image.Image:

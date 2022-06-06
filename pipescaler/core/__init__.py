@@ -27,7 +27,11 @@ from pipescaler.core.pipe_image import PipeImage
 from pipescaler.core.pipeline import Pipeline
 from pipescaler.core.sort import basic_sort, citra_sort, dolphin_sort, texmod_sort
 from pipescaler.core.stage import Stage, initialize_stage
-from pipescaler.core.validation import validate_image, validate_image_and_convert_mode
+from pipescaler.core.validation import (
+    validate_and_convert_mode,
+    validate_image,
+    validate_image_and_convert_mode,
+)
 
 __all__: list[str] = [
     "AlphaMode",
@@ -56,6 +60,7 @@ __all__: list[str] = [
     "label_image",
     "remove_palette_from_image",
     "texmod_sort",
+    "validate_and_convert_mode",
     "validate_image",
     "validate_image_and_convert_mode",
     "vstack_images",

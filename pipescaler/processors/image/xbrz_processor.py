@@ -12,7 +12,7 @@ import xbrz
 from PIL import Image
 
 from pipescaler.common import validate_int
-from pipescaler.core import convert_mode
+from pipescaler.core import validate_and_convert_mode
 from pipescaler.core.stages.processors import ImageProcessor
 
 
@@ -37,7 +37,9 @@ class XbrzProcessor(ImageProcessor):
     def __call__(
         self, *input_images: Union[Image.Image, tuple[Image.Image, ...]]
     ) -> Union[Image.Image, tuple[Image.Image, ...]]:
-        input_image, input_mode = convert_mode(input_images[0], "RGBA")
+        input_image, input_mode = validate_and_convert_mode(
+            input_images[0], self.inputs["input"], "RGBA"
+        )
 
         output_image = xbrz.scale_pillow(input_image, self.scale)
         if input_mode == "RGB":
@@ -61,12 +63,12 @@ class XbrzProcessor(ImageProcessor):
     @property
     def inputs(cls) -> dict[str, tuple[str, ...]]:
         return {
-            "inlet": ("1", "L", "LA", "RGB", "RGBA"),
+            "input": ("1", "L", "LA", "RGB", "RGBA"),
         }
 
     @classmethod
     @property
     def outputs(cls) -> dict[str, tuple[str, ...]]:
         return {
-            "outlet": ("1", "L", "LA", "RGB", "RGBA"),
+            "output": ("1", "L", "LA", "RGB", "RGBA"),
         }
