@@ -22,21 +22,18 @@ def route(
             input_images = tuple(image.image for image in input_pipe_images)
             output_images = stage(*input_images)
             if isinstance(output_images, Image.Image):
-                yield [PipeImage(output_images, input_pipe_images)]
+                yield PipeImage(output_images, input_pipe_images)
             else:
                 yield [
                     PipeImage(output_image, input_pipe_images)
                     for output_image in output_images
                 ]
 
-    generator_of_all_outlets = generator()
     if len(stage.outputs) == 1:
-        return (elem[0] for elem in generator_of_all_outlets)
+        return generator()
     else:
-        generators_of_individual_outlets = []
-        tees = tee(generator_of_all_outlets)
+        generators = []
+        tees = tee(generator(), len(stage.outputs))
         for i, outlet in enumerate(stage.outputs.keys()):
-            generators_of_individual_outlets.append(
-                eval(f"(elem[{i}] for elem in tees[{i}])")
-            )
-        return tuple(generators_of_individual_outlets)
+            generators.append(eval(f"(elem[{i}] for elem in tees[{i}])"))
+        return tuple(generators)

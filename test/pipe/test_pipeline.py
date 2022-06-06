@@ -15,7 +15,6 @@ def test() -> None:
     print()
 
     directory_source = DirectorySource(get_sub_directory("basic_temp"))
-
     xbrz_processor = XbrzProcessor()
     alpha_splitter = AlphaSplitter()
     alpha_merger = AlphaMerger()

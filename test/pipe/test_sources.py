@@ -17,7 +17,5 @@ from pipescaler.testing import get_sub_directory
     ],
 )
 def test(source: Source) -> None:
-    for outlets in source:
-        assert list(outlets.keys()) == source.outlets
-        for outlet in outlets:
-            assert outlets[outlet].parent is None
+    for image in source:
+        assert image.parent is None
