@@ -3,13 +3,17 @@
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
 """Abstract base class for sources."""
-from abc import ABC
+from abc import ABC, abstractmethod
 
 
 class Source(ABC):
     """Abstract base class for sources."""
 
-    @property
-    def outlets(self) -> list[str]:
-        """Outlets that flow out of source."""
-        return ["outlet"]
+    def __iter__(self):
+        """Iterator for images."""
+        return self
+
+    @abstractmethod
+    def __next__(self):
+        """Return next image."""
+        raise NotImplementedError()
