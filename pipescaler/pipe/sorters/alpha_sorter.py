@@ -11,7 +11,7 @@ from typing import Any
 import numpy as np
 
 from pipescaler.common import validate_int
-from pipescaler.core import validate_image
+from pipescaler.core import PipeImage
 from pipescaler.core.stages import Sorter
 
 
@@ -30,32 +30,21 @@ class AlphaSorter(Sorter):
         # Store configuration
         self.threshold = validate_int(threshold, 0, 255)
 
-    def __call__(self, infile: str) -> str:
-        """Sort image based on presence and use of alpha channel.
+    def __call__(self, pipe_image: PipeImage) -> str:
+        image = pipe_image.image
 
-        Arguments:
-            infile: Input image
-
-        Returns:
-            Outlet
-        """
-        # Read image
-        image = validate_image(infile, ["L", "LA", "RGB", "RGBA"])
-
-        # Sort image
         if image.mode in ("LA", "RGBA"):
-            # noinspection PyTypeChecker
             alpha_array = np.array(image)[:, :, -1]
             if alpha_array.min() >= self.threshold:
-                info(f"{self}: '{infile}' matches 'drop_alpha'")
+                info(f"{self}: '{pipe_image.name}' matches 'drop_alpha'")
                 return "drop_alpha"
-            info(f"{self}: '{infile}' matches 'keep_alpha'")
+            info(f"{self}: '{pipe_image.name}' matches 'keep_alpha'")
             return "keep_alpha"
-        info(f"{self}: {infile}' matches 'no_alpha'")
+        info(f"{self}: {pipe_image.name}' matches 'no_alpha'")
         return "no_alpha"
 
     @classmethod
     @property
-    def outlets(self) -> list[str]:
+    def outlets(self) -> tuple[str, ...]:
         """Outlets that flow out of stage."""
-        return ["drop_alpha", "keep_alpha", "no_alpha"]
+        return ("drop_alpha", "keep_alpha", "no_alpha")

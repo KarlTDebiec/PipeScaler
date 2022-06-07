@@ -5,7 +5,8 @@
 """Yields images from a directory."""
 from __future__ import annotations
 
-from typing import Any, Callable, Union
+from pathlib import Path
+from typing import Any, Callable, Collection, Sequence, Union
 
 from pipescaler.common import validate_input_directory
 from pipescaler.core import PipeImage, basic_sort, get_files
@@ -20,8 +21,8 @@ class DirectorySource(Source):
 
     def __init__(
         self,
-        directory: Union[str, list[str]],
-        exclusions: Union[str, list[str]] = None,
+        directory: Union[str, Sequence[str]],
+        exclusions: Union[str, Collection[str]] = None,
         sort: Callable[[str], int] = basic_sort,
         **kwargs: Any,
     ) -> None:
@@ -39,7 +40,7 @@ class DirectorySource(Source):
         exclusions |= self.exclusions
 
         # Store configuration
-        if isinstance(directory, str):
+        if isinstance(directory, str) or isinstance(directory, Path):
             directory = [directory]
         self.directories = [validate_input_directory(d) for d in directory]
         self.sort = sort

@@ -7,24 +7,11 @@ from __future__ import annotations
 
 from abc import ABC
 
-from pipescaler.core.stage import Stage
+from pipescaler.core import PipeImage
 
 
-class Sorter(Stage, ABC):
+class Sorter(ABC):
     """Base class for sorters."""
 
-    def __call__(self, infile: str) -> str:
-        """Sort image into an outlet.
-
-        Arguments:
-            infile: Input file
-
-        Returns:
-            Outlet
-        """
+    def __call__(self, pipe_image: PipeImage) -> str:
         raise NotImplementedError()
-
-    @property
-    def inlets(self) -> list[str]:
-        """Inlets that flow into stage."""
-        return ["inlet"]

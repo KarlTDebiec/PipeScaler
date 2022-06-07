@@ -8,7 +8,10 @@ from tempfile import TemporaryDirectory
 from PIL import Image
 
 from pipescaler.core.pipe import route
+from pipescaler.core.pipe.routing import sort
 from pipescaler.mergers import AlphaMerger
+from pipescaler.pipe.checkpoint_manager import CheckpointManager
+from pipescaler.pipe.sorters import AlphaSorter
 from pipescaler.pipe.sources import DirectorySource
 from pipescaler.pipe.termini import CopyFileTerminus
 from pipescaler.processors import XbrzProcessor
@@ -19,20 +22,34 @@ from pipescaler.testing import get_sub_directory
 def test() -> None:
     print()
 
-    with TemporaryDirectory() as output_directory:
-        directory_source = DirectorySource(get_sub_directory("basic_temp"))
-        xbrz_processor = XbrzProcessor()
-        alpha_splitter = AlphaSplitter()
-        alpha_merger = AlphaMerger()
-        copy_file_terminus = CopyFileTerminus(directory=output_directory)
+    with TemporaryDirectory() as output_directory, TemporaryDirectory() as checkpoint_directory:
+        source = DirectorySource(get_sub_directory("basic"))
+        checkpoints = CheckpointManager(r"C:\Users\karls\OneDrive\Desktop\test")
+        xbrz = XbrzProcessor()
+        alpha_sorter = AlphaSorter()
+        splitter = AlphaSplitter()
+        merger = AlphaMerger()
+        terminus = CopyFileTerminus(directory=output_directory)
 
-        color_outlet, alpha_outlet = route(alpha_splitter, directory_source)
-        color_outlet = route(xbrz_processor, route(xbrz_processor, color_outlet))
-        alpha_outlet = route(xbrz_processor, route(xbrz_processor, alpha_outlet))
+        with checkpoints.cp("original", source) as original_cp:
+            source = original_cp.save(original_cp.to_do)
+        drop_alpha, keep_alpha, no_alpha = sort(alpha_sorter, source)
+        with checkpoints.cp("merged", keep_alpha) as merged_cp:
+            color, alpha = route(splitter, merged_cp.to_do)
+            with checkpoints.cp("color", color) as color_cp:
+                color = route(xbrz, color_cp.to_do)
+                color = route(xbrz, color)
+                color = color_cp.save(color)
+            with checkpoints.cp("alpha", alpha) as alpha_cp:
+                alpha = route(xbrz, alpha_cp.to_do)
+                alpha = route(xbrz, alpha)
+                alpha = alpha_cp.save(alpha)
+            merged = route(merger, [color, alpha])
+            merged = merged_cp.save(merged)
+        terminus(merged)
+        checkpoints.purge_unrecognized_files()
+        terminus.purge_unrecognized_files()
 
-        alpha_merger_outlet = route(alpha_merger, [color_outlet, alpha_outlet])
-        copy_file_terminus(alpha_merger_outlet)
-        copy_file_terminus.purge_unrecognized_files()
-        for filepath in copy_file_terminus.directory.iterdir():
+        for filepath in terminus.directory.iterdir():
             print(filepath)
             Image.open(filepath).show()

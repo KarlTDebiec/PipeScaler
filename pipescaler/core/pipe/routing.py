@@ -4,7 +4,7 @@
 #   the terms of the BSD license. See the LICENSE file for details.
 """Functions for routing."""
 from itertools import tee
-from typing import Iterator, Sequence, Union
+from typing import Any, Iterator, Sequence, Union
 
 from PIL import Image
 
@@ -18,7 +18,7 @@ def route(
     if isinstance(inlets, Iterator):
         inlets = [inlets]
 
-    def generator() -> Iterator[PipeImage]:
+    def iterator() -> Iterator[PipeImage]:
         for input_pipe_images in zip(*inlets):
             input_images = tuple(image.image for image in input_pipe_images)
             output_images = stage(*input_images)
@@ -31,10 +31,22 @@ def route(
                 ]
 
     if len(stage.outputs) == 1:
-        return generator()
+        return iterator()
 
-    generators = []
-    tees = tee(generator(), len(stage.outputs))
+    iterators = []
+    tees = tee(iterator(), len(stage.outputs))
     for i, outlet in enumerate(stage.outputs.keys()):
-        generators.append(eval(f"(elem[{i}] for elem in tees[{i}])"))
-    return tuple(generators)
+        iterators.append(eval(f"(elem[{i}] for elem in tees[{i}])"))
+    return tuple(iterators)
+
+
+def sort(sorter: Any, inlet: Iterator[PipeImage]) -> tuple[Iterator[PipeImage], ...]:
+    def iterator() -> Iterator[PipeImage]:
+        for input_pipe_image in inlet:
+            yield (sorter(input_pipe_image), input_pipe_image)
+
+    outlets = []
+    tees = tee(iterator(), len(sorter.outlets))
+    for i in range(len(sorter.outlets)):
+        outlets.append(eval(f"(elem[1] for elem in tees[{i}] if elem[0])"))
+    return tuple(outlets)

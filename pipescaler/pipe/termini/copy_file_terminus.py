@@ -37,9 +37,6 @@ class CopyFileTerminus(Terminus):
             )
         )
         self.observed_files = set()
-        self.directory.joinpath("test1").touch()
-        self.directory.joinpath("test2").touch()
-        self.directory.joinpath("test3").touch()
 
     def terminate(self, input_pipe_image: PipeImage) -> None:
         input_image = input_pipe_image.image
