@@ -29,6 +29,7 @@ def test() -> None:
         alpha_outlet = route(xbrz_processor, route(xbrz_processor, alpha_outlet))
 
         alpha_merger_outlet = route(alpha_merger, [color_outlet, alpha_outlet])
-        for image in alpha_merger_outlet:
-            print(image)
-            image.image.show()
+        copy_file_terminus(alpha_merger_outlet)
+        # for image in alpha_merger_outlet:
+        #     print(image)
+        #     image.image.show()

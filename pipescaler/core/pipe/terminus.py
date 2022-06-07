@@ -5,10 +5,19 @@
 """Abstract base class for termini."""
 from __future__ import annotations
 
-from abc import ABC
+from abc import ABC, abstractmethod
+from typing import Iterator
+
+from pipescaler.core import PipeImage
 
 
 class Terminus(ABC):
     """Abstract base class for termini."""
 
-    pass
+    def __call__(self, inlet: Iterator[PipeImage]) -> None:
+        for input_pipe_image in inlet:
+            self.terminate(input_pipe_image)
+
+    @abstractmethod
+    def terminate(self, input_pipe_image: PipeImage) -> None:
+        raise NotImplementedError()

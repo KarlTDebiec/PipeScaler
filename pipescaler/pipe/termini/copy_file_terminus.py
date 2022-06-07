@@ -7,8 +7,10 @@ from __future__ import annotations
 
 from logging import info
 from pathlib import Path
-from shutil import copyfile
 from typing import Any
+
+import numpy as np
+from PIL import Image
 
 from pipescaler.common import validate_output_path
 from pipescaler.core import PipeImage
@@ -34,22 +36,22 @@ class CopyFileTerminus(Terminus):
                 directory, file_ok=False, directory_ok=True, create_directory=True
             )
         )
+        self.observed_files = set()
 
-    def __call__(self, input_pipe_image: PipeImage) -> None:
-        infile = ""
-        outfile = ""
+    def terminate(self, input_pipe_image: PipeImage) -> None:
+        input_image = input_pipe_image.image
+        outfile = self.directory.joinpath(input_pipe_image.name).with_suffix(".png")
+        self.observed_files.add(outfile.name)
+        if outfile.exists():
+            existing_image = Image.open(outfile)
+            if np.array_equal(input_image, existing_image):
+                info(f"{self}: '{outfile}' unchanged; not overwritten")
+                return
+            input_image.save(outfile)
+            info(f"{self}: '{outfile}' changed; overwritten")
+            return
+        input_image.save(outfile)
         info(f"{self}: '{outfile}' saved")
-        copyfile(infile, outfile)
-        # TODO: Track file creation
-
-        # TODO: Re-implement once lazy loading and checkpoints are implemented
-        # if isfile(outfile):
-        #     infile_md5sum = md5(open(infile, "rb").read()).hexdigest()
-        #     outfile_md5sum = md5(open(outfile, "rb").read()).hexdigest()
-        #     if infile_md5sum == outfile_md5sum:
-        #         info(f"{self}: '{outfile}' unchanged; not overwritten")
-        #     else:
-        #     info(f"{self}: '{outfile}' changed; overwritten")
 
     def purge_unrecognized_files(self):
         pass

@@ -14,7 +14,7 @@ from pipescaler.core.stage import Stage
 
 def route(
     stage: Stage, inlets: Union[Iterator[PipeImage], Sequence[Iterator[PipeImage]]]
-) -> Union[Iterator[PipeImage], list[Iterator[PipeImage]]]:
+) -> Union[Iterator[PipeImage], tuple[Iterator[PipeImage]]]:
     if isinstance(inlets, Iterator):
         inlets = [inlets]
 
