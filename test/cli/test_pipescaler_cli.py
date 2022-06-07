@@ -23,7 +23,6 @@ def script(request) -> str:
     [
         ("-h"),
         ("process -h"),
-        ("run -h"),
         ("utility -h"),
     ],
 )
