@@ -47,6 +47,8 @@ def sort(sorter: Any, inlet: Iterator[PipeImage]) -> tuple[Iterator[PipeImage], 
 
     outlets = []
     tees = tee(iterator(), len(sorter.outlets))
-    for i in range(len(sorter.outlets)):
-        outlets.append(eval(f"(elem[1] for elem in tees[{i}] if elem[0])"))
+    for i, outlet in enumerate(sorter.outlets):
+        outlets.append(
+            eval(f"(elem[1] for elem in tees[{i}] if elem[0] == '{outlet}')")
+        )
     return tuple(outlets)

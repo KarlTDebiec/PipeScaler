@@ -11,6 +11,7 @@ from typing import Optional, Sequence, Union
 from PIL import Image
 
 from pipescaler.common import validate_input_file
+from pipescaler.core import remove_palette_from_image
 
 
 class PipeImage:
@@ -84,7 +85,10 @@ class PipeImage:
     @property
     def image(self) -> Image.Image:
         if self._image is None:
-            self._image = Image.open(self.path)
+            image = Image.open(self.path)
+            if image.mode == "P":
+                image = remove_palette_from_image(image)
+            self._image = image
         return self._image
 
     @image.setter

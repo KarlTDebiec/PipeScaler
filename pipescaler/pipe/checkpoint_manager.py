@@ -69,11 +69,11 @@ class Checkpoint:
                     ".png"
                 )
                 if checkpoint.exists():
-                    print(f"{self}: '{checkpoint}' exists")
+                    info(f"{self}: '{checkpoint}' exists")
                     self.manager.observed_files.add(checkpoint)
                     yield (True, pipe_image)
                 else:
-                    print(f"{self}: '{checkpoint}' does not exist")
+                    info(f"{self}: '{checkpoint}' does not exist")
                     yield (False, pipe_image)
 
         tees = tee(iterator())
@@ -92,7 +92,7 @@ class Checkpoint:
                 checkpoint = checkpoint_directory.joinpath(self.name).with_suffix(
                     ".png"
                 )
-                print(f"{self}: '{checkpoint}' used")
+                info(f"{self}: '{checkpoint}' used")
                 yield PipeImage(path=checkpoint, parents=pipe_image)
             for pipe_image in unavailable:
                 checkpoint_directory = self.directory.joinpath(pipe_image.name)
@@ -100,7 +100,7 @@ class Checkpoint:
                     ".png"
                 )
                 pipe_image.image.save(checkpoint)
-                print(f"{self}: '{checkpoint}' saved")
+                info(f"{self}: '{checkpoint}' saved")
                 self.manager.observed_files.add(checkpoint)
                 yield pipe_image
 
