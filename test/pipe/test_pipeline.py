@@ -30,6 +30,7 @@ def test() -> None:
 
         alpha_merger_outlet = route(alpha_merger, [color_outlet, alpha_outlet])
         copy_file_terminus(alpha_merger_outlet)
+        copy_file_terminus.purge_unrecognized_files()
         # for image in alpha_merger_outlet:
         #     print(image)
         #     image.image.show()

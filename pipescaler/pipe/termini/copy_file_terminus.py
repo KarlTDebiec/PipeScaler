@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from logging import info
+from os import remove
 from pathlib import Path
 from typing import Any
 
@@ -20,12 +21,11 @@ from pipescaler.core.stages import Terminus
 class CopyFileTerminus(Terminus):
     """Copies images to a defined output directory."""
 
-    def __init__(self, directory: str, purge: bool = False, **kwargs: Any) -> None:
+    def __init__(self, directory: str, **kwargs: Any) -> None:
         """Validate and store configuration and initialize.
 
         Arguments:
             directory: Directory to which to copy images
-            purge: Purge pre-existing files from directory
             **kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
@@ -37,6 +37,9 @@ class CopyFileTerminus(Terminus):
             )
         )
         self.observed_files = set()
+        self.directory.joinpath("test1").touch()
+        self.directory.joinpath("test2").touch()
+        self.directory.joinpath("test3").touch()
 
     def terminate(self, input_pipe_image: PipeImage) -> None:
         input_image = input_pipe_image.image
@@ -53,10 +56,8 @@ class CopyFileTerminus(Terminus):
         input_image.save(outfile)
         info(f"{self}: '{outfile}' saved")
 
-    def purge_unrecognized_files(self):
-        pass
-        # TODO: Re-implement to track files creation/checking
-        # if purge:
-        #     for filename in get_files(self.directory, style="absolute"):
-        #         remove(filename)
-        #         info(f"{self}: '{filename}' removed")
+    def purge_unrecognized_files(self) -> None:
+        for filepath in self.directory.iterdir():
+            if filepath.name not in self.observed_files:
+                remove(filepath)
+                info(f"{self}: '{filepath}' removed")
