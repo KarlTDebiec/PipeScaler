@@ -27,13 +27,9 @@ class CheckpointManager:
                 directory, file_ok=False, directory_ok=True, create_directory=True
             )
         )
-        self.names = set()
         self.observed_files = set()
 
     def cp(self, name: str, inlet: Iterator[PipeImage]):
-        if name in self.names:
-            raise ValueError()
-        self.names.add(name)
         return Checkpoint(self, name, inlet)
 
     def purge_unrecognized_files(self) -> None:
@@ -84,6 +80,9 @@ class Checkpoint:
 
     def __exit__(self, exc_type, exc_value, exc_tb):
         pass
+
+    def __repr__(self):
+        return f"<Checkpoint {self.name}>"
 
     def save(self, unavailable: Iterator[PipeImage]) -> Iterator[PipeImage]:
         def iterator() -> Iterator[PipeImage]:

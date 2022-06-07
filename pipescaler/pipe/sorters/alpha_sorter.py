@@ -43,6 +43,9 @@ class AlphaSorter(Sorter):
         info(f"{self}: {pipe_image.name}' matches 'no_alpha'")
         return "no_alpha"
 
+    def __repr__(self):
+        return "<AlphaSorter>"
+
     @classmethod
     @property
     def outlets(self) -> tuple[str, ...]:

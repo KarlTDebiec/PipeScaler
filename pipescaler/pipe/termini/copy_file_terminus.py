@@ -38,6 +38,9 @@ class CopyFileTerminus(Terminus):
         )
         self.observed_files = set()
 
+    def __repr__(self):
+        return "<CopyFileTerminus>"
+
     def terminate(self, input_pipe_image: PipeImage) -> None:
         input_image = input_pipe_image.image
         outfile = self.directory.joinpath(input_pipe_image.name).with_suffix(".png")
