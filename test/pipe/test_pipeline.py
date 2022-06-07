@@ -5,6 +5,8 @@
 """Tests for pipelines."""
 from tempfile import TemporaryDirectory
 
+from PIL import Image
+
 from pipescaler.core.pipe import route
 from pipescaler.mergers import AlphaMerger
 from pipescaler.pipe.sources import DirectorySource
@@ -31,6 +33,6 @@ def test() -> None:
         alpha_merger_outlet = route(alpha_merger, [color_outlet, alpha_outlet])
         copy_file_terminus(alpha_merger_outlet)
         copy_file_terminus.purge_unrecognized_files()
-        # for image in alpha_merger_outlet:
-        #     print(image)
-        #     image.image.show()
+        for filepath in copy_file_terminus.directory.iterdir():
+            print(filepath)
+            Image.open(filepath).show()
