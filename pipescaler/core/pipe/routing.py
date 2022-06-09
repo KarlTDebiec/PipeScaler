@@ -3,52 +3,75 @@
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
 """Functions for routing."""
-from itertools import tee
-from typing import Any, Iterator, Sequence, Union
+from logging import info
+from typing import Callable, Union
 
-from PIL import Image
+from core import PipeFunction
+from core.stages import Merger, Processor, Sorter, Splitter
 
 from pipescaler.core.pipe_image import PipeImage
-from pipescaler.core.stage import Stage
 
 
-def route(
-    stage: Stage, inlets: Union[Iterator[PipeImage], Sequence[Iterator[PipeImage]]]
-) -> Union[Iterator[PipeImage], tuple[Iterator[PipeImage]]]:
-    if isinstance(inlets, Iterator):
-        inlets = [inlets]
+def route(first: PipeFunction, second: PipeFunction) -> PipeFunction:
+    def routed(
+        *input_pipe_images: PipeImage,
+    ) -> Union[PipeImage, tuple[PipeImage, ...]]:
+        return second(first(*input_pipe_images))
 
-    def iterator() -> Iterator[PipeImage]:
-        for input_pipe_images in zip(*inlets):
-            input_images = tuple(image.image for image in input_pipe_images)
-            output_images = stage(*input_images)
-            if isinstance(output_images, Image.Image):
-                yield PipeImage(output_images, parents=input_pipe_images)
-            else:
-                yield [
-                    PipeImage(output_image, parents=input_pipe_images)
-                    for output_image in output_images
-                ]
-
-    if len(stage.outputs) == 1:
-        return iterator()
-
-    iterators = []
-    tees = tee(iterator(), len(stage.outputs))
-    for i, outlet in enumerate(stage.outputs.keys()):
-        iterators.append(eval(f"(elem[{i}] for elem in tees[{i}])"))
-    return tuple(iterators)
+    return routed
 
 
-def sort(sorter: Any, inlet: Iterator[PipeImage]) -> tuple[Iterator[PipeImage], ...]:
-    def iterator() -> Iterator[PipeImage]:
-        for input_pipe_image in inlet:
-            yield (sorter(input_pipe_image), input_pipe_image)
+def wrap_sorter(sorter: Sorter, **outlets: PipeFunction) -> PipeFunction:
+    if any(set(outlets).difference(sorter.outlets)):
+        raise ValueError()
 
-    outlets = []
-    tees = tee(iterator(), len(sorter.outlets))
-    for i, outlet in enumerate(sorter.outlets):
-        outlets.append(
-            eval(f"(elem[1] for elem in tees[{i}] if elem[0] == '{outlet}')")
+    def sorted(pipe_image: PipeImage) -> Union[PipeImage, tuple[PipeImage, ...]]:
+        outlet = sorter(pipe_image)
+        if outlet in outlets:
+            return outlets[outlet](pipe_image)
+
+    return sorted
+
+
+def wrap_merger(merger: Merger) -> Callable[[PipeImage, ...], PipeImage]:
+    def wrapped(*input_pipe_images: PipeImage) -> PipeImage:
+        input_images = tuple(image.image for image in input_pipe_images)
+
+        output_image = merger(*input_images)
+        output_pipe_image = PipeImage(output_image, parents=input_pipe_images)
+        info(f"{merger}: '{output_pipe_image.name}' merged")
+
+        return output_pipe_image
+
+    return wrapped
+
+
+def wrap_processor(processor: Processor) -> Callable[[PipeImage], PipeImage]:
+    def wrapped(input_pipe_image: PipeImage) -> PipeImage:
+        input_image = input_pipe_image.image
+
+        output_image = processor(input_image)
+        output_pipe_image = PipeImage(output_image, parents=input_pipe_image)
+        info(f"{processor}: '{output_pipe_image.name}' processed")
+
+        return output_pipe_image
+
+    return wrapped
+
+
+def wrap_splitter(splitter: Splitter) -> Callable[[PipeImage], tuple[PipeImage, ...]]:
+    def wrapped(input_pipe_image: PipeImage) -> tuple[PipeImage, ...]:
+        input_image = input_pipe_image.image
+
+        output_images = splitter(input_image)
+        output_pipe_images = tuple(
+            [
+                PipeImage(output_image, parents=input_pipe_image)
+                for output_image in output_images
+            ]
         )
-    return tuple(outlets)
+        info(f"{splitter}: '{output_pipe_images[0].name}' split")
+
+        return output_pipe_images
+
+    return wrapped

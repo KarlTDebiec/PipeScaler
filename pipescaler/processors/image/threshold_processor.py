@@ -5,47 +5,36 @@
 """Converts image to black and white using threshold, optionally denoising."""
 from __future__ import annotations
 
-from typing import Any, no_type_check
+from typing import no_type_check
 
-import numba as nb
 import numpy as np
+from core.stages import Processor
+from numba import njit
 from PIL import Image
 
 from pipescaler.common import validate_int
-from pipescaler.core.stages.processors import ImageProcessor
+from pipescaler.core import validate_mode
 
 
-class ThresholdProcessor(ImageProcessor):
+class ThresholdProcessor(Processor):
     """Converts image to black and white using threshold, optionally denoising."""
 
-    def __init__(
-        self, threshold: int = 128, denoise: bool = False, **kwargs: Any
-    ) -> None:
+    def __init__(self, threshold: int = 128, denoise: bool = False) -> None:
         """Validate and store configuration and initialize.
 
         Arguments:
             threshold: Threshold differentiating black and white
             denoise: Flip color of pixels bordered by less than 5 pixels of the same
               color
-            **kwargs: Additional keyword arguments
         """
-        super().__init__(**kwargs)
-
-        # Store configuration
         self.threshold = validate_int(threshold, 1, 244)
         self.denoise = denoise
 
-    def process(self, input_image: Image.Image) -> Image.Image:
-        """Process an image.
+    def __call__(self, input_image: Image.Image) -> Image.Image:
+        input_image, input_mode = validate_mode(input_image, self.inputs["input"])
 
-        Arguments:
-            input_image: Input image to process
-        Returns:
-            Processed output image
-        """
         output_image = input_image.point(lambda p: p > self.threshold and 255)
         if self.denoise:
-            # noinspection PyTypeChecker
             output_data = np.array(output_image)
             self.denoise_data(output_data)
             output_image = Image.fromarray(output_data)
@@ -54,13 +43,21 @@ class ThresholdProcessor(ImageProcessor):
 
     @classmethod
     @property
-    def supported_input_modes(self) -> list[str]:
-        """Supported modes for input image."""
-        return ["L"]
+    def inputs(cls) -> dict[str, tuple[str, ...]]:
+        return {
+            "input": ("L",),
+        }
+
+    @classmethod
+    @property
+    def outputs(cls) -> dict[str, tuple[str, ...]]:
+        return {
+            "output": ("1",),
+        }
 
     @no_type_check
     @staticmethod
-    @nb.jit(nopython=True, nogil=True, cache=True, fastmath=True)
+    @njit(nogil=True, cache=True, fastmath=True)
     def denoise_data(data: np.ndarray) -> None:
         """Flip color of pixels bordered by less than 5 pixels of the same color.
 

@@ -5,7 +5,9 @@
 """Abstract base class for splitters."""
 from __future__ import annotations
 
-from abc import ABC
+from abc import ABC, abstractmethod
+
+from PIL import Image
 
 from pipescaler.core.stage import Stage
 
@@ -13,4 +15,6 @@ from pipescaler.core.stage import Stage
 class Splitter(Stage, ABC):
     """Abstract base class for splitters."""
 
-    pass
+    @abstractmethod
+    def __call__(self, input_image: Image.Image) -> tuple[Image.Image, ...]:
+        raise NotImplementedError()

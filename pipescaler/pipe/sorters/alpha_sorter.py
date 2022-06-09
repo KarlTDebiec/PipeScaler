@@ -11,7 +11,7 @@ from typing import Any
 import numpy as np
 
 from pipescaler.common import validate_int
-from pipescaler.core import PipeImage
+from pipescaler.core import PipeImage, validate_mode
 from pipescaler.core.stages import Sorter
 
 
@@ -31,23 +31,23 @@ class AlphaSorter(Sorter):
         self.threshold = validate_int(threshold, 0, 255)
 
     def __call__(self, pipe_image: PipeImage) -> str:
-        image = pipe_image.image
+        outlet = self.sort(pipe_image)
+        info(f"{self}: {pipe_image.name} matches '{outlet}'")
+        return outlet
 
-        if image.mode in ("LA", "RGBA"):
+    def sort(self, pipe_image: PipeImage) -> str:
+        image, mode = validate_mode(pipe_image.image, ("1", "L", "LA", "RGB", "RGBA"))
+        if mode in ("LA", "RGBA"):
             alpha_array = np.array(image)[:, :, -1]
             if alpha_array.min() >= self.threshold:
-                info(f"{self}: '{pipe_image.name}' matches 'drop_alpha'")
                 return "drop_alpha"
-            info(f"{self}: '{pipe_image.name}' matches 'keep_alpha'")
             return "keep_alpha"
-        info(f"{self}: {pipe_image.name}' matches 'no_alpha'")
         return "no_alpha"
 
     def __repr__(self):
         return "<AlphaSorter>"
 
-    @classmethod
     @property
     def outlets(self) -> tuple[str, ...]:
-        """Outlets that flow out of stage."""
+        """Outlets that flow out of sorter."""
         return ("drop_alpha", "keep_alpha", "no_alpha")

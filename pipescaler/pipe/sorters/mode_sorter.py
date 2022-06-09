@@ -7,31 +7,24 @@ from __future__ import annotations
 
 from logging import info
 
-from pipescaler.core import validate_image
+from pipescaler.core import PipeImage, validate_mode
 from pipescaler.core.stages import Sorter
 
 
 class ModeSorter(Sorter):
     """Sorts image based on mode."""
 
-    def __call__(self, infile: str) -> str:
-        """Sort image based on mode.
+    def __call__(self, pipe_image: PipeImage) -> str:
+        image, mode = validate_mode(pipe_image.image, ("1", "L", "LA", "RGB", "RGBA"))
+        if mode == "1":
+            mode = "M"
+        info(f"{self}: '{pipe_image.name}' matches '{mode}'")
+        return mode
 
-        Arguments:
-            infile: Input image
+    def __repr__(self):
+        return "<ModeSorter>"
 
-        Returns:
-            Outlet
-        """
-        # Read image
-        image = validate_image(infile, ["1", "L", "LA", "RGB", "RGBA"])
-
-        # Sort image
-        info(f"{self}: '{infile}' matches '{image.mode}'")
-        return image.mode.lower()
-
-    @classmethod
     @property
-    def outlets(self) -> list[str]:
-        """Outlets that flow out of stage."""
-        return ["rgba", "rgb", "la", "l", "1"]
+    def outlets(self) -> tuple[str, ...]:
+        """Outlets that flow out of sorter."""
+        return ("M", "L", "LA", "RGB", "RGBA")

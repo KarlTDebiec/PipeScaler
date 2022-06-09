@@ -5,44 +5,33 @@
 """Converts mode of image."""
 from __future__ import annotations
 
-from typing import Any
-
+from core.stages import Processor
 from PIL import Image, ImageColor
 
 from pipescaler.common import validate_str
-from pipescaler.core.stages.processors import ImageProcessor
+from pipescaler.core import validate_mode
 
 
-class ModeProcessor(ImageProcessor):
+class ModeProcessor(Processor):
     """Converts mode of image."""
 
     def __init__(
         self,
         mode: str = "RGB",
         background_color: str = "#000000",
-        **kwargs: Any,
     ) -> None:
         """Validate and store configuration and initialize.
 
         Arguments:
             mode: Output mode
             background_color: Background color of image
-            **kwargs: Additional keyword arguments
         """
-        super().__init__(**kwargs)
-
-        # Store configuration
-        self.mode = validate_str(mode, self.supported_input_modes)
+        self.mode = validate_str(mode, self.outputs["output"])
         self.background_color = ImageColor.getrgb(background_color)  # TODO: Validate
 
-    def process(self, input_image: Image.Image) -> Image.Image:
-        """Process an image.
+    def __call__(self, input_image: Image.Image) -> Image.Image:
+        input_image, input_mode = validate_mode(input_image, self.inputs["input"])
 
-        Arguments:
-            input_image: Input image to process
-        Returns:
-            Processed output image
-        """
         if input_image.mode == self.mode:
             output_image = input_image
         else:
@@ -52,3 +41,17 @@ class ModeProcessor(ImageProcessor):
                 output_image = output_image.convert(self.mode)
 
         return output_image
+
+    @classmethod
+    @property
+    def inputs(cls) -> dict[str, tuple[str, ...]]:
+        return {
+            "input": ("1", "L", "LA", "RGB", "RGBA"),
+        }
+
+    @classmethod
+    @property
+    def outputs(cls) -> dict[str, tuple[str, ...]]:
+        return {
+            "output": ("1", "L", "LA", "RGB", "RGBA"),
+        }

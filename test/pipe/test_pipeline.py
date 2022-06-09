@@ -7,7 +7,7 @@ from typing import Iterator
 
 from pipescaler.core import PipeImage
 from pipescaler.core.pipe import route
-from pipescaler.core.pipe.routing import sort
+from pipescaler.core.pipe.routing import wrap_sorter
 from pipescaler.mergers import AlphaMerger
 from pipescaler.pipe.checkpoint_manager import CheckpointManager
 from pipescaler.pipe.sorters import AlphaSorter
@@ -53,13 +53,13 @@ def test() -> None:
 
     with checkpoints.cp("original", source) as original_cp:
         source = original_cp.save(original_cp.to_do)
-    drop_alpha, keep_alpha, no_alpha = sort(alpha_sorter, source)
+    drop_alpha, keep_alpha, no_alpha = wrap_sorter(alpha_sorter, source)
     keep_alpha = block_rgba(keep_alpha)
     no_alpha = block_rgb(no_alpha)
     terminus(keep_alpha)
     terminus(no_alpha)
 
-    checkpoints.purge_unrecognized_files()
+    # checkpoints.purge_unrecognized_files()
     terminus.purge_unrecognized_files()
 
     for filepath in terminus.directory.iterdir():

@@ -5,40 +5,34 @@
 """Upscales image using xbrz."""
 from __future__ import annotations
 
-from typing import Any, Union
-
 import numpy as np
 import xbrz
+from core.stages import Processor
 from PIL import Image
 
 from pipescaler.common import validate_int
-from pipescaler.core import Stage, validate_mode
+from pipescaler.core import validate_mode
 
 
-class XbrzProcessor(Stage):
+class XbrzProcessor(Processor):
     """Upscales image using xbrz.
 
     See [xbrz](https://github.com/ioistired/xbrz.py).
     """
 
-    def __init__(self, scale: int = 4, **kwargs: Any) -> None:
+    def __init__(self, scale: int = 4) -> None:
         """Validate and store configuration and initialize.
 
         Arguments:
             scale: Factor by which to scale output image relative to input
-            **kwargs: Additional keyword arguments
         """
         self.scale = validate_int(scale, 2, 6)
 
-    def __call__(
-        self, *input_images: Union[Image.Image, tuple[Image.Image, ...]]
-    ) -> Union[Image.Image, tuple[Image.Image, ...]]:
+    def __call__(self, input_image: Image.Image) -> Image.Image:
         input_image, output_mode = validate_mode(
-            input_images[0], self.inputs["input"], "RGBA"
+            input_image, self.inputs["input"], "RGBA"
         )
-        return self.process(input_image, output_mode)
 
-    def process(self, input_image: Image.Image, output_mode: str) -> Image.Image:
         output_image = xbrz.scale_pillow(input_image, self.scale)
         if output_mode == "RGB":
             output_image = Image.fromarray(np.array(output_image)[:, :, :3])

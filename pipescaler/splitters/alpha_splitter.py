@@ -5,24 +5,24 @@
 """Splits image with transparency into separate alpha and color images."""
 from __future__ import annotations
 
-from typing import Any, Optional, Union
+from typing import Optional, Union
 
 import numpy as np
+from core.stages import Splitter
 from PIL import Image
 
 from pipescaler.common import ArgumentConflictError, validate_enum
-from pipescaler.core import AlphaMode, MaskFillMode, Stage, is_monochrome, validate_mode
+from pipescaler.core import AlphaMode, MaskFillMode, is_monochrome, validate_mode
 from pipescaler.utilities import MaskFiller
 
 
-class AlphaSplitter(Stage):
+class AlphaSplitter(Splitter):
     """Splits image with transparency into separate color and alpha images."""
 
     def __init__(
         self,
         alpha_mode: Union[type(AlphaMode), str] = AlphaMode.GRAYSCALE,
         mask_fill_mode: Optional[Union[type(MaskFillMode), str]] = None,
-        **kwargs: Any,
     ) -> None:
         """Validate and store configuration and initialize.
 
@@ -31,8 +31,6 @@ class AlphaSplitter(Stage):
             mask_fill_mode: Mode of mask filling to perform
             **kwargs: Additional keyword arguments
         """
-        super().__init__(**kwargs)
-
         self.alpha_mode = validate_enum(alpha_mode, AlphaMode)
         self.mask_fill_mode = None
         if mask_fill_mode is not None:
@@ -41,14 +39,9 @@ class AlphaSplitter(Stage):
             self.mask_fill_mode = validate_enum(mask_fill_mode, MaskFillMode)
             self.mask_filler = MaskFiller(mask_fill_mode=self.mask_fill_mode)
 
-    def __call__(
-        self, *input_images: Union[Image.Image, tuple[Image.Image, ...]]
-    ) -> Union[Image.Image, tuple[Image.Image, ...]]:
-        input_image, _ = validate_mode(input_images[0], self.inputs["input"])
+    def __call__(self, input_image: Image.Image) -> tuple[Image.Image, ...]:
+        input_image, _ = validate_mode(input_image, self.inputs["input"])
 
-        return self.split(input_image)
-
-    def split(self, input_image: Image.Image) -> tuple[Image.Image, Image.Image]:
         input_array = np.array(input_image)
 
         color_array = np.squeeze(input_array[:, :, :-1])

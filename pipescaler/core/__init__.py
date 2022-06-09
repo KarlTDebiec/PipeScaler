@@ -25,7 +25,8 @@ from pipescaler.core.image import (
 )
 from pipescaler.core.pipe_image import PipeImage
 from pipescaler.core.sort import basic_sort, citra_sort, dolphin_sort, texmod_sort
-from pipescaler.core.stage import Stage, initialize_stage
+from pipescaler.core.stage import Stage
+from pipescaler.core.typing import PipeFunction
 from pipescaler.core.validation import (
     validate_image,
     validate_image_and_convert_mode,
@@ -36,6 +37,7 @@ __all__: list[str] = [
     "AlphaMode",
     "MaskFillMode",
     "PaletteMatchMode",
+    "PipeFunction",
     "PipeImage",
     "Stage",
     "TerminusReached",
@@ -46,7 +48,6 @@ __all__: list[str] = [
     "crop_image",
     "dolphin_sort",
     "expand_image",
-    "initialize_stage",
     "smooth_image",
     "generate_normal_map_from_height_map_image",
     "get_palette",

@@ -5,26 +5,20 @@
 """Merges alpha and color images into a single image with transparency."""
 from __future__ import annotations
 
-from typing import Union
-
 import numpy as np
+from core.stages import Merger
 from PIL import Image
 
-from pipescaler.core import Stage, validate_mode
+from pipescaler.core import validate_mode
 
 
-class AlphaMerger(Stage):
+class AlphaMerger(Merger):
     """Merges color and alpha images into a single image with transparency."""
 
-    def __call__(
-        self, *input_images: Union[Image.Image, tuple[Image.Image, ...]]
-    ) -> Union[Image.Image, tuple[Image.Image, ...]]:
+    def __call__(self, *input_images: Image.Image) -> Image.Image:
         color_image, _ = validate_mode(input_images[0], self.inputs["color"])
         alpha_image, _ = validate_mode(input_images[1], self.inputs["alpha"])
 
-        return self.merge(color_image, alpha_image)
-
-    def merge(self, color_image: Image.Image, alpha_image: Image.Image) -> Image.Image:
         color_array = np.array(color_image)
         if alpha_image.mode == "L":
             alpha_array = np.array(alpha_image)

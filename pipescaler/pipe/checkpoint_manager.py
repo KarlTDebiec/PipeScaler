@@ -7,7 +7,7 @@ from itertools import tee
 from logging import info
 from os import remove
 from pathlib import Path
-from typing import Iterator
+from typing import Iterator, Optional
 
 from pipescaler.common import validate_output_path
 from pipescaler.core import PipeImage
@@ -56,7 +56,6 @@ class Checkpoint:
         self.name = name
         self.inlet = inlet
 
-    def __enter__(self):
         def iterator() -> Iterator[tuple[bool, PipeImage]]:
             for pipe_image in self.inlet:
                 checkpoint_directory = self.directory.joinpath(pipe_image.name)
@@ -73,9 +72,10 @@ class Checkpoint:
                     yield (False, pipe_image)
 
         tees = tee(iterator())
-        self.done = (elem[1] for elem in tees[0] if elem[0])
+        self._done = (elem[1] for elem in tees[0] if elem[0])
         self.to_do = (elem[1] for elem in tees[1] if not elem[0])
 
+    def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_value, exc_tb):
@@ -84,9 +84,14 @@ class Checkpoint:
     def __repr__(self):
         return f"<Checkpoint {self.name}>"
 
-    def save(self, unavailable: Iterator[PipeImage]) -> Iterator[PipeImage]:
+    def save(
+        self, unavailable: Optional[Iterator[PipeImage]] = None
+    ) -> Iterator[PipeImage]:
+        if unavailable is None:
+            unavailable = self.to_do
+
         def iterator() -> Iterator[PipeImage]:
-            for pipe_image in self.done:
+            for pipe_image in self._done:
                 checkpoint_directory = self.directory.joinpath(pipe_image.name)
                 checkpoint = checkpoint_directory.joinpath(self.name).with_suffix(
                     ".png"

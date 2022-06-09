@@ -5,7 +5,7 @@
 """Abstract base class for sorters."""
 from __future__ import annotations
 
-from abc import ABC
+from abc import ABC, abstractmethod
 
 from pipescaler.core import PipeImage
 
@@ -13,5 +13,12 @@ from pipescaler.core import PipeImage
 class Sorter(ABC):
     """Base class for sorters."""
 
+    @abstractmethod
     def __call__(self, pipe_image: PipeImage) -> str:
+        raise NotImplementedError()
+
+    @property
+    @abstractmethod
+    def outlets(self) -> tuple[str, ...]:
+        """Outlets that flow out of sorter."""
         raise NotImplementedError()
