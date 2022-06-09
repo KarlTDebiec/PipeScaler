@@ -12,7 +12,12 @@ from pipescaler.core.stages import Sorter
 
 
 class ModeSorter(Sorter):
-    """Sorts image based on mode."""
+    """Sorts image based on mode.
+
+    Supports pillow's modes 1, L, LA, RGB, and RGBA. Monochrome image mode is named 'M'
+    rather than pillow's '1' in order to allow downstream outlets to be specified using
+    keyword arguments,
+    """
 
     def __call__(self, pipe_image: PipeImage) -> str:
         image, mode = validate_mode(pipe_image.image, ("1", "L", "LA", "RGB", "RGBA"))
