@@ -11,9 +11,9 @@ from pathlib import Path
 from typing import Union
 
 import numpy as np
-from common import validate_output_directory
 from PIL import Image
 
+from pipescaler.common import validate_output_directory
 from pipescaler.core import PipeImage
 from pipescaler.core.stages import Terminus
 
