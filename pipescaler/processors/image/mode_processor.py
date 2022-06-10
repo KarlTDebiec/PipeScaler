@@ -5,11 +5,11 @@
 """Converts mode of image."""
 from __future__ import annotations
 
-from core.stages import Processor
 from PIL import Image, ImageColor
 
 from pipescaler.common import validate_str
 from pipescaler.core import validate_mode
+from pipescaler.core.stages import Processor
 
 
 class ModeProcessor(Processor):

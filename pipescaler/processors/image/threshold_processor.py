@@ -8,12 +8,12 @@ from __future__ import annotations
 from typing import no_type_check
 
 import numpy as np
-from core.stages import Processor
 from numba import njit
 from PIL import Image
 
 from pipescaler.common import validate_int
 from pipescaler.core import validate_mode
+from pipescaler.core.stages import Processor
 
 
 class ThresholdProcessor(Processor):

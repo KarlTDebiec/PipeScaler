@@ -7,11 +7,10 @@ from __future__ import annotations
 
 from typing import Union
 
-from core import validate_mode
 from PIL import Image
 
 from pipescaler.common import validate_enum
-from pipescaler.core import PaletteMatchMode, UnsupportedImageModeError
+from pipescaler.core import PaletteMatchMode, UnsupportedImageModeError, validate_mode
 from pipescaler.core.stages import Merger
 from pipescaler.utilities import LocalPaletteMatcher, PaletteMatcher
 

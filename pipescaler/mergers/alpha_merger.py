@@ -6,10 +6,10 @@
 from __future__ import annotations
 
 import numpy as np
-from core.stages import Merger
 from PIL import Image
 
 from pipescaler.core import validate_mode
+from pipescaler.core.stages import Merger
 
 
 class AlphaMerger(Merger):

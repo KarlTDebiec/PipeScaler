@@ -8,7 +8,6 @@ from __future__ import annotations
 from logging import debug
 from platform import system
 
-from core import validate_mode
 from PIL import Image
 
 from pipescaler.common import (
@@ -18,7 +17,7 @@ from pipescaler.common import (
     validate_int,
     validate_str,
 )
-from pipescaler.core import crop_image, expand_image
+from pipescaler.core import crop_image, expand_image, validate_mode
 from pipescaler.core.stages.processors import ExternalProcessor
 
 

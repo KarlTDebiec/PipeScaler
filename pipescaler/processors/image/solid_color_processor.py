@@ -6,11 +6,11 @@
 from __future__ import annotations
 
 import numpy as np
-from core import validate_mode
-from core.stages import Processor
 from PIL import Image
 
 from pipescaler.common import validate_float
+from pipescaler.core import validate_mode
+from pipescaler.core.stages import Processor
 
 
 class SolidColorProcessor(Processor):

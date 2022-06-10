@@ -9,11 +9,11 @@ from abc import ABC
 
 import numpy as np
 import torch
-from core import validate_mode
 from PIL import Image
 from torch.nn import Module
 
 from pipescaler.common import validate_input_path
+from pipescaler.core import validate_mode
 from pipescaler.core.stages import Processor
 
 

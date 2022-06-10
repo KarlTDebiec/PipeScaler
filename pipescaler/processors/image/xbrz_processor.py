@@ -7,11 +7,11 @@ from __future__ import annotations
 
 import numpy as np
 import xbrz
-from core.stages import Processor
 from PIL import Image
 
 from pipescaler.common import validate_int
 from pipescaler.core import validate_mode
+from pipescaler.core.stages import Processor
 
 
 class XbrzProcessor(Processor):

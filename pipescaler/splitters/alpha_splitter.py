@@ -8,11 +8,11 @@ from __future__ import annotations
 from typing import Optional, Union
 
 import numpy as np
-from core.stages import Splitter
 from PIL import Image
 
 from pipescaler.common import ArgumentConflictError, validate_enum
 from pipescaler.core import AlphaMode, MaskFillMode, is_monochrome, validate_mode
+from pipescaler.core.stages import Splitter
 from pipescaler.utilities import MaskFiller
 
 
