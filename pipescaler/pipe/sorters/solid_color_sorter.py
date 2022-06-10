@@ -8,9 +8,9 @@ from __future__ import annotations
 from logging import info
 
 import numpy as np
-from core import PipeImage, validate_mode
 
 from pipescaler.common import validate_float, validate_int
+from pipescaler.core import PipeImage, validate_mode
 from pipescaler.core.stages import Sorter
 
 
