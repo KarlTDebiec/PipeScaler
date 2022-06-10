@@ -5,11 +5,12 @@
 """Yields images from a directory."""
 from __future__ import annotations
 
+from itertools import chain
 from pathlib import Path
 from typing import Any, Callable, Collection, Sequence, Union
 
 from pipescaler.common import validate_input_directory
-from pipescaler.core import PipeImage, basic_sort, get_files
+from pipescaler.core import PipeImage, basic_sort
 from pipescaler.core.pipe import Source
 
 
@@ -46,9 +47,8 @@ class DirectorySource(Source):
         self.sort = sort
 
         # Store list of filenames
-        filenames = get_files(self.directories, style="absolute", exclusions=exclusions)
-        filenames = list(filenames)
-        filenames.sort(key=self.sort, reverse=True)
+        filenames = list(chain.from_iterable(d.iterdir() for d in self.directories))
+        filenames.sort(key=lambda filename: self.sort(filename.stem), reverse=True)
         self.filenames = filenames
         self.index = 0
 

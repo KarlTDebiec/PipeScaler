@@ -10,7 +10,7 @@ from os.path import join
 from pathlib import Path
 from typing import Callable, Union
 
-from pipescaler.common import validate_output_path
+from pipescaler.common import validate_output_directory
 from pipescaler.core import PipeImage
 
 
@@ -24,15 +24,13 @@ class CheckpointManager:
             directory: Directory to which to copy images
         """
         self.directory = Path(
-            validate_output_path(
-                directory, file_ok=False, directory_ok=True, create_directory=True
-            )
+            validate_output_directory(directory, create_directory=True)
         )
         self.image_names = set()
         self.checkpoint_names = set()
 
     def __repr__(self):
-        return "<CheckpointManager>"
+        return f"<{self.__class__.__name__}>"
 
     def get_checkpoint(self, image: PipeImage, name: str) -> Path:
         checkpoint_directory = self.directory.joinpath(image.name)
