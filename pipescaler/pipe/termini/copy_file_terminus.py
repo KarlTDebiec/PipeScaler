@@ -38,26 +38,22 @@ class CopyFileTerminus(Terminus):
         )
         self.observed_files = set()
 
-    def __repr__(self):
-        return "<CopyFileTerminus>"
-
-    def terminate(self, input_pipe_image: PipeImage) -> None:
-        input_image = input_pipe_image.image
-        outfile = self.directory.joinpath(input_pipe_image.name).with_suffix(".png")
+    def __call__(self, input_image: PipeImage) -> None:
+        outfile = self.directory.joinpath(input_image.name).with_suffix(".png")
         self.observed_files.add(outfile.name)
         if outfile.exists():
             existing_image = Image.open(outfile)
-            if np.array_equal(input_image, existing_image):
-                info(f"{self}: '{outfile}' unchanged; not overwritten")
-                return
-            input_image.save(outfile)
-            info(f"{self}: '{outfile}' changed; overwritten")
-            return
-        input_image.save(outfile)
-        info(f"{self}: '{outfile}' saved")
+            if np.array_equal(input_image.image, existing_image):
+                info(f"{self}: {outfile} unchanged; not overwritten")
+            else:
+                input_image.image.save(outfile)
+                info(f"{self}: {outfile} changed; overwritten")
+        else:
+            input_image.image.save(outfile)
+            info(f"{self}: '{outfile}' saved")
 
     def purge_unrecognized_files(self) -> None:
         for filepath in self.directory.iterdir():
             if filepath.name not in self.observed_files:
                 remove(filepath)
-                info(f"{self}: '{filepath}' removed")
+                info(f"{self}: {filepath} removed")

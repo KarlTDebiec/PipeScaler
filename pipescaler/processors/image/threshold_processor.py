@@ -33,7 +33,10 @@ class ThresholdProcessor(Processor):
     def __call__(self, input_image: Image.Image) -> Image.Image:
         input_image, input_mode = validate_mode(input_image, self.inputs["input"])
 
-        output_image = input_image.point(lambda p: p > self.threshold and 255)
+        if input_mode == "L":
+            output_image = input_image.point(lambda p: p > self.threshold and 255)
+        else:
+            output_image = input_image
         if self.denoise:
             output_data = np.array(output_image)
             self.denoise_data(output_data)
@@ -45,7 +48,7 @@ class ThresholdProcessor(Processor):
     @property
     def inputs(cls) -> dict[str, tuple[str, ...]]:
         return {
-            "input": ("L",),
+            "input": ("1", "L"),
         }
 
     @classmethod

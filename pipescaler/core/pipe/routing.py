@@ -6,22 +6,13 @@
 from logging import info
 from typing import Callable, Union
 
-from core import PipeFunction
-from core.stages import Merger, Processor, Sorter, Splitter
-
 from pipescaler.core.pipe_image import PipeImage
+from pipescaler.core.stages import Merger, Processor, Sorter, Splitter
 
 
-def route(first: PipeFunction, second: PipeFunction) -> PipeFunction:
-    def routed(
-        *input_pipe_images: PipeImage,
-    ) -> Union[PipeImage, tuple[PipeImage, ...]]:
-        return second(first(*input_pipe_images))
-
-    return routed
-
-
-def wrap_sorter(sorter: Sorter, **outlets: PipeFunction) -> PipeFunction:
+def wrap_sorter(
+    sorter: Sorter, **outlets: Callable[[PipeImage], PipeImage]
+) -> Union[PipeImage, tuple[PipeImage, ...]]:
     if any(set(outlets).difference(sorter.outlets)):
         raise ValueError()
 

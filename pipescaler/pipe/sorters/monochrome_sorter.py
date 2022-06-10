@@ -6,55 +6,42 @@
 from __future__ import annotations
 
 from logging import info
-from typing import Any
+
+from core import PipeImage, validate_mode
 
 from pipescaler.common import validate_float
-from pipescaler.core import is_monochrome, validate_image
+from pipescaler.core import is_monochrome
 from pipescaler.core.stages import Sorter
 
 
 class MonochromeSorter(Sorter):
     """Sorts image based on presence and use of colors other than black and white."""
 
-    def __init__(
-        self, mean_threshold: float = 0, max_threshold: float = 0, **kwargs: Any
-    ) -> None:
+    def __init__(self, mean_threshold: float = 0, max_threshold: float = 0) -> None:
         """Validate and store configuration and initialize.
 
         Arguments:
             mean_threshold: Sort as 'drop_gray' if mean diff is below this threshold
             max_threshold: Sort as 'drop_gray' if maximum diff is below this threshold
-            **kwargs: Additional keyword arguments
         """
-        super().__init__(**kwargs)
-
-        # Store configuration
         self.mean_threshold = validate_float(mean_threshold, 0, 255)
         self.max_threshold = validate_float(max_threshold, 0, 255)
 
-    def __call__(self, infile: str) -> str:
-        """Sort image based on presence and use of colors other than black and white.
+    def __call__(self, pipe_image: PipeImage) -> str:
+        image, mode = validate_mode(pipe_image.image, ("1", "L"))
 
-        Arguments:
-            infile: Input image
-
-        Returns:
-            Outlet
-        """
-        # Read image
-        image = validate_image(infile, ["1", "L"])
-
-        # Sort image
         if image.mode == "L":
             if is_monochrome(image):
-                info(f"{self}: '{infile}' matches 'drop_gray'")
-                return "drop_gray"
-            info(f"{self}: '{infile}' matches 'keep_gray'")
-            return "keep_gray"
-        info(f"{self}: {infile}' matches 'no_gray'")
-        return "no_gray"
+                outlet = "drop_gray"
+            else:
+                outlet = "keep_gray"
+        else:
+            outlet = "no_gray"
+
+        info(f"{self}: {pipe_image.name} matches {outlet}")
+        return outlet
 
     @property
-    def outlets(self) -> list[str]:
+    def outlets(self) -> tuple[str, ...]:
         """Outlets that flow out of stage."""
-        return ["drop_gray", "keep_gray", "no_gray"]
+        return ("drop_gray", "keep_gray", "no_gray")

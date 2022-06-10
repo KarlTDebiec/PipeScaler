@@ -6,52 +6,44 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Any
 
 import numpy as np
 import torch
+from core import validate_mode
 from PIL import Image
 from torch.nn import Module
 
 from pipescaler.common import validate_input_path
-from pipescaler.core import convert_mode
-from pipescaler.core.stages.processors.image_processor import ImageProcessor
+from pipescaler.core.stages import Processor
 
 
-class PyTorchProcessor(ImageProcessor, ABC):
+class PyTorchProcessor(Processor, ABC):
     """Abstract base class for processors that use PyTorch."""
 
-    def __init__(self, model_infile: str, **kwargs: Any) -> None:
+    def __init__(self, model_infile: str) -> None:
         """Validate configuration and initialize.
 
         Arguments:
             model_infile: Path to model infile
             **kwargs: Additional keyword arguments
         """
-        super().__init__(**kwargs)
-
         self.model_infile = validate_input_path(model_infile)
 
-    def process(self, input_image: Image.Image) -> Image.Image:
-        """Process an image.
+    def __call__(self, input_image: Image.Image) -> Image.Image:
+        input_image, output_mode = validate_mode(
+            input_image, self.inputs["input"], "RGB"
+        )
 
-        Arguments:
-            input_image: Input image to process
-        Returns:
-            Processed output image
-        """
-        input_image, input_mode = convert_mode(input_image, "RGB")
-        # noinspection PyTypeChecker
         input_array = np.array(input_image)
 
         output_array = self.upscale(input_array)
         output_image = Image.fromarray(output_array)
-        if output_image.mode != input_mode:
-            output_image = output_image.convert(input_mode)
+        if output_image.mode != output_mode:
+            output_image = output_image.convert(output_mode)
 
         return output_image
 
-    def upscale(self, input_array):
+    def upscale(self, input_array: np.ndarray) -> np.ndarray:
         """Upscale an image array.
 
         Arguments:
@@ -92,6 +84,14 @@ class PyTorchProcessor(ImageProcessor, ABC):
 
     @classmethod
     @property
-    def supported_input_modes(self) -> list[str]:
-        """Supported modes for input image."""
-        return ["1", "L", "RGB"]
+    def inputs(cls) -> dict[str, tuple[str, ...]]:
+        return {
+            "input": ("1", "L", "RGB"),
+        }
+
+    @classmethod
+    @property
+    def outputs(cls) -> dict[str, tuple[str, ...]]:
+        return {
+            "output": ("1", "L", "RGB"),
+        }

@@ -7,8 +7,8 @@ from __future__ import annotations
 
 from logging import debug
 from platform import system
-from typing import Any
 
+from core import validate_mode
 from PIL import Image
 
 from pipescaler.common import (
@@ -18,7 +18,7 @@ from pipescaler.common import (
     validate_int,
     validate_str,
 )
-from pipescaler.core import crop_image, expand_image, validate_image_and_convert_mode
+from pipescaler.core import crop_image, expand_image
 from pipescaler.core.stages.processors import ExternalProcessor
 
 
@@ -48,7 +48,6 @@ class WaifuExternalProcessor(ExternalProcessor):
         denoise: int = 1,
         scale: int = 2,
         expand: bool = True,
-        **kwargs: Any,
     ) -> None:
         """Validate and store configuration and initialize.
 
@@ -58,9 +57,6 @@ class WaifuExternalProcessor(ExternalProcessor):
             scale: Output image scale
             expand: Whether to expand and crop image
         """
-        super().__init__(**kwargs)
-
-        # Store configuration
         self.imagetype = validate_str(
             imagetype,
             self.models["windows"] if system() == "Windows" else self.models["unix"],
@@ -90,8 +86,8 @@ class WaifuExternalProcessor(ExternalProcessor):
             infile: Input file path
             outfile: Output file path
         """
-        input_image, input_mode = validate_image_and_convert_mode(
-            infile, ["1", "L", "RGB"], "RGB"
+        input_image, output_mode = validate_mode(
+            Image.open(infile), self.inputs["input"], "RGB"
         )
 
         with temporary_filename(".png") as intermediate_file_1:
@@ -117,8 +113,8 @@ class WaifuExternalProcessor(ExternalProcessor):
                         (output_image.width - (input_image.width * self.scale)) // 2,
                         (output_image.height - (input_image.height * self.scale)) // 2,
                     )
-                if output_image.mode != input_mode:
-                    output_image = output_image.convert(input_mode)
+                if output_image.mode != output_mode:
+                    output_image = output_image.convert(output_mode)
 
         output_image.save(outfile)
 
@@ -138,3 +134,17 @@ class WaifuExternalProcessor(ExternalProcessor):
             "Upscales and/or denoises image using [Waifu2x]"
             "(https://github.com/nagadomi/waifu2x) via an external executable."
         )
+
+    @classmethod
+    @property
+    def inputs(cls) -> dict[str, tuple[str, ...]]:
+        return {
+            "input": ("1", "L", "RGB"),
+        }
+
+    @classmethod
+    @property
+    def outputs(cls) -> dict[str, tuple[str, ...]]:
+        return {
+            "output": ("1", "L", "RGB"),
+        }

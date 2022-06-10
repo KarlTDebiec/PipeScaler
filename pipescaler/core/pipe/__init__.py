@@ -5,10 +5,8 @@
 """Abstract base classes for and functions related to pipes."""
 from __future__ import annotations
 
-from pipescaler.core.pipe.routing import route
 from pipescaler.core.pipe.source import Source
 
 __all__: list[str] = [
-    "route",
     "Source",
 ]

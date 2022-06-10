@@ -6,7 +6,6 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Iterator
 
 from pipescaler.core import PipeImage
 
@@ -14,10 +13,9 @@ from pipescaler.core import PipeImage
 class Terminus(ABC):
     """Abstract base class for termini."""
 
-    def __call__(self, inlet: Iterator[PipeImage]) -> None:
-        for input_pipe_image in inlet:
-            self.terminate(input_pipe_image)
-
     @abstractmethod
-    def terminate(self, input_pipe_image: PipeImage) -> None:
-        raise NotImplementedError()
+    def __call__(self, inlet: PipeImage) -> None:
+        raise NotImplementedError
+
+    def __repr__(self):
+        return f"<{self.__class__.__name__}>"

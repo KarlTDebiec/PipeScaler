@@ -17,6 +17,9 @@ class Sorter(ABC):
     def __call__(self, pipe_image: PipeImage) -> str:
         raise NotImplementedError()
 
+    def __repr__(self):
+        return f"<{self.__class__.__name__}>"
+
     @property
     @abstractmethod
     def outlets(self) -> tuple[str, ...]:

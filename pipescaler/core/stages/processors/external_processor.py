@@ -6,9 +6,10 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from logging import debug, info
-from os.path import splitext
+from logging import debug
 from shutil import copyfile
+
+from PIL import Image
 
 from pipescaler.common import run_command, temporary_filename
 from pipescaler.common.validation import validate_executable
@@ -18,21 +19,16 @@ from pipescaler.core.stages.processor import Processor
 class ExternalProcessor(Processor, ABC):
     """Abstract base class for processors that use an external command line tool."""
 
-    def __call__(self, infile: str, outfile: str) -> None:
-        """Read image from infile, process it, and save to outfile.
-
-        Arguments:
-            infile: Input file path
-            outfile: Output file path
-        """
+    def __call__(self, input_image: Image.Image) -> Image.Image:
         validate_executable(self.executable, self.supported_platforms)
 
-        with temporary_filename(splitext(infile)[-1]) as temp_infile:
-            copyfile(infile, temp_infile)
-            with temporary_filename(splitext(outfile)[-1]) as temp_outfile:
+        with temporary_filename(".png") as temp_infile:
+            with temporary_filename(".png") as temp_outfile:
+                input_image.save(temp_infile)
                 self.process(temp_infile, temp_outfile)
-                copyfile(temp_outfile, outfile)
-                info(f"{self}: '{outfile}' saved")
+                output_image = Image.open(temp_outfile)
+
+        return output_image
 
     @property
     @abstractmethod
