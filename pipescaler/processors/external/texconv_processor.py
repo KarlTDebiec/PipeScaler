@@ -8,7 +8,7 @@ from __future__ import annotations
 from logging import debug
 from os.path import basename, dirname, join, splitext
 from shutil import copyfile
-from typing import Any, Optional
+from typing import Optional
 
 from pipescaler.common import run_command, validate_executable
 from pipescaler.core.stages.processors import ExternalProcessor
@@ -28,7 +28,6 @@ class TexconvProcessor(ExternalProcessor):
         sepalpha: bool = False,
         filetype: Optional[str] = "DDS",
         format: Optional[str] = "BC7_UNORM",
-        **kwargs: Any,
     ) -> None:
         """Validate and store configuration and initialize.
 
@@ -38,11 +37,7 @@ class TexconvProcessor(ExternalProcessor):
               channels
             filetype: Output file type
             format: Output format
-            **kwargs: Additional keyword arguments
         """
-        super().__init__(**kwargs)
-
-        # Store configuration
         self.mipmaps = mipmaps
         self.sepalpha = sepalpha
         self.filetype = filetype

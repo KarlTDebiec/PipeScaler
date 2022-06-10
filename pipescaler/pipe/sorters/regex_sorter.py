@@ -7,28 +7,23 @@ from __future__ import annotations
 
 import re
 from logging import info
-from os.path import basename, dirname
-from typing import Any
 
+from pipescaler.core import PipeImage
 from pipescaler.core.stages import Sorter
 
 
 class RegexSorter(Sorter):
     """Sorts image based on filename using a regular expression."""
 
-    def __init__(self, regex: str, **kwargs: Any) -> None:
+    def __init__(self, regex: str) -> None:
         """Validate and store configuration and initialize.
 
         Arguments:
             regex: Sort as 'matched' if image name matches this regular expression
-            **kwargs: Additional keyword arguments
         """
-        super().__init__(**kwargs)
-
-        # Store configuration
         self.regex = re.compile(regex)
 
-    def __call__(self, infile: str) -> str:
+    def __call__(self, pipe_image: PipeImage) -> str:
         """Sort image based on filename using a regular expression.
 
         Arguments:
@@ -37,17 +32,14 @@ class RegexSorter(Sorter):
         Returns:
             Outlet
         """
-        # Identify image
-        name = basename(dirname(infile))
-
-        # Sort image
-        if self.regex.match(name):
-            info(f"{self}: '{name}' matches '{self.regex.pattern}'")
-            return "matched"
-        info(f"{self}: '{name}' does not match '{self.regex.pattern}'")
-        return "unmatched"
+        if self.regex.match(pipe_image.name):
+            outlet = "matched"
+        else:
+            outlet = "unmatched"
+        info(f"{self}: {pipe_image.name} matches {outlet}")
+        return outlet
 
     @property
-    def outlets(self) -> list[str]:
+    def outlets(self) -> tuple[str, ...]:
         """Outlets that flow out of stage."""
-        return ["matched", "unmatched"]
+        return ("matched", "unmatched")
