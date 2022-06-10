@@ -5,4 +5,10 @@
 """Pipe stages."""
 from __future__ import annotations
 
-__all__: list[str] = []
+from pipescaler.pipe.checkpoint_manager import CheckpointManager
+from pipescaler.pipe.substituter import Substituter
+
+__all__: list[str] = [
+    "CheckpointManager",
+    "Substituter",
+]

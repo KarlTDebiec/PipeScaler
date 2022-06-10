@@ -7,4 +7,7 @@ from __future__ import annotations
 from pipescaler.pipe.file_processors.pngquant_processor import PngquantProcessor
 from pipescaler.pipe.file_processors.texconv_processor import TexconvProcessor
 
-__all__: list[str] = ["PngquantProcessor", "TexconvProcessor"]
+__all__: list[str] = [
+    "PngquantProcessor",
+    "TexconvProcessor",
+]

@@ -14,7 +14,7 @@ from pipescaler.common import run_command, validate_executable
 from pipescaler.core.stages.processors import ExternalProcessor
 
 
-class TexconvProcessor(ExternalProcessor):
+class TexconvProcessor(FileProcessor, ExternalProcessor):
     """Processes image using Texconv.
 
     See [Texconv](https://github.com/Microsoft/DirectXTex/wiki/Texconv).

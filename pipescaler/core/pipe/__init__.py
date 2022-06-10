@@ -5,8 +5,16 @@
 """Abstract base classes for and functions related to pipes."""
 from __future__ import annotations
 
+from pipescaler.core.pipe.file_processor import FileProcessor
+from pipescaler.core.pipe.routing import wrap_merger, wrap_processor, wrap_splitter
 from pipescaler.core.pipe.source import Source
+from pipescaler.core.pipe.terminus import Terminus
 
 __all__: list[str] = [
+    "FileProcessor",
     "Source",
+    "Terminus",
+    "wrap_merger",
+    "wrap_processor",
+    "wrap_splitter",
 ]
