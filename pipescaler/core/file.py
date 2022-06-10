@@ -8,7 +8,8 @@ from __future__ import annotations
 from mimetypes import guess_type
 from os import listdir
 from os.path import basename, dirname, isabs, join, splitext
-from typing import Any, Optional, Union
+from pathlib import Path
+from typing import Any, Optional, Sequence, Union
 
 import yaml
 
@@ -96,7 +97,7 @@ def get_files_in_text_file(
 
 
 def get_files(
-    sources: Union[str, list[str]],
+    sources: Union[Union[Path, str], Sequence[Union[Path, str]]],
     style: str = "base",
     exclusions: Optional[set[str]] = None,
 ) -> set[str]:

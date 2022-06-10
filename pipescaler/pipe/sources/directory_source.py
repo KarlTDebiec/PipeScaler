@@ -21,7 +21,7 @@ class DirectorySource(Source):
 
     def __init__(
         self,
-        directory: Union[str, Sequence[str]],
+        directory: Union[Union[Path, str], Sequence[Union[Path, str]]],
         exclusions: Union[str, Collection[str]] = None,
         sort: Callable[[str], int] = basic_sort,
         **kwargs: Any,
@@ -42,7 +42,7 @@ class DirectorySource(Source):
         # Store configuration
         if isinstance(directory, str) or isinstance(directory, Path):
             directory = [directory]
-        self.directories = [validate_input_directory(d) for d in directory]
+        self.directories = [Path(validate_input_directory(d)) for d in directory]
         self.sort = sort
 
         # Store list of filenames

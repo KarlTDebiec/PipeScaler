@@ -8,12 +8,12 @@ from __future__ import annotations
 from logging import info
 from os import remove
 from pathlib import Path
-from typing import Any
+from typing import Union
 
 import numpy as np
+from common import validate_output_directory
 from PIL import Image
 
-from pipescaler.common import validate_output_path
 from pipescaler.core import PipeImage
 from pipescaler.core.stages import Terminus
 
@@ -21,20 +21,14 @@ from pipescaler.core.stages import Terminus
 class CopyFileTerminus(Terminus):
     """Copies images to a defined output directory."""
 
-    def __init__(self, directory: str, **kwargs: Any) -> None:
+    def __init__(self, directory: Union[Path, str]) -> None:
         """Validate and store configuration and initialize.
 
         Arguments:
             directory: Directory to which to copy images
-            **kwargs: Additional keyword arguments
         """
-        super().__init__(**kwargs)
-
-        # Store configuration
         self.directory = Path(
-            validate_output_path(
-                directory, file_ok=False, directory_ok=True, create_directory=True
-            )
+            validate_output_directory(directory, create_directory=True)
         )
         self.observed_files = set()
 

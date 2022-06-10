@@ -8,7 +8,7 @@ from logging import info
 from os import remove
 from os.path import join
 from pathlib import Path
-from typing import Callable
+from typing import Callable, Union
 
 from pipescaler.common import validate_output_path
 from pipescaler.core import PipeImage
@@ -17,7 +17,7 @@ from pipescaler.core import PipeImage
 class CheckpointManager:
     """Checkpoint manager."""
 
-    def __init__(self, directory: str) -> None:
+    def __init__(self, directory: Union[Path, str]) -> None:
         """Validate and store configuration.
 
         Arguments:

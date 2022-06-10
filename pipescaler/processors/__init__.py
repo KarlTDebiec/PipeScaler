@@ -5,7 +5,7 @@
 """Processor stages."""
 from __future__ import annotations
 
-from pipescaler.pipe.side_channel_processor import SideChannelProcessor
+from pipescaler.pipe.substituter import Substituter
 from pipescaler.processors.external import (
     AppleScriptProcessor,
     AutomatorProcessor,
@@ -43,7 +43,7 @@ __all__: list[str] = [
     "PotraceProcessor",
     "ResizeProcessor",
     "SharpenProcessor",
-    "SideChannelProcessor",
+    "Substituter",
     "SolidColorProcessor",
     "TexconvProcessor",
     "ThresholdProcessor",

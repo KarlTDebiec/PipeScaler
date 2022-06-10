@@ -29,7 +29,7 @@ PipeScaler includes the following image processors:
 * [PotraceProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/external/potrace_processor.py) - Traces image using [Potrace](http://potrace.sourceforge.net/) and re-rasterizes,optionally resizing.
 * [ResizeProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/image/resize_processor.py) - Resizes image canvas.
 * [SharpenProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/image/sharpen_processor.py) - Sharpens an image.
-* [SideChannelProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/side_channel_processor.py) - Replaces image with an alternative sourced from a defined directory.
+* [Substituter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/side_channel_processor.py) - Replaces image with an alternative sourced from a defined directory.
 * [SolidColorProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/image/solid_color_processor.py) - Sets entire image color to its average color, optionally resizing.
 * [TexconvProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/external/texconv_processor.py) - Processes image using [Texconv](https://github.com/Microsoft/DirectXTex/wiki/Texconv).
 * [ThresholdProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/image/threshold_processor.py) - Converts image to black and white using threshold, optionally denoising.
