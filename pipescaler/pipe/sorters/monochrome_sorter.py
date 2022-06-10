@@ -7,10 +7,8 @@ from __future__ import annotations
 
 from logging import info
 
-from core import PipeImage, validate_mode
-
 from pipescaler.common import validate_float
-from pipescaler.core import is_monochrome
+from pipescaler.core import PipeImage, is_monochrome, validate_mode
 from pipescaler.core.stages import Sorter
 
 
