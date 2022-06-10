@@ -9,9 +9,9 @@ from logging import info
 from pathlib import Path
 from typing import Union
 
-from common import validate_input_directory
 from PIL import Image
 
+from pipescaler.common import validate_input_directory
 from pipescaler.core import PipeImage
 
 
