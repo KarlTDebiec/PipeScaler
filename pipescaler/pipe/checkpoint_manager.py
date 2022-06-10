@@ -5,7 +5,7 @@
 """Checkpoint manager."""
 from functools import wraps
 from logging import info
-from os import remove
+from os import remove, rmdir
 from os.path import join
 from pathlib import Path
 from typing import Callable, Union
@@ -94,18 +94,19 @@ class CheckpointManager:
         for checkpoint_directory in self.directory.iterdir():
             for checkpoint in checkpoint_directory.iterdir():
                 if (
-                    checkpoint.is_file()
-                    and checkpoint.parts[-1] not in self.image_names
-                    and checkpoint.stem not in self.checkpoint_names
+                    checkpoint_directory.name not in self.image_names
+                    or checkpoint.stem not in self.checkpoint_names
                 ):
                     remove(checkpoint)
                     info(
                         f"{self}: checkpoint "
-                        f"{join(checkpoint.parts[-1],checkpoint.name)} removed"
+                        f"{join(checkpoint_directory.name,checkpoint.name)} removed"
                     )
-            if not any(checkpoint_directory.iterdir()):
-                remove(checkpoint_directory)
+            if checkpoint_directory.name not in self.image_names or not any(
+                checkpoint_directory.iterdir()
+            ):
+                rmdir(checkpoint_directory)
                 info(
-                    f"{self}: checkpoint directory {checkpoint_directory.parts[-1]} "
-                    f"removed"
+                    f"{self}: checkpoint directory "
+                    f"{checkpoint_directory.name} removed"
                 )
