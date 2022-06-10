@@ -5,9 +5,8 @@
 """External executable processor stages."""
 from __future__ import annotations
 
-from pipe.file_processors.pngquant_processor import PngquantProcessor
-from pipe.file_processors.texconv_processor import TexconvProcessor
-
+from pipescaler.pipe.file_processors.pngquant_processor import PngquantProcessor
+from pipescaler.pipe.file_processors.texconv_processor import TexconvProcessor
 from pipescaler.processors.external.apple_script_processor import AppleScriptProcessor
 from pipescaler.processors.external.automator_processor import AutomatorProcessor
 from pipescaler.processors.external.potrace_processor import PotraceProcessor
