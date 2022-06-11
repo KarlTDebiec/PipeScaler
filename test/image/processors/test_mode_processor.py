@@ -6,8 +6,7 @@
 import pytest
 from PIL import Image
 
-from pipescaler.common import temporary_filename
-from pipescaler.processors.image import ModeProcessor
+from pipescaler.image.processors import ModeProcessor
 from pipescaler.testing import get_infile, parametrized_fixture
 
 
@@ -41,10 +40,8 @@ def processor(request) -> ModeProcessor:
 )
 def test(infile: str, processor: ModeProcessor) -> None:
     infile = get_infile(infile)
+    input_image = Image.open(infile)
+    output_image = processor(input_image)
 
-    with temporary_filename(".png") as outfile:
-        processor(infile, outfile)
-
-        with Image.open(infile) as input_image, Image.open(outfile) as output_image:
-            assert output_image.size == input_image.size
-            assert output_image.mode == processor.mode
+    assert output_image.size == input_image.size
+    assert output_image.mode == processor.mode

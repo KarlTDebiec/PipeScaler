@@ -17,7 +17,7 @@ from pipescaler.core.image.functions import (
     hstack_images,
     is_monochrome,
     label_image,
-    remove_palette_from_image,
+    remove_palette,
     smooth_image,
     vstack_images,
 )
@@ -50,7 +50,7 @@ __all__: list[str] = [
     "hstack_images",
     "is_monochrome",
     "label_image",
-    "remove_palette_from_image",
+    "remove_palette",
     "smooth_image",
     "vstack_images",
 ]

@@ -11,7 +11,7 @@ from PIL import Image
 
 from pipescaler.common import validate_input_path
 from pipescaler.core.exceptions import UnsupportedImageModeError
-from pipescaler.core.image import remove_palette_from_image
+from pipescaler.core.image import remove_palette
 
 
 def validate_mode(
@@ -20,7 +20,7 @@ def validate_mode(
     convert_mode: Optional[str] = None,
 ) -> tuple[Image.Image, str]:
     if image.mode == "P":
-        image = remove_palette_from_image(image)
+        image = remove_palette(image)
     if image.mode not in valid_modes:
         raise UnsupportedImageModeError(f"Mode '{image.mode}' is not supported")
     if convert_mode is not None and image.mode != convert_mode:
@@ -46,7 +46,7 @@ def validate_image(infile: str, valid_modes: Union[str, list[str]]) -> Image.Ima
     # file open. Appending '.copy()' mysteriously works around this and closes the file
     image = Image.open(validate_input_path(infile)).copy()
     if image.mode == "P":
-        image = remove_palette_from_image(image)
+        image = remove_palette(image)
     if image.mode not in valid_modes:
         raise UnsupportedImageModeError(
             f"Mode '{image.mode}' of image '{infile}' is not supported"

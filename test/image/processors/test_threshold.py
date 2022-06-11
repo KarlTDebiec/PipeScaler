@@ -7,8 +7,7 @@ import numpy as np
 import pytest
 from PIL import Image
 
-from pipescaler.common import temporary_filename
-from pipescaler.processors.image import ThresholdProcessor
+from pipescaler.image.processors import ThresholdProcessor
 from pipescaler.testing import (
     get_infile,
     parametrized_fixture,
@@ -30,7 +29,7 @@ def processor(request) -> ThresholdProcessor:
 @pytest.mark.parametrize(
     ("infile"),
     [
-        xfail_unsupported_image_mode()("1"),
+        ("1"),
         ("L"),
         xfail_unsupported_image_mode()("LA"),
         xfail_unsupported_image_mode()("RGB"),
@@ -43,13 +42,13 @@ def processor(request) -> ThresholdProcessor:
 )
 def test(infile: str, processor: ThresholdProcessor) -> None:
     infile = get_infile(infile)
+    input_image = Image.open(infile)
+    output_image = processor(input_image)
 
-    with temporary_filename(".png") as outfile:
-        processor(infile, outfile)
-
-        with Image.open(infile) as input_image, Image.open(outfile) as output_image:
-            # noinspection PyTypeChecker
-            output_datum = np.array(output_image)
-            assert output_image.mode == "L"
-            assert output_image.size == input_image.size
-            assert np.logical_or(output_datum == 0, output_datum == 255).all()
+    output_datum = np.array(output_image)
+    assert output_image.size == input_image.size
+    if input_image.mode == "1":
+        assert output_image.mode == "1"
+    else:
+        assert output_image.mode == "L"
+        assert np.logical_or(output_datum == 0, output_datum == 255).all()

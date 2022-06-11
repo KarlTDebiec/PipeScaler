@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any, Callable, Collection, Sequence, Union
 
 from pipescaler.common import validate_input_directory
-from pipescaler.core.pipelines import Source
+from pipescaler.core.pipelines import PipeImage, Source
 from pipescaler.core.sorting import basic_sort
 
 

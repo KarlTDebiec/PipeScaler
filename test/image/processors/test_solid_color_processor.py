@@ -6,8 +6,7 @@
 import pytest
 from PIL import Image
 
-from pipescaler.common import temporary_filename
-from pipescaler.processors.image import SolidColorProcessor
+from pipescaler.image.processors import SolidColorProcessor
 from pipescaler.testing import (
     get_expected_output_mode,
     get_infile,
@@ -15,7 +14,12 @@ from pipescaler.testing import (
 )
 
 
-@parametrized_fixture(cls=SolidColorProcessor, params=[{}])
+@parametrized_fixture(
+    cls=SolidColorProcessor,
+    params=[
+        {},
+    ],
+)
 def processor(request) -> SolidColorProcessor:
     return SolidColorProcessor(**request.param)
 
@@ -36,11 +40,9 @@ def processor(request) -> SolidColorProcessor:
 )
 def test(infile: str, processor: SolidColorProcessor) -> None:
     infile = get_infile(infile)
+    input_image = Image.open(infile)
+    output_image = processor(input_image)
 
-    with temporary_filename(".png") as outfile:
-        processor(infile, outfile)
-
-        with Image.open(infile) as input_image, Image.open(outfile) as output_image:
-            assert output_image.mode == get_expected_output_mode(input_image)
-            assert output_image.size == input_image.size
-            assert len(output_image.getcolors()) == 1
+    assert output_image.mode == get_expected_output_mode(input_image)
+    assert output_image.size == input_image.size
+    assert len(output_image.getcolors()) == 1

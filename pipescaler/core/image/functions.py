@@ -320,7 +320,7 @@ def label_image(image: Image.Image, text: str, font: str = "Arial") -> Image.Ima
     return labeled_image
 
 
-def remove_palette_from_image(image: Image.Image) -> Image.Image:
+def remove_palette(image: Image.Image) -> Image.Image:
     """Remove palette from a paletted image.
 
     Arguments:

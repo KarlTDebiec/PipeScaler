@@ -6,8 +6,7 @@
 import pytest
 from PIL import Image
 
-from pipescaler.common import temporary_filename
-from pipescaler.processors.image import WaifuProcessor
+from pipescaler.image.processors import WaifuProcessor
 from pipescaler.testing import (
     get_expected_output_mode,
     get_infile,
@@ -42,9 +41,7 @@ def processor(request) -> WaifuProcessor:
 )
 def test(infile: str, processor: WaifuProcessor) -> None:
     infile = get_infile(infile)
+    input_image = Image.open(infile)
+    output_image = processor(input_image)
 
-    with temporary_filename(".png") as outfile:
-        processor(infile, outfile)
-
-        with Image.open(infile) as input_image, Image.open(outfile) as output_image:
-            assert output_image.mode == get_expected_output_mode(input_image)
+    assert output_image.mode == get_expected_output_mode(input_image)

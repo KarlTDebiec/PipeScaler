@@ -6,13 +6,8 @@
 import pytest
 from PIL import Image
 
-from pipescaler.common import temporary_filename
-from pipescaler.processors.image import ResizeProcessor
-from pipescaler.testing import (
-    get_expected_output_mode,
-    get_infile,
-    parametrized_fixture,
-)
+from pipescaler.image.processors import ResizeProcessor
+from pipescaler.testing import get_infile, parametrized_fixture
 
 
 @parametrized_fixture(
@@ -41,13 +36,11 @@ def processor(request) -> ResizeProcessor:
 )
 def test(infile: str, processor: ResizeProcessor) -> None:
     infile = get_infile(infile)
+    input_image = Image.open(infile)
+    output_image = processor(input_image)
 
-    with temporary_filename(".png") as outfile:
-        processor(infile, outfile)
-
-        with Image.open(infile) as input_image, Image.open(outfile) as output_image:
-            assert output_image.mode == get_expected_output_mode(input_image)
-            assert output_image.size == (
-                input_image.size[0] * processor.scale,
-                input_image.size[1] * processor.scale,
-            )
+    assert output_image.mode == input_image.mode
+    assert output_image.size == (
+        input_image.size[0] * processor.scale,
+        input_image.size[1] * processor.scale,
+    )
