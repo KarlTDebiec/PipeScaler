@@ -5,7 +5,7 @@
 """Image-related functions for testing."""
 from PIL import Image
 
-from pipescaler.core import remove_palette_from_image
+from pipescaler.core.image import remove_palette_from_image
 
 
 def get_expected_output_mode(input_image: Image.Image) -> str:

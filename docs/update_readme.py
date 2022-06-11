@@ -10,13 +10,14 @@ from pathlib import Path
 from types import ModuleType
 from typing import Type
 
-from pipescaler import mergers, processors, splitters
+from pipescaler import processors
 from pipescaler.common import package_root, validate_input_path
-from pipescaler.core import Stage
-from pipescaler.pipe import sorters, sources, termini
+from pipescaler.core import Operator
+from pipescaler.image import mergers, splitters
+from pipescaler.pipelines import sorters, sources, termini
 
 
-def get_github_link(cls: Type[Stage]) -> str:
+def get_github_link(cls: Type[Operator]) -> str:
     """
     Get the GitHub master branch link to the file containing a class
 
@@ -53,7 +54,7 @@ def get_module_regexes(modules: list[ModuleType]) -> dict[ModuleType, re.Pattern
     return module_regexes
 
 
-def get_stage_description(stage: Type[Stage]) -> str:
+def get_stage_description(stage: Type[Operator]) -> str:
     """
     Get the formatted description of a stage, including GitHub link
 

@@ -10,7 +10,7 @@ from typing import Collection, Optional, Union
 from PIL import Image
 
 from pipescaler.common import validate_input_path
-from pipescaler.core.exception import UnsupportedImageModeError
+from pipescaler.core.exceptions import UnsupportedImageModeError
 from pipescaler.core.image import remove_palette_from_image
 
 

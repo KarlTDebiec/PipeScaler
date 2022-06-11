@@ -9,7 +9,7 @@ import numba as nb
 import numpy as np
 from PIL import Image
 
-from pipescaler.core import UnsupportedImageModeError
+from pipescaler.core.exceptions import UnsupportedImageModeError
 from pipescaler.core.image import get_perceptually_weighted_distance
 
 

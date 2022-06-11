@@ -25,13 +25,13 @@ PipeScaler includes the following image processors:
 * [GigapixelAiProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/gui/gigapixel_ai_proessor.py) - Upscales image using [Gigapixel AI](https://www.topazlabs.com/gigapixel-ai).
 * [HeightToNormalProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/image/height_to_normal_processor.py) - Converts height map image to a normal map image.
 * [ModeProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/image/mode_processor.py) - Converts mode of image.
-* [PngquantProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/external/pngquant_processor.py) - Reduces image palette using [pngquant](https://pngquant.org/).
+* [PngquantRunner](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/external/pngquant_processor.py) - Reduces image palette using [pngquant](https://pngquant.org/).
 * [PotraceProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/external/potrace_processor.py) - Traces image using [Potrace](http://potrace.sourceforge.net/) and re-rasterizes,optionally resizing.
 * [ResizeProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/image/resize_processor.py) - Resizes image canvas.
 * [SharpenProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/image/sharpen_processor.py) - Sharpens an image.
 * [Substituter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/side_channel_processor.py) - Replaces image with an alternative sourced from a defined directory.
 * [SolidColorProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/image/solid_color_processor.py) - Sets entire image color to its average color, optionally resizing.
-* [TexconvProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/external/texconv_processor.py) - Processes image using [Texconv](https://github.com/Microsoft/DirectXTex/wiki/Texconv).
+* [TexconvRunner](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/external/texconv_processor.py) - Processes image using [Texconv](https://github.com/Microsoft/DirectXTex/wiki/Texconv).
 * [ThresholdProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/image/threshold_processor.py) - Converts image to black and white using threshold, optionally denoising.
 * [WaifuExternalProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/external/waifu_external_processor.py) - Upscales and/or denoises image using [Waifu2x](https://github.com/nagadomi/waifu2x) via an external executable.
 * [WaifuProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/processors/image/waifu_processor.py) - Upscales and/or denoises image using [Waifu2x](https://github.com/nagadomi/waifu2x) via PyTorch.

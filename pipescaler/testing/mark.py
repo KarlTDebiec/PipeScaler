@@ -11,7 +11,7 @@ from typing import Type
 from pytest import mark, param
 
 from pipescaler.common import UnsupportedPlatformError
-from pipescaler.core import UnsupportedImageModeError
+from pipescaler.core.exceptions import UnsupportedImageModeError
 
 
 def skip_if_ci(inner: partial = None) -> partial:

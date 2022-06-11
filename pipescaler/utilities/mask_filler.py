@@ -9,7 +9,7 @@ import numpy as np
 from PIL import Image
 
 from pipescaler.common import validate_enum
-from pipescaler.core import MaskFillMode
+from pipescaler.core.enums import MaskFillMode
 from pipescaler.utilities.palette_matcher import PaletteMatcher
 
 

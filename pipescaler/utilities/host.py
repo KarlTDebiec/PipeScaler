@@ -11,7 +11,7 @@ from typing import Any
 from flask import Flask, redirect, request, send_file, url_for
 
 from pipescaler.common import temporary_filename
-from pipescaler.core.stages import Processor
+from pipescaler.core.image import Processor
 
 
 class Host:

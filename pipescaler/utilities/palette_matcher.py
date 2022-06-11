@@ -10,8 +10,8 @@ import numpy as np
 from numba import njit
 from PIL import Image
 
-from pipescaler.core import UnsupportedImageModeError, get_palette
-from pipescaler.core.image import get_perceptually_weighted_distance
+from pipescaler.core.exceptions import UnsupportedImageModeError
+from pipescaler.core.image import get_palette, get_perceptually_weighted_distance
 
 
 class PaletteMatcher:

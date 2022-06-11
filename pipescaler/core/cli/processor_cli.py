@@ -13,7 +13,7 @@ from typing import Any, Type, Union
 from PIL import Image
 
 from pipescaler.common import CommandLineInterface
-from pipescaler.core.stages import Processor
+from pipescaler.core.image.operators.processor import Processor
 
 
 class ProcessorCli(CommandLineInterface, ABC):

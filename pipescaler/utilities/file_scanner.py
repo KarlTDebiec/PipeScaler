@@ -23,7 +23,7 @@ from pipescaler.common import (
     validate_output_directory,
     validate_output_file,
 )
-from pipescaler.core import get_files
+from pipescaler.core.files import get_files
 from pipescaler.utilities.scaled_pair_identifier import ScaledPairIdentifier
 
 pd.set_option(
