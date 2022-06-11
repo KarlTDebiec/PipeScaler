@@ -8,6 +8,7 @@ from __future__ import annotations
 from logging import info
 from os import remove
 from pathlib import Path
+from shutil import copyfile
 from typing import Union
 
 import numpy as np
@@ -32,17 +33,24 @@ class CopyFileTerminus(Terminus):
         self.observed_files = set()
 
     def __call__(self, input_image: PipeImage) -> None:
-        outfile = self.directory.joinpath(input_image.name).with_suffix(".png")
+        suffix = input_image.path.suffix if input_image.path is not None else ".png"
+        outfile = self.directory.joinpath(input_image.name).with_suffix(suffix)
         self.observed_files.add(outfile.name)
         if outfile.exists():
             existing_image = Image.open(outfile)
             if np.array_equal(input_image.image, existing_image):
                 info(f"{self}: {outfile} unchanged; not overwritten")
             else:
-                input_image.image.save(outfile)
+                if input_image.path is not None:
+                    copyfile(input_image.path, outfile)
+                else:
+                    input_image.image.save(outfile)
                 info(f"{self}: {outfile} changed; overwritten")
         else:
-            input_image.image.save(outfile)
+            if input_image.path is not None:
+                copyfile(input_image.path, outfile)
+            else:
+                input_image.image.save(outfile)
             info(f"{self}: '{outfile}' saved")
 
     def purge_unrecognized_files(self) -> None:
