@@ -83,6 +83,7 @@ class CheckpointManager:
                 else:
                     if image.path is None:
                         with temporary_filename(".png") as infile:
+                            infile = Path(infile)
                             image.image.save(infile)
                             function(infile, checkpoint)
                     else:
