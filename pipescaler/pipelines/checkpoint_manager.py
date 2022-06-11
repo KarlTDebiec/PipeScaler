@@ -8,9 +8,9 @@ from logging import info
 from os import remove, rmdir
 from os.path import join
 from pathlib import Path
-from typing import Callable, Union
+from typing import Callable, Optional, Union
 
-from pipescaler.common import validate_output_directory
+from pipescaler.common import temporary_filename, validate_output_directory
 from pipescaler.core.pipelines import PipeImage
 
 
@@ -32,17 +32,17 @@ class CheckpointManager:
     def __repr__(self):
         return f"<{self.__class__.__name__}>"
 
-    def get_checkpoint(self, image: PipeImage, name: str) -> Path:
+    def get_checkpoint(
+        self, image: PipeImage, name: str, suffix: Optional[str] = ".png"
+    ) -> Path:
         checkpoint_directory = self.directory.joinpath(image.name)
         checkpoint_directory.mkdir(exist_ok=True)
-        checkpoint = checkpoint_directory.joinpath(name).with_suffix(".png")
+        checkpoint = checkpoint_directory.joinpath(name).with_suffix(suffix)
         return checkpoint
 
     def post(
         self, name: str
     ) -> Callable[[Callable[[PipeImage], PipeImage]], Callable[[PipeImage], PipeImage]]:
-        if name in self.checkpoint_names:
-            raise ValueError
         self.checkpoint_names.add(name)
 
         def checkpoint_decorator(
@@ -65,14 +65,42 @@ class CheckpointManager:
 
         return checkpoint_decorator
 
+    def post_file(
+        self, name: str, suffix: Optional[str] = ".png"
+    ) -> Callable[[Callable[[Path, Path], None]], Callable[[PipeImage], PipeImage]]:
+        self.checkpoint_names.add(name)
+
+        def checkpoint_decorator(
+            function: Callable[[Path, Path], None]
+        ) -> Callable[[PipeImage], PipeImage]:
+            @wraps(function)
+            def wrapped(image: PipeImage) -> PipeImage:
+                self.image_names.add(image.name)
+                checkpoint = self.get_checkpoint(image, name, suffix=suffix)
+                if checkpoint.exists():
+                    output_image = PipeImage(path=checkpoint, parents=image)
+                    info(f"{self}: {image.name} checkpoint {checkpoint.name} loaded")
+                else:
+                    if image.path is None:
+                        with temporary_filename(".png") as infile:
+                            image.image.save(infile)
+                            function(infile, checkpoint)
+                    else:
+                        function(image.path, checkpoint)
+                    output_image = PipeImage(path=checkpoint, parents=image)
+                    info(f"{self}: {image.name} checkpoint {checkpoint.name} saved")
+                return output_image
+
+            return wrapped
+
+        return checkpoint_decorator
+
     def pre(
         self, name: str
     ) -> Callable[[Callable[[PipeImage], PipeImage]], Callable[[PipeImage], PipeImage]]:
         def checkpoint_decorator(
             function: Callable[[PipeImage], PipeImage]
         ) -> Callable[[PipeImage], PipeImage]:
-            if name in self.checkpoint_names:
-                raise ValueError
             self.checkpoint_names.add(name)
 
             @wraps(function)
