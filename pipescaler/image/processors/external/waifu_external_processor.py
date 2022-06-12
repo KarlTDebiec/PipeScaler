@@ -5,125 +5,40 @@
 """Upscales and/or denoises image using Waifu2x via an external executable."""
 from __future__ import annotations
 
-from logging import debug
-from platform import system
-
 from PIL import Image
 
-from pipescaler.common import (
-    run_command,
-    temporary_filename,
-    validate_executable,
-    validate_int,
-    validate_str,
-)
-from pipescaler.core import crop_image, expand_image, validate_mode
-from pipescaler.core.stages.processors import ExternalProcessor
+from pipescaler.common import temporary_filename
+from pipescaler.core.image import Processor
+from pipescaler.core.validation import validate_mode
+from pipescaler.runners import WaifuRunner
 
 
-class WaifuExternalProcessor(ExternalProcessor):
+class WaifuExternalProcessor(Processor):
     """Upscales and/or denoises image using Waifu2x via an external executable.
 
     See [waifu2x](https://github.com/nagadomi/waifu2x).
-
-    On Windows, requires [waifu2x-caffe](https://github.com/lltcggie/waifu2x-caffe) in
-    the executor's path.
-
-    On Linux, support is untested but likely achievable with minimal effort.
-
-    On macOS, requires [waifu2x-mac](https://github.com/imxieyi/waifu2x-mac) in the
-    executor's path.
-
-    Provides two improvements over running waifu2x directly:
-    1. If image is below waifu2x's minimum size, expands canvas.
-    2. Eliminates edge effects by reflecting image around edges.
     """
-
-    models = {"windows": ["a"], "unix": ["a", "p"]}
 
     def __init__(
         self,
-        imagetype: str = "a",
-        denoise: int = 1,
-        scale: int = 2,
-        expand: bool = True,
+        arguments: str,
     ) -> None:
-        """Validate and store configuration and initialize.
+        self.waifu_runner = WaifuRunner(arguments)
 
-        Arguments:
-            imagetype: Image type
-            denoise: Level of denoising to apply
-            scale: Output image scale
-            expand: Whether to expand and crop image
-        """
-        self.imagetype = validate_str(
-            imagetype,
-            self.models["windows"] if system() == "Windows" else self.models["unix"],
-        )
-        self.scale = validate_int(scale, min_value=1, max_value=2)
-        self.denoise = validate_int(denoise, min_value=0, max_value=4)
-        self.expand = expand
-
-    @property
-    def command_template(self):
-        """String template with which to generate command."""
-        command = (
-            f"{validate_executable(self.executable, self.supported_platforms)}"
-            f" -s {self.scale}"
-            f" -n {self.denoise}"
-        )
-        if system() == "Windows":
-            command += " -p gpu"
-        command += ' -i "{infile}" -o "{outfile}"'
-
-        return command
-
-    def process(self, infile: str, outfile: str) -> None:
-        """Read image from infile, process it, and save to outfile.
-
-        Arguments:
-            infile: Input file path
-            outfile: Output file path
-        """
+    def __call__(self, input_image: Image.Image) -> Image.Image:
         input_image, output_mode = validate_mode(
-            Image.open(infile), self.inputs["input"], "RGB"
+            input_image, self.inputs["input"], "RGB"
         )
 
-        with temporary_filename(".png") as intermediate_file_1:
-            if self.expand:
-                intermediate_image = expand_image(input_image, 8, 8, 8, 8, 200)
-            else:
-                intermediate_image = input_image.copy()
-            intermediate_image.save(intermediate_file_1)
+        with temporary_filename(".png") as temp_infile:
+            with temporary_filename(".png") as temp_outfile:
+                input_image.save(temp_infile)
+                self.waifu_runner.run(temp_infile, temp_outfile)
+                output_image = Image.open(temp_outfile)
+        if output_image.mode != output_mode:
+            output_image = output_image.convert(output_mode)
 
-            with temporary_filename(".png") as intermediate_file_2:
-                command = self.command_template.format(
-                    infile=intermediate_file_1, outfile=intermediate_file_2
-                )
-                debug(f"{self}: {command}")
-                run_command(command)
-
-                output_image = Image.open(intermediate_file_2)
-                if self.expand:
-                    output_image = crop_image(
-                        output_image,
-                        (output_image.width - (input_image.width * self.scale)) // 2,
-                        (output_image.height - (input_image.height * self.scale)) // 2,
-                        (output_image.width - (input_image.width * self.scale)) // 2,
-                        (output_image.height - (input_image.height * self.scale)) // 2,
-                    )
-                if output_image.mode != output_mode:
-                    output_image = output_image.convert(output_mode)
-
-        output_image.save(outfile)
-
-    @classmethod
-    @property
-    def executable(self) -> str:
-        """Name of executable."""
-        if system() == "Windows":
-            return "waifu2x-caffe-cui.exe"
-        return "waifu2x"
+        return output_image
 
     @classmethod
     @property
@@ -138,12 +53,12 @@ class WaifuExternalProcessor(ExternalProcessor):
     @property
     def inputs(cls) -> dict[str, tuple[str, ...]]:
         return {
-            "input": ("1", "L", "RGB"),
+            "input": ("L", "RGB"),
         }
 
     @classmethod
     @property
     def outputs(cls) -> dict[str, tuple[str, ...]]:
         return {
-            "output": ("1", "L", "RGB"),
+            "output": ("L", "RGB"),
         }

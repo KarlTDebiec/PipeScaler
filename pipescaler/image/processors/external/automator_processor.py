@@ -9,7 +9,7 @@ from os.path import join, split
 from typing import Any
 
 from pipescaler.common import package_root, validate_executable, validate_input_path
-from pipescaler.core.stages.processors import ExternalProcessor
+from pipescaler.image.processors import ExternalProcessor
 
 
 class AutomatorProcessor(ExternalProcessor):
