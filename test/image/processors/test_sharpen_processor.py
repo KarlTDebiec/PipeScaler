@@ -6,7 +6,6 @@
 import pytest
 from PIL import Image
 
-from pipescaler.common import temporary_filename
 from pipescaler.image.processors import SharpenProcessor
 from pipescaler.testing import (
     get_expected_output_mode,
@@ -37,10 +36,8 @@ def processor(request) -> SharpenProcessor:
 )
 def test(infile: str, processor: SharpenProcessor) -> None:
     infile = get_infile(infile)
+    input_image = Image.open(infile)
+    output_image = processor(input_image)
 
-    with temporary_filename(".png") as outfile:
-        processor(infile, outfile)
-
-        with Image.open(infile) as input_image, Image.open(outfile) as output_image:
-            assert output_image.mode == get_expected_output_mode(input_image)
-            assert output_image.size == input_image.size
+    assert output_image.mode == get_expected_output_mode(input_image)
+    assert output_image.size == input_image.size

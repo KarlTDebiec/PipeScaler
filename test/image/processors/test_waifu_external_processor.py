@@ -6,7 +6,6 @@
 import pytest
 from PIL import Image
 
-from pipescaler.common import temporary_filename
 from pipescaler.image.processors import WaifuExternalProcessor
 from pipescaler.testing import (
     get_expected_output_mode,
@@ -20,12 +19,11 @@ from pipescaler.testing import (
 @parametrized_fixture(
     cls=WaifuExternalProcessor,
     params=[
-        {"imagetype": "a", "denoise": 3, "scale": 1},
-        {"imagetype": "a", "denoise": 0, "scale": 2},
-        {"imagetype": "a", "denoise": 3, "scale": 2},
+        {"arguments": "-s 2 -n 1"},
+        {"arguments": "-s 1 -n 3"},
     ],
 )
-def waifu_external_processor(request) -> WaifuExternalProcessor:
+def processor(request) -> WaifuExternalProcessor:
     return WaifuExternalProcessor(**request.param)
 
 
@@ -43,11 +41,9 @@ def waifu_external_processor(request) -> WaifuExternalProcessor:
         skip_if_ci(xfail_unsupported_image_mode())("PRGBA"),
     ],
 )
-def test(infile: str, waifu_external_processor: WaifuExternalProcessor) -> None:
+def test(infile: str, processor: WaifuExternalProcessor) -> None:
     infile = get_infile(infile)
+    input_image = Image.open(infile)
+    output_image = processor(input_image)
 
-    with temporary_filename(".png") as outfile:
-        waifu_external_processor(infile, outfile)
-
-        with Image.open(infile) as input_image, Image.open(outfile) as output_image:
-            assert output_image.mode == get_expected_output_mode(input_image)
+    assert output_image.mode == get_expected_output_mode(input_image)

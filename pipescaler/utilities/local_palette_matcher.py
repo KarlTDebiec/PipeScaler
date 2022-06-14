@@ -5,16 +5,20 @@
 """Matches the palette of one image to another, restricted to nearby colors."""
 from typing import no_type_check
 
-import numba as nb
 import numpy as np
+from numba import njit
 from PIL import Image
 
+from pipescaler.common import validate_int
 from pipescaler.core.exceptions import UnsupportedImageModeError
 from pipescaler.core.image import get_perceptually_weighted_distance
 
 
 class LocalPaletteMatcher:
     """Matches the palette of one image to another, restricted to nearby colors."""
+
+    def __init__(self, local_range: int = 1):
+        self.local_range = validate_int(local_range, min_value=1)
 
     def match_palette(
         self, ref_image: Image.Image, fit_image: Image.Image
@@ -32,23 +36,27 @@ class LocalPaletteMatcher:
                 f"Image mode '{ref_image.mode}' of reference image does not match mode "
                 f"'{fit_image.mode}' of fit image"
             )
-        # noinspection PyTypeChecker
         ref_array = np.array(ref_image)
-        # noinspection PyTypeChecker
         fit_array = np.array(fit_image)
 
         if fit_image.mode == "L":
-            matched_array = self.get_local_match_l(fit_array, ref_array)
+            matched_array = self.get_local_match_l(
+                fit_array, ref_array, self.local_range
+            )
         else:
-            matched_array = self.get_local_match_rgb(fit_array, ref_array)
+            matched_array = self.get_local_match_rgb(
+                fit_array, ref_array, self.local_range
+            )
 
         matched_image = Image.fromarray(matched_array)
         return matched_image
 
     @no_type_check
     @staticmethod
-    @nb.jit(nopython=True, nogil=True, cache=True, fastmath=True)
-    def get_local_match_l(fit_array: np.ndarray, ref_array: np.ndarray) -> np.ndarray:
+    @njit(nogil=True, cache=True, fastmath=True)
+    def get_local_match_l(
+        fit_array: np.ndarray, ref_array: np.ndarray, local_range: int = 1
+    ) -> np.ndarray:
         """Get locally palette-matched image array for an L image array.
 
         Args:
@@ -69,12 +77,12 @@ class LocalPaletteMatcher:
                 ref_center_x = fit_x // scale
                 ref_center_y = fit_y // scale
                 for ref_x in range(
-                    max(0, ref_center_x - 1),
-                    min(ref_array.shape[0] - 1, ref_center_x + 1) + 1,
+                    max(0, ref_center_x - local_range),
+                    min(ref_array.shape[0] - 1, ref_center_x + local_range) + 1,
                 ):
                     for ref_y in range(
-                        max(0, ref_center_y - 1),
-                        min(ref_array.shape[1] - 1, ref_center_y + 1) + 1,
+                        max(0, ref_center_y - local_range),
+                        min(ref_array.shape[1] - 1, ref_center_y + local_range) + 1,
                     ):
                         ref_color = ref_array[ref_x, ref_y]
                         key = (fit_color, ref_color)
@@ -89,8 +97,10 @@ class LocalPaletteMatcher:
 
     @no_type_check
     @staticmethod
-    @nb.jit(nopython=True, nogil=True, cache=True, fastmath=True)
-    def get_local_match_rgb(fit_array: np.ndarray, ref_array: np.ndarray) -> np.ndarray:
+    @njit(nogil=True, cache=True, fastmath=True)
+    def get_local_match_rgb(
+        fit_array: np.ndarray, ref_array: np.ndarray, local_range: int = 1
+    ) -> np.ndarray:
         """Get locally palette-matched image array for an RGB image array.
 
         Args:
@@ -111,12 +121,12 @@ class LocalPaletteMatcher:
                 ref_center_x = fit_x // scale
                 ref_center_y = fit_y // scale
                 for ref_x in range(
-                    max(0, ref_center_x - 1),
-                    min(ref_array.shape[0] - 1, ref_center_x + 1) + 1,
+                    max(0, ref_center_x - local_range),
+                    min(ref_array.shape[0] - 1, ref_center_x + local_range) + 1,
                 ):
                     for ref_y in range(
-                        max(0, ref_center_y - 1),
-                        min(ref_array.shape[1] - 1, ref_center_y + 1) + 1,
+                        max(0, ref_center_y - local_range),
+                        min(ref_array.shape[1] - 1, ref_center_y + local_range) + 1,
                     ):
                         ref_color = ref_array[ref_x, ref_y]
                         key = (

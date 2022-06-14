@@ -23,6 +23,7 @@ class PaletteMatchMerger(Merger):
     def __init__(
         self,
         palette_match_mode: Union[type(PaletteMatchMode), str] = PaletteMatchMode.BASIC,
+        local_range: int = 1,
         **kwargs: Any,
     ) -> None:
         """Validate and store configuration and initialize.
@@ -36,7 +37,7 @@ class PaletteMatchMerger(Merger):
         if self.palette_match_mode == PaletteMatchMode.BASIC:
             self.palette_matcher = PaletteMatcher()
         else:
-            self.palette_matcher = LocalPaletteMatcher()
+            self.palette_matcher = LocalPaletteMatcher(local_range)
 
     def __call__(self, *input_images: Image.Image) -> Image.Image:
         ref_image, _ = validate_mode(input_images[0], self.inputs["reference"])

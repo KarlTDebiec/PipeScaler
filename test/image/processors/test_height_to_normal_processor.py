@@ -7,7 +7,6 @@ import numpy as np
 import pytest
 from PIL import Image
 
-from pipescaler.common import temporary_filename
 from pipescaler.image.processors import HeightToNormalProcessor
 from pipescaler.testing import (
     get_infile,
@@ -18,7 +17,7 @@ from pipescaler.testing import (
 
 @parametrized_fixture(
     cls=HeightToNormalProcessor,
-    params=[{"sigma": 0.5}, {"sigma": 1.0}],
+    params=[{"sigma": None}, {"sigma": 1.0}],
 )
 def processor(request) -> HeightToNormalProcessor:
     return HeightToNormalProcessor(**request.param)
@@ -40,13 +39,10 @@ def processor(request) -> HeightToNormalProcessor:
 )
 def test(infile: str, processor: HeightToNormalProcessor) -> None:
     infile = get_infile(infile)
+    input_image = Image.open(infile)
+    output_image = processor(input_image)
 
-    with temporary_filename(".png") as outfile:
-        processor(infile, outfile)
-
-        with Image.open(infile) as input_image, Image.open(outfile) as output_image:
-            # noinspection PyTypeChecker
-            output_datum = np.array(output_image)
-            assert output_image.mode == "RGB"
-            assert output_image.size == input_image.size
-            assert np.min(output_datum[:, :, 2] >= 128)
+    output_datum = np.array(output_image)
+    assert output_image.mode == "RGB"
+    assert output_image.size == input_image.size
+    assert np.min(output_datum[:, :, 2] >= 128)

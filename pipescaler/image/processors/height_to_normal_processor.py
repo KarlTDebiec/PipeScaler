@@ -12,17 +12,16 @@ from PIL import Image
 from pipescaler.common import validate_float
 from pipescaler.core.image import (
     Processor,
-    crop_image,
-    expand_image,
     generate_normal_map_from_height_map_image,
     smooth_image,
 )
+from pipescaler.core.validation import validate_mode
 
 
 class HeightToNormalProcessor(Processor):
     """Converts height map image to a normal map image."""
 
-    def __init__(self, sigma: Optional[int] = None, **kwargs: Any) -> None:
+    def __init__(self, sigma: Optional[float] = None, **kwargs: Any) -> None:
         """Validate and store configuration and initialize.
 
         Arguments:
@@ -31,32 +30,26 @@ class HeightToNormalProcessor(Processor):
         """
         super().__init__(**kwargs)
 
-        # Store configuration
-        if sigma is not None:
-            self.sigma = validate_float(sigma, min_value=0)
-        else:
-            self.sigma = None
+        self.sigma = validate_float(sigma, min_value=0) if sigma is not None else None
 
-    def process(self, input_image: Image.Image) -> Image.Image:
-        """Process an image.
-
-        Arguments:
-            input_image: Input image to process
-        Returns:
-            Processed output image
-        """
-        expanded_image = expand_image(input_image, 8, 8, 8, 8)
+    def __call__(self, input_image: Image.Image) -> Image.Image:
+        input_image, _ = validate_mode(input_image, self.inputs["input"])
         if self.sigma is not None:
-            smoothed_image = smooth_image(expanded_image, self.sigma)
-            normal_image = generate_normal_map_from_height_map_image(smoothed_image)
-        else:
-            normal_image = generate_normal_map_from_height_map_image(expanded_image)
-        output_image = crop_image(normal_image, 8, 8, 8, 8)
+            input_image = smooth_image(input_image, self.sigma)
+        output_image = generate_normal_map_from_height_map_image(input_image)
 
         return output_image
 
     @classmethod
     @property
-    def supported_input_modes(self) -> list[str]:
-        """Supported modes for input image."""
-        return ["L"]
+    def inputs(cls) -> dict[str, tuple[str, ...]]:
+        return {
+            "input": ("L",),
+        }
+
+    @classmethod
+    @property
+    def outputs(cls) -> dict[str, tuple[str, ...]]:
+        return {
+            "output": ("RGB",),
+        }

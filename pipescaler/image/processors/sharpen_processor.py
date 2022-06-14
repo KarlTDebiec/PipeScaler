@@ -10,6 +10,7 @@ from PIL import Image
 from scipy.signal import convolve2d
 
 from pipescaler.core.image import Processor
+from pipescaler.core.validation import validate_mode
 
 
 class SharpenProcessor(Processor):
@@ -17,23 +18,17 @@ class SharpenProcessor(Processor):
 
     kernel = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]], float)
 
-    def process(self, input_image: Image.Image) -> Image.Image:
-        """Process an image.
+    def __call__(self, input_image: Image.Image) -> Image.Image:
+        input_image, _ = validate_mode(input_image, self.inputs["input"])
 
-        Arguments:
-            input_image: Input image
-        Returns:
-            Output image
-        """
-        # noinspection PyTypeChecker
-        input_array = np.array(input_image).astype(float)
         if input_image.mode == "L":
+            input_array = np.array(input_image).astype(float)
             output_array = convolve2d(input_array, self.kernel, "same")
             output_array = np.clip(output_array, 0, 255).astype(np.uint8)
             output_image = Image.fromarray(output_array)
         else:
             hsv_image = input_image.convert("HSV")
-            # noinspection PyTypeChecker
+
             hsv_array = np.array(hsv_image)
             v_array = hsv_array[:, :, 2].astype(float)
             v_array = convolve2d(v_array, self.kernel, "same")
@@ -44,6 +39,14 @@ class SharpenProcessor(Processor):
 
     @classmethod
     @property
-    def supported_input_modes(self) -> list[str]:
-        """Supported modes for input image."""
-        return ["L", "RGB"]
+    def inputs(cls) -> dict[str, tuple[str, ...]]:
+        return {
+            "input": ("L", "RGB"),
+        }
+
+    @classmethod
+    @property
+    def outputs(cls) -> dict[str, tuple[str, ...]]:
+        return {
+            "output": ("L", "RGB"),
+        }
