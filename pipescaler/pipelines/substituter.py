@@ -21,30 +21,27 @@ class Substituter:
     def __init__(
         self,
         directory: Union[str, Path],
+        required: bool = False,
         match_input_mode: bool = True,
     ) -> None:
-        """Validate and store configuration and initialize.
-
-        Arguments:
-            directory: Directory from which to load alternative images
-            clean_suffix: Suffix to remove from alternative images
-            match_input_mode: Ensure output image mode matches input image mode
-        """
         self.directory = Path(
             validate_input_directory(directory, create_directory=True)
         )
         self.substitutes = {f.stem: f for f in self.directory.iterdir()}
+        self.required = required
         self.match_input_mode = match_input_mode
 
     def __call__(self, pipe_image: PipeImage) -> PipeImage:
         if pipe_image.name in self.substitutes:
             image = Image.open(self.substitutes[pipe_image.name])
             if self.match_input_mode and image.mode != pipe_image.image.mode:
-                image = image.convert()
+                image = image.convert(pipe_image.image.mode)
                 image.save(self.substitutes[pipe_image.name])
                 info(
                     f"{self}: {self.substitutes[pipe_image.name].name} updated to mode "
                     f"{image.mode}"
                 )
             return PipeImage(image, parents=pipe_image)
+        elif self.required:
+            raise FileNotFoundError()
         return pipe_image

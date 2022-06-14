@@ -5,39 +5,23 @@
 """Crops image canvas."""
 from __future__ import annotations
 
-from typing import Any
-
 from PIL import Image
 
 from pipescaler.common import validate_ints
 from pipescaler.core.image import Processor, crop_image
+from pipescaler.core.validation import validate_mode
 
 
 class CropProcessor(Processor):
     """Crops image canvas."""
 
-    def __init__(self, pixels: tuple[int], **kwargs: Any) -> None:
-        """Validate and store configuration and initialize.
-
-        Arguments:
-            pixels: Number of pixels to remove from left, top, right, and bottom
-            **kwargs: Additional keyword arguments
-        """
-        super().__init__(**kwargs)
-
-        # Store configuration
+    def __init__(self, pixels: tuple[int, int, int, int]) -> None:
         self.left, self.top, self.right, self.bottom = validate_ints(
             pixels, length=4, min_value=0
         )
 
-    def process(self, input_image: Image.Image) -> Image.Image:
-        """Process an image.
-
-        Arguments:
-            input_image: Input image to process
-        Returns:
-            Processed output image
-        """
+    def __call__(self, input_image: Image.Image) -> Image.Image:
+        input_image, _ = validate_mode(input_image, self.inputs["input"])
         if (
             input_image.size[0] < self.left + self.right + 1
             or input_image.size[1] < self.top + self.bottom + 1
@@ -49,3 +33,17 @@ class CropProcessor(Processor):
         )
 
         return output_image
+
+    @classmethod
+    @property
+    def inputs(cls) -> dict[str, tuple[str, ...]]:
+        return {
+            "input": ("1", "L", "LA", "RGB", "RGBA"),
+        }
+
+    @classmethod
+    @property
+    def outputs(cls) -> dict[str, tuple[str, ...]]:
+        return {
+            "output": ("1", "L", "LA", "RGB", "RGBA"),
+        }

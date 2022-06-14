@@ -34,7 +34,7 @@ class AppleScriptProcessor(ExternalProcessor):
             script = f"{script}.scpt"
         self.script = validate_input_path(
             script,
-            default_directory=join(*split(package_root), "data", "scripts"),
+            default_directory=join(*split(package_root), "data", "../../data/scripts"),
         )
         self.args = args
 

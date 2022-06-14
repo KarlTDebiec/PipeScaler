@@ -5,41 +5,40 @@
 """Expands image canvas by mirroring image around edges."""
 from __future__ import annotations
 
-from typing import Any
-
 from PIL import Image
 
 from pipescaler.common import validate_ints
 from pipescaler.core.image import Processor, expand_image
+from pipescaler.core.validation import validate_mode
 
 
 class ExpandProcessor(Processor):
     """Expands image canvas by mirroring image around edges."""
 
-    def __init__(self, pixels: tuple[int], **kwargs: Any) -> None:
-        """Validate and store configuration and initialize.
-
-        Arguments:
-            pixels: Number of pixels to add to left, top, right, and bottom
-            **kwargs: Additional keyword arguments
-        """
-        super().__init__(**kwargs)
-
-        # Store configuration
+    def __init__(self, pixels: tuple[int, int, int, int]) -> None:
         self.left, self.top, self.right, self.bottom = validate_ints(
             pixels, length=4, min_value=0
         )
 
-    def process(self, input_image: Image.Image) -> Image.Image:
-        """Process an image.
+    def __call__(self, input_image: Image.Image) -> Image.Image:
+        input_image, _ = validate_mode(input_image, self.inputs["input"])
 
-        Arguments:
-            input_image: Input image to process
-        Returns:
-            Processed output image
-        """
         output_image = expand_image(
             input_image, self.left, self.top, self.right, self.bottom
         )
 
         return output_image
+
+    @classmethod
+    @property
+    def inputs(cls) -> dict[str, tuple[str, ...]]:
+        return {
+            "input": ("1", "L", "LA", "RGB", "RGBA"),
+        }
+
+    @classmethod
+    @property
+    def outputs(cls) -> dict[str, tuple[str, ...]]:
+        return {
+            "output": ("1", "L", "LA", "RGB", "RGBA"),
+        }

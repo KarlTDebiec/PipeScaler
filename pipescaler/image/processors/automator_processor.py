@@ -9,10 +9,10 @@ from os.path import join, split
 from typing import Any
 
 from pipescaler.common import package_root, validate_executable, validate_input_path
-from pipescaler.image.processors import ExternalProcessor
+from pipescaler.core.image import Processor
 
 
-class AutomatorProcessor(ExternalProcessor):
+class AutomatorProcessor(Processor):
     """Applies an Automator QuickAction to an image.
 
     See [Automator QuickAction](https://support.apple.com/guide/automator/welcome/mac)
@@ -33,7 +33,9 @@ class AutomatorProcessor(ExternalProcessor):
             workflow if workflow.endswith(".workflow") else f"{workflow}.workflow",
             file_ok=False,
             directory_ok=True,
-            default_directory=join(*split(package_root), "data", "workflows"),
+            default_directory=join(
+                *split(package_root), "data", "../../data/workflows"
+            ),
         )
 
     @property
