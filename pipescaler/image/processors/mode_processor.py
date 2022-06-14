@@ -5,6 +5,8 @@
 """Converts mode of image."""
 from __future__ import annotations
 
+from typing import Any
+
 from PIL import Image, ImageColor
 
 from pipescaler.common import validate_str
@@ -16,9 +18,7 @@ class ModeProcessor(Processor):
     """Converts mode of image."""
 
     def __init__(
-        self,
-        mode: str = "RGB",
-        background_color: str = "#000000",
+        self, mode: str = "RGB", background_color: str = "#000000", **kwargs: Any
     ) -> None:
         """Validate and store configuration and initialize.
 
@@ -26,6 +26,7 @@ class ModeProcessor(Processor):
             mode: Output mode
             background_color: Background color of image
         """
+        super().__init__(**kwargs)
         self.mode = validate_str(mode, self.outputs["output"])
         self.background_color = ImageColor.getrgb(background_color)  # TODO: Validate
 

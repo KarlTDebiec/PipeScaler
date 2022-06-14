@@ -7,7 +7,9 @@ import pytest
 from PIL import Image
 
 from pipescaler.common import temporary_filename
-from pipescaler.core import PaletteMatchMode, get_palette, validate_image
+from pipescaler.core.enums import PaletteMatchMode
+from pipescaler.core.image import get_palette
+from pipescaler.core.validation import validate_image
 from pipescaler.image.mergers import PaletteMatchMerger
 from pipescaler.testing import (
     get_expected_output_mode,

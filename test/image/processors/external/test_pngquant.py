@@ -9,7 +9,7 @@ import pytest
 from PIL import Image
 
 from pipescaler.common import ExecutableNotFoundError, temporary_filename
-from pipescaler.processors.external import PngquantRunner
+from pipescaler.runners import PngquantRunner
 from pipescaler.testing import get_infile, parametrized_fixture, xfail_if_platform
 
 

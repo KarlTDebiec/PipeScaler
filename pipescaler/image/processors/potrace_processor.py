@@ -5,6 +5,8 @@
 """Traces image using potrace and re-rasterizes, optionally resizing."""
 from __future__ import annotations
 
+from typing import Any
+
 from PIL import Image
 from PIL.ImageOps import invert
 from reportlab.graphics.renderPM import drawToFile
@@ -27,7 +29,10 @@ class PotraceProcessor(Processor):
         arguments: str = "-b svg -k 0.3 -a 1.34 -O 0.2",
         invert: bool = False,
         scale: float = 1.0,
+        **kwargs: Any,
     ) -> None:
+        super().__init__(**kwargs)
+
         self.potrace_runner = PotraceRunner(arguments)
         self.invert = invert
         self.scale = validate_float(scale, min_value=0)

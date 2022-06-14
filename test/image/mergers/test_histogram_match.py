@@ -7,7 +7,7 @@ import pytest
 from PIL import Image
 
 from pipescaler.common import temporary_filename
-from pipescaler.core import remove_palette_from_image
+from pipescaler.core.image import remove_palette
 from pipescaler.image.mergers import HistogramMatchMerger
 from pipescaler.testing import get_infile, parametrized_fixture
 
@@ -37,7 +37,7 @@ def test(reference: str, fit: str, merger: HistogramMatchMerger):
     with temporary_filename(".png") as outfile:
         fit_image = Image.open(fit)
         if fit_image.mode == "P":
-            expected_output_mode = remove_palette_from_image(fit_image).mode
+            expected_output_mode = remove_palette(fit_image).mode
         else:
             expected_output_mode = fit_image.mode
 

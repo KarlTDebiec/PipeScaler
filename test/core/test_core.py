@@ -10,7 +10,7 @@ from typing import Union
 import pytest
 
 from pipescaler.common import temporary_filename
-from pipescaler.core import get_files
+from pipescaler.core.files import get_files
 from pipescaler.testing import get_sub_directory, xfail_file_not_found
 
 infiles = get_files(get_sub_directory("basic"), style="absolute")

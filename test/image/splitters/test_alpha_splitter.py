@@ -6,7 +6,7 @@
 import pytest
 from PIL import Image
 
-from pipescaler.core import AlphaMode, MaskFillMode
+from pipescaler.core.enums import AlphaMode, MaskFillMode
 from pipescaler.image.splitters import AlphaSplitter
 from pipescaler.testing import (
     get_expected_output_mode,

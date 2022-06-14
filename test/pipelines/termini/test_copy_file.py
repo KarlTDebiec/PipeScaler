@@ -8,7 +8,7 @@ from tempfile import TemporaryDirectory
 
 from pytest import fixture
 
-from pipescaler.core import get_files
+from pipescaler.core.files import get_files
 from pipescaler.pipelines.termini import CopyFileTerminus
 from pipescaler.testing import get_sub_directory
 

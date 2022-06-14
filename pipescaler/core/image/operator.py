@@ -7,10 +7,14 @@ from __future__ import annotations
 
 from abc import ABC
 from inspect import cleandoc
+from typing import Any
 
 
 class Operator(ABC):
     """Abstract base class for image operators."""
+
+    def __init__(self, **kwargs: Any) -> None:
+        pass
 
     def __repr__(self):
         return f"<{self.__class__.__name__}>"

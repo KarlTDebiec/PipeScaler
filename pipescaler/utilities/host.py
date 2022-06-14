@@ -42,9 +42,7 @@ class Host:
         ]
         self.stages: dict[str, Processor] = {}
         for stage_name, stage_conf in stages.items():
-            self.stages[stage_name] = initialize_stage(
-                stage_name, stage_conf, stage_modules
-            )
+            self.stages[stage_name] = None
 
     def __call__(self, *args, **kwargs) -> None:
         """Perform operations.

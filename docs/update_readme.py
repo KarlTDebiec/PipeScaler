@@ -10,9 +10,8 @@ from pathlib import Path
 from types import ModuleType
 from typing import Type
 
-from pipescaler import processors
 from pipescaler.common import package_root, validate_input_path
-from pipescaler.core import Operator
+from pipescaler.core.image import Operator
 from pipescaler.image import mergers, splitters
 from pipescaler.pipelines import sorters, sources, termini
 
@@ -93,9 +92,7 @@ if __name__ == "__main__":
         readme = readme_file.read()
 
     # Update README
-    module_regexes = get_module_regexes(
-        [mergers, processors, sorters, sources, splitters, termini]
-    )
+    module_regexes = get_module_regexes([mergers, sorters, sources, splitters, termini])
     for module, module_regex in module_regexes.items():
         body = module_regex.match(readme)["body"]
         readme = readme.replace(body, get_stage_descriptions(module))

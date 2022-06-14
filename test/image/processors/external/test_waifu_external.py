@@ -7,7 +7,7 @@ import pytest
 from PIL import Image
 
 from pipescaler.common import temporary_filename
-from pipescaler.processors.external import WaifuExternalProcessor
+from pipescaler.image.processors import WaifuExternalProcessor
 from pipescaler.testing import (
     get_expected_output_mode,
     get_infile,
@@ -51,7 +51,3 @@ def test(infile: str, waifu_external_processor: WaifuExternalProcessor) -> None:
 
         with Image.open(infile) as input_image, Image.open(outfile) as output_image:
             assert output_image.mode == get_expected_output_mode(input_image)
-            assert output_image.size == (
-                input_image.size[0] * waifu_external_processor.scale,
-                input_image.size[1] * waifu_external_processor.scale,
-            )

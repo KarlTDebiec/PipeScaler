@@ -5,6 +5,8 @@
 """Resizes image canvas."""
 from __future__ import annotations
 
+from typing import Any
+
 import numpy as np
 from PIL import Image
 
@@ -22,13 +24,15 @@ class ResizeProcessor(Processor):
         "nearest": Image.NEAREST,
     }
 
-    def __init__(self, scale: float, resample: str = "lanczos") -> None:
+    def __init__(self, scale: float, resample: str = "lanczos", **kwargs: Any) -> None:
         """Validate and store configuration and initialize.
 
         Arguments:
             scale: Output image scale relative to input image
             resample: Resample algorithm
         """
+        super().__init__(**kwargs)
+
         self.scale = validate_float(scale, min_value=0)
         self.resample = self.resample_methods[
             validate_str(resample, options=self.resample_methods.keys())

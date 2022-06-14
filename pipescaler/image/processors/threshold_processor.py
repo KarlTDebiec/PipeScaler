@@ -5,7 +5,7 @@
 """Converts image to black and white using threshold, optionally denoising."""
 from __future__ import annotations
 
-from typing import no_type_check
+from typing import Any, no_type_check
 
 import numpy as np
 from numba import njit
@@ -19,7 +19,9 @@ from pipescaler.core.validation import validate_mode
 class ThresholdProcessor(Processor):
     """Converts image to black and white using threshold, optionally denoising."""
 
-    def __init__(self, threshold: int = 128, denoise: bool = False) -> None:
+    def __init__(
+        self, threshold: int = 128, denoise: bool = False, **kwargs: Any
+    ) -> None:
         """Validate and store configuration and initialize.
 
         Arguments:
@@ -27,6 +29,8 @@ class ThresholdProcessor(Processor):
             denoise: Flip color of pixels bordered by less than 5 pixels of the same
               color
         """
+        super().__init__(**kwargs)
+
         self.threshold = validate_int(threshold, 1, 244)
         self.denoise = denoise
 

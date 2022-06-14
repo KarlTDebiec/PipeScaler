@@ -8,8 +8,11 @@ import pytest
 from PIL import Image
 
 from pipescaler.common import temporary_filename
-from pipescaler.image.splitters import RepeatSplitter
 from pipescaler.testing import get_infile, parametrized_fixture
+
+
+class RepeatSplitter:
+    pass
 
 
 @parametrized_fixture(cls=RepeatSplitter, params=[{}])

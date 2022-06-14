@@ -12,7 +12,7 @@ from pytest import fixture, mark
 
 from pipescaler.cli.utilities.host_cli import HostCli
 from pipescaler.common import temporary_filename
-from pipescaler.processors import WebProcessor
+from pipescaler.image.processors import WebProcessor
 from pipescaler.testing import (
     get_expected_output_mode,
     get_infile,

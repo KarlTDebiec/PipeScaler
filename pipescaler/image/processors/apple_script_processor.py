@@ -9,10 +9,10 @@ from os.path import join, split
 from typing import Any
 
 from pipescaler.common import package_root, validate_executable, validate_input_path
-from pipescaler.core.stages.processors import ExternalProcessor
+from pipescaler.core.image import Processor
 
 
-class AppleScriptProcessor(ExternalProcessor):
+class AppleScriptProcessor(Processor):
     """Runs image through an AppleScript.
 
     See [AppleScript](https://developer.apple.com/library/archive/documentation/AppleScript/Conceptual/AppleScriptLangGuide/introduction/ASLR_intro.html),

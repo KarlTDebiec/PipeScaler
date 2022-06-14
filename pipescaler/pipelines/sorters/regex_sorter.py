@@ -24,14 +24,6 @@ class RegexSorter(Sorter):
         self.regex = re.compile(regex)
 
     def __call__(self, pipe_image: PipeImage) -> str:
-        """Sort image based on filename using a regular expression.
-
-        Arguments:
-            infile: Input image
-
-        Returns:
-            Outlet
-        """
         if self.regex.match(pipe_image.name):
             outlet = "matched"
         else:

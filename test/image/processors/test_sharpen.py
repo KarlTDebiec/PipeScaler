@@ -7,7 +7,7 @@ import pytest
 from PIL import Image
 
 from pipescaler.common import temporary_filename
-from pipescaler.processors.image import SharpenProcessor
+from pipescaler.image.processors import SharpenProcessor
 from pipescaler.testing import (
     get_expected_output_mode,
     get_infile,

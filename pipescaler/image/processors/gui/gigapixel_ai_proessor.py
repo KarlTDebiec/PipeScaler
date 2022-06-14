@@ -12,8 +12,8 @@ from typing import Any, Optional
 from PIL import Image
 
 from pipescaler.common import validate_executable
-from pipescaler.core import validate_image
-from pipescaler.core.stages import Processor
+from pipescaler.core.image import Processor
+from pipescaler.core.validation import validate_mode
 
 if system() == "Windows":
     from pywinauto.application import (
@@ -65,7 +65,7 @@ class GigapixelAiProcessor(Processor):
         """
         validate_executable(self.command, {"Windows"})
 
-        input_image = validate_image(infile, ["L", "LA", "RGB", "RGBA"])
+        input_image, _ = validate_mode(Image.open(infile), ["L", "LA", "RGB", "RGBA"])
 
         # Launch application
         # TODO: Streamline window selection using regex

@@ -5,6 +5,8 @@
 """Upscales image using xbrz."""
 from __future__ import annotations
 
+from typing import Any
+
 import numpy as np
 import xbrz
 from PIL import Image
@@ -20,12 +22,14 @@ class XbrzProcessor(Processor):
     See [xbrz](https://github.com/ioistired/xbrz.py).
     """
 
-    def __init__(self, scale: int = 4) -> None:
+    def __init__(self, scale: int = 4, **kwargs: Any) -> None:
         """Validate and store configuration and initialize.
 
         Arguments:
             scale: Factor by which to scale output image relative to input
         """
+        super().__init__(**kwargs)
+
         self.scale = validate_int(scale, 2, 6)
 
     def __call__(self, input_image: Image.Image) -> Image.Image:

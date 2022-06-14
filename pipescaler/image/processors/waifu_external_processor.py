@@ -5,6 +5,8 @@
 """Upscales and/or denoises image using Waifu2x via an external executable."""
 from __future__ import annotations
 
+from typing import Any
+
 from PIL import Image
 
 from pipescaler.common import temporary_filename
@@ -19,10 +21,9 @@ class WaifuExternalProcessor(Processor):
     See [waifu2x](https://github.com/nagadomi/waifu2x).
     """
 
-    def __init__(
-        self,
-        arguments: str,
-    ) -> None:
+    def __init__(self, arguments: str, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+
         self.waifu_runner = WaifuRunner(arguments)
 
     def __call__(self, input_image: Image.Image) -> Image.Image:

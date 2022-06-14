@@ -6,7 +6,7 @@
 import pytest
 from PIL import Image
 
-from pipescaler.core import remove_palette_from_image
+from pipescaler.core.image import remove_palette
 from pipescaler.image.mergers import AlphaMerger
 from pipescaler.testing import (
     get_infile,
@@ -45,7 +45,7 @@ def test(color: str, alpha: str, merger: AlphaMerger) -> None:
     alpha_image = Image.open(alpha_infile)
 
     if color_image.mode == "P":
-        color_image_mode = remove_palette_from_image(color_image).mode
+        color_image_mode = remove_palette(color_image).mode
     else:
         color_image_mode = color_image.mode
 

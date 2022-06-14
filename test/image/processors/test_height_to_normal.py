@@ -8,7 +8,7 @@ import pytest
 from PIL import Image
 
 from pipescaler.common import temporary_filename
-from pipescaler.processors.image import HeightToNormalProcessor
+from pipescaler.image.processors import HeightToNormalProcessor
 from pipescaler.testing import (
     get_infile,
     parametrized_fixture,

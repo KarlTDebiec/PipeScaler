@@ -7,7 +7,7 @@ import pytest
 from PIL import Image
 
 from pipescaler.common import temporary_filename
-from pipescaler.processors.external import AppleScriptProcessor
+from pipescaler.image.processors.apple_script_processor import AppleScriptProcessor
 from pipescaler.testing import (
     get_infile,
     parametrized_fixture,

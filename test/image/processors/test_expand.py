@@ -7,7 +7,7 @@ import pytest
 from PIL import Image
 
 from pipescaler.common import temporary_filename
-from pipescaler.processors.image import ExpandProcessor
+from pipescaler.image.processors import ExpandProcessor
 from pipescaler.testing import (
     get_expected_output_mode,
     get_infile,

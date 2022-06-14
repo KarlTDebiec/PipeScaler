@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from abc import ABC
+from typing import Any
 
 import numpy as np
 import torch
@@ -20,13 +21,9 @@ from pipescaler.core.validation import validate_mode
 class PyTorchProcessor(Processor, ABC):
     """Abstract base class for processors that use PyTorch."""
 
-    def __init__(self, model_infile: str) -> None:
-        """Validate configuration and initialize.
+    def __init__(self, model_infile: str, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
 
-        Arguments:
-            model_infile: Path to model infile
-            **kwargs: Additional keyword arguments
-        """
         self.model_infile = validate_input_path(model_infile)
 
     def __call__(self, input_image: Image.Image) -> Image.Image:

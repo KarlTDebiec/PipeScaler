@@ -5,7 +5,7 @@
 """Matches an image's color palette to that of a reference image."""
 from __future__ import annotations
 
-from typing import Union
+from typing import Any, Union
 
 from PIL import Image
 
@@ -23,12 +23,15 @@ class PaletteMatchMerger(Merger):
     def __init__(
         self,
         palette_match_mode: Union[type(PaletteMatchMode), str] = PaletteMatchMode.BASIC,
+        **kwargs: Any,
     ) -> None:
         """Validate and store configuration and initialize.
 
         Arguments:
             palette_match_mode: Mode of palette matching to perform
         """
+        super().__init__(**kwargs)
+
         self.palette_match_mode = validate_enum(palette_match_mode, PaletteMatchMode)
         if self.palette_match_mode == PaletteMatchMode.BASIC:
             self.palette_matcher = PaletteMatcher()

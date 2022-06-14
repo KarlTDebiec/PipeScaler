@@ -5,7 +5,7 @@
 """Splits image with transparency into separate alpha and color images."""
 from __future__ import annotations
 
-from typing import Optional, Union
+from typing import Any, Optional, Union
 
 import numpy as np
 from PIL import Image
@@ -24,14 +24,10 @@ class AlphaSplitter(Splitter):
         self,
         alpha_mode: Union[type(AlphaMode), str] = AlphaMode.GRAYSCALE,
         mask_fill_mode: Optional[Union[type(MaskFillMode), str]] = None,
+        **kwargs: Any,
     ) -> None:
-        """Validate and store configuration and initialize.
+        super().__init__(**kwargs)
 
-        Args:
-            alpha_mode: Mode of alpha channel handling to perform
-            mask_fill_mode: Mode of mask filling to perform
-            **kwargs: Additional keyword arguments
-        """
         self.alpha_mode = validate_enum(alpha_mode, AlphaMode)
         self.mask_fill_mode = None
         if mask_fill_mode is not None:

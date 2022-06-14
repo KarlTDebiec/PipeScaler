@@ -5,6 +5,8 @@
 """Sets entire image color to its average color, optionally resizing."""
 from __future__ import annotations
 
+from typing import Any
+
 import numpy as np
 from PIL import Image
 
@@ -16,13 +18,9 @@ from pipescaler.core.validation import validate_mode
 class SolidColorProcessor(Processor):
     """Sets entire image color to its average color, optionally resizing."""
 
-    def __init__(self, scale: float = 1) -> None:
-        """Validate and store configuration and initialize.
+    def __init__(self, scale: float = 1, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
 
-        Arguments:
-            scale: Factor by which to scale output image relative to input
-            **kwargs: Additional keyword arguments
-        """
         self.scale = validate_float(scale)
 
     def __call__(self, input_image: Image.Image) -> Image.Image:
