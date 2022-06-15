@@ -40,7 +40,7 @@ class PaletteMatchMerger(Merger):
             self.palette_matcher = LocalPaletteMatcher(local_range)
 
     def __call__(self, *input_images: Image.Image) -> Image.Image:
-        ref_image, _ = validate_mode(input_images[0], self.inputs["reference"])
+        ref_image, _ = validate_mode(input_images[0], self.inputs["ref"])
         fit_image, _ = validate_mode(input_images[1], self.inputs["fit"])
         if ref_image.mode != fit_image.mode:
             raise UnsupportedImageModeError(
@@ -56,7 +56,7 @@ class PaletteMatchMerger(Merger):
     @property
     def inputs(cls) -> dict[str, tuple[str, ...]]:
         return {
-            "reference": ("L", "RGB"),
+            "ref": ("L", "RGB"),
             "fit": ("L", "RGB"),
         }
 

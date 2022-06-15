@@ -6,7 +6,6 @@
 import pytest
 from PIL import Image
 
-from pipescaler.common import temporary_filename
 from pipescaler.image.mergers import NormalMerger
 from pipescaler.testing import (
     get_infile,
@@ -31,17 +30,14 @@ def merger(request) -> NormalMerger:
     ],
 )
 def test(x: str, y: str, z: str, merger: NormalMerger) -> None:
-    x = get_infile(x)
-    y = get_infile(y)
-    z = get_infile(z)
+    x_infile = get_infile(x)
+    x_image = Image.open(x_infile)
+    y_infile = get_infile(y)
+    y_image = Image.open(y_infile)
+    z_infile = get_infile(z)
+    z_image = Image.open(z_infile)
 
-    with temporary_filename(".png") as outfile:
-        x_image = Image.open(x)
-        y_image = Image.open(y)
-        z_image = Image.open(z)
+    output_image = merger(x_image, y_image, z_image)
 
-        merger(x=x, y=y, z=z, outfile=outfile)
-
-        with Image.open(outfile) as output_image:
-            assert output_image.mode == "RGB"
-            assert output_image.size == x_image.size == y_image.size == z_image.size
+    assert output_image.mode == "RGB"
+    assert output_image.size == x_image.size == y_image.size == z_image.size

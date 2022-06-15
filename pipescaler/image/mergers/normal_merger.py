@@ -9,26 +9,19 @@ import numpy as np
 from PIL import Image
 
 from pipescaler.core.image import Merger
+from pipescaler.core.validation import validate_mode
 
 
 class NormalMerger(Merger):
     """Merges x, y, and z images into a single normal map image."""
 
-    def merge(self, *input_images: Image.Image) -> Image.Image:
-        """Merge images.
+    def __call__(self, *input_images: Image.Image) -> Image.Image:
+        x_image, _ = validate_mode(input_images[0], self.inputs["x"])
+        y_image, _ = validate_mode(input_images[1], self.inputs["y"])
+        z_image, _ = validate_mode(input_images[2], self.inputs["z"])
 
-        Arguments:
-            *input_images: Input images to merge
-        Returns:
-            Merged output image
-        """
-        x_image, y_image, z_image = input_images
-
-        # noinspection PyTypeChecker
         x_array = np.clip(np.array(x_image, float) - 128, -128, 127)
-        # noinspection PyTypeChecker
         y_array = np.clip(np.array(y_image, float) - 128, -128, 127)
-        # noinspection PyTypeChecker
         z_array = np.clip(np.array(z_image, float) / 2, 0, 127)
         magnitude = np.sqrt(x_array**2 + y_array**2 + z_array**2)
         x_array = np.clip(((x_array / magnitude) * 128) + 128, 0, 255).astype(np.uint8)
@@ -42,17 +35,18 @@ class NormalMerger(Merger):
 
         return output_image
 
+    @classmethod
     @property
-    def inlets(self) -> list[str]:
-        """Inlets that flow into stage."""
-        return ["x", "y", "z"]
+    def inputs(cls) -> dict[str, tuple[str, ...]]:
+        return {
+            "x": ("L",),
+            "y": ("L",),
+            "z": ("L",),
+        }
 
     @classmethod
     @property
-    def supported_input_modes(self) -> dict[str, list[str]]:
-        """Supported modes for input images."""
+    def outputs(cls) -> dict[str, tuple[str, ...]]:
         return {
-            "x": ["L"],
-            "y": ["L"],
-            "z": ["L"],
+            "output": ("RGB",),
         }

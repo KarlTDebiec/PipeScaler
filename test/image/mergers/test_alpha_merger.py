@@ -6,9 +6,9 @@
 import pytest
 from PIL import Image
 
-from pipescaler.core.image import remove_palette
 from pipescaler.image.mergers import AlphaMerger
 from pipescaler.testing import (
+    get_expected_output_mode,
     get_infile,
     parametrized_fixture,
     xfail_unsupported_image_mode,
@@ -44,13 +44,9 @@ def test(color: str, alpha: str, merger: AlphaMerger) -> None:
     alpha_infile = get_infile(alpha)
     alpha_image = Image.open(alpha_infile)
 
-    if color_image.mode == "P":
-        color_image_mode = remove_palette(color_image).mode
-    else:
-        color_image_mode = color_image.mode
-
     output_image = merger(color_image, alpha_image)
-    if color_image_mode == "L":
+
+    if get_expected_output_mode(color_image) == "L":
         assert output_image.mode == "LA"
     else:
         assert output_image.mode == "RGBA"

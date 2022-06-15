@@ -11,29 +11,22 @@ from skimage.exposure import match_histograms
 
 from pipescaler.core.exceptions import UnsupportedImageModeError
 from pipescaler.core.image import Merger
+from pipescaler.core.validation import validate_mode
 
 
 class HistogramMatchMerger(Merger):
     """Matches an image's color histogram to that of a reference image."""
 
-    def merge(self, *input_images: Image.Image) -> Image.Image:
-        """Merge images.
-
-        Arguments:
-            *input_images: Input images to merge
-        Returns:
-            Merged output image
-        """
-        ref_image, fit_image = input_images
+    def __call__(self, *input_images: Image.Image) -> Image.Image:
+        ref_image, _ = validate_mode(input_images[0], self.inputs["ref"])
+        fit_image, _ = validate_mode(input_images[1], self.inputs["fit"])
         if ref_image.mode != fit_image.mode:
             raise UnsupportedImageModeError(
                 f"Image mode '{ref_image.mode}' of reference image"
                 f" does not match mode '{fit_image.mode}' of fit image"
             )
 
-        # noinspection PyTypeChecker
         ref_array = np.array(ref_image)
-        # noinspection PyTypeChecker
         fit_array = np.array(fit_image)
         if ref_image.mode == "L":
             output_array = match_histograms(fit_array, ref_array)
@@ -44,16 +37,17 @@ class HistogramMatchMerger(Merger):
 
         return output_image
 
+    @classmethod
     @property
-    def inlets(self) -> list[str]:
-        """Inlets that flow into stage."""
-        return ["reference", "fit"]
+    def inputs(cls) -> dict[str, tuple[str, ...]]:
+        return {
+            "ref": ("L", "LA", "RGB", "RGBA"),
+            "fit": ("L", "LA", "RGB", "RGBA"),
+        }
 
     @classmethod
     @property
-    def supported_input_modes(self) -> dict[str, list[str]]:
-        """Supported modes for input images."""
+    def outputs(cls) -> dict[str, tuple[str, ...]]:
         return {
-            "reference": ["L", "LA", "RGB", "RGBA"],
-            "fit": ["L", "LA", "RGB", "RGBA"],
+            "output": ("L", "LA", "RGB", "RGBA"),
         }
