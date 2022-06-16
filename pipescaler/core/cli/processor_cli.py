@@ -44,7 +44,6 @@ class ProcessorCli(CommandLineInterface, ABC):
         Args:
             **kwargs: Command-line arguments
         """
-        # noinspection PyCallingNonCallable
         processor = cls.processor(**kwargs)
         infile = kwargs.pop("infile")
         outfile = kwargs.pop("outfile")

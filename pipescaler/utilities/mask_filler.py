@@ -36,10 +36,7 @@ class MaskFiller:
         Returns:
             Image with masked pixels replaced
         """
-
-        # noinspection PyTypeChecker
         image_array = np.array(image)
-        # noinspection PyTypeChecker
         mask_array = ~np.array(mask)
 
         while mask_array.sum() > 0:
@@ -62,7 +59,6 @@ class MaskFiller:
         adjacent_opaque_pixels[np.logical_not(mask_array)] = 0
 
         # Identify pixels who have the max number of adjacent opaque pixels
-        # noinspection PyArgumentList
         pixels_to_fill = np.logical_and(
             mask_array,
             adjacent_opaque_pixels == adjacent_opaque_pixels.max(),
@@ -72,7 +68,6 @@ class MaskFiller:
         sum_of_adjacent_opaque_pixels = self.sum_of_adjacent_opaque_pixels(
             image_array, mask_array
         )
-        # noinspection PyArgumentList
         colors_of_pixels_to_fill = np.round(
             sum_of_adjacent_opaque_pixels[pixels_to_fill] / adjacent_opaque_pixels.max()
         ).astype(np.uint8)

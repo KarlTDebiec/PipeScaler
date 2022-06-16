@@ -57,7 +57,6 @@ class FileScannerCli(UtilityCli):
         verbosity = validate_int(kwargs.pop("verbosity", 1), min_value=0)
         set_logging_verbosity(verbosity)
 
-        # noinspection PyCallingNonCallable
         utility = cls.utility(**{**kwargs, **conf})
         utility()
 

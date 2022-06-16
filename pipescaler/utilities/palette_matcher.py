@@ -35,7 +35,6 @@ class PaletteMatcher:
             )
         ref_palette = get_palette(ref_image).astype(np.uint8)
         fit_palette = get_palette(fit_image).astype(np.uint8)
-        # noinspection PyTypeChecker
         fit_array = np.array(fit_image)
 
         if fit_image.mode == "L":
@@ -124,7 +123,6 @@ class PaletteMatcher:
         best_dist = None
         best_color = None
         for cell_to_check in cells_to_check:
-            # noinspection PyTypeChecker
             best_dist_in_cell, best_color_in_cell = cls.get_best_fit_color_in_palette(
                 color, ref_palette_by_cell[cell_to_check]
             )

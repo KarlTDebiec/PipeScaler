@@ -22,7 +22,6 @@ class NormalSplitter(Splitter):
         Returns:
             Split output images
         """
-        # noinspection PyTypeChecker
         input_array = np.array(input_image)
         x_array = input_array[:, :, 0]
         y_array = input_array[:, :, 1]

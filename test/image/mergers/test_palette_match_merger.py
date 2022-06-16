@@ -7,7 +7,7 @@ import pytest
 from PIL import Image
 
 from pipescaler.core.enums import PaletteMatchMode
-from pipescaler.core.image import get_palette
+from pipescaler.core.image import get_palette, remove_palette
 from pipescaler.image.mergers import PaletteMatchMerger
 from pipescaler.testing import (
     get_expected_output_mode,
@@ -46,10 +46,10 @@ def test(ref: str, fit: str, merger: PaletteMatchMerger):
     output_image = merger(ref_image, fit_image)
 
     if get_expected_output_mode(fit_image) == "L":
-        ref_colors = set(get_palette(ref_image))
+        ref_colors = set(get_palette(remove_palette(ref_image)))
         output_colors = set(get_palette(output_image))
     else:
-        ref_colors = set(map(tuple, get_palette(ref_image)))
+        ref_colors = set(map(tuple, get_palette(remove_palette(ref_image))))
         output_colors = set(map(tuple, get_palette(output_image)))
     assert output_colors.issubset(ref_colors)
     assert output_image.mode == get_expected_output_mode(fit_image)

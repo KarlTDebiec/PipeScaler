@@ -83,7 +83,6 @@ def expand_image(
         Image.FLIP_TOP_BOTTOM
     )
 
-    # noinspection PyTypeChecker
     expanded = Image.new(image.mode, (new_w, new_h))
     center_x = expanded.size[0] // 2
     center_y = expanded.size[1] // 2
@@ -128,7 +127,6 @@ def generate_normal_map_from_height_map_image(image: Image.Image) -> Image.Image
     Returns:
         Normal map image
     """
-    # noinspection PyTypeChecker
     input_array = np.array(image)
 
     # Prepare normal map
@@ -136,7 +134,6 @@ def generate_normal_map_from_height_map_image(image: Image.Image) -> Image.Image
     gradient_x = convolve(input_array.astype(float), kernel)
     gradient_y = convolve(input_array.astype(float), kernel.T)
     output_array = np.zeros((input_array.shape[0], input_array.shape[1], 3))
-    # noinspection PyArgumentList
     max_dimension = max(gradient_x.max(), gradient_y.max())
     output_array[..., 0] = gradient_x / max_dimension
     output_array[..., 1] = gradient_y / max_dimension
@@ -277,9 +274,7 @@ def is_monochrome(
     mean_threshold = validate_float(mean_threshold, 0, 255)
     max_threshold = validate_float(max_threshold, 0, 255)
 
-    # noinspection PyTypeChecker
     l_array = np.array(image)
-    # noinspection PyTypeChecker
     one_array = np.array(image.convert("1").convert("L"))
     diff = np.abs(l_array - one_array)
     if diff.mean() <= mean_threshold and diff.max() <= max_threshold:
@@ -337,7 +332,6 @@ def remove_palette(image: Image.Image) -> Image.Image:
         )[0]
     )
     if "transparency" in image.info:
-        # noinspection PyTypeChecker
         array = np.array(image)
         fully_transparent_colors = set(
             np.where(np.array(list(image.info["transparency"])) == 0)[0]
@@ -369,7 +363,6 @@ def smooth_image(image: Image.Image, sigma: float) -> Image.Image:
         (-1 * (np.arange(-3 * sigma, 3 * sigma + 1).astype(float) ** 2))
         / (2 * (sigma**2))
     )
-    # noinspection PyTypeChecker
     smoothed_array = np.array(image).astype(float)
     smoothed_array = convolve(smoothed_array, kernel[np.newaxis])
     smoothed_array = convolve(smoothed_array, kernel[np.newaxis].T)

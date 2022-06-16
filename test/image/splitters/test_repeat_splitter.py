@@ -41,7 +41,5 @@ def test(infile: str, splitter: RepeatSplitter) -> None:
 
             with Image.open(one_outfile) as one_image:
                 with Image.open(two_outfile) as two_image:
-                    # noinspection PyTypeChecker
                     assert np.all(np.array(one_image) == np.array(input_image))
-                    # noinspection PyTypeChecker
                     assert np.all(np.array(two_image) == np.array(input_image))

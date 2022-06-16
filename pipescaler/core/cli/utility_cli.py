@@ -25,7 +25,6 @@ class UtilityCli(CommandLineInterface, ABC):
         Args:
             **kwargs: Command-line arguments
         """
-        # noinspection PyCallingNonCallable
         utility = cls.utility(verbosity=kwargs.pop("verbosity", 1))
         utility(**kwargs)
 
