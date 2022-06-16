@@ -5,8 +5,9 @@
 """File-related functions for testing."""
 from os import environ, getenv
 from os.path import dirname, join, normpath, sep, splitext
+from pathlib import Path
 
-from pipescaler.common import validate_input_directory, validate_input_file
+from pipescaler.common import validate_input_file
 
 if environ.get("PACKAGE_ROOT") is not None:
     package_root = getenv("PACKAGE_ROOT")
@@ -60,14 +61,12 @@ def get_model_infile(name: str) -> str:
     return infile
 
 
-def get_sub_directory(name: str) -> str:
-    """Get full path of sub-directory within test data directory.
+def get_sub_directory(name: str) -> Path:
+    """Get path of sub-directory within test data directory.
 
     Args:
         name: Name of sub-directory
     Returns:
-        Full path to sub-directory
+        Path to sub-directory
     """
-    base_directory = join(dirname(package_root), "test", "data", "infiles")
-
-    return validate_input_directory(join(base_directory, name))
+    return Path(dirname(package_root)).joinpath("test", "data", "infiles", name)
