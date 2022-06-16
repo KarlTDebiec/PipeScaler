@@ -5,6 +5,7 @@
 """Tests for AlphaSorter"""
 import pytest
 
+from pipescaler.core.pipelines import PipeImage
 from pipescaler.pipelines.sorters import AlphaSorter
 from pipescaler.testing import get_infile, parametrized_fixture
 
@@ -15,7 +16,7 @@ from pipescaler.testing import get_infile, parametrized_fixture
         {"threshold": 255},
     ],
 )
-def alpha_sorter(request) -> AlphaSorter:
+def sorter(request) -> AlphaSorter:
     return AlphaSorter(**request.param)
 
 
@@ -34,7 +35,7 @@ def alpha_sorter(request) -> AlphaSorter:
         ("PRGBA", "keep_alpha"),
     ],
 )
-def test(infile: str, outlet: str, alpha_sorter: AlphaSorter) -> None:
-    infile = get_infile(infile)
+def test(infile: str, outlet: str, sorter: AlphaSorter) -> None:
+    image = PipeImage(path=get_infile(infile))
 
-    assert alpha_sorter(infile) == outlet
+    assert sorter(image) == outlet

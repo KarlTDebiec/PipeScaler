@@ -6,52 +6,30 @@
 from __future__ import annotations
 
 from logging import info
-from typing import Any
-
-from PIL import Image
 
 from pipescaler.common import validate_int
+from pipescaler.core.pipelines import PipeImage
 from pipescaler.core.pipelines.sorter import Sorter
 
 
 class SizeSorter(Sorter):
     """Sorts image based on canvas size."""
 
-    def __init__(self, cutoff: int = 32, **kwargs: Any) -> None:
-        """Validate and store configuration and initialize.
-
-        Arguments:
-            cutoff: Sort as 'less_than' if smallest dimension is below threshold
-            **kwargs: Additional keyword arguments
-        """
-        super().__init__(**kwargs)
-
-        # Store configuration
+    def __init__(self, cutoff: int = 32) -> None:
         self.cutoff = validate_int(cutoff, min_value=1)
 
-    def __call__(self, infile: str) -> str:
-        """Sort image based on canvas size.
-
-        Arguments:
-            infile: Input image
-
-        Returns:
-            Outlet
-        """
-        # Read image
-        image = Image.open(infile)
+    def __call__(self, pipe_image: PipeImage) -> str:
+        image = pipe_image.image
 
         if image.size[0] < self.cutoff or image.size[1] < self.cutoff:
-            info(f"{self}: {infile}'s smallest dimension is less than{self.cutoff}")
             return "less_than"
-        info(
-            f"{self}: {infile}'s smallest dimension is greater than or equal to"
-            f" {self.cutoff}"
-        )
-        return "greater_than_or_equal_to"
+        else:
+            outlet = "greater_than_or_equal_to"
+        info(f"{self}: '{pipe_image.name}' matches '{outlet}'")
+        return outlet
 
     @classmethod
     @property
     def outlets(self):
         """Outlets that flow out of stage."""
-        return ["less_than", "greater_than_or_equal_to"]
+        return ("less_than", "greater_than_or_equal_to")

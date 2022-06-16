@@ -5,6 +5,7 @@
 """Tests for MonochromeSorter"""
 import pytest
 
+from pipescaler.core.pipelines import PipeImage
 from pipescaler.pipelines.sorters import MonochromeSorter
 from pipescaler.testing import get_infile, parametrized_fixture
 
@@ -15,7 +16,7 @@ from pipescaler.testing import get_infile, parametrized_fixture
         {"mean_threshold": 1, "max_threshold": 10},
     ],
 )
-def monochrome_sorter(request) -> MonochromeSorter:
+def sorter(request) -> MonochromeSorter:
     return MonochromeSorter(**request.param)
 
 
@@ -27,7 +28,7 @@ def monochrome_sorter(request) -> MonochromeSorter:
         ("L", "keep_gray"),
     ],
 )
-def test(infile: str, outlet: str, monochrome_sorter: MonochromeSorter) -> None:
-    infile = get_infile(infile)
+def test(infile: str, outlet: str, sorter: MonochromeSorter) -> None:
+    image = PipeImage(path=get_infile(infile))
 
-    assert monochrome_sorter(infile) == outlet
+    assert sorter(image) == outlet

@@ -5,6 +5,7 @@
 """Tests for GrayscaleSorter"""
 import pytest
 
+from pipescaler.core.pipelines import PipeImage
 from pipescaler.pipelines.sorters import GrayscaleSorter
 from pipescaler.testing import get_infile, parametrized_fixture
 
@@ -15,7 +16,7 @@ from pipescaler.testing import get_infile, parametrized_fixture
         {"mean_threshold": 1, "max_threshold": 10},
     ],
 )
-def grayscale_sorter(request) -> GrayscaleSorter:
+def sorter(request) -> GrayscaleSorter:
     return GrayscaleSorter(**request.param)
 
 
@@ -32,7 +33,7 @@ def grayscale_sorter(request) -> GrayscaleSorter:
         ("PRGBA", "keep_rgb"),
     ],
 )
-def test(infile: str, outlet: str, grayscale_sorter: GrayscaleSorter) -> None:
-    infile = get_infile(infile)
+def test(infile: str, outlet: str, sorter: GrayscaleSorter) -> None:
+    image = PipeImage(path=get_infile(infile))
 
-    assert grayscale_sorter(infile) == outlet
+    assert sorter(image) == outlet

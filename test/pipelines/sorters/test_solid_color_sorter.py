@@ -5,6 +5,7 @@
 """Tests for SolidColorSorter"""
 import pytest
 
+from pipescaler.core.pipelines import PipeImage
 from pipescaler.pipelines.sorters import SolidColorSorter
 from pipescaler.testing import get_infile, parametrized_fixture
 
@@ -15,7 +16,7 @@ from pipescaler.testing import get_infile, parametrized_fixture
         {"mean_threshold": 1, "max_threshold": 10},
     ],
 )
-def solid_color_sorter(request) -> SolidColorSorter:
+def sorter(request) -> SolidColorSorter:
     return SolidColorSorter(**request.param)
 
 
@@ -40,7 +41,7 @@ def solid_color_sorter(request) -> SolidColorSorter:
         ("novel/PRGBA_solid", "solid"),
     ],
 )
-def test(infile: str, outlet: str, solid_color_sorter: SolidColorSorter) -> None:
-    infile = get_infile(infile)
+def test(infile: str, outlet: str, sorter: SolidColorSorter) -> None:
+    image = PipeImage(path=get_infile(infile))
 
-    assert solid_color_sorter(infile) == outlet
+    assert sorter(image) == outlet

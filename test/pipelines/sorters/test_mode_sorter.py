@@ -5,6 +5,7 @@
 """Tests for ModeSorter"""
 import pytest
 
+from pipescaler.core.pipelines import PipeImage
 from pipescaler.pipelines.sorters import ModeSorter
 from pipescaler.testing import get_infile, parametrized_fixture
 
@@ -15,25 +16,25 @@ from pipescaler.testing import get_infile, parametrized_fixture
         {},
     ],
 )
-def mode_sorter(request) -> ModeSorter:
+def sorter(request) -> ModeSorter:
     return ModeSorter(**request.param)
 
 
 @pytest.mark.parametrize(
     ("infile", "outlet"),
     [
-        ("1", "1"),
-        ("L", "l"),
-        ("LA", "la"),
-        ("RGB", "rgb"),
-        ("RGBA", "rgba"),
-        ("PL", "l"),
-        ("PLA", "la"),
-        ("PRGB", "rgb"),
-        ("PRGBA", "rgba"),
+        ("1", "M"),
+        ("L", "L"),
+        ("LA", "LA"),
+        ("RGB", "RGB"),
+        ("RGBA", "RGBA"),
+        ("PL", "L"),
+        ("PLA", "LA"),
+        ("PRGB", "RGB"),
+        ("PRGBA", "RGBA"),
     ],
 )
-def test(infile: str, outlet: str, mode_sorter: ModeSorter) -> None:
-    infile = get_infile(infile)
+def test(infile: str, outlet: str, sorter: ModeSorter) -> None:
+    image = PipeImage(path=get_infile(infile))
 
-    assert mode_sorter(infile) == outlet
+    assert sorter(image) == outlet

@@ -5,6 +5,7 @@
 """Tests for SizeSorter"""
 import pytest
 
+from pipescaler.core.pipelines import PipeImage
 from pipescaler.pipelines.sorters import SizeSorter
 from pipescaler.testing import get_infile, parametrized_fixture
 
@@ -15,7 +16,7 @@ from pipescaler.testing import get_infile, parametrized_fixture
         {"cutoff": 128},
     ],
 )
-def size_sorter(request) -> SizeSorter:
+def sorter(request) -> SizeSorter:
     return SizeSorter(**request.param)
 
 
@@ -25,7 +26,7 @@ def size_sorter(request) -> SizeSorter:
         ("L", "greater_than_or_equal_to"),
     ],
 )
-def test(infile: str, outlet: str, size_sorter: SizeSorter) -> None:
-    infile = get_infile(infile)
+def test(infile: str, outlet: str, sorter: SizeSorter) -> None:
+    image = PipeImage(path=get_infile(infile))
 
-    assert size_sorter(infile) == outlet
+    assert sorter(image) == outlet
