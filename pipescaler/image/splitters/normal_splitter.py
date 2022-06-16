@@ -9,19 +9,14 @@ import numpy as np
 from PIL import Image
 
 from pipescaler.core.image import Splitter
+from pipescaler.core.validation import validate_mode
 
 
 class NormalSplitter(Splitter):
     """Splits a normal map image into separate x, y, and z images."""
 
-    def split(self, input_image: Image.Image) -> tuple[Image.Image, ...]:
-        """Split an image.
-
-        Arguments:
-            input_image: Input image to split
-        Returns:
-            Split output images
-        """
+    def __call__(self, input_image: Image.Image) -> tuple[Image.Image, ...]:
+        input_image, _ = validate_mode(input_image, self.inputs["input"])
         input_array = np.array(input_image)
         x_array = input_array[:, :, 0]
         y_array = input_array[:, :, 1]
@@ -34,13 +29,18 @@ class NormalSplitter(Splitter):
 
         return x_image, y_image, z_image
 
+    @classmethod
     @property
-    def outlets(self) -> list[str]:
-        """Outlets that flow out of stage."""
-        return ["x", "y", "z"]
+    def inputs(cls) -> dict[str, tuple[str, ...]]:
+        return {
+            "input": ("RGB",),
+        }
 
     @classmethod
     @property
-    def supported_input_modes(self) -> list[str]:
-        """Supported modes for input image."""
-        return ["RGB"]
+    def outputs(cls) -> dict[str, tuple[str, ...]]:
+        return {
+            "x": ("L",),
+            "y": ("L",),
+            "z": ("L",),
+        }

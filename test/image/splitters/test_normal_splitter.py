@@ -6,7 +6,6 @@
 import pytest
 from PIL import Image
 
-from pipescaler.common import temporary_filename
 from pipescaler.image.splitters import NormalSplitter
 from pipescaler.testing import (
     get_infile,
@@ -34,22 +33,12 @@ def splitter(request) -> NormalSplitter:
 )
 def test(infile: str, splitter: NormalSplitter) -> None:
     infile = get_infile(infile)
+    input_image = Image.open(infile)
+    x_image, y_image, z_image = splitter(input_image)
 
-    with temporary_filename(".png") as x_outfile:
-        with temporary_filename(".png") as y_outfile:
-            with temporary_filename(".png") as z_outfile:
-                input_image = Image.open(infile)
-
-                splitter(infile, x=x_outfile, y=y_outfile, z=z_outfile)
-
-                with Image.open(x_outfile) as x_image:
-                    assert x_image.mode == "L"
-                    assert x_image.size == input_image.size
-
-                with Image.open(y_outfile) as y_image:
-                    assert y_image.mode == "L"
-                    assert y_image.size == input_image.size
-
-                with Image.open(z_outfile) as z_image:
-                    assert z_image.mode == "L"
-                    assert z_image.size == input_image.size
+    assert x_image.mode == "L"
+    assert x_image.size == input_image.size
+    assert y_image.mode == "L"
+    assert y_image.size == input_image.size
+    assert z_image.mode == "L"
+    assert z_image.size == input_image.size
