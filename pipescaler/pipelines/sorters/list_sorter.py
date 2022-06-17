@@ -5,13 +5,11 @@
 """Sorts image based on filename using a set of configured lists."""
 from __future__ import annotations
 
-from logging import info, warning
-from os.path import basename, dirname, splitext
-from pprint import pformat
-from typing import Any, Optional
+from logging import info
+from pathlib import Path
+from typing import Any
 
-from pipescaler.common import validate_output_directory
-from pipescaler.core.files import get_files
+from pipescaler.core.pipelines import PipeImage
 from pipescaler.core.pipelines.sorter import Sorter
 
 
@@ -23,75 +21,43 @@ class ListSorter(Sorter):
 
     def __init__(
         self,
-        outlets: dict[str, list[str]],
-        wip_directory: Optional[str] = None,
-        **kwargs: Any,
+        **outlets: Any,
     ) -> None:
-        """Validate and store configuration and initialize.
-
-        Arguments:
-            outlets: Outlet configuration
-            wip_directory: Work-in-progress directory; workaround used to handle
-              potential file locations both inside and outside a pipeline's
-              wip_directory
-            **kwargs: Additional keyword arguments
-        """
-        super().__init__(**kwargs)
-
-        # Store configuration
-        self._outlets = list(outlets.keys())
+        self._outlets = tuple(sorted((outlets.keys())))
         self.outlets_by_filename = {}
-        self.wip_directory = None
-        if wip_directory is not None:
-            self.wip_directory = validate_output_directory(wip_directory)
 
         # Organize downstream outlets
         duplicates = {}
-        for outlet in self.outlets:
-            for filename in get_files(
-                outlets.get(outlet, []),
-                style="base",
-                exclusions=self.exclusions,
-            ):
-                if filename in self.outlets_by_filename:
-                    duplicates[filename] = duplicates.get(
-                        filename, [self.outlets_by_filename[filename]]
-                    ) + [outlet]
-                else:
-                    self.outlets_by_filename[filename] = outlet
-        if len(duplicates) != 0:
-            sorted_duplicates = {
-                key: sorted(duplicates[key]) for key in sorted(list(duplicates.keys()))
-            }
-            warning(
-                f"{self}: multiple outlets specified for the following filenames: "
-                f"{pformat(sorted_duplicates)}"
-            )
+        for outlet, paths in outlets.items():
+            if not isinstance(paths, list):
+                paths = [paths]
+            for path in paths:
+                path = Path(path).absolute()
+                if path.exists():
+                    names = []
+                    if path.is_file():
+                        with open(path, "r", encoding="utf8") as infile:
+                            names = (
+                                line.strip()
+                                for line in infile.readlines()
+                                if not line.startswith("#")
+                            )
+                    if path.is_dir():
+                        names = (f.stem for f in path.iterdir() if f.is_file())
+                    for name in names:
+                        if name in self.exclusions:
+                            continue
+                        self.outlets_by_filename[name] = outlet
 
-    def __call__(self, infile: str) -> str:
-        """Sort image based on filename using a set of configured lists.
-
-        Arguments:
-            infile: Input image
-
-        Returns:
-            Outlet
-        """
-        # Identify image
-        if self.wip_directory is not None and not infile.startswith(self.wip_directory):
-            name = splitext(basename(infile))[0]
-        else:
-            name = basename(dirname(infile))
-
-        # Sort image
-        outlet = self.outlets_by_filename.get(name, None)
+    def __call__(self, pipe_image: PipeImage) -> str:
+        outlet = self.outlets_by_filename.get(pipe_image.name, None)
         if outlet is not None:
-            info(f"{self}: '{name}' matches '{outlet}'")
+            info(f"{self}: '{pipe_image.name}' matches '{outlet}'")
         else:
-            info(f"{self}: '{name}' does not match any outlet")
+            info(f"{self}: '{pipe_image.name}' does not match any outlet")
         return outlet
 
     @property
-    def outlets(self):
+    def outlets(self) -> tuple[str, ...]:
         """Outlets that flow out of stage."""
         return self._outlets
