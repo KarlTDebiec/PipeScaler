@@ -15,7 +15,7 @@ else:
     from pipescaler.common import package_root
 
 
-def get_infile(name: str) -> str:
+def get_infile(name: str) -> Path:
     """Get full path of infile within test data directory.
 
     Args:
@@ -23,17 +23,16 @@ def get_infile(name: str) -> str:
     Returns:
         Full path to infile
     """
-    base_directory = join(dirname(package_root), "test", "data", "infiles")
-    split_name = normpath(name).split(sep)
-    if len(split_name) == 1:
-        sub_directory = "basic"
-    else:
-        sub_directory = join(*split_name[:-1])
-    filename = split_name[-1]
-    if splitext(filename)[-1] == "":
-        filename = f"{filename}.png"
+    path = Path(name)
+    if str(path.parent) == ".":
+        path = Path("basic").joinpath(path)
+    if path.suffix == "":
+        path = path.with_suffix(".png")
+    path = Path(dirname(package_root)).joinpath("test", "data", "infiles", path)
+    if not path.exists():
+        raise FileNotFoundError()
 
-    return validate_input_file(join(base_directory, sub_directory, filename))
+    return path
 
 
 def get_model_infile(name: str) -> str:

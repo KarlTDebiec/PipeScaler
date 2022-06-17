@@ -6,33 +6,33 @@
 
 import pytest
 
+from pipescaler.core.pipelines import PipeImage
 from pipescaler.pipelines.sorters import ListSorter
-from pipescaler.testing import get_sub_directory, parametrized_fixture
+from pipescaler.testing import get_infile, get_sub_directory, parametrized_fixture
 
 
 @parametrized_fixture(
     cls=ListSorter,
     params=[
         {
-            "outlets": {
-                "basic": get_sub_directory("basic"),
-                "extra": get_sub_directory("extra"),
-                "novel": get_sub_directory("novel"),
-            }
+            "basic": get_sub_directory("basic"),
+            "extra": get_sub_directory("extra"),
+            "novel": get_sub_directory("novel"),
         },
     ],
 )
-def list_sorter(request) -> ListSorter:
+def sorter(request) -> ListSorter:
     return ListSorter(**request.param)
 
 
 @pytest.mark.parametrize(
     ("infile", "outlet"),
     [
-        ("L", "basic"),
-        ("1_L", "extra"),
-        ("L_solid", "novel"),
+        ("basic/L", "basic"),
+        ("extra/1_L", "extra"),
+        ("novel/L_solid", "novel"),
     ],
 )
-def test(infile: str, outlet: str, list_sorter: ListSorter) -> None:
-    pass
+def test(infile: str, outlet: str, sorter: ListSorter) -> None:
+    image = PipeImage(path=get_infile(infile))
+    assert sorter(image) == outlet
