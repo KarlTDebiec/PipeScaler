@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 from logging import info
+from pathlib import Path
 
 import torch
 
@@ -27,7 +28,7 @@ class WaifuSerializer(Utility):
         "vgg7": WaifuVgg7,
     }
 
-    def __call__(self, architecture: str, infile: str, outfile: str) -> None:
+    def __call__(self, architecture: str, infile: Path, outfile: Path) -> None:
         """Converts infile to outfile.
 
         Arguments:
@@ -36,8 +37,8 @@ class WaifuSerializer(Utility):
             outfile: Output file
         """
         architecture = validate_str(architecture, self.architectures.keys())
-        infile = validate_input_file(infile)
-        outfile = validate_output_file(outfile)
+        infile = Path(validate_input_file(infile))
+        outfile = Path(validate_output_file(outfile))
 
         model = self.architectures[architecture]()
         info(f"{self}: Waifu {architecture} model built")
