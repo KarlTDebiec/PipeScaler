@@ -5,11 +5,14 @@
 """Runs image through an AppleScript."""
 from __future__ import annotations
 
-from os.path import join, split
-from typing import Any
+from pathlib import Path
 
-from pipescaler.common import package_root, validate_executable, validate_input_path
+from PIL import Image
+
+from pipescaler.common import temporary_filename
 from pipescaler.core.image import Processor
+from pipescaler.core.validation import validate_mode
+from pipescaler.runners import AppleScriptRunner
 
 
 class AppleScriptProcessor(Processor):
@@ -19,40 +22,36 @@ class AppleScriptProcessor(Processor):
     and [Pixelmator Pro](https://www.pixelmator.com/support/guide/pixelmator-pro/1270/)
     """
 
-    def __init__(self, script: str, args: str = "", **kwargs: Any) -> None:
+    def __init__(self, script: Path, arguments: str = "") -> None:
         """Validate and store configuration and initialize.
 
         Arguments:
-            script: Path to AppleScript to run
-            args: Arguments to pass to AppleScript
-            **kwargs: Additional keyword arguments
+            script: AppleScript to run
+            arguments: Command-line arguments to pass to AppleScript
         """
-        super().__init__(**kwargs)
+        self.apple_script_runner = AppleScriptRunner(script, arguments)
 
-        # Store configuration
-        if not script.endswith(".scpt"):
-            script = f"{script}.scpt"
-        self.script = validate_input_path(
-            script,
-            default_directory=join(*split(package_root), "data", "../../data/scripts"),
-        )
-        self.args = args
+    def __call__(self, input_image: Image.Image) -> Image.Image:
+        """Process an image.
 
-    @property
-    def command_template(self) -> str:
-        """String template with which to generate command."""
-        return (
-            f"{validate_executable(self.executable, self.supported_platforms)}"
-            f' "{self.script}"'
-            ' "{infile}"'
-            f" {self.args}"
+        Arguments:
+            input_image: Input image
+        Returns:
+            Processed output image
+        """
+        input_image, output_mode = validate_mode(
+            input_image, self.inputs["input"], "RGB"
         )
 
-    @classmethod
-    @property
-    def executable(self) -> str:
-        """Name of executable."""
-        return "osascript"
+        with temporary_filename(".png") as temp_infile:
+            with temporary_filename(".png") as temp_outfile:
+                input_image.save(temp_infile)
+                self.apple_script_runner.run(temp_infile, temp_outfile)
+                output_image = Image.open(temp_outfile)
+        if output_image.mode != output_mode:
+            output_image = output_image.convert(output_mode)
+
+        return output_image
 
     @classmethod
     @property
@@ -68,6 +67,16 @@ class AppleScriptProcessor(Processor):
 
     @classmethod
     @property
-    def supported_platforms(self) -> set[str]:
-        """Platforms on which processor is supported."""
-        return {"Darwin"}
+    def inputs(cls) -> dict[str, tuple[str, ...]]:
+        """Inputs to this operator."""
+        return {
+            "input": ("RGB", "RGBA"),
+        }
+
+    @classmethod
+    @property
+    def outputs(cls) -> dict[str, tuple[str, ...]]:
+        """Outputs of this operator."""
+        return {
+            "output": ("RGB", "RGBA"),
+        }

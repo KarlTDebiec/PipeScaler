@@ -6,7 +6,6 @@
 import pytest
 from PIL import Image
 
-from pipescaler.common import temporary_filename
 from pipescaler.image.processors.apple_script_processor import AppleScriptProcessor
 from pipescaler.testing import (
     get_infile,
@@ -19,7 +18,7 @@ from pipescaler.testing import (
 @parametrized_fixture(
     cls=AppleScriptProcessor,
     params=[
-        {"script": "pixelmator/ml_super_resolution.scpt", "args": "2"},
+        {"script": "pixelmator/ml_super_resolution.scpt", "arguments": "2"},
     ],
 )
 def processor(request) -> AppleScriptProcessor:
@@ -36,13 +35,7 @@ def processor(request) -> AppleScriptProcessor:
 )
 def test(infile: str, processor: AppleScriptProcessor) -> None:
     infile = get_infile(infile)
+    input_image = Image.open(infile)
+    output_image = processor(input_image)
 
-    with temporary_filename(".png") as outfile:
-        processor(infile, outfile)
-
-        with Image.open(infile) as input_image, Image.open(outfile) as output_image:
-            assert output_image.mode == input_image.mode
-            assert output_image.size == (
-                input_image.size[0] * int(processor.args),
-                input_image.size[1] * int(processor.args),
-            )
+    assert output_image.mode == input_image.mode

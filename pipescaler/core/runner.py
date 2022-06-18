@@ -65,5 +65,5 @@ class Runner(ABC):
     @classmethod
     @property
     def supported_platforms(self) -> set[str]:
-        """Platforms on which processor is supported."""
+        """Platforms on which runner is supported."""
         return {"Darwin", "Linux", "Windows"}

@@ -5,11 +5,14 @@
 """Applies an Automator QuickAction to an image."""
 from __future__ import annotations
 
-from os.path import join, split
-from typing import Any
+from pathlib import Path
 
-from pipescaler.common import package_root, validate_executable, validate_input_path
+from PIL import Image
+
+from pipescaler.common import temporary_filename
 from pipescaler.core.image import Processor
+from pipescaler.core.validation import validate_mode
+from pipescaler.runners import AutomatorRunner
 
 
 class AutomatorProcessor(Processor):
@@ -19,39 +22,35 @@ class AutomatorProcessor(Processor):
     and [Pixelmator Pro](https://www.pixelmator.com/support/guide/pixelmator-pro/1270/)
     """
 
-    def __init__(self, workflow: str, **kwargs: Any) -> None:
+    def __init__(self, workflow: Path) -> None:
         """Validate and store configuration and initialize.
 
         Arguments:
-            workflow: Automator workflow to run
-            **kwargs: Additional keyword arguments
+            workflow: Workflow to run
         """
-        super().__init__(**kwargs)
+        self.automator_runner = AutomatorRunner(workflow)
 
-        # Store configuration
-        self.workflow = validate_input_path(
-            workflow if workflow.endswith(".workflow") else f"{workflow}.workflow",
-            file_ok=False,
-            directory_ok=True,
-            default_directory=join(
-                *split(package_root), "data", "../../data/workflows"
-            ),
+    def __call__(self, input_image: Image.Image) -> Image.Image:
+        """Process an image.
+
+        Arguments:
+            input_image: Input image
+        Returns:
+            Processed output image
+        """
+        input_image, output_mode = validate_mode(
+            input_image, self.inputs["input"], "RGB"
         )
 
-    @property
-    def command_template(self) -> str:
-        """String template with which to generate command."""
-        return (
-            f"{validate_executable(self.executable, self.supported_platforms)}"
-            " -i {infile}"
-            f" {self.workflow}"
-        )
+        with temporary_filename(".png") as temp_infile:
+            with temporary_filename(".png") as temp_outfile:
+                input_image.save(temp_infile)
+                self.automator_runner.run(temp_infile, temp_outfile)
+                output_image = Image.open(temp_outfile)
+        if output_image.mode != output_mode:
+            output_image = output_image.convert(output_mode)
 
-    @classmethod
-    @property
-    def executable(self) -> str:
-        """Name of executable."""
-        return "automator"
+        return output_image
 
     @classmethod
     @property
@@ -66,6 +65,16 @@ class AutomatorProcessor(Processor):
 
     @classmethod
     @property
-    def supported_platforms(self) -> set[str]:
-        """Platforms on which processor is supported."""
-        return {"Darwin"}
+    def inputs(cls) -> dict[str, tuple[str, ...]]:
+        """Inputs to this operator."""
+        return {
+            "input": ("RGB", "RGBA"),
+        }
+
+    @classmethod
+    @property
+    def outputs(cls) -> dict[str, tuple[str, ...]]:
+        """Outputs of this operator."""
+        return {
+            "output": ("RGB", "RGBA"),
+        }
