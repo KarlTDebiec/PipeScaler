@@ -22,14 +22,13 @@ class SizeSorter(Sorter):
         image = pipe_image.image
 
         if image.size[0] < self.cutoff or image.size[1] < self.cutoff:
-            return "less_than"
+            outlet = "less_than"
         else:
             outlet = "greater_than_or_equal_to"
         info(f"{self}: '{pipe_image.name}' matches '{outlet}'")
         return outlet
 
-    @classmethod
     @property
-    def outlets(self):
+    def outlets(self) -> tuple[str, ...]:
         """Outlets that flow out of stage."""
         return ("less_than", "greater_than_or_equal_to")

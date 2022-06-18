@@ -6,8 +6,6 @@
 from os import environ, getenv
 from pathlib import Path
 
-from pipescaler.common import validate_input_file
-
 if environ.get("PACKAGE_ROOT") is not None:
     package_root = getenv("PACKAGE_ROOT")
 else:
