@@ -24,6 +24,7 @@ from scipy.stats import zscore
 
 from pipescaler.common import validate_output_directory, validate_output_file
 from pipescaler.core.image import hstack_images, label_image, vstack_images
+from pipescaler.core.pipelines import PipeImage
 from pipescaler.pipelines.sorters import AlphaSorter, GrayscaleSorter
 
 
@@ -177,11 +178,11 @@ class ScaledPairIdentifier:
         absolute_filename = self.filenames[filename]
         image = Image.open(absolute_filename)
         size = image.size
-        if self.grayscale_sorter(absolute_filename) == "keep_rgb":
+        if self.grayscale_sorter(PipeImage(path=absolute_filename)) == "keep_rgb":
             mode = "RGB"
         else:
             mode = "L"
-        if self.alpha_sorter(absolute_filename) == "keep_alpha":
+        if self.alpha_sorter(PipeImage(path=absolute_filename)) == "keep_alpha":
             mode += "A"
         filetype = filename.split("_")[-1]
         hashes = []
