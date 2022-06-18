@@ -27,7 +27,7 @@ class UtilityCli(CommandLineInterface, ABC):
             **kwargs: Command-line arguments
         """
         verbosity = kwargs.pop("verbosity", 1)
-        utility = cls.utility(verbosity=verbosity)
+        utility = cls.utility(verbosity=verbosity)  # pylint: disable=E1111,E1120,E1123
         utility(**kwargs)
 
     @classmethod
