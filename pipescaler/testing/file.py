@@ -35,7 +35,7 @@ def get_infile(name: str) -> Path:
     return path
 
 
-def get_model_infile(name: str) -> str:
+def get_model_infile(name: str) -> Path:
     """Get full path of model within test data directory.
 
     Arguments:
@@ -43,21 +43,16 @@ def get_model_infile(name: str) -> str:
     Returns:
         Full path to model
     """
-    base_directory = join(dirname(package_root), "test", "data", "models")
-    split_name = normpath(name).split(sep)
-    if len(split_name) == 1:
-        sub_directory = "WaifuUpConv7"
-    else:
-        sub_directory = join(*split_name[:-1])
-    filename = split_name[-1]
-    if splitext(filename)[-1] == "":
-        filename = f"{filename}.pth"
+    path = Path(name)
+    if str(path.parent) == ".":
+        path = Path("WaifuUpConv7").join(path)
+    if path.suffix == "":
+        path = path.with_suffix(".pth")
+    path = Path(dirname(package_root)).joinpath("test","data","models",path)
+    if getenv("CI") is None and not path.exists():
+        raise FileNotFoundError()
 
-    infile = join(base_directory, sub_directory, filename)
-    if getenv("CI") is None:
-        infile = validate_input_file(infile)
-
-    return infile
+    return path
 
 
 def get_sub_directory(name: str) -> Path:
@@ -71,4 +66,5 @@ def get_sub_directory(name: str) -> Path:
     path = Path(dirname(package_root)).joinpath("test", "data", "infiles", name)
     if not path.exists():
         raise FileNotFoundError()
+
     return path
