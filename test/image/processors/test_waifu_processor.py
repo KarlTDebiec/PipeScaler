@@ -17,29 +17,21 @@ from pipescaler.testing import (
 )
 
 
-@parametrized_fixture(
-    cls=WaifuProcessor,
-    params=[
-        {"model_infile": get_model_infile("WaifuUpConv7/a-2-3")},
-        {"model_infile": get_model_infile("WaifuVgg7/a-1-3")},
-    ],
-)
-def processor(request) -> WaifuProcessor:
-    return WaifuProcessor(**request.param)
-
-
 @pytest.mark.serial
 @pytest.mark.parametrize(
-    ("infile"),
+    ("infile", "model"),
     [
-        skip_if_ci(xfail_unsupported_image_mode())("1"),
-        skip_if_ci()("L"),
-        skip_if_ci(xfail_unsupported_image_mode())("LA"),
-        skip_if_ci()("RGB"),
-        skip_if_ci(xfail_unsupported_image_mode())("RGBA"),
+        skip_if_ci(xfail_unsupported_image_mode())("1", "WaifuUpConv7/a-2-3"),
+        skip_if_ci()("L", "WaifuUpConv7/a-2-3"),
+        skip_if_ci(xfail_unsupported_image_mode())("LA", "WaifuUpConv7/a-2-3"),
+        skip_if_ci()("RGB", "WaifuUpConv7/a-2-3"),
+        skip_if_ci()("RGB", "WaifuVgg7/a-1-3"),
+        skip_if_ci(xfail_unsupported_image_mode())("RGBA", "WaifuUpConv7/a-2-3"),
     ],
 )
-def test(infile: str, processor: WaifuProcessor) -> None:
+def test(infile: str, model: str) -> None:
+    processor = WaifuProcessor(model_infile=get_model_infile(model))
+
     infile = get_infile(infile)
     input_image = Image.open(infile)
     output_image = processor(input_image)

@@ -17,37 +17,30 @@ from pipescaler.testing import (
 )
 
 
-@parametrized_fixture(
-    cls=EsrganProcessor,
-    params=[
-        {"model_infile": get_model_infile("ESRGAN/1x_BC1-smooth2")},
-        {"model_infile": get_model_infile("ESRGAN/1x_BC1-smooth2_out")},
-        {"model_infile": get_model_infile("ESRGAN/RRDB_ESRGAN_x4")},
-        {"model_infile": get_model_infile("ESRGAN/RRDB_ESRGAN_x4_out")},
-        {"model_infile": get_model_infile("ESRGAN/RRDB_ESRGAN_x4_old_arch")},
-        {"model_infile": get_model_infile("ESRGAN/RRDB_ESRGAN_x4_old_arch_out")},
-    ],
-)
-def processor(request) -> EsrganProcessor:
-    return EsrganProcessor(**request.param)
-
-
 @pytest.mark.serial
 @pytest.mark.parametrize(
-    ("infile"),
+    ("infile", "model"),
     [
-        skip_if_ci()("1"),
-        skip_if_ci()("L"),
-        skip_if_ci(xfail_unsupported_image_mode())("LA"),
-        skip_if_ci(xfail_unsupported_image_mode())("RGBA"),
-        skip_if_ci()("RGB"),
-        skip_if_ci()("PL"),
-        skip_if_ci(xfail_unsupported_image_mode())("PLA"),
-        skip_if_ci()("PRGB"),
-        skip_if_ci(xfail_unsupported_image_mode())("PRGBA"),
+        skip_if_ci()("1", "ESRGAN/1x_BC1-smooth2"),
+        skip_if_ci()("L", "ESRGAN/1x_BC1-smooth2"),
+        skip_if_ci(xfail_unsupported_image_mode())("LA", "ESRGAN/1x_BC1-smooth2"),
+        skip_if_ci(xfail_unsupported_image_mode())("RGBA", "ESRGAN/1x_BC1-smooth2"),
+        skip_if_ci()("RGB", "ESRGAN/1x_BC1-smooth2"),
+        skip_if_ci()("RGB", "ESRGAN/1x_BC1-smooth2_out"),
+        skip_if_ci()("RGB", "ESRGAN/RRDB_ESRGAN_x4"),
+        skip_if_ci()("RGB", "ESRGAN/RRDB_ESRGAN_x4_out"),
+        skip_if_ci()("RGB", "ESRGAN/1x_BC1-smooth2_out"),
+        skip_if_ci()("RGB", "ESRGAN/RRDB_ESRGAN_x4_old_arch"),
+        skip_if_ci()("RGB", "ESRGAN/RRDB_ESRGAN_x4_old_arch_out"),
+        skip_if_ci()("PL", "ESRGAN/1x_BC1-smooth2"),
+        skip_if_ci(xfail_unsupported_image_mode())("PLA", "ESRGAN/1x_BC1-smooth2"),
+        skip_if_ci()("PRGB", "ESRGAN/1x_BC1-smooth2"),
+        skip_if_ci(xfail_unsupported_image_mode())("PRGBA", "ESRGAN/1x_BC1-smooth2"),
     ],
 )
-def test(infile: str, processor: EsrganProcessor) -> None:
+def test(infile: str, model: str) -> None:
+    processor = EsrganProcessor(model_infile=get_model_infile(model))
+
     infile = get_infile(infile)
     input_image = Image.open(infile)
     output_image = processor(input_image)
