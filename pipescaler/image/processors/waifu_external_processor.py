@@ -22,7 +22,7 @@ class WaifuExternalProcessor(Processor):
     def __init__(self, arguments: str) -> None:
         """Validate and store configuration and initialize.
 
-        Args:
+        Arguments:
             arguments: Command-line arguments to pass to waifu2x
         """
         self.waifu_runner = WaifuRunner(arguments)
@@ -30,7 +30,7 @@ class WaifuExternalProcessor(Processor):
     def __call__(self, input_image: Image.Image) -> Image.Image:
         """Process an image.
 
-        Args:
+        Arguments:
             input_image: Input image
         Returns:
             Processed output image

@@ -36,7 +36,7 @@ class PipeScalerCli(CommandLineInterface):
     def execute(cls, **kwargs: Any) -> None:
         """Execute with provided keyword arguments.
 
-        Args:
+        Arguments:
             **kwargs: Command-line arguments
         """
         sub_cli = cls.sub_clis[kwargs.pop("sub_cli")]

@@ -18,6 +18,12 @@ class LocalPaletteMatcher:
     """Matches the palette of one image to another, restricted to nearby colors."""
 
     def __init__(self, local_range: int = 1):
+        """Validate and store configuration and initialize.
+
+        Arguments:
+            local_range: Range of adjacent pixels from which to draw best-fit color;
+              1 checks a 3x3 window, 2 checks a 5x5 window, etc.
+        """
         self.local_range = validate_int(local_range, min_value=1)
 
     def match_palette(
@@ -59,7 +65,7 @@ class LocalPaletteMatcher:
     ) -> np.ndarray:
         """Get locally palette-matched image array for an L image array.
 
-        Args:
+        Arguments:
             fit_array: Image array whose palette to fit to reference
             ref_array: Image array whose palette to use as reference
         Returns:
@@ -103,7 +109,7 @@ class LocalPaletteMatcher:
     ) -> np.ndarray:
         """Get locally palette-matched image array for an RGB image array.
 
-        Args:
+        Arguments:
             fit_array: Image array whose palette to fit to reference
             ref_array: Image array whose palette to use as reference
         Returns:

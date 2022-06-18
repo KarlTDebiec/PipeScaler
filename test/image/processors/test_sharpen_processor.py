@@ -15,7 +15,12 @@ from pipescaler.testing import (
 )
 
 
-@parametrized_fixture(cls=SharpenProcessor, params=[{}])
+@parametrized_fixture(
+    cls=SharpenProcessor,
+    params=[
+        {},
+    ],
+)
 def processor(request) -> SharpenProcessor:
     return SharpenProcessor(**request.param)
 

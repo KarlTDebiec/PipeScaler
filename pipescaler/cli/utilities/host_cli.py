@@ -43,7 +43,7 @@ class HostCli(UtilityCli):
     def execute(cls, **kwargs: Any) -> None:
         """Execute with provided keyword arguments.
 
-        Args:
+        Arguments:
             **kwargs: Command-line arguments
         """
         conf = read_yaml(kwargs.pop("conf_file"))

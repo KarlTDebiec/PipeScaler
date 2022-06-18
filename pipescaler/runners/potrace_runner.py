@@ -2,7 +2,7 @@
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
-"""Traces image using potrace and re-rasterizes, optionally resizing."""
+"""Runs potrace tool for tracing images."""
 from __future__ import annotations
 
 from logging import debug
@@ -13,7 +13,7 @@ from pipescaler.core.runner import Runner
 
 
 class PotraceRunner(Runner):
-    """Traces image using potrace and re-rasterizes, optionally resizing.
+    """Runs potrace tool for tracing images.
 
     See [Potrace](http://potrace.sourceforge.net/).
     """
@@ -21,6 +21,12 @@ class PotraceRunner(Runner):
     def __init__(
         self, arguments: str = "-b svg -k 0.3 -a 1.34 -O 0.2", **kwargs
     ) -> None:
+        """Validate and store configuration and initialize.
+
+        Arguments:
+            arguments: Command-line arguments to pass to pngquant
+            kwargs: Additional keyword arguments
+        """
         super().__init__(**kwargs)
 
         self.arguments = arguments

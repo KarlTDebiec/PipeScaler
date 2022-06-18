@@ -19,7 +19,7 @@ class SolidColorProcessor(Processor):
     def __init__(self, scale: float = 1) -> None:
         """Validate and store configuration and initialize.
 
-        Args:
+        Arguments:
             scale: Scale of output image relative to input
         """
         self.scale = validate_float(scale)
@@ -27,7 +27,7 @@ class SolidColorProcessor(Processor):
     def __call__(self, input_image: Image.Image) -> Image.Image:
         """Process an image.
 
-        Args:
+        Arguments:
             input_image: Input image
         Returns:
             Processed output image

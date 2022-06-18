@@ -22,12 +22,11 @@ class UtilityCli(CommandLineInterface, ABC):
         TODO: Decide on a consistent way for ProcessorCli and UtilityCli to manage
           arguments destined for __init__ and arguments destined for __call__
 
-        Args:
+        Arguments:
             **kwargs: Command-line arguments
         """
-        utility = cls.utility(
-            verbosity=kwargs.pop("verbosity", 1)
-        )  # pylint: disable=E1111
+        # pylint: disable-next=E1111
+        utility = cls.utility(verbosity=kwargs.pop("verbosity", 1))
         utility(**kwargs)
 
     @classmethod

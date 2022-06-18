@@ -41,7 +41,7 @@ class ProcessorCli(CommandLineInterface, ABC):
         TODO: Decide on a consistent way for ProcessorCli and UtilityCli to manage
           arguments destined for __init__ and arguments destined for __call__
 
-        Args:
+        Arguments:
             **kwargs: Command-line arguments
         """
         infile = kwargs.pop("infile")

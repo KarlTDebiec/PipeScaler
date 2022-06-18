@@ -11,7 +11,7 @@ from pipescaler.core.image import remove_palette
 def get_expected_output_mode(input_image: Image.Image) -> str:
     """Get expected output mode of image after processing.
 
-    Args:
+    Arguments:
         input_image: Input image
     Returns:
         Expected output mode of image after processing

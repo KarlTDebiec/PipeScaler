@@ -30,7 +30,7 @@ class PotraceProcessor(Processor):
     ) -> None:
         """Validate and store configuration and initialize.
 
-        Args:
+        Arguments:
             arguments: Command-line arguments to pass to potrace
             invert: Whether to invert image before tracing
             scale: Scale of re-rasterized output image relative to input
@@ -42,12 +42,12 @@ class PotraceProcessor(Processor):
     def __call__(self, input_image: Image.Image) -> Image.Image:
         """Process an image.
 
-        Args:
+        Arguments:
             input_image: Input image
         Returns:
             Processed output image
         """
-        input_image, output_mode = validate_mode(input_image, self.inputs["input"], "L")
+        input_image, _ = validate_mode(input_image, self.inputs["input"], "L")
         if self.invert:
             input_image = invert(input_image)
 

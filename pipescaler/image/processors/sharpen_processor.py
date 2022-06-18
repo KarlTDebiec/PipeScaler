@@ -21,7 +21,7 @@ class SharpenProcessor(Processor):
     def __call__(self, input_image: Image.Image) -> Image.Image:
         """Process an image.
 
-        Args:
+        Arguments:
             input_image: Input image
         Returns:
             Processed output image

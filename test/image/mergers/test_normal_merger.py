@@ -14,7 +14,12 @@ from pipescaler.testing import (
 )
 
 
-@parametrized_fixture(cls=NormalMerger, params=[{}])
+@parametrized_fixture(
+    cls=NormalMerger,
+    params=[
+        {},
+    ],
+)
 def merger(request) -> NormalMerger:
     return NormalMerger(**request.param)
 

@@ -42,10 +42,8 @@ def wrap_splitter(splitter: Splitter) -> Callable[[PipeImage], tuple[PipeImage, 
 
         output_images = splitter(input_image)
         output_pipe_images = tuple(
-            [
-                PipeImage(output_image, parents=input_pipe_image)
-                for output_image in output_images
-            ]
+            PipeImage(output_image, parents=input_pipe_image)
+            for output_image in output_images
         )
         info(f"{splitter}: '{output_pipe_images[0].name}' split")
 

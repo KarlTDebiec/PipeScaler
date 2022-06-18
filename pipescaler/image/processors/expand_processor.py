@@ -18,7 +18,7 @@ class ExpandProcessor(Processor):
     def __init__(self, pixels: tuple[int, int, int, int]) -> None:
         """Validate and store configuration and initialize.
 
-        Args:
+        Arguments:
             pixels: Pixels to add to left, top, right, and bottom
         """
         self.left, self.top, self.right, self.bottom = validate_ints(
@@ -28,7 +28,7 @@ class ExpandProcessor(Processor):
     def __call__(self, input_image: Image.Image) -> Image.Image:
         """Process an image.
 
-        Args:
+        Arguments:
             input_image: Input image
         Returns:
             Processed output image

@@ -2,7 +2,7 @@
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
-"""Processes image using Texconv."""
+"""Runs texconv tool for converting image format."""
 from __future__ import annotations
 
 from logging import debug
@@ -14,7 +14,7 @@ from pipescaler.core.runner import Runner
 
 
 class TexconvRunner(Runner):
-    """Processes image using Texconv.
+    """Runs texconv tool for converting image format.
 
     See [Texconv](https://github.com/Microsoft/DirectXTex/wiki/Texconv).
     """
@@ -22,11 +22,11 @@ class TexconvRunner(Runner):
     def __init__(
         self, arguments: str = "-y -sepalpha -m 1 -ft DDS -f BC7_UNORM", **kwargs
     ) -> None:
-        """Store configuration.
+        """Validate and store configuration and initialize.
 
         Arguments:
-            arguments: Additional arguments to provide at the command line
-            kwargs: Additional arguments
+            arguments: Command-line arguments to pass to pngquant
+            kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
 

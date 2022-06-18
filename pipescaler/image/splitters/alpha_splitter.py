@@ -64,6 +64,7 @@ class AlphaSplitter(Splitter):
     @classmethod
     @property
     def outputs(cls) -> dict[str, tuple[str, ...]]:
+        """Outputs of this operator."""
         return {
             "color": ("L", "RGB"),
             "alpha": ("1", "L"),

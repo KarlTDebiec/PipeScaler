@@ -18,7 +18,7 @@ else:
 def get_infile(name: str) -> Path:
     """Get full path of infile within test data directory.
 
-    Args:
+    Arguments:
         name: Name of infile
     Returns:
         Full path to infile
@@ -38,7 +38,7 @@ def get_infile(name: str) -> Path:
 def get_model_infile(name: str) -> str:
     """Get full path of model within test data directory.
 
-    Args:
+    Arguments:
         name: Name of model
     Returns:
         Full path to model
@@ -63,7 +63,7 @@ def get_model_infile(name: str) -> str:
 def get_sub_directory(name: str) -> Path:
     """Get path of sub-directory within test data directory.
 
-    Args:
+    Arguments:
         name: Name of sub-directory
     Returns:
         Path to sub-directory

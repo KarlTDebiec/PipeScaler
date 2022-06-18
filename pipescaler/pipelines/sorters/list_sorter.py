@@ -26,8 +26,6 @@ class ListSorter(Sorter):
         self._outlets = tuple(sorted((outlets.keys())))
         self.outlets_by_filename = {}
 
-        # Organize downstream outlets
-        duplicates = {}
         for outlet, paths in outlets.items():
             if not isinstance(paths, list):
                 paths = [paths]

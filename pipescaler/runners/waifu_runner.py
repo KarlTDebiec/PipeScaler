@@ -2,7 +2,7 @@
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
-"""Upscales and/or denoises image using Waifu2x via an external executable."""
+"""Runs waifu2x tool for upscaling and/or denoising images."""
 from __future__ import annotations
 
 from logging import debug
@@ -14,7 +14,7 @@ from pipescaler.core.runner import Runner
 
 
 class WaifuRunner(Runner):
-    """Upscales and/or denoises image using Waifu2x via an external executable.
+    """Runs waifu2x tool for upscaling and/or denoising images.
 
     See [waifu2x](https://github.com/nagadomi/waifu2x).
 
@@ -26,11 +26,11 @@ class WaifuRunner(Runner):
     """
 
     def __init__(self, arguments: str = "-s 2 -n 1", **kwargs) -> None:
-        """Store configuration.
+        """Validate and store configuration and initialize.
 
         Arguments:
-            arguments: Additional arguments to provide at the command line
-            kwargs: Additional arguments
+            arguments: Command-line arguments to pass to pngquant
+            kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
 

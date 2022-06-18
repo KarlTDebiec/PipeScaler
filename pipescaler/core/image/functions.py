@@ -260,7 +260,7 @@ def is_monochrome(
 ) -> bool:
     """Check whether a grayscale image contains only pure black and white.
 
-    Args:
+    Arguments:
         image: Image to check
         mean_threshold: Threshold which mean difference between image and true
           monochrome must be below

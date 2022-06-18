@@ -36,7 +36,7 @@ class UtilitiesCli(CommandLineInterface):
     def execute(cls, **kwargs: Any) -> None:
         """Execute with provided keyword arguments.
 
-        Args:
+        Arguments:
             **kwargs: Command-line arguments
         """
         utility = cls.utilities[kwargs.pop("utility")]

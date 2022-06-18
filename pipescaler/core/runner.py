@@ -13,11 +13,11 @@ from pipescaler.common import run_command, validate_executable, validate_int
 
 
 class Runner(ABC):
-    def __init__(self, timeout: int = 600, **kwargs) -> None:
-        """Store configuration.
+    def __init__(self, timeout: int = 600) -> None:
+        """Validate and store configuration and initialize.
 
         Arguments:
-            kwargs: Additional arguments
+            timeout: Timeout for external tool invocation
         """
         self.timeout = validate_int(timeout, 0)
         self._executable_path = None
@@ -30,6 +30,7 @@ class Runner(ABC):
 
     @property
     def executable_path(self) -> Path:
+        """Path to executable."""
         if self._executable_path is None:
             self._executable_path = Path(
                 validate_executable(self.executable, self.supported_platforms)

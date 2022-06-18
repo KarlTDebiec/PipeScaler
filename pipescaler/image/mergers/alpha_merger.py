@@ -38,6 +38,7 @@ class AlphaMerger(Merger):
     @classmethod
     @property
     def inputs(cls) -> dict[str, tuple[str, ...]]:
+        """Inputs to this operator."""
         return {
             "color": ("L", "RGB"),
             "alpha": ("1", "L"),
@@ -46,6 +47,7 @@ class AlphaMerger(Merger):
     @classmethod
     @property
     def outputs(cls) -> dict[str, tuple[str, ...]]:
+        """Outputs of this operator."""
         return {
             "output": ("LA", "RGBA"),
         }

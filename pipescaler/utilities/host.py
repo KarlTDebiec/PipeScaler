@@ -17,15 +17,15 @@ class Host:
     """Hosts stages on a web API."""
 
     def __init__(self, processors: dict[str, Processor]) -> None:
+        """Validate and store configuration and initialize.
+
+        Arguments:
+            processors: Processors to host and names under which to host them
+        """
         self.processors = processors
 
-    def __call__(self, *args, **kwargs) -> None:
-        """Perform operations.
-
-        Args:
-            *args: Additional arguments
-            **kwargs: Additional keyword arguments
-        """
+    def __call__(self) -> None:
+        """Host web API."""
         app = Flask(__name__, instance_relative_config=True)
         app.secret_key = "super secret key"
 
@@ -52,7 +52,7 @@ class Host:
             # Return image
             return send_file(
                 BytesIO(output_bytes),
-                download_name=f"response.png",
+                download_name="response.png",
                 mimetype="multipart/form-data",
             )
 

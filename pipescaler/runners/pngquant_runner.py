@@ -2,7 +2,7 @@
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
-"""Reduces image palette using pngquant."""
+"""Runs pngquant tool for reducing image palette."""
 from __future__ import annotations
 
 from logging import debug
@@ -15,7 +15,7 @@ from pipescaler.core.runner import Runner
 
 
 class PngquantRunner(Runner):
-    """Reduces image palette using pngquant.
+    """Runs pngquant tool for reducing image palette.
 
     See [pngquant](https://pngquant.org/).
     """
@@ -25,11 +25,11 @@ class PngquantRunner(Runner):
         arguments: str = " --skip-if-larger --force --quality 10-100 --speed 1 --nofs",
         **kwargs: Any,
     ) -> None:
-        """Store configuration.
+        """Validate and store configuration and initialize.
 
         Arguments:
-            arguments: Additional arguments to provide at the command line
-            kwargs: Additional arguments
+            arguments: Command-line arguments to pass to pngquant
+            kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
 

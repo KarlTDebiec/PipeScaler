@@ -14,7 +14,12 @@ from pipescaler.testing import (
 )
 
 
-@parametrized_fixture(cls=HistogramMatchMerger, params=[{}])
+@parametrized_fixture(
+    cls=HistogramMatchMerger,
+    params=[
+        {},
+    ],
+)
 def merger(request) -> HistogramMatchMerger:
     return HistogramMatchMerger(**request.param)
 

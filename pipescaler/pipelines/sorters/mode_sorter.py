@@ -21,7 +21,7 @@ class ModeSorter(Sorter):
     """
 
     def __call__(self, pipe_image: PipeImage) -> str:
-        image, outlet = validate_mode(pipe_image.image, ("1", "L", "LA", "RGB", "RGBA"))
+        _, outlet = validate_mode(pipe_image.image, ("1", "L", "LA", "RGB", "RGBA"))
         if outlet == "1":
             outlet = "M"
         info(f"{self}: '{pipe_image.name}' matches '{outlet}'")

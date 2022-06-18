@@ -19,7 +19,11 @@ class MaskFiller:
     def __init__(
         self, mask_fill_mode: Union[type(MaskFillMode), str] = MaskFillMode.BASIC
     ) -> None:
-        """Validate and store static configuration."""
+        """Validate and store static configuration and initialize.
+
+        Arguments:
+            mask_fill_mode: Mode to use for mask filling
+        """
         self.mask_fill_mode = validate_enum(mask_fill_mode, MaskFillMode)
         if self.mask_fill_mode == MaskFillMode.MATCH_PALETTE:
             self.palette_matcher = PaletteMatcher()
@@ -50,6 +54,14 @@ class MaskFiller:
     def run_iteration(
         self, image_array: np.ndarray, mask_array: np.ndarray
     ) -> tuple[np.ndarray, np.ndarray]:
+        """Run one iteration of mask filling
+
+        Arguments:
+            image_array: Image array
+            mask_array: mask array
+        Returns:
+            image array with one additional round of pixel filling
+        """
 
         # count the number of opaque pixels adjacent to each pixel in image
         adjacent_opaque_pixels = self.adjacent_opaque_pixels(mask_array)
@@ -78,7 +90,14 @@ class MaskFiller:
         return image_array, mask_array
 
     @staticmethod
-    def adjacent_opaque_pixels(transparent_pixels):
+    def adjacent_opaque_pixels(transparent_pixels: np.ndarray) -> np.ndarray:
+        """Calculate the number of opaque pixels adjacent to each pixel
+
+        Arguments:
+            transparent_pixels: Whether pixels are opaque
+        Returns:
+            Number of opaque pixels adjacent to each pixel
+        """
         # Count total adjacent pixels
         adjacent_opaque_pixels = np.zeros(transparent_pixels.shape, int)
         adjacent_opaque_pixels[:-1, :-1] += 1
@@ -103,7 +122,17 @@ class MaskFiller:
         return adjacent_opaque_pixels
 
     @staticmethod
-    def sum_of_adjacent_opaque_pixels(image_array, transparent_pixels):
+    def sum_of_adjacent_opaque_pixels(
+        image_array: np.ndarray, transparent_pixels: np.ndarray
+    ) -> np.ndarray:
+        """Calculate the sum of color of opaque pixels adjacent to each pixel
+
+        Arguments:
+            image_array: Image array
+            transparent_pixels: Whether pixels are opaque
+        Returns:
+            Sum of color of opaque pixels adjacent to each pixel
+        """
         weighted_color_array = np.copy(image_array)
         weighted_color_array[transparent_pixels] = 0
 

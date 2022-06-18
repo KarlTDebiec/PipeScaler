@@ -20,6 +20,7 @@ class WebProcessor(Processor):
 
         Arguments:
             url: URL to which to POST image for processing
+            timeout: Timeout for POSTed request
         """
         self.url = url
         self.timeout = validate_int(timeout, 0)
@@ -27,7 +28,7 @@ class WebProcessor(Processor):
     def __call__(self, input_image: Image.Image) -> Image.Image:
         """Process an image.
 
-        Args:
+        Arguments:
             input_image: Input image
         Returns:
             Processed output image

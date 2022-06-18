@@ -14,7 +14,12 @@ from pipescaler.testing import (
 )
 
 
-@parametrized_fixture(cls=NormalSplitter, params=[{}])
+@parametrized_fixture(
+    cls=NormalSplitter,
+    params=[
+        {},
+    ],
+)
 def splitter(request) -> NormalSplitter:
     return NormalSplitter(**request.param)
 
