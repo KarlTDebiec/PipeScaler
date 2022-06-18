@@ -3,31 +3,25 @@
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
 """Tests for WebProcessor"""
-from inspect import getfile
-from signal import SIGTERM
-from subprocess import PIPE, Popen
+from multiprocessing import Process
+from time import sleep
 
 from PIL import Image
-from pytest import fixture, mark
+from pytest import mark
 
-from pipescaler.cli.utilities.host_cli import HostCli
-from pipescaler.common import temporary_filename
-from pipescaler.image.processors import WebProcessor
-from pipescaler.testing import (
-    get_expected_output_mode,
-    get_infile,
-    parametrized_fixture,
+from pipescaler.image.processors import WebProcessor, XbrzProcessor
+from pipescaler.testing import get_infile, parametrized_fixture
+from pipescaler.utilities import Host
+
+
+@parametrized_fixture(
+    cls=XbrzProcessor,
+    params=[
+        {"scale": 2},
+    ],
 )
-
-
-@fixture()
-def conf():
-    return """
-stages:
-    xbrz-2:
-        XbrzProcessor:
-            scale: 2
-"""
+def xbrz_processor(request) -> XbrzProcessor:
+    return XbrzProcessor(**request.param)
 
 
 @parametrized_fixture(
@@ -36,7 +30,7 @@ stages:
         {"url": "http://127.0.0.1:5000/xbrz-2"},
     ],
 )
-def processor(request) -> WebProcessor:
+def web_processor(request) -> WebProcessor:
     return WebProcessor(**request.param)
 
 
@@ -46,22 +40,17 @@ def processor(request) -> WebProcessor:
         ("RGB"),
     ],
 )
-def test(conf: str, infile: str, processor: WebProcessor):
+def test(infile: str, web_processor: WebProcessor, xbrz_processor: XbrzProcessor):
     infile = get_infile(infile)
+    input_image = Image.open(infile)
 
-    with temporary_filename(".yml") as conf_outfile_name:
-        with open(conf_outfile_name, "w") as conf_outfile:
-            conf_outfile.write(conf)
-
-        command = f"coverage run {getfile(HostCli)} {conf_outfile_name}"
-        with Popen(command, shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE) as child:
-            child.stderr.readline()
-            with temporary_filename(".png") as outfile:
-                processor(infile, outfile)
-
-                child.send_signal(SIGTERM)
-
-                with Image.open(infile) as input_image, Image.open(
-                    outfile
-                ) as output_image:
-                    assert output_image.mode == get_expected_output_mode(input_image)
+    host = Host(processors={"xbrz-2": xbrz_processor})
+    process = Process(target=host.__call__)
+    process.start()
+    sleep(5)
+    output_image = web_processor(input_image)
+    process.kill()
+    assert output_image.size == (
+        input_image.size[0] * xbrz_processor.scale,
+        input_image.size[1] * xbrz_processor.scale,
+    )

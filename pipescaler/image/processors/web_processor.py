@@ -5,50 +5,40 @@
 """POSTs image to a defined URL, which responds with processed image."""
 from __future__ import annotations
 
-from logging import info
-from os.path import basename
-from typing import Any
-
 import requests
+from PIL import Image
 
+from pipescaler.common import temporary_filename, validate_int
 from pipescaler.core.image import Processor
 
 
 class WebProcessor(Processor):
     """POSTs image to a defined URL, which responds with processed image."""
 
-    def __init__(self, url: str, **kwargs: Any) -> None:
+    def __init__(self, url: str, timeout: int = 600) -> None:
         """Validate and store configuration and initialize.
 
         Arguments:
             url: URL to which to POST image for processing
-            **kwargs: Additional keyword arguments
         """
-        super().__init__(**kwargs)
-
-        # Store configuration
         self.url = url
+        self.timeout = validate_int(timeout, 0)
 
-    def __call__(self, infile: str, outfile: str) -> None:
-        """Read image from infile, process it, and save to outfile.
+    def __call__(self, input_image: Image.Image) -> Image.Image:
+        with temporary_filename(".png") as temp_file:
+            input_image.save(temp_file)
+            with open(temp_file, "rb") as input_file:
+                input_bytes = input_file.read()
+            files = {"image": ("image", input_bytes, "multipart/form-data")}
 
-        Arguments:
-            infile: Input file path
-            outfile: Output file path
-        """
-        # Read image
-        with open(infile, "rb") as input_file:
-            input_bytes = input_file.read()
-        files = {"image": (basename(infile), input_bytes, "multipart/form-data")}
-
-        # Process image
         with requests.Session() as session:
-            response = session.post(self.url, files=files)
+            response = session.post(self.url, files=files, timeout=self.timeout)
             if response.status_code != 200:
                 raise ValueError()
-        output_bytes = response.content
+            output_bytes = response.content
 
-        # Write image
-        with open(outfile, "wb") as output_file:
-            output_file.write(output_bytes)
-        info(f"{self}: '{outfile}' saved")
+        with temporary_filename(".png") as temp_file:
+            with open(temp_file, "wb") as output_file:
+                output_file.write(output_bytes)
+            output_image = Image.open(temp_file)
+        return output_image
