@@ -63,8 +63,7 @@ class MaskFiller(Utility):
         Returns:
             image array with one additional round of pixel filling
         """
-
-        # count the number of opaque pixels adjacent to each pixel in image
+        # Count the number of opaque pixels adjacent to each pixel in image
         adjacent_opaque_pixels = self.adjacent_opaque_pixels(mask_array)
 
         # Disregard the number of adjacent opaque pixels for pixels that are themselves

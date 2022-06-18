@@ -5,11 +5,8 @@
 """Runs waifu2x tool for upscaling and/or denoising images."""
 from __future__ import annotations
 
-from logging import debug
-from pathlib import Path
 from platform import system
 
-from pipescaler.common import run_command
 from pipescaler.core import Runner
 
 
@@ -44,17 +41,6 @@ class WaifuRunner(Runner):
             f"{'-p gpu' if system()=='Windows' else ''}"
             ' -i "{infile}" -o "{outfile}"'
         )
-
-    def run(self, infile: Path, outfile: Path) -> None:
-        """Read image from infile, process it, and save to outfile.
-
-        Arguments:
-            infile: Input file path
-            outfile: Output file path
-        """
-        command = self.command_template.format(infile=infile, outfile=outfile)
-        debug(f"{self}: {command}")
-        run_command(command, timeout=self.timeout)
 
     @classmethod
     @property

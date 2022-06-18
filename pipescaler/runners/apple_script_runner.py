@@ -24,6 +24,13 @@ class AppleScriptRunner(Runner):
         arguments: str = "",
         **kwargs: Any,
     ) -> None:
+        """Validate and store configuration and initialize.
+
+        Args:
+            script: AppleScript to run
+            arguments: Arguments to pass to AppleScript
+            **kwargs: Additional keyword arguments
+        """
         super().__init__(**kwargs)
 
         if not isinstance(script, Path):

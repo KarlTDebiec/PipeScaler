@@ -5,10 +5,6 @@
 """Runs potrace tool for tracing images."""
 from __future__ import annotations
 
-from logging import debug
-from pathlib import Path
-
-from pipescaler.common import run_command
 from pipescaler.core import Runner
 
 
@@ -37,11 +33,6 @@ class PotraceRunner(Runner):
         return (
             f"{self.executable_path}" " {infile}" f" {self.arguments}" " -o {outfile}"
         )
-
-    def run(self, infile: Path, outfile: Path) -> None:
-        command = self.command_template.format(infile=infile, outfile=outfile)
-        debug(f"{self}: {command}")
-        run_command(command, timeout=self.timeout)
 
     @classmethod
     @property

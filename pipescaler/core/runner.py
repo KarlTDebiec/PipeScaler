@@ -38,7 +38,7 @@ class Runner(ABC):
         return self._executable_path
 
     def run(self, infile: Path, outfile: Path) -> None:
-        """Read image from infile, process it, and save to outfile.
+        """Run executable on infile, yielding outfile.
 
         Arguments:
             infile: Input file path

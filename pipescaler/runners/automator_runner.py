@@ -23,6 +23,12 @@ class AutomatorRunner(Runner):
         workflow: Path,
         **kwargs: Any,
     ) -> None:
+        """Validate and store configuration and initialize.
+
+        Args:
+            workflow: Workflow to run
+            **kwargs: Additional keyword arguments
+        """
         super().__init__(**kwargs)
 
         if not isinstance(workflow, Path):
