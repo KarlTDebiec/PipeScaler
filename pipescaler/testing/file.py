@@ -7,7 +7,7 @@ from os import environ, getenv
 from pathlib import Path
 
 if environ.get("PACKAGE_ROOT") is not None:
-    package_root = getenv("PACKAGE_ROOT")
+    package_root = Path(getenv("PACKAGE_ROOT"))
 else:
     from pipescaler.common import package_root
 
