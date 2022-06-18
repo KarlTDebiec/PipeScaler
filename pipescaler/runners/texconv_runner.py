@@ -20,7 +20,7 @@ class TexconvRunner(Runner):
     """
 
     def __init__(
-        self, arguments: str = "-sepalpha -m 1 -ft DDS -f BC7_UNORM", **kwargs
+        self, arguments: str = "-y -sepalpha -m 1 -ft DDS -f BC7_UNORM", **kwargs
     ) -> None:
         """Store configuration.
 

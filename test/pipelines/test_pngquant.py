@@ -2,8 +2,9 @@
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
-"""Tests for PngquantProcessor"""
+"""Tests for PngquantRunner"""
 from os.path import getsize
+from pathlib import Path
 
 import pytest
 from PIL import Image
@@ -19,7 +20,7 @@ from pipescaler.testing import get_infile, parametrized_fixture, xfail_if_platfo
         {},
     ],
 )
-def processor(request) -> PngquantRunner:
+def runner(request) -> PngquantRunner:
     return PngquantRunner(**request.param)
 
 
@@ -37,11 +38,12 @@ def processor(request) -> PngquantRunner:
         xfail_if_platform({"Windows"}, ExecutableNotFoundError)("PRGBA"),
     ],
 )
-def test(infile: str, processor: PngquantRunner) -> None:
+def test(infile: str, runner: PngquantRunner) -> None:
     infile = get_infile(infile)
 
     with temporary_filename(".png") as outfile:
-        processor(infile, outfile)
+        outfile = Path(outfile)
+        runner.run(infile, outfile)
 
         with Image.open(infile) as input_image, Image.open(outfile) as output_image:
             assert output_image.mode in (input_image.mode, "P")

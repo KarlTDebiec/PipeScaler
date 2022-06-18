@@ -2,7 +2,9 @@
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
-"""Tests for TexconvProcessor"""
+"""Tests for TexconvRunner"""
+from pathlib import Path
+
 import pytest
 from PIL import Image
 
@@ -17,7 +19,7 @@ from pipescaler.testing import get_infile, parametrized_fixture, xfail_if_platfo
         {},
     ],
 )
-def processor(request) -> TexconvRunner:
+def runner(request) -> TexconvRunner:
     return TexconvRunner(**request.param)
 
 
@@ -35,11 +37,12 @@ def processor(request) -> TexconvRunner:
         xfail_if_platform({"Darwin", "Linux"})("PRGBA"),
     ],
 )
-def test(infile: str, processor: TexconvRunner) -> None:
+def test(infile: str, runner: TexconvRunner) -> None:
     infile = get_infile(infile)
 
-    with temporary_filename(".png") as outfile:
-        processor(infile, outfile)
+    with temporary_filename(".dds") as outfile:
+        outfile = Path(outfile)
+        runner.run(infile, outfile)
 
         with Image.open(infile) as input_image, Image.open(outfile) as output_image:
             assert output_image.mode == "RGBA"
