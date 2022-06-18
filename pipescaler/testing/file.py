@@ -42,7 +42,7 @@ def get_model_infile(name: str) -> Path:
     """
     path = Path(name)
     if str(path.parent) == ".":
-        path = Path("WaifuUpConv7").join(path)
+        path = Path("WaifuUpConv7").joinpath(path)
     if path.suffix == "":
         path = path.with_suffix(".pth")
     path = package_root.parent.joinpath("test", "data", "models", path)
