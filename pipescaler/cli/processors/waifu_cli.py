@@ -9,8 +9,8 @@ from argparse import ArgumentParser, _SubParsersAction
 from typing import Type, Union
 
 from pipescaler.core.cli import ProcessorCli
-from pipescaler.core.stages import Processor
-from pipescaler.processors.image import WaifuProcessor
+from pipescaler.core.image import Processor
+from pipescaler.image.processors import WaifuProcessor
 
 
 class WaifuCli(ProcessorCli):

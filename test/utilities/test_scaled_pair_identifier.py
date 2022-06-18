@@ -2,8 +2,8 @@
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
-"""Tests for ScaledPairIdentifier"""
-from os.path import basename, join, splitext
+"""Tests for ScaledPairIdentifier."""
+from pathlib import Path
 from platform import system
 from shutil import copy
 from tempfile import TemporaryDirectory
@@ -13,7 +13,6 @@ import pytest
 from PIL import Image
 
 from pipescaler.common import temporary_filename
-from pipescaler.core import get_files
 from pipescaler.testing import get_infile
 from pipescaler.utilities import ScaledPairIdentifier
 
@@ -23,43 +22,45 @@ from pipescaler.utilities import ScaledPairIdentifier
 )
 def test_review() -> None:
     with TemporaryDirectory() as input_directory:
-        for mode in ["L", "LA", "RGB", "RGBA"]:
-            base_filename = splitext(basename(get_infile(mode)))[0]
-            copy(get_infile(mode), join(input_directory, f"{base_filename}_1.png"))
-            parent = Image.open(get_infile(mode))
-            for scale in np.array([1 / (2**x) for x in range(1, 7)]):
-                width = round(parent.size[0] * scale)
-                height = round(parent.size[1] * scale)
-                if width < 8 or height < 8:
-                    break
-                child = parent.resize((width, height), Image.NEAREST)
-                outfile = join(
-                    input_directory,
-                    f"{splitext(basename(get_infile(mode)))[0]}_{scale}_1.png",
-                )
-                child.save(outfile)
-        for mode in ["L", "LA", "RGB", "RGBA"]:
-            base_filename = splitext(basename(get_infile(f"alt/{mode}")))[0]
-            copy(
-                get_infile(f"alt/{mode}"),
-                join(input_directory, f"{base_filename}_alt_1.png"),
-            )
-            parent = Image.open(get_infile(f"alt/{mode}"))
-            for scale in np.array([1 / (2**x) for x in range(1, 7)]):
-                width = round(parent.size[0] * scale)
-                height = round(parent.size[1] * scale)
-                if width < 8 or height < 8:
-                    break
-                child = parent.resize((width, height), Image.NEAREST)
-                outfile = join(
-                    input_directory,
-                    f"{splitext(basename(get_infile(f'alt/{mode}')))[0]}_alt_{scale}_1.png",
-                )
-                child.save(outfile)
-        absolute_filenames = get_files(input_directory, style="absolute")
-        absolute_filenames = sorted(list(absolute_filenames))
-        filenames = {splitext(basename(f))[0]: f for f in absolute_filenames}
+        input_directory = Path(input_directory)
 
+        # Copy basic infiles and prepare scaled pairs
+        for mode in ["L", "LA", "RGB", "RGBA"]:
+            infile = get_infile(mode)
+            outfile = input_directory.joinpath(f"{infile.stem}_1{infile.suffix}")
+            copy(infile, outfile)
+
+            parent = Image.open(infile)
+            for scale in np.array([1 / (2**x) for x in range(1, 7)]):
+                width = round(parent.size[0] * scale)
+                height = round(parent.size[1] * scale)
+                if width < 8 or height < 8:
+                    break
+                child = parent.resize((width, height), Image.NEAREST)
+                outfile = input_directory.joinpath(
+                    f"{infile.stem}_{scale}{infile.suffix}"
+                )
+                child.save(outfile)
+
+        # Copy alternate infiles and prepare scaled pairs
+        for mode in ["L", "LA", "RGB", "RGBA"]:
+            infile = get_infile(f"alt/{mode}")
+            outfile = input_directory.joinpath(f"{infile.stem}_alt_1{infile.suffix}")
+            copy(infile, outfile)
+
+            parent = Image.open(infile)
+            for scale in np.array([1 / (2**x) for x in range(1, 7)]):
+                width = round(parent.size[0] * scale)
+                height = round(parent.size[1] * scale)
+                if width < 8 or height < 8:
+                    break
+                child = parent.resize((width, height), Image.NEAREST)
+                outfile = input_directory.joinpath(
+                    f"{infile.stem}_alt_{scale}{infile.suffix}"
+                )
+                child.save(outfile)
+
+        filenames = {filename.stem: filename for filename in input_directory.iterdir()}
         with temporary_filename(".csv") as pairs_file:
             with temporary_filename(".csv") as hash_file:
                 with TemporaryDirectory() as image_directory:

@@ -18,7 +18,6 @@ class WaifuUpConv7(Module):
 
         self.activation_function = LeakyReLU(0.1)
         self.pad = ZeroPad2d(7)
-        # noinspection PyTypeChecker
         self.sequential = Sequential(
             Conv2d(3, 16, 3),
             self.activation_function,

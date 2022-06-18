@@ -10,12 +10,13 @@ from pathlib import Path
 from types import ModuleType
 from typing import Type
 
-from pipescaler import mergers, processors, sorters, sources, splitters, termini
 from pipescaler.common import package_root, validate_input_path
-from pipescaler.core import Stage
+from pipescaler.core.image import Operator
+from pipescaler.image import mergers, splitters
+from pipescaler.pipelines import sorters, sources, termini
 
 
-def get_github_link(cls: Type[Stage]) -> str:
+def get_github_link(cls: Type[Operator]) -> str:
     """
     Get the GitHub master branch link to the file containing a class
 
@@ -27,7 +28,7 @@ def get_github_link(cls: Type[Stage]) -> str:
     """
     return "/".join(
         ["https://github.com/KarlTDebiec/PipeScaler/tree/master"]
-        + list(Path(getfile(cls)).parts[len(Path(package_root).parts) - 1 :])
+        + list(Path(getfile(cls)).parts[len(package_root.parts) - 1 :])
     )
 
 
@@ -52,7 +53,7 @@ def get_module_regexes(modules: list[ModuleType]) -> dict[ModuleType, re.Pattern
     return module_regexes
 
 
-def get_stage_description(stage: Type[Stage]) -> str:
+def get_stage_description(stage: Type[Operator]) -> str:
     """
     Get the formatted description of a stage, including GitHub link
 
@@ -84,16 +85,14 @@ def get_stage_descriptions(module: ModuleType) -> str:
 
 
 if __name__ == "__main__":
-    readme_filename = validate_input_path(join(dirname(package_root), "README.md"))
+    readme_filename = package_root.parent.joinpath("README.md")
 
     # Read README
     with open(readme_filename, "r") as readme_file:
         readme = readme_file.read()
 
     # Update README
-    module_regexes = get_module_regexes(
-        [mergers, processors, sorters, sources, splitters, termini]
-    )
+    module_regexes = get_module_regexes([mergers, sorters, sources, splitters, termini])
     for module, module_regex in module_regexes.items():
         body = module_regex.match(readme)["body"]
         readme = readme.replace(body, get_stage_descriptions(module))

@@ -5,21 +5,20 @@
 """Tests for Host."""
 from __future__ import annotations
 
-import yaml
-from pytest import fixture
-
+from pipescaler.image.processors import XbrzProcessor
+from pipescaler.testing import parametrized_fixture
 from pipescaler.utilities import Host
 
 
-@fixture()
-def conf():
-    return """
-stages:
-    xbrz-2:
-        XbrzProcessor:
-            scale: 2
-"""
+@parametrized_fixture(
+    cls=XbrzProcessor,
+    params=[
+        {"scale": 2},
+    ],
+)
+def xbrz_processor(request) -> XbrzProcessor:
+    return XbrzProcessor(**request.param)
 
 
-def test(conf: str) -> None:
-    Host(**yaml.load(conf, Loader=yaml.SafeLoader))
+def test(xbrz_processor: XbrzProcessor) -> None:
+    Host(processors={"xbrz-2": xbrz_processor})

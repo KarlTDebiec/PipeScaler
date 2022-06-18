@@ -29,7 +29,6 @@ class UtilitiesCli(CommandLineInterface):
         super().add_arguments_to_argparser(parser)
 
         subparsers = parser.add_subparsers(dest="utility")
-        # noinspection PyTypeChecker
         for name in sorted(cls.utilities):
             cls.utilities[name].construct_argparser(parser=subparsers)
 
@@ -37,7 +36,7 @@ class UtilitiesCli(CommandLineInterface):
     def execute(cls, **kwargs: Any) -> None:
         """Execute with provided keyword arguments.
 
-        Args:
+        Arguments:
             **kwargs: Command-line arguments
         """
         utility = cls.utilities[kwargs.pop("utility")]

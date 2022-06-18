@@ -10,8 +10,10 @@ from argparse import ArgumentParser, _SubParsersAction
 from inspect import cleandoc
 from typing import Any, Type, Union
 
-from pipescaler.common import CommandLineInterface
-from pipescaler.core.stages import Processor
+from PIL import Image
+
+from pipescaler.common import CommandLineInterface, set_logging_verbosity
+from pipescaler.core.image.operators.processor import Processor
 
 
 class ProcessorCli(CommandLineInterface, ABC):
@@ -39,12 +41,17 @@ class ProcessorCli(CommandLineInterface, ABC):
         TODO: Decide on a consistent way for ProcessorCli and UtilityCli to manage
           arguments destined for __init__ and arguments destined for __call__
 
-        Args:
+        Arguments:
             **kwargs: Command-line arguments
         """
-        # noinspection PyCallingNonCallable
-        processor = cls.processor(**kwargs)
-        processor(kwargs.pop("infile"), kwargs.pop("outfile"))
+        infile = kwargs.pop("infile")
+        outfile = kwargs.pop("outfile")
+        set_logging_verbosity(kwargs.pop("verbosity", 1))
+        processor = cls.processor(**kwargs)  # pylint: disable=E1111
+        with Image.open(infile) as input_image:
+            output_image = processor(input_image)
+            output_image.save(outfile)
+            print(f"{cls}: '{outfile}' saved")
 
     @classmethod
     def main(cls) -> None:

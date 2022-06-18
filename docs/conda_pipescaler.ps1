@@ -9,6 +9,9 @@ conda remove -y --name pipescaler --all
 conda create -y --name pipescaler python=3.9
 conda activate pipescaler
 
+conda install -y `
+    brotlipy
+
 pip install `
     black `
     flask `
@@ -23,6 +26,7 @@ pip install `
     pytest `
     pytest-cov `
     pytest-xdist `
+    pytest-asyncio `
     pywinauto `
     pyyaml `
     requests `
@@ -33,7 +37,6 @@ pip install `
     xbrz.py
 
 conda install -y `
-    pytables `
     pywin32
 
 conda install -y -c pytorch `

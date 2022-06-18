@@ -10,6 +10,7 @@ from inspect import cleandoc
 from typing import Any, Type
 
 from pipescaler.common import CommandLineInterface
+from pipescaler.core import Utility
 
 
 class UtilityCli(CommandLineInterface, ABC):
@@ -22,11 +23,11 @@ class UtilityCli(CommandLineInterface, ABC):
         TODO: Decide on a consistent way for ProcessorCli and UtilityCli to manage
           arguments destined for __init__ and arguments destined for __call__
 
-        Args:
+        Arguments:
             **kwargs: Command-line arguments
         """
-        # noinspection PyCallingNonCallable
-        utility = cls.utility(verbosity=kwargs.pop("verbosity", 1))
+        verbosity = kwargs.pop("verbosity", 1)
+        utility = cls.utility(verbosity=verbosity)  # pylint: disable=E1111,E1120,E1123
         utility(**kwargs)
 
     @classmethod
@@ -53,6 +54,6 @@ class UtilityCli(CommandLineInterface, ABC):
     @classmethod
     @property
     @abstractmethod
-    def utility(cls) -> Type:
+    def utility(cls) -> Type[Utility]:
         """Type of utility wrapped by command line interface."""
         raise NotImplementedError()

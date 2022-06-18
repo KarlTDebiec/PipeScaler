@@ -11,13 +11,13 @@ from typing import Type
 from pytest import mark, param
 
 from pipescaler.common import UnsupportedPlatformError
-from pipescaler.core import UnsupportedImageModeError
+from pipescaler.core.exceptions import UnsupportedImageModeError
 
 
 def skip_if_ci(inner: partial = None) -> partial:
     """Mark test to skip if running within continuous integration pipeline.
 
-    Args:
+    Arguments:
         inner: Nascent partial function of pytest.param with additional marks
     Returns:
         Partial function of pytest.param with marks
@@ -36,7 +36,7 @@ def skip_if_ci(inner: partial = None) -> partial:
 def xfail_file_not_found(inner: partial = None) -> partial:
     """Mark test to be expected to fail due to a file that cannot be found.
 
-    Args:
+    Arguments:
         inner: Nascent partial function of pytest.param with additional marks
     Returns:
         Partial function of pytest.param with marks
@@ -54,7 +54,7 @@ def xfail_if_platform(
 ) -> partial:
     """Mark test to be expected to fail on selected platforms.
 
-    Args:
+    Arguments:
         unsupported_platforms: Platforms on which test should be expected to fail
         raises: Error test should be expected to raise
         inner: Nascent partial function of pytest.param with additional marks
@@ -75,7 +75,7 @@ def xfail_if_platform(
 def xfail_unsupported_image_mode(inner: partial = None) -> partial:
     """Mark test to be expected to fail due to an unsupported image mode.
 
-    Args:
+    Arguments:
         inner: Nascent partial function of pytest.param with additional marks
     Returns:
         Partial function of pytest.param with marks
@@ -89,7 +89,7 @@ def xfail_unsupported_image_mode(inner: partial = None) -> partial:
 def xfail_value(inner: partial = None) -> partial:
     """Mark test to be expected to fail due to a value error.
 
-    Args:
+    Arguments:
         inner: Nascent partial function of pytest.param with additional marks
     Returns:
         Partial function of pytest.param with marks

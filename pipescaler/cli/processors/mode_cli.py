@@ -9,8 +9,8 @@ from argparse import ArgumentParser, _SubParsersAction
 from typing import Type, Union
 
 from pipescaler.core.cli import ProcessorCli
-from pipescaler.core.stages import Processor
-from pipescaler.processors.image import ModeProcessor
+from pipescaler.core.image import Processor
+from pipescaler.image.processors import ModeProcessor
 
 
 class ModeCli(ProcessorCli):
@@ -32,8 +32,8 @@ class ModeCli(ProcessorCli):
         required.add_argument(
             "--mode",
             required=True,
-            type=cls.str_arg(options=cls.processor.supported_input_modes),
-            help=f"image mode ({ModeProcessor.supported_input_modes})",
+            type=cls.str_arg(options=cls.processor.inputs["input"]),
+            help=f"image mode ({cls.processor.inputs['input']})",
         )
 
         optional = cls.get_optional_arguments_group(parser)
