@@ -5,8 +5,6 @@
 """Crops image canvas."""
 from __future__ import annotations
 
-from typing import Any
-
 from PIL import Image
 
 from pipescaler.common import validate_ints
@@ -17,9 +15,7 @@ from pipescaler.core.validation import validate_mode
 class CropProcessor(Processor):
     """Crops image canvas."""
 
-    def __init__(self, pixels: tuple[int, int, int, int], **kwargs: Any) -> None:
-        super().__init__(**kwargs)
-
+    def __init__(self, pixels: tuple[int, int, int, int]) -> None:
         self.left, self.top, self.right, self.bottom = validate_ints(
             pixels, length=4, min_value=0
         )
