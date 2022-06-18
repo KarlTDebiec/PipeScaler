@@ -28,7 +28,7 @@ def get_github_link(cls: Type[Operator]) -> str:
     """
     return "/".join(
         ["https://github.com/KarlTDebiec/PipeScaler/tree/master"]
-        + list(Path(getfile(cls)).parts[len(Path(package_root).parts) - 1 :])
+        + list(Path(getfile(cls)).parts[len(package_root.parts) - 1 :])
     )
 
 
@@ -85,7 +85,7 @@ def get_stage_descriptions(module: ModuleType) -> str:
 
 
 if __name__ == "__main__":
-    readme_filename = validate_input_path(join(dirname(package_root), "README.md"))
+    readme_filename = package_root.parent.joinpath("README.md")
 
     # Read README
     with open(readme_filename, "r") as readme_file:

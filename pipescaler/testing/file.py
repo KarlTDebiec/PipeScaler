@@ -4,7 +4,6 @@
 #   the terms of the BSD license. See the LICENSE file for details.
 """File-related functions for testing."""
 from os import environ, getenv
-from os.path import dirname, join, normpath, sep, splitext
 from pathlib import Path
 
 from pipescaler.common import validate_input_file
@@ -28,7 +27,7 @@ def get_infile(name: str) -> Path:
         path = Path("basic").joinpath(path)
     if path.suffix == "":
         path = path.with_suffix(".png")
-    path = Path(dirname(package_root)).joinpath("test", "data", "infiles", path)
+    path = package_root.parent.joinpath("test", "data", "infiles", path)
     if not path.exists():
         raise FileNotFoundError()
 
@@ -48,7 +47,7 @@ def get_model_infile(name: str) -> Path:
         path = Path("WaifuUpConv7").join(path)
     if path.suffix == "":
         path = path.with_suffix(".pth")
-    path = Path(dirname(package_root)).joinpath("test","data","models",path)
+    path = package_root.parent.joinpath("test", "data", "models", path)
     if getenv("CI") is None and not path.exists():
         raise FileNotFoundError()
 
@@ -63,7 +62,7 @@ def get_sub_directory(name: str) -> Path:
     Returns:
         Path to sub-directory
     """
-    path = Path(dirname(package_root)).joinpath("test", "data", "infiles", name)
+    path = package_root.parent.joinpath("test", "data", "infiles", name)
     if not path.exists():
         raise FileNotFoundError()
 

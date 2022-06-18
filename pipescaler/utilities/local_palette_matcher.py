@@ -69,6 +69,8 @@ class LocalPaletteMatcher(Utility):
         Arguments:
             fit_array: Image array whose palette to fit to reference
             ref_array: Image array whose palette to use as reference
+            local_range: Range of adjacent pixels from which to draw best-fit color;
+              1 checks a 3x3 window, 2 checks a 5x5 window, etc.
         Returns:
             Matched imaged array
         """
@@ -113,6 +115,8 @@ class LocalPaletteMatcher(Utility):
         Arguments:
             fit_array: Image array whose palette to fit to reference
             ref_array: Image array whose palette to use as reference
+            local_range: Range of adjacent pixels from which to draw best-fit color;
+              1 checks a 3x3 window, 2 checks a 5x5 window, etc.
         Returns:
             Matched imaged array
         """

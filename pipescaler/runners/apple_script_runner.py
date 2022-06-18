@@ -40,7 +40,7 @@ class AppleScriptRunner(Runner):
         if script.suffix != ".scpt":
             script = script.with_suffix(".scpt")
         if not script.is_absolute():
-            script = Path(package_root).joinpath("data", "scripts", script)
+            script = package_root.joinpath("data", "scripts", script)
         if not script.exists():
             raise FileNotFoundError()
         if not script.is_file():

@@ -426,6 +426,7 @@ class ScaledPairIdentifier(Utility):
         Arguments:
             known_pairs: Known pairs of parent
             new_pairs: Proposed new pairs of parent
+            new_pair_scores: Scores of new pairs
         Returns:
         """
         info(
