@@ -19,6 +19,13 @@ class SharpenProcessor(Processor):
     kernel = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]], float)
 
     def __call__(self, input_image: Image.Image) -> Image.Image:
+        """Process an image.
+
+        Args:
+            input_image: Input image
+        Returns:
+            Processed output image
+        """
         input_image, _ = validate_mode(input_image, self.inputs["input"])
 
         if input_image.mode == "L":
@@ -40,6 +47,7 @@ class SharpenProcessor(Processor):
     @classmethod
     @property
     def inputs(cls) -> dict[str, tuple[str, ...]]:
+        """Inputs to this operator."""
         return {
             "input": ("L", "RGB"),
         }
@@ -47,6 +55,7 @@ class SharpenProcessor(Processor):
     @classmethod
     @property
     def outputs(cls) -> dict[str, tuple[str, ...]]:
+        """Outputs of this operator."""
         return {
             "output": ("L", "RGB"),
         }

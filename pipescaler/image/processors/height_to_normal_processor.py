@@ -5,7 +5,7 @@
 """Converts height map image to a normal map image."""
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Optional
 
 from PIL import Image
 
@@ -21,19 +21,24 @@ from pipescaler.core.validation import validate_mode
 class HeightToNormalProcessor(Processor):
     """Converts height map image to a normal map image."""
 
-    def __init__(self, sigma: Optional[float] = None, **kwargs: Any) -> None:
+    def __init__(self, sigma: Optional[float] = None) -> None:
         """Validate and store configuration and initialize.
 
         Arguments:
             sigma: Gaussian smoothing to apply to image
-            **kwargs: Additional keyword arguments
         """
-        super().__init__(**kwargs)
-
         self.sigma = validate_float(sigma, min_value=0) if sigma is not None else None
 
     def __call__(self, input_image: Image.Image) -> Image.Image:
+        """Process an image.
+
+        Args:
+            input_image: Input image
+        Returns:
+            Processed output image
+        """
         input_image, _ = validate_mode(input_image, self.inputs["input"])
+
         if self.sigma is not None:
             input_image = smooth_image(input_image, self.sigma)
         output_image = generate_normal_map_from_height_map_image(input_image)
@@ -43,6 +48,7 @@ class HeightToNormalProcessor(Processor):
     @classmethod
     @property
     def inputs(cls) -> dict[str, tuple[str, ...]]:
+        """Inputs to this operator."""
         return {
             "input": ("L",),
         }
@@ -50,6 +56,7 @@ class HeightToNormalProcessor(Processor):
     @classmethod
     @property
     def outputs(cls) -> dict[str, tuple[str, ...]]:
+        """Outputs of this operator."""
         return {
             "output": ("RGB",),
         }

@@ -5,8 +5,6 @@
 """Upscales and/or denoises image using Waifu2x via an external executable."""
 from __future__ import annotations
 
-from typing import Any
-
 from PIL import Image
 
 from pipescaler.common import temporary_filename
@@ -21,12 +19,22 @@ class WaifuExternalProcessor(Processor):
     See [waifu2x](https://github.com/nagadomi/waifu2x).
     """
 
-    def __init__(self, arguments: str, **kwargs: Any) -> None:
-        super().__init__(**kwargs)
+    def __init__(self, arguments: str) -> None:
+        """Validate and store configuration and initialize.
 
+        Args:
+            arguments: Command-line arguments to pass to waifu2x
+        """
         self.waifu_runner = WaifuRunner(arguments)
 
     def __call__(self, input_image: Image.Image) -> Image.Image:
+        """Process an image.
+
+        Args:
+            input_image: Input image
+        Returns:
+            Processed output image
+        """
         input_image, output_mode = validate_mode(
             input_image, self.inputs["input"], "RGB"
         )
@@ -53,6 +61,7 @@ class WaifuExternalProcessor(Processor):
     @classmethod
     @property
     def inputs(cls) -> dict[str, tuple[str, ...]]:
+        """Inputs to this operator."""
         return {
             "input": ("L", "RGB"),
         }
@@ -60,6 +69,7 @@ class WaifuExternalProcessor(Processor):
     @classmethod
     @property
     def outputs(cls) -> dict[str, tuple[str, ...]]:
+        """Outputs of this operator."""
         return {
             "output": ("L", "RGB"),
         }

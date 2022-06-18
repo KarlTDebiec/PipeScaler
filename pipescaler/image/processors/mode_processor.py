@@ -5,8 +5,6 @@
 """Converts mode of image."""
 from __future__ import annotations
 
-from typing import Any
-
 from PIL import Image, ImageColor
 
 from pipescaler.common import validate_str
@@ -17,20 +15,24 @@ from pipescaler.core.validation import validate_mode
 class ModeProcessor(Processor):
     """Converts mode of image."""
 
-    def __init__(
-        self, mode: str = "RGB", background_color: str = "#000000", **kwargs: Any
-    ) -> None:
+    def __init__(self, mode: str = "RGB", background_color: str = "#000000") -> None:
         """Validate and store configuration and initialize.
 
         Arguments:
             mode: Output mode
-            background_color: Background color of image
+            background_color: Background color
         """
-        super().__init__(**kwargs)
         self.mode = validate_str(mode, self.outputs["output"])
         self.background_color = ImageColor.getrgb(background_color)  # TODO: Validate
 
     def __call__(self, input_image: Image.Image) -> Image.Image:
+        """Process an image.
+
+        Args:
+            input_image: Input image
+        Returns:
+            Processed output image
+        """
         input_image, input_mode = validate_mode(input_image, self.inputs["input"])
 
         if input_image.mode == self.mode:
@@ -46,6 +48,7 @@ class ModeProcessor(Processor):
     @classmethod
     @property
     def inputs(cls) -> dict[str, tuple[str, ...]]:
+        """Inputs to this operator."""
         return {
             "input": ("1", "L", "LA", "RGB", "RGBA"),
         }
@@ -53,6 +56,7 @@ class ModeProcessor(Processor):
     @classmethod
     @property
     def outputs(cls) -> dict[str, tuple[str, ...]]:
+        """Outputs of this operator."""
         return {
             "output": ("1", "L", "LA", "RGB", "RGBA"),
         }

@@ -35,5 +35,6 @@ __all__: list[str] = [
     "ThresholdProcessor",
     "WaifuExternalProcessor",
     "WaifuProcessor",
+    "WebProcessor",
     "XbrzProcessor",
 ]

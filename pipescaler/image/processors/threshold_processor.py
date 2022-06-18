@@ -5,7 +5,7 @@
 """Converts image to black and white using threshold, optionally denoising."""
 from __future__ import annotations
 
-from typing import Any, no_type_check
+from typing import no_type_check
 
 import numpy as np
 from numba import njit
@@ -19,9 +19,7 @@ from pipescaler.core.validation import validate_mode
 class ThresholdProcessor(Processor):
     """Converts image to black and white using threshold, optionally denoising."""
 
-    def __init__(
-        self, threshold: int = 128, denoise: bool = False, **kwargs: Any
-    ) -> None:
+    def __init__(self, threshold: int = 128, denoise: bool = False) -> None:
         """Validate and store configuration and initialize.
 
         Arguments:
@@ -29,12 +27,17 @@ class ThresholdProcessor(Processor):
             denoise: Flip color of pixels bordered by less than 5 pixels of the same
               color
         """
-        super().__init__(**kwargs)
-
         self.threshold = validate_int(threshold, 1, 244)
         self.denoise = denoise
 
     def __call__(self, input_image: Image.Image) -> Image.Image:
+        """Process an image.
+
+        Args:
+            input_image: Input image
+        Returns:
+            Processed output image
+        """
         input_image, input_mode = validate_mode(input_image, self.inputs["input"])
 
         if input_mode == "L":
@@ -43,7 +46,7 @@ class ThresholdProcessor(Processor):
             output_image = input_image
         if self.denoise:
             output_data = np.array(output_image)
-            self.denoise_data(output_data)
+            self.denoise_array(output_data)
             output_image = Image.fromarray(output_data)
 
         return output_image
@@ -51,6 +54,7 @@ class ThresholdProcessor(Processor):
     @classmethod
     @property
     def inputs(cls) -> dict[str, tuple[str, ...]]:
+        """Inputs to this operator."""
         return {
             "input": ("1", "L"),
         }
@@ -58,6 +62,7 @@ class ThresholdProcessor(Processor):
     @classmethod
     @property
     def outputs(cls) -> dict[str, tuple[str, ...]]:
+        """Outputs of this operator."""
         return {
             "output": ("1",),
         }
@@ -65,7 +70,7 @@ class ThresholdProcessor(Processor):
     @no_type_check
     @staticmethod
     @njit(nogil=True, cache=True, fastmath=True)
-    def denoise_data(data: np.ndarray) -> None:
+    def denoise_array(data: np.ndarray) -> None:
         """Flip color of pixels bordered by less than 5 pixels of the same color.
 
         Arguments:

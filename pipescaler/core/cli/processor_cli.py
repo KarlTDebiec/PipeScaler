@@ -35,9 +35,7 @@ class ProcessorCli(CommandLineInterface, ABC):
         parser.add_argument("outfile", type=cls.output_path_arg(), help="output file")
 
     @classmethod
-    def execute(
-        cls, infile: str, outfile: str, verbosity: int = 1, **kwargs: Any
-    ) -> None:
+    def execute(cls, **kwargs: Any) -> None:
         """Execute with provided keyword arguments.
 
         TODO: Decide on a consistent way for ProcessorCli and UtilityCli to manage
@@ -46,8 +44,10 @@ class ProcessorCli(CommandLineInterface, ABC):
         Args:
             **kwargs: Command-line arguments
         """
-        set_logging_verbosity(verbosity)
-        processor = cls.processor(**kwargs)
+        infile = kwargs.pop("infile")
+        outfile = kwargs.pop("outfile")
+        set_logging_verbosity(kwargs.pop("verbosity", 1))
+        processor = cls.processor(**kwargs)  # pylint: disable=E1111
         with Image.open(infile) as input_image:
             output_image = processor(input_image)
             output_image.save(outfile)

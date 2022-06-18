@@ -25,6 +25,13 @@ class WebProcessor(Processor):
         self.timeout = validate_int(timeout, 0)
 
     def __call__(self, input_image: Image.Image) -> Image.Image:
+        """Process an image.
+
+        Args:
+            input_image: Input image
+        Returns:
+            Processed output image
+        """
         with temporary_filename(".png") as temp_file:
             input_image.save(temp_file)
             with open(temp_file, "rb") as input_file:

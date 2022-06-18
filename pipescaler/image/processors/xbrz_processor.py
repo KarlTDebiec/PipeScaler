@@ -5,8 +5,6 @@
 """Upscales image using xbrz."""
 from __future__ import annotations
 
-from typing import Any
-
 import numpy as np
 import xbrz
 from PIL import Image
@@ -22,17 +20,22 @@ class XbrzProcessor(Processor):
     See [xbrz](https://github.com/ioistired/xbrz.py).
     """
 
-    def __init__(self, scale: int = 4, **kwargs: Any) -> None:
+    def __init__(self, scale: int = 4) -> None:
         """Validate and store configuration and initialize.
 
         Arguments:
             scale: Factor by which to scale output image relative to input
         """
-        super().__init__(**kwargs)
-
         self.scale = validate_int(scale, 2, 6)
 
     def __call__(self, input_image: Image.Image) -> Image.Image:
+        """Process an image.
+
+        Args:
+            input_image: Input image
+        Returns:
+            Processed output image
+        """
         input_image, output_mode = validate_mode(
             input_image, self.inputs["input"], "RGBA"
         )
@@ -58,6 +61,7 @@ class XbrzProcessor(Processor):
     @classmethod
     @property
     def inputs(cls) -> dict[str, tuple[str, ...]]:
+        """Inputs to this operator."""
         return {
             "input": ("1", "L", "LA", "RGB", "RGBA"),
         }
@@ -65,6 +69,7 @@ class XbrzProcessor(Processor):
     @classmethod
     @property
     def outputs(cls) -> dict[str, tuple[str, ...]]:
+        """Outputs of this operator."""
         return {
             "output": ("1", "L", "LA", "RGB", "RGBA"),
         }

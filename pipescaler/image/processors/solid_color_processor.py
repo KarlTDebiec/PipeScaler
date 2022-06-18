@@ -5,8 +5,6 @@
 """Sets entire image color to its average color, optionally resizing."""
 from __future__ import annotations
 
-from typing import Any
-
 import numpy as np
 from PIL import Image
 
@@ -18,12 +16,22 @@ from pipescaler.core.validation import validate_mode
 class SolidColorProcessor(Processor):
     """Sets entire image color to its average color, optionally resizing."""
 
-    def __init__(self, scale: float = 1, **kwargs: Any) -> None:
-        super().__init__(**kwargs)
+    def __init__(self, scale: float = 1) -> None:
+        """Validate and store configuration and initialize.
 
+        Args:
+            scale: Scale of output image relative to input
+        """
         self.scale = validate_float(scale)
 
     def __call__(self, input_image: Image.Image) -> Image.Image:
+        """Process an image.
+
+        Args:
+            input_image: Input image
+        Returns:
+            Processed output image
+        """
         input_image, output_mode = validate_mode(input_image, self.inputs["input"])
 
         size = (
@@ -44,6 +52,7 @@ class SolidColorProcessor(Processor):
     @classmethod
     @property
     def inputs(cls) -> dict[str, tuple[str, ...]]:
+        """Inputs to this operator."""
         return {
             "input": ("1", "L", "LA", "RGB", "RGBA"),
         }
@@ -51,6 +60,7 @@ class SolidColorProcessor(Processor):
     @classmethod
     @property
     def outputs(cls) -> dict[str, tuple[str, ...]]:
+        """Outputs of this operator."""
         return {
             "output": ("1", "L", "LA", "RGB", "RGBA"),
         }
