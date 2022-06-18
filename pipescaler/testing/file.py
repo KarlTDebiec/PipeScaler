@@ -68,4 +68,7 @@ def get_sub_directory(name: str) -> Path:
     Returns:
         Path to sub-directory
     """
-    return Path(dirname(package_root)).joinpath("test", "data", "infiles", name)
+    path = Path(dirname(package_root)).joinpath("test", "data", "infiles", name)
+    if not path.exists():
+        raise FileNotFoundError()
+    return path
