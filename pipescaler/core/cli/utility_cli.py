@@ -10,6 +10,7 @@ from inspect import cleandoc
 from typing import Any, Type
 
 from pipescaler.common import CommandLineInterface
+from pipescaler.core import Utility
 
 
 class UtilityCli(CommandLineInterface, ABC):
@@ -25,8 +26,8 @@ class UtilityCli(CommandLineInterface, ABC):
         Arguments:
             **kwargs: Command-line arguments
         """
-        # pylint: disable-next=E1111
-        utility = cls.utility(verbosity=kwargs.pop("verbosity", 1))
+        verbosity = kwargs.pop("verbosity", 1)
+        utility = cls.utility(verbosity=verbosity)
         utility(**kwargs)
 
     @classmethod
@@ -53,6 +54,6 @@ class UtilityCli(CommandLineInterface, ABC):
     @classmethod
     @property
     @abstractmethod
-    def utility(cls) -> Type:
+    def utility(cls) -> Type[Utility]:
         """Type of utility wrapped by command line interface."""
         raise NotImplementedError()

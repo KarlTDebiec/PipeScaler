@@ -127,7 +127,7 @@ spelling-ignore-comment-directives=['fmt: on', 'fmt: off', 'noqa:', 'noqa', 'nos
     'isort:skip', 'mypy:']
 spelling-store-unknown-words=['no']
 
-[tool.pytlint.string]
+[tool.pylint.string]
 check-quote-consistency=['no']
 check-str-concat-over-line-jumps=['no']
 

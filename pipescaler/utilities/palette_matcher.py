@@ -10,11 +10,12 @@ import numpy as np
 from numba import njit
 from PIL import Image
 
+from pipescaler.core import Utility
 from pipescaler.core.exceptions import UnsupportedImageModeError
 from pipescaler.core.image import get_palette, get_perceptually_weighted_distance
 
 
-class PaletteMatcher:
+class PaletteMatcher(Utility):
     """Matches the palette of one image to another."""
 
     def match_palette(

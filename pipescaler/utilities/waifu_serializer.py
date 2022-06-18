@@ -11,10 +11,11 @@ from logging import info
 import torch
 
 from pipescaler.common import validate_input_file, validate_output_file, validate_str
+from pipescaler.core import Utility
 from pipescaler.models import WaifuUpConv7, WaifuVgg7
 
 
-class WaifuSerializer:
+class WaifuSerializer(Utility):
     """Converts Waifu models in JSON format to PyTorch's serialized pth format.
 
     Input JSON is available from [yu45020/Waifu2x on GitHub]

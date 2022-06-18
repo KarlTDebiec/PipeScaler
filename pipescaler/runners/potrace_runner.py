@@ -9,7 +9,7 @@ from logging import debug
 from pathlib import Path
 
 from pipescaler.common import run_command
-from pipescaler.core.runner import Runner
+from pipescaler.core import Runner
 
 
 class PotraceRunner(Runner):

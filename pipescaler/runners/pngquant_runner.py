@@ -11,7 +11,7 @@ from shutil import copyfile
 from typing import Any
 
 from pipescaler.common import run_command
-from pipescaler.core.runner import Runner
+from pipescaler.core import Runner
 
 
 class PngquantRunner(Runner):

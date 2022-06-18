@@ -12,6 +12,7 @@ from os.path import expandvars, normpath
 from typing import Any, Type, Union
 
 from pipescaler.common import set_logging_verbosity, validate_int
+from pipescaler.core import Utility
 from pipescaler.core.cli import UtilityCli
 from pipescaler.core.files import read_yaml
 from pipescaler.utilities import Host
@@ -62,7 +63,7 @@ class HostCli(UtilityCli):
 
     @classmethod
     @property
-    def utility(cls) -> Type:
+    def utility(cls) -> Type[Utility]:
         """Type of utility wrapped by command line interface."""
         return Host
 

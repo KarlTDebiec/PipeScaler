@@ -10,11 +10,12 @@ from numba import njit
 from PIL import Image
 
 from pipescaler.common import validate_int
+from pipescaler.core import Utility
 from pipescaler.core.exceptions import UnsupportedImageModeError
 from pipescaler.core.image import get_perceptually_weighted_distance
 
 
-class LocalPaletteMatcher:
+class LocalPaletteMatcher(Utility):
     """Matches the palette of one image to another, restricted to nearby colors."""
 
     def __init__(self, local_range: int = 1):

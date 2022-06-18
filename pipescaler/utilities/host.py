@@ -10,10 +10,11 @@ from flask import Flask, redirect, request, send_file, url_for
 from PIL import Image
 
 from pipescaler.common import temporary_filename
+from pipescaler.core import Utility
 from pipescaler.core.image import Processor
 
 
-class Host:
+class Host(Utility):
     """Hosts stages on a web API."""
 
     def __init__(self, processors: dict[str, Processor]) -> None:

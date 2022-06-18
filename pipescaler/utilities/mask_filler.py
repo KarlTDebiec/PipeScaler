@@ -9,11 +9,12 @@ import numpy as np
 from PIL import Image
 
 from pipescaler.common import validate_enum
+from pipescaler.core import Utility
 from pipescaler.core.enums import MaskFillMode
 from pipescaler.utilities.palette_matcher import PaletteMatcher
 
 
-class MaskFiller:
+class MaskFiller(Utility):
     """Erases masked pixels within an image."""
 
     def __init__(

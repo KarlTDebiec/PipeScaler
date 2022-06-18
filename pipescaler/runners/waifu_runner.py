@@ -10,7 +10,7 @@ from pathlib import Path
 from platform import system
 
 from pipescaler.common import run_command
-from pipescaler.core.runner import Runner
+from pipescaler.core import Runner
 
 
 class WaifuRunner(Runner):
