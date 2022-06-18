@@ -18,5 +18,4 @@ def get_expected_output_mode(input_image: Image.Image) -> str:
     """
     if input_image.mode == "P":
         return remove_palette(input_image).mode
-    else:
-        return input_image.mode
+    return input_image.mode

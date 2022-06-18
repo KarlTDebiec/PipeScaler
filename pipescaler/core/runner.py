@@ -2,6 +2,7 @@
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
+"""Abstract base class for executable runners."""
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -13,6 +14,7 @@ from pipescaler.common import run_command, validate_executable, validate_int
 
 
 class Runner(ABC):
+    """Abstract base class for executable runners."""
     def __init__(self, timeout: int = 600) -> None:
         """Validate and store configuration and initialize.
 

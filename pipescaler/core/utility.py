@@ -13,7 +13,7 @@ class Utility(ABC):
     """Abstract base class for utilities."""
 
     def __repr__(self):
-        """Representation of utility"""
+        """Representation of utility."""
         return f"<{self.__class__.__name__}>"
 
     @classmethod
