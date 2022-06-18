@@ -70,7 +70,7 @@ class AppleScriptProcessor(Processor):
     def inputs(cls) -> dict[str, tuple[str, ...]]:
         """Inputs to this operator."""
         return {
-            "input": ("RGB", "RGBA"),
+            "input": ("RGB",),
         }
 
     @classmethod
@@ -78,5 +78,5 @@ class AppleScriptProcessor(Processor):
     def outputs(cls) -> dict[str, tuple[str, ...]]:
         """Outputs of this operator."""
         return {
-            "output": ("RGB", "RGBA"),
+            "output": ("RGB",),
         }

@@ -5,10 +5,12 @@
 """Runs pngquant tool for reducing image palette."""
 from __future__ import annotations
 
+from logging import debug
 from pathlib import Path
+from shutil import copyfile
 from typing import Any
 
-from pipescaler.common import package_root
+from pipescaler.common import DirectoryNotFoundError, package_root, run_command
 from pipescaler.core import Runner
 
 
@@ -36,12 +38,24 @@ class AutomatorRunner(Runner):
         if workflow.suffix != ".workflow":
             workflow = workflow.with_suffix(".workflow")
         if not workflow.is_absolute():
-            workflow = Path(package_root).joinpath("data", "workflows")
+            workflow = Path(package_root).joinpath("data", "workflows", workflow)
         if not workflow.exists():
-            raise ValueError()
+            raise DirectoryNotFoundError()
         if not workflow.is_dir():
-            raise ValueError()
+            raise DirectoryNotFoundError()
         self.workflow = workflow
+
+    def run(self, infile: Path, outfile: Path) -> None:
+        """Run executable on infile, yielding outfile.
+
+        Arguments:
+            infile: Input file path
+            outfile: Output file path
+        """
+        command = self.command_template.format(infile=infile, outfile=outfile)
+        debug(f"{self}: {command}")
+        run_command(command, timeout=self.timeout)
+        copyfile(infile, outfile)
 
     @property
     def command_template(self) -> str:

@@ -30,7 +30,6 @@ def processor(request) -> AppleScriptProcessor:
     ("infile"),
     [
         skip_if_ci(xfail_if_platform({"Linux", "Windows"}))("RGB"),
-        skip_if_ci(xfail_if_platform({"Linux", "Windows"}))("RGBA"),
     ],
 )
 def test(infile: str, processor: AppleScriptProcessor) -> None:

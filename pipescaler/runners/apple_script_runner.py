@@ -5,10 +5,12 @@
 """Runs pngquant tool for reducing image palette."""
 from __future__ import annotations
 
+from logging import debug
 from pathlib import Path
+from shutil import copyfile
 from typing import Any
 
-from pipescaler.common import package_root
+from pipescaler.common import package_root, run_command
 from pipescaler.core import Runner
 
 
@@ -38,11 +40,11 @@ class AppleScriptRunner(Runner):
         if script.suffix != ".scpt":
             script = script.with_suffix(".scpt")
         if not script.is_absolute():
-            script = Path(package_root).joinpath("data", "scripts")
+            script = Path(package_root).joinpath("data", "scripts", script)
         if not script.exists():
-            raise ValueError()
-        if not script.is_dir():
-            raise ValueError()
+            raise FileNotFoundError()
+        if not script.is_file():
+            raise FileNotFoundError()
         self.script = script
 
         self.arguments = arguments
@@ -53,6 +55,18 @@ class AppleScriptRunner(Runner):
         return (
             f"{self.executable_path} {self.script}" ' "{infile}" ' f"{self.arguments}"
         )
+
+    def run(self, infile: Path, outfile: Path) -> None:
+        """Run executable on infile, yielding outfile.
+
+        Arguments:
+            infile: Input file path
+            outfile: Output file path
+        """
+        command = self.command_template.format(infile=infile, outfile=outfile)
+        debug(f"{self}: {command}")
+        run_command(command, timeout=self.timeout)
+        copyfile(infile, outfile)
 
     @classmethod
     @property
