@@ -55,7 +55,7 @@ class MaskFiller(Utility):
     def run_iteration(
         self, image_array: np.ndarray, mask_array: np.ndarray
     ) -> tuple[np.ndarray, np.ndarray]:
-        """Run one iteration of mask filling
+        """Run one iteration of mask filling.
 
         Arguments:
             image_array: Image array
@@ -92,7 +92,7 @@ class MaskFiller(Utility):
 
     @staticmethod
     def adjacent_opaque_pixels(transparent_pixels: np.ndarray) -> np.ndarray:
-        """Calculate the number of opaque pixels adjacent to each pixel
+        """Calculate the number of opaque pixels adjacent to each pixel.
 
         Arguments:
             transparent_pixels: Whether pixels are opaque
@@ -126,7 +126,7 @@ class MaskFiller(Utility):
     def sum_of_adjacent_opaque_pixels(
         image_array: np.ndarray, transparent_pixels: np.ndarray
     ) -> np.ndarray:
-        """Calculate the sum of color of opaque pixels adjacent to each pixel
+        """Calculate the sum of color of opaque pixels adjacent to each pixel.
 
         Arguments:
             image_array: Image array

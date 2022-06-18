@@ -21,7 +21,7 @@ class EsrganSerializer(Utility):
     """Converts ESRGAN models to PyTorch's serialized pth format."""
 
     def __call__(self, infile: str, outfile: str) -> None:
-        """Converts infile to outfile.
+        """Convert infile to outfile.
 
         Arguments:
             infile: Input file
