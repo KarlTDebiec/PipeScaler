@@ -27,9 +27,7 @@ class CopyFileTerminus(Terminus):
         Arguments:
             directory: Directory to which to copy images
         """
-        self.directory = Path(
-            validate_output_directory(directory, create_directory=True)
-        )
+        self.directory = Path(validate_output_directory(directory))
         self.observed_files = set()
 
     def __call__(self, input_image: PipeImage) -> None:
@@ -45,6 +43,9 @@ class CopyFileTerminus(Terminus):
 
         def save_image():
             """Saves image, by copying file if possible"""
+            if not self.directory.exists():
+                self.directory.mkdir(parents=True)
+                info(f"{self}: {self.directory} created")
             if input_image.path is not None:
                 copyfile(input_image.path, outfile)
             else:
@@ -71,6 +72,8 @@ class CopyFileTerminus(Terminus):
 
     def purge_unrecognized_files(self) -> None:
         """Remove files in output directory that were not observed by this Terminus."""
+        if not self.directory.exists():
+            return
         for filepath in self.directory.iterdir():
             if filepath.name not in self.observed_files:
                 remove(filepath)
