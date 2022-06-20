@@ -8,7 +8,7 @@ from logging import info
 from os import remove, rmdir
 from os.path import join
 from pathlib import Path
-from typing import Callable, Optional, Union
+from typing import Callable, Optional, Sequence, Union
 
 from pipescaler.common import temporary_filename, validate_output_directory
 from pipescaler.core.pipelines import PipeImage
@@ -60,6 +60,38 @@ class CheckpointManager:
                     output_image.image.save(checkpoint)
                     info(f"{self}: {image.name} checkpoint {checkpoint.name} saved")
                 return output_image
+
+            return wrapped
+
+        return checkpoint_decorator
+
+    def post_splitter(
+        self, names: Sequence[str]
+    ) -> Callable[
+        [Callable[[PipeImage], tuple[PipeImage, ...]]],
+        Callable[[PipeImage], tuple[PipeImage, ...]],
+    ]:
+        self.checkpoint_names.add(names)
+
+        def checkpoint_decorator(
+            function: Callable[[PipeImage], tuple[PipeImage, ...]]
+        ) -> Callable[[PipeImage], tuple[PipeImage, ...]]:
+            @wraps(function)
+            def wrapped(image: PipeImage) -> tuple[PipeImage, ...]:
+                self.image_names.add(image.name)
+                checkpoints = [self.get_checkpoint(image, name) for name in names]
+                if all(checkpoint.exists() for checkpoint in checkpoints):
+                    output_images = tuple(
+                        PipeImage(path=checkpoint, parents=image)
+                        for checkpoint in checkpoints
+                    )
+                    info(f"{self}: {image.name} checkpoints {names} loaded")
+                else:
+                    output_images = function(image)
+                    for output_image, checkpoint in zip(output_images, checkpoints):
+                        output_image.image.save(checkpoint)
+                        info(f"{self}: {image.name} checkpoint {checkpoint.name} saved")
+                return output_images
 
             return wrapped
 
