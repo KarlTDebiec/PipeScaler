@@ -5,6 +5,7 @@
 """Image within a pipeline."""
 from __future__ import annotations
 
+from logging import debug
 from pathlib import Path
 from typing import Optional, Sequence, Union
 
@@ -85,6 +86,7 @@ class PipeImage:
     @property
     def image(self) -> Image.Image:
         if self._image is None:
+            debug(f"<PipeImage>: Opening image {self.name} from '{self.path}'")
             image = Image.open(self.path)
             if image.mode == "P":
                 image = remove_palette(image)

@@ -33,25 +33,30 @@ class CopyFileTerminus(Terminus):
         self.observed_files = set()
 
     def __call__(self, input_image: PipeImage) -> None:
-        suffix = input_image.path.suffix if input_image.path is not None else ".png"
-        outfile = self.directory.joinpath(input_image.name).with_suffix(suffix)
-        self.observed_files.add(outfile.name)
-        if outfile.exists():
-            existing_image = Image.open(outfile)
-            if np.array_equal(input_image.image, existing_image):
-                info(f"{self}: {outfile} unchanged; not overwritten")
-            else:
-                if input_image.path is not None:
-                    copyfile(input_image.path, outfile)
-                else:
-                    input_image.image.save(outfile)
-                info(f"{self}: {outfile} changed; overwritten")
-        else:
+        def save_image():
             if input_image.path is not None:
                 copyfile(input_image.path, outfile)
             else:
                 input_image.image.save(outfile)
-            info(f"{self}: '{outfile}' saved")
+
+        suffix = input_image.path.suffix if input_image.path is not None else ".png"
+        outfile = self.directory.joinpath(input_image.name).with_suffix(suffix)
+        self.observed_files.add(outfile.name)
+        if outfile.exists():
+            if (
+                input_image.path is not None
+                and outfile.stat().st_mtime > input_image.path.stat().st_mtime
+            ):
+                info(f"{self}: {outfile} is newer; not overwritten")
+                return
+            if np.array_equal(input_image.image, Image.open(outfile)):
+                info(f"{self}: {outfile} unchanged; not overwritten")
+                return
+            save_image()
+            info(f"{self}: {outfile} changed; overwritten")
+            return
+        save_image()
+        info(f"{self}: '{outfile}' saved")
 
     def purge_unrecognized_files(self) -> None:
         for filepath in self.directory.iterdir():
