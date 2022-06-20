@@ -33,7 +33,18 @@ class CopyFileTerminus(Terminus):
         self.observed_files = set()
 
     def __call__(self, input_image: PipeImage) -> None:
+        """Saves image to output directory.
+
+        If image already exists within output directory, checks if it should be
+        overwritten. If pre-existing image is newer, or pre-existing image's contents
+        are the same as the incoming image, does not overwrite.
+
+        Arguments:
+            input_image: Image to save to output directory
+        """
+
         def save_image():
+            """Saves image, by copying file if possible"""
             if input_image.path is not None:
                 copyfile(input_image.path, outfile)
             else:
@@ -59,6 +70,7 @@ class CopyFileTerminus(Terminus):
         info(f"{self}: '{outfile}' saved")
 
     def purge_unrecognized_files(self) -> None:
+        """Remove files in output directory that were not observed by this Terminus."""
         for filepath in self.directory.iterdir():
             if filepath.name not in self.observed_files:
                 remove(filepath)
