@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright (C) 2022. Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Copies images to a defined output directory."""
 from __future__ import annotations
 
@@ -31,7 +31,7 @@ class CopyFileTerminus(Terminus):
         self.observed_files = set()
 
     def __call__(self, input_image: PipeImage) -> None:
-        """Saves image to output directory.
+        """Save image to output directory.
 
         If image already exists within output directory, checks if it should be
         overwritten. If pre-existing image is newer, or pre-existing image's contents
@@ -42,7 +42,7 @@ class CopyFileTerminus(Terminus):
         """
 
         def save_image():
-            """Saves image, by copying file if possible."""
+            """Save image, by copying file if possible."""
             if not self.directory.exists():
                 self.directory.mkdir(parents=True)
                 info(f"{self}: {self.directory} created")
@@ -71,7 +71,7 @@ class CopyFileTerminus(Terminus):
         info(f"{self}: '{outfile}' saved")
 
     def purge_unrecognized_files(self) -> None:
-        """Remove files in output directory that were not observed by this Terminus."""
+        """Remove files in output directory that have not been logged as observed."""
         if not self.directory.exists():
             return
         for filepath in self.directory.iterdir():
