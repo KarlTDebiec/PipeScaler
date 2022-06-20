@@ -5,6 +5,7 @@
 """Image within a pipeline."""
 from __future__ import annotations
 
+from logging import debug
 from pathlib import Path
 from typing import Optional, Sequence, Union
 
@@ -20,18 +21,18 @@ class PipeImage:
     def __init__(
         self,
         image: Optional[Image.Image] = None,
-        path: Optional[Union[Path, str]] = None,
+        path: Optional[Path] = None,
         parents: Optional[Union[PipeImage, Sequence[PipeImage]]] = None,
         name: Optional[str] = None,
     ) -> None:
         """Validate and initialize.
 
         Arguments:
-            image: Image; if not provided, path must be provided, and image will be
-              loaded from path on first access
-            path: Path to image file; if not provided, image must be provided; while
-              both image and path may not be provided at creation, path may be set later
-              if image is to be saved
+            image: Image; either image or path must be provided, and both may not be
+              provided; if path is provided, image will be loaded from path on first
+              access
+            path: Path to image file; either image or path must be provided, and both
+              may not be provided
             name: Name of image; if not provided will name of first parent image, and if
               that is not available will use filename of path excluding extension; one
               of these must be available
@@ -69,7 +70,8 @@ class PipeImage:
                     "will be used."
                 )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
+        """Representation of PipeImage."""
         return (
             f"<PipeImage '{self.name}' "
             f"of mode={self.image.mode} "
@@ -77,14 +79,17 @@ class PipeImage:
             f"and parents={self.count_parents()}>"
         )
 
-    def count_parents(self):
+    def count_parents(self) -> int:
+        """Count number of parents of this image."""
         if self.parents is not None:
             return len(self.parents) + sum(p.count_parents() for p in self.parents)
         return 0
 
     @property
     def image(self) -> Image.Image:
+        """Actual image; loaded from path is not already available."""
         if self._image is None:
+            debug(f"<PipeImage>: Opening image {self.name} from '{self.path}'")
             image = Image.open(self.path)
             if image.mode == "P":
                 image = remove_palette(image)
@@ -97,10 +102,12 @@ class PipeImage:
 
     @property
     def parents(self) -> Optional[list[PipeImage]]:
+        """Parent images of this image."""
         return self._parents
 
     @property
     def path(self) -> Optional[Path]:
+        """Path to this image, if applicable."""
         return self._path
 
     @path.setter
@@ -111,4 +118,5 @@ class PipeImage:
 
     @property
     def name(self) -> str:
+        """Name of this image."""
         return self._name
