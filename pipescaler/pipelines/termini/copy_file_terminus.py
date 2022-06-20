@@ -42,7 +42,7 @@ class CopyFileTerminus(Terminus):
         """
 
         def save_image():
-            """Saves image, by copying file if possible"""
+            """Saves image, by copying file if possible."""
             if not self.directory.exists():
                 self.directory.mkdir(parents=True)
                 info(f"{self}: {self.directory} created")
