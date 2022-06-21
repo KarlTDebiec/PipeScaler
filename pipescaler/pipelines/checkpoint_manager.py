@@ -30,7 +30,7 @@ class CheckpointManager:
         self.checkpoint_names = set()
 
     def __repr__(self):
-        """Representation of checkpoint manager"""
+        """Representation."""
         return f"<{self.__class__.__name__}>"
 
     def get_checkpoint(
