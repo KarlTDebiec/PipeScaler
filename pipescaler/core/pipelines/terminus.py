@@ -5,7 +5,9 @@
 """Abstract base class for termini."""
 from __future__ import annotations
 
+import re
 from abc import ABC, abstractmethod
+from inspect import cleandoc
 
 from pipescaler.core.pipelines.pipe_image import PipeImage
 
@@ -19,5 +21,13 @@ class Terminus(ABC):
         raise NotImplementedError
 
     def __repr__(self):
-        """Representation."""
+        """Representation of terminus."""
         return f"<{self.__class__.__name__}>"
+
+    @classmethod
+    @property
+    def help_markdown(cls) -> str:
+        """Short description of this image operator in markdown, with links."""
+        if cls.__doc__:
+            return re.split(r' *[\.\?!][\'"\)\]]* *', cleandoc(cls.__doc__))[0] + "."
+        return ""

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright (C) 2020-2022. Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Runs pngquant tool for reducing image palette."""
 from __future__ import annotations
 
@@ -28,7 +28,7 @@ class AppleScriptRunner(Runner):
     ) -> None:
         """Validate and store configuration and initialize.
 
-        Args:
+        Arguments:
             script: AppleScript to run
             arguments: Arguments to pass to AppleScript
             **kwargs: Additional keyword arguments

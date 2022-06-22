@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright (C) 2020-2022. Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Yields images from a directory."""
 from __future__ import annotations
 
@@ -30,8 +30,9 @@ class DirectorySource(Source):
         """Validate and store configuration and initialize.
 
         Arguments:
-            directory: Directory from which to yield files
-            exclusions: Base filenames to exclude
+            directory: Directory or directories from which to yield files
+            exclusions: Filenames stems to exclude
+            sort: Function to sort filenames
             **kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
@@ -41,7 +42,7 @@ class DirectorySource(Source):
         exclusions |= self.exclusions
 
         # Store configuration
-        if isinstance(directory, str) or isinstance(directory, Path):
+        if isinstance(directory, (Path, str)):
             directory = [directory]
         self.directories = [Path(validate_input_directory(d)) for d in directory]
         self.sort = sort
@@ -54,6 +55,7 @@ class DirectorySource(Source):
         self.index = 0
 
     def __next__(self):
+        """Yield next image."""
         if self.index < len(self.filenames):
             filename = self.filenames[self.index]
             self.index += 1

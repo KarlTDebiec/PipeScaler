@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright (C) 2020-2022. Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Sorts image based on mode."""
 from __future__ import annotations
 
@@ -21,14 +21,18 @@ class ModeSorter(Sorter):
     """
 
     def __call__(self, pipe_image: PipeImage) -> str:
+        """Get the outlet to which an image should be sorted.
+
+        Arguments:
+            pipe_image: Image to sort
+        Returns:
+            Outlet to which image should be sorted
+        """
         _, outlet = validate_mode(pipe_image.image, ("1", "L", "LA", "RGB", "RGBA"))
         if outlet == "1":
             outlet = "M"
         info(f"{self}: '{pipe_image.name}' matches '{outlet}'")
         return outlet
-
-    def __repr__(self):
-        return "<ModeSorter>"
 
     @property
     def outlets(self) -> tuple[str, ...]:
