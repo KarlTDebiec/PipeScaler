@@ -4,6 +4,7 @@
 #   the terms of the BSD license. See the LICENSE file for details.
 """Tests for WebProcessor."""
 from multiprocessing import Process
+from platform import system
 from time import sleep
 
 from PIL import Image
@@ -47,7 +48,10 @@ def test(infile: str, web_processor: WebProcessor, xbrz_processor: XbrzProcessor
     host = Host(processors={"xbrz-2": xbrz_processor})
     process = Process(target=host.__call__)
     process.start()
-    sleep(5)
+    if system() == "Darwin":
+        sleep(10)
+    else:
+        sleep(5)
     output_image = web_processor(input_image)
     process.kill()
     assert output_image.size == (
