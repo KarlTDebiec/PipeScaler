@@ -23,7 +23,7 @@ class ModeSorter(Sorter):
     def __call__(self, pipe_image: PipeImage) -> str:
         """Get the outlet to which an image should be sorted.
 
-        Args:
+        Arguments:
             pipe_image: Image to sort
         Returns:
             Outlet to which image should be sorted
