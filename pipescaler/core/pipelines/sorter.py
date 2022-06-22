@@ -17,9 +17,17 @@ class Sorter(ABC):
 
     @abstractmethod
     def __call__(self, pipe_image: PipeImage) -> str:
+        """Get the outlet to which an image should be sorted.
+
+        Arguments:
+            pipe_image: Image to sort
+        Returns:
+            Outlet to which image should be sorted
+        """
         raise NotImplementedError()
 
     def __repr__(self):
+        """Representation of sorter."""
         return f"<{self.__class__.__name__}>"
 
     @property

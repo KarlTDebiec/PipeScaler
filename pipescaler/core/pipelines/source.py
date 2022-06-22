@@ -20,6 +20,10 @@ class Source(ABC):
         """Return next image."""
         raise NotImplementedError()
 
+    def __repr__(self):
+        """Representation of source."""
+        return f"<{self.__class__.__name__}>"
+
     @classmethod
     @property
     def help_markdown(cls) -> str:
