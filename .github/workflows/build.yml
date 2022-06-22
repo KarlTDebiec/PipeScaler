@@ -54,12 +54,12 @@ jobs:
       - name: prospector
         run: |
           cd ${GITHUB_WORKSPACE}
-          poetry run prospector -0 -o text -o json:prospector.json pipescaler
+          poetry run prospector -0 -o text -o json:prospector.json .
           poetry run docs/prospector_reporter.py prospector.json modified_files.json
       - name: pydocstyle
         run: |
           cd ${GITHUB_WORKSPACE}
-          poetry run pydocstyle pipescaler > pydocstyle.txt || echo
+          poetry run pydocstyle . > pydocstyle.txt || echo
           poetry run docs/pydocstyle_reporter.py pydocstyle.txt modified_files.json
       - name: Test with pytest
         run: |
