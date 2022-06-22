@@ -20,7 +20,7 @@ class Splitter(Operator, ABC):
         """Split an image.
 
         Arguments:
-            input_images: Input image
+            input_image: Input image
         Returns:
             Split output images
         """

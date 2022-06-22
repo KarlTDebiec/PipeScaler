@@ -4,12 +4,15 @@
 [![Code Style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![License: BSD 3-Clause](https://img.shields.io/badge/license-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 
-PipeScaler is a package for processing collections of images with a focus on increasing
+PipeScaler is a package for processing collections of images with a focus on upscaling
 resolution. Users define a pipeline in which images flow from a source through a series
-of sorters, processors, splitters, and mergers into a terminus. Intermediate images
-along the pipeline are saved to allow processing to be tracked, stopped, and
-resumed. Pipelines are straightforward to configure using yaml, including reusable
-stages and blocks.
+of sorters, processors, splitters, and mergers into a terminus. Checkpoint images
+along the pipeline may be saved to allow processing to be tracked, stopped, and
+resumed.
+
+**Sources** feed images into the downstream pipeline. PipeScaler includes the following
+image sources:
+* [DirectorySource](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/pipelines/sources/directory_source.py) - Yields images from a directory.
 
 **Processors** perform operations on an image, yielding a modified downstream image.
 PipeScaler includes the following image processors:
@@ -30,25 +33,20 @@ PipeScaler includes the following image processors:
 * [WebProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/processors/web_processor.py) - POSTs image to a defined URL, which responds with processed image.
 * [XbrzProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/processors/xbrz_processor.py) - Upscales image using [xbrz](https://github.com/ioistired/xbrz.py).
 
-**Splitters** separate one image into two or more downstream images. PipeScaler includes the
-following image splitters:
+**Splitters** separate one image into two or more downstream images. PipeScaler includes
+the following image splitters:
 * [AlphaSplitter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/splitters/alpha_splitter.py) - Splits image with transparency into separate color and alpha images.
 * [NormalSplitter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/splitters/normal_splitter.py) - Splits a normal map image into separate x, y, and z images.
 
-**Mergers** combine two or more images into a single downstream image. PipeScaler includes
-the following image mergers:
+**Mergers** combine two or more images into a single downstream image. PipeScaler
+includes the following image mergers:
 * [AlphaMerger](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/mergers/alpha_merger.py) - Merges color and alpha images into a single image with transparency.
 * [HistogramMatchMerger](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/mergers/histogram_match_merger.py) - Matches an image's color histogram to that of a reference image.
 * [NormalMerger](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/mergers/normal_merger.py) - Merges x, y, and z images into a single normal map image.
 * [PaletteMatchMerger](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/mergers/palette_match_merger.py) - Matches an image's color palette to that of a reference image.
 
-**Sources** feed images into the downstream pipeline. PipeScaler includes the following
-image sources:
-* [DirectorySource](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/pipelines/sources/directory_source.py) - Yields images from a directory.
-
-
-**Sorters** direct images through different downstream pipeline sections. PipeScaler
-includes the following image sorters:
+**Sorters** classify images, allowing them to be directed  through different downstream
+pipeline sections. PipeScaler includes the following image sorters:
 * [AlphaSorter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/pipelines/sorters/alpha_sorter.py) - Sorts image based on presence and use of alpha channel.
 * [GrayscaleSorter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/pipelines/sorters/grayscale_sorter.py) - Sorts image based on presence and use of color channels.
 * [ListSorter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/pipelines/sorters/list_sorter.py) - Sorts image based on filename using a set of configured lists.

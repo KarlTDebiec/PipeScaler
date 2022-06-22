@@ -24,6 +24,13 @@ class Substituter:
         required: bool = False,
         match_input_mode: bool = True,
     ) -> None:
+        """Validate and store configuration and initialize.
+
+        Arguments:
+            directory: Directory from which to source alternative images
+            required: Raise error if alternative image not found
+            match_input_mode: Convert image to match input image's mode
+        """
         self.directory = Path(
             validate_input_directory(directory, create_directory=True)
         )
@@ -32,6 +39,13 @@ class Substituter:
         self.match_input_mode = match_input_mode
 
     def __call__(self, pipe_image: PipeImage) -> PipeImage:
+        """Substitute image with an alternative sourced from a defined directory.
+
+        Arguments:
+            pipe_image: Image to substitute
+        Returns:
+            Alternate image
+        """
         if pipe_image.name in self.substitutes:
             image = Image.open(self.substitutes[pipe_image.name])
             if self.match_input_mode and image.mode != pipe_image.image.mode:
