@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright (C) 2020-2022. Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Functions for interacting with images."""
 from __future__ import annotations
 
@@ -256,7 +256,7 @@ def hstack_images(*images: Image.Image) -> Image.Image:
 
 
 def is_monochrome(
-    image: Image.Image, mean_threshold: float = 0, max_threshold: float = 0
+    image: Image.Image, mean_threshold: float = 0.01, proportion_threshold: float = 0.01
 ) -> bool:
     """Check whether a grayscale image contains only pure black and white.
 
@@ -264,20 +264,23 @@ def is_monochrome(
         image: Image to check
         mean_threshold: Threshold which mean difference between image and true
           monochrome must be below
-        max_threshold:  Threshold which max difference between image and true
-          monochrome must be below
+        proportion_threshold: Threshold which percent of different pixels between image and
+          true monochrome must be below
     Returns:
-        Whether image contains only purge black and white
+        Whether image contains only pure black and white
     """
     if image.mode != "L":
         raise UnsupportedImageModeError()
     mean_threshold = validate_float(mean_threshold, 0, 255)
-    max_threshold = validate_float(max_threshold, 0, 255)
+    proportion_threshold = validate_float(proportion_threshold, 0, 1)
 
     l_array = np.array(image)
     one_array = np.array(image.convert("1").convert("L"))
     diff = np.abs(l_array - one_array)
-    if diff.mean() <= mean_threshold and diff.max() <= max_threshold:
+    mean_diff = diff.mean()
+    proportion_diff = (diff != 0).sum() / diff.size
+
+    if mean_diff <= mean_threshold and proportion_diff <= proportion_threshold:
         return True
     return False
 
