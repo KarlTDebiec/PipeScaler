@@ -1,32 +1,20 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright (C) 2020-2022. Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """FileScanner."""
 from __future__ import annotations
 
 import re
+from itertools import chain
 from logging import debug, info, warning
-from os import makedirs, remove, rmdir
-from os.path import basename, isdir, isfile, join, splitext
+from os import remove, rmdir
+from pathlib import Path
 from shutil import copy, move
-from time import sleep
-from typing import Any, Optional, Union
+from typing import Optional, Sequence, Union
 
-import pandas as pd
-from PIL import Image
-from watchdog.events import FileSystemEventHandler
-from watchdog.observers import Observer
-
-from pipescaler.common import (
-    DirectoryNotFoundError,
-    validate_input_directory,
-    validate_output_directory,
-    validate_output_file,
-)
+from pipescaler.common import DirectoryNotFoundError
 from pipescaler.core import Utility
-from pipescaler.core.files import get_files
-from pipescaler.utilities.scaled_pair_identifier import ScaledPairIdentifier
 
 
 class FileScanner(Utility):
@@ -36,289 +24,161 @@ class FileScanner(Utility):
 
     def __init__(
         self,
-        input_directory: Union[str, list[str]],
-        copy_directory: str,
-        move_directory: str,
-        rules: list[list[str, str]] = None,
-        reviewed_directory: Optional[Union[str, list[str]]] = None,
-        ignore_directory: Optional[Union[str, list[str]]] = None,
-        scaled_directory: Optional[str] = None,
-        remove_directory: Optional[str] = None,
-        observed_filenames_infile: Optional[str] = None,
-        observed_filenames_outfile: Optional[str] = None,
-        scaled_pair_identifier: Optional[dict[str:Any]] = None,
-        **kwargs: Any,
+        project_root: Path,
+        input_directories: Union[Path, list[Path]],
+        reviewed_directories: Optional[Union[Path, list[Path]]],
+        rules: Optional[list[tuple[str, str]]] = None,
     ) -> None:
         """Validate and store configuration and initialize.
 
         Arguments:
-            input_directory: Directory or directories from which to read input files
-            copy_directory: Directory to which to copy images that match 'copy' rule
-            move_directory: Directory to which to move images that match 'move' rule
+            project_root: Root directory of project
+            input_directories: Directory or directories from which to read input files
+            reviewed_directories: Directory or directories of reviewed files
             rules: Rules by which to process images
-            reviewed_directory: Directory or directories of reviewed images
-            ignore_directory: Directory or directories of reviewed images to ignore
-            scaled_directory: Directory of scaled image sets
-            remove_directory: Directory of reviewed images to remove from input
-              directory or directories
-            observed_filenames_infile: Text file from which to read list of observed
-              files
-            observed_filenames_outfile: Text file to which to write list of observed
-              files
-            scaled_pair_identifier: Initialized scaled pair identifier
-            **kwargs: Additional keyword arguments
         """
         super().__init__()
 
-        def validate_input_directories(input_directories: Union[str, list[str]]):
+        def validate_input_directories(
+            directories: Union[Path, Sequence[Path]]
+        ) -> list[Path]:
             """Validate input directory paths and make them absolute."""
-            if isinstance(input_directories, str):
-                input_directories = [input_directories]
-            validated_input_directories = []
-            for input_directory in input_directories:
-                try:
-                    validated_input_directories.append(
-                        validate_input_directory(input_directory)
-                    )
-                except DirectoryNotFoundError:
-                    warning(f"Configured directory '{input_directory}' does not exist")
-            return validated_input_directories
+            if isinstance(directories, Path):
+                directories = [directories]
+            validated_directories = []
+            for directory in directories:
+                directory = directory.absolute()
+                if directory.exists():
+                    validated_directories.append(directory)
+                else:
+                    warning(f"{self}: Input directory '{directory}' does not exist")
+            if len(validated_directories) == 0:
+                raise DirectoryNotFoundError(
+                    f"No directories provided in '{directories}' exist"
+                )
+
+            return validated_directories
+
+        def get_names(directories: Union[Path, Sequence[Path]]) -> set[str]:
+            """Get names of files in directories."""
+            if isinstance(directories, Path):
+                directories = [directories]
+            files = chain.from_iterable(d.iterdir() for d in directories)
+            names = {f.stem for f in files}
+
+            return names
 
         # Validate input and output directory and file paths
-        self.ignore_directories = []
-        """Directories containing files which should be ignored"""
-        if ignore_directory is not None:
-            self.ignore_directories = validate_input_directories(ignore_directory)
-        self.input_directories = validate_input_directories(input_directory)
-        """Directories from which to read input files"""
-        self.copy_directory = validate_output_directory(copy_directory)
-        """Directory to which to copy images that match 'copy' rule"""
-        self.move_directory = validate_output_directory(move_directory)
-        """Directory to which to move images that match 'move' rule"""
-        self.remove_directory = None
-        """Directory containing files which should be removed from input directories"""
-        if remove_directory is not None:
-            try:
-                self.remove_directory = validate_input_directory(remove_directory)
-            except DirectoryNotFoundError:
-                pass
-        self.reviewed_directories = []
-        """Directories containing files which have been reviewed"""
-        if reviewed_directory is not None:
-            self.reviewed_directories = validate_input_directories(reviewed_directory)
-        self.scaled_directory = None
-        """Directory containing files which are rescaled from other files"""
-        if scaled_directory is not None:
-            self.scaled_directory = validate_output_directory(scaled_directory)
+        self.ignore_directory = project_root.joinpath("ignore")
+        """Directory of images to ignore if present in input directories."""
+        self.copy_directory = project_root.joinpath("new")
+        """Directory to which to copy images that match 'copy' rule."""
+        self.move_directory = project_root.joinpath("review")
+        """Directory to which to move images that match 'move' rule."""
+        self.remove_directory = project_root.joinpath("remove")
+        """Directory of images that should be removed from input directories."""
+        self.input_directories = validate_input_directories(input_directories)
+        """Directories from which to read input files."""
+        self.reviewed_directories = None
+        """Directories of files that have been reviewed."""
+        if reviewed_directories is not None:
+            self.reviewed_directories = validate_input_directories(reviewed_directories)
 
         # Prepare filename data structures
-        self.reviewed_filenames = get_files(self.reviewed_directories, style="base")
-        """Base filenames of images in classified directories"""
-        self.ignored_filenames = get_files(self.ignore_directories, style="base")
-        """Base filenames of images to ignore"""
-        if rules is None:
-            rules = [".*", "copy"]
-        self.rules = [(re.compile(regex), action) for regex, action in rules]
-        """Rules by which to classify images"""
-        absolute_filenames = get_files(self.input_directories, style="absolute")
-        if self.scaled_directory is not None:
-            absolute_filenames.update(
-                get_files(self.scaled_directory, style="absolute")
-            )
-        absolute_filenames = sorted(list(absolute_filenames))
-        self.filenames = {splitext(basename(f))[0]: f for f in absolute_filenames}
-        """Input filenames; keys are base names and values are absolute paths"""
-        info(f"Found {len(self.filenames)} infiles in {self.input_directories}")
+        self.reviewed_names = {}
+        """Names of images that have been reviewed."""
+        if self.reviewed_directories is not None:
+            self.reviewed_names = get_names(self.reviewed_directories)
 
-        # Initialize scaled pair identifier
-        self.scaled_pair_identifier = None
-        """Scaled pair identifier"""
-        if scaled_pair_identifier is not None:
-            self.scaled_pair_identifier = ScaledPairIdentifier(
-                filenames=self.filenames, **scaled_pair_identifier
-            )
+        self.ignored_names = {}
+        """Names of images to ignore."""
+        if self.ignore_directory.exists():
+            self.ignored_names = get_names(self.ignore_directory)
 
-        # Initialize observed filename lister
-        self.observed_filenames = set()
-        if observed_filenames_infile is not None:
-            self.observed_filenames = get_files(observed_filenames_infile, style="base")
-        self.observed_filenames_outfile = None
-        """Text file to which to write observed filenames"""
-        if observed_filenames_outfile is not None:
-            self.observed_filenames_outfile = validate_output_file(
-                observed_filenames_outfile
-            )
+        # Prepare rules
+        self.rules = None
+        """Rules by which to classify images."""
+        if rules is not None:
+            self.rules = [(re.compile(regex), action) for regex, action in rules]
 
-    def __call__(self, **kwargs: Any) -> Any:
+    def __call__(self) -> None:
         """Perform operations.
 
         Arguments:
             **kwargs: Additional keyword arguments
         """
         # Prepare to for run
-        if isdir(self.copy_directory):
-            for filename in get_files(self.copy_directory, style="absolute"):
-                remove(filename)
-        if self.remove_directory is not None:
-            self.remove_files_in_remove_directory()
-
-        # Search for scaled image pairs
-        if self.scaled_pair_identifier is not None:
-            self.scaled_pair_identifier.identify_pairs()
+        if self.copy_directory.exists():
+            for file_path in self.copy_directory.iterdir():
+                remove(file_path)
+                info(f"'{file_path}' removed")
+            rmdir(self.copy_directory)
+            info(f"{self}: '{self.copy_directory}' removed")
+        if self.remove_directory.exists():
+            for file_path in self.remove_directory.iterdir():
+                for input_directory in self.input_directories:
+                    if input_directory.joinpath(file_path.name).exists():
+                        remove(input_directory.joinpath(file_path.name))
+                        info(
+                            f"{self}: '{input_directory.joinpath(file_path.name)}' removed"
+                        )
+                remove(file_path)
+                info(f"{self}: '{file_path}' removed")
+            rmdir(self.remove_directory)
+            info(f"{self}: '{self.remove_directory}' removed")
 
         # Perform operations
-        for filename in self.filenames:
-            status = self.get_status(filename)
-            self.perform_operation(filename, status)
-        if self.observed_filenames_outfile is not None:
-            self.write_observed_filenames_to_outfile()
+        for input_directory in self.input_directories:
+            for file_path in input_directory.iterdir():
+                status = self.get_operation(file_path.stem)
+                self.perform_operation(file_path, status)
 
-        # Watch for new files
-        # self.watch_new_files_in_input_directory()
+    def get_operation(self, name: str) -> str:
+        """Select operation for filename.
 
-    def get_status(self, filename: str) -> str:
-        """Select operation for filename."""
-        if self.scaled_pair_identifier is not None:
-            if filename in self.scaled_pair_identifier.children:
-                return "scaled"
-
-        if filename in self.reviewed_filenames:
+        Arguments:
+            name: Name of file
+        Returns:
+            Operation to perform
+        """
+        if name in self.reviewed_names:
             return "known"
-
-        if filename in self.ignored_filenames:
+        if name in self.ignored_names:
             return "ignore"
-
-        for regex, status in self.rules:
-            if regex.match(filename):
-                return status
+        if self.rules is not None:
+            for regex, status in self.rules:
+                if regex.match(name):
+                    return status
 
         return "copy"
 
-    def move_children_to_scaled_directory(self):
-        """Move children to scaled directory."""
-        for child_filename in self.scaled_directory:
-            child = basename(self.filenames[child_filename])
-            for reviewed_directory in self.reviewed_directories:
-                if isfile(join(reviewed_directory, child)):
-                    move(
-                        join(reviewed_directory, child),
-                        join(self.scaled_directory, child),
-                    )
-                    info(
-                        f"'{child}' moved from reviewed directory "
-                        f"'{reviewed_directory}' to scaled directory "
-                        f"'{self.scaled_directory}'"
-                    )
+    def perform_operation(self, file_path: Path, operation: str) -> None:
+        """Perform operations for filename.
 
-    def perform_operation(self, filename: str, status: str) -> None:
-        """Perform operations for filename."""
-        if status == "known":
-            self.observed_filenames.add(filename)
-            debug(f"'{self.filenames[filename]}' known")
-        elif status == "ignore":
-            debug(f"'{self.filenames[filename]}' ignored")
-        elif status == "scaled":
-            if not self.filenames[filename].startswith(self.scaled_directory):
-                if not isdir(self.scaled_directory):
-                    makedirs(self.scaled_directory)
-                    info(f"'{self.scaled_directory}' created")
-                source = self.filenames[filename]
-                destination = join(self.scaled_directory, basename(source))
-                move(source, destination)
-                info(f"'{source}' moved to '{destination}'")
-            else:
-                debug(f"'{self.filenames[filename]}' scaled")
-        elif status == "copy":
-            if not isdir(self.copy_directory):
-                makedirs(self.copy_directory)
-                info(f"'{self.copy_directory}' created")
-            source = self.filenames[filename]
-            remove_prefix = "JETSETRADIO.EXE_"
-            output_extension = "png"
-            if remove_prefix is not None:
-                destination = join(
-                    self.copy_directory, basename(source).removeprefix(remove_prefix)
-                )
-            else:
-                destination = join(self.copy_directory, basename(source))
-            if output_extension is not None:
-                source_extension = splitext(source)[-1].lstrip(".")
-                if source_extension != output_extension:
-                    destination = (
-                        f"{destination.removesuffix(source_extension)}"
-                        f"{output_extension}"
-                    )
-                    with Image.open(source) as source_image:
-                        source_image.save(destination)
-                else:
-                    copy(source, destination)
-            else:
-                copy(source, destination)
-            info(f"'{source}' copied to '{destination}'")
-        elif status == "move":
-            if not isdir(self.move_directory):
-                makedirs(self.move_directory)
-                info(f"'{self.move_directory}' created")
-            source = self.filenames[filename]
-            destination = join(self.move_directory, basename(source))
-            move(source, destination)
-            info(f"'{source}' moved to '{destination}'")
-        elif status == "remove":
-            remove(self.filenames[filename])
-            info(f"'{self.filenames[filename]}' deleted")
+        Arguments:
+            file_path: Path to file
+            operation: Operation to perform
+        """
+        if operation == "known":
+            debug(f"{self}: '{file_path.stem}' known")
+        elif operation == "ignore":
+            debug(f"{self}: '{file_path.stem}' ignored")
+        elif operation == "copy":
+            if not self.copy_directory.exists():
+                self.copy_directory.mkdir(parents=True)
+                info(f"{self}: '{self.copy_directory}' created")
+            destination = self.copy_directory.joinpath(file_path.name)
+            copy(file_path, destination)
+            info(f"'{file_path}' copied to '{destination}'")
+        elif operation == "move":
+            if not self.move_directory.exists():
+                self.move_directory.mkdir(parents=True)
+                info(f"{self}: '{self.move_directory}' created")
+            destination = self.move_directory.joinpath(file_path.name)
+            move(file_path, destination)
+            info(f"{self}: '{file_path}' moved to '{destination}'")
+        elif operation == "remove":
+            remove(file_path)
+            info(f"'{self}: {file_path}' deleted")
         else:
-            raise ValueError()
-
-    def remove_files_in_remove_directory(self):
-        """Purge files in the remove directory as well as their source files."""
-        if self.remove_directory is not None:
-            remove_filenames = get_files(self.remove_directory, style="full")
-            for filename in remove_filenames:
-                for input_directory in self.input_directories:
-                    if isfile(join(input_directory, filename)):
-                        remove(join(input_directory, filename))
-                        info(
-                            f"'{filename}' removed from input directory "
-                            f"'{input_directory}'"
-                        )
-                if isfile(join(self.remove_directory, filename)):
-                    remove(join(self.remove_directory, filename))
-                    del self.filenames[splitext(filename)[0]]
-                    info(f"'{filename}' removed from remove directory")
-            rmdir(self.remove_directory)
-            info(f"'{self.remove_directory}' removed")
-
-    def watch_new_files_in_input_directory(self):
-        """Watch new files in input directory."""
-
-        class FileCreatedEventHandler(FileSystemEventHandler):
-            """Event handler."""
-
-            def __init__(self, host) -> None:
-                self.host = host
-
-            def on_created(self, event):
-                """Action."""
-                filename = splitext(basename(event.key[1]))[0]
-                self.host.perform_operation(filename)
-
-        event_handler = FileCreatedEventHandler(self)
-        observer = Observer()
-        observer.schedule(event_handler, self.input_directories[0])
-        observer.start()
-        try:
-            while True:
-                sleep(1)
-        except KeyboardInterrupt:
-            observer.stop()
-        observer.join()
-
-    def write_observed_filenames_to_outfile(self):
-        """Write observed filenames to outfile."""
-        with open(self.observed_filenames_outfile, "w", encoding="utf8") as outfile:
-            for filename in sorted(list(self.observed_filenames)):
-                outfile.write(f"{filename}\n")
-            info(
-                f"'{self.observed_filenames_outfile}' updated with "
-                f"{len(self.observed_filenames)} filenames"
-            )
+            raise ValueError(f"Unknown operation '{operation}'")
