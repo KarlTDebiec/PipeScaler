@@ -124,6 +124,8 @@ class FileScanner(Utility):
         """Prefix to remove from output file names."""
         self.output_format = output_format
         """Format of output files."""
+        if output_format is not None and not output_format.startswith("."):
+            self.output_format = f".{output_format}"
 
     def __call__(self) -> None:
         """Perform operations."""
@@ -136,12 +138,13 @@ class FileScanner(Utility):
             info(f"{self}: '{self.copy_directory}' removed")
         if self.remove_directory.exists():
             for file_path in self.remove_directory.iterdir():
+                name = file_path.name
+                if self.remove_prefix is not None:
+                    name = f"{self.remove_prefix}{name}"
                 for input_directory in self.input_directories:
-                    if input_directory.joinpath(file_path.name).exists():
-                        remove(input_directory.joinpath(file_path.name))
-                        info(
-                            f"{self}: '{input_directory.joinpath(file_path.name)}' removed"
-                        )
+                    for match in input_directory.glob(f"{Path(name).stem}.*"):
+                        remove(match)
+                        info(f"{self}: '{match}' removed")
                 remove(file_path)
                 info(f"{self}: '{file_path}' removed")
             rmdir(self.remove_directory)
@@ -160,6 +163,8 @@ class FileScanner(Utility):
         Returns:
             Operation to perform
         """
+        if self.remove_prefix is not None:
+            name = name.removeprefix(self.remove_prefix)
         if name in self.reviewed_names:
             return "known"
         if name in self.ignored_names:
