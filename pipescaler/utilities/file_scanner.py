@@ -30,6 +30,7 @@ class FileScanner(Utility):
         input_directories: Union[Path, list[Path]],
         reviewed_directories: Optional[Union[Path, list[Path]]],
         rules: Optional[list[tuple[str, str]]] = None,
+        *,
         remove_prefix: Optional[str] = None,
         output_format: Optional[str] = None,
     ) -> None:
