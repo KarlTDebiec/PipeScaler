@@ -5,8 +5,9 @@
 """Copies images to a defined output directory."""
 from __future__ import annotations
 
+from datetime import datetime
 from logging import info
-from os import remove
+from os import remove, utime
 from pathlib import Path
 from shutil import copyfile
 from typing import Union
@@ -63,6 +64,9 @@ class CopyFileTerminus(Terminus):
                 return
             if np.array_equal(input_image.image, Image.open(outfile)):
                 info(f"{self}: {outfile} unchanged; not overwritten")
+                epoch = datetime.now().timestamp()
+                utime(outfile, (epoch, epoch))
+                info(f"{self}: {outfile} timestamp updated")
                 return
             save_image()
             info(f"{self}: {outfile} changed; overwritten")
