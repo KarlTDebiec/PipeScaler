@@ -2,47 +2,41 @@
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
-"""Prints prospector results formatted for consumption by GitHub."""
+"""Prints prospector output formatted for consumption by GitHub."""
 import json
-from argparse import ArgumentParser, _SubParsersAction
+from argparse import ArgumentParser, RawDescriptionHelpFormatter
+from inspect import cleandoc
 from os.path import normpath
-from typing import Any, Union
+from pathlib import Path
+from typing import  Union
 
-from pipescaler.common import CommandLineInterface, validate_input_file
 
-
-class ProspectorReporter(CommandLineInterface):
-    """Prints prospector results formatted for consumption by GitHub."""
+class ProspectorReporter:
+    """Prints prospector output formatted for consumption by GitHub."""
 
     def __init__(
         self,
-        prospector_infile: str,
-        modified_files_infile: str,
-        **kwargs: Any,
+        prospector_infile: Union[str, Path],
+        modified_files_infile: Union[str, Path],
     ):
-        """Validate and store static configuration.
+        """Validate configuration and initialize.
 
         Arguments:
-            prospector_infile: Path to input prospector json output
-            modified_files_infile: Path to input list of modified files
-            **kwargs: Additional keyword arguments
+            prospector_infile: Path to prospector json output
+            modified_files_infile: Path to list of modified files
         """
-        super().__init__(**kwargs)
-
-        with open(validate_input_file(prospector_infile)) as infile:
+        prospector_infile =Path(prospector_infile).absolute()
+        with open(prospector_infile,'r', encoding="utf-8") as infile:
             self.report = json.load(infile)
 
-        with open(validate_input_file(modified_files_infile)) as infile:
+        modified_files_infile =Path(modified_files_infile).absolute()
+        with open(modified_files_infile, 'r', encoding="utf-8") as infile:
             self.modified_files = list(
                 map(normpath, infile.read().strip("[]\n").split(","))
             )
 
-    def __call__(self):
-        """Perform operations."""
-        self.report_summary()
-        self.report_messages()
-
-    def report_messages(self):
+    def print_messages(self):
+        """Print messages formatted for consumption by GitHub."""
         info_messages = []
         warning_messages = []
         for prospector_message in self.report["messages"]:
@@ -66,7 +60,8 @@ class ProspectorReporter(CommandLineInterface):
         for info_message in info_messages:
             print(info_message)
 
-    def report_summary(self):
+    def print_summary(self):
+        """Print summary formatted for consumption by GitHub."""
         summary = self.report["summary"]
         tools = str(summary["tools"]).strip("[]").replace("'", "")
         message_count = summary["message_count"]
@@ -78,35 +73,36 @@ class ProspectorReporter(CommandLineInterface):
         print(f"::info::{github_message}")
 
     @classmethod
-    def add_arguments_to_argparser(
-        cls,
-        parser: Union[ArgumentParser, _SubParsersAction],
-    ) -> None:
-        """Add arguments to a nascent argument parser.
-
-        Arguments:
-            parser: Nascent argument parser
-        """
+    def argparser(
+        cls
+    ) -> ArgumentParser:
+        """Get argument parser."""
+        parser = ArgumentParser(
+            description=str(cleandoc(cls.__doc__)),
+            formatter_class=RawDescriptionHelpFormatter
+        )
         parser.add_argument(
             "prospector_infile",
-            type=cls.input_path_arg(),
+            type=str,
             help="Input prospector output file in JSON format",
         )
         parser.add_argument(
             "modified_files_infile",
-            type=cls.input_path_arg(),
+            type=str,
             help="Input list of added or modified files",
         )
 
+        return parser
+
+
     @classmethod
-    def execute(cls, **kwargs: Any) -> None:
-        """Execute with provided keyword arguments.
-
-        Arguments:
-            **kwargs: Command-line arguments
-        """
-        cls(**kwargs)()
-
+    def main(cls) -> None:
+        """Execute from command line."""
+        parser = cls.argparser()
+        kwargs = vars(parser.parse_args())
+        reporter =     cls(**kwargs)
+        reporter.print_summary()
+        reporter.print_messages()
 
 if __name__ == "__main__":
     ProspectorReporter.main()

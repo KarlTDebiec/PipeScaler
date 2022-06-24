@@ -19,7 +19,7 @@ class AlphaSorter(Sorter):
     """Sorts image based on presence and use of alpha channel."""
 
     def __init__(self, threshold: int = 255) -> None:
-        """Validate and store configuration and initialize.
+        """Validate configuration and initialize.
 
         Arguments:
             threshold: Sort as 'drop_alpha' if all pixels' alpha is above this threshold
@@ -27,6 +27,13 @@ class AlphaSorter(Sorter):
         self.threshold = validate_int(threshold, 0, 255)
 
     def __call__(self, pipe_image: PipeImage) -> str:
+        """Get the outlet to which an image should be sorted.
+
+        Arguments:
+            pipe_image: Image to sort
+        Returns:
+            Outlet to which image should be sorted
+        """
         image, mode = validate_mode(pipe_image.image, ("1", "L", "LA", "RGB", "RGBA"))
 
         if mode in ("LA", "RGBA"):
@@ -43,5 +50,5 @@ class AlphaSorter(Sorter):
 
     @property
     def outlets(self) -> tuple[str, ...]:
-        """Outlets that flow out of sorter."""
+        """Outlets to which images may be sorted."""
         return ("drop_alpha", "keep_alpha", "no_alpha")

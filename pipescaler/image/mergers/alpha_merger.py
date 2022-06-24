@@ -16,6 +16,13 @@ class AlphaMerger(Merger):
     """Merges color and alpha images into a single image with transparency."""
 
     def __call__(self, *input_images: Image.Image) -> Image.Image:
+        """Merge images.
+
+        Arguments:
+            input_images: Input images
+        Returns:
+            Merged output image
+        """
         color_image, _ = validate_mode(input_images[0], self.inputs["color"])
         alpha_image, _ = validate_mode(input_images[1], self.inputs["alpha"])
 

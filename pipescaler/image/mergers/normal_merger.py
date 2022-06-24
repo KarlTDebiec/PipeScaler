@@ -16,6 +16,13 @@ class NormalMerger(Merger):
     """Merges x, y, and z images into a single normal map image."""
 
     def __call__(self, *input_images: Image.Image) -> Image.Image:
+        """Merge images.
+
+        Arguments:
+            input_images: Input images
+        Returns:
+            Merged output image
+        """
         x_image, _ = validate_mode(input_images[0], self.inputs["x"])
         y_image, _ = validate_mode(input_images[1], self.inputs["y"])
         z_image, _ = validate_mode(input_images[2], self.inputs["z"])
@@ -38,6 +45,7 @@ class NormalMerger(Merger):
     @classmethod
     @property
     def inputs(cls) -> dict[str, tuple[str, ...]]:
+        """Inputs to this operator."""
         return {
             "x": ("L",),
             "y": ("L",),
@@ -47,6 +55,7 @@ class NormalMerger(Merger):
     @classmethod
     @property
     def outputs(cls) -> dict[str, tuple[str, ...]]:
+        """Outputs of this operator."""
         return {
             "output": ("RGB",),
         }

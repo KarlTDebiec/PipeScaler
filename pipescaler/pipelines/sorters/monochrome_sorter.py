@@ -18,16 +18,25 @@ class MonochromeSorter(Sorter):
     """Sorts image based on presence and use of colors other than black and white."""
 
     def __init__(self, mean_threshold: float = 0, max_threshold: float = 0) -> None:
-        """Validate and store configuration and initialize.
+        """Validate configuration and initialize.
 
         Arguments:
-            mean_threshold: Sort as 'drop_gray' if mean diff is below this threshold
-            max_threshold: Sort as 'drop_gray' if maximum diff is below this threshold
+            mean_threshold: Sort as 'drop_gray' if mean diff between L and 1 images is
+              below this threshold
+            max_threshold: Sort as 'drop_gray' if maximum diff between L and 1 images is
+             below this threshold
         """
         self.mean_threshold = validate_float(mean_threshold, 0, 255)
         self.max_threshold = validate_float(max_threshold, 0, 255)
 
     def __call__(self, pipe_image: PipeImage) -> str:
+        """Get the outlet to which an image should be sorted.
+
+        Arguments:
+            pipe_image: Image to sort
+        Returns:
+            Outlet to which image should be sorted
+        """
         image, mode = validate_mode(pipe_image.image, ("1", "L"))
 
         if image.mode == "L":
@@ -43,5 +52,5 @@ class MonochromeSorter(Sorter):
 
     @property
     def outlets(self) -> tuple[str, ...]:
-        """Outlets that flow out of stage."""
+        """Outlets to which images may be sorted."""
         return ("drop_gray", "keep_gray", "no_gray")

@@ -20,16 +20,25 @@ class GrayscaleSorter(Sorter):
     """Sorts image based on presence and use of color channels."""
 
     def __init__(self, mean_threshold: float = 1, max_threshold: float = 10) -> None:
-        """Validate and store configuration and initialize.
+        """Validate configuration and initialize.
 
         Arguments:
-            mean_threshold: Sort as 'drop_rgb' if mean diff is below this threshold
-            max_threshold: Sort as 'drop_rgb' if maximum diff is below this threshold
+            mean_threshold: Sort as 'drop_rgb' if mean diff between RGB and L images is
+              below this threshold
+            max_threshold: Sort as 'drop_rgb' if maximum diff between RGB and L images
+              is below this threshold
         """
         self.mean_threshold = validate_float(mean_threshold, 0, 255)
         self.max_threshold = validate_float(max_threshold, 0, 255)
 
     def __call__(self, pipe_image: PipeImage) -> str:
+        """Get the outlet to which an image should be sorted.
+
+        Arguments:
+            pipe_image: Image to sort
+        Returns:
+            Outlet to which image should be sorted
+        """
         image, mode = validate_mode(pipe_image.image, ("L", "LA", "RGB", "RGBA"))
 
         if image.mode in ("RGB", "RGBA"):
@@ -48,5 +57,5 @@ class GrayscaleSorter(Sorter):
 
     @property
     def outlets(self) -> tuple[str, ...]:
-        """Outlets that flow out of sorter."""
+        """Outlets to which images may be sorted."""
         return ("drop_rgb", "keep_rgb", "no_rgb")

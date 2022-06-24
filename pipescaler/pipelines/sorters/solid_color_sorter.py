@@ -2,7 +2,7 @@
 #   Copyright (C) 2020-2022 Karl T Debiec
 #   All rights reserved. This software may be modified and distributed under
 #   the terms of the BSD license. See the LICENSE file for details.
-"""Sorts image based on presence of multiple colors."""
+"""Sorts image based on whether their entire canvas is a solid color."""
 from __future__ import annotations
 
 from logging import info
@@ -16,19 +16,28 @@ from pipescaler.core.validation import validate_mode
 
 
 class SolidColorSorter(Sorter):
-    """Sorts image based on presence of multiple colors."""
+    """Sorts image based on whether their entire canvas is a solid color."""
 
     def __init__(self, mean_threshold: float = 1, max_threshold: float = 10) -> None:
-        """Validate and store configuration and initialize.
+        """Validate configuration and initialize.
 
         Arguments:
-            mean_threshold: Sort as 'solid' if mean diff is below this threshold
-            max_threshold: Sort as 'solid' if maximum diff is below this threshold
+            mean_threshold: Sort as 'solid' if mean diff between image and its average
+              color is below this threshold
+            max_threshold: Sort as 'solid' if maximum diff between image and its average
+              color is below this threshold
         """
         self.mean_threshold = validate_float(mean_threshold, 0, 255)
         self.max_threshold = validate_int(max_threshold, 0, 255)
 
     def __call__(self, pipe_image: PipeImage) -> str:
+        """Get the outlet to which an image should be sorted.
+
+        Arguments:
+            pipe_image: Image to sort
+        Returns:
+            Outlet to which image should be sorted
+        """
         image, mode = validate_mode(pipe_image.image, ("1", "L", "LA", "RGB", "RGBA"))
         array = np.array(image)
 
@@ -52,5 +61,5 @@ class SolidColorSorter(Sorter):
 
     @property
     def outlets(self) -> tuple[str, ...]:
-        """Outlets that flow out of stage."""
+        """Outlets to which images may be sorted."""
         return ("not_solid", "solid")

@@ -36,5 +36,5 @@ class ModeSorter(Sorter):
 
     @property
     def outlets(self) -> tuple[str, ...]:
-        """Outlets that flow out of sorter."""
+        """Outlets to which images may be sorted."""
         return ("M", "L", "LA", "RGB", "RGBA")

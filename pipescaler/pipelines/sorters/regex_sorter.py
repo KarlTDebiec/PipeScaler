@@ -16,7 +16,7 @@ class RegexSorter(Sorter):
     """Sorts image based on filename using a regular expression."""
 
     def __init__(self, regex: str) -> None:
-        """Validate and store configuration and initialize.
+        """Validate configuration and initialize.
 
         Arguments:
             regex: Sort as 'matched' if image name matches this regular expression
@@ -24,6 +24,13 @@ class RegexSorter(Sorter):
         self.regex = re.compile(regex)
 
     def __call__(self, pipe_image: PipeImage) -> str:
+        """Get the outlet to which an image should be sorted.
+
+        Arguments:
+            pipe_image: Image to sort
+        Returns:
+            Outlet to which image should be sorted
+        """
         if self.regex.match(pipe_image.name):
             outlet = "matched"
         else:
@@ -33,5 +40,5 @@ class RegexSorter(Sorter):
 
     @property
     def outlets(self) -> tuple[str, ...]:
-        """Outlets that flow out of stage."""
+        """Outlets to which images may be sorted."""
         return ("matched", "unmatched")

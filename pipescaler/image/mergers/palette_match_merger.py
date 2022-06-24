@@ -26,7 +26,7 @@ class PaletteMatchMerger(Merger):
         local_range: int = 1,
         **kwargs: Any,
     ) -> None:
-        """Validate and store configuration and initialize.
+        """Validate configuration and initialize.
 
         Arguments:
             palette_match_mode: Mode of palette matching to perform
@@ -40,6 +40,13 @@ class PaletteMatchMerger(Merger):
             self.palette_matcher = LocalPaletteMatcher(local_range)
 
     def __call__(self, *input_images: Image.Image) -> Image.Image:
+        """Merge images.
+
+        Arguments:
+            input_images: Input images
+        Returns:
+            Merged output image
+        """
         ref_image, _ = validate_mode(input_images[0], self.inputs["ref"])
         fit_image, _ = validate_mode(input_images[1], self.inputs["fit"])
         if ref_image.mode != fit_image.mode:
@@ -55,6 +62,7 @@ class PaletteMatchMerger(Merger):
     @classmethod
     @property
     def inputs(cls) -> dict[str, tuple[str, ...]]:
+        """Inputs to this operator."""
         return {
             "ref": ("L", "RGB"),
             "fit": ("L", "RGB"),
@@ -63,6 +71,7 @@ class PaletteMatchMerger(Merger):
     @classmethod
     @property
     def outputs(cls) -> dict[str, tuple[str, ...]]:
+        """Outputs of this operator."""
         return {
             "output": ("L", "RGB"),
         }

@@ -24,19 +24,30 @@ class AlphaSplitter(Splitter):
         self,
         alpha_mode: Union[type(AlphaMode), str] = AlphaMode.GRAYSCALE,
         mask_fill_mode: Optional[Union[type(MaskFillMode), str]] = None,
-        **kwargs: Any,
     ) -> None:
-        super().__init__(**kwargs)
+        """Validate configuration and initialize.
 
+        Arguments:
+            alpha_mode: Mode of alpha treatment to perform
+            mask_fill_mode: Mode of mask filling to perform
+        """
         self.alpha_mode = validate_enum(alpha_mode, AlphaMode)
         self.mask_fill_mode = None
         if mask_fill_mode is not None:
             if self.alpha_mode == AlphaMode.GRAYSCALE:
-                raise ArgumentConflictError()
+                raise ArgumentConflictError("Mask filling is only supported for "
+                                            "alpha_mode MONOCHROME_OR_GRAYSCALE")
             self.mask_fill_mode = validate_enum(mask_fill_mode, MaskFillMode)
             self.mask_filler = MaskFiller(mask_fill_mode=self.mask_fill_mode)
 
     def __call__(self, input_image: Image.Image) -> tuple[Image.Image, ...]:
+        """Split an image.
+
+        Arguments:
+            input_image: Input image
+        Returns:
+            Split output images
+        """
         input_image, _ = validate_mode(input_image, self.inputs["input"])
 
         input_array = np.array(input_image)
@@ -57,6 +68,7 @@ class AlphaSplitter(Splitter):
     @classmethod
     @property
     def inputs(cls) -> dict[str, tuple[str, ...]]:
+        """Inputs to this operator."""
         return {
             "input": ("LA", "RGBA"),
         }

@@ -22,11 +22,24 @@ class PyTorchProcessor(Processor, ABC):
     """Abstract base class for processors that use PyTorch."""
 
     def __init__(self, model_infile: str, **kwargs: Any) -> None:
+        """Validate and store configuration and initialize.
+
+        Arguments:s
+            model_infile: Path to model file
+            kwargs: Additional keyword arguments
+        """
         super().__init__(**kwargs)
 
         self.model_infile = validate_input_path(model_infile)
 
     def __call__(self, input_image: Image.Image) -> Image.Image:
+        """Process an image.
+
+        Arguments:
+            input_image: Input image
+        Returns:
+            Processed output image
+        """
         input_image, output_mode = validate_mode(
             input_image, self.inputs["input"], "RGB"
         )
@@ -82,6 +95,7 @@ class PyTorchProcessor(Processor, ABC):
     @classmethod
     @property
     def inputs(cls) -> dict[str, tuple[str, ...]]:
+        """Inputs to this operator."""
         return {
             "input": ("1", "L", "RGB"),
         }
@@ -89,6 +103,7 @@ class PyTorchProcessor(Processor, ABC):
     @classmethod
     @property
     def outputs(cls) -> dict[str, tuple[str, ...]]:
+        """Outputs of this operator."""
         return {
             "output": ("1", "L", "RGB"),
         }
