@@ -102,7 +102,7 @@ class ProspectorReporter(CommandLineInterface):
     def execute(cls, **kwargs: Any) -> None:
         """Execute with provided keyword arguments.
 
-        Args:
+        Arguments:
             **kwargs: Command-line arguments
         """
         cls(**kwargs)()

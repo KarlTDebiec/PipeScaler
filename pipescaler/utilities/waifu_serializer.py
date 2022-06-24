@@ -7,14 +7,16 @@ from __future__ import annotations
 
 import json
 from logging import info
+from pathlib import Path
 
 import torch
 
 from pipescaler.common import validate_input_file, validate_output_file, validate_str
+from pipescaler.core import Utility
 from pipescaler.models import WaifuUpConv7, WaifuVgg7
 
 
-class WaifuSerializer:
+class WaifuSerializer(Utility):
     """Converts Waifu models in JSON format to PyTorch's serialized pth format.
 
     Input JSON is available from [yu45020/Waifu2x on GitHub]
@@ -26,7 +28,7 @@ class WaifuSerializer:
         "vgg7": WaifuVgg7,
     }
 
-    def __call__(self, architecture: str, infile: str, outfile: str) -> None:
+    def __call__(self, architecture: str, infile: Path, outfile: Path) -> None:
         """Converts infile to outfile.
 
         Arguments:
@@ -35,8 +37,8 @@ class WaifuSerializer:
             outfile: Output file
         """
         architecture = validate_str(architecture, self.architectures.keys())
-        infile = validate_input_file(infile)
-        outfile = validate_output_file(outfile)
+        infile = Path(validate_input_file(infile))
+        outfile = Path(validate_output_file(outfile))
 
         model = self.architectures[architecture]()
         info(f"{self}: Waifu {architecture} model built")

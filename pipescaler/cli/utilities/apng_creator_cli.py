@@ -8,6 +8,7 @@ from __future__ import annotations
 from argparse import ArgumentParser, _SubParsersAction
 from typing import Type, Union
 
+from pipescaler.core import Utility
 from pipescaler.core.cli import UtilityCli
 from pipescaler.utilities.apng_creator import ApngCreator
 
@@ -66,7 +67,7 @@ class ApngCreatorCli(UtilityCli):
 
     @classmethod
     @property
-    def utility(cls) -> Type:
+    def utility(cls) -> Type[Utility]:
         """Type of utility wrapped by command line interface."""
         return ApngCreator
 

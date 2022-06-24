@@ -5,18 +5,17 @@
 """Image-related functions for testing."""
 from PIL import Image
 
-from pipescaler.core import remove_palette_from_image
+from pipescaler.core.image import remove_palette
 
 
 def get_expected_output_mode(input_image: Image.Image) -> str:
     """Get expected output mode of image after processing.
 
-    Args:
+    Arguments:
         input_image: Input image
     Returns:
         Expected output mode of image after processing
     """
     if input_image.mode == "P":
-        return remove_palette_from_image(input_image).mode
-    else:
-        return input_image.mode
+        return remove_palette(input_image).mode
+    return input_image.mode

@@ -12,8 +12,9 @@ from os.path import expandvars, normpath
 from typing import Any, Type, Union
 
 from pipescaler.common import set_logging_verbosity, validate_int
+from pipescaler.core import Utility
 from pipescaler.core.cli import UtilityCli
-from pipescaler.core.file import read_yaml
+from pipescaler.core.files import read_yaml
 from pipescaler.utilities import Host
 
 
@@ -43,7 +44,7 @@ class HostCli(UtilityCli):
     def execute(cls, **kwargs: Any) -> None:
         """Execute with provided keyword arguments.
 
-        Args:
+        Arguments:
             **kwargs: Command-line arguments
         """
         conf = read_yaml(kwargs.pop("conf_file"))
@@ -57,13 +58,12 @@ class HostCli(UtilityCli):
         verbosity = validate_int(kwargs.pop("verbosity", 1), min_value=0)
         set_logging_verbosity(verbosity)
 
-        # noinspection PyCallingNonCallable
-        utility = cls.utility(**{**kwargs, **conf})
+        utility = cls.utility(**{**kwargs, **conf})  # pylint: disable=E1111
         utility()
 
     @classmethod
     @property
-    def utility(cls) -> Type:
+    def utility(cls) -> Type[Utility]:
         """Type of utility wrapped by command line interface."""
         return Host
 

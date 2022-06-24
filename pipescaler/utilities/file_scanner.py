@@ -24,15 +24,12 @@ from pipescaler.common import (
     validate_output_directory,
     validate_output_file,
 )
-from pipescaler.core import get_files
+from pipescaler.core import Utility
+from pipescaler.core.files import get_files
 from pipescaler.utilities.scaled_pair_identifier import ScaledPairIdentifier
 
-pd.set_option(
-    "display.max_rows", None, "display.max_columns", None, "display.width", 140
-)
 
-
-class FileScanner:
+class FileScanner(Utility):
     """FileScanner."""
 
     exclusions = {".DS_Store", "desktop"}

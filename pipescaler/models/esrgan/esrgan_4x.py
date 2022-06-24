@@ -50,7 +50,7 @@ class Esrgan4x(Esrgan):
     ) -> NamedTuple:
         """Copy parameters and buffers from state_dict.
 
-        Args:
+        Arguments:
             state_dict: Parameters and persistent buffers
             strict: Whether to strictly enforce that keys in state_dict match
         Returns:

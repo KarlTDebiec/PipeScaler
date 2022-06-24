@@ -17,9 +17,10 @@ from pipescaler.common import (
     validate_input_path,
     validate_output_path,
 )
+from pipescaler.core import Utility
 
 
-class ApngCreator:
+class ApngCreator(Utility):
     """Concatenates images into an animated PNG file."""
 
     def __init__(

@@ -23,11 +23,13 @@ from PIL import Image
 from scipy.stats import zscore
 
 from pipescaler.common import validate_output_directory, validate_output_file
-from pipescaler.core import hstack_images, label_image, vstack_images
-from pipescaler.sorters import AlphaSorter, GrayscaleSorter
+from pipescaler.core import Utility
+from pipescaler.core.image import hstack_images, label_image, vstack_images
+from pipescaler.core.pipelines import PipeImage
+from pipescaler.pipelines.sorters import AlphaSorter, GrayscaleSorter
 
 
-class ScaledPairIdentifier:
+class ScaledPairIdentifier(Utility):
     """Identifies pairs of images in which one is rescaled from another."""
 
     hash_types = {
@@ -177,11 +179,11 @@ class ScaledPairIdentifier:
         absolute_filename = self.filenames[filename]
         image = Image.open(absolute_filename)
         size = image.size
-        if self.grayscale_sorter(absolute_filename) == "keep_rgb":
+        if self.grayscale_sorter(PipeImage(path=absolute_filename)) == "keep_rgb":
             mode = "RGB"
         else:
             mode = "L"
-        if self.alpha_sorter(absolute_filename) == "keep_alpha":
+        if self.alpha_sorter(PipeImage(path=absolute_filename)) == "keep_alpha":
             mode += "A"
         filetype = filename.split("_")[-1]
         hashes = []
@@ -261,7 +263,6 @@ class ScaledPairIdentifier:
             color_images = []
             alpha_images = []
             for filename in filenames:
-                # noinspection PyTypeChecker
                 array = np.array(Image.open(self.filenames[filename]))
                 color_images.append(Image.fromarray(np.squeeze(array[:, :, :-1])))
                 alpha_images.append(Image.fromarray(array[:, :, -1]))
@@ -327,7 +328,6 @@ class ScaledPairIdentifier:
 
         parent_image = Image.open(self.filenames[parent])
         if self.alpha_sorter(self.filenames[parent]) == "keep_alpha":
-            # noinspection PyTypeChecker
             parent_array = np.array(parent_image)
             parent_color_image = Image.fromarray(np.squeeze(parent_array[:, :, :-1]))
             parent_alpha_image = Image.fromarray(parent_array[:, :, -1])
@@ -336,7 +336,6 @@ class ScaledPairIdentifier:
 
             for child, score in zip(children, scores):
                 child_image = Image.open(self.filenames[child])
-                # noinspection PyTypeChecker
                 child_array = np.array(child_image)
 
                 child_color_image = Image.fromarray(np.squeeze(child_array[:, :, :-1]))
@@ -427,6 +426,7 @@ class ScaledPairIdentifier:
         Arguments:
             known_pairs: Known pairs of parent
             new_pairs: Proposed new pairs of parent
+            new_pair_scores: Scores of new pairs
         Returns:
         """
         info(

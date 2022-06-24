@@ -29,7 +29,6 @@ class ProcessorsCli(CommandLineInterface):
         super().add_arguments_to_argparser(parser)
 
         subparsers = parser.add_subparsers(dest="processor")
-        # noinspection PyTypeChecker
         for name in sorted(cls.processors):
             cls.processors[name].construct_argparser(parser=subparsers)
 
@@ -37,7 +36,7 @@ class ProcessorsCli(CommandLineInterface):
     def execute(cls, **kwargs: Any) -> None:
         """Execute with provided keyword arguments.
 
-        Args:
+        Arguments:
             **kwargs: Command-line arguments
         """
         processor = cls.processors[kwargs.pop("processor")]

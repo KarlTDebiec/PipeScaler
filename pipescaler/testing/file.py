@@ -4,70 +4,64 @@
 #   the terms of the BSD license. See the LICENSE file for details.
 """File-related functions for testing."""
 from os import environ, getenv
-from os.path import dirname, join, normpath, sep, splitext
-
-from pipescaler.common import validate_input_directory, validate_input_file
+from pathlib import Path
 
 if environ.get("PACKAGE_ROOT") is not None:
-    package_root = getenv("PACKAGE_ROOT")
+    package_root = Path(getenv("PACKAGE_ROOT"))
 else:
     from pipescaler.common import package_root
 
 
-def get_infile(name: str) -> str:
+def get_infile(name: str) -> Path:
     """Get full path of infile within test data directory.
 
-    Args:
+    Arguments:
         name: Name of infile
     Returns:
         Full path to infile
     """
-    base_directory = join(dirname(package_root), "test", "data", "infiles")
-    split_name = normpath(name).split(sep)
-    if len(split_name) == 1:
-        sub_directory = "basic"
-    else:
-        sub_directory = join(*split_name[:-1])
-    filename = split_name[-1]
-    if splitext(filename)[-1] == "":
-        filename = f"{filename}.png"
+    path = Path(name)
+    if str(path.parent) == ".":
+        path = Path("basic").joinpath(path)
+    if path.suffix == "":
+        path = path.with_suffix(".png")
+    path = package_root.parent.joinpath("test", "data", "infiles", path)
+    if not path.exists():
+        raise FileNotFoundError()
 
-    return validate_input_file(join(base_directory, sub_directory, filename))
+    return path
 
 
-def get_model_infile(name: str) -> str:
+def get_model_infile(name: str) -> Path:
     """Get full path of model within test data directory.
 
-    Args:
+    Arguments:
         name: Name of model
     Returns:
         Full path to model
     """
-    base_directory = join(dirname(package_root), "test", "data", "models")
-    split_name = normpath(name).split(sep)
-    if len(split_name) == 1:
-        sub_directory = "WaifuUpConv7"
-    else:
-        sub_directory = join(*split_name[:-1])
-    filename = split_name[-1]
-    if splitext(filename)[-1] == "":
-        filename = f"{filename}.pth"
+    path = Path(name)
+    if str(path.parent) == ".":
+        path = Path("WaifuUpConv7").joinpath(path)
+    if path.suffix == "":
+        path = path.with_suffix(".pth")
+    path = package_root.parent.joinpath("test", "data", "models", path)
+    if getenv("CI") is None and not path.exists():
+        raise FileNotFoundError()
 
-    infile = join(base_directory, sub_directory, filename)
-    if getenv("CI") is None:
-        infile = validate_input_file(infile)
-
-    return infile
+    return path
 
 
-def get_sub_directory(name: str) -> str:
-    """Get full path of sub-directory within test data directory.
+def get_sub_directory(name: str) -> Path:
+    """Get path of sub-directory within test data directory.
 
-    Args:
+    Arguments:
         name: Name of sub-directory
     Returns:
-        Full path to sub-directory
+        Path to sub-directory
     """
-    base_directory = join(dirname(package_root), "test", "data", "infiles")
+    path = package_root.parent.joinpath("test", "data", "infiles", name)
+    if not path.exists():
+        raise FileNotFoundError()
 
-    return validate_input_directory(join(base_directory, name))
+    return path

@@ -8,8 +8,8 @@ from __future__ import annotations
 from typing import Type
 
 from pipescaler.core.cli import ProcessorCli
-from pipescaler.core.stages import Processor
-from pipescaler.processors.image import SharpenProcessor
+from pipescaler.core.image import Processor
+from pipescaler.image.processors import SharpenProcessor
 
 
 class SharpenCli(ProcessorCli):
