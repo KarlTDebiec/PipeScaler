@@ -129,28 +129,8 @@ class FileScanner(Utility):
 
     def __call__(self) -> None:
         """Perform operations."""
-        # Prepare to for run
-        if self.copy_directory.exists():
-            for file_path in self.copy_directory.iterdir():
-                remove(file_path)
-                info(f"'{file_path}' removed")
-            rmdir(self.copy_directory)
-            info(f"{self}: '{self.copy_directory}' removed")
-        if self.remove_directory.exists():
-            for file_path in self.remove_directory.iterdir():
-                name = file_path.name
-                if self.remove_prefix is not None:
-                    name = f"{self.remove_prefix}{name}"
-                for input_directory in self.input_directories:
-                    for match in input_directory.glob(f"{Path(name).stem}.*"):
-                        remove(match)
-                        info(f"{self}: '{match}' removed")
-                remove(file_path)
-                info(f"{self}: '{file_path}' removed")
-            rmdir(self.remove_directory)
-            info(f"{self}: '{self.remove_directory}' removed")
+        self.clean_project_root()
 
-        # Perform operations
         for input_directory in self.input_directories:
             for file_path in input_directory.iterdir():
                 self.perform_operation(file_path)
@@ -175,6 +155,29 @@ class FileScanner(Utility):
                     return status
 
         return "copy"
+
+    def clean_project_root(self) -> None:
+        """Clean project root copy and remove directories."""
+        if self.copy_directory.exists():
+            for file_path in self.copy_directory.iterdir():
+                remove(file_path)
+                info(f"'{file_path}' removed")
+            rmdir(self.copy_directory)
+            info(f"{self}: '{self.copy_directory}' removed")
+
+        if self.remove_directory.exists():
+            for file_path in self.remove_directory.iterdir():
+                name = file_path.name
+                if self.remove_prefix is not None:
+                    name = f"{self.remove_prefix}{name}"
+                for input_directory in self.input_directories:
+                    for match in input_directory.glob(f"{Path(name).stem}.*"):
+                        remove(match)
+                        info(f"{self}: '{match}' removed")
+                remove(file_path)
+                info(f"{self}: '{file_path}' removed")
+            rmdir(self.remove_directory)
+            info(f"{self}: '{self.remove_directory}' removed")
 
     def copy(self, file_path: Path) -> None:
         """Copy file to copy directory.
