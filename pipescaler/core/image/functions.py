@@ -264,8 +264,8 @@ def is_monochrome(
         image: Image to check
         mean_threshold: Threshold which mean difference between image and true
           monochrome must be below
-        proportion_threshold: Threshold which percent of different pixels between image and
-          true monochrome must be below
+        proportion_threshold: Threshold which percent of different pixels between image
+          and true monochrome must be below
     Returns:
         Whether image contains only pure black and white
     """
