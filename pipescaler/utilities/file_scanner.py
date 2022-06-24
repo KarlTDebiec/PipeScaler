@@ -13,6 +13,8 @@ from pathlib import Path
 from shutil import copy, move
 from typing import Optional, Sequence, Union
 
+from PIL import Image
+
 from pipescaler.common import DirectoryNotFoundError
 from pipescaler.core import Utility
 
@@ -28,6 +30,8 @@ class FileScanner(Utility):
         input_directories: Union[Path, list[Path]],
         reviewed_directories: Optional[Union[Path, list[Path]]],
         rules: Optional[list[tuple[str, str]]] = None,
+        remove_prefix: Optional[str] = None,
+        output_format: Optional[str] = None,
     ) -> None:
         """Validate and store configuration and initialize.
 
@@ -36,13 +40,21 @@ class FileScanner(Utility):
             input_directories: Directory or directories from which to read input files
             reviewed_directories: Directory or directories of reviewed files
             rules: Rules by which to process images
+            remove_prefix: Prefix to remove from output file names
+            output_format: Format of output files
         """
         super().__init__()
 
         def validate_input_directories(
             directories: Union[Path, Sequence[Path]]
         ) -> list[Path]:
-            """Validate input directory paths and make them absolute."""
+            """Validate input directory paths and make them absolute.
+
+            Arguments:
+                directories: Directory or directories of input files
+            Returns:
+                List of absolute directory paths
+            """
             if isinstance(directories, Path):
                 directories = [directories]
             validated_directories = []
@@ -60,7 +72,13 @@ class FileScanner(Utility):
             return validated_directories
 
         def get_names(directories: Union[Path, Sequence[Path]]) -> set[str]:
-            """Get names of files in directories."""
+            """Get names of files in directories.
+
+            Arguments:
+                directories: Directory or directories of input files
+            Returns:
+                Set of file names
+            """
             if isinstance(directories, Path):
                 directories = [directories]
             files = chain.from_iterable(d.iterdir() for d in directories)
@@ -101,12 +119,14 @@ class FileScanner(Utility):
         if rules is not None:
             self.rules = [(re.compile(regex), action) for regex, action in rules]
 
-    def __call__(self) -> None:
-        """Perform operations.
+        # Prepare output configuration
+        self.remove_prefix = remove_prefix
+        """Prefix to remove from output file names."""
+        self.output_format = output_format
+        """Format of output files."""
 
-        Arguments:
-            **kwargs: Additional keyword arguments
-        """
+    def __call__(self) -> None:
+        """Perform operations."""
         # Prepare to for run
         if self.copy_directory.exists():
             for file_path in self.copy_directory.iterdir():
@@ -130,8 +150,7 @@ class FileScanner(Utility):
         # Perform operations
         for input_directory in self.input_directories:
             for file_path in input_directory.iterdir():
-                status = self.get_operation(file_path.stem)
-                self.perform_operation(file_path, status)
+                self.perform_operation(file_path)
 
     def get_operation(self, name: str) -> str:
         """Select operation for filename.
@@ -152,33 +171,73 @@ class FileScanner(Utility):
 
         return "copy"
 
-    def perform_operation(self, file_path: Path, operation: str) -> None:
+    def copy(self, file_path: Path) -> None:
+        """Copy file to copy directory.
+
+        Arguments:
+            file_path: Path to file to copy
+        """
+        if not self.copy_directory.exists():
+            self.copy_directory.mkdir(parents=True)
+            info(f"{self}: '{self.copy_directory}' created")
+
+        output_name = file_path.name
+        if self.remove_prefix is not None:
+            output_name = output_name.removeprefix(self.remove_prefix)
+
+        output_path = self.copy_directory.joinpath(output_name)
+        if self.output_format is not None:
+            output_path = output_path.with_suffix(self.output_format)
+
+        if self.output_format is None:
+            copy(file_path, output_path)
+        else:
+            with Image.open(file_path) as image:
+                image.save(output_path)
+
+    def move(self, file_path: Path) -> None:
+        """Move file to review directory.
+
+        Arguments:
+            file_path: Path to file to move
+        """
+        if not self.move_directory.exists():
+            self.move_directory.mkdir(parents=True)
+            info(f"{self}: '{self.move_directory}' created")
+
+        output_name = file_path.name
+        if self.remove_prefix is not None:
+            output_name = output_name.removeprefix(self.remove_prefix)
+
+        output_path = self.copy_directory.joinpath(output_name)
+        if self.output_format is not None:
+            output_path = output_path.with_suffix(self.output_format)
+
+        if self.output_format is None:
+            move(file_path, output_path)
+        else:
+            with Image.open(file_path) as image:
+                image.save(output_path)
+            remove(file_path)
+
+    def perform_operation(self, file_path: Path) -> None:
         """Perform operations for filename.
 
         Arguments:
             file_path: Path to file
-            operation: Operation to perform
         """
-        if operation == "known":
+        if (operation := self.get_operation(file_path.stem)) == "known":
             debug(f"{self}: '{file_path.stem}' known")
         elif operation == "ignore":
             debug(f"{self}: '{file_path.stem}' ignored")
-        elif operation == "copy":
-            if not self.copy_directory.exists():
-                self.copy_directory.mkdir(parents=True)
-                info(f"{self}: '{self.copy_directory}' created")
-            destination = self.copy_directory.joinpath(file_path.name)
-            copy(file_path, destination)
-            info(f"'{file_path}' copied to '{destination}'")
-        elif operation == "move":
-            if not self.move_directory.exists():
-                self.move_directory.mkdir(parents=True)
-                info(f"{self}: '{self.move_directory}' created")
-            destination = self.move_directory.joinpath(file_path.name)
-            move(file_path, destination)
-            info(f"{self}: '{file_path}' moved to '{destination}'")
         elif operation == "remove":
             remove(file_path)
-            info(f"'{self}: {file_path}' deleted")
+            info(f"'{self}: {file_path.stem}' removed")
+        elif operation == "copy":
+            self.copy(file_path)
+            info(f"'{self}: {file_path.stem}' copied")
+        elif operation == "move":
+            self.move(file_path)
+            info(f"'{self}: {file_path.stem}' moved")
         else:
-            raise ValueError(f"Unknown operation '{operation}'")
+            raise ValueError(f"{self}: Unknown operation '{operation}'")
