@@ -1,8 +1,11 @@
 #!/usr/bin/env python
+
+#  Copyright (C) 2020-2022. Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
+
 #   pipescaler/models/esrgan.py
 #
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
 #
 #   This software may be modified and distributed under the terms of the
 #   BSD license.
@@ -30,7 +33,15 @@ class Esrgan(Module, ABC):
         n_blocks: int = 23,
         growth_channels: int = 32,
     ):
-        """Initialize."""
+        """Validate configuration and initialize.
+
+        Arguments:
+            in_channels: Number of input channels
+            out_channels: Number of output channels
+            n_features: Number of features per block
+            n_blocks: Number of blocks per stage
+            growth_channels: Number of growth channels per block
+        """
         super().__init__()
 
         RRDB_block_f = partial(
@@ -52,4 +63,12 @@ class Esrgan(Module, ABC):
 
     @staticmethod
     def make_layer(block, n_layers):
+        """Make a layer of blocks.
+
+        Arguments:
+            block: Block to use
+            n_layers: Number of layers
+        Returns:
+            Layer of blocks
+        """
         return Sequential(*(block() for _ in range(n_layers)))

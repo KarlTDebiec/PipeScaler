@@ -18,7 +18,7 @@ from pipescaler.runners import AppleScriptRunner
 class AppleScriptProcessor(Processor):
     """Runs image through an AppleScript.
 
-    See [AppleScript](https://developer.apple.com/library/archive/documentation/AppleScript/Conceptual/AppleScriptLangGuide/introduction/ASLR_intro.html),
+    See [AppleScript](https://developer.apple.com/library/archive/documentation/AppleScript/Conceptual/AppleScriptLangGuide/introduction/ASLR_intro.html), # pylint: disable=line-too-long
     and [Pixelmator Pro](https://www.pixelmator.com/support/guide/pixelmator-pro/1270/)
     """
 
