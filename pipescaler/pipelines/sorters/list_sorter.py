@@ -1,13 +1,13 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright (C) 2020-2022. Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Sorts image based on filename using a set of configured lists."""
 from __future__ import annotations
 
 from logging import info
 from pathlib import Path
-from typing import Any, Collection, Union
+from typing import Collection, Union
 
 from pipescaler.core.pipelines import PipeImage
 from pipescaler.core.pipelines.sorter import Sorter
@@ -21,7 +21,7 @@ class ListSorter(Sorter):
 
     def __init__(
         self,
-        **outlets: dict[str, Union[str,Path, Collection[Union[str,Path]]]],
+        **outlets: dict[str, Union[str, Path, Collection[Union[str, Path]]]],
     ) -> None:
         """Validate configuration and initialize.
 

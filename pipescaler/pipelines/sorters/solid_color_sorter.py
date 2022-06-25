@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright (C) 2020-2022. Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Sorts image based on whether their entire canvas is a solid color."""
 from __future__ import annotations
 
@@ -38,7 +38,7 @@ class SolidColorSorter(Sorter):
         Returns:
             Outlet to which image should be sorted
         """
-        image, mode = validate_mode(pipe_image.image, ("1", "L", "LA", "RGB", "RGBA"))
+        image, _ = validate_mode(pipe_image.image, ("1", "L", "LA", "RGB", "RGBA"))
         array = np.array(image)
 
         if image.mode in ("L", "LA", "RGB", "RGBA"):

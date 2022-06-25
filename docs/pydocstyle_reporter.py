@@ -1,14 +1,14 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright (C) 2020-2022. Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Prints pydocstyle output formatted for consumption by GitHub."""
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from inspect import cleandoc
 from itertools import zip_longest
 from os.path import normpath
 from pathlib import Path
-from typing import  Union
+from typing import Union
 
 
 class PydocstyleReporter:
@@ -22,7 +22,7 @@ class PydocstyleReporter:
         """Validate configuration and initialize.
 
         Arguments:
-            prospector_infile: Path to pydocstyle json output
+            pydocstyle_infile: Path to pydocstyle json output
             modified_files_infile: Path to list of modified files
         """
         self.messages = []
@@ -40,7 +40,6 @@ class PydocstyleReporter:
             self.modified_files = list(
                 map(normpath, infile.read().strip("[]\n").split(","))
             )
-
 
     def print_messages(self):
         """Print messages formatted for consumption by GitHub."""
@@ -74,13 +73,11 @@ class PydocstyleReporter:
         print(f"::info::{github_message}")
 
     @classmethod
-    def argparser(
-        cls
-    ) -> ArgumentParser:
+    def argparser(cls) -> ArgumentParser:
         """Get argument parser."""
         parser = ArgumentParser(
             description=str(cleandoc(cls.__doc__)),
-            formatter_class=RawDescriptionHelpFormatter
+            formatter_class=RawDescriptionHelpFormatter,
         )
         parser.add_argument(
             "pydocstyle_infile",
@@ -100,9 +97,10 @@ class PydocstyleReporter:
         """Execute from command line."""
         parser = cls.argparser()
         kwargs = vars(parser.parse_args())
-        reporter =     cls(**kwargs)
+        reporter = cls(**kwargs)
         reporter.print_summary()
         reporter.print_messages()
+
 
 if __name__ == "__main__":
     PydocstyleReporter.main()

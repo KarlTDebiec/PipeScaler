@@ -1,14 +1,14 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright (C) 2020-2022. Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Prints prospector output formatted for consumption by GitHub."""
 import json
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from inspect import cleandoc
 from os.path import normpath
 from pathlib import Path
-from typing import  Union
+from typing import Union
 
 
 class ProspectorReporter:
@@ -25,12 +25,12 @@ class ProspectorReporter:
             prospector_infile: Path to prospector json output
             modified_files_infile: Path to list of modified files
         """
-        prospector_infile =Path(prospector_infile).absolute()
-        with open(prospector_infile,'r', encoding="utf-8") as infile:
+        prospector_infile = Path(prospector_infile).absolute()
+        with open(prospector_infile, "r", encoding="utf-8") as infile:
             self.report = json.load(infile)
 
-        modified_files_infile =Path(modified_files_infile).absolute()
-        with open(modified_files_infile, 'r', encoding="utf-8") as infile:
+        modified_files_infile = Path(modified_files_infile).absolute()
+        with open(modified_files_infile, "r", encoding="utf-8") as infile:
             self.modified_files = list(
                 map(normpath, infile.read().strip("[]\n").split(","))
             )
@@ -73,13 +73,11 @@ class ProspectorReporter:
         print(f"::info::{github_message}")
 
     @classmethod
-    def argparser(
-        cls
-    ) -> ArgumentParser:
+    def argparser(cls) -> ArgumentParser:
         """Get argument parser."""
         parser = ArgumentParser(
             description=str(cleandoc(cls.__doc__)),
-            formatter_class=RawDescriptionHelpFormatter
+            formatter_class=RawDescriptionHelpFormatter,
         )
         parser.add_argument(
             "prospector_infile",
@@ -94,15 +92,15 @@ class ProspectorReporter:
 
         return parser
 
-
     @classmethod
     def main(cls) -> None:
         """Execute from command line."""
         parser = cls.argparser()
         kwargs = vars(parser.parse_args())
-        reporter =     cls(**kwargs)
+        reporter = cls(**kwargs)
         reporter.print_summary()
         reporter.print_messages()
+
 
 if __name__ == "__main__":
     ProspectorReporter.main()

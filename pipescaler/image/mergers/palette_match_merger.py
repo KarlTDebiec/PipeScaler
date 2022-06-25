@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright (C) 2020-2022. Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Matches an image's color palette to that of a reference image."""
 from __future__ import annotations
 
@@ -30,6 +30,8 @@ class PaletteMatchMerger(Merger):
 
         Arguments:
             palette_match_mode: Mode of palette matching to perform
+            local_range: Range of adjacent pixels from which to draw best-fit color;
+              1 checks a 3x3 window, 2 checks a 5x5 window, etc.
         """
         super().__init__(**kwargs)
 
