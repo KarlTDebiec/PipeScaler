@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright (C) 2020-2022. Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Crops image canvas."""
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ from PIL import Image
 
 from pipescaler.common import validate_ints
 from pipescaler.core.image import Processor, crop_image
-from pipescaler.core.validation import validate_mode
+from pipescaler.core.validation import validate_image
 
 
 class CropProcessor(Processor):
@@ -33,12 +33,12 @@ class CropProcessor(Processor):
         Returns:
             Processed output image
         """
-        input_image, _ = validate_mode(input_image, self.inputs["input"])
+        input_image = validate_image(input_image, self.inputs["input"])
         if (
             input_image.size[0] < self.left + self.right + 1
             or input_image.size[1] < self.top + self.bottom + 1
         ):
-            raise ValueError()
+            raise ValueError("Image is too small to crop by provided pixels")
 
         output_image = crop_image(
             input_image, self.left, self.top, self.right, self.bottom

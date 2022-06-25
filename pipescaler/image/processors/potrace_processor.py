@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright (C) 2020-2022. Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Traces image using potrace and re-rasterizes, optionally resizing."""
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ from svglib.svglib import svg2rlg
 
 from pipescaler.common import temporary_filename, validate_float
 from pipescaler.core.image import Processor
-from pipescaler.core.validation import validate_mode
+from pipescaler.core.validation import validate_image_and_convert_mode
 from pipescaler.runners import PotraceRunner
 
 
@@ -47,7 +47,9 @@ class PotraceProcessor(Processor):
         Returns:
             Processed output image
         """
-        input_image, _ = validate_mode(input_image, self.inputs["input"], "L")
+        input_image, _ = validate_image_and_convert_mode(
+            input_image, self.inputs["input"], "L"
+        )
         if self.invert:
             input_image = invert(input_image)
 

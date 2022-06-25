@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright (C) 2020-2022. Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Merges x, y, and z images into a single normal map image."""
 from __future__ import annotations
 
@@ -9,16 +9,23 @@ import numpy as np
 from PIL import Image
 
 from pipescaler.core.image import Merger
-from pipescaler.core.validation import validate_mode
+from pipescaler.core.validation import validate_image
 
 
 class NormalMerger(Merger):
     """Merges x, y, and z images into a single normal map image."""
 
     def __call__(self, *input_images: Image.Image) -> Image.Image:
-        x_image, _ = validate_mode(input_images[0], self.inputs["x"])
-        y_image, _ = validate_mode(input_images[1], self.inputs["y"])
-        z_image, _ = validate_mode(input_images[2], self.inputs["z"])
+        """Merge images.
+
+        Arguments:
+            input_images: Input images
+        Returns:
+            Merged output image
+        """
+        x_image = validate_image(input_images[0], self.inputs["x"])
+        y_image = validate_image(input_images[1], self.inputs["y"])
+        z_image = validate_image(input_images[2], self.inputs["z"])
 
         x_array = np.clip(np.array(x_image, float) - 128, -128, 127)
         y_array = np.clip(np.array(y_image, float) - 128, -128, 127)
@@ -38,6 +45,7 @@ class NormalMerger(Merger):
     @classmethod
     @property
     def inputs(cls) -> dict[str, tuple[str, ...]]:
+        """Inputs to this operator."""
         return {
             "x": ("L",),
             "y": ("L",),
@@ -47,6 +55,7 @@ class NormalMerger(Merger):
     @classmethod
     @property
     def outputs(cls) -> dict[str, tuple[str, ...]]:
+        """Outputs of this operator."""
         return {
             "output": ("RGB",),
         }

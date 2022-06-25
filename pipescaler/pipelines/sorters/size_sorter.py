@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright (C) 2020-2022. Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Sorts image based on canvas size."""
 from __future__ import annotations
 
@@ -16,9 +16,22 @@ class SizeSorter(Sorter):
     """Sorts image based on canvas size."""
 
     def __init__(self, cutoff: int = 32) -> None:
+        """Validate configuration and initialize.
+
+        Arguments:
+            cutoff: Sort as 'less_than' if image's smallest dimension is less than this;
+              otherwise, sort as 'greater_than_or_equal_to'
+        """
         self.cutoff = validate_int(cutoff, min_value=1)
 
     def __call__(self, pipe_image: PipeImage) -> str:
+        """Get the outlet to which an image should be sorted.
+
+        Arguments:
+            pipe_image: Image to sort
+        Returns:
+            Outlet to which image should be sorted
+        """
         image = pipe_image.image
 
         if image.size[0] < self.cutoff or image.size[1] < self.cutoff:
@@ -30,5 +43,5 @@ class SizeSorter(Sorter):
 
     @property
     def outlets(self) -> tuple[str, ...]:
-        """Outlets that flow out of stage."""
+        """Outlets to which images may be sorted."""
         return ("less_than", "greater_than_or_equal_to")

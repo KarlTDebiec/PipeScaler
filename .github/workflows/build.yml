@@ -54,14 +54,14 @@ jobs:
       - name: prospector
         run: |
           cd ${GITHUB_WORKSPACE}
-          poetry run prospector -0 -o text -o json:prospector.json .
+          poetry run prospector -A -u flask -T -0 -o text -o json:prospector.json .
           poetry run docs/prospector_reporter.py prospector.json modified_files.json
-      - name: pydocstyle
+      - name: pydocstyle # Run separately because prospector does not honor pyproject.toml
         run: |
           cd ${GITHUB_WORKSPACE}
           poetry run pydocstyle . > pydocstyle.txt || echo
           poetry run docs/pydocstyle_reporter.py pydocstyle.txt modified_files.json
-      - name: Test with pytest
+      - name: pytest
         run: |
           export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
           cd ${GITHUB_WORKSPACE}/test

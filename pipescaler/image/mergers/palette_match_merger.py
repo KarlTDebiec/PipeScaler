@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright (C) 2020-2022. Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Matches an image's color palette to that of a reference image."""
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ from pipescaler.common import validate_enum
 from pipescaler.core.enums import PaletteMatchMode
 from pipescaler.core.exceptions import UnsupportedImageModeError
 from pipescaler.core.image import Merger
-from pipescaler.core.validation import validate_mode
+from pipescaler.core.validation import validate_image
 from pipescaler.utilities import LocalPaletteMatcher, PaletteMatcher
 
 
@@ -26,10 +26,12 @@ class PaletteMatchMerger(Merger):
         local_range: int = 1,
         **kwargs: Any,
     ) -> None:
-        """Validate and store configuration and initialize.
+        """Validate configuration and initialize.
 
         Arguments:
             palette_match_mode: Mode of palette matching to perform
+            local_range: Range of adjacent pixels from which to draw best-fit color;
+              1 checks a 3x3 window, 2 checks a 5x5 window, etc.
         """
         super().__init__(**kwargs)
 
@@ -40,8 +42,15 @@ class PaletteMatchMerger(Merger):
             self.palette_matcher = LocalPaletteMatcher(local_range)
 
     def __call__(self, *input_images: Image.Image) -> Image.Image:
-        ref_image, _ = validate_mode(input_images[0], self.inputs["ref"])
-        fit_image, _ = validate_mode(input_images[1], self.inputs["fit"])
+        """Merge images.
+
+        Arguments:
+            input_images: Input images
+        Returns:
+            Merged output image
+        """
+        ref_image = validate_image(input_images[0], self.inputs["ref"])
+        fit_image = validate_image(input_images[1], self.inputs["fit"])
         if ref_image.mode != fit_image.mode:
             raise UnsupportedImageModeError(
                 f"Image mode '{ref_image.mode}' of reference image does not match mode "
@@ -55,6 +64,7 @@ class PaletteMatchMerger(Merger):
     @classmethod
     @property
     def inputs(cls) -> dict[str, tuple[str, ...]]:
+        """Inputs to this operator."""
         return {
             "ref": ("L", "RGB"),
             "fit": ("L", "RGB"),
@@ -63,6 +73,7 @@ class PaletteMatchMerger(Merger):
     @classmethod
     @property
     def outputs(cls) -> dict[str, tuple[str, ...]]:
+        """Outputs of this operator."""
         return {
             "output": ("L", "RGB"),
         }

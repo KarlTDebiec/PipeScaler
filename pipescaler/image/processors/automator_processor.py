@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright (C) 2020-2022. Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Applies an Automator QuickAction to an image."""
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ from PIL import Image
 
 from pipescaler.common import temporary_filename
 from pipescaler.core.image import Processor
-from pipescaler.core.validation import validate_mode
+from pipescaler.core.validation import validate_image_and_convert_mode
 from pipescaler.runners import AutomatorRunner
 
 
@@ -38,7 +38,7 @@ class AutomatorProcessor(Processor):
         Returns:
             Processed output image
         """
-        input_image, output_mode = validate_mode(
+        input_image, output_mode = validate_image_and_convert_mode(
             input_image, self.inputs["input"], "RGB"
         )
 

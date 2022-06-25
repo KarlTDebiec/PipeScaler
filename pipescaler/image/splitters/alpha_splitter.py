@@ -1,11 +1,11 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright (C) 2020-2022. Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Splits image with transparency into separate alpha and color images."""
 from __future__ import annotations
 
-from typing import Any, Optional, Union
+from typing import Optional, Union
 
 import numpy as np
 from PIL import Image
@@ -13,7 +13,7 @@ from PIL import Image
 from pipescaler.common import ArgumentConflictError, validate_enum
 from pipescaler.core.enums import AlphaMode, MaskFillMode
 from pipescaler.core.image import Splitter, is_monochrome
-from pipescaler.core.validation import validate_mode
+from pipescaler.core.validation import validate_image
 from pipescaler.utilities import MaskFiller
 
 
@@ -24,20 +24,33 @@ class AlphaSplitter(Splitter):
         self,
         alpha_mode: Union[type(AlphaMode), str] = AlphaMode.GRAYSCALE,
         mask_fill_mode: Optional[Union[type(MaskFillMode), str]] = None,
-        **kwargs: Any,
     ) -> None:
-        super().__init__(**kwargs)
+        """Validate configuration and initialize.
 
+        Arguments:
+            alpha_mode: Mode of alpha treatment to perform
+            mask_fill_mode: Mode of mask filling to perform
+        """
         self.alpha_mode = validate_enum(alpha_mode, AlphaMode)
         self.mask_fill_mode = None
         if mask_fill_mode is not None:
             if self.alpha_mode == AlphaMode.GRAYSCALE:
-                raise ArgumentConflictError()
+                raise ArgumentConflictError(
+                    "Mask filling is only supported for "
+                    "alpha_mode MONOCHROME_OR_GRAYSCALE"
+                )
             self.mask_fill_mode = validate_enum(mask_fill_mode, MaskFillMode)
             self.mask_filler = MaskFiller(mask_fill_mode=self.mask_fill_mode)
 
     def __call__(self, input_image: Image.Image) -> tuple[Image.Image, ...]:
-        input_image, _ = validate_mode(input_image, self.inputs["input"])
+        """Split an image.
+
+        Arguments:
+            input_image: Input image
+        Returns:
+            Split output images
+        """
+        input_image = validate_image(input_image, self.inputs["input"])
 
         input_array = np.array(input_image)
 
@@ -57,6 +70,7 @@ class AlphaSplitter(Splitter):
     @classmethod
     @property
     def inputs(cls) -> dict[str, tuple[str, ...]]:
+        """Inputs to this operator."""
         return {
             "input": ("LA", "RGBA"),
         }

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright (C) 2020-2022. Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Converts ESRGAN models to PyTorch's serialized pth format."""
 from __future__ import annotations
 
@@ -40,6 +40,13 @@ class EsrganSerializer(Utility):
     def get_model(
         cls, state_dict: OrderedDict[str, Tensor]
     ) -> Union[Esrgan1x | Esrgan4x]:
+        """Get model from state_dict.
+
+        Arguments:
+            state_dict: State dictionary
+        Returns:
+            Model
+        """
         state_dict, scale = cls.parse_state_dict(state_dict)
         if scale == 0:
             model = Esrgan1x(3, 3, 64, 23)
@@ -58,6 +65,13 @@ class EsrganSerializer(Utility):
     def parse_state_dict(
         cls, state_dict: OrderedDict[str, Tensor]
     ) -> tuple[OrderedDict[str, Tensor], int]:
+        """Parse state_dict.
+
+        Arguments:
+            state_dict: State dictionary
+        Returns:
+            State dictionary, scale
+        """
         if "model.0.weight" in state_dict:
             scale = cls.get_old_scale_index(state_dict)
             keymap = cls.build_old_keymap(scale)
@@ -69,6 +83,13 @@ class EsrganSerializer(Utility):
 
     @staticmethod
     def build_old_keymap(scale: int) -> dict[str, str]:
+        """Build keymap for old state_dict.
+
+        Arguments:
+            scale: Scale
+        Returns:
+            Keymap
+        """
         # Build initial keymap
         keymap = OrderedDict()
         keymap["model.0"] = "conv_first"
@@ -96,6 +117,13 @@ class EsrganSerializer(Utility):
 
     @staticmethod
     def get_old_scale_index(state_dict: dict[str, Tensor]) -> int:
+        """Get scale index for old state_dict.
+
+        Arguments:
+            state_dict: State dictionary
+        Returns:
+            Scale index
+        """
         try:
             # get the largest model index from keys like "model.X.weight"
             max_index = max([int(n.split(".")[1]) for n in state_dict.keys()])
@@ -107,6 +135,13 @@ class EsrganSerializer(Utility):
 
     @staticmethod
     def get_scale_index(state_dict: dict[str, Tensor]) -> int:
+        """Get scale index for state_dict.
+
+        Arguments:
+            state_dict: State dictionary
+        Returns:
+            Scale index
+        """
         max_index = 0
 
         for k in state_dict.keys():

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright (C) 2020-2022. Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Converts height map image to a normal map image."""
 from __future__ import annotations
 
@@ -15,7 +15,7 @@ from pipescaler.core.image import (
     generate_normal_map_from_height_map_image,
     smooth_image,
 )
-from pipescaler.core.validation import validate_mode
+from pipescaler.core.validation import validate_image
 
 
 class HeightToNormalProcessor(Processor):
@@ -37,7 +37,7 @@ class HeightToNormalProcessor(Processor):
         Returns:
             Processed output image
         """
-        input_image, _ = validate_mode(input_image, self.inputs["input"])
+        input_image = validate_image(input_image, self.inputs["input"])
 
         if self.sigma is not None:
             input_image = smooth_image(input_image, self.sigma)
