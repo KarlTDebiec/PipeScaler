@@ -139,7 +139,7 @@ class FileScanner(Utility):
                 remove(file_path)
                 info(f"'{file_path}' removed")
             rmdir(self.copy_directory)
-            info(f"{self}: '{self.copy_directory}' removed")
+            info(f"'{self.copy_directory}' removed")
 
         if self.remove_directory.exists():
             for file_path in self.remove_directory.iterdir():
@@ -149,11 +149,11 @@ class FileScanner(Utility):
                 for input_directory in self.input_directories:
                     for match in input_directory.glob(f"{Path(name).stem}.*"):
                         remove(match)
-                        info(f"{self}: '{match}' removed")
+                        info(f"'{match}' removed")
                 remove(file_path)
-                info(f"{self}: '{file_path}' removed")
+                info(f"'{file_path}' removed")
             rmdir(self.remove_directory)
-            info(f"{self}: '{self.remove_directory}' removed")
+            info(f"'{self.remove_directory}' removed")
 
     def copy(self, file_path: Path) -> None:
         """Copy file to copy directory.
@@ -163,7 +163,7 @@ class FileScanner(Utility):
         """
         if not self.copy_directory.exists():
             self.copy_directory.mkdir(parents=True)
-            info(f"{self}: '{self.copy_directory}' created")
+            info(f"'{self.copy_directory}' created")
 
         output_name = file_path.name
         if self.remove_prefix is not None:
@@ -187,7 +187,7 @@ class FileScanner(Utility):
         """
         if not self.move_directory.exists():
             self.move_directory.mkdir(parents=True)
-            info(f"{self}: '{self.move_directory}' created")
+            info(f"'{self.move_directory}' created")
 
         output_name = file_path.name
         if self.remove_prefix is not None:
@@ -211,17 +211,17 @@ class FileScanner(Utility):
             file_path: Path to file
         """
         if (operation := self.get_operation(file_path.stem)) == "known":
-            debug(f"{self}: '{file_path.stem}' known")
+            debug(f"'{file_path.stem}' known")
         elif operation == "ignore":
-            debug(f"{self}: '{file_path.stem}' ignored")
+            debug(f"'{file_path.stem}' ignored")
         elif operation == "remove":
             remove(file_path)
-            info(f"'{self}: {file_path.stem}' removed")
+            info(f"'{file_path.stem}' removed")
         elif operation == "copy":
             self.copy(file_path)
-            info(f"'{self}: {file_path.stem}' copied")
+            info(f"'{file_path.stem}' copied")
         elif operation == "move":
             self.move(file_path)
-            info(f"'{self}: {file_path.stem}' moved")
+            info(f"'{file_path.stem}' moved")
         else:
-            raise ValueError(f"{self}: Unknown operation '{operation}'")
+            raise ValueError(f"Unknown operation '{operation}'")

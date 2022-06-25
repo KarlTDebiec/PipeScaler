@@ -5,35 +5,48 @@
 """Tests for FileScanner."""
 import logging
 from os import mkdir
-from pathlib import Path
-from tempfile import TemporaryDirectory
+from shutil import copy
 
-from pipescaler.common import DirectoryNotFoundError
+from pipescaler.common.file import temp_directory
+from pipescaler.testing import get_infile, get_sub_directory
 from pipescaler.utilities import FileScanner
 
 logging.getLogger().setLevel(level=logging.DEBUG)
-from pytest import mark
-
-
-@mark.xfail(raises=DirectoryNotFoundError)
-def test_directory_not_found():
-    file_scanner = FileScanner("do", "not", "exist")
 
 
 def test():
-    with TemporaryDirectory() as project_root:
-        project_root = Path(project_root)
-        mkdir(project_root.joinpath("input_1"))
-        mkdir(project_root.joinpath("input_2"))
+    with temp_directory() as project_root, temp_directory() as input_directory:
+        # Stage input directory
+        for infile in get_sub_directory().iterdir():
+            copy(infile, input_directory.joinpath(infile.name))
+
         mkdir(project_root.joinpath("reviewed"))
-        mkdir(project_root.joinpath("ignored"))
+        infile = get_infile("L")
+        copy(infile, project_root.joinpath("reviewed", infile.name))
+
+        mkdir(project_root.joinpath("ignore"))
+        infile = get_infile("LA")
+        copy(infile, project_root.joinpath("ignore", infile.name))
+
+        mkdir(project_root.joinpath("review"))
+        infile = get_infile("RGB")
+        copy(infile, project_root.joinpath("review", infile.name))
+
+        mkdir(project_root.joinpath("remove"))
+        infile = get_infile("1")
+        copy(infile, project_root.joinpath("remove", infile.name))
+
+        mkdir(project_root.joinpath("new"))
+        infile = get_infile("RGBA")
+        copy(infile, project_root.joinpath("new", infile.name))
 
         file_scanner = FileScanner(
             project_root,
-            [
-                project_root.joinpath("input_1"),
-                project_root.joinpath("input_2"),
-                project_root.joinpath("input_3"),
-            ],
+            [input_directory],
             project_root.joinpath("reviewed"),
+            rules=[
+                ("L", "move"),
+                ("LA", "ignore"),
+            ],
         )
+        file_scanner()
