@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import re
 from itertools import chain
-from logging import debug, info, warning
+from logging import debug, info
 from os import remove, rmdir
 from pathlib import Path
 from shutil import copy, move
@@ -15,7 +15,7 @@ from typing import Optional, Sequence, Union
 
 from PIL import Image
 
-from pipescaler.common import DirectoryNotFoundError
+from pipescaler.common.validation import validate_input_directories
 from pipescaler.core import Utility
 
 
@@ -46,32 +46,6 @@ class FileScanner(Utility):
         """
         super().__init__()
 
-        def validate_input_directories(
-            directories: Union[Path, Sequence[Path]]
-        ) -> list[Path]:
-            """Validate input directory paths and make them absolute.
-
-            Arguments:
-                directories: Directory or directories of input files
-            Returns:
-                List of absolute directory paths
-            """
-            if isinstance(directories, Path):
-                directories = [directories]
-            validated_directories = []
-            for directory in directories:
-                directory = directory.absolute()
-                if directory.exists():
-                    validated_directories.append(directory)
-                else:
-                    warning(f"{self}: Input directory '{directory}' does not exist")
-            if len(validated_directories) == 0:
-                raise DirectoryNotFoundError(
-                    f"No directories provided in '{directories}' exist"
-                )
-
-            return validated_directories
-
         def get_names(directories: Union[Path, Sequence[Path]]) -> set[str]:
             """Get names of files in directories.
 
@@ -88,6 +62,7 @@ class FileScanner(Utility):
             return names
 
         # Validate input and output directory and file paths
+        project_root = Path(project_root)
         self.ignore_directory = project_root.joinpath("ignore")
         """Directory of images to ignore if present in input directories."""
         self.copy_directory = project_root.joinpath("new")
