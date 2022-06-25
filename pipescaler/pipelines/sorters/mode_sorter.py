@@ -9,7 +9,7 @@ from logging import info
 
 from pipescaler.core.pipelines import PipeImage
 from pipescaler.core.pipelines.sorter import Sorter
-from pipescaler.core.validation import validate_mode
+from pipescaler.core.validation import validate_image
 
 
 class ModeSorter(Sorter):
@@ -28,13 +28,16 @@ class ModeSorter(Sorter):
         Returns:
             Outlet to which image should be sorted
         """
-        _, outlet = validate_mode(pipe_image.image, ("1", "L", "LA", "RGB", "RGBA"))
+        image = validate_image(pipe_image.image, ("1", "L", "LA", "RGB", "RGBA"))
+
+        outlet = image.mode
         if outlet == "1":
             outlet = "M"
+
         info(f"{self}: '{pipe_image.name}' matches '{outlet}'")
         return outlet
 
     @property
     def outlets(self) -> tuple[str, ...]:
-        """Outlets that flow out of sorter."""
+        """Outlets to which images may be sorted."""
         return ("M", "L", "LA", "RGB", "RGBA")

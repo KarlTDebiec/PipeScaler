@@ -33,7 +33,7 @@ class Sorter(ABC):
     @property
     @abstractmethod
     def outlets(self) -> tuple[str, ...]:
-        """Outlets that flow out of sorter."""
+        """Outlets to which images may be sorted."""
         raise NotImplementedError()
 
     @classmethod

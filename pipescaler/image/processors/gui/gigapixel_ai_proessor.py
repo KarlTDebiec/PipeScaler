@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright (C) 2020-2022. Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Upscales image using Gigapixel AI."""
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ from PIL import Image
 
 from pipescaler.common import validate_executable
 from pipescaler.core.image import Processor
-from pipescaler.core.validation import validate_mode
+from pipescaler.core.validation import validate_image
 
 if system() == "Windows":
     from pywinauto.application import (
@@ -65,7 +65,7 @@ class GigapixelAiProcessor(Processor):
         """
         validate_executable(self.command, {"Windows"})
 
-        input_image, _ = validate_mode(Image.open(infile), ["L", "LA", "RGB", "RGBA"])
+        input_image = validate_image(Image.open(infile), ["L", "LA", "RGB", "RGBA"])
 
         # Launch application
         # TODO: Streamline window selection using regex

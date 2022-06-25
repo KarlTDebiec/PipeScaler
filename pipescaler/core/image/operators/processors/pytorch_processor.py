@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright (C) 2020-2022. Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Abstract base class for processors that use PyTorch."""
 from __future__ import annotations
 
@@ -15,19 +15,32 @@ from torch.nn import Module
 
 from pipescaler.common import validate_input_path
 from pipescaler.core.image.operators.processor import Processor
-from pipescaler.core.validation import validate_mode
+from pipescaler.core.validation import validate_image_and_convert_mode
 
 
 class PyTorchProcessor(Processor, ABC):
     """Abstract base class for processors that use PyTorch."""
 
     def __init__(self, model_infile: str, **kwargs: Any) -> None:
+        """Validate and store configuration and initialize.
+
+        Arguments:s
+            model_infile: Path to model file
+            kwargs: Additional keyword arguments
+        """
         super().__init__(**kwargs)
 
         self.model_infile = validate_input_path(model_infile)
 
     def __call__(self, input_image: Image.Image) -> Image.Image:
-        input_image, output_mode = validate_mode(
+        """Process an image.
+
+        Arguments:
+            input_image: Input image
+        Returns:
+            Processed output image
+        """
+        input_image, output_mode = validate_image_and_convert_mode(
             input_image, self.inputs["input"], "RGB"
         )
 
@@ -82,6 +95,7 @@ class PyTorchProcessor(Processor, ABC):
     @classmethod
     @property
     def inputs(cls) -> dict[str, tuple[str, ...]]:
+        """Inputs to this operator."""
         return {
             "input": ("1", "L", "RGB"),
         }
@@ -89,6 +103,7 @@ class PyTorchProcessor(Processor, ABC):
     @classmethod
     @property
     def outputs(cls) -> dict[str, tuple[str, ...]]:
+        """Outputs of this operator."""
         return {
             "output": ("1", "L", "RGB"),
         }

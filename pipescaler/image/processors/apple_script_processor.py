@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright (C) 2020-2022. Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Runs image through an AppleScript."""
 from __future__ import annotations
 
@@ -11,14 +11,14 @@ from PIL import Image
 
 from pipescaler.common import temporary_filename
 from pipescaler.core.image import Processor
-from pipescaler.core.validation import validate_mode
+from pipescaler.core.validation import validate_image_and_convert_mode
 from pipescaler.runners import AppleScriptRunner
 
 
 class AppleScriptProcessor(Processor):
     """Runs image through an AppleScript.
 
-    See [AppleScript](https://developer.apple.com/library/archive/documentation/AppleScript/Conceptual/AppleScriptLangGuide/introduction/ASLR_intro.html),
+    See [AppleScript](https://developer.apple.com/library/archive/documentation/AppleScript/Conceptual/AppleScriptLangGuide/introduction/ASLR_intro.html), # pylint: disable=line-too-long
     and [Pixelmator Pro](https://www.pixelmator.com/support/guide/pixelmator-pro/1270/)
     """
 
@@ -39,7 +39,7 @@ class AppleScriptProcessor(Processor):
         Returns:
             Processed output image
         """
-        input_image, output_mode = validate_mode(
+        input_image, output_mode = validate_image_and_convert_mode(
             input_image, self.inputs["input"], "RGB"
         )
 

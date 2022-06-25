@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright (C) 2020-2022. Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Sharpens an image."""
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ from PIL import Image
 from scipy.signal import convolve2d
 
 from pipescaler.core.image import Processor
-from pipescaler.core.validation import validate_mode
+from pipescaler.core.validation import validate_image
 
 
 class SharpenProcessor(Processor):
@@ -26,7 +26,7 @@ class SharpenProcessor(Processor):
         Returns:
             Processed output image
         """
-        input_image, _ = validate_mode(input_image, self.inputs["input"])
+        input_image = validate_image(input_image, self.inputs["input"])
 
         if input_image.mode == "L":
             input_array = np.array(input_image).astype(float)
