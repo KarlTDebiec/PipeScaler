@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright (C) 2020-2022. Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Concatenates images into an animated PNG file."""
 from __future__ import annotations
 
@@ -32,6 +32,16 @@ class ApngCreator(Utility):
         duration: Optional[int] = 500,
         **kwargs: Any,
     ) -> None:
+        """Validate configuration and initialize.
+
+        Arguments:
+            infiles: Input files
+            outfile: Output animated png file
+            labels: Image labels
+            show_size: Show size
+            duration: Duration
+            **kwargs: Additional keyword arguments
+        """
         super().__init__(**kwargs)
 
         self.infiles = list(map(validate_input_path, infiles))
@@ -43,7 +53,8 @@ class ApngCreator(Utility):
         self.duration = duration
         self.apngasm_executable = validate_executable("apngasm")
 
-    def __call__(self, **kwargs: Any) -> None:
+    def __call__(self) -> None:
+        """Concatenate images into an animated PNG file."""
         images = []
         sizes = []
         for infile in self.infiles:

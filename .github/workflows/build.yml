@@ -54,7 +54,7 @@ jobs:
       - name: prospector
         run: |
           cd ${GITHUB_WORKSPACE}
-          poetry run prospector -0 -o text -o json:prospector.json .
+          poetry run prospector -u flask -D -T -0 -o text -o json:prospector.json .
           poetry run docs/prospector_reporter.py prospector.json modified_files.json
       - name: pydocstyle
         run: |
