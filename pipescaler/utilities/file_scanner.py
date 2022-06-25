@@ -26,8 +26,8 @@ class FileScanner(Utility):
 
     def __init__(
         self,
-        project_root: Path,
         input_directories: Union[Path, list[Path]],
+        project_root: Path,
         reviewed_directories: Optional[Union[Path, list[Path]]],
         rules: Optional[list[tuple[str, str]]] = None,
         *,
@@ -37,8 +37,8 @@ class FileScanner(Utility):
         """Validate and store configuration and initialize.
 
         Arguments:
-            project_root: Root directory of project
             input_directories: Directory or directories from which to read input files
+            project_root: Root directory of project
             reviewed_directories: Directory or directories of reviewed files
             rules: Rules by which to process images
             remove_prefix: Prefix to remove from output file names
@@ -111,27 +111,6 @@ class FileScanner(Utility):
             for file_path in input_directory.iterdir():
                 self.perform_operation(file_path)
 
-    def get_operation(self, name: str) -> str:
-        """Select operation for filename.
-
-        Arguments:
-            name: Name of file
-        Returns:
-            Operation to perform
-        """
-        if self.remove_prefix is not None:
-            name = name.removeprefix(self.remove_prefix)
-        if name in self.reviewed_names:
-            return "known"
-        if name in self.ignored_names:
-            return "ignore"
-        if self.rules is not None:
-            for regex, status in self.rules:
-                if regex.match(name):
-                    return status
-
-        return "copy"
-
     def clean_project_root(self) -> None:
         """Clean project root copy and remove directories."""
         if self.copy_directory.exists():
@@ -179,6 +158,27 @@ class FileScanner(Utility):
             with Image.open(file_path) as image:
                 image.save(output_path)
 
+    def get_operation(self, name: str) -> str:
+        """Select operation for filename.
+
+        Arguments:
+            name: Name of file
+        Returns:
+            Operation to perform
+        """
+        if self.remove_prefix is not None:
+            name = name.removeprefix(self.remove_prefix)
+        if name in self.reviewed_names:
+            return "known"
+        if name in self.ignored_names:
+            return "ignore"
+        if self.rules is not None:
+            for regex, status in self.rules:
+                if regex.match(name):
+                    return status
+
+        return "copy"
+
     def move(self, file_path: Path) -> None:
         """Move file to review directory.
 
@@ -193,7 +193,7 @@ class FileScanner(Utility):
         if self.remove_prefix is not None:
             output_name = output_name.removeprefix(self.remove_prefix)
 
-        output_path = self.copy_directory.joinpath(output_name)
+        output_path = self.move_directory.joinpath(output_name)
         if self.output_format is not None:
             output_path = output_path.with_suffix(self.output_format)
 
