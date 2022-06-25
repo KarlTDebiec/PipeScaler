@@ -15,7 +15,7 @@ from torch.nn import Module
 
 from pipescaler.common import validate_input_path
 from pipescaler.core.image.operators.processor import Processor
-from pipescaler.core.validation import validate_mode
+from pipescaler.core.validation import validate_image_and_convert_mode
 
 
 class PyTorchProcessor(Processor, ABC):
@@ -40,7 +40,7 @@ class PyTorchProcessor(Processor, ABC):
         Returns:
             Processed output image
         """
-        input_image, output_mode = validate_mode(
+        input_image, output_mode = validate_image_and_convert_mode(
             input_image, self.inputs["input"], "RGB"
         )
 

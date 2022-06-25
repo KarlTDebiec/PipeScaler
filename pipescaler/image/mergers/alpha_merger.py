@@ -9,7 +9,7 @@ import numpy as np
 from PIL import Image
 
 from pipescaler.core.image import Merger
-from pipescaler.core.validation import validate_mode
+from pipescaler.core.validation import validate_image
 
 
 class AlphaMerger(Merger):
@@ -23,8 +23,8 @@ class AlphaMerger(Merger):
         Returns:
             Merged output image
         """
-        color_image, _ = validate_mode(input_images[0], self.inputs["color"])
-        alpha_image, _ = validate_mode(input_images[1], self.inputs["alpha"])
+        color_image = validate_image(input_images[0], self.inputs["color"])
+        alpha_image = validate_image(input_images[1], self.inputs["alpha"])
 
         color_array = np.array(color_image)
         if alpha_image.mode == "L":

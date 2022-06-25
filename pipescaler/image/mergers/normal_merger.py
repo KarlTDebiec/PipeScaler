@@ -9,7 +9,7 @@ import numpy as np
 from PIL import Image
 
 from pipescaler.core.image import Merger
-from pipescaler.core.validation import validate_mode
+from pipescaler.core.validation import validate_image
 
 
 class NormalMerger(Merger):
@@ -23,9 +23,9 @@ class NormalMerger(Merger):
         Returns:
             Merged output image
         """
-        x_image, _ = validate_mode(input_images[0], self.inputs["x"])
-        y_image, _ = validate_mode(input_images[1], self.inputs["y"])
-        z_image, _ = validate_mode(input_images[2], self.inputs["z"])
+        x_image = validate_image(input_images[0], self.inputs["x"])
+        y_image = validate_image(input_images[1], self.inputs["y"])
+        z_image = validate_image(input_images[2], self.inputs["z"])
 
         x_array = np.clip(np.array(x_image, float) - 128, -128, 127)
         y_array = np.clip(np.array(y_image, float) - 128, -128, 127)

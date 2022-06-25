@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright (C) 2020-2022. Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Converts mode of image."""
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ from PIL import Image, ImageColor
 
 from pipescaler.common import validate_str
 from pipescaler.core.image import Processor
-from pipescaler.core.validation import validate_mode
+from pipescaler.core.validation import validate_image
 
 
 class ModeProcessor(Processor):
@@ -33,15 +33,15 @@ class ModeProcessor(Processor):
         Returns:
             Processed output image
         """
-        input_image, input_mode = validate_mode(input_image, self.inputs["input"])
+        input_image = validate_image(input_image, self.inputs["input"])
 
         if input_image.mode == self.mode:
-            output_image = input_image
-        else:
-            output_image = Image.new("RGBA", input_image.size, self.background_color)
-            output_image.paste(input_image)
-            if self.mode != "RGBA":
-                output_image = output_image.convert(self.mode)
+            return input_image
+
+        output_image = Image.new("RGBA", input_image.size, self.background_color)
+        output_image.paste(input_image)
+        if self.mode != "RGBA":
+            output_image = output_image.convert(self.mode)
 
         return output_image
 

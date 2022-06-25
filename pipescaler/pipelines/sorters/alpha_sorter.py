@@ -12,7 +12,7 @@ import numpy as np
 from pipescaler.common import validate_int
 from pipescaler.core.pipelines import PipeImage
 from pipescaler.core.pipelines.sorter import Sorter
-from pipescaler.core.validation import validate_mode
+from pipescaler.core.validation import validate_image_and_convert_mode
 
 
 class AlphaSorter(Sorter):
@@ -34,7 +34,9 @@ class AlphaSorter(Sorter):
         Returns:
             Outlet to which image should be sorted
         """
-        image, mode = validate_mode(pipe_image.image, ("1", "L", "LA", "RGB", "RGBA"))
+        image, mode = validate_image_and_convert_mode(
+            pipe_image.image, ("1", "L", "LA", "RGB", "RGBA")
+        )
 
         if mode in ("LA", "RGBA"):
             alpha_array = np.array(image)[:, :, -1]

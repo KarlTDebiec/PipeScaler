@@ -13,7 +13,7 @@ from PIL import Image
 from pipescaler.common import validate_float
 from pipescaler.core.pipelines import PipeImage
 from pipescaler.core.pipelines.sorter import Sorter
-from pipescaler.core.validation import validate_mode
+from pipescaler.core.validation import validate_image
 
 
 class GrayscaleSorter(Sorter):
@@ -39,7 +39,7 @@ class GrayscaleSorter(Sorter):
         Returns:
             Outlet to which image should be sorted
         """
-        image, _ = validate_mode(pipe_image.image, ("L", "LA", "RGB", "RGBA"))
+        image = validate_image(pipe_image.image, ("L", "LA", "RGB", "RGBA"))
 
         if image.mode in ("RGB", "RGBA"):
             rgb_array = np.array(image)[:, :, :3]

@@ -11,7 +11,7 @@ from pipescaler.common import validate_float
 from pipescaler.core.image import is_monochrome
 from pipescaler.core.pipelines import PipeImage
 from pipescaler.core.pipelines.sorter import Sorter
-from pipescaler.core.validation import validate_mode
+from pipescaler.core.validation import validate_image
 
 
 class MonochromeSorter(Sorter):
@@ -37,7 +37,7 @@ class MonochromeSorter(Sorter):
         Returns:
             Outlet to which image should be sorted
         """
-        image, _ = validate_mode(pipe_image.image, ("1", "L"))
+        image = validate_image(pipe_image.image, ("1", "L"))
 
         if image.mode == "L":
             if is_monochrome(image):

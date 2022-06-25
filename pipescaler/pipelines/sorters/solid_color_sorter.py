@@ -12,7 +12,7 @@ import numpy as np
 from pipescaler.common import validate_float, validate_int
 from pipescaler.core.pipelines import PipeImage
 from pipescaler.core.pipelines.sorter import Sorter
-from pipescaler.core.validation import validate_mode
+from pipescaler.core.validation import validate_image
 
 
 class SolidColorSorter(Sorter):
@@ -38,7 +38,7 @@ class SolidColorSorter(Sorter):
         Returns:
             Outlet to which image should be sorted
         """
-        image, _ = validate_mode(pipe_image.image, ("1", "L", "LA", "RGB", "RGBA"))
+        image = validate_image(pipe_image.image, ("1", "L", "LA", "RGB", "RGBA"))
         array = np.array(image)
 
         if image.mode in ("L", "LA", "RGB", "RGBA"):

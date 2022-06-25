@@ -13,7 +13,7 @@ from PIL import Image
 from pipescaler.common import ArgumentConflictError, validate_enum
 from pipescaler.core.enums import AlphaMode, MaskFillMode
 from pipescaler.core.image import Splitter, is_monochrome
-from pipescaler.core.validation import validate_mode
+from pipescaler.core.validation import validate_image
 from pipescaler.utilities import MaskFiller
 
 
@@ -50,7 +50,7 @@ class AlphaSplitter(Splitter):
         Returns:
             Split output images
         """
-        input_image, _ = validate_mode(input_image, self.inputs["input"])
+        input_image = validate_image(input_image, self.inputs["input"])
 
         input_array = np.array(input_image)
 

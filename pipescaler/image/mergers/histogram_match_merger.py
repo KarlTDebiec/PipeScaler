@@ -11,7 +11,7 @@ from skimage.exposure import match_histograms
 
 from pipescaler.core.exceptions import UnsupportedImageModeError
 from pipescaler.core.image import Merger
-from pipescaler.core.validation import validate_mode
+from pipescaler.core.validation import validate_image
 
 
 class HistogramMatchMerger(Merger):
@@ -25,8 +25,8 @@ class HistogramMatchMerger(Merger):
         Returns:
             Merged output image
         """
-        ref_image, _ = validate_mode(input_images[0], self.inputs["ref"])
-        fit_image, _ = validate_mode(input_images[1], self.inputs["fit"])
+        ref_image = validate_image(input_images[0], self.inputs["ref"])
+        fit_image = validate_image(input_images[1], self.inputs["fit"])
         if ref_image.mode != fit_image.mode:
             raise UnsupportedImageModeError(
                 f"Image mode '{ref_image.mode}' of reference image"

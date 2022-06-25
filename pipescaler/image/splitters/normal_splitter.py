@@ -9,7 +9,7 @@ import numpy as np
 from PIL import Image
 
 from pipescaler.core.image import Splitter
-from pipescaler.core.validation import validate_mode
+from pipescaler.core.validation import validate_image
 
 
 class NormalSplitter(Splitter):
@@ -23,7 +23,7 @@ class NormalSplitter(Splitter):
         Returns:
             Split output images
         """
-        input_image, _ = validate_mode(input_image, self.inputs["input"])
+        input_image = validate_image(input_image, self.inputs["input"])
         input_array = np.array(input_image)
         x_array = input_array[:, :, 0]
         y_array = input_array[:, :, 1]
