@@ -6,8 +6,11 @@ source /usr/local/Caskroom/miniconda/base/etc/profile.d/conda.sh
 
 conda deactivate
 conda remove -y --name pipescaler --all
-conda create -y --name pipescaler python=3.8
+conda create -y --name pipescaler python=3.9
 conda activate pipescaler
+
+conda install -y \
+    brotlipy
 
 pip install \
     black \
@@ -23,6 +26,7 @@ pip install \
     pytest \
     pytest-cov \
     pytest-xdist \
+    pytest-asyncio \
     pyyaml \
     requests \
     scikit-image \
@@ -30,9 +34,6 @@ pip install \
     svglib \
     watchdog \
     xbrz.py
-
-conda install -y \
-    pytables
 
 conda install -y -c pytorch \
     pytorch \

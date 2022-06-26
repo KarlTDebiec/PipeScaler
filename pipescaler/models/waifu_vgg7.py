@@ -1,12 +1,8 @@
 #!/usr/bin/env python
-#   pipescaler/models/waifu_vgg7.py
-#
 #   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license.
-"""Waifu2x Vgg7 model"""
+#   All rights reserved. This software may be modified and distributed under
+#   the terms of the BSD license. See the LICENSE file for details.
+"""Waifu2x Vgg7 model."""
 from __future__ import annotations
 
 from torch import Tensor
@@ -14,15 +10,14 @@ from torch.nn import Conv2d, LeakyReLU, Module, Sequential, ZeroPad2d
 
 
 class WaifuVgg7(Module):
-    """Waifu2x Vgg7 model"""
+    """Waifu2x Vgg7 model."""
 
     def __init__(self):
-        """Initializes model"""
+        """Initialize."""
         super().__init__()
 
         self.activation_function = LeakyReLU(0.1)
         self.pad = ZeroPad2d(7)
-        # noinspection PyTypeChecker
         self.sequential = Sequential(
             Conv2d(3, 32, 3),
             self.activation_function,
@@ -40,4 +35,11 @@ class WaifuVgg7(Module):
         )
 
     def forward(self, tensor: Tensor) -> Tensor:
+        """Forward pass.
+
+        Arguments:
+            tensor: Batch of inputs
+        Returns:
+            Processed outputs
+        """
         return self.sequential.forward(self.pad(tensor))
