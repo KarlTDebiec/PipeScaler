@@ -3,7 +3,6 @@
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Tests for FileScanner."""
-import logging
 from os import mkdir
 from pathlib import Path
 from shutil import copy
@@ -12,11 +11,8 @@ from pipescaler.common.file import temp_directory
 from pipescaler.testing import get_infile, get_sub_directory
 from pipescaler.utilities import FileScanner
 
-logging.getLogger().setLevel(level=logging.DEBUG)
 
-
-def stage(input_directory: Path, project_root: Path) -> None:
-    # Stage input directory
+def stage_files(input_directory: Path, project_root: Path) -> None:
     for infile in get_sub_directory().iterdir():
         copy(infile, input_directory.joinpath(infile.name))
 
@@ -43,7 +39,7 @@ def stage(input_directory: Path, project_root: Path) -> None:
 
 def test():
     with temp_directory() as input_directory, temp_directory() as project_root:
-        stage(input_directory, project_root)
+        stage_files(input_directory, project_root)
 
         file_scanner = FileScanner(
             [input_directory],
@@ -59,7 +55,7 @@ def test():
 
 def test_remove_prefix():
     with temp_directory() as input_directory, temp_directory() as project_root:
-        stage(input_directory, project_root)
+        stage_files(input_directory, project_root)
 
         file_scanner = FileScanner(
             [input_directory],
@@ -76,7 +72,7 @@ def test_remove_prefix():
 
 def test_output_format():
     with temp_directory() as input_directory, temp_directory() as project_root:
-        stage(input_directory, project_root)
+        stage_files(input_directory, project_root)
 
         file_scanner = FileScanner(
             [input_directory],
