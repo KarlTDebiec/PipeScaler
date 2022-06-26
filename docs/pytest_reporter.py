@@ -73,6 +73,8 @@ class PytestReporter:
             file_path = Path(warning_match["file_path"])
             if not file_path.is_relative_to(package_root):
                 continue
+            if file_path.relative_to(package_root).parts[0] == ".venv":
+                continue
             messages.append(
                 {
                     "file_path": file_path,
