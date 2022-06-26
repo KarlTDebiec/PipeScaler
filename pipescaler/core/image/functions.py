@@ -77,10 +77,10 @@ def expand_image(
     new_w = max(min_size, left + width + right)
     new_h = max(min_size, top + height + bottom)
 
-    transposed_horizontally = image.transpose(Image.FLIP_LEFT_RIGHT)
-    transposed_vertically = image.transpose(Image.FLIP_TOP_BOTTOM)
+    transposed_horizontally = image.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+    transposed_vertically = image.transpose(Image.Transpose.FLIP_TOP_BOTTOM)
     transposed_horizontally_and_vertically = transposed_horizontally.transpose(
-        Image.FLIP_TOP_BOTTOM
+        Image.Transpose.FLIP_TOP_BOTTOM
     )
 
     expanded = Image.new(image.mode, (new_w, new_h))
