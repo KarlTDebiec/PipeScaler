@@ -67,7 +67,7 @@ jobs:
           cd ${GITHUB_WORKSPACE}/test
           poetry run pytest -v --cov=pipescaler --cov-report term . | tee pytest.txt
           cd ${GITHUB_WORKSPACE}
-#           poetry run docs/pytest_reporter.py test/pytest.txt
+          poetry run docs/pytest_reporter.py test/pytest.txt
   macOS:
     runs-on: macos-latest
     if: github.event.pull_request.draft == false
