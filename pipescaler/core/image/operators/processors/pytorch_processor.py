@@ -13,7 +13,7 @@ import torch
 from PIL import Image
 from torch.nn import Module
 
-from pipescaler.common import validate_input_path
+from pipescaler.common import validate_input_file
 from pipescaler.core.image.operators.processor import Processor
 from pipescaler.core.validation import validate_image_and_convert_mode
 
@@ -30,7 +30,7 @@ class PyTorchProcessor(Processor, ABC):
         """
         super().__init__(**kwargs)
 
-        self.model_infile = validate_input_path(model_infile)
+        self.model_infile = validate_input_file(model_infile)
 
     def __call__(self, input_image: Image.Image) -> Image.Image:
         """Process an image.

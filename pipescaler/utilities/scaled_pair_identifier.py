@@ -4,8 +4,9 @@
 #  the terms of the BSD license. See the LICENSE file for details.
 """Identifies pairs of images in which one is rescaled from another."""
 import re
+from itertools import chain
 from logging import info
-from os.path import isfile, join
+from os.path import join
 from pathlib import Path
 from typing import Iterable, Optional, Union
 
@@ -49,9 +50,9 @@ class ScaledPairIdentifier(Utility):
         self,
         input_directories: Union[Union[str, Path], Iterable[Union[str, Path]]],
         project_root: Union[str, Path],
-        pairs_file: Union[str, Path],
-        hash_file: Union[str, Path],
         *,
+        pairs_file: Union[str, Path] = "scaled_pairs.csv",
+        hash_file: Union[str, Path] = "hashes.csv",
         interactive: bool = True,
     ):
         """Validate configuration and initialize.
@@ -63,7 +64,6 @@ class ScaledPairIdentifier(Utility):
             hash_file: CSV file to read/write cache of image hashes
             interactive: Whether to prompt for interactive review
         """
-
         # Store input and output paths
         self.input_directories = validate_input_directories(input_directories)
         """Directories from which to read input files."""
@@ -72,12 +72,19 @@ class ScaledPairIdentifier(Utility):
         self.scaled_directory = project_root.joinpath("scaled")
         """Directory to which to move scaled images."""
         self.comparison_directory = project_root.joinpath("scaled_images")
-        """Directory to which to write stacked scaled image sets"""
+        """Directory to which to write stacked scaled image sets."""
 
         self.pairs_file = validate_output_file(pairs_file, exists_ok=True)
-        """CSV file from which to read/write scaled image pairs"""
+        """CSV file from which to read/write scaled image pairs."""
         self.hash_file = validate_output_file(hash_file, exists_ok=True)
-        """CSV file from which to read/write image hash cache"""
+        """CSV file from which to read/write image hash cache."""
+
+        # Prepare filenames
+        self.file_paths = list(
+            chain.from_iterable(
+                d.iterdir() for d in self.input_directories + [self.scaled_directory]
+            )
+        )
 
         # Prepare DatFrame of image hashes
         self.hashes = pd.DataFrame(
@@ -92,12 +99,12 @@ class ScaledPairIdentifier(Utility):
                 },
                 **{
                     f"{hash_type} hash": pd.Series(dtype="str")
-                    for hash_type in self.hash_types.keys()
+                    for hash_type in self.hash_types
                 },
             }
         )
-        """Image hashes"""
-        if self.hash_file is not None and isfile(self.hash_file):
+        """Image hashes."""
+        if self.hash_file.exists():
             self.hashes = pd.read_csv(self.hash_file)
             info(f"Image hashes read from '{self.hash_file}'")
 
@@ -109,21 +116,23 @@ class ScaledPairIdentifier(Utility):
                 "scaled filename": pd.Series(dtype="str"),
             }
         )
-        """Image pairs"""
-        if isfile(self.pairs_file):
+        """Image pairs."""
+        if self.pairs_file.exists():
             self.pairs = pd.read_csv(self.pairs_file)
             info(f"Scaled image pairs read from '{self.pairs_file}'")
 
         self.interactive = interactive
+        """Whether to prompt for interactive review."""
 
         # Prepare image sorters for image analysis
         self.alpha_sorter = AlphaSorter()
-        """Alpha sorter"""
+        """Alpha sorter."""
         self.grayscale_sorter = GrayscaleSorter()
-        """Grayscale sorter"""
+        """Grayscale sorter."""
 
         # Hash images
-        self._calculate_all_hashes()
+        self.calculate_hashes_for_all_files()
+        print(self.hashes)
 
     @property
     def children(self) -> set[str]:
@@ -134,23 +143,6 @@ class ScaledPairIdentifier(Utility):
     def parents(self) -> set[str]:
         """Parent images."""
         return set(self.pairs["filename"])
-
-    def _calculate_all_hashes(self):
-        """Calculate all image hashes."""
-        hashes_changed = False
-        hashed_filenames = set(self.hashes["filename"])
-
-        for filename in self.filenames:
-            if filename not in hashed_filenames:
-                self.hashes = self.hashes.append(self.calculate_hashes(filename))
-                hashed_filenames.add(filename)
-                hashes_changed = True
-
-        if hashes_changed:
-            self.hashes = self.hashes.reset_index(drop=True)
-            if self.hash_file is not None:
-                self.hashes.to_csv(self.hash_file, index=False)
-                info(f"Image hashes saved to '{self.hash_file}'")
 
     def calculate_hamming_distance(
         self, parent_hash: pd.Series, child_hash: pd.Series, hash_type: str
@@ -173,25 +165,48 @@ class ScaledPairIdentifier(Utility):
             child_hash[f"{hash_type} hash"]
         )
 
-    def calculate_hashes(self, filename: str) -> pd.DataFrame:
-        """Calculate hashes of filename, including original size and scaled versions.
+    def calculate_hashes_for_all_files(self):
+        """Calculate hashes for all image files."""
+        hashes_changed = False
+        hashed_filenames = set(self.hashes["filename"])
+
+        for file_path in self.file_paths:
+            if file_path.stem not in hashed_filenames:
+                self.hashes = pd.concat(
+                    [
+                        self.hashes,
+                        self.calculate_hashes_for_file(file_path),
+                    ],
+                    ignore_index=True,
+                )
+                hashed_filenames.add(file_path.stem)
+                hashes_changed = True
+
+        if hashes_changed:
+            self.hashes = self.hashes.reset_index(drop=True)
+            if self.hash_file is not None:
+                self.hashes.to_csv(self.hash_file, index=False)
+                info(f"Image hashes saved to '{self.hash_file}'")
+
+    def calculate_hashes_for_file(self, file_path: Path) -> pd.DataFrame:
+        """Calculate hashes of image file, including original size and scaled versions.
 
         Arguments:
-            filename: Basename of file
+            file_path: Path to image file
         Returns:
-            Hashes of filename, including original size and scaled versions
+            Hashes of file, including original size and scaled versions
         """
-        absolute_filename = self.filenames[filename]
-        image = Image.open(absolute_filename)
+        image = Image.open(file_path)
         size = image.size
-        if self.grayscale_sorter(PipeImage(path=absolute_filename)) == "keep_rgb":
+        if self.grayscale_sorter(PipeImage(path=file_path)) == "keep_rgb":
             mode = "RGB"
         else:
             mode = "L"
-        if self.alpha_sorter(PipeImage(path=absolute_filename)) == "keep_alpha":
+        if self.alpha_sorter(PipeImage(path=file_path)) == "keep_alpha":
             mode += "A"
         image = image.convert(mode)
-        filetype = filename.split("_")[-1]
+        filetype = file_path.stem.split("_")[-1]
+
         hashes = []
         for scale in np.array([1 / (2**x) for x in range(0, 7)]):
             width = round(size[0] * scale)
@@ -199,7 +214,9 @@ class ScaledPairIdentifier(Utility):
             if width < 8 or height < 8:
                 break
             scaled_image = (
-                image.resize((width, height), Image.LANCZOS) if scale != 1.0 else image
+                image.resize((width, height), Image.Resampling.LANCZOS)
+                if scale != 1.0
+                else image
             )
             scaled_channels = []
             if mode == "L":
@@ -219,7 +236,7 @@ class ScaledPairIdentifier(Utility):
             hashes.append(
                 {
                     **{
-                        "filename": filename,
+                        "filename": file_path.stem,
                         "scale": scale,
                         "width": width,
                         "height": height,
@@ -292,10 +309,10 @@ class ScaledPairIdentifier(Utility):
             color_image = hstack_images(*color_images)
             alpha_image = hstack_images(*alpha_images)
             return vstack_images(color_image, alpha_image)
-        else:
-            return hstack_images(
-                *[Image.open(self.filenames[filename]) for filename in filenames]
-            )
+
+        return hstack_images(
+            *[Image.open(self.filenames[filename]) for filename in filenames]
+        )
 
     def get_pair(self, child: str) -> pd.DataFrame:
         """Get pair of child.
