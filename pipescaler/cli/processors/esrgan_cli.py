@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright (C) 2020-2022. Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Command line interface for EsrganProcessor."""
 from __future__ import annotations
 
@@ -33,7 +33,7 @@ class EsrganCli(ProcessorCli):
             "--model",
             dest="model_infile",
             required=True,
-            type=cls.input_path_arg(),
+            type=cls.input_file_arg(),
             help="model input file",
         )
 

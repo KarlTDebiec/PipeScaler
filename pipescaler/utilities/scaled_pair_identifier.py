@@ -1,12 +1,13 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright (C) 2020-2022. Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Identifies pairs of images in which one is rescaled from another."""
 import re
 from logging import info
 from os.path import isfile, join
-from typing import Optional
+from pathlib import Path
+from typing import Iterable, Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -22,7 +23,11 @@ from imagehash import (
 from PIL import Image
 from scipy.stats import zscore
 
-from pipescaler.common import validate_output_directory, validate_output_file
+from pipescaler.common import (
+    validate_input_directories,
+    validate_input_directory,
+    validate_output_file,
+)
 from pipescaler.core import Utility
 from pipescaler.core.image import hstack_images, label_image, vstack_images
 from pipescaler.core.pipelines import PipeImage
@@ -42,37 +47,37 @@ class ScaledPairIdentifier(Utility):
 
     def __init__(
         self,
-        filenames: dict[str, str],
-        pairs_file: str,
-        hash_file: Optional[str] = None,
-        image_directory: Optional[str] = None,
+        input_directories: Union[Union[str, Path], Iterable[Union[str, Path]]],
+        project_root: Union[str, Path],
+        pairs_file: Union[str, Path],
+        hash_file: Union[str, Path],
+        *,
         interactive: bool = True,
     ):
-        """Validate and store configuration.
+        """Validate configuration and initialize.
 
         Arguments:
-            filenames: Filenames to review; keys are base filenames and values are
-              absolute paths
+            input_directories: Directory or directories from which to read input files
+            project_root: Root directory of project
             pairs_file: CSV file to read/write scaled image pairs
             hash_file: CSV file to read/write cache of image hashes
-            image_directory: Directory to which to write stacked scaled image sets
             interactive: Whether to prompt for interactive review
         """
+
         # Store input and output paths
-        self.filenames = filenames
-        """Image filenames; keys are base names and values are absolute paths"""
-        self.pairs_file = validate_output_file(pairs_file)
-        """CSV file from which to read/write scaled image pairs"""
-        self.hash_file = None
-        """CSV file from which to read/write image hash cache"""
-        if hash_file is not None:
-            self.hash_file = validate_output_file(hash_file)
-        self.image_directory = None
+        self.input_directories = validate_input_directories(input_directories)
+        """Directories from which to read input files."""
+
+        project_root = validate_input_directory(project_root)
+        self.scaled_directory = project_root.joinpath("scaled")
+        """Directory to which to move scaled images."""
+        self.comparison_directory = project_root.joinpath("scaled_images")
         """Directory to which to write stacked scaled image sets"""
-        if image_directory is not None:
-            self.image_directory = validate_output_directory(
-                image_directory, create_directory=True
-            )
+
+        self.pairs_file = validate_output_file(pairs_file, exists_ok=True)
+        """CSV file from which to read/write scaled image pairs"""
+        self.hash_file = validate_output_file(hash_file, exists_ok=True)
+        """CSV file from which to read/write image hash cache"""
 
         # Prepare DatFrame of image hashes
         self.hashes = pd.DataFrame(
@@ -433,7 +438,9 @@ class ScaledPairIdentifier(Utility):
             if pair_scores is not None:
                 print(pair_scores)
                 image = self.get_pair_score_image(pair_scores)
-                outfile = join(self.image_directory, f"{parent_hash['filename']}.png")
+                outfile = join(
+                    self.comparison_directory, f"{parent_hash['filename']}.png"
+                )
                 image.save(outfile)
                 info(f"Scaled image saved to '{outfile}'")
 
