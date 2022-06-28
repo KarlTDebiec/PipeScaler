@@ -26,7 +26,6 @@ pip install \
     pytest \
     pytest-cov \
     pytest-xdist \
-    pytest-asyncio \
     pyyaml \
     requests \
     scikit-image \
@@ -36,7 +35,5 @@ pip install \
     xbrz.py
 
 conda install -y -c pytorch \
-    pytorch \
-    torchvision \
-    torchaudio
+    pytorch
 

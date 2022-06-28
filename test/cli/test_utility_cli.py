@@ -24,7 +24,6 @@ def script(request) -> str:
         ("-h"),
         ("apngcreator -h"),
         ("esrganserializer -h"),
-        ("filescanner -h"),
         ("host -h"),
         ("waifuserializer -h"),
     ],
