@@ -31,8 +31,8 @@ from pipescaler.common import (
 )
 from pipescaler.core import Utility
 from pipescaler.core.image import hstack_images, label_image, vstack_images
-from pipescaler.core.pipelines import PipeImage
 from pipescaler.pipelines.sorters import AlphaSorter, GrayscaleSorter
+from pipescaler.utilities.image_hasher import ImageHasher
 
 
 class ScaledPairIdentifier(Utility):
@@ -76,15 +76,16 @@ class ScaledPairIdentifier(Utility):
 
         self.pairs_file = validate_output_file(pairs_file, exists_ok=True)
         """CSV file from which to read/write scaled image pairs."""
-        self.hash_file = validate_output_file(hash_file, exists_ok=True)
-        """CSV file from which to read/write image hash cache."""
 
-        # Prepare filenames
+        # Prepare file paths
         self.file_paths = list(
             chain.from_iterable(
                 d.iterdir() for d in self.input_directories + [self.scaled_directory]
             )
         )
+        """Image file paths."""
+
+        self.hashes = ImageHasher().get_hashes(self.file_paths, hash_file)
 
         # Prepare DatFrame of image hashes
         self.hashes = pd.DataFrame(
@@ -106,7 +107,7 @@ class ScaledPairIdentifier(Utility):
         """Image hashes."""
         if self.hash_file.exists():
             self.hashes = pd.read_csv(self.hash_file)
-            info(f"Image hashes read from '{self.hash_file}'")
+            info(f"Image hashes read from {self.hash_file}")
 
         # Prepare DataFrame of image pairs
         self.pairs = pd.DataFrame(
@@ -164,95 +165,6 @@ class ScaledPairIdentifier(Utility):
         return hex_to_hash(parent_hash[f"{hash_type} hash"]) - hex_to_hash(
             child_hash[f"{hash_type} hash"]
         )
-
-    def calculate_hashes_for_all_files(self):
-        """Calculate hashes for all image files."""
-        hashes_changed = False
-        hashed_filenames = set(self.hashes["filename"])
-
-        for file_path in self.file_paths:
-            if file_path.stem not in hashed_filenames:
-                self.hashes = pd.concat(
-                    [
-                        self.hashes,
-                        self.calculate_hashes_for_file(file_path),
-                    ],
-                    ignore_index=True,
-                )
-                hashed_filenames.add(file_path.stem)
-                hashes_changed = True
-
-        if hashes_changed:
-            self.hashes = self.hashes.reset_index(drop=True)
-            if self.hash_file is not None:
-                self.hashes.to_csv(self.hash_file, index=False)
-                info(f"Image hashes saved to '{self.hash_file}'")
-
-    def calculate_hashes_for_file(self, file_path: Path) -> pd.DataFrame:
-        """Calculate hashes of image file, including original size and scaled versions.
-
-        Arguments:
-            file_path: Path to image file
-        Returns:
-            Hashes of file, including original size and scaled versions
-        """
-        image = Image.open(file_path)
-        size = image.size
-        if self.grayscale_sorter(PipeImage(path=file_path)) == "keep_rgb":
-            mode = "RGB"
-        else:
-            mode = "L"
-        if self.alpha_sorter(PipeImage(path=file_path)) == "keep_alpha":
-            mode += "A"
-        image = image.convert(mode)
-        filetype = file_path.stem.split("_")[-1]
-
-        hashes = []
-        for scale in np.array([1 / (2**x) for x in range(0, 7)]):
-            width = round(size[0] * scale)
-            height = round(size[1] * scale)
-            if width < 8 or height < 8:
-                break
-            scaled_image = (
-                image.resize((width, height), Image.Resampling.LANCZOS)
-                if scale != 1.0
-                else image
-            )
-            scaled_channels = []
-            if mode == "L":
-                scaled_channels.append(scaled_image)
-            elif mode == "LA":
-                scaled_channels.append(Image.fromarray(np.array(scaled_image)[:, :, 0]))
-                scaled_channels.append(Image.fromarray(np.array(scaled_image)[:, :, 1]))
-            elif mode == "RGB":
-                scaled_channels.append(Image.fromarray(np.array(scaled_image)[:, :, 0]))
-                scaled_channels.append(Image.fromarray(np.array(scaled_image)[:, :, 1]))
-                scaled_channels.append(Image.fromarray(np.array(scaled_image)[:, :, 2]))
-            elif mode == "RGBA":
-                scaled_channels.append(Image.fromarray(np.array(scaled_image)[:, :, 0]))
-                scaled_channels.append(Image.fromarray(np.array(scaled_image)[:, :, 1]))
-                scaled_channels.append(Image.fromarray(np.array(scaled_image)[:, :, 2]))
-                scaled_channels.append(Image.fromarray(np.array(scaled_image)[:, :, 3]))
-            hashes.append(
-                {
-                    **{
-                        "filename": file_path.stem,
-                        "scale": scale,
-                        "width": width,
-                        "height": height,
-                        "mode": mode,
-                        "type": filetype,
-                    },
-                    **{
-                        f"{hash_type} hash": "_".join(
-                            [str(hash_function(c)) for c in scaled_channels]
-                        )
-                        for hash_type, hash_function in self.hash_types.items()
-                    },
-                }
-            )
-
-        return pd.DataFrame(hashes)
 
     def calculate_pair_score(
         self, parent_hash: pd.Series, child_hash: pd.Series
