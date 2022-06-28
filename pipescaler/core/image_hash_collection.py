@@ -2,6 +2,7 @@
 #  Copyright (C) 2020-2022. Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
+from collections.abc import Sequence
 from logging import info
 from pathlib import Path
 from typing import Union
@@ -12,12 +13,11 @@ from imagehash import average_hash, colorhash, dhash, phash, whash
 from PIL import Image
 
 from pipescaler.common import validate_output_file
-from pipescaler.core import Utility
 from pipescaler.core.pipelines import PipeImage
 from pipescaler.pipelines.sorters import AlphaSorter, GrayscaleSorter
 
 
-class ImageHasher(Utility):
+class ImageHashCollection(Sequence):
     hash_types = {
         "average": average_hash,
         "color": colorhash,
@@ -26,13 +26,29 @@ class ImageHasher(Utility):
         "wavelet": whash,
     }
 
-    def __init__(self):
+    def __init__(self, file_paths: list[Path], cache: Union[str, Path] = "hashes.csv"):
         self.alpha_sorter = AlphaSorter()
         """Alpha sorter."""
         self.grayscale_sorter = GrayscaleSorter()
         """Grayscale sorter."""
+        self.hashes = self.get_hashes_for_file_paths(file_paths, cache)
 
-    def get_hashes(
+    def __getitem__(self, index: Union[str, tuple[str, float]]) -> dict:
+        if isinstance(index, str):
+            return self.hashes.loc[self.hashes["name"] == index]
+        elif isinstance(index, tuple):
+            return self.hashes.loc[
+                (self.hashes["name"] == index[0]) & (self.hashes["scale"] == index[1])
+            ]
+        else:
+            raise TypeError(
+                f"Index must be str or tuple of str and float, not {type(index)}"
+            )
+
+    def __len__(self) -> int:
+        return len(self.hashes)
+
+    def get_hashes_for_file_paths(
         self, file_paths: list[Path], cache: Union[str, Path] = "hashes.csv"
     ) -> pd.DataFrame:
         """Calculate hashes for all image files."""
@@ -64,7 +80,7 @@ class ImageHasher(Utility):
                 hashes = pd.concat(
                     [
                         hashes,
-                        self.get_hash(file_path),
+                        self.get_hashes_for_file_path(file_path),
                     ],
                     ignore_index=True,
                 )
@@ -78,7 +94,7 @@ class ImageHasher(Utility):
 
         return hashes
 
-    def get_hash(self, file_path: Path) -> pd.DataFrame:
+    def get_hashes_for_file_path(self, file_path: Path) -> pd.DataFrame:
         """Calculate hashes of image file, including original size and scaled versions.
 
         Arguments:

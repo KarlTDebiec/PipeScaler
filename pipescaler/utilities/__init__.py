@@ -7,7 +7,6 @@ from __future__ import annotations
 
 from pipescaler.utilities.file_scanner import FileScanner
 from pipescaler.utilities.host import Host
-from pipescaler.utilities.image_hasher import ImageHasher
 from pipescaler.utilities.local_palette_matcher import LocalPaletteMatcher
 from pipescaler.utilities.mask_filler import MaskFiller
 from pipescaler.utilities.palette_matcher import PaletteMatcher
@@ -17,7 +16,6 @@ from pipescaler.utilities.waifu_serializer import WaifuSerializer
 __all__: list[str] = [
     "FileScanner",
     "Host",
-    "ImageHasher",
     "LocalPaletteMatcher",
     "MaskFiller",
     "PaletteMatcher",

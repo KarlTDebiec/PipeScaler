@@ -31,8 +31,8 @@ from pipescaler.common import (
 )
 from pipescaler.core import Utility
 from pipescaler.core.image import hstack_images, label_image, vstack_images
+from pipescaler.core.image_hash_collection import ImageHashCollection
 from pipescaler.pipelines.sorters import AlphaSorter, GrayscaleSorter
-from pipescaler.utilities.image_hasher import ImageHasher
 
 
 class ScaledPairIdentifier(Utility):
@@ -85,29 +85,8 @@ class ScaledPairIdentifier(Utility):
         )
         """Image file paths."""
 
-        self.hashes = ImageHasher().get_hashes(self.file_paths, hash_file)
-
-        # Prepare DatFrame of image hashes
-        self.hashes = pd.DataFrame(
-            {
-                **{
-                    "filename": pd.Series(dtype="str"),
-                    "scale": pd.Series(dtype="float"),
-                    "width": pd.Series(dtype="int"),
-                    "height": pd.Series(dtype="int"),
-                    "mode": pd.Series(dtype="str"),
-                    "type": pd.Series(dtype="str"),
-                },
-                **{
-                    f"{hash_type} hash": pd.Series(dtype="str")
-                    for hash_type in self.hash_types
-                },
-            }
-        )
+        self.hashes = ImageHashCollection(self.file_paths, hash_file)
         """Image hashes."""
-        if self.hash_file.exists():
-            self.hashes = pd.read_csv(self.hash_file)
-            info(f"Image hashes read from {self.hash_file}")
 
         # Prepare DataFrame of image pairs
         self.pairs = pd.DataFrame(
@@ -130,10 +109,6 @@ class ScaledPairIdentifier(Utility):
         """Alpha sorter."""
         self.grayscale_sorter = GrayscaleSorter()
         """Grayscale sorter."""
-
-        # Hash images
-        self.calculate_hashes_for_all_files()
-        print(self.hashes)
 
     @property
     def children(self) -> set[str]:
@@ -190,19 +165,6 @@ class ScaledPairIdentifier(Utility):
 
         return score
 
-    def get_hashes(self, filename: str, scale: float = 1.0) -> pd.Series:
-        """Get hashes of filename at scale.
-
-        Arguments:
-            filename: Base filename whose hashes to get
-            scale: Scale at which to get hashes
-        Returns:
-            Hashes of *filename* at *scale*
-        """
-        return self.hashes.loc[
-            (self.hashes["filename"] == filename) & (self.hashes["scale"] == scale)
-        ].iloc[0]
-
     def get_stacked_image(self, filenames: list[str]) -> Image.Image:
         """Get stacked images, rescaled to match first image, if necessary.
 
@@ -254,12 +216,12 @@ class ScaledPairIdentifier(Utility):
         Returns:
             Pair scores of *parent*
         """
-        parent_hash = self.get_hashes(parent)
+        parent_hash = self.hashes[parent]
         pairs = self.get_pairs(parent)
         if len(pairs) > 1:
             scores = []
             for _, pair in pairs.iterrows():
-                child_hash = self.get_hashes(pair["scaled filename"])
+                child_hash = self.hashes[pair["scaled filename"]]
                 score = self.calculate_pair_score(parent_hash, child_hash)
                 scores.append(score)
             scores = pd.DataFrame(scores)
