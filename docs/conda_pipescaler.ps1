@@ -26,7 +26,6 @@ pip install `
     pytest `
     pytest-cov `
     pytest-xdist `
-    pytest-asyncio `
     pywinauto `
     pyyaml `
     requests `
@@ -41,7 +40,4 @@ conda install -y `
 
 conda install -y -c pytorch `
     cudatoolkit=11.3 `
-    pytorch `
-    torchvision `
-    torchaudio
-
+    pytorch
