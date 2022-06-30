@@ -12,26 +12,14 @@ from typing import Iterable, Optional, Union
 
 import numpy as np
 import pandas as pd
-from imagehash import (
-    average_hash,
-    colorhash,
-    dhash,
-    hex_to_flathash,
-    hex_to_hash,
-    phash,
-    whash,
-)
+from imagehash import average_hash, colorhash, dhash, phash, whash
 from PIL import Image
-from scipy.stats import zscore
 
-from pipescaler.common import (
-    validate_input_directories,
-    validate_input_directory,
-    validate_output_file,
-)
+from pipescaler.common import validate_input_directories, validate_input_directory
 from pipescaler.core import Utility
 from pipescaler.core.image import hstack_images, label_image, vstack_images
 from pipescaler.core.image_hash_collection import ImageHashCollection
+from pipescaler.core.image_pairs_collection import ImagePairsCollection
 from pipescaler.pipelines.sorters import AlphaSorter, GrayscaleSorter
 
 
@@ -51,7 +39,7 @@ class ScaledPairIdentifier(Utility):
         input_directories: Union[Union[str, Path], Iterable[Union[str, Path]]],
         project_root: Union[str, Path],
         *,
-        pairs_file: Union[str, Path] = "scaled_pairs.csv",
+        pairs_file: Union[str, Path] = "pairs.csv",
         hash_file: Union[str, Path] = "hashes.csv",
         interactive: bool = True,
     ):
@@ -74,32 +62,17 @@ class ScaledPairIdentifier(Utility):
         self.comparison_directory = project_root.joinpath("scaled_images")
         """Directory to which to write stacked scaled image sets."""
 
-        self.pairs_file = validate_output_file(pairs_file, exists_ok=True)
-        """CSV file from which to read/write scaled image pairs."""
-
-        # Prepare file paths
+        # Prepare data structures
         self.file_paths = list(
             chain.from_iterable(
                 d.iterdir() for d in self.input_directories + [self.scaled_directory]
             )
         )
         """Image file paths."""
-
         self.hashes = ImageHashCollection(self.file_paths, hash_file)
         """Image hashes."""
-
-        # Prepare DataFrame of image pairs
-        self.pairs = pd.DataFrame(
-            {
-                "filename": pd.Series(dtype="str"),
-                "scale": pd.Series(dtype="float"),
-                "scaled filename": pd.Series(dtype="str"),
-            }
-        )
-        """Image pairs."""
-        if self.pairs_file.exists():
-            self.pairs = pd.read_csv(self.pairs_file)
-            info(f"Scaled image pairs read from '{self.pairs_file}'")
+        self.pairs = ImagePairsCollection(pairs_file)
+        """Scaled image pairs."""
 
         self.interactive = interactive
         """Whether to prompt for interactive review."""
@@ -109,61 +82,6 @@ class ScaledPairIdentifier(Utility):
         """Alpha sorter."""
         self.grayscale_sorter = GrayscaleSorter()
         """Grayscale sorter."""
-
-    @property
-    def children(self) -> set[str]:
-        """Child images."""
-        return set(self.pairs["scaled filename"])
-
-    @property
-    def parents(self) -> set[str]:
-        """Parent images."""
-        return set(self.pairs["filename"])
-
-    def calculate_hamming_distance(
-        self, parent_hash: pd.Series, child_hash: pd.Series, hash_type: str
-    ) -> int:
-        """Calculate hamming distance of hash_type between parent and child.
-
-        Arguments:
-            parent_hash: Parent hash
-            child_hash: Child hash
-            hash_type: Type of hash
-        Returns:
-            Hamming distance of *hash_type* between *parent* and *child*
-        """
-        if hash_type == "color":
-            return hex_to_flathash(
-                parent_hash[f"{hash_type} hash"], 14
-            ) - hex_to_flathash(child_hash[f"{hash_type} hash"], 14)
-
-        return hex_to_hash(parent_hash[f"{hash_type} hash"]) - hex_to_hash(
-            child_hash[f"{hash_type} hash"]
-        )
-
-    def calculate_pair_score(
-        self, parent_hash: pd.Series, child_hash: pd.Series
-    ) -> pd.Series:
-        """Calculate hamming sum between a potential parent_hash and child_hash.
-
-        Arguments:
-            parent_hash: Hash of potential parent
-            child_hash: Hash of potential child
-        Returns:
-            Potential parent/child pair information and score
-        """
-        score = parent_hash.copy(deep=True)
-        score["scaled filename"] = child_hash["filename"]
-
-        for hash_type in self.hash_types:
-            score[f"{hash_type} hamming"] = self.calculate_hamming_distance(
-                score, child_hash, hash_type
-            )
-        score["hamming sum"] = score[
-            [f"{hash_type} hamming" for hash_type in self.hash_types]
-        ].sum()
-
-        return score
 
     def get_stacked_image(self, filenames: list[str]) -> Image.Image:
         """Get stacked images, rescaled to match first image, if necessary.
@@ -187,26 +105,6 @@ class ScaledPairIdentifier(Utility):
         return hstack_images(
             *[Image.open(self.filenames[filename]) for filename in filenames]
         )
-
-    def get_pair(self, child: str) -> pd.DataFrame:
-        """Get pair of child.
-
-        Arguments:
-            child: Basename of child
-        Returns:
-            Pair of child
-        """
-        return self.pairs.loc[self.pairs["scaled filename"] == child]
-
-    def get_pairs(self, parent: str) -> pd.DataFrame:
-        """Get pairs of parent.
-
-        Arguments:
-            parent: Basename of parent
-        Returns:
-            Pairs of *parent*
-        """
-        return self.pairs.loc[self.pairs["filename"] == parent]
 
     def get_pair_scores(self, parent: str) -> Optional[pd.DataFrame]:
         """Get pair scores of parent.
@@ -280,41 +178,42 @@ class ScaledPairIdentifier(Utility):
 
             return hstack_images(parent_image, *child_images)
 
+    @property
+    def parent_hashes(self):
+        return self.hashes.full_size.loc[
+            ~(self.hashes.hashes["name"].isin(self.pairs.children))
+        ].sort_values(["width", "height", "name"], ascending=False)
+
     def identify_pairs(self):
         """Identify pairs."""
         # Loop over potential parent images starting from the largest
-        parent_hashes = self.hashes.loc[
-            (self.hashes["scale"] == 1.0)
-            & ~(self.hashes["filename"].isin(self.children))
-        ].sort_values(["width", "height", "filename"], ascending=False)
-        for _, parent_hash in parent_hashes.iterrows():
+        for _, parent_hash in self.parent_hashes.iterrows():
             # Known children may change as parents are reviewed
-            if parent_hash["filename"] in self.children:
+            if parent_hash["name"] in self.pairs.children:
                 continue
-            # tex1_256x256_CA43CF308C16B3C0_13
-            # tex1_256x64_D0656389A2DE2D87_5
 
-            info(f"Searching for child images of '{parent_hash['filename']}'")
-            known_pairs = self.get_pairs(parent_hash["filename"])
+            info(f"Searching for children of {parent_hash['name']}")
+            known_pairs = self.pairs[parent_hash["name"]]
             new_pairs = []
             new_pair_scores = []
             for scale in np.array([1 / (2**x) for x in range(1, 7)]):
+                if scale in known_pairs["scale"].values:
+                    continue
                 width = round(parent_hash["width"] * scale)
                 height = round(parent_hash["height"] * scale)
                 if width < 8 or height < 8:
                     break
-                if scale not in known_pairs["scale"].values:
-                    child_score = self.seek_best_child_score(parent_hash, scale)
-                    if child_score is None:
-                        break
-                    new_pairs.append(
-                        {
-                            "filename": parent_hash["filename"],
-                            "scale": scale,
-                            "scaled filename": child_score["filename"],
-                        }
-                    )
-                    new_pair_scores.append(child_score)
+                child_score = self.hashes.get_best_child_score(parent_hash, scale)
+                if child_score is None:
+                    break
+                new_pairs.append(
+                    {
+                        "name": parent_hash["name"],
+                        "scale": scale,
+                        "scaled name": child_score["name"],
+                    }
+                )
+                new_pair_scores.append(child_score)
 
             # Update image sets
             if len(new_pairs) > 0:
@@ -325,13 +224,11 @@ class ScaledPairIdentifier(Utility):
                 )
                 if result == 0:
                     break
-            pair_scores = self.get_pair_scores(parent_hash["filename"])
+            pair_scores = self.get_pair_scores(parent_hash["name"])
             if pair_scores is not None:
                 print(pair_scores)
                 image = self.get_pair_score_image(pair_scores)
-                outfile = join(
-                    self.comparison_directory, f"{parent_hash['filename']}.png"
-                )
+                outfile = join(self.comparison_directory, f"{parent_hash['name']}.png")
                 image.save(outfile)
                 info(f"Scaled image saved to '{outfile}'")
 
@@ -386,142 +283,3 @@ class ScaledPairIdentifier(Utility):
             return 1
         elif quit_re.match(response):
             return 0
-
-    def seek_best_child_score(
-        self, parent_hash: pd.Series, scale: float
-    ) -> Optional[pd.Series]:
-        """Get the best child of provided parent at scale.
-
-        Arguments:
-            parent_hash: Parent hash
-            scale: Scale of child relative to parent
-        Returns:
-            Score of the best candidate child of *parent* at *scale*
-        """
-        # Find the best candidate child
-        candidate_child_hashes = self.seek_candidate_child_scores(parent_hash, scale)
-        if len(candidate_child_hashes) >= 2:
-            best_idx = candidate_child_hashes["hamming sum z score"].idxmin()
-            if np.isnan(best_idx):
-                info(
-                    f"Cannot distinguish best child candidate of "
-                    f"'{parent_hash['filename']}' from candidates:\n"
-                    f"{candidate_child_hashes}"
-                )
-                return
-            candidate_child_hash = candidate_child_hashes.loc[best_idx]
-        elif len(candidate_child_hashes) == 1:
-            candidate_child_hash = candidate_child_hashes.iloc[0]
-        else:
-            return
-
-        # Find best candidate parent of candidate child
-        candidate_parent_hashes = self.seek_candidate_parent_scores(
-            candidate_child_hash, scale
-        )
-        if len(candidate_parent_hashes) >= 2:
-            best_idx = candidate_parent_hashes["hamming sum z score"].idxmin()
-            if np.isnan(best_idx):
-                info(
-                    f"Cannot distinguish best parent candidate of "
-                    f"'{candidate_child_hash}' from candidates:\n"
-                    f"{candidate_parent_hashes}"
-                )
-                return
-            candidate_parent_hash = candidate_parent_hashes.loc[best_idx]
-        elif len(candidate_parent_hashes) == 1:
-            candidate_parent_hash = candidate_parent_hashes.iloc[0]
-        else:
-            return
-
-        # Review child
-        if parent_hash["filename"] == candidate_parent_hash["filename"]:
-            if candidate_child_hash["hamming sum"] <= 75:
-                return candidate_child_hash
-        return
-
-    def seek_candidate_child_scores(
-        self, parent_hash: pd.Series, scale: float
-    ) -> pd.DataFrame:
-        """Get scores of all candidate children of provided parent at scale.
-
-        Arguments:
-            parent_hash: Parent hash
-            scale: Scale of child relative to parent
-        Returns:
-            Scores of candidate children of *parent* at *scale*
-        """
-        # Select potential child images
-        candidates = self.hashes.loc[
-            (self.hashes["scale"] == 1.0)
-            & (self.hashes["width"] == round(parent_hash["width"] * scale))
-            & (self.hashes["height"] == round(parent_hash["height"] * scale))
-            & (self.hashes["mode"] == parent_hash["mode"])
-            & (self.hashes["type"] == parent_hash["type"])
-        ].copy(deep=True)
-        if len(candidates) == 0:
-            return candidates
-
-        # Calculate hamming distances of candidates and sum thereof
-        for hash_type in self.hash_types:
-            candidates[f"{hash_type} hamming"] = candidates.apply(
-                lambda child_hash: self.calculate_hamming_distance(
-                    parent_hash, child_hash, hash_type
-                ),
-                axis=1,
-            )
-        candidates["hamming sum"] = candidates[
-            [f"{hash_type} hamming" for hash_type in self.hash_types]
-        ].sum(axis=1)
-
-        # Calculate z scores of hamming sums of candidates
-        candidates["hamming sum z score"] = zscore(candidates["hamming sum"])
-        candidates = candidates.sort_values(["hamming sum z score"])
-        candidates["hamming sum z score diff"] = list(
-            np.diff(candidates["hamming sum z score"])
-        ) + [np.nan]
-
-        return candidates
-
-    def seek_candidate_parent_scores(
-        self, child_hash: pd.Series, scale: float
-    ) -> pd.DataFrame:
-        """Get scores of all candidate parents of provided child_hash at scale.
-
-        Arguments:
-            child_hash: Child hash
-            scale: Scale of child relative to parent
-        Returns:
-            Scores of candidate parents of child at scale
-        """
-        # Select potential parent images
-        candidates = self.hashes.loc[
-            (self.hashes["scale"] == 1.0)
-            & (self.hashes["width"] == round(child_hash["width"] / scale))
-            & (self.hashes["height"] == round(child_hash["height"] / scale))
-            & (self.hashes["mode"] == child_hash["mode"])
-            & (self.hashes["type"] == child_hash["type"])
-        ].copy(deep=True)
-        if len(candidates) == 0:
-            return candidates
-
-        # Calculate hamming distances of candidates and sum thereof
-        for hash_type in self.hash_types:
-            candidates[f"{hash_type} hamming"] = candidates.apply(
-                lambda parent_hash: self.calculate_hamming_distance(
-                    parent_hash, child_hash, hash_type
-                ),
-                axis=1,
-            )
-        candidates["hamming sum"] = candidates[
-            [f"{hash_type} hamming" for hash_type in self.hash_types]
-        ].sum(axis=1)
-
-        # Calculate z scores of hamming sums of candidates
-        candidates["hamming sum z score"] = zscore(candidates["hamming sum"])
-        candidates = candidates.sort_values(["hamming sum z score"])
-        candidates["hamming sum z score diff"] = list(
-            np.diff(candidates["hamming sum z score"])
-        ) + [np.nan]
-
-        return candidates
