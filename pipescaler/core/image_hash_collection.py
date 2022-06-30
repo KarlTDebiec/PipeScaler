@@ -2,24 +2,16 @@
 #  Copyright (C) 2020-2022. Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
+"""Collection of image hashes."""
 from collections.abc import Sequence
 from logging import info
 from pathlib import Path
-from typing import Optional, Union
+from typing import Callable, Iterable, Union
 
 import numpy as np
 import pandas as pd
-from imagehash import (
-    average_hash,
-    colorhash,
-    dhash,
-    hex_to_flathash,
-    hex_to_hash,
-    phash,
-    whash,
-)
+from imagehash import ImageHash, average_hash, colorhash, dhash, phash, whash
 from PIL import Image
-from scipy.stats import zscore
 
 from pipescaler.common import validate_output_file
 from pipescaler.core.pipelines import PipeImage
@@ -27,16 +19,10 @@ from pipescaler.pipelines.sorters import AlphaSorter, GrayscaleSorter
 
 
 class ImageHashCollection(Sequence):
-    hash_types = {
-        "average": average_hash,
-        "color": colorhash,
-        "difference": dhash,
-        "perceptual": phash,
-        "wavelet": whash,
-    }
+    """Collection of image hashes."""
 
     def __init__(self, file_paths: list[Path], cache: Union[str, Path] = "hashes.csv"):
-        """Initialize.
+        """Validate configuration and initialize.
 
         Arguments:
             file_paths: File paths of images
@@ -46,174 +32,98 @@ class ImageHashCollection(Sequence):
         """Alpha sorter."""
         self.grayscale_sorter = GrayscaleSorter()
         """Grayscale sorter."""
-        self.hashes = self.get_image_hashes_for_files(file_paths, cache)
-        """Image hashes."""
 
-    def __getitem__(self, index: Union[str, tuple[str, float]]) -> pd.DataFrame:
+        self.cache = validate_output_file(cache, exists_ok=True)
+        """CSV file from which to read/write cache."""
+
+        # Prepare image hashes
+        self._hashes = None
+        if self.cache.exists():
+            self.hashes = pd.read_csv(self.cache)
+            info(f"Image hashes read from {self.cache}")
+        hashes_changed = False
+        hashed_names = set(self.hashes["name"])
+        for file_path in file_paths:
+            if file_path.stem not in hashed_names:
+                self.add(file_path)
+                hashed_names.add(file_path.stem)
+                hashes_changed = True
+        if hashes_changed:
+            self.hashes = self.hashes.reset_index(drop=True)
+            self.hashes.to_csv(self.cache, index=False)
+            info(f"Image hashes saved to {self.cache}")
+
+    def __getitem__(
+        self,
+        index: Union[str, tuple[str, float], Iterable[Union[str, tuple[str, float]]]],
+    ) -> pd.DataFrame:
         """Get image hashes matching index.
 
         Arguments:
-            index: Index; if str, return all hashes of that name; if tuple, return all
-              hashes of that name at that scale
+            index: Name or names for which to return hashes
         Returns:
-            Image hash(es) matching index
+            Image hashes matching index
         """
         if isinstance(index, str):
             return self.hashes.loc[self.hashes["name"] == index]
-        elif isinstance(index, tuple):
+        if isinstance(index, tuple):
             return self.hashes.loc[
                 (self.hashes["name"] == index[0]) & (self.hashes["scale"] == index[1])
             ]
-        else:
-            raise TypeError(
-                f"Index must be str or tuple of str and float, not {type(index)}"
-            )
+        if isinstance(index, Iterable):
+            return pd.concat([self[i] for i in index])
+        raise TypeError(f"Index must be str or iterable of str, not {type(index)}")
 
     def __len__(self) -> int:
         """Get number of image hashes in collection."""
         return len(self.hashes)
 
     @property
-    def full_size(self):
+    def full_size(self) -> pd.DataFrame:
         return self.hashes.loc[(self.hashes["scale"] == 1.0)]
 
-    def get_best_child_score(
-        self, parent_hash: pd.Series, scale: float
-    ) -> Optional[pd.Series]:
-        """Get the best child of provided parent at scale.
-
-        Arguments:
-            parent_hash: Parent hash
-            scale: Scale of child relative to parent
-        Returns:
-            Score of the best candidate child of *parent* at *scale*
-        """
-        # Find the best candidate child
-        candidate_child_hashes = self.get_candidate_child_scores(parent_hash, scale)
-        if len(candidate_child_hashes) >= 2:
-            best_idx = candidate_child_hashes["hamming sum z score"].idxmin()
-            if np.isnan(best_idx):
-                info(
-                    f"Cannot distinguish best child candidate of "
-                    f"'{parent_hash['filename']}' from candidates:\n"
-                    f"{candidate_child_hashes}"
-                )
-                return None
-            candidate_child_hash = candidate_child_hashes.loc[best_idx]
-        elif len(candidate_child_hashes) == 1:
-            candidate_child_hash = candidate_child_hashes.iloc[0]
-        else:
-            return None
-
-        # Find the best candidate parent of candidate child
-        candidate_parent_hashes = self.hashes.candidate_parent_scores(
-            candidate_child_hash, scale
-        )
-        if len(candidate_parent_hashes) >= 2:
-            best_idx = candidate_parent_hashes["hamming sum z score"].idxmin()
-            if np.isnan(best_idx):
-                info(
-                    f"Cannot distinguish best parent candidate of "
-                    f"'{candidate_child_hash}' from candidates:\n"
-                    f"{candidate_parent_hashes}"
-                )
-                return
-            candidate_parent_hash = candidate_parent_hashes.loc[best_idx]
-        elif len(candidate_parent_hashes) == 1:
-            candidate_parent_hash = candidate_parent_hashes.iloc[0]
-        else:
-            return
-
-        # Review child
-        if parent_hash["filename"] == candidate_parent_hash["filename"]:
-            if candidate_child_hash["hamming sum"] <= 75:
-                return candidate_child_hash
-        return
-
-    def get_candidate_child_scores(
-        self, parent_hash: pd.Series, scale: float
-    ) -> pd.DataFrame:
-        """Get scores of all candidate children of provided parent at scale.
-
-        Arguments:
-            parent_hash: Parent hash
-            scale: Scale of child relative to parent
-        Returns:
-            Scores of candidate children of *parent* at *scale*
-        """
-        # Select potential child images
-        candidates = self.get_hashes_matching_spec(
-            parent_hash["width"] * scale,
-            parent_hash["height"] * scale,
-            parent_hash["mode"],
-            parent_hash["type"],
-        )
-        if len(candidates) == 0:
-            return candidates
-
-        # Calculate hamming distances of candidates and stats
-        for hash_type in self.hash_types:
-            candidates[f"{hash_type} hamming"] = candidates.apply(
-                lambda child_hash: self.hamming_distance(
-                    parent_hash, child_hash, hash_type
-                ),
-                axis=1,
+    @property
+    def hashes(self) -> pd.DataFrame:
+        """Image hashes."""
+        if self._hashes is None:
+            self._hashes = pd.DataFrame(
+                {
+                    "name": pd.Series(dtype="str"),
+                    "scale": pd.Series(dtype="float"),
+                    "width": pd.Series(dtype="int"),
+                    "height": pd.Series(dtype="int"),
+                    "mode": pd.Series(dtype="str"),
+                    "type": pd.Series(dtype="str"),
+                    "average hash": pd.Series(dtype="str"),
+                    "color hash": pd.Series(dtype="str"),
+                    "difference hash": pd.Series(dtype="str"),
+                    "perceptual hash": pd.Series(dtype="str"),
+                    "wavelet hash": pd.Series(dtype="str"),
+                }
             )
-        candidates = self.get_candidate_stats(candidates)
+        return self._hashes
 
-        return candidates
-
-    def get_candidate_parent_scores(
-        self, child_hash: pd.Series, scale: float
-    ) -> pd.DataFrame:
-        """Get scores of all candidate parents of provided child_hash at scale.
-
-        Arguments:
-            child_hash: Child hash
-            scale: Scale of child relative to parent
-        Returns:
-            Scores of candidate parents of child at scale
-        """
-        # Select potential parent images
-        candidates = self.get_hashes_matching_spec(
-            child_hash["width"] / scale,
-            child_hash["height"] / scale,
-            child_hash["mode"],
-            child_hash["type"],
-        )
-        if len(candidates) == 0:
-            return candidates
-
-        # Calculate hamming distances and stats
-        for hash_type in self.hash_types:
-            candidates[f"{hash_type} hamming"] = candidates.apply(
-                lambda parent_hash: self.hamming_distance(
-                    parent_hash, child_hash, hash_type
-                ),
-                axis=1,
+    @hashes.setter
+    def hashes(self, value: pd.DataFrame) -> None:
+        if value.columns.tolist() != self.hashes.columns.tolist():
+            raise ValueError(
+                f"hashes must have columns {self.hashes.columns.tolist()}, not "
+                f"{value.columns.tolist()}"
             )
-        candidates = self.get_candidate_stats(candidates)
+        self._hashes = value
 
-        return candidates
-
-    def get_candidate_stats(self, candidates: pd.DataFrame) -> pd.DataFrame:
-        """Get stats of candidate images.
-
-        Arguments:
-            candidates: Candidates
-        Returns:
-            Candidates including statistics
-        """
-        candidates["hamming sum"] = candidates[
-            [f"{hash_type} hamming" for hash_type in self.hash_types]
-        ].sum(axis=1)
-        candidates["hamming sum z score"] = zscore(candidates["hamming sum"])
-        candidates = candidates.sort_values(["hamming sum z score"])
-        candidates["hamming sum z score diff"] = list(
-            np.diff(candidates["hamming sum z score"])
-        ) + [np.nan]
-
-        return candidates
+    def add(self, file_path: Path) -> None:
+        pipe_image = PipeImage(path=file_path)
+        if self.grayscale_sorter(pipe_image) == "keep_rgb":
+            mode = "RGB"
+        else:
+            mode = "L"
+        if self.alpha_sorter(pipe_image) == "keep_alpha":
+            mode += "A"
+        if pipe_image.image.mode != mode:
+            pipe_image.image = pipe_image.image.convert(mode)
+        new_row = self.calculate_hashes_of_image(pipe_image)
+        self.hashes = pd.concat([self.hashes, new_row], ignore_index=True)
 
     def get_hashes_matching_spec(
         self, width: int, height: int, mode: str, type: int
@@ -228,150 +138,71 @@ class ImageHashCollection(Sequence):
         Returns:
             Hashes matching specifications
         """
-        return self.hashes.loc[
-            ((self.hashes["scale"] == 1.0) & self.hashes["width"] == width)
+        matches = self.hashes.loc[
+            (self.hashes["scale"] == 1.0)
+            & (self.hashes["width"] == width)
             & (self.hashes["height"] == height)
             & (self.hashes["mode"] == mode)
             & (self.hashes["type"] == type)
-        ].copy(deep=True)
+        ]
+        return matches.copy(deep=True)
 
-    def get_image_hashes_for_file(self, file_path: Path) -> pd.DataFrame:
-        """Calculate hashes of image file, including original size and scaled versions.
+    @classmethod
+    def calculate_hashes_of_image(cls, pipe_image: PipeImage) -> pd.DataFrame:
+        """Calculate hashes of image, including original size and scaled versions.
 
         Arguments:
-            file_path: Path to image file
+            pipe_image: Image of which to calculate hashes
         Returns:
-            Hashes of file, including original size and scaled versions
+            Image hashes
         """
-        image = Image.open(file_path)
-        size = image.size
-        if self.grayscale_sorter(PipeImage(path=file_path)) == "keep_rgb":
-            mode = "RGB"
-        else:
-            mode = "L"
-        if self.alpha_sorter(PipeImage(path=file_path)) == "keep_alpha":
-            mode += "A"
-        image = image.convert(mode)
-        filetype = file_path.stem.split("_")[-1]
+        width, height = pipe_image.image.size
+        format = pipe_image.name.split("_")[-1]
 
         hashes = []
         for scale in np.array([1 / (2**x) for x in range(0, 7)]):
-            width = round(size[0] * scale)
-            height = round(size[1] * scale)
-            if width < 8 or height < 8:
-                break
-            scaled_image = (
-                image.resize((width, height), Image.Resampling.LANCZOS)
-                if scale != 1.0
-                else image
-            )
-            scaled_channels = []
-            if mode == "L":
-                scaled_channels.append(scaled_image)
-            elif mode == "LA":
-                scaled_channels.append(Image.fromarray(np.array(scaled_image)[:, :, 0]))
-                scaled_channels.append(Image.fromarray(np.array(scaled_image)[:, :, 1]))
-            elif mode == "RGB":
-                scaled_channels.append(Image.fromarray(np.array(scaled_image)[:, :, 0]))
-                scaled_channels.append(Image.fromarray(np.array(scaled_image)[:, :, 1]))
-                scaled_channels.append(Image.fromarray(np.array(scaled_image)[:, :, 2]))
-            elif mode == "RGBA":
-                scaled_channels.append(Image.fromarray(np.array(scaled_image)[:, :, 0]))
-                scaled_channels.append(Image.fromarray(np.array(scaled_image)[:, :, 1]))
-                scaled_channels.append(Image.fromarray(np.array(scaled_image)[:, :, 2]))
-                scaled_channels.append(Image.fromarray(np.array(scaled_image)[:, :, 3]))
+            # Prepare image or scaled version of image
+            if scale == 1.0:
+                scaled_width = width
+                scaled_height = height
+                scaled_image = pipe_image.image
+            else:
+                scaled_width = round(width * scale)
+                scaled_height = round(height * scale)
+                if scaled_width < 8 or scaled_height < 8:
+                    break
+                scaled_image = pipe_image.image.resize(
+                    (scaled_width, scaled_height), Image.Resampling.LANCZOS
+                )
+
+            # Split scaled image into channels
+            if scaled_image.mode == "L":
+                scaled_channels = (scaled_image,)
+            else:
+                scaled_channels = scaled_image.split()
+
+            # Calculate hashes of channels of scaled image
             hashes.append(
                 {
-                    **{
-                        "name": file_path.stem,
-                        "scale": scale,
-                        "width": width,
-                        "height": height,
-                        "mode": mode,
-                        "type": filetype,
-                    },
-                    **{
-                        f"{hash_type} hash": "_".join(
-                            [str(hash_function(c)) for c in scaled_channels]
-                        )
-                        for hash_type, hash_function in self.hash_types.items()
-                    },
+                    "name": pipe_image.name,
+                    "scale": scale,
+                    "width": scaled_width,
+                    "height": scaled_height,
+                    "mode": scaled_image.mode,
+                    "format": format,
+                    "average hash": cls.hash(scaled_channels, average_hash),
+                    "color hash": cls.hash(scaled_channels, colorhash),
+                    "difference hash": cls.hash(scaled_channels, dhash),
+                    "perceptual hash": cls.hash(scaled_channels, phash),
+                    "wavelet hash": cls.hash(scaled_channels, whash),
                 }
             )
 
         return pd.DataFrame(hashes)
 
-    def get_image_hashes_for_files(
-        self, file_paths: list[Path], cache: Union[str, Path] = "hashes.csv"
-    ) -> pd.DataFrame:
-        """Calculate hashes for all image files.
-
-        Arguments:
-            file_paths: List of paths to image files
-            cache: Path to cache file
-        Returns:
-            Hashes of all image files
-        """
-        hashes = pd.DataFrame(
-            {
-                **{
-                    "name": pd.Series(dtype="str"),
-                    "scale": pd.Series(dtype="float"),
-                    "width": pd.Series(dtype="int"),
-                    "height": pd.Series(dtype="int"),
-                    "mode": pd.Series(dtype="str"),
-                    "type": pd.Series(dtype="str"),
-                },
-                **{
-                    f"{hash_type} hash": pd.Series(dtype="str")
-                    for hash_type in self.hash_types
-                },
-            }
-        )
-        cache = validate_output_file(cache, exists_ok=True)
-        if cache.exists():
-            hashes = pd.read_csv(cache)
-            info(f"Image hashes read from {cache}")
-
-        hashes_changed = False
-        hashed_names = set(hashes["name"])
-        for file_path in file_paths:
-            if file_path.stem not in hashed_names:
-                hashes = pd.concat(
-                    [
-                        hashes,
-                        self.get_image_hashes_for_file(file_path),
-                    ],
-                    ignore_index=True,
-                )
-                hashed_names.add(file_path.stem)
-                hashes_changed = True
-
-        if hashes_changed:
-            hashes = hashes.reset_index(drop=True)
-            hashes.to_csv(cache, index=False)
-            info(f"Image hashes saved to {cache}")
-
-        return hashes
-
     @staticmethod
-    def hamming_distance(
-        parent_hash: pd.Series, child_hash: pd.Series, hash_type: str
-    ) -> int:
-        """Calculate hamming distance of hash_type between parent and child.
-
-        Arguments:
-            parent_hash: Parent hash
-            child_hash: Child hash
-            hash_type: Type of hash
-        Returns:
-            Hamming distance of hash_type between parent and child
-        """
-        if hash_type == "color":
-            return hex_to_flathash(
-                parent_hash[f"{hash_type} hash"], 14
-            ) - hex_to_flathash(child_hash[f"{hash_type} hash"], 14)
-
-        return hex_to_hash(parent_hash[f"{hash_type} hash"]) - hex_to_hash(
-            child_hash[f"{hash_type} hash"]
-        )
+    def hash(
+        channels: Sequence[Image.Image],
+        hash_function: Callable[[Image.Image], ImageHash],
+    ) -> str:
+        return "_".join([str(hash_function(c)) for c in channels])

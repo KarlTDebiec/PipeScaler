@@ -6,9 +6,8 @@
 import re
 from itertools import chain
 from logging import info
-from os.path import join
 from pathlib import Path
-from typing import Iterable, Optional, Union
+from typing import Iterable, Union
 
 import numpy as np
 import pandas as pd
@@ -19,6 +18,7 @@ from pipescaler.common import validate_input_directories, validate_input_directo
 from pipescaler.core import Utility
 from pipescaler.core.image import hstack_images, label_image, vstack_images
 from pipescaler.core.image_hash_collection import ImageHashCollection
+from pipescaler.core.image_pair_scorer import ImagePairScorer
 from pipescaler.core.image_pairs_collection import ImagePairsCollection
 from pipescaler.pipelines.sorters import AlphaSorter, GrayscaleSorter
 
@@ -63,16 +63,20 @@ class ScaledPairIdentifier(Utility):
         """Directory to which to write stacked scaled image sets."""
 
         # Prepare data structures
-        self.file_paths = list(
-            chain.from_iterable(
-                d.iterdir() for d in self.input_directories + [self.scaled_directory]
-            )
+        self.hash_collection = ImageHashCollection(
+            list(
+                chain.from_iterable(
+                    d.iterdir()
+                    for d in self.input_directories + [self.scaled_directory]
+                )
+            ),
+            hash_file,
         )
-        """Image file paths."""
-        self.hashes = ImageHashCollection(self.file_paths, hash_file)
         """Image hashes."""
-        self.pairs = ImagePairsCollection(pairs_file)
-        """Scaled image pairs."""
+        self.pair_collection = ImagePairsCollection(pairs_file)
+        """Image pairs."""
+        self.pair_scorer = ImagePairScorer(self.hash_collection)
+        """Image pair scorer."""
 
         self.interactive = interactive
         """Whether to prompt for interactive review."""
@@ -83,48 +87,113 @@ class ScaledPairIdentifier(Utility):
         self.grayscale_sorter = GrayscaleSorter()
         """Grayscale sorter."""
 
-    def get_stacked_image(self, filenames: list[str]) -> Image.Image:
-        """Get stacked images, rescaled to match first image, if necessary.
-
-        Arguments:
-            filenames: Basenames of files to stack
-        Returns:s
-            Stacked images, rescaled to match first image, if necessary
-        """
-        if self.alpha_sorter(self.filenames[filenames[0]]) == "keep_alpha":
-            color_images = []
-            alpha_images = []
-            for filename in filenames:
-                array = np.array(Image.open(self.filenames[filename]))
-                color_images.append(Image.fromarray(np.squeeze(array[:, :, :-1])))
-                alpha_images.append(Image.fromarray(array[:, :, -1]))
-            color_image = hstack_images(*color_images)
-            alpha_image = hstack_images(*alpha_images)
-            return vstack_images(color_image, alpha_image)
-
-        return hstack_images(
-            *[Image.open(self.filenames[filename]) for filename in filenames]
+    @property
+    def potential_parents(self) -> list[str]:
+        full_size = self.hash_collection.full_size
+        full_size_potential_parents = full_size.loc[
+            ~(full_size["name"].isin(self.pair_collection.children))
+        ]
+        sorted_full_size_potential_parents = full_size_potential_parents.sort_values(
+            ["width", "height", "name"], ascending=False
         )
+        return sorted_full_size_potential_parents["name"]
 
-    def get_pair_scores(self, parent: str) -> Optional[pd.DataFrame]:
-        """Get pair scores of parent.
+    def identify_pairs(self):
+        """Identify pairs."""
+        for parent in self.potential_parents:
+            # Known children may change as parents are reviewed
+            if parent in self.pair_collection.children:
+                continue
+
+            info(f"Searching for children of {parent}")
+            known_scores = self.pair_scorer.get_pair_scores(
+                self.pair_collection[parent]
+            )
+            new_pairs = []
+            new_scores = []
+            for scale in np.array([1 / (2**x) for x in range(1, 7)]):
+                if "scale" in known_scores and scale in known_scores["scale"].values:
+                    continue
+                parent_hash = self.hash_collection[parent, 1.0].iloc[0]
+                if round(parent_hash["width"] * scale) < 8:
+                    break
+                if round(parent_hash["height"] * scale) < 8:
+                    break
+                child_score = self.pair_scorer.get_best_child(parent, scale)
+                if child_score is None:
+                    break
+                new_scores.append(child_score)
+                new_pairs.append(
+                    {
+                        "name": parent,
+                        "scale": scale,
+                        "scaled name": child_score["name"],
+                    }
+                )
+
+            # Update image sets
+            if len(new_pairs) > 0:
+                new_pairs = pd.DataFrame(new_pairs)
+                new_scores = pd.DataFrame(new_scores)
+                print(new_scores)
+                print("test")
+                # result = self.review_candidate_pairs(known_pairs, new_pairs, new_scores)
+                # if result == 0:
+                #     break
+
+    def review_candidate_pairs(
+        self,
+        known_pairs: pd.DataFrame,
+        new_pairs: pd.DataFrame,
+        new_pair_scores: pd.DataFrame,
+    ) -> int:
+        """Review candidate pairs of parent image.
 
         Arguments:
-            parent: Base filename of parent whose pairs to get
+            known_pairs: Known pairs of parent
+            new_pairs: Proposed new pairs of parent
+            new_pair_scores: Scores of new pairs
         Returns:
-            Pair scores of *parent*
         """
-        parent_hash = self.hashes[parent]
-        pairs = self.get_pairs(parent)
-        if len(pairs) > 1:
-            scores = []
-            for _, pair in pairs.iterrows():
-                child_hash = self.hashes[pair["scaled filename"]]
-                score = self.calculate_pair_score(parent_hash, child_hash)
-                scores.append(score)
-            scores = pd.DataFrame(scores)
+        info(
+            f"To known pairs:\n"
+            f"{known_pairs}\n"
+            f"may be added new pairs:\n"
+            f"{new_pairs}\n"
+            f"with scores:\n"
+            f"{new_pair_scores}"
+        )
+        all_pairs = known_pairs.append(new_pairs).sort_values("scale", ascending=False)
+        parent = all_pairs.iloc[0]["filename"]
+        children = list(all_pairs["scaled filename"])
 
-            return scores
+        if self.interactive:
+            self.get_stacked_image([parent, *children]).show()
+        prompt = f"Confirm ({'y' * len(new_pairs)}/{'n' * len(new_pairs)})?: "
+        accept_re = re.compile(f"^[yn]{{{len(new_pairs)}}}$", re.IGNORECASE)
+        quit_re = re.compile("quit", re.IGNORECASE)
+        if self.interactive:
+            response = input(prompt).lower()
+        else:
+            response = "y" * len(new_pairs)
+        if accept_re.match(response):
+            scaled_pairs_modified = False
+            for i in range(len(new_pairs)):
+                if response[i] == "y":
+                    self.pair_collection = self.pair_collection.append(
+                        new_pairs.iloc[i]
+                    )
+                    scaled_pairs_modified = True
+                    info(f"{new_pairs.iloc[i]} accepted")
+            if scaled_pairs_modified:
+                self.pair_collection = self.pair_collection.sort_values(
+                    ["filename", "scale"], ascending=False
+                )
+                self.pair_collection.to_csv(self.pairs_file, index=False)
+                info(f"Scaled pairs saved to '{self.pairs_file}'")
+            return 1
+        elif quit_re.match(response):
+            return 0
 
     def get_pair_score_image(self, pair_scores) -> Image.Image:
         """Gets a concatenated image of images in pair_scores.
@@ -178,108 +247,25 @@ class ScaledPairIdentifier(Utility):
 
             return hstack_images(parent_image, *child_images)
 
-    @property
-    def parent_hashes(self):
-        return self.hashes.full_size.loc[
-            ~(self.hashes.hashes["name"].isin(self.pairs.children))
-        ].sort_values(["width", "height", "name"], ascending=False)
-
-    def identify_pairs(self):
-        """Identify pairs."""
-        # Loop over potential parent images starting from the largest
-        for _, parent_hash in self.parent_hashes.iterrows():
-            # Known children may change as parents are reviewed
-            if parent_hash["name"] in self.pairs.children:
-                continue
-
-            info(f"Searching for children of {parent_hash['name']}")
-            known_pairs = self.pairs[parent_hash["name"]]
-            new_pairs = []
-            new_pair_scores = []
-            for scale in np.array([1 / (2**x) for x in range(1, 7)]):
-                if scale in known_pairs["scale"].values:
-                    continue
-                width = round(parent_hash["width"] * scale)
-                height = round(parent_hash["height"] * scale)
-                if width < 8 or height < 8:
-                    break
-                child_score = self.hashes.get_best_child_score(parent_hash, scale)
-                if child_score is None:
-                    break
-                new_pairs.append(
-                    {
-                        "name": parent_hash["name"],
-                        "scale": scale,
-                        "scaled name": child_score["name"],
-                    }
-                )
-                new_pair_scores.append(child_score)
-
-            # Update image sets
-            if len(new_pairs) > 0:
-                new_pairs = pd.DataFrame(new_pairs)
-                new_pair_scores = pd.DataFrame(new_pair_scores)
-                result = self.review_candidate_pairs(
-                    known_pairs, new_pairs, new_pair_scores
-                )
-                if result == 0:
-                    break
-            pair_scores = self.get_pair_scores(parent_hash["name"])
-            if pair_scores is not None:
-                print(pair_scores)
-                image = self.get_pair_score_image(pair_scores)
-                outfile = join(self.comparison_directory, f"{parent_hash['name']}.png")
-                image.save(outfile)
-                info(f"Scaled image saved to '{outfile}'")
-
-    def review_candidate_pairs(
-        self,
-        known_pairs: pd.DataFrame,
-        new_pairs: pd.DataFrame,
-        new_pair_scores: pd.DataFrame,
-    ) -> int:
-        """Review candidate pairs of parent image.
+    def get_stacked_image(self, filenames: list[str]) -> Image.Image:
+        """Get stacked images, rescaled to match first image, if necessary.
 
         Arguments:
-            known_pairs: Known pairs of parent
-            new_pairs: Proposed new pairs of parent
-            new_pair_scores: Scores of new pairs
-        Returns:
+            filenames: Basenames of files to stack
+        Returns:s
+            Stacked images, rescaled to match first image, if necessary
         """
-        info(
-            f"To known pairs:\n"
-            f"{known_pairs}\n"
-            f"may be added new pairs:\n"
-            f"{new_pairs}\n"
-            f"with scores:\n"
-            f"{new_pair_scores}"
-        )
-        all_pairs = known_pairs.append(new_pairs).sort_values("scale", ascending=False)
-        parent = all_pairs.iloc[0]["filename"]
-        children = list(all_pairs["scaled filename"])
+        if self.alpha_sorter(self.filenames[filenames[0]]) == "keep_alpha":
+            color_images = []
+            alpha_images = []
+            for filename in filenames:
+                array = np.array(Image.open(self.filenames[filename]))
+                color_images.append(Image.fromarray(np.squeeze(array[:, :, :-1])))
+                alpha_images.append(Image.fromarray(array[:, :, -1]))
+            color_image = hstack_images(*color_images)
+            alpha_image = hstack_images(*alpha_images)
+            return vstack_images(color_image, alpha_image)
 
-        if self.interactive:
-            self.get_stacked_image([parent, *children]).show()
-        prompt = f"Confirm ({'y' * len(new_pairs)}/{'n' * len(new_pairs)})?: "
-        accept_re = re.compile(f"^[yn]{{{len(new_pairs)}}}$", re.IGNORECASE)
-        quit_re = re.compile("quit", re.IGNORECASE)
-        if self.interactive:
-            response = input(prompt).lower()
-        else:
-            response = "y" * len(new_pairs)
-        if accept_re.match(response):
-            scaled_pairs_modified = False
-            for i in range(len(new_pairs)):
-                if response[i] == "y":
-                    self.pairs = self.pairs.append(new_pairs.iloc[i])
-                    scaled_pairs_modified = True
-                    info(f"{new_pairs.iloc[i]} accepted")
-            if scaled_pairs_modified:
-                self.pairs = self.pairs.sort_values(
-                    ["filename", "scale"], ascending=False
-                )
-                self.pairs.to_csv(self.pairs_file, index=False)
-                info(f"Scaled pairs saved to '{self.pairs_file}'")
-            return 1
-        elif quit_re.match(response):
-            return 0
+        return hstack_images(
+            *[Image.open(self.filenames[filename]) for filename in filenames]
+        )
