@@ -20,7 +20,11 @@ from pipescaler.core import Utility
 from pipescaler.core.image import hstack_images, vstack_images
 from pipescaler.core.image_hash_collection import ImageHashCollection
 from pipescaler.core.image_pair_collection import ImagePairCollection
-from pipescaler.core.image_pair_scorer import ImagePairScorer, ScoreDataFrame
+from pipescaler.core.image_pair_scorer import (
+    ImagePairScorer,
+    ScoreDataFrame,
+    ScoreStatsDataFrame,
+)
 from pipescaler.core.pipelines import PipeImage
 from pipescaler.core.sorting import citra_sort
 from pipescaler.pipelines.sorters import AlphaSorter, GrayscaleSorter
@@ -120,9 +124,7 @@ class ScaledPairIdentifier(Utility):
                 continue
 
             print(f"Searching for children of {parent}")
-            known_scores = self.pair_scorer.get_pair_scores(
-                self.pair_collection[parent]
-            )
+            known_scores = self.known_scores(parent)
             new_scores = []
             for scale in np.array([1 / (2**x) for x in range(1, 7)]):
                 if "scale" in known_scores and scale in known_scores["scale"].values:
@@ -148,7 +150,7 @@ class ScaledPairIdentifier(Utility):
                     print("Known scores:")
                     print(known_scores)
 
-    def known_scores(self, parent: str) -> ScoreDataFrame:
+    def known_scores(self, parent: str) -> ScoreStatsDataFrame:
         return self.pair_scorer.get_pair_scores(
             self.pair_collection[parent]
         ).sort_values("scale", ascending=False)
