@@ -13,6 +13,7 @@ import pandas as pd
 from pipescaler.common import validate_output_file
 
 PairDataFrame: TypeAlias = pd.DataFrame
+PairSeries: TypeAlias = pd.Series
 
 
 class ImagePairCollection(Sequence):
@@ -34,7 +35,7 @@ class ImagePairCollection(Sequence):
     def __getitem__(self, index: Union[str, Iterable[str]]) -> PairDataFrame:
         """Get image pairs matching index.
 
-        Arguments
+        Arguments:
             index: Name or names for which to return pairs
         Returns:
             Image pairs matching index

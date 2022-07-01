@@ -132,7 +132,7 @@ class ScaledPairIdentifier(Utility):
                     break
                 if round(parent_hash["height"] * scale) < 8:
                     break
-                child_score = self.pair_scorer.get_best_child(parent, scale)
+                child_score = self.pair_scorer.get_best_child_score_stats(parent, scale)
                 if child_score is None:
                     break
                 new_scores.append(child_score)
