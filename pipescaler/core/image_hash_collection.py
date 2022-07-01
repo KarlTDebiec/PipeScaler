@@ -121,7 +121,7 @@ class ImageHashCollection(Sequence):
         """Add image hash to collection.
 
         Arguments:
-            file_path: File path of image
+            file_path: File path of image whose hashes to add
         """
         pipe_image = PipeImage(path=file_path)
         if self.grayscale_sorter(pipe_image) == "keep_rgb":

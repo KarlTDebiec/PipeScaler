@@ -43,10 +43,10 @@ class ImagePairCollection(Sequence):
             return self.pairs.loc[self.pairs["name"] == index]
         if isinstance(index, Iterable):
             return self.pairs.loc[self.pairs["name"].isin(index)]
-        raise TypeError(f"Index must be str or iterable of str, not {type(index)}")
+        raise TypeError(f"Index must be str or iterable thereof, not {type(index)}")
 
     def __len__(self) -> int:
-        """Get number of pairs in collection."""
+        """Number of image pairs in collection."""
         return len(self.pairs)
 
     @property

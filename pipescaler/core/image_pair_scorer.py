@@ -2,6 +2,7 @@
 #  Copyright (C) 2020-2022. Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
+"""Image pair scorer."""
 from logging import info
 from typing import Optional, TypeAlias, Union
 
@@ -18,6 +19,8 @@ ScoreDataFrame: TypeAlias = pd.DataFrame
 
 
 class ImagePairScorer:
+    """Image pair scorer."""
+
     thresholds = {
         "L": {
             0.50000: 75,
@@ -63,7 +66,7 @@ class ImagePairScorer:
         """Get the best child of provided parent at scale.
 
         Arguments:
-            parent: Parent hash
+            parent: Parent name or hash
             scale: Scale of child relative to parent
         Returns:
             Score of the best candidate child of *parent* at *scale*
