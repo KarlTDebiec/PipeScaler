@@ -93,7 +93,7 @@ class ImageHashCollection(Sequence):
                     "width": pd.Series(dtype="int"),
                     "height": pd.Series(dtype="int"),
                     "mode": pd.Series(dtype="str"),
-                    "type": pd.Series(dtype="str"),
+                    "format": pd.Series(dtype="str"),
                     "average hash": pd.Series(dtype="str"),
                     "color hash": pd.Series(dtype="str"),
                     "difference hash": pd.Series(dtype="str"),
@@ -126,7 +126,7 @@ class ImageHashCollection(Sequence):
         self.hashes = pd.concat([self.hashes, new_row], ignore_index=True)
 
     def get_hashes_matching_spec(
-        self, width: int, height: int, mode: str, type: int
+        self, width: int, height: int, mode: str, format: int
     ) -> pd.DataFrame:
         """Get hashes matching specifications.
 
@@ -134,7 +134,7 @@ class ImageHashCollection(Sequence):
             width: Width of image
             height: Height of image
             mode: Mode of image
-            type: Type of image
+            format: Format of image
         Returns:
             Hashes matching specifications
         """
@@ -143,7 +143,7 @@ class ImageHashCollection(Sequence):
             & (self.hashes["width"] == width)
             & (self.hashes["height"] == height)
             & (self.hashes["mode"] == mode)
-            & (self.hashes["type"] == type)
+            & (self.hashes["format"] == format)
         ]
         return matches.copy(deep=True)
 

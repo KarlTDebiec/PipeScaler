@@ -14,6 +14,37 @@ from pipescaler.core import ImageHashCollection
 
 
 class ImagePairScorer:
+    thresholds = {
+        "L": {
+            0.50000: 75,
+            0.25000: 125,
+            0.12500: 175,
+            0.06250: 225,
+            0.03125: 250,
+        },
+        "LA": {
+            0.50000: 75,
+            0.25000: 125,
+            0.12500: 175,
+            0.06250: 225,
+            0.03125: 250,
+        },
+        "RGB": {
+            0.50000: 75,
+            0.25000: 125,
+            0.12500: 175,
+            0.06250: 225,
+            0.03125: 250,
+        },
+        "RGBA": {
+            0.50000: 75,
+            0.25000: 125,
+            0.12500: 175,
+            0.06250: 225,
+            0.03125: 250,
+        },
+    }
+
     def __init__(self, hash_collection: ImageHashCollection):
         """Validate configurate and initialize.
 
@@ -36,7 +67,7 @@ class ImagePairScorer:
         if isinstance(parent, str):
             parent = self.hash_collection[parent, 1.0].iloc[0]
         # Find the best candidate child
-        candidate_children = self.get_candidate_children(parent, scale)
+        candidate_children = self.get_candidate_children(parent["name"], scale)
         if len(candidate_children) >= 2:
             best_idx = candidate_children["hamming sum z score"].idxmin()
             if np.isnan(best_idx):
@@ -69,47 +100,45 @@ class ImagePairScorer:
         else:
             return
 
-        # remove unneeded columns
-        candidate_child = candidate_child.drop(
-            [
-                "scale",
-                "width",
-                "height",
-                "mode",
-                "type",
-                "average hash",
-                "color hash",
-                "difference hash",
-                "perceptual hash",
-                "wavelet hash",
-            ]
-        )
-
         # Review pair
         if parent["name"] == candidate_parent["name"]:
-            if candidate_child["hamming sum"] <= 75:
-                return candidate_child
+            # if candidate_child["hamming sum"] <= self.thresholds[parent["mode"]][scale]:
+            return pd.Series(
+                {
+                    "name": parent["name"],
+                    "scale": scale,
+                    "scaled name": candidate_child["name"],
+                    "average hamming": candidate_child["average hamming"],
+                    "color hamming": candidate_child["color hamming"],
+                    "difference hamming": candidate_child["difference hamming"],
+                    "perceptual hamming": candidate_child["perceptual hamming"],
+                    "wavelet hamming": candidate_child["wavelet hamming"],
+                    "hamming sum": candidate_child["hamming sum"],
+                    "hamming sum z score": candidate_child["hamming sum z score"],
+                    "hamming sum z score diff": candidate_child[
+                        "hamming sum z score diff"
+                    ],
+                }
+            )
         return
 
-    def get_candidate_children(
-        self, parent: Union[str, pd.Series], scale: float
-    ) -> pd.DataFrame:
+    def get_candidate_children(self, parent: str, scale: float) -> pd.DataFrame:
         """Get scores of all candidate children of provided parent at scale.
 
         Arguments:
-            parent: Parent hash
+            parent: Name of parent
             scale: Scale of child relative to parent
         Returns:
             Scores of candidate children of *parent* at *scale*
         """
-        if isinstance(parent, str):
-            parent = self.hash_collection[parent, 1.0].iloc[0]
+        parent = self.hash_collection[parent, scale].iloc[0]
+
         # Select potential child images
         candidates = self.hash_collection.get_hashes_matching_spec(
-            parent["width"] * scale,
-            parent["height"] * scale,
+            parent["width"],
+            parent["height"],
             parent["mode"],
-            parent["type"],
+            parent["format"],
         )
         if len(candidates) == 0:
             return candidates
@@ -142,7 +171,7 @@ class ImagePairScorer:
             child["width"] / scale,
             child["height"] / scale,
             child["mode"],
-            child["type"],
+            child["format"],
         )
         if len(candidates) == 0:
             return candidates
@@ -196,7 +225,7 @@ class ImagePairScorer:
         if isinstance(child, str):
             child = self.hash_collection[child, 1.0].iloc[0]
         scale = child["width"] / parent["width"]
-        candidate_children = self.get_candidate_children(parent, scale)
+        candidate_children = self.get_candidate_children(parent["name"], scale)
         score = candidate_children.loc[
             candidate_children["name"] == child["name"]
         ].iloc[0]
@@ -238,10 +267,16 @@ class ImagePairScorer:
             Hamming distance of hash_type between parent and child
         """
         if hash_type == "color":
-            parent_hash = hex_to_flathash(parent[f"{hash_type} hash"], 14)
-            child_hash = hex_to_flathash(child[f"{hash_type} hash"], 14)
+            parent_hash = [
+                hex_to_flathash(h, 14) for h in parent[f"{hash_type} hash"].split("_")
+            ]
+            child_hash = [
+                hex_to_flathash(h, 14) for h in child[f"{hash_type} hash"].split("_")
+            ]
         else:
-            parent_hash = hex_to_hash(parent[f"{hash_type} hash"])
-            child_hash = hex_to_hash(child[f"{hash_type} hash"])
+            parent_hash = [
+                hex_to_hash(h) for h in parent[f"{hash_type} hash"].split("_")
+            ]
+            child_hash = [hex_to_hash(h) for h in child[f"{hash_type} hash"].split("_")]
 
-        return parent_hash - child_hash
+        return sum([p - c for p, c in zip(parent_hash, child_hash)])

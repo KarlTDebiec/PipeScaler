@@ -22,6 +22,10 @@ from pipescaler.core.image_pair_scorer import ImagePairScorer
 from pipescaler.core.image_pairs_collection import ImagePairsCollection
 from pipescaler.pipelines.sorters import AlphaSorter, GrayscaleSorter
 
+pd.set_option("display.max_rows", None)
+pd.set_option("display.max_columns", None)
+pd.set_option("display.width", 0)
+
 
 class ScaledPairIdentifier(Utility):
     """Identifies pairs of images in which one is rescaled from another."""
@@ -105,11 +109,10 @@ class ScaledPairIdentifier(Utility):
             if parent in self.pair_collection.children:
                 continue
 
-            info(f"Searching for children of {parent}")
+            print(f"Searching for children of {parent}")
             known_scores = self.pair_scorer.get_pair_scores(
                 self.pair_collection[parent]
             )
-            new_pairs = []
             new_scores = []
             for scale in np.array([1 / (2**x) for x in range(1, 7)]):
                 if "scale" in known_scores and scale in known_scores["scale"].values:
@@ -123,20 +126,15 @@ class ScaledPairIdentifier(Utility):
                 if child_score is None:
                     break
                 new_scores.append(child_score)
-                new_pairs.append(
-                    {
-                        "name": parent,
-                        "scale": scale,
-                        "scaled name": child_score["name"],
-                    }
-                )
 
             # Update image sets
-            if len(new_pairs) > 0:
-                new_pairs = pd.DataFrame(new_pairs)
+            if len(known_scores) > 0:
+                print("KNOWN")
+                print(known_scores)
+            if len(new_scores) > 0:
                 new_scores = pd.DataFrame(new_scores)
+                print("NEW")
                 print(new_scores)
-                print("test")
                 # result = self.review_candidate_pairs(known_pairs, new_pairs, new_scores)
                 # if result == 0:
                 #     break
