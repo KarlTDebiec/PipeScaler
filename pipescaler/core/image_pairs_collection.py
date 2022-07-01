@@ -110,3 +110,11 @@ class ImagePairsCollection(Sequence):
             Pairs of *parent*
         """
         return self.pairs.loc[self.pairs["filename"] == parent]
+
+    def save_cache(self):
+        """Save image hashes to cache file."""
+        self.pairs = self.pairs.reset_index(drop=True).sort_values(
+            ["name", "scale"], ascending=False
+        )
+        self.pairs.to_csv(self.cache, index=False)
+        info(f"Image pairs saved to {self.cache}")

@@ -6,7 +6,7 @@
 from collections.abc import Sequence
 from logging import info
 from pathlib import Path
-from typing import Callable, Iterable, Union
+from typing import Callable, Collection, Iterable, Union
 
 import numpy as np
 import pandas as pd
@@ -21,7 +21,9 @@ from pipescaler.pipelines.sorters import AlphaSorter, GrayscaleSorter
 class ImageHashCollection(Sequence):
     """Collection of image hashes."""
 
-    def __init__(self, file_paths: list[Path], cache: Union[str, Path] = "hashes.csv"):
+    def __init__(
+        self, file_paths: Collection[Path], cache: Union[str, Path] = "hashes.csv"
+    ):
         """Validate configuration and initialize.
 
         Arguments:
@@ -49,9 +51,7 @@ class ImageHashCollection(Sequence):
                 hashed_names.add(file_path.stem)
                 hashes_changed = True
         if hashes_changed:
-            self.hashes = self.hashes.reset_index(drop=True)
-            self.hashes.to_csv(self.cache, index=False)
-            info(f"Image hashes saved to {self.cache}")
+            self.save_cache()
 
     def __getitem__(
         self,
@@ -146,6 +146,12 @@ class ImageHashCollection(Sequence):
             & (self.hashes["format"] == format)
         ]
         return matches.copy(deep=True)
+
+    def save_cache(self):
+        """Save image hashes to cache file."""
+        self.hashes = self.hashes.reset_index(drop=True)
+        self.hashes.to_csv(self.cache, index=False)
+        info(f"Image hashes saved to {self.cache}")
 
     @classmethod
     def calculate_hashes_of_image(cls, pipe_image: PipeImage) -> pd.DataFrame:

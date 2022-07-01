@@ -20,6 +20,7 @@ from pipescaler.core.image import hstack_images, label_image, vstack_images
 from pipescaler.core.image_hash_collection import ImageHashCollection
 from pipescaler.core.image_pair_scorer import ImagePairScorer
 from pipescaler.core.image_pairs_collection import ImagePairsCollection
+from pipescaler.core.pipelines import PipeImage
 from pipescaler.pipelines.sorters import AlphaSorter, GrayscaleSorter
 
 pd.set_option("display.max_rows", None)
@@ -67,15 +68,13 @@ class ScaledPairIdentifier(Utility):
         """Directory to which to write stacked scaled image sets."""
 
         # Prepare data structures
-        self.hash_collection = ImageHashCollection(
-            list(
-                chain.from_iterable(
-                    d.iterdir()
-                    for d in self.input_directories + [self.scaled_directory]
-                )
-            ),
-            hash_file,
-        )
+        self.file_paths = {
+            f.stem: f
+            for f in chain.from_iterable(
+                d.iterdir() for d in self.input_directories + [self.scaled_directory]
+            )
+        }
+        self.hash_collection = ImageHashCollection(self.file_paths.values(), hash_file)
         """Image hashes."""
         self.pair_collection = ImagePairsCollection(pairs_file)
         """Image pairs."""
@@ -128,67 +127,59 @@ class ScaledPairIdentifier(Utility):
                 new_scores.append(child_score)
 
             # Update image sets
-            if len(known_scores) > 0:
-                print("KNOWN")
-                print(known_scores)
             if len(new_scores) > 0:
                 new_scores = pd.DataFrame(new_scores)
-                print("NEW")
-                print(new_scores)
-                # result = self.review_candidate_pairs(known_pairs, new_pairs, new_scores)
-                # if result == 0:
-                #     break
+                result = self.review_candidate_pairs(known_scores, new_scores)
+                if result == 0:
+                    break
 
     def review_candidate_pairs(
-        self,
-        known_pairs: pd.DataFrame,
-        new_pairs: pd.DataFrame,
-        new_pair_scores: pd.DataFrame,
+        self, known_scores: pd.DataFrame, new_scores: pd.DataFrame
     ) -> int:
         """Review candidate pairs of parent image.
 
         Arguments:
-            known_pairs: Known pairs of parent
-            new_pairs: Proposed new pairs of parent
-            new_pair_scores: Scores of new pairs
-        Returns:
+            known_scores: Scores of known pairs
+            new_scores: Scores of new pairs
         """
-        info(
+        print(
             f"To known pairs:\n"
-            f"{known_pairs}\n"
+            f"{known_scores}\n"
             f"may be added new pairs:\n"
-            f"{new_pairs}\n"
-            f"with scores:\n"
-            f"{new_pair_scores}"
+            f"{new_scores}"
         )
-        all_pairs = known_pairs.append(new_pairs).sort_values("scale", ascending=False)
-        parent = all_pairs.iloc[0]["filename"]
-        children = list(all_pairs["scaled filename"])
+        all_pairs = pd.concat((known_scores, new_scores)).sort_values(
+            "scale", ascending=False
+        )
+        parent = all_pairs.iloc[0]["name"]
+        children = list(all_pairs["scaled name"])
 
         if self.interactive:
             self.get_stacked_image([parent, *children]).show()
-        prompt = f"Confirm ({'y' * len(new_pairs)}/{'n' * len(new_pairs)})?: "
-        accept_re = re.compile(f"^[yn]{{{len(new_pairs)}}}$", re.IGNORECASE)
+        prompt = f"Confirm ({'y' * len(new_scores)}/{'n' * len(new_scores)})?: "
+        accept_re = re.compile(f"^[yn]{{{len(new_scores)}}}$", re.IGNORECASE)
         quit_re = re.compile("quit", re.IGNORECASE)
         if self.interactive:
             response = input(prompt).lower()
         else:
-            response = "y" * len(new_pairs)
+            response = "y" * len(new_scores)
         if accept_re.match(response):
-            scaled_pairs_modified = False
-            for i in range(len(new_pairs)):
+            new_pair = None
+            for i in range(len(new_scores)):
                 if response[i] == "y":
-                    self.pair_collection = self.pair_collection.append(
-                        new_pairs.iloc[i]
+                    new_pair = pd.DataFrame(
+                        [
+                            {
+                                "name": parent,
+                                "scale": new_scores.iloc[i]["scale"],
+                                "scaled name": children[i],
+                            }
+                        ]
                     )
-                    scaled_pairs_modified = True
-                    info(f"{new_pairs.iloc[i]} accepted")
-            if scaled_pairs_modified:
-                self.pair_collection = self.pair_collection.sort_values(
-                    ["filename", "scale"], ascending=False
-                )
-                self.pair_collection.to_csv(self.pairs_file, index=False)
-                info(f"Scaled pairs saved to '{self.pairs_file}'")
+                    self.pair_collection.add(new_pair)
+                    info(f"{new_pair} accepted")
+                if new_pair is not None:
+                    self.pair_collection.save_cache()
             return 1
         elif quit_re.match(response):
             return 0
@@ -205,8 +196,8 @@ class ScaledPairIdentifier(Utility):
         children = list(pair_scores["scaled filename"].values)
         scores = list(pair_scores["hamming sum"].values)
 
-        parent_image = Image.open(self.filenames[parent])
-        if self.alpha_sorter(self.filenames[parent]) == "keep_alpha":
+        parent_image = Image.open(self.file_paths[parent])
+        if self.alpha_sorter(self.file_paths[parent]) == "keep_alpha":
             # noinspection PyTypeChecker
             parent_array = np.array(parent_image)
             parent_color_image = Image.fromarray(np.squeeze(parent_array[:, :, :-1]))
@@ -215,7 +206,7 @@ class ScaledPairIdentifier(Utility):
             child_alpha_images = []
 
             for child, score in zip(children, scores):
-                child_image = Image.open(self.filenames[child])
+                child_image = Image.open(self.file_paths[child])
                 # noinspection PyTypeChecker
                 child_array = np.array(child_image)
 
@@ -238,32 +229,32 @@ class ScaledPairIdentifier(Utility):
         else:
             child_images = []
             for child, score in zip(children, scores):
-                child_image = Image.open(self.filenames[child])
+                child_image = Image.open(self.file_paths[child])
                 child_image = child_image.resize(parent_image.size, Image.NEAREST)
                 child_image = label_image(child_image, str(score))
                 child_images.append(child_image)
 
             return hstack_images(parent_image, *child_images)
 
-    def get_stacked_image(self, filenames: list[str]) -> Image.Image:
+    def get_stacked_image(self, names: list[str]) -> Image.Image:
         """Get stacked images, rescaled to match first image, if necessary.
 
         Arguments:
-            filenames: Basenames of files to stack
-        Returns:s
+            names: Names of files to stack
+        Returns:
             Stacked images, rescaled to match first image, if necessary
         """
-        if self.alpha_sorter(self.filenames[filenames[0]]) == "keep_alpha":
+        if self.alpha_sorter(PipeImage(path=self.file_paths[names[0]])) == "keep_alpha":
             color_images = []
             alpha_images = []
-            for filename in filenames:
-                array = np.array(Image.open(self.filenames[filename]))
+            for name in names:
+                array = np.array(Image.open(self.file_paths[name]))
                 color_images.append(Image.fromarray(np.squeeze(array[:, :, :-1])))
                 alpha_images.append(Image.fromarray(array[:, :, -1]))
-            color_image = hstack_images(*color_images)
-            alpha_image = hstack_images(*alpha_images)
-            return vstack_images(color_image, alpha_image)
+            return vstack_images(
+                hstack_images(*color_images), hstack_images(*alpha_images)
+            )
 
         return hstack_images(
-            *[Image.open(self.filenames[filename]) for filename in filenames]
+            *[Image.open(self.file_paths[filename]) for filename in names]
         )

@@ -102,24 +102,24 @@ class ImagePairScorer:
 
         # Review pair
         if parent["name"] == candidate_parent["name"]:
-            # if candidate_child["hamming sum"] <= self.thresholds[parent["mode"]][scale]:
-            return pd.Series(
-                {
-                    "name": parent["name"],
-                    "scale": scale,
-                    "scaled name": candidate_child["name"],
-                    "average hamming": candidate_child["average hamming"],
-                    "color hamming": candidate_child["color hamming"],
-                    "difference hamming": candidate_child["difference hamming"],
-                    "perceptual hamming": candidate_child["perceptual hamming"],
-                    "wavelet hamming": candidate_child["wavelet hamming"],
-                    "hamming sum": candidate_child["hamming sum"],
-                    "hamming sum z score": candidate_child["hamming sum z score"],
-                    "hamming sum z score diff": candidate_child[
-                        "hamming sum z score diff"
-                    ],
-                }
-            )
+            if candidate_child["hamming sum"] <= self.thresholds[parent["mode"]][scale]:
+                return pd.Series(
+                    {
+                        "name": parent["name"],
+                        "scale": scale,
+                        "scaled name": candidate_child["name"],
+                        "average hamming": candidate_child["average hamming"],
+                        "color hamming": candidate_child["color hamming"],
+                        "difference hamming": candidate_child["difference hamming"],
+                        "perceptual hamming": candidate_child["perceptual hamming"],
+                        "wavelet hamming": candidate_child["wavelet hamming"],
+                        "hamming sum": candidate_child["hamming sum"],
+                        "hamming sum z score": candidate_child["hamming sum z score"],
+                        "hamming sum z score diff": candidate_child[
+                            "hamming sum z score diff"
+                        ],
+                    }
+                )
         return
 
     def get_candidate_children(self, parent: str, scale: float) -> pd.DataFrame:
