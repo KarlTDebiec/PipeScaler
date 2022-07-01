@@ -6,7 +6,7 @@
 from collections.abc import Sequence
 from logging import info
 from pathlib import Path
-from typing import Callable, Collection, Iterable, Union
+from typing import Callable, Collection, Iterable, TypeAlias, Union
 
 import numpy as np
 import pandas as pd
@@ -16,6 +16,9 @@ from PIL import Image
 from pipescaler.common import validate_output_file
 from pipescaler.core.pipelines import PipeImage
 from pipescaler.pipelines.sorters import AlphaSorter, GrayscaleSorter
+
+HashDataFrame: TypeAlias = pd.DataFrame
+HashSeries: TypeAlias = pd.Series
 
 
 class ImageHashCollection(Sequence):
@@ -40,9 +43,7 @@ class ImageHashCollection(Sequence):
 
         # Prepare image hashes
         self._hashes = None
-        if self.cache.exists():
-            self.hashes = pd.read_csv(self.cache)
-            info(f"Image hashes read from {self.cache}")
+        self.load_cache()
         hashes_changed = False
         hashed_names = set(self.hashes["name"])
         for file_path in file_paths:
@@ -56,7 +57,7 @@ class ImageHashCollection(Sequence):
     def __getitem__(
         self,
         index: Union[str, tuple[str, float], Iterable[Union[str, tuple[str, float]]]],
-    ) -> pd.DataFrame:
+    ) -> HashDataFrame:
         """Get image hashes matching index.
 
         Arguments:
@@ -72,18 +73,22 @@ class ImageHashCollection(Sequence):
             ]
         if isinstance(index, Iterable):
             return pd.concat([self[i] for i in index])
-        raise TypeError(f"Index must be str or iterable of str, not {type(index)}")
+        raise TypeError(
+            f"Index must be str, tuple of str and float, or iterable thereof, "
+            f"not {type(index)}"
+        )
 
     def __len__(self) -> int:
-        """Get number of image hashes in collection."""
+        """Number of image hashes in collection."""
         return len(self.hashes)
 
     @property
-    def full_size(self) -> pd.DataFrame:
+    def full_size(self) -> HashDataFrame:
+        """Full size image hashes."""
         return self.hashes.loc[(self.hashes["scale"] == 1.0)]
 
     @property
-    def hashes(self) -> pd.DataFrame:
+    def hashes(self) -> HashDataFrame:
         """Image hashes."""
         if self._hashes is None:
             self._hashes = pd.DataFrame(
@@ -104,7 +109,7 @@ class ImageHashCollection(Sequence):
         return self._hashes
 
     @hashes.setter
-    def hashes(self, value: pd.DataFrame) -> None:
+    def hashes(self, value: HashDataFrame) -> None:
         if value.columns.tolist() != self.hashes.columns.tolist():
             raise ValueError(
                 f"hashes must have columns {self.hashes.columns.tolist()}, not "
@@ -113,6 +118,11 @@ class ImageHashCollection(Sequence):
         self._hashes = value
 
     def add(self, file_path: Path) -> None:
+        """Add image hash to collection.
+
+        Arguments:
+            file_path: File path of image
+        """
         pipe_image = PipeImage(path=file_path)
         if self.grayscale_sorter(pipe_image) == "keep_rgb":
             mode = "RGB"
@@ -122,12 +132,14 @@ class ImageHashCollection(Sequence):
             mode += "A"
         if pipe_image.image.mode != mode:
             pipe_image.image = pipe_image.image.convert(mode)
+
         new_row = self.calculate_hashes_of_image(pipe_image)
+
         self.hashes = pd.concat([self.hashes, new_row], ignore_index=True)
 
     def get_hashes_matching_spec(
         self, width: int, height: int, mode: str, format: int
-    ) -> pd.DataFrame:
+    ) -> HashDataFrame:
         """Get hashes matching specifications.
 
         Arguments:
@@ -147,14 +159,20 @@ class ImageHashCollection(Sequence):
         ]
         return matches.copy(deep=True)
 
-    def save_cache(self):
+    def load_cache(self) -> None:
+        """Load image hashes from cache."""
+        if self.cache.exists():
+            self.hashes = pd.read_csv(self.cache)
+            info(f"Image hashes read from {self.cache}")
+
+    def save_cache(self) -> None:
         """Save image hashes to cache file."""
         self.hashes = self.hashes.reset_index(drop=True)
         self.hashes.to_csv(self.cache, index=False)
         info(f"Image hashes saved to {self.cache}")
 
     @classmethod
-    def calculate_hashes_of_image(cls, pipe_image: PipeImage) -> pd.DataFrame:
+    def calculate_hashes_of_image(cls, pipe_image: PipeImage) -> HashDataFrame:
         """Calculate hashes of image, including original size and scaled versions.
 
         Arguments:
@@ -181,12 +199,6 @@ class ImageHashCollection(Sequence):
                     (scaled_width, scaled_height), Image.Resampling.LANCZOS
                 )
 
-            # Split scaled image into channels
-            if scaled_image.mode == "L":
-                scaled_channels = (scaled_image,)
-            else:
-                scaled_channels = scaled_image.split()
-
             # Calculate hashes of channels of scaled image
             hashes.append(
                 {
@@ -196,19 +208,20 @@ class ImageHashCollection(Sequence):
                     "height": scaled_height,
                     "mode": scaled_image.mode,
                     "format": format,
-                    "average hash": cls.hash(scaled_channels, average_hash),
-                    "color hash": cls.hash(scaled_channels, colorhash),
-                    "difference hash": cls.hash(scaled_channels, dhash),
-                    "perceptual hash": cls.hash(scaled_channels, phash),
-                    "wavelet hash": cls.hash(scaled_channels, whash),
+                    "average hash": cls.multichannel_hash(scaled_image, average_hash),
+                    "color hash": cls.multichannel_hash(scaled_image, colorhash),
+                    "difference hash": cls.multichannel_hash(scaled_image, dhash),
+                    "perceptual hash": cls.multichannel_hash(scaled_image, phash),
+                    "wavelet hash": cls.multichannel_hash(scaled_image, whash),
                 }
             )
 
         return pd.DataFrame(hashes)
 
     @staticmethod
-    def hash(
-        channels: Sequence[Image.Image],
+    def multichannel_hash(
+        image: Image.Image,
         hash_function: Callable[[Image.Image], ImageHash],
     ) -> str:
-        return "_".join([str(hash_function(c)) for c in channels])
+        """Hash image channels separate and return as an underscore-delimited str."""
+        return "_".join([str(hash_function(c)) for c in image.split()])

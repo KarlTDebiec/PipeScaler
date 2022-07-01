@@ -6,14 +6,16 @@
 from collections.abc import Sequence
 from logging import info
 from pathlib import Path
-from typing import Iterable, Union
+from typing import Iterable, TypeAlias, Union
 
 import pandas as pd
 
 from pipescaler.common import validate_output_file
 
+PairDataFrame: TypeAlias = pd.DataFrame
 
-class ImagePairsCollection(Sequence):
+
+class ImagePairCollection(Sequence):
     """Collection of image pairs."""
 
     def __init__(self, cache: Union[str, Path] = "pairs.csv") -> None:
@@ -27,11 +29,9 @@ class ImagePairsCollection(Sequence):
 
         # Prepare image pairs
         self._pairs = None
-        if self.cache.exists():
-            self.pairs = pd.read_csv(self.cache)
-            info(f"Image pairs read from {self.cache}")
+        self.load_cache()
 
-    def __getitem__(self, index: Union[str, Iterable[str]]) -> pd.DataFrame:
+    def __getitem__(self, index: Union[str, Iterable[str]]) -> PairDataFrame:
         """Get image pairs matching index.
 
         Arguments
@@ -60,7 +60,7 @@ class ImagePairsCollection(Sequence):
         return set(self.pairs["name"])
 
     @property
-    def pairs(self) -> pd.DataFrame:
+    def pairs(self) -> PairDataFrame:
         """Pairs of images."""
         if self._pairs is None:
             self._pairs = pd.DataFrame(
@@ -73,7 +73,7 @@ class ImagePairsCollection(Sequence):
         return self._pairs
 
     @pairs.setter
-    def pairs(self, value: pd.DataFrame) -> None:
+    def pairs(self, value: PairDataFrame) -> None:
         if value.columns.tolist() != self.pairs.columns.tolist():
             raise ValueError(
                 f"pairs must have columns {self.pairs.columns.tolist()}, not "
@@ -81,7 +81,7 @@ class ImagePairsCollection(Sequence):
             )
         self._pairs = value
 
-    def add(self, pairs: pd.DataFrame):
+    def add(self, pairs: PairDataFrame) -> None:
         """Add pairs to collection.
 
         Arguments:
@@ -91,7 +91,7 @@ class ImagePairsCollection(Sequence):
         # TODO: Validate that child is not already in a pair
         self.pairs = pd.concat([self.pairs, pairs], ignore_index=True)
 
-    def get_pair_for_child(self, child: str) -> pd.DataFrame:
+    def get_pair_for_child(self, child: str) -> PairDataFrame:
         """Get pair of child.
 
         Arguments:
@@ -101,7 +101,7 @@ class ImagePairsCollection(Sequence):
         """
         return self.pairs.loc[self.pairs["scaled filename"] == child]
 
-    def get_pairs_for_parent(self, parent: str) -> pd.DataFrame:
+    def get_pairs_for_parent(self, parent: str) -> PairDataFrame:
         """Get pairs of parent.
 
         Arguments:
@@ -111,8 +111,14 @@ class ImagePairsCollection(Sequence):
         """
         return self.pairs.loc[self.pairs["filename"] == parent]
 
-    def save_cache(self):
-        """Save image hashes to cache file."""
+    def load_cache(self) -> None:
+        """Load image pairs from cache file."""
+        if self.cache.exists():
+            self.pairs = pd.read_csv(self.cache)
+            info(f"Image pairs read from {self.cache}")
+
+    def save_cache(self) -> None:
+        """Save image pairs to cache file."""
         self.pairs = self.pairs.reset_index(drop=True).sort_values(
             ["name", "scale"], ascending=False
         )

@@ -19,8 +19,8 @@ from pipescaler.common import validate_input_directories, validate_input_directo
 from pipescaler.core import Utility
 from pipescaler.core.image import hstack_images, vstack_images
 from pipescaler.core.image_hash_collection import ImageHashCollection
-from pipescaler.core.image_pair_scorer import ImagePairScorer
-from pipescaler.core.image_pairs_collection import ImagePairsCollection
+from pipescaler.core.image_pair_collection import ImagePairCollection
+from pipescaler.core.image_pair_scorer import ImagePairScorer, ScoreDataFrame
 from pipescaler.core.pipelines import PipeImage
 from pipescaler.core.sorting import citra_sort
 from pipescaler.pipelines.sorters import AlphaSorter, GrayscaleSorter
@@ -48,7 +48,6 @@ class ScaledPairIdentifier(Utility):
         *,
         pairs_file: Union[str, Path] = "pairs.csv",
         hash_file: Union[str, Path] = "hashes.csv",
-        interactive: bool = True,
     ):
         """Validate configuration and initialize.
 
@@ -57,7 +56,6 @@ class ScaledPairIdentifier(Utility):
             project_root: Root directory of project
             pairs_file: CSV file to read/write scaled image pairs
             hash_file: CSV file to read/write cache of image hashes
-            interactive: Whether to prompt for interactive review
         """
         # Store input and output paths
         self.input_directories = validate_input_directories(input_directories)
@@ -78,7 +76,7 @@ class ScaledPairIdentifier(Utility):
         }
         self.hash_collection = ImageHashCollection(self.file_paths.values(), hash_file)
         """Image hashes."""
-        self.pair_collection = ImagePairsCollection(pairs_file)
+        self.pair_collection = ImagePairCollection(pairs_file)
         """Image pairs."""
         self.pair_scorer = ImagePairScorer(self.hash_collection)
         """Image pair scorer."""
@@ -97,9 +95,6 @@ class ScaledPairIdentifier(Utility):
                 self.file_paths[file_path.stem] = new_path
                 info(f"Moved {file_path} to {new_path}")
 
-        self.interactive = interactive
-        """Whether to prompt for interactive review."""
-
         # Prepare image sorters for image analysis
         self.alpha_sorter = AlphaSorter()
         """Alpha sorter."""
@@ -117,7 +112,7 @@ class ScaledPairIdentifier(Utility):
         )
         return sorted_full_size_potential_parents["name"]
 
-    def identify_pairs(self):
+    def identify_pairs(self) -> None:
         """Identify pairs."""
         for parent in self.potential_parents:
             # Known children may change as parents are reviewed
@@ -153,12 +148,12 @@ class ScaledPairIdentifier(Utility):
                     print("Known scores:")
                     print(known_scores)
 
-    def known_scores(self, parent: str) -> pd.DataFrame:
+    def known_scores(self, parent: str) -> ScoreDataFrame:
         return self.pair_scorer.get_pair_scores(
             self.pair_collection[parent]
         ).sort_values("scale", ascending=False)
 
-    def save_images(self):
+    def save_images(self) -> None:
         for parent in sorted(
             self.pair_collection.parents, key=citra_sort, reverse=True
         ):
@@ -172,7 +167,7 @@ class ScaledPairIdentifier(Utility):
                 info(f"Saved {outfile}")
 
     def review_candidate_pairs(
-        self, known_scores: pd.DataFrame, new_scores: pd.DataFrame
+        self, known_scores: ScoreDataFrame, new_scores: ScoreDataFrame
     ) -> int:
         """Review candidate pairs of parent image.
 

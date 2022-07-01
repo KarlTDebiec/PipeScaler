@@ -3,7 +3,7 @@
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 from logging import info
-from typing import Optional, Union
+from typing import Optional, TypeAlias, Union
 
 import numpy as np
 import pandas as pd
@@ -11,6 +11,10 @@ from imagehash import hex_to_flathash, hex_to_hash
 from scipy.stats import zscore
 
 from pipescaler.core import ImageHashCollection
+from pipescaler.core.image_hash_collection import HashSeries
+from pipescaler.core.image_pair_collection import PairDataFrame
+
+ScoreDataFrame: TypeAlias = pd.DataFrame
 
 
 class ImagePairScorer:
@@ -54,8 +58,8 @@ class ImagePairScorer:
         self.hash_collection = hash_collection
 
     def get_best_child(
-        self, parent: Union[str, pd.Series], scale: float
-    ) -> Optional[pd.Series]:
+        self, parent: Union[str, HashSeries], scale: float
+    ) -> Optional[HashSeries]:
         """Get the best child of provided parent at scale.
 
         Arguments:
@@ -122,7 +126,7 @@ class ImagePairScorer:
                 )
         return
 
-    def get_candidate_children(self, parent: str, scale: float) -> pd.DataFrame:
+    def get_candidate_children(self, parent: str, scale: float) -> ScoreDataFrame:
         """Get scores of all candidate children of provided parent at scale.
 
         Arguments:
@@ -154,8 +158,8 @@ class ImagePairScorer:
         return candidates
 
     def get_candidate_parents(
-        self, child: Union[str, pd.Series], scale: float
-    ) -> pd.DataFrame:
+        self, child: Union[str, HashSeries], scale: float
+    ) -> ScoreDataFrame:
         """Get scores of all candidate parents of provided child_hash at scale.
 
         Arguments:
@@ -186,7 +190,7 @@ class ImagePairScorer:
 
         return candidates
 
-    def get_candidate_stats(self, candidates: pd.DataFrame) -> pd.DataFrame:
+    def get_candidate_stats(self, candidates: ScoreDataFrame) -> ScoreDataFrame:
         """Get stats of candidate images.
 
         Arguments:
@@ -212,7 +216,7 @@ class ImagePairScorer:
         return candidates
 
     def get_child_score(
-        self, parent: Union[str, pd.Series], child: Union[str, pd.Series]
+        self, parent: Union[str, HashSeries], child: Union[str, HashSeries]
     ) -> pd.Series:
         """Get score of child relative to parent.
 
@@ -231,7 +235,7 @@ class ImagePairScorer:
         ].iloc[0]
         return score
 
-    def get_pair_scores(self, pairs: pd.DataFrame) -> pd.DataFrame:
+    def get_pair_scores(self, pairs: PairDataFrame) -> ScoreDataFrame:
         scores = []
         for _, pair in pairs.iterrows():
 
@@ -256,7 +260,7 @@ class ImagePairScorer:
         return pd.DataFrame(scores)
 
     @staticmethod
-    def hamming_distance(parent: pd.Series, child: pd.Series, hash_type: str) -> int:
+    def hamming_distance(parent: HashSeries, child: HashSeries, hash_type: str) -> int:
         """Calculate hamming distance of hash_type between parent and child.
 
         Arguments:
