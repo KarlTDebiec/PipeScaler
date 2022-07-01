@@ -31,9 +31,7 @@ class Substituter:
             required: Raise error if alternative image not found
             match_input_mode: Convert image to match input image's mode
         """
-        self.directory = Path(
-            validate_input_directory(directory, create_directory=True)
-        )
+        self.directory = validate_input_directory(directory)
         self.substitutes = {f.stem: f for f in self.directory.iterdir()}
         self.required = required
         self.match_input_mode = match_input_mode

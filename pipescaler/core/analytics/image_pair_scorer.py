@@ -3,23 +3,24 @@
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Image pair scorer."""
-from functools import partial
 from logging import info
-from typing import Optional, TypeAlias
+from typing import Optional
 
 import numpy as np
 import pandas as pd
-from imagehash import hex_to_flathash, hex_to_hash
 from scipy.stats import zscore
 
-from pipescaler.core import ImageHashCollection
-from pipescaler.core.image_hash_collection import HashDataFrame, HashSeries
-from pipescaler.core.image_pair_collection import PairDataFrame, PairSeries
-
-ScoreDataFrame: TypeAlias = pd.DataFrame
-ScoreSeries: TypeAlias = pd.Series
-ScoreStatsDataFrame: TypeAlias = pd.DataFrame
-ScoreStatsSeries: TypeAlias = pd.Series
+from pipescaler.core.analytics.aliases import (
+    HashDataFrame,
+    HashSeries,
+    PairDataFrame,
+    PairSeries,
+    ScoreDataFrame,
+    ScoreStatsDataFrame,
+    ScoreStatsSeries,
+)
+from pipescaler.core.analytics.hashing import multichannel_hamming
+from pipescaler.core.analytics.image_hash_collection import ImageHashCollection
 
 
 class ImagePairScorer:
@@ -75,7 +76,7 @@ class ImagePairScorer:
         Returns:
             Score of the best candidate child of *parent* at *scale*
         """
-        # Find best candidate child
+        # Find the best candidate child
         candidate_children: Optional[ScoreStatsDataFrame] = self.get_candidate_children(
             parent, scale
         )
@@ -85,14 +86,20 @@ class ImagePairScorer:
             candidate_child: ScoreStatsSeries = candidate_children.iloc[0]
         else:
             best_idx = candidate_children["hamming sum z score"].idxmin()
-            if np.isnan(best_idx):
+            if (
+                np.isnan(best_idx)
+                or candidate_children["hamming sum z score"].value_counts()[
+                    candidate_children["hamming sum z score"].min()
+                ]
+                > 1
+            ):
                 info(
                     f"Cannot distinguish best child candidate of {parent} "
                     f"among candidates:\n"
                     f"{candidate_children}"
                 )
                 return None
-            candidate_child: ScoreStatsSeries = candidate_children.iloc[best_idx]
+            candidate_child: ScoreStatsSeries = candidate_children.loc[best_idx]
 
         # Find the best candidate parent of candidate child
         candidate_parents: Optional[ScoreStatsDataFrame] = self.get_candidate_parents(
@@ -115,6 +122,9 @@ class ImagePairScorer:
 
         # Review pair
         if parent == candidate_parent["name"]:
+            candidate_parent: HashSeries = self.hash_collection[
+                candidate_parent["name"], scale
+            ].iloc[0]
             threshold = self.thresholds[candidate_parent["mode"]][scale]
             if candidate_child["hamming sum"] <= threshold:
                 return candidate_child
@@ -138,21 +148,11 @@ class ImagePairScorer:
             Scores of candidate children of parent at scale
         """
         parent: HashSeries = self.hash_collection[parent, scale].iloc[0]
-        average_distance = partial(
-            self.get_hamming_distance, parent=parent, hash_type="average"
-        )
-        color_distance = partial(
-            self.get_hamming_distance, parent=parent, hash_type="color"
-        )
-        difference_distance = partial(
-            self.get_hamming_distance, parent=parent, hash_type="difference"
-        )
-        perceptual_distance = partial(
-            self.get_hamming_distance, parent=parent, hash_type="perceptual"
-        )
-        wavelet_distance = partial(
-            self.get_hamming_distance, parent=parent, hash_type="wavelet"
-        )
+        average = lambda child: multichannel_hamming(parent, child, "average")
+        color = lambda child: multichannel_hamming(parent, child, "color")
+        difference = lambda child: multichannel_hamming(parent, child, "difference")
+        perceptual = lambda child: multichannel_hamming(parent, child, "perceptual")
+        wavelet = lambda child: multichannel_hamming(parent, child, "wavelet")
 
         # Select potential child images
         candidates: HashDataFrame = self.hash_collection.get_hashes_matching_spec(
@@ -170,11 +170,11 @@ class ImagePairScorer:
                 "name": parent["name"],
                 "scale": scale,
                 "scaled name": candidates["name"],
-                "average hamming": candidates.apply(average_distance, axis=1),
-                "color hamming": candidates.apply(color_distance, axis=1),
-                "difference hamming": candidates.apply(difference_distance, axis=1),
-                "perceptual hamming": candidates.apply(perceptual_distance, axis=1),
-                "wavelet hamming": candidates.apply(wavelet_distance, axis=1),
+                "average hamming": candidates.apply(average, axis=1),
+                "color hamming": candidates.apply(color, axis=1),
+                "difference hamming": candidates.apply(difference, axis=1),
+                "perceptual hamming": candidates.apply(perceptual, axis=1),
+                "wavelet hamming": candidates.apply(wavelet, axis=1),
             }
         )
         candidate_score_stats: ScoreStatsDataFrame = self.get_stats(candidate_scores)
@@ -193,21 +193,11 @@ class ImagePairScorer:
             Scores of candidate parents of child at scale
         """
         child: HashSeries = self.hash_collection[child, 1.0].iloc[0]
-        average_distance = partial(
-            self.get_hamming_distance, child=child, hash_type="average"
-        )
-        color_distance = partial(
-            self.get_hamming_distance, child=child, hash_type="color"
-        )
-        difference_distance = partial(
-            self.get_hamming_distance, child=child, hash_type="difference"
-        )
-        perceptual_distance = partial(
-            self.get_hamming_distance, child=child, hash_type="perceptual"
-        )
-        wavelet_distance = partial(
-            self.get_hamming_distance, child=child, hash_type="wavelet"
-        )
+        average = lambda parent: multichannel_hamming(parent, child, "average")
+        color = lambda parent: multichannel_hamming(parent, child, "color")
+        difference = lambda parent: multichannel_hamming(parent, child, "difference")
+        perceptual = lambda parent: multichannel_hamming(parent, child, "perceptual")
+        wavelet = lambda parent: multichannel_hamming(parent, child, "wavelet")
 
         # Select potential parent images
         candidates: HashDataFrame = self.hash_collection.get_hashes_matching_spec(
@@ -225,11 +215,11 @@ class ImagePairScorer:
                 "name": candidates["name"],
                 "scale": scale,
                 "scaled name": child["name"],
-                "average hamming": candidates.apply(average_distance, axis=1),
-                "color hamming": candidates.apply(color_distance, axis=1),
-                "difference hamming": candidates.apply(difference_distance, axis=1),
-                "perceptual hamming": candidates.apply(perceptual_distance, axis=1),
-                "wavelet hamming": candidates.apply(wavelet_distance, axis=1),
+                "average hamming": candidates.apply(average, axis=1),
+                "color hamming": candidates.apply(color, axis=1),
+                "difference hamming": candidates.apply(difference, axis=1),
+                "perceptual hamming": candidates.apply(perceptual, axis=1),
+                "wavelet hamming": candidates.apply(wavelet, axis=1),
             }
         )
         candidate_score_stats: ScoreStatsDataFrame = self.get_stats(candidate_scores)
@@ -240,14 +230,15 @@ class ImagePairScorer:
         """Get score of child relative to parent.
 
         Arguments:
-            parent: Parent hash
-            child: Child hash
+            pair: pair to get score of
+        Returns:
+            Score of pair
         """
         candidate_children: ScoreStatsDataFrame = self.get_candidate_children(
             pair["name"], pair["scale"]
         )
         score: ScoreStatsSeries = candidate_children.loc[
-            candidate_children["name"] == pair["scaled name"]
+            candidate_children["scaled name"] == pair["scaled name"]
         ].iloc[0]
 
         return score
@@ -274,34 +265,6 @@ class ImagePairScorer:
         scores = pd.DataFrame(scores)
 
         return scores
-
-    @staticmethod
-    def get_hamming_distance(
-        parent: HashSeries, child: HashSeries, hash_type: str
-    ) -> int:
-        """Calculate hamming distance of hash_type between parent and child.
-
-        Arguments:
-            parent: Parent hash
-            child: Child hash
-            hash_type: Type of hash
-        Returns:
-            Hamming distance of hash_type between parent and child
-        """
-        if hash_type == "color":
-            parent_hash = [
-                hex_to_flathash(h, 14) for h in parent[f"{hash_type} hash"].split("_")
-            ]
-            child_hash = [
-                hex_to_flathash(h, 14) for h in child[f"{hash_type} hash"].split("_")
-            ]
-        else:
-            parent_hash = [
-                hex_to_hash(h) for h in parent[f"{hash_type} hash"].split("_")
-            ]
-            child_hash = [hex_to_hash(h) for h in child[f"{hash_type} hash"].split("_")]
-
-        return sum([p - c for p, c in zip(parent_hash, child_hash)])
 
     @staticmethod
     def get_stats(scores: ScoreDataFrame) -> ScoreStatsDataFrame:

@@ -6,19 +6,23 @@
 from collections.abc import Sequence
 from logging import info
 from pathlib import Path
-from typing import Callable, Collection, Iterable, TypeAlias, Union
+from typing import Collection, Iterable, Union
 
 import numpy as np
 import pandas as pd
-from imagehash import ImageHash, average_hash, colorhash, dhash, phash, whash
 from PIL import Image
 
 from pipescaler.common import validate_output_file
+from pipescaler.core.analytics.aliases import HashDataFrame
+from pipescaler.core.analytics.hashing import (
+    multichannel_average_hash,
+    multichannel_color_hash,
+    multichannel_difference_hash,
+    multichannel_perceptual_hash,
+    multichannel_wavelet_hash,
+)
 from pipescaler.core.pipelines import PipeImage
 from pipescaler.pipelines.sorters import AlphaSorter, GrayscaleSorter
-
-HashDataFrame: TypeAlias = pd.DataFrame
-HashSeries: TypeAlias = pd.Series
 
 
 class ImageHashCollection(Sequence):
@@ -39,7 +43,7 @@ class ImageHashCollection(Sequence):
         """Grayscale sorter."""
 
         self.cache = validate_output_file(cache, exists_ok=True)
-        """CSV file from which to read/write cache."""
+        """CSV cache file path."""
 
         # Prepare image hashes
         self._hashes = None
@@ -83,7 +87,7 @@ class ImageHashCollection(Sequence):
         return len(self.hashes)
 
     @property
-    def full_size(self) -> HashDataFrame:
+    def full_size_hashes(self) -> HashDataFrame:
         """Full size image hashes."""
         return self.hashes.loc[(self.hashes["scale"] == 1.0)]
 
@@ -133,12 +137,12 @@ class ImageHashCollection(Sequence):
         if pipe_image.image.mode != mode:
             pipe_image.image = pipe_image.image.convert(mode)
 
-        new_row = self.calculate_hashes_of_image(pipe_image)
+        new_row = self.multiscale_multifunction_hash(pipe_image)
 
         self.hashes = pd.concat([self.hashes, new_row], ignore_index=True)
 
     def get_hashes_matching_spec(
-        self, width: int, height: int, mode: str, format: int
+        self, width: int, height: int, mode: str, texture_type: int
     ) -> HashDataFrame:
         """Get hashes matching specifications.
 
@@ -146,7 +150,7 @@ class ImageHashCollection(Sequence):
             width: Width of image
             height: Height of image
             mode: Mode of image
-            format: Format of image
+            texture_type: Format of image
         Returns:
             Hashes matching specifications
         """
@@ -155,7 +159,7 @@ class ImageHashCollection(Sequence):
             & (self.hashes["width"] == width)
             & (self.hashes["height"] == height)
             & (self.hashes["mode"] == mode)
-            & (self.hashes["format"] == format)
+            & (self.hashes["format"] == texture_type)
         ]
         return matches.copy(deep=True)
 
@@ -171,8 +175,8 @@ class ImageHashCollection(Sequence):
         self.hashes.to_csv(self.cache, index=False)
         info(f"Image hashes saved to {self.cache}")
 
-    @classmethod
-    def calculate_hashes_of_image(cls, pipe_image: PipeImage) -> HashDataFrame:
+    @staticmethod
+    def multiscale_multifunction_hash(pipe_image: PipeImage) -> HashDataFrame:
         """Calculate hashes of image, including original size and scaled versions.
 
         Arguments:
@@ -208,20 +212,12 @@ class ImageHashCollection(Sequence):
                     "height": scaled_height,
                     "mode": scaled_image.mode,
                     "format": format,
-                    "average hash": cls.multichannel_hash(scaled_image, average_hash),
-                    "color hash": cls.multichannel_hash(scaled_image, colorhash),
-                    "difference hash": cls.multichannel_hash(scaled_image, dhash),
-                    "perceptual hash": cls.multichannel_hash(scaled_image, phash),
-                    "wavelet hash": cls.multichannel_hash(scaled_image, whash),
+                    "average hash": multichannel_average_hash(scaled_image),
+                    "color hash": multichannel_color_hash(scaled_image),
+                    "difference hash": multichannel_difference_hash(scaled_image),
+                    "perceptual hash": multichannel_perceptual_hash(scaled_image),
+                    "wavelet hash": multichannel_wavelet_hash(scaled_image),
                 }
             )
 
         return pd.DataFrame(hashes)
-
-    @staticmethod
-    def multichannel_hash(
-        image: Image.Image,
-        hash_function: Callable[[Image.Image], ImageHash],
-    ) -> str:
-        """Hash image channels separate and return as an underscore-delimited str."""
-        return "_".join([str(hash_function(c)) for c in image.split()])

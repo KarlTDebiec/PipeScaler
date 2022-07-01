@@ -6,14 +6,12 @@
 from collections.abc import Sequence
 from logging import info
 from pathlib import Path
-from typing import Iterable, TypeAlias, Union
+from typing import Iterable, Union
 
 import pandas as pd
 
 from pipescaler.common import validate_output_file
-
-PairDataFrame: TypeAlias = pd.DataFrame
-PairSeries: TypeAlias = pd.Series
+from pipescaler.core.analytics.aliases import PairDataFrame
 
 
 class ImagePairCollection(Sequence):
@@ -26,7 +24,7 @@ class ImagePairCollection(Sequence):
             cache: Path to cache file
         """
         self.cache = validate_output_file(cache, exists_ok=True)
-        """CSV file from which to read/write scaled image pairs."""
+        """CSV cache file path."""
 
         # Prepare image pairs
         self._pairs = None
@@ -108,7 +106,7 @@ class ImagePairCollection(Sequence):
         Arguments:
             parent: Basename of parent
         Returns:
-            Pairs of *parent*
+            Pairs of parent
         """
         return self.pairs.loc[self.pairs["filename"] == parent]
 

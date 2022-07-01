@@ -5,12 +5,10 @@
 """Core pipescaler functions, classes, and exceptions."""
 from __future__ import annotations
 
-from pipescaler.core.image_hash_collection import ImageHashCollection
 from pipescaler.core.runner import Runner
 from pipescaler.core.utility import Utility
 
 __all__: list[str] = [
-    "ImageHashCollection",
     "Runner",
     "Utility",
 ]

@@ -23,9 +23,7 @@ class CheckpointManager:
         Arguments:
             directory: Directory in which to store checkpoints
         """
-        self.directory = Path(
-            validate_output_directory(directory, create_directory=True)
-        )
+        self.directory = validate_output_directory(directory)
         self.image_names = set()
         self.checkpoint_names = set()
 

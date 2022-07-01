@@ -12,19 +12,18 @@ from typing import Iterable, Union
 
 import numpy as np
 import pandas as pd
-from imagehash import average_hash, colorhash, dhash, phash, whash
 from PIL import Image
 
 from pipescaler.common import validate_input_directories, validate_input_directory
 from pipescaler.core import Utility
-from pipescaler.core.image import hstack_images, vstack_images
-from pipescaler.core.image_hash_collection import ImageHashCollection
-from pipescaler.core.image_pair_collection import ImagePairCollection
-from pipescaler.core.image_pair_scorer import (
+from pipescaler.core.analytics import (
+    ImageHashCollection,
+    ImagePairCollection,
     ImagePairScorer,
     ScoreDataFrame,
     ScoreStatsDataFrame,
 )
+from pipescaler.core.image import hstack_images, vstack_images
 from pipescaler.core.pipelines import PipeImage
 from pipescaler.core.sorting import citra_sort
 from pipescaler.pipelines.sorters import AlphaSorter, GrayscaleSorter
@@ -36,14 +35,6 @@ pd.set_option("display.width", 0)
 
 class ScaledPairIdentifier(Utility):
     """Identifies pairs of images in which one is rescaled from another."""
-
-    hash_types = {
-        "average": average_hash,
-        "color": colorhash,
-        "difference": dhash,
-        "perceptual": phash,
-        "wavelet": whash,
-    }
 
     def __init__(
         self,
@@ -85,20 +76,6 @@ class ScaledPairIdentifier(Utility):
         self.pair_scorer = ImagePairScorer(self.hash_collection)
         """Image pair scorer."""
 
-        for name, file_path in self.file_paths.items():
-            if name in self.pair_collection.children:
-                if not file_path.is_relative_to(self.scaled_directory):
-                    new_path = self.scaled_directory.joinpath(file_path.name)
-                    move(file_path, new_path)
-                    self.file_paths[name] = new_path
-                    info(f"Moved {file_path} to {new_path}")
-        for file_path in self.scaled_directory.iterdir():
-            if file_path.stem not in self.pair_collection.children:
-                new_path = self.input_directories[0].joinpath(file_path.name)
-                move(file_path, new_path)
-                self.file_paths[file_path.stem] = new_path
-                info(f"Moved {file_path} to {new_path}")
-
         # Prepare image sorters for image analysis
         self.alpha_sorter = AlphaSorter()
         """Alpha sorter."""
@@ -107,7 +84,7 @@ class ScaledPairIdentifier(Utility):
 
     @property
     def potential_parents(self) -> list[str]:
-        full_size = self.hash_collection.full_size
+        full_size = self.hash_collection.full_size_hashes
         full_size_potential_parents = full_size.loc[
             ~(full_size["name"].isin(self.pair_collection.children))
         ]
@@ -115,6 +92,15 @@ class ScaledPairIdentifier(Utility):
             ["width", "height", "name"], ascending=False
         )
         return sorted_full_size_potential_parents["name"]
+
+    def get_known_scores(self, parent: str) -> ScoreStatsDataFrame:
+        """Get known scores of parent's pairs."""
+        scores: ScoreStatsDataFrame = self.pair_scorer.get_pair_scores(
+            self.pair_collection[parent]
+        )
+        if len(scores) != 0:
+            scores = scores.sort_values("scale", ascending=False)
+        return scores
 
     def identify_pairs(self) -> None:
         """Identify pairs."""
@@ -124,10 +110,10 @@ class ScaledPairIdentifier(Utility):
                 continue
 
             print(f"Searching for children of {parent}")
-            known_scores = self.known_scores(parent)
             new_scores = []
+            known_pairs = self.pair_collection[parent]
             for scale in np.array([1 / (2**x) for x in range(1, 7)]):
-                if "scale" in known_scores and scale in known_scores["scale"].values:
+                if scale in known_pairs["scale"].values:
                     continue
                 parent_hash = self.hash_collection[parent, 1.0].iloc[0]
                 if round(parent_hash["width"] * scale) < 8:
@@ -141,28 +127,42 @@ class ScaledPairIdentifier(Utility):
 
             # Update image sets
             if len(new_scores) > 0:
+                known_scores = self.get_known_scores(parent)
                 new_scores = pd.DataFrame(new_scores)
                 result = self.review_candidate_pairs(known_scores, new_scores)
                 if result == 0:
                     break
             else:
-                if len(known_scores) > 0:
-                    print("Known scores:")
-                    print(known_scores)
+                if len(known_pairs) > 0:
+                    print("Known pairs:")
+                    print(known_pairs)
 
-    def known_scores(self, parent: str) -> ScoreStatsDataFrame:
-        return self.pair_scorer.get_pair_scores(
-            self.pair_collection[parent]
-        ).sort_values("scale", ascending=False)
+    def sync_scaled_directory(self) -> None:
+        """Ensure child images are in scaled directory, and parent images are not."""
+        for name, file_path in self.file_paths.items():
+            if name in self.pair_collection.children:
+                if not file_path.is_relative_to(self.scaled_directory):
+                    new_path = self.scaled_directory.joinpath(file_path.name)
+                    move(file_path, new_path)
+                    self.file_paths[name] = new_path
+                    info(f"Moved {file_path} to {new_path}")
 
-    def save_images(self) -> None:
+        for file_path in self.scaled_directory.iterdir():
+            if file_path.stem not in self.pair_collection.children:
+                new_path = self.input_directories[0].joinpath(file_path.name)
+                move(file_path, new_path)
+                self.file_paths[file_path.stem] = new_path
+                info(f"Moved {file_path} to {new_path}")
+
+    def sync_comparison_directory(self) -> None:
+        """Ensure comparison images are in sync with known pairs."""
         for parent in sorted(
             self.pair_collection.parents, key=citra_sort, reverse=True
         ):
-            known_scores = self.known_scores(parent)
-            if len(known_scores) > 0:
+            known_pairs = self.pair_collection[parent]
+            if len(known_pairs) > 0:
                 to_save = self.get_stacked_image(
-                    [parent, *list(known_scores["scaled name"])]
+                    [parent, *list(known_pairs["scaled name"])]
                 )
                 outfile = self.comparison_directory.joinpath(f"{parent}.png")
                 to_save.save(outfile)
@@ -187,17 +187,12 @@ class ScaledPairIdentifier(Utility):
             "scale", ascending=False
         )
         parent = all_pairs.iloc[0]["name"]
-        children = list(all_pairs["scaled name"])
 
-        if self.interactive:
-            self.get_stacked_image([parent, *list(all_pairs["scaled name"])]).show()
+        self.get_stacked_image([parent, *list(all_pairs["scaled name"])]).show()
         prompt = f"Confirm ({'y' * len(new_scores)}/{'n' * len(new_scores)})?: "
         accept_re = re.compile(f"^[yn]{{{len(new_scores)}}}$", re.IGNORECASE)
         quit_re = re.compile("quit", re.IGNORECASE)
-        if self.interactive:
-            response = input(prompt).lower()
-        else:
-            response = "y" * len(new_scores)
+        response = input(prompt).lower()
         if accept_re.match(response):
             new_pair = None
             for i in range(len(new_scores)):
