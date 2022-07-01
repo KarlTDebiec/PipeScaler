@@ -7,6 +7,7 @@ import re
 from itertools import chain
 from logging import info
 from pathlib import Path
+from shutil import move
 from typing import Iterable, Union
 
 import numpy as np
@@ -16,11 +17,12 @@ from PIL import Image
 
 from pipescaler.common import validate_input_directories, validate_input_directory
 from pipescaler.core import Utility
-from pipescaler.core.image import hstack_images, label_image, vstack_images
+from pipescaler.core.image import hstack_images, vstack_images
 from pipescaler.core.image_hash_collection import ImageHashCollection
 from pipescaler.core.image_pair_scorer import ImagePairScorer
 from pipescaler.core.image_pairs_collection import ImagePairsCollection
 from pipescaler.core.pipelines import PipeImage
+from pipescaler.core.sorting import citra_sort
 from pipescaler.pipelines.sorters import AlphaSorter, GrayscaleSorter
 
 pd.set_option("display.max_rows", None)
@@ -81,6 +83,20 @@ class ScaledPairIdentifier(Utility):
         self.pair_scorer = ImagePairScorer(self.hash_collection)
         """Image pair scorer."""
 
+        for name, file_path in self.file_paths.items():
+            if name in self.pair_collection.children:
+                if not file_path.is_relative_to(self.scaled_directory):
+                    new_path = self.scaled_directory.joinpath(file_path.name)
+                    move(file_path, new_path)
+                    self.file_paths[name] = new_path
+                    info(f"Moved {file_path} to {new_path}")
+        for file_path in self.scaled_directory.iterdir():
+            if file_path.stem not in self.pair_collection.children:
+                new_path = self.input_directories[0].joinpath(file_path.name)
+                move(file_path, new_path)
+                self.file_paths[file_path.stem] = new_path
+                info(f"Moved {file_path} to {new_path}")
+
         self.interactive = interactive
         """Whether to prompt for interactive review."""
 
@@ -132,6 +148,28 @@ class ScaledPairIdentifier(Utility):
                 result = self.review_candidate_pairs(known_scores, new_scores)
                 if result == 0:
                     break
+            else:
+                if len(known_scores) > 0:
+                    print("Known scores:")
+                    print(known_scores)
+
+    def known_scores(self, parent: str) -> pd.DataFrame:
+        return self.pair_scorer.get_pair_scores(
+            self.pair_collection[parent]
+        ).sort_values("scale", ascending=False)
+
+    def save_images(self):
+        for parent in sorted(
+            self.pair_collection.parents, key=citra_sort, reverse=True
+        ):
+            known_scores = self.known_scores(parent)
+            if len(known_scores) > 0:
+                to_save = self.get_stacked_image(
+                    [parent, *list(known_scores["scaled name"])]
+                )
+                outfile = self.comparison_directory.joinpath(f"{parent}.png")
+                to_save.save(outfile)
+                info(f"Saved {outfile}")
 
     def review_candidate_pairs(
         self, known_scores: pd.DataFrame, new_scores: pd.DataFrame
@@ -155,7 +193,7 @@ class ScaledPairIdentifier(Utility):
         children = list(all_pairs["scaled name"])
 
         if self.interactive:
-            self.get_stacked_image([parent, *children]).show()
+            self.get_stacked_image([parent, *list(all_pairs["scaled name"])]).show()
         prompt = f"Confirm ({'y' * len(new_scores)}/{'n' * len(new_scores)})?: "
         accept_re = re.compile(f"^[yn]{{{len(new_scores)}}}$", re.IGNORECASE)
         quit_re = re.compile("quit", re.IGNORECASE)
@@ -172,7 +210,7 @@ class ScaledPairIdentifier(Utility):
                             {
                                 "name": parent,
                                 "scale": new_scores.iloc[i]["scale"],
-                                "scaled name": children[i],
+                                "scaled name": new_scores.iloc[i]["scaled name"],
                             }
                         ]
                     )
@@ -183,58 +221,6 @@ class ScaledPairIdentifier(Utility):
             return 1
         elif quit_re.match(response):
             return 0
-
-    def get_pair_score_image(self, pair_scores) -> Image.Image:
-        """Gets a concatenated image of images in pair_scores.
-
-        Arguments:
-            pair_scores: Pair scores
-        Returns:
-            Concatenated image of images in *pair_scores*
-        """
-        parent = pair_scores["filename"].values[0]
-        children = list(pair_scores["scaled filename"].values)
-        scores = list(pair_scores["hamming sum"].values)
-
-        parent_image = Image.open(self.file_paths[parent])
-        if self.alpha_sorter(self.file_paths[parent]) == "keep_alpha":
-            # noinspection PyTypeChecker
-            parent_array = np.array(parent_image)
-            parent_color_image = Image.fromarray(np.squeeze(parent_array[:, :, :-1]))
-            parent_alpha_image = Image.fromarray(parent_array[:, :, -1])
-            child_color_images = []
-            child_alpha_images = []
-
-            for child, score in zip(children, scores):
-                child_image = Image.open(self.file_paths[child])
-                # noinspection PyTypeChecker
-                child_array = np.array(child_image)
-
-                child_color_image = Image.fromarray(np.squeeze(child_array[:, :, :-1]))
-                child_color_image = child_color_image.resize(
-                    parent_image.size, Image.NEAREST
-                )
-                child_color_image = label_image(child_color_image, str(score))
-                child_color_images.append(child_color_image)
-
-                child_alpha_image = Image.fromarray(child_array[:, :, -1])
-                child_alpha_image = child_alpha_image.resize(
-                    parent_image.size, Image.NEAREST
-                )
-                child_alpha_images.append(child_alpha_image)
-
-            color_image = hstack_images(parent_color_image, *child_color_images)
-            alpha_image = hstack_images(parent_alpha_image, *child_alpha_images)
-            return vstack_images(color_image, alpha_image)
-        else:
-            child_images = []
-            for child, score in zip(children, scores):
-                child_image = Image.open(self.file_paths[child])
-                child_image = child_image.resize(parent_image.size, Image.NEAREST)
-                child_image = label_image(child_image, str(score))
-                child_images.append(child_image)
-
-            return hstack_images(parent_image, *child_images)
 
     def get_stacked_image(self, names: list[str]) -> Image.Image:
         """Get stacked images, rescaled to match first image, if necessary.
