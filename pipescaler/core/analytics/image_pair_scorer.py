@@ -3,6 +3,7 @@
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Image pair scorer."""
+from functools import partial
 from logging import info
 from typing import Optional
 
@@ -19,7 +20,13 @@ from pipescaler.core.analytics.aliases import (
     ScoreStatsDataFrame,
     ScoreStatsSeries,
 )
-from pipescaler.core.analytics.hashing import multichannel_hamming
+from pipescaler.core.analytics.hashing import (
+    multichannel_average_hamming,
+    multichannel_color_hamming,
+    multichannel_difference_hamming,
+    multichannel_perceptual_hamming,
+    multichannel_wavelet_hamming,
+)
 from pipescaler.core.analytics.image_hash_collection import ImageHashCollection
 
 
@@ -148,11 +155,11 @@ class ImagePairScorer:
             Scores of candidate children of parent at scale
         """
         parent: HashSeries = self.hash_collection[parent, scale].iloc[0]
-        average = lambda child: multichannel_hamming(parent, child, "average")
-        color = lambda child: multichannel_hamming(parent, child, "color")
-        difference = lambda child: multichannel_hamming(parent, child, "difference")
-        perceptual = lambda child: multichannel_hamming(parent, child, "perceptual")
-        wavelet = lambda child: multichannel_hamming(parent, child, "wavelet")
+        average_hamming = partial(multichannel_average_hamming, second=parent)
+        color_hamming = partial(multichannel_color_hamming, second=parent)
+        difference_hamming = partial(multichannel_difference_hamming, second=parent)
+        perceptual_hamming = partial(multichannel_perceptual_hamming, second=parent)
+        wavelet_hamming = partial(multichannel_wavelet_hamming, second=parent)
 
         # Select potential child images
         candidates: HashDataFrame = self.hash_collection.get_hashes_matching_spec(
@@ -170,11 +177,11 @@ class ImagePairScorer:
                 "name": parent["name"],
                 "scale": scale,
                 "scaled name": candidates["name"],
-                "average hamming": candidates.apply(average, axis=1),
-                "color hamming": candidates.apply(color, axis=1),
-                "difference hamming": candidates.apply(difference, axis=1),
-                "perceptual hamming": candidates.apply(perceptual, axis=1),
-                "wavelet hamming": candidates.apply(wavelet, axis=1),
+                "average hamming": candidates.apply(average_hamming, axis=1),
+                "color hamming": candidates.apply(color_hamming, axis=1),
+                "difference hamming": candidates.apply(difference_hamming, axis=1),
+                "perceptual hamming": candidates.apply(perceptual_hamming, axis=1),
+                "wavelet hamming": candidates.apply(wavelet_hamming, axis=1),
             }
         )
         candidate_score_stats: ScoreStatsDataFrame = self.get_stats(candidate_scores)
@@ -193,11 +200,11 @@ class ImagePairScorer:
             Scores of candidate parents of child at scale
         """
         child: HashSeries = self.hash_collection[child, 1.0].iloc[0]
-        average = lambda parent: multichannel_hamming(parent, child, "average")
-        color = lambda parent: multichannel_hamming(parent, child, "color")
-        difference = lambda parent: multichannel_hamming(parent, child, "difference")
-        perceptual = lambda parent: multichannel_hamming(parent, child, "perceptual")
-        wavelet = lambda parent: multichannel_hamming(parent, child, "wavelet")
+        average_hamming = partial(multichannel_average_hamming, second=child)
+        color_hamming = partial(multichannel_color_hamming, second=child)
+        difference_hamming = partial(multichannel_difference_hamming, second=child)
+        perceptual_hamming = partial(multichannel_perceptual_hamming, second=child)
+        wavelet_hamming = partial(multichannel_wavelet_hamming, second=child)
 
         # Select potential parent images
         candidates: HashDataFrame = self.hash_collection.get_hashes_matching_spec(
@@ -215,11 +222,11 @@ class ImagePairScorer:
                 "name": candidates["name"],
                 "scale": scale,
                 "scaled name": child["name"],
-                "average hamming": candidates.apply(average, axis=1),
-                "color hamming": candidates.apply(color, axis=1),
-                "difference hamming": candidates.apply(difference, axis=1),
-                "perceptual hamming": candidates.apply(perceptual, axis=1),
-                "wavelet hamming": candidates.apply(wavelet, axis=1),
+                "average hamming": candidates.apply(average_hamming, axis=1),
+                "color hamming": candidates.apply(color_hamming, axis=1),
+                "difference hamming": candidates.apply(difference_hamming, axis=1),
+                "perceptual hamming": candidates.apply(perceptual_hamming, axis=1),
+                "wavelet hamming": candidates.apply(wavelet_hamming, axis=1),
             }
         )
         candidate_score_stats: ScoreStatsDataFrame = self.get_stats(candidate_scores)
@@ -243,26 +250,17 @@ class ImagePairScorer:
 
         return score
 
-    def get_pair_scores(self, pairs: PairDataFrame) -> ScoreDataFrame:
-        scores = []
-        for _, pair in pairs.iterrows():
-            score = self.get_pair_score_stats(pair)
-            scores.append(
-                {
-                    "name": pair["name"],
-                    "scale": pair["scale"],
-                    "scaled name": pair["scaled name"],
-                    "average hamming": score["average hamming"],
-                    "color hamming": score["color hamming"],
-                    "difference hamming": score["difference hamming"],
-                    "perceptual hamming": score["perceptual hamming"],
-                    "wavelet hamming": score["wavelet hamming"],
-                    "hamming sum": score["hamming sum"],
-                    "hamming sum z score": score["hamming sum z score"],
-                    "hamming sum z score diff:": score["hamming sum z score diff"],
-                }
-            )
-        scores = pd.DataFrame(scores)
+    def get_pairs_scores_stats(self, pairs: PairDataFrame) -> ScoreStatsDataFrame:
+        """Get scores of pairs.
+
+        Arguments:
+            pairs: Pairs to get scores of
+        Returns:
+            Scores of pairs
+        """
+        scores = pd.DataFrame(
+            self.get_pair_score_stats(pair) for _, pair in pairs.iterrows()
+        )
 
         return scores
 

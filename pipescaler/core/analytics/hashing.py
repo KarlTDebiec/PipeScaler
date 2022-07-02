@@ -2,7 +2,7 @@
 #  Copyright (C) 2020-2022. Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Functions related to image analytics"""
+"""Functions related to image hashing."""
 from functools import partial
 from typing import Callable
 
@@ -21,44 +21,44 @@ from PIL import Image
 from pipescaler.core.analytics.aliases import HashSeries
 
 
-def multichannel_hamming(parent: HashSeries, child: HashSeries, hash_type: str) -> int:
-    """Calculate hamming distance of hash_type between parent and child.
+def multichannel_hamming(first: HashSeries, second: HashSeries, hash_type: str) -> int:
+    """Calculate hamming distance of hash_type between two hashes.
 
     Arguments:
-        parent: Parent hash series
-        child: Child hash series
+        first: First hash series
+        second: Second hash series
         hash_type: Type of hash
     Returns:
-        Hamming distance of hash_type between parent and child
+        Hamming distance of hash_type between first and second hashes
     """
     if hash_type == "color":
-        parent_hash = [
-            hex_to_flathash(h, 14) for h in parent[f"{hash_type} hash"].split("_")
+        first_hash = [
+            hex_to_flathash(h, 14) for h in first[f"{hash_type} hash"].split("_")
         ]
-        child_hash = [
-            hex_to_flathash(h, 14) for h in child[f"{hash_type} hash"].split("_")
+        second_hash = [
+            hex_to_flathash(h, 14) for h in second[f"{hash_type} hash"].split("_")
         ]
     else:
-        parent_hash = [hex_to_hash(h) for h in parent[f"{hash_type} hash"].split("_")]
-        child_hash = [hex_to_hash(h) for h in child[f"{hash_type} hash"].split("_")]
+        first_hash = [hex_to_hash(h) for h in first[f"{hash_type} hash"].split("_")]
+        second_hash = [hex_to_hash(h) for h in second[f"{hash_type} hash"].split("_")]
 
-    return sum([p - c for p, c in zip(parent_hash, child_hash)])
+    return sum(p - c for p, c in zip(first_hash, second_hash))
 
 
 multichannel_average_hamming = partial(multichannel_hamming, hash_type="average")
-"""Calculate average hamming distance between parent and child."""
+"""Calculate average hamming distance between two hashes."""
 
 multichannel_color_hamming = partial(multichannel_hamming, hash_type="color")
-"""Calculate color hamming distance between parent and child."""
+"""Calculate color hamming distance between two hashes."""
 
 multichannel_difference_hamming = partial(multichannel_hamming, hash_type="difference")
-"""Calculate difference hamming distance between parent and child."""
+"""Calculate difference hamming distance between two hashes."""
 
 multichannel_perceptual_hamming = partial(multichannel_hamming, hash_type="perceptual")
-"""Calculate perceptual hamming distance between parent and child."""
+"""Calculate perceptual hamming distance between two hashes."""
 
 multichannel_wavelet_hamming = partial(multichannel_hamming, hash_type="wavelet")
-"""Calculate wavelet hamming distance between parent and child."""
+"""Calculate wavelet hamming distance between two hashes."""
 
 
 def multichannel_hash(

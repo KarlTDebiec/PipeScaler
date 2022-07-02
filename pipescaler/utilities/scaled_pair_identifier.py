@@ -91,11 +91,15 @@ class ScaledPairIdentifier(Utility):
         sorted_full_size_potential_parents = full_size_potential_parents.sort_values(
             ["width", "height", "name"], ascending=False
         )
-        return sorted_full_size_potential_parents["name"]
+        sorted_potential_parent_names = list(sorted_full_size_potential_parents["name"])
+        existing_potential_parent_names = [
+            name for name in sorted_potential_parent_names if name in self.file_paths
+        ]
+        return existing_potential_parent_names
 
     def get_known_scores(self, parent: str) -> ScoreStatsDataFrame:
         """Get known scores of parent's pairs."""
-        scores: ScoreStatsDataFrame = self.pair_scorer.get_pair_scores(
+        scores: ScoreStatsDataFrame = self.pair_scorer.get_pairs_scores_stats(
             self.pair_collection[parent]
         )
         if len(scores) != 0:

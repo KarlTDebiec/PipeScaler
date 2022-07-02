@@ -142,7 +142,7 @@ class ImageHashCollection(Sequence):
         self.hashes = pd.concat([self.hashes, new_row], ignore_index=True)
 
     def get_hashes_matching_spec(
-        self, width: int, height: int, mode: str, texture_type: int
+        self, width: int, height: int, mode: str, image_format: int
     ) -> HashDataFrame:
         """Get hashes matching specifications.
 
@@ -150,7 +150,7 @@ class ImageHashCollection(Sequence):
             width: Width of image
             height: Height of image
             mode: Mode of image
-            texture_type: Format of image
+            image_format: Format of image
         Returns:
             Hashes matching specifications
         """
@@ -159,7 +159,7 @@ class ImageHashCollection(Sequence):
             & (self.hashes["width"] == width)
             & (self.hashes["height"] == height)
             & (self.hashes["mode"] == mode)
-            & (self.hashes["format"] == texture_type)
+            & (self.hashes["format"] == image_format)
         ]
         return matches.copy(deep=True)
 
@@ -185,7 +185,7 @@ class ImageHashCollection(Sequence):
             Image hashes
         """
         width, height = pipe_image.image.size
-        format = pipe_image.name.split("_")[-1]
+        image_format = pipe_image.name.split("_")[-1]
 
         hashes = []
         for scale in np.array([1 / (2**x) for x in range(0, 7)]):
@@ -211,7 +211,7 @@ class ImageHashCollection(Sequence):
                     "width": scaled_width,
                     "height": scaled_height,
                     "mode": scaled_image.mode,
-                    "format": format,
+                    "format": image_format,
                     "average hash": multichannel_average_hash(scaled_image),
                     "color hash": multichannel_color_hash(scaled_image),
                     "difference hash": multichannel_difference_hash(scaled_image),
