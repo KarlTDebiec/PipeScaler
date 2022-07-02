@@ -84,6 +84,7 @@ class ScaledPairIdentifier(Utility):
 
     @property
     def potential_parents(self) -> list[str]:
+        """Name of images that may potential be parents."""
         full_size = self.hash_collection.full_size_hashes
         full_size_potential_parents = full_size.loc[
             ~(full_size["name"].isin(self.pair_collection.children))
@@ -133,8 +134,7 @@ class ScaledPairIdentifier(Utility):
             if len(new_scores) > 0:
                 known_scores = self.get_known_scores(parent)
                 new_scores = pd.DataFrame(new_scores)
-                result = self.review_candidate_pairs(known_scores, new_scores)
-                if result == 0:
+                if not self.review_candidate_pairs(known_scores, new_scores):
                     break
             else:
                 if len(known_pairs) > 0:
@@ -174,7 +174,7 @@ class ScaledPairIdentifier(Utility):
 
     def review_candidate_pairs(
         self, known_scores: ScoreDataFrame, new_scores: ScoreDataFrame
-    ) -> int:
+    ) -> bool:
         """Review candidate pairs of parent image.
 
         Arguments:
@@ -214,9 +214,9 @@ class ScaledPairIdentifier(Utility):
                     info(f"{new_pair} accepted")
                 if new_pair is not None:
                     self.pair_collection.save_cache()
-            return 1
-        elif quit_re.match(response):
-            return 0
+        if quit_re.match(response):
+            return False
+        return True
 
     def get_stacked_image(self, names: list[str]) -> Image.Image:
         """Get stacked images, rescaled to match first image, if necessary.
