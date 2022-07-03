@@ -3,16 +3,14 @@
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Tests for ScaledPairIdentifier."""
-from pathlib import Path
 from platform import system
 from shutil import copy
-from tempfile import TemporaryDirectory
 
 import numpy as np
 import pytest
 from PIL import Image
 
-from pipescaler.common import temporary_filename
+from pipescaler.common.file import temp_directory
 from pipescaler.testing import get_infile
 from pipescaler.utilities import ScaledPairIdentifier
 
@@ -21,8 +19,7 @@ from pipescaler.utilities import ScaledPairIdentifier
     system() in {"Linux"}, raises=OSError, reason=f"Not supported on {system()}"
 )
 def test_review() -> None:
-    with TemporaryDirectory() as input_directory:
-        input_directory = Path(input_directory)
+    with temp_directory() as input_directory, temp_directory() as project_root:
 
         # Copy basic infiles and prepare scaled pairs
         for mode in ["L", "LA", "RGB", "RGBA"]:
@@ -60,15 +57,11 @@ def test_review() -> None:
                 )
                 child.save(outfile)
 
-        filenames = {filename.stem: filename for filename in input_directory.iterdir()}
-        with temporary_filename(".csv") as pairs_file:
-            with temporary_filename(".csv") as hash_file:
-                with TemporaryDirectory() as image_directory:
-                    scaled_pair_identifier = ScaledPairIdentifier(
-                        filenames=filenames,
-                        pairs_file=pairs_file,
-                        hash_file=hash_file,
-                        image_directory=image_directory,
-                        interactive=False,
-                    )
-                    scaled_pair_identifier.identify_pairs()
+        scaled_pair_identifier = ScaledPairIdentifier(
+            input_directories=input_directory,
+            project_root=project_root,
+            interactive=False,
+        )
+        scaled_pair_identifier.identify_pairs()
+        scaled_pair_identifier.sync_scaled_directory()
+        scaled_pair_identifier.sync_comparison_directory()

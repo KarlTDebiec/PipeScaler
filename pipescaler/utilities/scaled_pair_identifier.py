@@ -43,6 +43,7 @@ class ScaledPairIdentifier(Utility):
         *,
         pairs_file: Union[str, Path] = "pairs.csv",
         hash_file: Union[str, Path] = "hashes.csv",
+        interactive: bool = True,
     ):
         """Validate configuration and initialize.
 
@@ -51,24 +52,27 @@ class ScaledPairIdentifier(Utility):
             project_root: Root directory of project
             pairs_file: CSV file to read/write scaled image pairs
             hash_file: CSV file to read/write cache of image hashes
+            interactive: Whether to prompt for user input
         """
-        # Store input and output paths
+        # Store input and output paths and configuration
         self.input_directories = validate_input_directories(input_directories)
         """Directories from which to read input files."""
-
         project_root = validate_input_directory(project_root)
         self.scaled_directory = project_root.joinpath("scaled")
         """Directory to which to move scaled images."""
         self.comparison_directory = project_root.joinpath("scaled_images")
         """Directory to which to write stacked scaled image sets."""
+        self.interactive = interactive
+        """Whether to prompt for user input."""
 
         # Prepare data structures
         self.file_paths = {
             f.stem: f
-            for f in chain.from_iterable(
-                d.iterdir() for d in self.input_directories + [self.scaled_directory]
-            )
+            for f in chain.from_iterable(d.iterdir() for d in self.input_directories)
         }
+        if self.scaled_directory.exists():
+            self.file_paths.update({f.stem: f for f in self.scaled_directory.iterdir()})
+
         self.hash_collection = ImageHashCollection(self.file_paths.values(), hash_file)
         """Image hashes."""
         self.pair_collection = ImagePairCollection(pairs_file)
@@ -76,7 +80,7 @@ class ScaledPairIdentifier(Utility):
         self.pair_scorer = ImagePairScorer(self.hash_collection)
         """Image pair scorer."""
 
-        # Prepare image sorters for image analysis
+        # Prepare image sorters for analysis
         self.alpha_sorter = AlphaSorter()
         """Alpha sorter."""
         self.grayscale_sorter = GrayscaleSorter()
@@ -84,7 +88,7 @@ class ScaledPairIdentifier(Utility):
 
     @property
     def potential_parents(self) -> list[str]:
-        """Name of images that may potential be parents."""
+        """Name of images that may potentially be parents."""
         full_size = self.hash_collection.full_size_hashes
         full_size_potential_parents = full_size.loc[
             ~(full_size["name"].isin(self.pair_collection.children))
@@ -134,8 +138,11 @@ class ScaledPairIdentifier(Utility):
             if len(new_scores) > 0:
                 known_scores = self.get_known_scores(parent)
                 new_scores = pd.DataFrame(new_scores)
-                if not self.review_candidate_pairs(known_scores, new_scores):
-                    break
+                if self.interactive:
+                    if not self.review_candidate_pairs(known_scores, new_scores):
+                        break
+                else:
+                    pass
             else:
                 if len(known_pairs) > 0:
                     print("Known pairs:")
@@ -157,6 +164,8 @@ class ScaledPairIdentifier(Utility):
 
     def sync_scaled_directory(self) -> None:
         """Ensure child images are in scaled directory, and parent images are not."""
+        if not self.scaled_directory.exists():
+            self.scaled_directory.mkdir(parents=True)
         for name, file_path in self.file_paths.items():
             if name in self.pair_collection.children:
                 if not file_path.is_relative_to(self.scaled_directory):
