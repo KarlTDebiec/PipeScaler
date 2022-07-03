@@ -63,10 +63,10 @@ jobs:
           poetry run docs/pydocstyle_reporter.py pydocstyle.txt modified_files.json
       - name: pytest
         run: |
+          set -e
           export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
           cd ${GITHUB_WORKSPACE}/test
           poetry run pytest -v --cov=pipescaler --cov-report term . | tee pytest.txt
-          [[ $? -eq 0 ]] || exit 1
           cd ${GITHUB_WORKSPACE}
           poetry run docs/pytest_reporter.py test/pytest.txt
   macOS:
