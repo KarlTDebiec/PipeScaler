@@ -141,6 +141,20 @@ class ScaledPairIdentifier(Utility):
                     print("Known pairs:")
                     print(known_pairs)
 
+    def sync_comparison_directory(self) -> None:
+        """Ensure comparison images are in sync with known pairs."""
+        for parent in sorted(
+            self.pair_collection.parents, key=citra_sort, reverse=True
+        ):
+            known_pairs = self.pair_collection[parent]
+            if len(known_pairs) > 0:
+                to_save = self.get_stacked_image(
+                    [parent, *list(known_pairs["scaled name"])]
+                )
+                outfile = self.comparison_directory.joinpath(f"{parent}.png")
+                to_save.save(outfile)
+                info(f"Saved {outfile}")
+
     def sync_scaled_directory(self) -> None:
         """Ensure child images are in scaled directory, and parent images are not."""
         for name, file_path in self.file_paths.items():
@@ -157,20 +171,6 @@ class ScaledPairIdentifier(Utility):
                 move(file_path, new_path)
                 self.file_paths[file_path.stem] = new_path
                 info(f"Moved {file_path} to {new_path}")
-
-    def sync_comparison_directory(self) -> None:
-        """Ensure comparison images are in sync with known pairs."""
-        for parent in sorted(
-            self.pair_collection.parents, key=citra_sort, reverse=True
-        ):
-            known_pairs = self.pair_collection[parent]
-            if len(known_pairs) > 0:
-                to_save = self.get_stacked_image(
-                    [parent, *list(known_pairs["scaled name"])]
-                )
-                outfile = self.comparison_directory.joinpath(f"{parent}.png")
-                to_save.save(outfile)
-                info(f"Saved {outfile}")
 
     def review_candidate_pairs(
         self, known_scores: ScoreDataFrame, new_scores: ScoreDataFrame
