@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright (C) 2020-2022. Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Tests for ScaledPairIdentifier."""
 from pathlib import Path
 from platform import system
@@ -36,7 +36,7 @@ def test_review() -> None:
                 height = round(parent.size[1] * scale)
                 if width < 8 or height < 8:
                     break
-                child = parent.resize((width, height), Image.NEAREST)
+                child = parent.resize((width, height), Image.Resampling.NEAREST)
                 outfile = input_directory.joinpath(
                     f"{infile.stem}_{scale}{infile.suffix}"
                 )
@@ -54,7 +54,7 @@ def test_review() -> None:
                 height = round(parent.size[1] * scale)
                 if width < 8 or height < 8:
                     break
-                child = parent.resize((width, height), Image.NEAREST)
+                child = parent.resize((width, height), Image.Resampling.NEAREST)
                 outfile = input_directory.joinpath(
                     f"{infile.stem}_alt_{scale}{infile.suffix}"
                 )
