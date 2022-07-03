@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright (C) 2020-2022. Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Abstract base class for Processor command line interfaces."""
 from __future__ import annotations
 
@@ -31,8 +31,8 @@ class ProcessorCli(CommandLineInterface, ABC):
         """
         super().add_arguments_to_argparser(parser)
 
-        parser.add_argument("infile", type=cls.input_path_arg(), help="input file")
-        parser.add_argument("outfile", type=cls.output_path_arg(), help="output file")
+        parser.add_argument("infile", type=cls.input_file_arg(), help="input file")
+        parser.add_argument("outfile", type=cls.output_file_arg(), help="output file")
 
     @classmethod
     def execute(cls, **kwargs: Any) -> None:

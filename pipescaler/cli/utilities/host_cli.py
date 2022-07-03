@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright (C) 2020-2022. Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Command line interface for Host."""
 from __future__ import annotations
 
@@ -36,7 +36,7 @@ class HostCli(UtilityCli):
         required = cls.get_required_arguments_group(parser)
         required.add_argument(
             "conf_file",
-            type=cls.input_path_arg(),
+            type=cls.input_file_arg(),
             help="yaml file from which to read configuration",
         )
 

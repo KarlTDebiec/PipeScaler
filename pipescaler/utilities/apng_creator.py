@@ -14,8 +14,8 @@ from PIL import Image, ImageDraw, ImageFont
 
 from pipescaler.common import (
     validate_executable,
-    validate_input_path,
-    validate_output_path,
+    validate_input_files,
+    validate_output_file,
 )
 from pipescaler.core import Utility
 
@@ -44,8 +44,8 @@ class ApngCreator(Utility):
         """
         super().__init__(**kwargs)
 
-        self.infiles = list(map(validate_input_path, infiles))
-        self.outfile = validate_output_path(outfile)
+        self.infiles = validate_input_files(infiles)
+        self.outfile = validate_output_file(outfile)
         self.labels = labels
         if self.labels is not None and len(self.labels) != len(self.infiles):
             raise ValueError

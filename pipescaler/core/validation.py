@@ -14,9 +14,9 @@ from pipescaler.core.image import remove_palette
 
 
 def validate_image(
-    image: Image.Image, valid_modes: Union[str, Collection[str]]
+    image: Image.Image, valid_modes: Optional[Union[str, Collection[str]]] = None
 ) -> Image.Image:
-    """Validate image mode.
+    """Remove image palette, if necessary, and validate that mode is among valid modes.
 
     Arguments:
         image: Image to validate
@@ -26,14 +26,20 @@ def validate_image(
     """
     if image.mode == "P":
         image = remove_palette(image)
-    if image.mode not in valid_modes:
-        raise UnsupportedImageModeError(f"Mode '{image.mode}' is not supported")
+    if valid_modes is not None:
+        if isinstance(valid_modes, str):
+            valid_modes = [valid_modes]
+        valid_modes = sorted(valid_modes)
+        if image.mode not in valid_modes:
+            raise UnsupportedImageModeError(
+                f"Mode '{image.mode}' is among supported modes: {valid_modes}"
+            )
     return image
 
 
 def validate_image_and_convert_mode(
     image: Image.Image,
-    valid_modes: Union[str, Collection[str]],
+    valid_modes: Optional[Union[str, Collection[str]]] = None,
     convert_mode: Optional[str] = None,
 ) -> tuple[Image.Image, str]:
     """Validate image mode and convert to specified mode.
