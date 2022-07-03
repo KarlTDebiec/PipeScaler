@@ -2,16 +2,17 @@
 #  Copyright (C) 2020-2022. Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""FileScanner."""
+"""Scans directories for new image files."""
 from __future__ import annotations
 
 import re
 from itertools import chain
 from logging import debug, info
 from os import remove, rmdir
+from os.path import expandvars
 from pathlib import Path
 from shutil import copy, move
-from typing import Optional, Sequence, Union
+from typing import Iterable, Optional, Sequence, Union
 
 from PIL import Image
 
@@ -20,21 +21,21 @@ from pipescaler.core import Utility
 
 
 class FileScanner(Utility):
-    """FileScanner."""
+    """Scans directories for new image files."""
 
     exclusions = {".DS_Store", "desktop"}
 
     def __init__(
         self,
-        input_directories: Union[Path, list[Path]],
-        project_root: Path,
-        reviewed_directories: Optional[Union[Path, list[Path]]],
+        input_directories: Union[Union[str, Path], Iterable[Union[str, Path]]],
+        project_root: Union[str, Path],
+        reviewed_directories: Optional[Union[Union[str, Path], list[Union[str, Path]]]],
         rules: Optional[list[tuple[str, str]]] = None,
         *,
         remove_prefix: Optional[str] = None,
         output_format: Optional[str] = None,
     ) -> None:
-        """Validate and store configuration and initialize.
+        """Validate configuration and initialize.
 
         Arguments:
             input_directories: Directory or directories from which to read input files
@@ -62,7 +63,10 @@ class FileScanner(Utility):
             return names
 
         # Validate input and output directory and file paths
-        project_root = Path(project_root)
+        self.input_directories = validate_input_directories(input_directories)
+        """Directories from which to read input files."""
+
+        project_root = Path(expandvars(project_root)).absolute()
         self.ignore_directory = project_root.joinpath("ignore")
         """Directory of images to ignore if present in input directories."""
         self.copy_directory = project_root.joinpath("new")
@@ -71,8 +75,7 @@ class FileScanner(Utility):
         """Directory to which to move images that match 'move' rule."""
         self.remove_directory = project_root.joinpath("remove")
         """Directory of images that should be removed from input directories."""
-        self.input_directories = validate_input_directories(input_directories)
-        """Directories from which to read input files."""
+
         self.reviewed_directories = None
         """Directories of files that have been reviewed."""
         if reviewed_directories is not None:

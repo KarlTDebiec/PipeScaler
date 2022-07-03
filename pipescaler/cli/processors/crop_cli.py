@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright (C) 2020-2022. Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Command line interface for CropProcessor."""
 from __future__ import annotations
 
@@ -34,7 +34,7 @@ class CropCli(ProcessorCli):
             metavar=("LEFT", "TOP", "RIGHT", "BOTTOM"),
             nargs=4,
             required=True,
-            type=cls.int_arg(0),
+            type=cls.int_arg(min_value=1),
             help="number of pixels to remove from each side",
         )
 

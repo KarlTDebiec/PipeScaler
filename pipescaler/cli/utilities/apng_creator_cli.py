@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright (C) 2020-2022. Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Command line interface for ApngCreator."""
 from __future__ import annotations
 
@@ -34,7 +34,7 @@ class ApngCreatorCli(UtilityCli):
             "--infiles",
             nargs="+",
             required=True,
-            type=cls.input_path_arg(),
+            type=cls.input_file_arg(),
             help="input image files",
         )
         required.add_argument(
@@ -42,7 +42,7 @@ class ApngCreatorCli(UtilityCli):
             "--outfile",
             default="out.png",
             required=True,
-            type=cls.output_path_arg(),
+            type=cls.output_file_arg(),
             help="output animated png",
         )
 

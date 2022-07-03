@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright (C) 2020-2022. Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Command line interface for ThresholdProcessor."""
 from __future__ import annotations
 
@@ -32,7 +32,7 @@ class ThresholdCli(ProcessorCli):
         optional.add_argument(
             "--threshold",
             default=128,
-            type=cls.int_arg(0, 255),
+            type=cls.int_arg(min_value=0, max_value=255),
             help="threshold differentiating black and white (0-255, default: "
             "%(default)s)",
         )

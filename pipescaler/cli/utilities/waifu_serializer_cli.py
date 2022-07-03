@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright (C) 2020-2022. Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Command line interface for WaifuSerializer."""
 from __future__ import annotations
 
@@ -31,14 +31,14 @@ class WaifuSerializerCli(UtilityCli):
         required = cls.get_required_arguments_group(parser)
         required.add_argument(
             "architecture",
-            type=cls.str_arg(cls.utility.architectures.keys()),
+            type=cls.str_arg(options=cls.utility.architectures.keys()),
             help=f"model architecture {cls.utility.architectures.keys()}",
         )
         required.add_argument(
-            "infile", type=cls.input_path_arg(), help="input json file"
+            "infile", type=cls.input_file_arg(), help="input json file"
         )
         required.add_argument(
-            "outfile", type=cls.output_path_arg(), help="output pth file"
+            "outfile", type=cls.input_file_arg(), help="output pth file"
         )
 
     @classmethod
