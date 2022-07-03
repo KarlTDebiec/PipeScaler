@@ -41,8 +41,8 @@ class ScaledPairIdentifier(Utility):
         input_directories: Union[Union[str, Path], Iterable[Union[str, Path]]],
         project_root: Union[str, Path],
         *,
-        pairs_file: Union[str, Path] = "pairs.csv",
         hash_file: Union[str, Path] = "hashes.csv",
+        pairs_file: Union[str, Path] = "pairs.csv",
         interactive: bool = True,
     ):
         """Validate configuration and initialize.
@@ -50,8 +50,8 @@ class ScaledPairIdentifier(Utility):
         Arguments:
             input_directories: Directory or directories from which to read input files
             project_root: Root directory of project
-            pairs_file: CSV file to read/write scaled image pairs
             hash_file: CSV file to read/write cache of image hashes
+            pairs_file: CSV file to read/write scaled image pairs
             interactive: Whether to prompt for user input
         """
         # Store input and output paths and configuration
