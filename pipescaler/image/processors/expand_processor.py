@@ -5,8 +5,6 @@
 """Expands image canvas by mirroring image around edges."""
 from __future__ import annotations
 
-from warnings import warn
-
 from PIL import Image
 
 from pipescaler.common import validate_ints
@@ -35,9 +33,6 @@ class ExpandProcessor(Processor):
         Returns:
             Processed output image
         """
-        warn("This is a warning", UserWarning)
-        raise RuntimeError("This is an error")
-
         input_image = validate_image(input_image, self.inputs["input"])
 
         output_image = expand_image(

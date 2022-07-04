@@ -104,6 +104,11 @@ class PytestReporter:
                 )
 
     def parse_failures_section(self, body: str) -> None:
+        """Parse failures section of pytest output.
+
+        Arguments:
+            body: Body of failures section
+        """
         for match in [m.groupdict() for m in self.failure_regex.finditer(body)]:
             print(match)
             self.return_code = 1
@@ -124,6 +129,11 @@ class PytestReporter:
             )
 
     def parse_warnings_section(self, body: str) -> None:
+        """Parse warnings section of pytest output.
+
+        Arguments:
+            body: Body of warnings section
+        """
         for match in [m.groupdict() for m in self.warning_regex.finditer(body)]:
             file_path = Path(match["file_path"])
             if not file_path.is_relative_to(package_root):
