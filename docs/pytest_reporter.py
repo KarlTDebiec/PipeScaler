@@ -23,7 +23,7 @@ class PytestReporter:
         "summary": re.compile(r"^=+ short test summary info =+$", re.MULTILINE),
     }
     failure_regex = re.compile(
-        r"^E\s+(?P<kind>[^:]+):\s+(?P<message>[^\n]+)$"
+        r"^E\s+(?P<kind>[^:\n]+):\s+(?P<message>[^\n]+)$"
         r"\n^\s*$\n"
         r"^(?P<file_path>([A-Z]:)?[^:]+):(?P<line>\d+):\s+(?P<kind2>[^:\n]+$)",
         re.MULTILINE,
@@ -105,6 +105,7 @@ class PytestReporter:
 
     def parse_failures_section(self, body: str) -> None:
         for match in [m.groupdict() for m in self.failure_regex.finditer(body)]:
+            print(match)
             self.return_code = 1
             file_path = Path(match["file_path"])
             file_path = (
@@ -140,14 +141,9 @@ class PytestReporter:
                 }
             )
 
-    @classmethod
-    def print_messages(cls, messages: list[dict[str, Union[int, str, Path]]]):
-        """Print messages formatted for consumption by GitHub.
-
-        Arguments:
-            messages: Messages to print
-        """
-        for message in messages:
+    def print_messages(self) -> None:
+        """Print messages formatted for consumption by GitHub."""
+        for message in self.messages:
             print(
                 f"::{message['level']} "
                 f"file={message['file_path']},"
@@ -177,7 +173,7 @@ class PytestReporter:
         parser = cls.argparser()
         kwargs = vars(parser.parse_args())
         reporter = cls(**kwargs)
-        reporter.print_messages(reporter.messages)
+        reporter.print_messages()
         exit(reporter.return_code)
 
 
