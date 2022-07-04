@@ -15,13 +15,17 @@ package_root = Path(__file__).absolute().parent.parent
 class PytestReporter:
     """Prints pytest output formatted for consumption by GitHub."""
 
-    warning_section_regex = re.compile(
-        r"[\S\s]*"
-        r"(?P<header>^=+ warnings summary =+$)"
-        r"(?P<body>[\S\s]*)"
-        r"(?P<footer>^-- Docs: "
-        r"https://docs.pytest.org/en/stable/how-to/capture-warnings.html$)"
-        r"[\S\s]*",
+    header_regexes = {
+        "start": re.compile(r"^=+ test session starts =+$", re.MULTILINE),
+        "failures": re.compile(r"^=+ FAILURES =+$", re.MULTILINE),
+        "warnings": re.compile(r"^=+ warnings summary =+$", re.MULTILINE),
+        "coverage": re.compile(r"^-+ coverage.* -+$", re.MULTILINE),
+        "summary": re.compile(r"^=+ short test summary info =+$", re.MULTILINE),
+    }
+    failure_regex = re.compile(
+        r"^E\s+(?P<kind>[^:]+):\s+(?P<message>[^\n]+)$"
+        r"\n^\s*$\n"
+        r"^(?P<file_path>([A-Z]:)?[^:]+):(?P<line>\d+):\s+(?P<kind2>[^:\n]+$)",
         re.MULTILINE,
     )
     warning_regex = re.compile(
@@ -30,7 +34,7 @@ class PytestReporter:
         r":"
         r"(?P<line>\d+)"
         r":"
-        r"(?P<warning>[^:]+)"
+        r"(?P<kind>[^:]+)"
         r":"
         r"(?P<message>[^\n]+)"
         r"\n"
@@ -48,44 +52,93 @@ class PytestReporter:
             pytest_infile: Path to pytest output
         """
         pytest_infile = Path(pytest_infile).absolute()
-        self.messages = self.parse_messages(pytest_infile)
+        self.messages = []
+        self.return_code = 0
+        self.parse(pytest_infile)
 
-    @classmethod
-    def parse_messages(cls, infile: Path) -> list[dict[str, Union[int, str, Path]]]:
-        """Parse pytest output infile for messages.
+    def parse(self, infile: Path) -> None:
+        """Parse pytest output infile.
 
         Arguments:
             infile: Path to pytest output
         Returns:
             List of warning messages
         """
-        messages = []
-
         with open(infile, "r", encoding="utf-8") as infile:
             full_text = infile.read()
 
-        section_match = cls.warning_section_regex.match(full_text)
-        if section_match is None:
-            return messages
+        # Determine which section headers are present
+        headers = []
+        for section, regex in self.header_regexes.items():
+            match = regex.search(full_text)
+            if match:
+                headers.append(
+                    {
+                        "name": section,
+                        "start": match.start(),
+                        "end": match.end(),
+                    }
+                )
 
-        body = section_match.group("body")
-        for warning_match in [m.groupdict() for m in cls.warning_regex.finditer(body)]:
-            file_path = Path(warning_match["file_path"])
+        # Determine section body locations
+        bodies = {}
+        for i in range(1, len(headers)):
+            bodies[headers[i - 1]["name"]] = {
+                "start": headers[i - 1]["end"],
+                "end": headers[i]["start"],
+            }
+        bodies[headers[i]["name"]] = {
+            "start": headers[i]["end"],
+            "end": len(full_text),
+        }
+
+        # Parse sections
+        for section, location in bodies.items():
+            if section == "failures":
+                self.parse_failures_section(
+                    full_text[location["start"] : location["end"]]
+                )
+            elif section == "warnings":
+                self.parse_warnings_section(
+                    full_text[location["start"] : location["end"]]
+                )
+
+    def parse_failures_section(self, body: str) -> None:
+        for match in [m.groupdict() for m in self.failure_regex.finditer(body)]:
+            self.return_code = 1
+            file_path = Path(match["file_path"])
+            file_path = (
+                package_root.joinpath("test", file_path)
+                .resolve()
+                .relative_to(package_root)
+            )
+            self.messages.append(
+                {
+                    "level": "error",
+                    "file_path": file_path,
+                    "line": int(match["line"]),
+                    "kind": match["kind"],
+                    "message": match["message"],
+                }
+            )
+
+    def parse_warnings_section(self, body: str) -> None:
+        for match in [m.groupdict() for m in self.warning_regex.finditer(body)]:
+            file_path = Path(match["file_path"])
             if not file_path.is_relative_to(package_root):
                 continue
             if file_path.relative_to(package_root).parts[0] == ".venv":
                 continue
-            messages.append(
+            file_path = file_path.relative_to(package_root)
+            self.messages.append(
                 {
+                    "level": "warning",
                     "file_path": file_path,
-                    "line": int(warning_match["line"]),
-                    "warning": warning_match["warning"].strip(),
-                    "message": warning_match["message"].strip(),
-                    "code": warning_match["code"].strip(),
+                    "line": int(match["line"]),
+                    "kind": match["kind"].strip(),
+                    "message": match["message"].strip(),
                 }
             )
-
-        return messages
 
     @classmethod
     def print_messages(cls, messages: list[dict[str, Union[int, str, Path]]]):
@@ -96,10 +149,10 @@ class PytestReporter:
         """
         for message in messages:
             print(
-                f"::warning "
-                f"file={message['file_path'].relative_to(package_root)},"
+                f"::{message['level']} "
+                f"file={message['file_path']},"
                 f"line={message['line']}::"
-                f"pytest[{message['warning']}] : "
+                f"pytest[{message['kind']}] : "
                 f"{message['message']}"
             )
 
@@ -125,6 +178,7 @@ class PytestReporter:
         kwargs = vars(parser.parse_args())
         reporter = cls(**kwargs)
         reporter.print_messages(reporter.messages)
+        exit(reporter.return_code)
 
 
 if __name__ == "__main__":
