@@ -29,7 +29,7 @@ ImageHash = "^4.2.1"
 numba = "^0.55.2"
 numpy = "^1.22.4"
 pandas = "^1.4.3"
-Pillow = "^9.1.1"
+Pillow = "^9.2.0"
 pywinauto = [{ version = '^0.6.8', platform = "win32"}]
 pywin32 = [{ version = '^304', platform = "win32"}]
 PyYAML = "^6.0"
