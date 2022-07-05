@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright (C) 2020-2022. Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Matches the palette of one image to another, restricted to nearby colors."""
 from typing import no_type_check
 
@@ -77,31 +77,30 @@ class LocalPaletteMatcher(Utility):
         """
         scale = fit_array.shape[0] // ref_array.shape[0]
         matched_array = np.zeros_like(fit_array)
-        dists = dict()
+        dists = dict()  # noqa
         for fit_x in range(fit_array.shape[0]):
             for fit_y in range(fit_array.shape[1]):
-                fit_color = fit_array[fit_x, fit_y]
                 best_dist = -1.0
                 best_color = 0
 
-                ref_center_x = fit_x // scale
-                ref_center_y = fit_y // scale
+                ref_center = (fit_x // scale, fit_y // scale)
                 for ref_x in range(
-                    max(0, ref_center_x - local_range),
-                    min(ref_array.shape[0] - 1, ref_center_x + local_range) + 1,
+                    max(0, ref_center[0] - local_range),
+                    min(ref_array.shape[0] - 1, ref_center[0] + local_range) + 1,
                 ):
                     for ref_y in range(
-                        max(0, ref_center_y - local_range),
-                        min(ref_array.shape[1] - 1, ref_center_y + local_range) + 1,
+                        max(0, ref_center[1] - local_range),
+                        min(ref_array.shape[1] - 1, ref_center[1] + local_range) + 1,
                     ):
-                        ref_color = ref_array[ref_x, ref_y]
-                        key = (fit_color, ref_color)
+                        key = (fit_array[fit_x, fit_y], ref_array[ref_x, ref_y])
                         if key not in dists:
-                            dists[key] = (fit_color - ref_color) ** 2
+                            dists[key] = (
+                                fit_array[fit_x, fit_y] - ref_array[ref_x, ref_y]
+                            ) ** 2
                         dist = dists[key]
                         if best_dist < 0 or dist < best_dist:
                             best_dist = dist
-                            best_color = ref_color
+                            best_color = ref_array[ref_x, ref_y]
                 matched_array[fit_x, fit_y] = best_color
         return matched_array
 
@@ -124,39 +123,36 @@ class LocalPaletteMatcher(Utility):
         """
         scale = fit_array.shape[0] // ref_array.shape[0]
         matched_array = np.zeros_like(fit_array)
-        dists = dict()
+        dists = dict()  # noqa
         for fit_x in range(fit_array.shape[0]):
             for fit_y in range(fit_array.shape[1]):
-                fit_color = fit_array[fit_x, fit_y]
                 best_dist = -1.0
                 best_color = np.array([0, 0, 0], np.uint8)
 
-                ref_center_x = fit_x // scale
-                ref_center_y = fit_y // scale
+                ref_center = (fit_x // scale, fit_y // scale)
                 for ref_x in range(
-                    max(0, ref_center_x - local_range),
-                    min(ref_array.shape[0] - 1, ref_center_x + local_range) + 1,
+                    max(0, ref_center[0] - local_range),
+                    min(ref_array.shape[0] - 1, ref_center[0] + local_range) + 1,
                 ):
                     for ref_y in range(
-                        max(0, ref_center_y - local_range),
-                        min(ref_array.shape[1] - 1, ref_center_y + local_range) + 1,
+                        max(0, ref_center[1] - local_range),
+                        min(ref_array.shape[1] - 1, ref_center[1] + local_range) + 1,
                     ):
-                        ref_color = ref_array[ref_x, ref_y]
                         key = (
-                            fit_color[0],
-                            fit_color[1],
-                            fit_color[2],
-                            ref_color[0],
-                            ref_color[1],
-                            ref_color[2],
+                            fit_array[fit_x, fit_y, 0],
+                            fit_array[fit_x, fit_y, 1],
+                            fit_array[fit_x, fit_y, 2],
+                            ref_array[ref_x, ref_y, 0],
+                            ref_array[ref_x, ref_y, 1],
+                            ref_array[ref_x, ref_y, 2],
                         )
                         if key not in dists:
                             dists[key] = get_perceptually_weighted_distance(
-                                fit_color, ref_color
+                                fit_array[fit_x, fit_y], ref_array[ref_x, ref_y]
                             )
                         dist = dists[key]
                         if best_dist < 0 or dist < best_dist:
                             best_dist = dist
-                            best_color = ref_color
+                            best_color = ref_array[ref_x, ref_y]
                 matched_array[fit_x, fit_y, :] = best_color
         return matched_array

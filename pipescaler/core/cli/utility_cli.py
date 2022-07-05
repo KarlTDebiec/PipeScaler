@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright (C) 2020-2022. Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Abstract base class for Utility command line interfaces."""
 from __future__ import annotations
 
@@ -27,7 +27,7 @@ class UtilityCli(CommandLineInterface, ABC):
             **kwargs: Command-line arguments
         """
         verbosity = kwargs.pop("verbosity", 1)
-        utility = cls.utility(verbosity=verbosity)  # pylint: disable=E1111,E1120,E1123
+        utility = cls.utility(verbosity=verbosity)  # noqa
         utility(**kwargs)
 
     @classmethod

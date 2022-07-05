@@ -57,6 +57,7 @@ def expand_image(
     top: int = 0,
     right: int = 0,
     bottom: int = 0,
+    *,
     min_size: int = 1,
 ) -> Image.Image:
     """Expand an image by reflecting it around its edges.
@@ -73,47 +74,70 @@ def expand_image(
     Returns:
         Expanded image
     """
-    width, height = image.size
-    new_w = max(min_size, left + width + right)
-    new_h = max(min_size, top + height + bottom)
-
     transposed_horizontally = image.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
     transposed_vertically = image.transpose(Image.Transpose.FLIP_TOP_BOTTOM)
     transposed_horizontally_and_vertically = transposed_horizontally.transpose(
         Image.Transpose.FLIP_TOP_BOTTOM
     )
 
-    expanded = Image.new(image.mode, (new_w, new_h))
-    center_x = expanded.size[0] // 2
-    center_y = expanded.size[1] // 2
-    expanded.paste(image, (center_x - width // 2, center_y - height // 2))
+    expanded = Image.new(
+        image.mode,
+        (
+            max(min_size, left + image.size[0] + right),
+            max(min_size, top + image.size[1] + bottom),
+        ),
+    )
+    center = (expanded.size[0] // 2, expanded.size[1] // 2)
+
     expanded.paste(
-        transposed_horizontally, (center_x + width // 2, center_y - height // 2)
+        image, (center[0] - image.size[0] // 2, center[1] - image.size[1] // 2)
     )
     expanded.paste(
-        transposed_horizontally, (center_x - width - width // 2, center_y - height // 2)
+        transposed_horizontally,
+        (center[0] + image.size[0] // 2, center[1] - image.size[1] // 2),
     )
     expanded.paste(
-        transposed_vertically, (center_x - width // 2, center_y - height - height // 2)
+        transposed_horizontally,
+        (
+            center[0] - image.size[0] - image.size[0] // 2,
+            center[1] - image.size[1] // 2,
+        ),
     )
     expanded.paste(
-        transposed_vertically, (center_x - width // 2, center_y + height // 2)
+        transposed_vertically,
+        (
+            center[0] - image.size[0] // 2,
+            center[1] - image.size[1] - image.size[1] // 2,
+        ),
+    )
+    expanded.paste(
+        transposed_vertically,
+        (center[0] - image.size[0] // 2, center[1] + image.size[1] // 2),
     )
     expanded.paste(
         transposed_horizontally_and_vertically,
-        (center_x + width // 2, center_y - height - height // 2),
+        (
+            center[0] + image.size[0] // 2,
+            center[1] - image.size[1] - image.size[1] // 2,
+        ),
     )
     expanded.paste(
         transposed_horizontally_and_vertically,
-        (center_x - width - width // 2, center_y - height - height // 2),
+        (
+            center[0] - image.size[0] - image.size[0] // 2,
+            center[1] - image.size[1] - image.size[1] // 2,
+        ),
     )
     expanded.paste(
         transposed_horizontally_and_vertically,
-        (center_x - width - width // 2, center_y + height // 2),
+        (
+            center[0] - image.size[0] - image.size[0] // 2,
+            center[1] + image.size[1] // 2,
+        ),
     )
     expanded.paste(
         transposed_horizontally_and_vertically,
-        (center_x + width // 2, center_y + height // 2),
+        (center[0] + image.size[0] // 2, center[1] + image.size[1] // 2),
     )
 
     return expanded
@@ -186,7 +210,7 @@ def get_font_size(
     Returns:
         Font size at which text will take up proportional height of image
     """
-    observed_width, observed_height = get_text_size(text, width, height, font, 100)
+    _, observed_height = get_text_size(text, width, height, font, 100)
     return round(100 / (observed_height / height) * proportional_height)
 
 

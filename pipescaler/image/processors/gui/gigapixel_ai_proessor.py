@@ -16,7 +16,7 @@ from pipescaler.core.image import Processor
 from pipescaler.core.validation import validate_image
 
 if system() == "Windows":
-    from pywinauto.application import (
+    from pywinauto.application import (  # noqa
         Application,
         ProcessNotFoundError,
         WindowSpecification,

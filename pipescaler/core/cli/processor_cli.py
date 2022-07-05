@@ -47,7 +47,7 @@ class ProcessorCli(CommandLineInterface, ABC):
         infile = kwargs.pop("infile")
         outfile = kwargs.pop("outfile")
         set_logging_verbosity(kwargs.pop("verbosity", 1))
-        processor = cls.processor(**kwargs)  # pylint: disable=E1111
+        processor = cls.processor(**kwargs)  # noqa
         with Image.open(infile) as input_image:
             output_image = processor(input_image)
             output_image.save(outfile)

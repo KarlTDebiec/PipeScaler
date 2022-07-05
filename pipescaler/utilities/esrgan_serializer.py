@@ -125,11 +125,9 @@ class EsrganSerializer(Utility):
             Scale index
         """
         try:
-            # get the largest model index from keys like "model.X.weight"
-            max_index = max([int(n.split(".")[1]) for n in state_dict.keys()])
-        except:
-            # invalid model dict format?
-            raise RuntimeError("Unable to determine scale index for model")
+            max_index = max(int(n.split(".")[1]) for n in state_dict.keys())
+        except (IndexError, KeyError) as exc:
+            raise RuntimeError("Unable to determine scale index for model.") from exc
 
         return (max_index - 4) // 3
 

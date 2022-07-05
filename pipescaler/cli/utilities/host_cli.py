@@ -58,7 +58,7 @@ class HostCli(UtilityCli):
         verbosity = validate_int(kwargs.pop("verbosity", 1), min_value=0)
         set_logging_verbosity(verbosity)
 
-        utility = cls.utility(**{**kwargs, **conf})  # pylint: disable=E1111
+        utility = cls.utility(**{**kwargs, **conf})  # noqa
         utility()
 
     @classmethod
