@@ -49,9 +49,9 @@ class EsrganSerializer(Utility):
         """
         state_dict, scale = cls.parse_state_dict(state_dict)
         if scale == 0:
-            model = Esrgan1x(3, 3, 64, 23)
+            model = Esrgan1x()
         else:
-            model = Esrgan4x(3, 3, 64, 23)
+            model = Esrgan4x()
 
         model.load_state_dict(state_dict, strict=True)
         model.eval()

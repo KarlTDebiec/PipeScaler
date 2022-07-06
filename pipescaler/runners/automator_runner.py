@@ -64,7 +64,7 @@ class AutomatorRunner(Runner):
 
     @classmethod
     @property
-    def executable(self) -> str:
+    def executable(cls) -> str:
         """Name of executable."""
         return "automator"
 
@@ -81,6 +81,6 @@ class AutomatorRunner(Runner):
 
     @classmethod
     @property
-    def supported_platforms(self) -> set[str]:
+    def supported_platforms(cls) -> set[str]:
         """Platforms on which runner is supported."""
         return {"Darwin"}

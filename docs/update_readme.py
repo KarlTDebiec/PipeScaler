@@ -40,7 +40,11 @@ def get_module_regexes(modules: list[ModuleType]) -> dict[ModuleType, re.Pattern
     for module in modules:
         module_name = module.__name__.split(".")[-1]
         module_regex = re.compile(
-            f"[\S\s]*(?P<header>^.*{module_name}:$)\n(?P<body>(^\*\s.*$\n)+)[\S\s]*",
+            r"[\S\s]*"
+            r"(?P<header>^.*" + module_name + r":$)"
+            r"\n"
+            r"(?P<body>(^\*\s.*$\n)+)"
+            r"[\S\s]*",
             re.MULTILINE,
         )
         module_regexes[module] = module_regex
@@ -76,7 +80,9 @@ def get_stage_descriptions(module: ModuleType) -> str:
 
 if __name__ == "__main__":
     # Read README
-    with open(package_root.parent.joinpath("README.md"), "r") as readme_file:
+    with open(
+        package_root.parent.joinpath("README.md"), "r", encoding="utf-8"
+    ) as readme_file:
         readme = readme_file.read()
 
     # Update README
@@ -90,5 +96,7 @@ if __name__ == "__main__":
         readme = readme.replace(body, get_stage_descriptions(module))
 
     # Write README
-    with open(package_root.parent.joinpath("README.md"), "w") as readme_file:
+    with open(
+        package_root.parent.joinpath("README.md"), "w", encoding="utf-8"
+    ) as readme_file:
         readme_file.write(readme)

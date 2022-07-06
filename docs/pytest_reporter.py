@@ -4,6 +4,7 @@
 #  the terms of the BSD license. See the LICENSE file for details.
 """Prints pytest output formatted for consumption by GitHub."""
 import re
+import sys
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from inspect import cleandoc
 from pathlib import Path
@@ -56,16 +57,16 @@ class PytestReporter:
         self.return_code = 0
         self.parse(pytest_infile)
 
-    def parse(self, infile: Path) -> None:
+    def parse(self, input_file_path: Path) -> None:
         """Parse pytest output infile.
 
         Arguments:
-            infile: Path to pytest output
+            input_file_path: Path to pytest output
         Returns:
             List of warning messages
         """
-        with open(infile, "r", encoding="utf-8") as infile:
-            full_text = infile.read()
+        with open(input_file_path, "r", encoding="utf-8") as input_file:
+            full_text = input_file.read()
 
         # Determine which section headers are present
         headers = []
@@ -184,7 +185,7 @@ class PytestReporter:
         kwargs = vars(parser.parse_args())
         reporter = cls(**kwargs)
         reporter.print_messages()
-        exit(reporter.return_code)
+        sys.exit(reporter.return_code)
 
 
 if __name__ == "__main__":

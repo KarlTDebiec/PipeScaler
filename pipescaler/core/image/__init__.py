@@ -24,16 +24,12 @@ from pipescaler.core.image.functions import (
 from pipescaler.core.image.operator import Operator
 from pipescaler.core.image.operators.merger import Merger
 from pipescaler.core.image.operators.processor import Processor
-from pipescaler.core.image.operators.processors.pytorch_processor import (
-    PyTorchProcessor,
-)
 from pipescaler.core.image.operators.splitter import Splitter
 
 __all__: list[str] = [
     "Merger",
     "Operator",
     "Processor",
-    "PyTorchProcessor",
     "Splitter",
     "convert_mode",
     "crop_image",
