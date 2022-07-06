@@ -27,6 +27,7 @@ class Esrgan(Module, ABC):
 
     def __init__(
         self,
+        *,
         in_channels: int = 3,
         out_channels: int = 3,
         n_features: int = 64,
