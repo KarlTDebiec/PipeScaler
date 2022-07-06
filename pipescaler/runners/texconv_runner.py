@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright (C) 2020-2022. Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Runs texconv tool for converting image format."""
 from __future__ import annotations
 
@@ -53,7 +53,7 @@ class TexconvRunner(Runner):
 
     @classmethod
     @property
-    def executable(self) -> str:
+    def executable(cls) -> str:
         """Name of executable."""
         return "texconv.exe"
 
@@ -68,6 +68,6 @@ class TexconvRunner(Runner):
 
     @classmethod
     @property
-    def supported_platforms(self) -> set[str]:
+    def supported_platforms(cls) -> set[str]:
         """Platforms on which runner is supported."""
         return {"Windows"}
