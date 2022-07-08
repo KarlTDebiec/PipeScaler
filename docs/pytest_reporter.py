@@ -7,6 +7,7 @@ import re
 import sys
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from inspect import cleandoc
+from os.path import expandvars
 from pathlib import Path
 from typing import Union
 
@@ -51,10 +52,11 @@ class PytestReporter:
         """
         self.messages = []
         self.return_code = 0
-        self.parse(Path(input_file_path).absolute())
+        input_file_path = Path(expandvars(input_file_path)).resolve().absolute()
+        self.parse_pytest(input_file_path)
 
-    def parse(self, input_file_path: Path) -> None:
-        """Parse input file.
+    def parse_pytest(self, input_file_path: Path) -> None:
+        """Parse pytest input file.
 
         Arguments:
             input_file_path: Path to input file
@@ -160,13 +162,13 @@ class PytestReporter:
     def argparser(cls) -> ArgumentParser:
         """Get argument parser."""
         parser = ArgumentParser(
-            description=str(cleandoc(cls.__doc__)),
+            description=str(cleandoc(cls.__doc__) if cls.__doc__ is not None else ""),
             formatter_class=RawDescriptionHelpFormatter,
         )
         parser.add_argument(
-            "pytest_infile",
+            "input_file_path",
             type=str,
-            help="Input pytest output file",
+            help="Path to pytest output file",
         )
 
         return parser
