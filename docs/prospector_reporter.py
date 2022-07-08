@@ -4,85 +4,48 @@
 #  the terms of the BSD license. See the LICENSE file for details.
 """Prints prospector output formatted for consumption by GitHub."""
 import json
-from argparse import ArgumentParser, RawDescriptionHelpFormatter
+from argparse import ArgumentParser, FileType, RawDescriptionHelpFormatter
+from dataclasses import dataclass
 from inspect import cleandoc
-from os.path import expandvars, normpath
+from io import TextIOWrapper
 from pathlib import Path
-from typing import Union
 
 package_root = Path(__file__).absolute().parent.parent
+
+
+@dataclass
+class Message:
+    source: str
+    level: str
+    file_path: Path
+    line: int
+    kind: str
+    message: str
 
 
 class ProspectorReporter:
     """Prints prospector output formatted for consumption by GitHub."""
 
-    def __init__(
-        self,
-        input_file_path: Union[str, Path],
-        changed_files_input_path: Union[str, Path],
-    ):
+    def __init__(self, infile: TextIOWrapper, modified_files_infile: TextIOWrapper):
         """Validate configuration and initialize.
 
         Arguments:
-            prospector_infile: Path to prospector json output
-            modified_files_infile: Path to list of modified files
+            infile: Input prospector json output
+            modified_files_infile: Input list of modified files
         """
-        self.messages = []
-        input_file_path = Path(expandvars(input_file_path)).resolve().absolute()
-        self.parse_prospector(input_file_path)
+        self.messages = self.parse_prospector(infile)
+        self.changed_files = self.parse_changed_files(modified_files_infile)
 
-        self.changed_files = []
-        changed_files_input_path = (
-            Path(expandvars(changed_files_input_path)).resolve().absolute()
-        )
-        self.parse_changed_files(changed_files_input_path)
-
-    def parse_changed_files(self, input_file_path: Path) -> None:
-        """Parse changed files input file.
-
-        Arguments:
-            input_file_path: Path to input file
-        """
-        with open(input_file_path, "r", encoding="utf-8") as infile:
-            self.changed_files = list(
-                map(normpath, infile.read().strip("[]\n").split(","))
-            )
-
-    def parse_prospector(self, input_file_path: Path) -> None:
-        """Parse prospector input file.
-
-        Arguments:
-            input_file_path: Path to input file
-        """
-        with open(input_file_path, "r", encoding="utf-8") as infile:
-            report = json.load(infile)
-
-        for match in report["messages"]:
-            file_path = (
-                package_root.joinpath(Path(match["location"]["path"]))
-                .resolve()
-                .relative_to(package_root)
-            )
-            self.messages.append(
-                {
-                    "level": "warning",
-                    "file_path": file_path,
-                    "line": int(match["location"]["line"]),
-                    "kind": f"{match['source']}:{match['code']}",
-                    "message": match["message"],
-                }
-            )
-
-    def print_messages(self) -> None:
+    def __call__(self) -> None:
         """Print messages formatted for consumption by GitHub."""
         for message in self.messages:
-            if message["file_path"] in self.changed_files:
+            if message.file_path in self.changed_files:
                 print(
-                    f"::{message['level']} "
-                    f"file={message['file_path']},"
-                    f"line={message['line']}::"
-                    f"prospector[{message['kind']}] : "
-                    f"{message['message']}"
+                    f"::{message.level} "
+                    f"file={message.file_path},"
+                    f"line={message.line}::"
+                    f"{message.source}[{message.kind}] : "
+                    f"{message.message}"
                 )
 
     @classmethod
@@ -93,14 +56,14 @@ class ProspectorReporter:
             formatter_class=RawDescriptionHelpFormatter,
         )
         parser.add_argument(
-            "input_file_path",
-            type=str,
-            help="Path to prospector output file",
+            "infile",
+            type=FileType("r", encoding="UTF-8"),
+            help="prospector output file",
         )
         parser.add_argument(
-            "changed_files_input_path",
-            type=str,
-            help="Path to changed files input file",
+            "modified_files_infile",
+            type=FileType("r", encoding="UTF-8"),
+            help="Modified files file",
         )
 
         return parser
@@ -111,7 +74,46 @@ class ProspectorReporter:
         parser = cls.argparser()
         kwargs = vars(parser.parse_args())
         reporter = cls(**kwargs)
-        reporter.print_messages()
+        reporter()
+
+    @classmethod
+    def parse_prospector(cls, infile: TextIOWrapper) -> list[Message]:
+        """Parse prospector input file.
+
+        Arguments:
+            infile: Input file
+        """
+        messages = []
+        report = json.load(infile)
+
+        for match in report["messages"]:
+            file_path = (
+                package_root.joinpath(Path(match["location"]["path"]))
+                .resolve()
+                .relative_to(package_root)
+            )
+            messages.append(
+                Message(
+                    source="prospector",
+                    level="warning",
+                    file_path=file_path,
+                    line=int(match["location"]["line"]),
+                    kind=f"{match['source']}:{match['code']}",
+                    message=match["message"],
+                )
+            )
+
+        return messages
+
+    @staticmethod
+    def parse_changed_files(infile: TextIOWrapper) -> list[Path]:
+        """Parse changed files input file.
+
+        Arguments:
+            infile: Input file
+        """
+        text = infile.read()
+        return list(map(Path, text.strip("[]\n").split(",")))
 
 
 if __name__ == "__main__":

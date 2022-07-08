@@ -5,13 +5,30 @@
 """Prints pytest output formatted for consumption by GitHub."""
 import re
 import sys
-from argparse import ArgumentParser, RawDescriptionHelpFormatter
+from argparse import ArgumentParser, FileType, RawDescriptionHelpFormatter
+from dataclasses import dataclass
 from inspect import cleandoc
-from os.path import expandvars
+from io import TextIOWrapper
 from pathlib import Path
-from typing import Union
 
 package_root = Path(__file__).absolute().parent.parent
+
+
+@dataclass
+class Message:
+    source: str
+    level: str
+    file_path: Path
+    line: int
+    kind: str
+    message: str
+
+
+@dataclass
+class Section:
+    name: str
+    start: int
+    end: int
 
 
 class PytestReporter:
@@ -44,119 +61,30 @@ class PytestReporter:
         re.MULTILINE,
     )
 
-    def __init__(self, input_file_path: Union[str, Path]):
+    def __init__(self, infile: TextIOWrapper):
         """Validate configuration and initialize.
 
         Arguments:
-            input_file_path: Path to input file
+            infile: Path to input file
         """
-        self.messages = []
-        self.return_code = 0
-        input_file_path = Path(expandvars(input_file_path)).resolve().absolute()
-        self.parse_pytest(input_file_path)
+        self.messages = self.parse_pytest(infile)
 
-    def parse_pytest(self, input_file_path: Path) -> None:
-        """Parse pytest input file.
-
-        Arguments:
-            input_file_path: Path to input file
-        """
-        with open(input_file_path, "r", encoding="utf-8") as input_file:
-            input_text = input_file.read()
-
-        # Determine which section headers are present
-        headers = []
-        for section, regex in self.header_regexes.items():
-            match = regex.search(input_text)
-            if match:
-                headers.append(
-                    {
-                        "name": section,
-                        "start": match.start(),
-                        "end": match.end(),
-                    }
-                )
-
-        # Determine section body locations
-        bodies = {}
-        for i in range(1, len(headers)):
-            bodies[headers[i - 1]["name"]] = {
-                "start": headers[i - 1]["end"],
-                "end": headers[i]["start"],
-            }
-        bodies[headers[i]["name"]] = {
-            "start": headers[i]["end"],
-            "end": len(input_text),
-        }
-
-        # Parse sections
-        for section, location in bodies.items():
-            if section == "failures":
-                self.parse_failures_section(
-                    input_text[location["start"] : location["end"]]
-                )
-            elif section == "warnings":
-                self.parse_warnings_section(
-                    input_text[location["start"] : location["end"]]
-                )
-
-    def parse_failures_section(self, body: str) -> None:
-        """Parse failures section of pytest output.
-
-        Arguments:
-            body: Body of failures section
-        """
-        for match in [m.groupdict() for m in self.failure_regex.finditer(body)]:
-            self.return_code = 1
-            file_path = Path(match["file_path"])
-            file_path = (
-                package_root.joinpath("test", file_path)
-                .resolve()
-                .relative_to(package_root)
-            )
-            self.messages.append(
-                {
-                    "level": "error",
-                    "file_path": file_path,
-                    "line": int(match["line"]),
-                    "kind": match["kind"],
-                    "message": match["message"],
-                }
-            )
-
-    def parse_warnings_section(self, body: str) -> None:
-        """Parse warnings section of pytest output.
-
-        Arguments:
-            body: Body of warnings section
-        """
-        for match in [m.groupdict() for m in self.warning_regex.finditer(body)]:
-            file_path = Path(match["file_path"])
-            if not file_path.is_relative_to(package_root):
-                continue
-            if file_path.relative_to(package_root).parts[0] == ".venv":
-                continue
-            file_path = file_path.relative_to(package_root)
-            self.messages.append(
-                {
-                    "level": "warning",
-                    "file_path": file_path,
-                    "line": int(match["line"]),
-                    "kind": match["kind"].strip(),
-                    "message": match["message"].strip(),
-                }
-            )
-
-    def print_messages(self) -> None:
+    def __call__(self) -> None:
         """Print messages formatted for consumption by GitHub."""
         for message in self.messages:
             print(
-                f"::{message['level']} "
-                f"file={message['file_path']},"
-                f"line={message['line']}::"
-                f"pytest[{message['kind']}] : "
-                f"{message['message']}"
+                f"::{message.level} "
+                f"file={message.file_path},"
+                f"line={message.line}::"
+                f"{message.source}[{message.kind}] : "
+                f"{message.message}"
             )
+
+    def exit(self):
+        for message in self.messages:
+            if message.level == "error":
+                sys.exit(1)
+        sys.exit(0)
 
     @classmethod
     def argparser(cls) -> ArgumentParser:
@@ -166,9 +94,9 @@ class PytestReporter:
             formatter_class=RawDescriptionHelpFormatter,
         )
         parser.add_argument(
-            "input_file_path",
-            type=str,
-            help="Path to pytest output file",
+            "infile",
+            type=FileType("r", encoding="UTF-8"),
+            help="pytest output file",
         )
 
         return parser
@@ -179,8 +107,110 @@ class PytestReporter:
         parser = cls.argparser()
         kwargs = vars(parser.parse_args())
         reporter = cls(**kwargs)
-        reporter.print_messages()
-        sys.exit(reporter.return_code)
+        reporter()
+        reporter.exit()
+
+    @classmethod
+    def parse_pytest(cls, infile: TextIOWrapper) -> list[Message]:
+        """Parse pytest input file.
+
+        Arguments:
+            input_file_path: Path to input file
+        """
+        messages = []
+        text = infile.read()
+
+        # Determine which section headers are present
+        headers: list[Section] = []
+        for section, regex in cls.header_regexes.items():
+            match = regex.search(text)
+            if match:
+                headers.append(
+                    Section(name=section, start=match.start(), end=match.end())
+                )
+
+        # Determine section body locations
+        bodies: dict[str, Section] = {}
+        for i in range(1, len(headers)):
+            bodies[headers[i - 1].name] = Section(
+                name=headers[i - 1].name,
+                start=headers[i - 1].end,
+                end=headers[i].start,
+            )
+        bodies[headers[i].name] = Section(
+            name=headers[i].name,
+            start=headers[i].end,
+            end=len(text),
+        )
+
+        # Parse sections
+        for section, location in bodies.items():
+            if section == "failures":
+                messages.extend(
+                    cls.parse_failures_section(text[location.start : location.end])
+                )
+            elif section == "warnings":
+                messages.extend(
+                    cls.parse_warnings_section(text[location.start : location.end])
+                )
+
+        return messages
+
+    @classmethod
+    def parse_failures_section(cls, body: str) -> list[Message]:
+        """Parse failures section of pytest output.
+
+        Arguments:
+            body: Body of failures section
+        """
+        messages = []
+        for match in [m.groupdict() for m in cls.failure_regex.finditer(body)]:
+            file_path = (
+                package_root.joinpath("test", match["file_path"])
+                .resolve()
+                .relative_to(package_root)
+            )
+            messages.append(
+                Message(
+                    source="pytest",
+                    level="error",
+                    file_path=file_path,
+                    line=int(match["line"]),
+                    kind=match["kind"].strip(),
+                    message=match["message"].strip(),
+                )
+            )
+
+        return messages
+
+    @classmethod
+    def parse_warnings_section(cls, body: str) -> list[Message]:
+        """Parse warnings section of pytest output.
+
+        Arguments:
+            body: Body of warnings section
+        """
+        messages = []
+
+        for match in [m.groupdict() for m in cls.warning_regex.finditer(body)]:
+            file_path = Path(match["file_path"])
+            if not file_path.is_relative_to(package_root):
+                continue
+            if file_path.relative_to(package_root).parts[0] == ".venv":
+                continue
+            file_path = file_path.relative_to(package_root)
+            messages.append(
+                Message(
+                    source="pytest",
+                    level="warning",
+                    file_path=file_path,
+                    line=int(match["line"]),
+                    kind=match["kind"].strip(),
+                    message=match["message"].strip(),
+                )
+            )
+
+        return messages
 
 
 if __name__ == "__main__":
