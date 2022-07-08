@@ -6,9 +6,11 @@
 import json
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from inspect import cleandoc
-from os.path import normpath
+from os.path import expandvars, normpath
 from pathlib import Path
 from typing import Union
+
+package_root = Path(__file__).absolute().parent.parent
 
 
 class ProspectorReporter:
@@ -16,8 +18,8 @@ class ProspectorReporter:
 
     def __init__(
         self,
-        prospector_infile: Union[str, Path],
-        modified_files_infile: Union[str, Path],
+        input_file_path: Union[str, Path],
+        changed_files_input_path: Union[str, Path],
     ):
         """Validate configuration and initialize.
 
@@ -25,69 +27,80 @@ class ProspectorReporter:
             prospector_infile: Path to prospector json output
             modified_files_infile: Path to list of modified files
         """
-        prospector_infile = Path(prospector_infile).absolute()
-        with open(prospector_infile, "r", encoding="utf-8") as infile:
-            self.report = json.load(infile)
+        self.messages = []
+        input_file_path = Path(expandvars(input_file_path)).resolve().absolute()
+        self.parse_prospector(input_file_path)
 
-        modified_files_infile = Path(modified_files_infile).absolute()
-        with open(modified_files_infile, "r", encoding="utf-8") as infile:
-            self.modified_files = list(
+        self.changed_files = []
+        changed_files_input_path = (
+            Path(expandvars(changed_files_input_path)).resolve().absolute()
+        )
+        self.parse_changed_files(changed_files_input_path)
+
+    def parse_changed_files(self, input_file_path: Path) -> None:
+        """Parse changed files input file.
+
+        Arguments:
+            input_file_path: Path to input file
+        """
+        with open(input_file_path, "r", encoding="utf-8") as infile:
+            self.changed_files = list(
                 map(normpath, infile.read().strip("[]\n").split(","))
             )
 
-    def print_messages(self):
-        """Print messages formatted for consumption by GitHub."""
-        info_messages = []
-        warning_messages = []
-        for prospector_message in self.report["messages"]:
-            source = prospector_message["source"]
-            code = prospector_message["code"]
-            message = prospector_message["message"]
-            filename = normpath(prospector_message["location"]["path"])
-            line = prospector_message["location"]["line"]
-            col = prospector_message["location"]["character"]
-            github_message = f"prospector[{source}:{code}]: {message}"
-            if filename in self.modified_files:
-                warning_messages.append(
-                    f"::warning file={filename},line={line},col={col}::{github_message}"
-                )
-            else:
-                info_messages.append(
-                    f"::info file={filename},line={line},col={col}::{github_message}"
-                )
-        for warning_message in warning_messages:
-            print(warning_message)
-        for info_message in info_messages:
-            print(info_message)
+    def parse_prospector(self, input_file_path: Path) -> None:
+        """Parse prospector input file.
 
-    def print_summary(self):
-        """Print summary formatted for consumption by GitHub."""
-        summary = self.report["summary"]
-        tools = str(summary["tools"]).strip("[]").replace("'", "")
-        message_count = summary["message_count"]
-        github_message = (
-            f"prospector reported {message_count} total messages from tools: {tools}"
-        )
-        if message_count > 9:
-            github_message += "; only the first 9 will appear as annotations"
-        print(f"::info::{github_message}")
+        Arguments:
+            input_file_path: Path to input file
+        """
+        with open(input_file_path, "r", encoding="utf-8") as infile:
+            report = json.load(infile)
+
+        for match in report["messages"]:
+            file_path = (
+                package_root.joinpath(Path(match["file_path"]))
+                .resolve()
+                .relative_to(package_root)
+            )
+            self.messages.append(
+                {
+                    "level": "warning",
+                    "file_path": file_path,
+                    "line": int(match["location"]["line"]),
+                    "kind": f"{match['source']}:{match['code']}",
+                    "message": match["message"],
+                }
+            )
+
+    def print_messages(self) -> None:
+        """Print messages formatted for consumption by GitHub."""
+        for message in self.messages:
+            if message["file_path"] in self.changed_files:
+                print(
+                    f"::{message['level']} "
+                    f"file={message['file_path']},"
+                    f"line={message['line']}::"
+                    f"prospector[{message['kind']}] : "
+                    f"{message['message']}"
+                )
 
     @classmethod
     def argparser(cls) -> ArgumentParser:
         """Get argument parser."""
         parser = ArgumentParser(
-            description=str(cleandoc(cls.__doc__)),
+            description=str(cleandoc(cls.__doc__) if cls.__doc__ is not None else ""),
             formatter_class=RawDescriptionHelpFormatter,
         )
         parser.add_argument(
-            "prospector_infile",
+            "input_file",
             type=str,
-            help="Input prospector output file in JSON format",
+            help="Path to prospector output file",
         )
         parser.add_argument(
-            "modified_files_infile",
+            "changed_files_input_path",
             type=str,
-            help="Input list of added or modified files",
+            help="Path to changed files input file",
         )
 
         return parser
@@ -98,7 +111,6 @@ class ProspectorReporter:
         parser = cls.argparser()
         kwargs = vars(parser.parse_args())
         reporter = cls(**kwargs)
-        reporter.print_summary()
         reporter.print_messages()
 
 

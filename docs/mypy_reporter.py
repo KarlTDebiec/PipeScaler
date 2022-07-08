@@ -6,6 +6,7 @@
 import re
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from inspect import cleandoc
+from os.path import expandvars, normpath
 from pathlib import Path
 from typing import Union
 
@@ -27,17 +28,39 @@ class MypyReporter:
         r"$"
     )
 
-    def __init__(self, input_file_path: Union[str, Path]):
+    def __init__(
+        self,
+        input_file_path: Union[str, Path],
+        changed_files_input_path: Union[str, Path],
+    ):
         """Validate configuration and initialize.
 
         Arguments:
             input_file_path: Path to input file
         """
         self.messages: list[dict[str, Union[int, str, Path]]] = []
-        self.parse(Path(input_file_path).absolute())
+        input_file_path = Path(expandvars(input_file_path)).resolve().absolute()
+        self.parse_mypy(input_file_path)
 
-    def parse(self, input_file_path: Path) -> None:
-        """Parse input file.
+        self.changed_files = []
+        changed_files_input_path = (
+            Path(expandvars(changed_files_input_path)).resolve().absolute()
+        )
+        self.parse_changed_files(changed_files_input_path)
+
+    def parse_changed_files(self, input_file_path: Path) -> None:
+        """Parse changed files input file.
+
+        Arguments:
+            input_file_path: Path to input file
+        """
+        with open(input_file_path, "r", encoding="utf-8") as infile:
+            self.changed_files = list(
+                map(normpath, infile.read().strip("[]\n").split(","))
+            )
+
+    def parse_mypy(self, input_file_path: Path) -> None:
+        """Parse mypy input file.
 
         Arguments:
             input_file_path: Path to input file
@@ -79,7 +102,7 @@ class MypyReporter:
                 f"::{message['level']} "
                 f"file={message['file_path']},"
                 f"line={message['line']}::"
-                f"pytest[{message['kind']}] : "
+                f"mypy[{message['kind']}] : "
                 f"{message['message']}"
             )
 
@@ -93,7 +116,12 @@ class MypyReporter:
         parser.add_argument(
             "input_file",
             type=str,
-            help="Input file path",
+            help="Path to mypy output file",
+        )
+        parser.add_argument(
+            "changed_files_input_path",
+            type=str,
+            help="Path to changed files input file",
         )
 
         return parser
