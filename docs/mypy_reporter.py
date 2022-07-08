@@ -114,7 +114,7 @@ class MypyReporter:
             formatter_class=RawDescriptionHelpFormatter,
         )
         parser.add_argument(
-            "input_file",
+            "input_file_path",
             type=str,
             help="Path to mypy output file",
         )

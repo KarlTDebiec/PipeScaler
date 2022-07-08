@@ -93,7 +93,7 @@ class ProspectorReporter:
             formatter_class=RawDescriptionHelpFormatter,
         )
         parser.add_argument(
-            "input_file",
+            "input_file_path",
             type=str,
             help="Path to prospector output file",
         )
