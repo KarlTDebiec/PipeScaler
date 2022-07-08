@@ -2,8 +2,8 @@
 #  Copyright (C) 2020-2022. Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Prints prospector output formatted for consumption by GitHub."""
-import json
+"""Prints mypy output formatted for consumption by GitHub."""
+import re
 from argparse import ArgumentParser, FileType, RawDescriptionHelpFormatter
 from dataclasses import dataclass
 from inspect import cleandoc
@@ -25,8 +25,19 @@ class Annotation:
     message: str
 
 
-class ProspectorReporter:
-    """Prints prospector output formatted for consumption by GitHub."""
+class MypyReporter:
+    """Prints mypy output formatted for consumption by GitHub."""
+
+    annotation_regex = re.compile(
+        r"\s*"
+        r"(?P<file_path>([A-Z]:)?[^:]+)"
+        r":"
+        r"(?P<line>\d+)"
+        r":\s*"
+        r"(?P<kind>[^:]+)"
+        r":\s*"
+        r"(?P<message>[^\n]+)"
+    )
 
     def __init__(self, infile: TextIOWrapper, modified_files_infile: TextIOWrapper):
         """Validate configuration and initialize.
@@ -35,7 +46,7 @@ class ProspectorReporter:
             infile: Input file
             modified_files_infile: List of modified files input file
         """
-        self.annotations = self.parse_prospector(infile)
+        self.annotations = self.parse_mypy(infile)
         self.changed_files = self.parse_changed_files(modified_files_infile)
 
     def __call__(self) -> None:
@@ -60,7 +71,7 @@ class ProspectorReporter:
         parser.add_argument(
             "infile",
             type=FileType("r", encoding="UTF-8"),
-            help="prospector output file",
+            help="mypy output file",
         )
         parser.add_argument(
             "modified_files_infile",
@@ -79,33 +90,44 @@ class ProspectorReporter:
         reporter()
 
     @classmethod
-    def parse_prospector(cls, infile: TextIOWrapper) -> list[Annotation]:
-        """Parse prospector input file.
+    def parse_mypy(cls, infile: TextIOWrapper) -> list[Annotation]:
+        """Parse mypy input file.
 
         Arguments:
             infile: Input file
         Returns:
             Annotations
         """
-        annotations = []
-        report = json.load(infile)
+        annotations: list[Annotation] = []
+        text = infile.read()
 
-        for match in report["messages"]:
+        last_error_index = None
+        for match in [m.groupdict() for m in cls.annotation_regex.finditer(text)]:
             file_path = (
-                package_root.joinpath(Path(match["location"]["path"]))
+                package_root.joinpath(Path(match["file_path"]))
                 .resolve()
                 .relative_to(package_root)
             )
-            annotations.append(
-                Annotation(
-                    source="prospector",
-                    level="warning",
-                    file_path=file_path,
-                    line=int(match["location"]["line"]),
-                    kind=f"{match['source']}:{match['code']}",
-                    message=match["message"],
+            if match["kind"] == "error":
+                annotations.append(
+                    Annotation(
+                        source="mypy",
+                        level="warning",
+                        file_path=file_path,
+                        line=int(match["line"]),
+                        kind=match["kind"],
+                        message=match["message"],
+                    )
                 )
-            )
+                last_error_index = len(annotations) - 1
+            elif match["kind"] == "note":
+                if last_error_index is not None:
+                    last_error = annotations[last_error_index]
+                    if (
+                        last_error.file_path == match["file_path"]
+                        and last_error.line == match["line"]
+                    ):
+                        last_error.message += f"\n{match['message']}"
 
         return annotations
 
@@ -121,4 +143,4 @@ class ProspectorReporter:
 
 
 if __name__ == "__main__":
-    ProspectorReporter.main()
+    MypyReporter.main()
