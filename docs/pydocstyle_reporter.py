@@ -14,7 +14,9 @@ package_root = Path(__file__).absolute().parent.parent
 
 
 @dataclass
-class Message:
+class Annotation:
+    """Annotation data for GitHub."""
+
     source: str
     level: str
     file_path: Path
@@ -30,22 +32,22 @@ class PydocstyleReporter:
         """Validate configuration and initialize.
 
         Arguments:
-            infile: Path to pydocstyle output
-            modified_files_infile: Path to list of modified files
+            infile: Input file
+            modified_files_infile: List of modified files input file
         """
-        self.messages = self.parse_pydocstyle(infile)
+        self.annotations = self.parse_pydocstyle(infile)
         self.changed_files = self.parse_changed_files(modified_files_infile)
 
     def __call__(self) -> None:
-        """Print messages formatted for consumption by GitHub."""
-        for message in self.messages:
-            if message.file_path in self.changed_files:
+        """Print annotations formatted for consumption by GitHub."""
+        for annotation in self.annotations:
+            if annotation.file_path in self.changed_files:
                 print(
-                    f"::{message.level} "
-                    f"file={message.file_path},"
-                    f"line={message.line}::"
-                    f"{message.source}[{message.kind}] : "
-                    f"{message.message}"
+                    f"::{annotation.level} "
+                    f"file={annotation.file_path},"
+                    f"line={annotation.line}::"
+                    f"{annotation.source}[{annotation.kind}] : "
+                    f"{annotation.message}"
                 )
 
     @classmethod
@@ -77,13 +79,15 @@ class PydocstyleReporter:
         reporter()
 
     @classmethod
-    def parse_pydocstyle(cls, infile: TextIOWrapper) -> list[Message]:
+    def parse_pydocstyle(cls, infile: TextIOWrapper) -> list[Annotation]:
         """Parse pydocstyle input file.
 
         Arguments:
             infile: Input file
+        Returns:
+            Annotations
         """
-        messages = []
+        annotations = []
         for line, issue in zip_longest(*[infile] * 2):
             file_path, line = line.split()[0].split(":")
             file_path = (
@@ -93,8 +97,8 @@ class PydocstyleReporter:
             )
             line = int(line)
             kind, message = issue.strip().split(": ")
-            messages.append(
-                Message(
+            annotations.append(
+                Annotation(
                     source="pydocstyle",
                     level="warning",
                     file_path=file_path,
@@ -104,7 +108,7 @@ class PydocstyleReporter:
                 )
             )
 
-        return messages
+        return annotations
 
     @staticmethod
     def parse_changed_files(infile: TextIOWrapper) -> list[Path]:

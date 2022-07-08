@@ -15,7 +15,9 @@ package_root = Path(__file__).absolute().parent.parent
 
 
 @dataclass
-class Message:
+class Annotation:
+    """Annotation data for GitHub."""
+
     source: str
     level: str
     file_path: Path
@@ -26,6 +28,8 @@ class Message:
 
 @dataclass
 class Section:
+    """Section of input file."""
+
     name: str
     start: int
     end: int
@@ -65,24 +69,25 @@ class PytestReporter:
         """Validate configuration and initialize.
 
         Arguments:
-            infile: Path to input file
+            infile: Input file
         """
-        self.messages = self.parse_pytest(infile)
+        self.annotations = self.parse_pytest(infile)
 
     def __call__(self) -> None:
-        """Print messages formatted for consumption by GitHub."""
-        for message in self.messages:
+        """Print annotations formatted for consumption by GitHub."""
+        for annotation in self.annotations:
             print(
-                f"::{message.level} "
-                f"file={message.file_path},"
-                f"line={message.line}::"
-                f"{message.source}[{message.kind}] : "
-                f"{message.message}"
+                f"::{annotation.level} "
+                f"file={annotation.file_path},"
+                f"line={annotation.line}::"
+                f"{annotation.source}[{annotation.kind}] : "
+                f"{annotation.message}"
             )
 
     def exit(self):
-        for message in self.messages:
-            if message.level == "error":
+        """Exit, returning 1 if any tests failed and 0 otherwise."""
+        for annotation in self.annotations:
+            if annotation.level == "error":
                 sys.exit(1)
         sys.exit(0)
 
@@ -111,13 +116,15 @@ class PytestReporter:
         reporter.exit()
 
     @classmethod
-    def parse_pytest(cls, infile: TextIOWrapper) -> list[Message]:
+    def parse_pytest(cls, infile: TextIOWrapper) -> list[Annotation]:
         """Parse pytest input file.
 
         Arguments:
-            input_file_path: Path to input file
+            infile: Input file
+        Returns:
+            Annotations
         """
-        messages = []
+        annotations = []
         text = infile.read()
 
         # Determine which section headers are present
@@ -146,32 +153,34 @@ class PytestReporter:
         # Parse sections
         for section, location in bodies.items():
             if section == "failures":
-                messages.extend(
+                annotations.extend(
                     cls.parse_failures_section(text[location.start : location.end])
                 )
             elif section == "warnings":
-                messages.extend(
+                annotations.extend(
                     cls.parse_warnings_section(text[location.start : location.end])
                 )
 
-        return messages
+        return annotations
 
     @classmethod
-    def parse_failures_section(cls, body: str) -> list[Message]:
+    def parse_failures_section(cls, body: str) -> list[Annotation]:
         """Parse failures section of pytest output.
 
         Arguments:
             body: Body of failures section
+        Returns:
+            Annotations
         """
-        messages = []
+        annotations = []
         for match in [m.groupdict() for m in cls.failure_regex.finditer(body)]:
             file_path = (
                 package_root.joinpath("test", match["file_path"])
                 .resolve()
                 .relative_to(package_root)
             )
-            messages.append(
-                Message(
+            annotations.append(
+                Annotation(
                     source="pytest",
                     level="error",
                     file_path=file_path,
@@ -181,16 +190,18 @@ class PytestReporter:
                 )
             )
 
-        return messages
+        return annotations
 
     @classmethod
-    def parse_warnings_section(cls, body: str) -> list[Message]:
+    def parse_warnings_section(cls, body: str) -> list[Annotation]:
         """Parse warnings section of pytest output.
 
         Arguments:
             body: Body of warnings section
+        Returns:
+            Annotations
         """
-        messages = []
+        annotations = []
 
         for match in [m.groupdict() for m in cls.warning_regex.finditer(body)]:
             file_path = Path(match["file_path"])
@@ -199,8 +210,8 @@ class PytestReporter:
             if file_path.relative_to(package_root).parts[0] == ".venv":
                 continue
             file_path = file_path.relative_to(package_root)
-            messages.append(
-                Message(
+            annotations.append(
+                Annotation(
                     source="pytest",
                     level="warning",
                     file_path=file_path,
@@ -210,7 +221,7 @@ class PytestReporter:
                 )
             )
 
-        return messages
+        return annotations
 
 
 if __name__ == "__main__":

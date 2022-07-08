@@ -14,7 +14,9 @@ package_root = Path(__file__).absolute().parent.parent
 
 
 @dataclass
-class Message:
+class Annotation:
+    """Annotation data for GitHub."""
+
     source: str
     level: str
     file_path: Path
@@ -26,7 +28,7 @@ class Message:
 class MypyReporter:
     """Prints mypy output formatted for consumption by GitHub."""
 
-    message_regex = re.compile(
+    annotation_regex = re.compile(
         r"\s*"
         r"(?P<file_path>([A-Z]:)?[^:]+)"
         r":"
@@ -41,21 +43,22 @@ class MypyReporter:
         """Validate configuration and initialize.
 
         Arguments:
-            infile: Path to input file
+            infile: Input file
+            modified_files_infile: List of modified files input file
         """
-        self.messages = self.parse_mypy(infile)
+        self.annotations = self.parse_mypy(infile)
         self.changed_files = self.parse_changed_files(modified_files_infile)
 
     def __call__(self) -> None:
-        """Print messages formatted for consumption by GitHub."""
-        for message in self.messages:
-            if message.file_path in self.changed_files:
+        """Print annotations formatted for consumption by GitHub."""
+        for annotation in self.annotations:
+            if annotation.file_path in self.changed_files:
                 print(
-                    f"::{message.level} "
-                    f"file={message.file_path},"
-                    f"line={message.line}::"
-                    f"{message.source}[{message.kind}] : "
-                    f"{message.message}"
+                    f"::{annotation.level} "
+                    f"file={annotation.file_path},"
+                    f"line={annotation.line}::"
+                    f"{annotation.source}[{annotation.kind}] : "
+                    f"{annotation.message}"
                 )
 
     @classmethod
@@ -87,25 +90,27 @@ class MypyReporter:
         reporter()
 
     @classmethod
-    def parse_mypy(cls, infile: TextIOWrapper) -> list[Message]:
+    def parse_mypy(cls, infile: TextIOWrapper) -> list[Annotation]:
         """Parse mypy input file.
 
         Arguments:
             infile: Input file
+        Returns:
+            Annotations
         """
-        messages: list[Message] = []
+        annotations: list[Annotation] = []
         text = infile.read()
 
         last_error_index = None
-        for match in [m.groupdict() for m in cls.message_regex.finditer(text)]:
+        for match in [m.groupdict() for m in cls.annotation_regex.finditer(text)]:
             file_path = (
                 package_root.joinpath(Path(match["file_path"]))
                 .resolve()
                 .relative_to(package_root)
             )
             if match["kind"] == "error":
-                messages.append(
-                    Message(
+                annotations.append(
+                    Annotation(
                         source="mypy",
                         level="warning",
                         file_path=file_path,
@@ -114,17 +119,17 @@ class MypyReporter:
                         message=match["message"],
                     )
                 )
-                last_error_index = len(messages) - 1
+                last_error_index = len(annotations) - 1
             elif match["kind"] == "note":
                 if last_error_index is not None:
-                    last_error = messages[last_error_index]
+                    last_error = annotations[last_error_index]
                     if (
                         last_error.file_path == match["file_path"]
                         and last_error.line == match["line"]
                     ):
                         last_error.message += f"\n{match['message']}"
 
-        return messages
+        return annotations
 
     @staticmethod
     def parse_changed_files(infile: TextIOWrapper) -> list[Path]:
