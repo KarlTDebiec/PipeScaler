@@ -59,7 +59,7 @@ class ProspectorReporter:
 
         for match in report["messages"]:
             file_path = (
-                package_root.joinpath(Path(match["file_path"]))
+                package_root.joinpath(Path(match["location"]["path"]))
                 .resolve()
                 .relative_to(package_root)
             )
