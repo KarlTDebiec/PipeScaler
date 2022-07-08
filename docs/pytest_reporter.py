@@ -43,35 +43,29 @@ class PytestReporter:
         re.MULTILINE,
     )
 
-    def __init__(
-        self,
-        pytest_infile: Union[str, Path],
-    ):
+    def __init__(self, input_file_path: Union[str, Path]):
         """Validate configuration and initialize.
 
         Arguments:
-            pytest_infile: Path to pytest output
+            input_file_path: Path to input file
         """
-        pytest_infile = Path(pytest_infile).absolute()
         self.messages = []
         self.return_code = 0
-        self.parse(pytest_infile)
+        self.parse(Path(input_file_path).absolute())
 
     def parse(self, input_file_path: Path) -> None:
-        """Parse pytest output infile.
+        """Parse input file.
 
         Arguments:
-            input_file_path: Path to pytest output
-        Returns:
-            List of warning messages
+            input_file_path: Path to input file
         """
         with open(input_file_path, "r", encoding="utf-8") as input_file:
-            full_text = input_file.read()
+            input_text = input_file.read()
 
         # Determine which section headers are present
         headers = []
         for section, regex in self.header_regexes.items():
-            match = regex.search(full_text)
+            match = regex.search(input_text)
             if match:
                 headers.append(
                     {
@@ -90,18 +84,18 @@ class PytestReporter:
             }
         bodies[headers[i]["name"]] = {
             "start": headers[i]["end"],
-            "end": len(full_text),
+            "end": len(input_text),
         }
 
         # Parse sections
         for section, location in bodies.items():
             if section == "failures":
                 self.parse_failures_section(
-                    full_text[location["start"] : location["end"]]
+                    input_text[location["start"] : location["end"]]
                 )
             elif section == "warnings":
                 self.parse_warnings_section(
-                    full_text[location["start"] : location["end"]]
+                    input_text[location["start"] : location["end"]]
                 )
 
     def parse_failures_section(self, body: str) -> None:
@@ -111,7 +105,6 @@ class PytestReporter:
             body: Body of failures section
         """
         for match in [m.groupdict() for m in self.failure_regex.finditer(body)]:
-            print(match)
             self.return_code = 1
             file_path = Path(match["file_path"])
             file_path = (
