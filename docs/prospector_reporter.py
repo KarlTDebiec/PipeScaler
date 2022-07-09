@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright (C) 2020-2022. Karl T Debiec
+#  Copyright 2020-2022 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Prints prospector output formatted for consumption by GitHub."""
@@ -32,7 +32,7 @@ class ProspectorReporter:
         """Validate configuration and initialize.
 
         Arguments:
-            infile: Input file
+            infile: Input file`
             modified_files_infile: List of modified files input file
         """
         self.annotations = self.parse_prospector(infile)
