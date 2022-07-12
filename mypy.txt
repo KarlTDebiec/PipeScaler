@@ -1,0 +1,167 @@
+pipescaler\common\command_line_interface.py:64: error: Item "_SubParsersAction[Any]" of "Union[ArgumentParser, _SubParsersAction[Any]]" has no attribute "add_mutually_exclusive_group"
+pipescaler\common\command_line_interface.py:204: error: Item "_SubParsersAction[Any]" of "Union[ArgumentParser, _SubParsersAction[Any]]" has no attribute "parse_args"
+pipescaler\common\command_line_interface.py:253: error: Item "_SubParsersAction[Any]" of "Union[ArgumentParser, _SubParsersAction[Any]]" has no attribute "_action_groups"
+pipescaler\common\command_line_interface.py:270: error: Item "_SubParsersAction[Any]" of "Union[ArgumentParser, _SubParsersAction[Any]]" has no attribute "_action_groups"
+pipescaler\common\command_line_interface.py:275: error: Item "_SubParsersAction[Any]" of "Union[ArgumentParser, _SubParsersAction[Any]]" has no attribute "_action_groups"
+pipescaler\common\command_line_interface.py:276: error: Item "_SubParsersAction[Any]" of "Union[ArgumentParser, _SubParsersAction[Any]]" has no attribute "add_argument_group"
+pipescaler\common\command_line_interface.py:277: error: Item "_SubParsersAction[Any]" of "Union[ArgumentParser, _SubParsersAction[Any]]" has no attribute "_action_groups"
+pipescaler\core\runner.py:38: error: Incompatible types in assignment (expression has type "Path", variable has type "None")
+pipescaler\core\runner.py:41: error: Incompatible return value type (got "None", expected "Path")
+pipescaler\core\image\functions.py:11: error: Skipping analyzing "numba": module is installed, but missing library stubs or py.typed marker
+pipescaler\core\image\functions.py:13: error: Skipping analyzing "scipy.ndimage": module is installed, but missing library stubs or py.typed marker
+pipescaler\core\image\functions.py:77: error: Module has no attribute "Transpose"
+pipescaler\core\image\functions.py:78: error: Module has no attribute "Transpose"
+pipescaler\core\image\functions.py:80: error: Module has no attribute "Transpose"
+pipescaler\core\image\functions.py:234: error: Incompatible types in assignment (expression has type "FreeTypeFont", variable has type "str")
+pipescaler\core\image\functions.py:236: error: Incompatible types in assignment (expression has type "FreeTypeFont", variable has type "str")
+pipescaler\core\image\functions.py:237: error: Argument 2 to "textsize" of "ImageDraw" has incompatible type "str"; expected "Optional[_Font]"
+pipescaler\core\image\functions.py:326: error: Incompatible types in assignment (expression has type "FreeTypeFont", variable has type "str")
+pipescaler\core\image\functions.py:328: error: Incompatible types in assignment (expression has type "FreeTypeFont", variable has type "str")
+pipescaler\core\image\functions.py:336: error: Argument "font" to "text" of "ImageDraw" has incompatible type "str"; expected "Optional[_Font]"
+pipescaler\core\image\functions.py:353: error: Argument 1 to "reshape" has incompatible type "Optional[List[int]]"; expected "Union[_SupportsArray[dtype[Any]], _NestedSequence[_SupportsArray[dtype[Any]]], bool, int, float, complex, str, bytes, _NestedSequence[Union[bool, int, float, complex, str, bytes]]]"
+pipescaler\core\cli\processor_cli.py:34: error: Item "_SubParsersAction[Any]" of "Union[ArgumentParser, _SubParsersAction[Any]]" has no attribute "add_argument"
+pipescaler\core\cli\processor_cli.py:35: error: Item "_SubParsersAction[Any]" of "Union[ArgumentParser, _SubParsersAction[Any]]" has no attribute "add_argument"
+pipescaler\core\cli\processor_cli.py:52: error: Too many arguments for "Processor"
+pipescaler\core\cli\processor_cli.py:53: error: "Processor" has no attribute "save"
+pipescaler\core\cli\processor_cli.py:60: error: Item "_SubParsersAction[Any]" of "Union[ArgumentParser, _SubParsersAction[Any]]" has no attribute "parse_args"
+pipescaler\utilities\palette_matcher.py:10: error: Skipping analyzing "numba": module is installed, but missing library stubs or py.typed marker
+pipescaler\utilities\palette_matcher.py:112: error: Need type annotation for "cells_to_check" (hint: "cells_to_check: Set[<type>] = ...")
+pipescaler\utilities\palette_matcher.py:128: error: Invalid index type "Tuple[Any, ...]" for "Dict[Tuple[int, int, int], ndarray[Any, Any]]"; expected type "Tuple[int, int, int]"
+pipescaler\utilities\palette_matcher.py:203: error: Need type annotation for "palette_by_cell" (hint: "palette_by_cell: Dict[<type>, <type>] = ...")
+pipescaler\utilities\local_palette_matcher.py:9: error: Skipping analyzing "numba": module is installed, but missing library stubs or py.typed marker
+pipescaler\utilities\file_scanner.py:85: error: Need type annotation for "reviewed_names" (hint: "reviewed_names: Dict[<type>, <type>] = ...")
+pipescaler\utilities\file_scanner.py:88: error: Incompatible types in assignment (expression has type "Set[str]", variable has type "Dict[Any, Any]")
+pipescaler\utilities\file_scanner.py:90: error: Need type annotation for "ignored_names" (hint: "ignored_names: Dict[<type>, <type>] = ...")
+pipescaler\utilities\file_scanner.py:93: error: Incompatible types in assignment (expression has type "Set[str]", variable has type "Dict[Any, Any]")
+pipescaler\image\processors\resize_processor.py:19: error: Module has no attribute "Resampling"
+pipescaler\image\processors\resize_processor.py:20: error: Module has no attribute "Resampling"
+pipescaler\image\processors\resize_processor.py:21: error: Module has no attribute "Resampling"
+pipescaler\image\processors\resize_processor.py:22: error: Module has no attribute "Resampling"
+pipescaler\core\pipelines\pipe_image.py:93: error: Argument 1 to "open" has incompatible type "Optional[Path]"; expected "Union[str, bytes, Path, SupportsRead[bytes]]"
+pipescaler\core\cli\utility_cli.py:30: error: Unexpected keyword argument "verbosity" for "utility" of "UtilityCli"
+pipescaler\core\cli\utility_cli.py:37: error: Item "_SubParsersAction[Any]" of "Union[ArgumentParser, _SubParsersAction[Any]]" has no attribute "parse_args"
+pipescaler\core\cli\utility_cli.py:57: note: "utility" of "UtilityCli" defined here
+pipescaler\utilities\mask_filler.py:21: error: Invalid type comment or annotation
+pipescaler\utilities\mask_filler.py:21: note: Suggestion: use type[...] instead of type(...)
+pipescaler\image\processors\xbrz_processor.py:9: error: Skipping analyzing "xbrz": module is installed, but missing library stubs or py.typed marker
+pipescaler\image\processors\threshold_processor.py:11: error: Skipping analyzing "numba": module is installed, but missing library stubs or py.typed marker
+pipescaler\image\processors\solid_color_processor.py:47: error: Incompatible types in assignment (expression has type "int", variable has type "Tuple[Any, ...]")
+pipescaler\image\processors\solid_color_processor.py:49: error: Incompatible types in assignment (expression has type "int", variable has type "Tuple[Any, ...]")
+pipescaler\image\processors\solid_color_processor.py:50: error: Argument 3 to "new" has incompatible type "Tuple[Any, ...]"; expected "Union[int, Tuple[int], Tuple[int, int, int], Tuple[int, int, int, int], str, float, Tuple[float]]"
+pipescaler\image\processors\sharpen_processor.py:10: error: Skipping analyzing "scipy.signal": module is installed, but missing library stubs or py.typed marker
+pipescaler\image\processors\gui\gigapixel_ai_proessor.py:19: error: Skipping analyzing "pywinauto.application": module is installed, but missing library stubs or py.typed marker
+pipescaler\image\processors\gui\gigapixel_ai_proessor.py:59: error: Signature of "__call__" incompatible with supertype "Processor"
+pipescaler\image\processors\gui\gigapixel_ai_proessor.py:59: note:      Superclass:
+pipescaler\image\processors\gui\gigapixel_ai_proessor.py:59: note:          def __call__(self, input_image: Image) -> Image
+pipescaler\image\processors\gui\gigapixel_ai_proessor.py:59: note:      Subclass:
+pipescaler\image\processors\gui\gigapixel_ai_proessor.py:59: note:          def __call__(self, infile: str, outfile: str) -> None
+pipescaler\image\processors\gui\gigapixel_ai_proessor.py:59: note:          def __call__(self, input_image: Image) -> Image
+pipescaler\image\processors\gui\gigapixel_ai_proessor.py:59: note:          def __call__(self, infile: str, outfile: str) -> None
+pipescaler\image\mergers\histogram_match_merger.py:10: error: Skipping analyzing "skimage.exposure": module is installed, but missing library stubs or py.typed marker
+pipescaler\core\pipelines\functions.py:13: error: Unexpected "..."
+pipescaler\core\analytics\image_pair_collection.py:33: error: Signature of "__getitem__" incompatible with supertype "Sequence"
+pipescaler\core\analytics\image_pair_collection.py:33: note:      Superclass:
+pipescaler\core\analytics\image_pair_collection.py:33: note:          @overload
+pipescaler\core\analytics\image_pair_collection.py:33: note:          def __getitem__(self, int) -> Any
+pipescaler\core\analytics\image_pair_collection.py:33: note:          @overload
+pipescaler\core\analytics\image_pair_collection.py:33: note:          def __getitem__(self, slice) -> Sequence[Any]
+pipescaler\core\analytics\image_pair_collection.py:33: note:      Subclass:
+pipescaler\core\analytics\image_pair_collection.py:33: note:          def __getitem__(self, Union[str, Iterable[str]]) -> DataFrame
+pipescaler\core\analytics\image_pair_collection.py:33: note:          @overload
+pipescaler\core\analytics\image_pair_collection.py:33: note:          def __getitem__(self, int) -> Any
+pipescaler\core\analytics\image_pair_collection.py:33: note:          @overload
+pipescaler\core\analytics\image_pair_collection.py:33: note:          def __getitem__(self, slice) -> Sequence[Any]
+pipescaler\core\analytics\image_pair_collection.py:33: note:          def __getitem__(self, Union[str, Iterable[str]]) -> DataFrame
+pipescaler\core\analytics\image_pair_collection.py:65: error: Incompatible types in assignment (expression has type "DataFrame", variable has type "None")
+pipescaler\core\analytics\image_pair_collection.py:72: error: Incompatible return value type (got "None", expected "DataFrame")
+pipescaler\core\analytics\image_pair_collection.py:81: error: Incompatible types in assignment (expression has type "DataFrame", variable has type "None")
+pipescaler\core\analytics\hashing.py:9: error: Skipping analyzing "imagehash": module is installed, but missing library stubs or py.typed marker
+pipescaler\core\analytics\hashing.py:9: note: See https://mypy.readthedocs.io/en/stable/running_mypy.html#missing-imports
+pipescaler\image\processors\potrace_processor.py:10: error: Skipping analyzing "reportlab.graphics.renderPM": module is installed, but missing library stubs or py.typed marker
+pipescaler\image\processors\potrace_processor.py:11: error: Skipping analyzing "svglib.svglib": module is installed, but missing library stubs or py.typed marker
+pipescaler\core\image\operators\processors\pytorch_processor.py:66: error: Incompatible types in assignment (expression has type "Tensor", variable has type "ndarray[Any, Any]")
+pipescaler\core\image\operators\processors\pytorch_processor.py:67: error: "ndarray[Any, Any]" has no attribute "unsqueeze"; maybe "squeeze"?
+pipescaler\pipelines\checkpoint_manager.py:131: error: Argument "suffix" to "get_checkpoint" of "CheckpointManager" has incompatible type "Optional[str]"; expected "str"
+pipescaler\pipelines\checkpoint_manager.py:163: error: Argument 1 to "add" of "set" has incompatible type "Sequence[str]"; expected "str"
+pipescaler\pipelines\termini\copy_file_terminus.py:32: error: Need type annotation for "observed_files" (hint: "observed_files: Set[<type>] = ...")
+pipescaler\pipelines\termini\copy_file_terminus.py:65: error: Argument 1 to "array_equal" has incompatible type "Image"; expected "Union[_SupportsArray[dtype[Any]], _NestedSequence[_SupportsArray[dtype[Any]]], bool, int, float, complex, str, bytes, _NestedSequence[Union[bool, int, float, complex, str, bytes]]]"
+pipescaler\pipelines\termini\copy_file_terminus.py:65: error: Argument 2 to "array_equal" has incompatible type "Image"; expected "Union[_SupportsArray[dtype[Any]], _NestedSequence[_SupportsArray[dtype[Any]]], bool, int, float, complex, str, bytes, _NestedSequence[Union[bool, int, float, complex, str, bytes]]]"
+pipescaler\pipelines\sources\directory_source.py:27: error: Incompatible default for argument "sort" (default has type "Callable[[str], str]", argument has type "Callable[[str], int]")
+pipescaler\pipelines\sources\directory_source.py:42: error: Unsupported left operand type for | ("Collection[str]")
+pipescaler\pipelines\sorters\list_sorter.py:40: error: Incompatible types in assignment (expression has type "List[Dict[str, Union[str, Path, Collection[Union[str, Path]]]]]", variable has type "Dict[str, Union[str, Path, Collection[Union[str, Path]]]]")
+pipescaler\pipelines\sorters\list_sorter.py:42: error: Incompatible types in assignment (expression has type "Path", variable has type "str")
+pipescaler\pipelines\sorters\list_sorter.py:43: error: "str" has no attribute "exists"
+pipescaler\pipelines\sorters\list_sorter.py:44: error: Need type annotation for "names" (hint: "names: List[<type>] = ...")
+pipescaler\pipelines\sorters\list_sorter.py:45: error: "str" has no attribute "is_file"
+pipescaler\pipelines\sorters\list_sorter.py:47: error: Incompatible types in assignment (expression has type "Generator[str, None, None]", variable has type "List[Any]")
+pipescaler\pipelines\sorters\list_sorter.py:52: error: "str" has no attribute "is_dir"
+pipescaler\pipelines\sorters\list_sorter.py:53: error: Incompatible types in assignment (expression has type "Generator[Any, None, None]", variable has type "List[Any]")
+pipescaler\pipelines\sorters\list_sorter.py:53: error: "str" has no attribute "iterdir"
+pipescaler\pipelines\sorters\list_sorter.py:72: error: Incompatible return value type (got "Optional[str]", expected "str")
+pipescaler\testing\mark.py:46: error: "MarkDecorator" has no attribute "append"
+pipescaler\testing\mark.py:65: error: Unsupported right operand type for in ("Optional[Set[str]]")
+pipescaler\testing\mark.py:71: error: "MarkDecorator" has no attribute "append"
+pipescaler\testing\mark.py:85: error: "MarkDecorator" has no attribute "append"
+pipescaler\testing\mark.py:99: error: "MarkDecorator" has no attribute "append"
+pipescaler\core\analytics\image_hash_collection.py:61: error: Signature of "__getitem__" incompatible with supertype "Sequence"
+pipescaler\core\analytics\image_hash_collection.py:61: note:      Superclass:
+pipescaler\core\analytics\image_hash_collection.py:61: note:          @overload
+pipescaler\core\analytics\image_hash_collection.py:61: note:          def __getitem__(self, int) -> Any
+pipescaler\core\analytics\image_hash_collection.py:61: note:          @overload
+pipescaler\core\analytics\image_hash_collection.py:61: note:          def __getitem__(self, slice) -> Sequence[Any]
+pipescaler\core\analytics\image_hash_collection.py:61: note:      Subclass:
+pipescaler\core\analytics\image_hash_collection.py:61: note:          def __getitem__(self, Union[str, Tuple[str, float], Iterable[Union[str, Tuple[str, float]]]]) -> DataFrame
+pipescaler\core\analytics\image_hash_collection.py:61: note:          @overload
+pipescaler\core\analytics\image_hash_collection.py:61: note:          def __getitem__(self, int) -> Any
+pipescaler\core\analytics\image_hash_collection.py:61: note:          @overload
+pipescaler\core\analytics\image_hash_collection.py:61: note:          def __getitem__(self, slice) -> Sequence[Any]
+pipescaler\core\analytics\image_hash_collection.py:61: note:          def __getitem__(self, Union[str, Tuple[str, float], Iterable[Union[str, Tuple[str, float]]]]) -> DataFrame
+pipescaler\core\analytics\image_hash_collection.py:203: error: Module has no attribute "Resampling"
+pipescaler\core\analytics\image_pair_scorer.py:12: error: Skipping analyzing "scipy.stats": module is installed, but missing library stubs or py.typed marker
+pipescaler\core\analytics\image_pair_scorer.py:109: error: Name "candidate_child" already defined on line 93
+pipescaler\core\analytics\image_pair_scorer.py:128: error: Name "candidate_parent" already defined on line 118
+pipescaler\core\analytics\image_pair_scorer.py:132: error: Name "candidate_parent" already defined on line 118
+pipescaler\core\analytics\image_pair_scorer.py:157: error: Name "parent" already defined on line 146
+pipescaler\core\analytics\image_pair_scorer.py:166: error: Argument 1 to "get_hashes_matching_spec" of "ImageHashCollection" has incompatible type "str"; expected "int"
+pipescaler\core\analytics\image_pair_scorer.py:166: error: Invalid index type "str" for "str"; expected type "Union[SupportsIndex, slice]"
+pipescaler\core\analytics\image_pair_scorer.py:167: error: Argument 2 to "get_hashes_matching_spec" of "ImageHashCollection" has incompatible type "str"; expected "int"
+pipescaler\core\analytics\image_pair_scorer.py:167: error: Invalid index type "str" for "str"; expected type "Union[SupportsIndex, slice]"
+pipescaler\core\analytics\image_pair_scorer.py:168: error: Invalid index type "str" for "str"; expected type "Union[SupportsIndex, slice]"
+pipescaler\core\analytics\image_pair_scorer.py:169: error: Argument 4 to "get_hashes_matching_spec" of "ImageHashCollection" has incompatible type "str"; expected "int"
+pipescaler\core\analytics\image_pair_scorer.py:169: error: Invalid index type "str" for "str"; expected type "Union[SupportsIndex, slice]"
+pipescaler\core\analytics\image_pair_scorer.py:177: error: Invalid index type "str" for "str"; expected type "Union[SupportsIndex, slice]"
+pipescaler\core\analytics\image_pair_scorer.py:202: error: Name "child" already defined on line 191
+pipescaler\core\analytics\image_pair_scorer.py:211: error: Unsupported operand types for / ("str" and "float")
+pipescaler\core\analytics\image_pair_scorer.py:211: error: Invalid index type "str" for "str"; expected type "Union[SupportsIndex, slice]"
+pipescaler\core\analytics\image_pair_scorer.py:212: error: Unsupported operand types for / ("str" and "float")
+pipescaler\core\analytics\image_pair_scorer.py:212: error: Invalid index type "str" for "str"; expected type "Union[SupportsIndex, slice]"
+pipescaler\core\analytics\image_pair_scorer.py:213: error: Invalid index type "str" for "str"; expected type "Union[SupportsIndex, slice]"
+pipescaler\core\analytics\image_pair_scorer.py:214: error: Argument 4 to "get_hashes_matching_spec" of "ImageHashCollection" has incompatible type "str"; expected "int"
+pipescaler\core\analytics\image_pair_scorer.py:214: error: Invalid index type "str" for "str"; expected type "Union[SupportsIndex, slice]"
+pipescaler\core\analytics\image_pair_scorer.py:224: error: Invalid index type "str" for "str"; expected type "Union[SupportsIndex, slice]"
+pipescaler\core\analytics\image_pair_scorer.py:244: error: Incompatible types in assignment (expression has type "Optional[DataFrame]", variable has type "DataFrame")
+pipescaler\core\analytics\image_pair_scorer.py:261: error: Argument 1 to "DataFrame" has incompatible type "Generator[Series[Any], None, None]"; expected "Union[ndarray[Any, Any], List[Union[ExtensionDtype, Union[str, dtype[generic], Type[str], Type[float], Type[int], Type[complex], Type[bool], Type[object]]]], Dict[str, ndarray[Any, Any]], Sequence[Any], Index, Series[Any], DataFrame, Dict[Any, Any], None]"
+pipescaler\utilities\esrgan_serializer.py:77: error: Incompatible types in assignment (expression has type "Dict[str, Tensor]", variable has type "OrderedDict[str, Tensor]")
+pipescaler\utilities\scaled_pair_identifier.py:140: error: Incompatible types in assignment (expression has type "DataFrame", variable has type "List[Series[Any]]")
+pipescaler\utilities\scaled_pair_identifier.py:142: error: Argument 2 to "review_candidate_pairs" of "ScaledPairIdentifier" has incompatible type "List[Series[Any]]"; expected "DataFrame"
+test\utilities\test_scaled_pair_identifier.py:39: error: Module has no attribute "Resampling"
+test\utilities\test_scaled_pair_identifier.py:59: error: Module has no attribute "Resampling"
+pipescaler\image\splitters\alpha_splitter.py:25: error: Invalid type comment or annotation
+pipescaler\image\splitters\alpha_splitter.py:25: note: Suggestion: use type[...] instead of type(...)
+pipescaler\image\splitters\alpha_splitter.py:26: error: Invalid type comment or annotation
+pipescaler\image\splitters\alpha_splitter.py:26: note: Suggestion: use type[...] instead of type(...)
+pipescaler\image\mergers\palette_match_merger.py:25: error: Invalid type comment or annotation
+pipescaler\image\mergers\palette_match_merger.py:25: note: Suggestion: use type[...] instead of type(...)
+pipescaler\image\mergers\palette_match_merger.py:42: error: Incompatible types in assignment (expression has type "LocalPaletteMatcher", variable has type "PaletteMatcher")
+pipescaler\cli\utilities\waifu_serializer_cli.py:34: error: "Callable[[], Type[Utility]]" has no attribute "architectures"
+pipescaler\cli\utilities\waifu_serializer_cli.py:35: error: "Callable[[], Type[Utility]]" has no attribute "architectures"
+pipescaler\cli\processors\resize_cli.py:43: error: "Callable[[], Type[Processor]]" has no attribute "resample_methods"
+pipescaler\cli\processors\mode_cli.py:35: error: "Callable[[], Type[Processor]]" has no attribute "inputs"
+pipescaler\cli\processors\mode_cli.py:36: error: "Callable[[], Type[Processor]]" has no attribute "inputs"
+test\cli\utilities\test_host_cli.py:57: error: Item "None" of "Optional[IO[bytes]]" has no attribute "readline"
+pipescaler\cli\utilities_cli.py:31: error: Item "_SubParsersAction[Any]" of "Union[ArgumentParser, _SubParsersAction[Any]]" has no attribute "add_subparsers"
+pipescaler\cli\utilities_cli.py:32: error: No overload variant of "sorted" matches argument type "Callable[[], Dict[str, Type[UtilityCli]]]"
+pipescaler\cli\utilities_cli.py:32: note: Possible overload variants:
+pipescaler\cli\utilities_cli.py:32: note:     def [SupportsRichComparisonT] sorted(Iterable[SupportsRichComparisonT], *, key: None = ..., reverse: bool = ...) -> List[SupportsRichComparisonT]
+pipescaler\cli\utilities_cli.py:32: note: (Skipping most remaining errors due to unresolved imports or missing stubs; fix these first)
+Found 127 errors in 39 files (checked 202 source files)

@@ -32,7 +32,7 @@ class ProspectorReporter:
         """Validate configuration and initialize.
 
         Arguments:
-            infile: Input file`
+            infile: Input file
             modified_files_infile: List of modified files input file
         """
         self.annotations = self.parse_prospector(infile)
