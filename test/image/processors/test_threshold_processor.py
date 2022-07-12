@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright 2020-2022 Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Tests for ThresholdProcessor."""
 import numpy as np
 import pytest
@@ -9,7 +9,7 @@ from PIL import Image
 
 from pipescaler.image.processors import ThresholdProcessor
 from pipescaler.testing import (
-    get_infile,
+    get_test_infile_path,
     parametrized_fixture,
     xfail_unsupported_image_mode,
 )
@@ -41,8 +41,8 @@ def processor(request) -> ThresholdProcessor:
     ],
 )
 def test(infile: str, processor: ThresholdProcessor) -> None:
-    infile = get_infile(infile)
-    input_image = Image.open(infile)
+    input_path = get_test_infile_path(infile)
+    input_image = Image.open(input_path)
     output_image = processor(input_image)
 
     output_datum = np.array(output_image)

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright (C) 2020-2022. Karl T Debiec
+#  Copyright 2020-2022 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Tests for ScaledPairIdentifier."""
@@ -10,8 +10,8 @@ import numpy as np
 import pytest
 from PIL import Image
 
-from pipescaler.common.file import temp_directory, temp_file
-from pipescaler.testing import get_infile
+from pipescaler.common import get_temp_directory_path, get_temp_file_path
+from pipescaler.testing import get_test_infile_path
 from pipescaler.utilities import ScaledPairIdentifier
 
 
@@ -19,12 +19,14 @@ from pipescaler.utilities import ScaledPairIdentifier
     system() in {"Linux"}, raises=OSError, reason=f"Not supported on {system()}"
 )
 def test_review() -> None:
-    with temp_directory() as input_directory, temp_directory() as project_root:
-        with temp_file("csv") as hash_file, temp_file("csv") as pairs_file:
+    with get_temp_directory_path() as input_directory, get_temp_directory_path() as project_root:
+        with get_temp_file_path("csv") as hash_file, get_temp_file_path(
+            "csv"
+        ) as pairs_file:
 
             # Copy basic infiles and prepare scaled pairs
             for mode in ["L", "LA", "RGB", "RGBA"]:
-                infile = get_infile(mode)
+                infile = get_test_infile_path(mode)
                 outfile = input_directory.joinpath(f"{infile.stem}_1{infile.suffix}")
                 copy(infile, outfile)
 
@@ -42,7 +44,7 @@ def test_review() -> None:
 
             # Copy alternate infiles and prepare scaled pairs
             for mode in ["L", "LA", "RGB", "RGBA"]:
-                infile = get_infile(f"alt/{mode}")
+                infile = get_test_infile_path(f"alt/{mode}")
                 outfile = input_directory.joinpath(
                     f"{infile.stem}_alt_1{infile.suffix}"
                 )

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright (C) 2020-2022. Karl T Debiec
+#  Copyright 2020-2022 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Applies an Automator QuickAction to an image."""
@@ -9,7 +9,7 @@ from pathlib import Path
 
 from PIL import Image
 
-from pipescaler.common import temporary_filename
+from pipescaler.common import get_temp_file_path
 from pipescaler.core.image import Processor
 from pipescaler.core.validation import validate_image_and_convert_mode
 from pipescaler.runners import AutomatorRunner
@@ -42,11 +42,11 @@ class AutomatorProcessor(Processor):
             input_image, self.inputs["input"], "RGB"
         )
 
-        with temporary_filename(".png") as temp_infile:
-            with temporary_filename(".png") as temp_outfile:
-                input_image.save(temp_infile)
-                self.automator_runner.run(temp_infile, temp_outfile)
-                output_image = Image.open(temp_outfile)
+        with get_temp_file_path(".png") as temp_input_path:
+            with get_temp_file_path(".png") as temp_output_path:
+                input_image.save(temp_input_path)
+                self.automator_runner.run(temp_input_path, temp_output_path)
+                output_image = Image.open(temp_output_path)
         if output_image.mode != output_mode:
             output_image = output_image.convert(output_mode)
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright 2020-2022 Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Tests for PaletteMatchMerger"""
 import pytest
 from PIL import Image
@@ -11,7 +11,7 @@ from pipescaler.core.image import get_palette, remove_palette
 from pipescaler.image.mergers import PaletteMatchMerger
 from pipescaler.testing import (
     get_expected_output_mode,
-    get_infile,
+    get_test_infile_path,
     parametrized_fixture,
     xfail_unsupported_image_mode,
 )
@@ -38,9 +38,9 @@ def merger(request) -> PaletteMatchMerger:
     ],
 )
 def test(ref: str, fit: str, merger: PaletteMatchMerger):
-    ref_infile = get_infile(ref)
+    ref_infile = get_test_infile_path(ref)
     ref_image = Image.open(ref_infile)
-    fit_infile = get_infile(fit)
+    fit_infile = get_test_infile_path(fit)
     fit_image = Image.open(fit_infile)
 
     output_image = merger(ref_image, fit_image)

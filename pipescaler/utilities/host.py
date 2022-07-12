@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright 2020-2022 Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Hosts stages on a web API."""
 from io import BytesIO
 from pathlib import Path
@@ -9,7 +9,7 @@ from pathlib import Path
 from flask import Flask, redirect, request, send_file, url_for
 from PIL import Image
 
-from pipescaler.common import temporary_filename
+from pipescaler.common import get_temp_file_path
 from pipescaler.core import Utility
 from pipescaler.core.image import Processor
 
@@ -41,13 +41,13 @@ class Host(Utility):
 
             # Process image
             processor = self.processors[stage_name]
-            with temporary_filename(extension) as infile:
-                image_file.save(infile)
-                input_image = Image.open(infile)
-                with temporary_filename(".png") as outfile:
+            with get_temp_file_path(extension) as temp_input_path:
+                image_file.save(temp_input_path)
+                input_image = Image.open(temp_input_path)
+                with get_temp_file_path(".png") as temp_output_path:
                     output_image = processor(input_image)
-                    output_image.save(outfile)
-                    with open(outfile, "rb") as output_file:
+                    output_image.save(temp_output_path)
+                    with open(temp_output_path, "rb") as output_file:
                         output_bytes = output_file.read()
 
             # Return image

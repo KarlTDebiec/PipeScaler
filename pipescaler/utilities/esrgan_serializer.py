@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright (C) 2020-2022. Karl T Debiec
+#  Copyright 2020-2022 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Converts ESRGAN models to PyTorch's serialized pth format."""
@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from collections import OrderedDict
 from logging import info
-from typing import Union
+from pathlib import Path
 
 import torch
 from torch import Tensor
@@ -15,12 +15,13 @@ from torch import Tensor
 from pipescaler.common import validate_input_file, validate_output_file
 from pipescaler.core import Utility
 from pipescaler.models.esrgan import Esrgan1x, Esrgan4x
+from pipescaler.models.esrgan.esrgan import Esrgan
 
 
 class EsrganSerializer(Utility):
     """Converts ESRGAN models to PyTorch's serialized pth format."""
 
-    def __call__(self, infile: str, outfile: str) -> None:
+    def __call__(self, infile: Path, outfile: Path) -> None:
         """Convert infile to outfile.
 
         Arguments:
@@ -37,9 +38,7 @@ class EsrganSerializer(Utility):
         info(f"{self}: Complete serialized model saved to '{self.outfile}'")
 
     @classmethod
-    def get_model(
-        cls, state_dict: OrderedDict[str, Tensor]
-    ) -> Union[Esrgan1x | Esrgan4x]:
+    def get_model(cls, state_dict: OrderedDict[str, Tensor]) -> Esrgan:
         """Get model from state_dict.
 
         Arguments:
@@ -49,7 +48,7 @@ class EsrganSerializer(Utility):
         """
         state_dict, scale = cls.parse_state_dict(state_dict)
         if scale == 0:
-            model = Esrgan1x()
+            model: Esrgan = Esrgan1x()
         else:
             model = Esrgan4x()
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright 2020-2022 Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Tests for HistogramMatchMerger"""
 import pytest
 from PIL import Image
@@ -9,7 +9,7 @@ from PIL import Image
 from pipescaler.image.mergers import HistogramMatchMerger
 from pipescaler.testing import (
     get_expected_output_mode,
-    get_infile,
+    get_test_infile_path,
     parametrized_fixture,
 )
 
@@ -38,9 +38,9 @@ def merger(request) -> HistogramMatchMerger:
     ],
 )
 def test(ref: str, fit: str, merger: HistogramMatchMerger):
-    ref_infile = get_infile(ref)
+    ref_infile = get_test_infile_path(ref)
     ref_image = Image.open(ref_infile)
-    fit_infile = get_infile(fit)
+    fit_infile = get_test_infile_path(fit)
     fit_image = Image.open(fit_infile)
 
     output_image = merger(ref_image, fit_image)

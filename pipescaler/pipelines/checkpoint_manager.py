@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright (C) 2020-2022. Karl T Debiec
+#  Copyright 2020-2022 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Manages checkpoints."""
@@ -10,7 +10,7 @@ from os.path import join
 from pathlib import Path
 from typing import Callable, Optional, Sequence, Union
 
-from pipescaler.common import temporary_filename, validate_output_directory
+from pipescaler.common import get_temp_file_path, validate_output_directory
 from pipescaler.core.pipelines import PipeImage
 
 
@@ -24,20 +24,18 @@ class CheckpointManager:
             directory: Directory in which to store checkpoints
         """
         self.directory = validate_output_directory(directory)
-        self.image_names = set()
-        self.checkpoint_names = set()
+        self.image_names: set[str] = set()
+        self.checkpoint_names: set[str] = set()
 
     def __repr__(self):
         """Representation."""
         return f"<{self.__class__.__name__}>"
 
-    def get_checkpoint(
-        self, image: PipeImage, name: str, suffix: Optional[str] = ".png"
-    ) -> Path:
+    def get_checkpoint(self, image: PipeImage, name: str, suffix: str = ".png") -> Path:
         """Get the path to a checkpoint for a provided image and name.
 
-        Argumentss:
-            image: Image; used to determine subfolder
+        Arguments:
+            image: Image; used to determine subdirectory
             name: Name of checkpoint
             suffix: Suffix of checkpoint
         Returns:
@@ -136,10 +134,9 @@ class CheckpointManager:
                     info(f"{self}: {image.name} checkpoint {checkpoint.name} loaded")
                 else:
                     if image.path is None:
-                        with temporary_filename(".png") as infile:
-                            infile = Path(infile)
-                            image.image.save(infile)
-                            function(infile, checkpoint)
+                        with get_temp_file_path(".png") as input_path:
+                            image.image.save(input_path)
+                            function(input_path, checkpoint)
                     else:
                         function(image.path, checkpoint)
                     output_image = PipeImage(path=checkpoint, parents=image)

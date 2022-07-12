@@ -1,16 +1,11 @@
 #!/usr/bin/env python
-#   pipescaler/models/esrgan.py
-#
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license.
+#  Copyright 2020-2022 Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """ESRGAN 4X module."""
 from __future__ import annotations
 
-from collections import OrderedDict
-from typing import NamedTuple
+from typing import Any, Mapping, NamedTuple
 
 from torch import Tensor
 from torch.nn import Conv2d
@@ -46,7 +41,7 @@ class Esrgan4x(Esrgan):
         return out
 
     def load_state_dict(
-        self, state_dict: OrderedDict[str, Tensor], strict: bool = True
+        self, state_dict: Mapping[str, Any], strict: bool = True
     ) -> NamedTuple:
         """Copy parameters and buffers from state_dict.
 

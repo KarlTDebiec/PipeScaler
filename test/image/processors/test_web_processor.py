@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright 2020-2022 Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Tests for WebProcessor."""
 from multiprocessing import Process
 from platform import system
@@ -11,7 +11,7 @@ from PIL import Image
 from pytest import mark
 
 from pipescaler.image.processors import WebProcessor, XbrzProcessor
-from pipescaler.testing import get_infile, parametrized_fixture
+from pipescaler.testing import get_test_infile_path, parametrized_fixture
 from pipescaler.utilities import Host
 
 
@@ -42,8 +42,8 @@ def web_processor(request) -> WebProcessor:
     ],
 )
 def test(infile: str, web_processor: WebProcessor, xbrz_processor: XbrzProcessor):
-    infile = get_infile(infile)
-    input_image = Image.open(infile)
+    input_path = get_test_infile_path(infile)
+    input_image = Image.open(input_path)
 
     host = Host(processors={"xbrz-2": xbrz_processor})
     process = Process(target=host.__call__)

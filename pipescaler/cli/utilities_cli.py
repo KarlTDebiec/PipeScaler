@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright (C) 2020-2022. Karl T Debiec
+#  Copyright 2020-2022 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Command line interface for PipeScaler utilities."""
@@ -30,7 +30,7 @@ class UtilitiesCli(CommandLineInterface):
 
         subparsers = parser.add_subparsers(dest="utility")
         for name in sorted(cls.utilities):
-            cls.utilities[name].construct_argparser(parser=subparsers)
+            cls.utilities[name].argparser(subparsers=subparsers)
 
     @classmethod
     def execute(cls, **kwargs: Any) -> None:

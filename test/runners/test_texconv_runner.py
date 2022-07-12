@@ -1,16 +1,20 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
-"""Tests for TexconvRunner"""
+#  Copyright 2020-2022 Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
+"""Tests for TexconvRunner."""
 from pathlib import Path
 
 import pytest
 from PIL import Image
 
-from pipescaler.common import temporary_filename
+from pipescaler.common import get_temp_file_path
 from pipescaler.runners import TexconvRunner
-from pipescaler.testing import get_infile, parametrized_fixture, xfail_if_platform
+from pipescaler.testing import (
+    get_test_infile_path,
+    parametrized_fixture,
+    xfail_if_platform,
+)
 
 
 @parametrized_fixture(
@@ -38,12 +42,12 @@ def runner(request) -> TexconvRunner:
     ],
 )
 def test(infile: str, runner: TexconvRunner) -> None:
-    infile = get_infile(infile)
+    input_path: Path = get_test_infile_path(infile)
 
-    with temporary_filename(".dds") as outfile:
-        outfile = Path(outfile)
-        runner.run(infile, outfile)
+    with get_temp_file_path(".dds") as output_path:
+        runner.run(input_path, output_path)
 
-        with Image.open(infile) as input_image, Image.open(outfile) as output_image:
-            assert output_image.mode == "RGBA"
-            assert output_image.size == input_image.size
+        with Image.open(input_path) as input_image:
+            with Image.open(output_path) as output_image:
+                assert output_image.mode == "RGBA"
+                assert output_image.size == input_image.size
