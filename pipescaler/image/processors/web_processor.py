@@ -1,14 +1,14 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright 2020-2022 Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """POSTs image to a defined URL, which responds with processed image."""
 from __future__ import annotations
 
 import requests
 from PIL import Image
 
-from pipescaler.common import temporary_filename, validate_int
+from pipescaler.common import get_temp_file_path, validate_int
 from pipescaler.core.image import Processor
 
 
@@ -33,9 +33,9 @@ class WebProcessor(Processor):
         Returns:
             Processed output image
         """
-        with temporary_filename(".png") as temp_file:
-            input_image.save(temp_file)
-            with open(temp_file, "rb") as input_file:
+        with get_temp_file_path(".png") as input_path:
+            input_image.save(input_path)
+            with open(input_path, "rb") as input_file:
                 input_bytes = input_file.read()
             files = {"image": ("image", input_bytes, "multipart/form-data")}
 
@@ -45,8 +45,8 @@ class WebProcessor(Processor):
                 raise ValueError()
             output_bytes = response.content
 
-        with temporary_filename(".png") as temp_file:
-            with open(temp_file, "wb") as output_file:
+        with get_temp_file_path(".png") as output_path:
+            with open(output_path, "wb") as output_file:
                 output_file.write(output_bytes)
-            output_image = Image.open(temp_file)
+            output_image = Image.open(output_path)
         return output_image

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright (C) 2020-2022. Karl T Debiec
+#  Copyright 2020-2022 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Traces image using potrace and re-rasterizes, optionally resizing."""
@@ -10,7 +10,7 @@ from PIL.ImageOps import invert
 from reportlab.graphics.renderPM import drawToFile
 from svglib.svglib import svg2rlg
 
-from pipescaler.common import temporary_filename, validate_float
+from pipescaler.common import get_temp_file_path, validate_float
 from pipescaler.core.image import Processor
 from pipescaler.core.validation import validate_image_and_convert_mode
 from pipescaler.runners import PotraceRunner
@@ -53,12 +53,12 @@ class PotraceProcessor(Processor):
         if self.invert:
             input_image = invert(input_image)
 
-        with temporary_filename(".bmp") as temp_bmp_file:
-            input_image.save(temp_bmp_file)
+        with get_temp_file_path(".bmp") as temp_bmp_path:
+            input_image.save(temp_bmp_path)
 
-            with temporary_filename(".svg") as temp_svg_file:
-                self.potrace_runner.run(temp_bmp_file, temp_svg_file)
-                traced_drawing = svg2rlg(temp_svg_file)
+            with get_temp_file_path(".svg") as temp_svg_path:
+                self.potrace_runner.run(temp_bmp_path, temp_svg_path)
+                traced_drawing = svg2rlg(temp_svg_path)
                 traced_drawing.scale(
                     (input_image.size[0] / traced_drawing.width) * self.scale,
                     (input_image.size[1] / traced_drawing.height) * self.scale,
@@ -66,9 +66,9 @@ class PotraceProcessor(Processor):
                 traced_drawing.width = input_image.size[0] * self.scale
                 traced_drawing.height = input_image.size[1] * self.scale
 
-                with temporary_filename(".png") as temp_png_file:
-                    drawToFile(traced_drawing, temp_png_file, fmt="png")
-                    output_image = Image.open(temp_png_file).convert("L")
+                with get_temp_file_path(".png") as temp_png_path:
+                    drawToFile(traced_drawing, temp_png_path, fmt="png")
+                    output_image = Image.open(temp_png_path).convert("L")
 
         if self.invert:
             output_image = invert(output_image)

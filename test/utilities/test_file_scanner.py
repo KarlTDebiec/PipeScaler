@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright (C) 2020-2022. Karl T Debiec
+#  Copyright 2020-2022 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Tests for FileScanner."""
@@ -7,38 +7,38 @@ from os import mkdir
 from pathlib import Path
 from shutil import copy
 
-from pipescaler.common.file import temp_directory
-from pipescaler.testing import get_infile, get_sub_directory
+from pipescaler.common import get_temp_directory_path
+from pipescaler.testing import get_test_infile_directory_path, get_test_infile_path
 from pipescaler.utilities import FileScanner
 
 
 def stage_files(input_directory: Path, project_root: Path) -> None:
-    for infile in get_sub_directory().iterdir():
+    for infile in get_test_infile_directory_path().iterdir():
         copy(infile, input_directory.joinpath(infile.name))
 
     mkdir(project_root.joinpath("reviewed"))
-    infile = get_infile("L")
+    infile = get_test_infile_path("L")
     copy(infile, project_root.joinpath("reviewed", infile.name))
 
     mkdir(project_root.joinpath("ignore"))
-    infile = get_infile("LA")
+    infile = get_test_infile_path("LA")
     copy(infile, project_root.joinpath("ignore", infile.name))
 
     mkdir(project_root.joinpath("review"))
-    infile = get_infile("RGB")
+    infile = get_test_infile_path("RGB")
     copy(infile, project_root.joinpath("review", infile.name))
 
     mkdir(project_root.joinpath("remove"))
-    infile = get_infile("1")
+    infile = get_test_infile_path("1")
     copy(infile, project_root.joinpath("remove", infile.name))
 
     mkdir(project_root.joinpath("new"))
-    infile = get_infile("RGBA")
+    infile = get_test_infile_path("RGBA")
     copy(infile, project_root.joinpath("new", infile.name))
 
 
 def test():
-    with temp_directory() as input_directory, temp_directory() as project_root:
+    with get_temp_directory_path() as input_directory, get_temp_directory_path() as project_root:
         stage_files(input_directory, project_root)
 
         file_scanner = FileScanner(
@@ -54,7 +54,7 @@ def test():
 
 
 def test_remove_prefix():
-    with temp_directory() as input_directory, temp_directory() as project_root:
+    with get_temp_directory_path() as input_directory, get_temp_directory_path() as project_root:
         stage_files(input_directory, project_root)
 
         file_scanner = FileScanner(
@@ -71,7 +71,7 @@ def test_remove_prefix():
 
 
 def test_output_format():
-    with temp_directory() as input_directory, temp_directory() as project_root:
+    with get_temp_directory_path() as input_directory, get_temp_directory_path() as project_root:
         stage_files(input_directory, project_root)
 
         file_scanner = FileScanner(

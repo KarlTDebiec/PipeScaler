@@ -1,15 +1,15 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
-"""Tests for WaifuRunner"""
+#  Copyright 2020-2022 Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
+"""Tests for WaifuRunner."""
 from pathlib import Path
 
 import pytest
 
-from pipescaler.common import temporary_filename
+from pipescaler.common import get_temp_file_path
 from pipescaler.runners import WaifuRunner
-from pipescaler.testing import get_infile, parametrized_fixture, skip_if_ci
+from pipescaler.testing import get_test_infile_path, parametrized_fixture, skip_if_ci
 
 
 @parametrized_fixture(
@@ -29,8 +29,7 @@ def runner(request) -> WaifuRunner:
     ],
 )
 def test(infile: str, runner: WaifuRunner) -> None:
-    infile = get_infile(infile)
+    input_path: Path = get_test_infile_path(infile)
 
-    with temporary_filename(".png") as outfile:
-        outfile = Path(outfile)
-        runner.run(infile, outfile)
+    with get_temp_file_path(".png") as output_path:
+        runner.run(input_path, output_path)
