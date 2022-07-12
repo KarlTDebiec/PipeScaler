@@ -1,18 +1,18 @@
 #!/usr/bin/env python
-#  Copyright (C) 2020-2022. Karl T Debiec
+#  Copyright 2020-2022 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """File-related functions for testing."""
-from os import environ, getenv
+from os import getenv
 from pathlib import Path
 
-if environ.get("PACKAGE_ROOT") is not None:
-    package_root = Path(getenv("PACKAGE_ROOT"))
+if getenv("PACKAGE_ROOT"):
+    package_root = Path(str(getenv("PACKAGE_ROOT")))
 else:
     from pipescaler.common import package_root
 
 
-def get_infile(name: str) -> Path:
+def get_test_infile_path(name: str) -> Path:
     """Get full path of infile within test data directory.
 
     Arguments:
@@ -32,7 +32,7 @@ def get_infile(name: str) -> Path:
     return path
 
 
-def get_model_infile(name: str) -> Path:
+def get_test_model_infile_path(name: str) -> Path:
     """Get full path of model within test data directory.
 
     Arguments:
@@ -52,7 +52,7 @@ def get_model_infile(name: str) -> Path:
     return path
 
 
-def get_sub_directory(name: str = "basic") -> Path:
+def get_test_infile_directory_path(name: str = "basic") -> Path:
     """Get path of sub-directory within test data directory.
 
     Arguments:

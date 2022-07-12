@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright (C) 2020-2022. Karl T Debiec
+#  Copyright 2020-2022 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Manages checkpoints."""
@@ -10,7 +10,7 @@ from os.path import join
 from pathlib import Path
 from typing import Callable, Optional, Sequence, Union
 
-from pipescaler.common import temporary_filename, validate_output_directory
+from pipescaler.common import get_temp_file_path, validate_output_directory
 from pipescaler.core.pipelines import PipeImage
 
 
@@ -136,10 +136,9 @@ class CheckpointManager:
                     info(f"{self}: {image.name} checkpoint {checkpoint.name} loaded")
                 else:
                     if image.path is None:
-                        with temporary_filename(".png") as infile:
-                            infile = Path(infile)
-                            image.image.save(infile)
-                            function(infile, checkpoint)
+                        with get_temp_file_path(".png") as input_path:
+                            image.image.save(input_path)
+                            function(input_path, checkpoint)
                     else:
                         function(image.path, checkpoint)
                     output_image = PipeImage(path=checkpoint, parents=image)

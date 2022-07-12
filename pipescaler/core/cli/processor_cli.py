@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright (C) 2020-2022. Karl T Debiec
+#  Copyright 2020-2022 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Abstract base class for Processor command line interfaces."""
@@ -56,7 +56,7 @@ class ProcessorCli(CommandLineInterface, ABC):
     @classmethod
     def main(cls) -> None:
         """Execute from command line."""
-        parser = cls.construct_argparser()
+        parser = cls.argparser()
         kwargs = vars(parser.parse_args())
         cls.execute(**kwargs)
 

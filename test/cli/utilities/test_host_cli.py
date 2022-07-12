@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright 2020-2022 Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Tests for HostCli."""
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ from subprocess import PIPE, Popen
 from pytest import fixture, mark
 
 from pipescaler.cli.utilities import HostCli
-from pipescaler.common import run_command, temporary_filename
+from pipescaler.common import get_temp_file_path, run_command
 
 
 @fixture()
@@ -48,11 +48,11 @@ def test(script: str, args: str) -> None:
     ],
 )
 def test_conf(script: str, conf: str, args: str) -> None:
-    with temporary_filename(".yml") as conf_outfile_name:
-        with open(conf_outfile_name, "w") as conf_outfile:
-            conf_outfile.write(conf)
+    with get_temp_file_path(".yml") as conf_path:
+        with open(conf_path, "w") as conf_file:
+            conf_file.write(conf)
 
-        command = f"coverage run {getfile(HostCli)} {conf_outfile_name}"
+        command = f"coverage run {getfile(HostCli)} {conf_path}"
         with Popen(command, shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE) as child:
             child.stderr.readline()
             child.send_signal(SIGTERM)

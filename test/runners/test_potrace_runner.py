@@ -1,16 +1,16 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
-"""Tests for PotraceRunner"""
+#  Copyright 2020-2022 Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
+"""Tests for PotraceRunner."""
 from pathlib import Path
 
 import pytest
 from PIL import Image
 
-from pipescaler.common import temporary_filename
+from pipescaler.common import get_temp_file_path
 from pipescaler.runners import PotraceRunner
-from pipescaler.testing import get_infile, parametrized_fixture
+from pipescaler.testing import get_test_infile_path, parametrized_fixture
 
 
 @parametrized_fixture(
@@ -30,10 +30,9 @@ def runner(request) -> PotraceRunner:
     ],
 )
 def test(infile: str, runner: PotraceRunner) -> None:
-    infile = get_infile(infile)
+    input_path: Path = get_test_infile_path(infile)
 
-    with temporary_filename(".bmp") as bmp_infile:
-        Image.open(infile).save(bmp_infile)
-        with temporary_filename(".svg") as outfile:
-            outfile = Path(outfile)
-            runner.run(bmp_infile, outfile)
+    with get_temp_file_path(".bmp") as bmp_path:
+        Image.open(input_path).save(bmp_path)
+        with get_temp_file_path(".svg") as output_path:
+            runner.run(bmp_path, output_path)

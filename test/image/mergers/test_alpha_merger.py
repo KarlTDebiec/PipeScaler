@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved. This software may be modified and distributed under
-#   the terms of the BSD license. See the LICENSE file for details.
+#  Copyright 2020-2022 Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """Tests for AlphaMerger."""
 import pytest
 from PIL import Image
@@ -9,7 +9,7 @@ from PIL import Image
 from pipescaler.image.mergers import AlphaMerger
 from pipescaler.testing import (
     get_expected_output_mode,
-    get_infile,
+    get_test_infile_path,
     parametrized_fixture,
     xfail_unsupported_image_mode,
 )
@@ -39,9 +39,9 @@ def merger(request) -> AlphaMerger:
     ],
 )
 def test(color: str, alpha: str, merger: AlphaMerger) -> None:
-    color_infile = get_infile(color)
+    color_infile = get_test_infile_path(color)
     color_image = Image.open(color_infile)
-    alpha_infile = get_infile(alpha)
+    alpha_infile = get_test_infile_path(alpha)
     alpha_image = Image.open(alpha_infile)
 
     output_image = merger(color_image, alpha_image)

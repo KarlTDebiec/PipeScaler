@@ -1,11 +1,7 @@
 #!/usr/bin/env python
-#   pipescaler/models/esrgan.py
-#
-#   Copyright (C) 2020-2022 Karl T Debiec
-#   All rights reserved.
-#
-#   This software may be modified and distributed under the terms of the
-#   BSD license.
+#  Copyright 2020-2022 Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
 """ESRGAN 1X module."""
 from __future__ import annotations
 
