@@ -25,19 +25,17 @@ class CheckpointManager:
         """
         self.directory = validate_output_directory(directory)
         self.image_names: set[str] = set()
-        self.checkpoint_names:set[str] = set()
+        self.checkpoint_names: set[str] = set()
 
     def __repr__(self):
         """Representation."""
         return f"<{self.__class__.__name__}>"
 
-    def get_checkpoint(
-        self, image: PipeImage, name: str, suffix: Optional[str] = ".png"
-    ) -> Path:
+    def get_checkpoint(self, image: PipeImage, name: str, suffix: str = ".png") -> Path:
         """Get the path to a checkpoint for a provided image and name.
 
-        Argumentss:
-            image: Image; used to determine subfolder
+        Arguments:
+            image: Image; used to determine subdirectory
             name: Name of checkpoint
             suffix: Suffix of checkpoint
         Returns:
