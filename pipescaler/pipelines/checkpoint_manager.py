@@ -24,8 +24,8 @@ class CheckpointManager:
             directory: Directory in which to store checkpoints
         """
         self.directory = validate_output_directory(directory)
-        self.image_names = set()
-        self.checkpoint_names = set()
+        self.image_names: set[str] = set()
+        self.checkpoint_names:set[str] = set()
 
     def __repr__(self):
         """Representation."""
