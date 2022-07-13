@@ -41,9 +41,7 @@ class PaletteMatchMerger(Merger):
                 PaletteMatcher, LocalPaletteMatcher
             ] = PaletteMatcher()
         else:
-            self.palette_matcher: Union[
-                PaletteMatcher, LocalPaletteMatcher
-            ] = LocalPaletteMatcher(local_range)
+            self.palette_matcher = LocalPaletteMatcher(local_range)
 
     def __call__(self, *input_images: Image.Image) -> Image.Image:
         """Merge images.

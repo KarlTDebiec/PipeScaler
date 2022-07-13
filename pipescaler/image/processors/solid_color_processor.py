@@ -5,6 +5,8 @@
 """Sets entire image color to its average color, optionally resizing."""
 from __future__ import annotations
 
+from typing import Union
+
 import numpy as np
 from PIL import Image
 
@@ -42,7 +44,9 @@ class SolidColorProcessor(Processor):
         )
         array = np.array(input_image)
         if input_image.mode in ("LA", "RGB", "RGBA"):
-            color = tuple(np.rint(array.mean(axis=(0, 1))).astype(np.uint8))
+            color: Union[int, tuple[int, int, int]] = tuple(
+                np.rint(array.mean(axis=(0, 1))).astype(np.uint8)
+            )
         elif input_image.mode == "L":
             color = round(array.mean())
         else:
