@@ -35,7 +35,7 @@ class SolidColorProcessor(Processor):
             Processed output image
         """
         input_image, output_mode = validate_image_and_convert_mode(
-            input_image, self.inputs["input"]
+            input_image, self.inputs()["input"]
         )
 
         size = (
@@ -56,7 +56,6 @@ class SolidColorProcessor(Processor):
         return output_image
 
     @classmethod
-    @property
     def inputs(cls) -> dict[str, tuple[str, ...]]:
         """Inputs to this operator."""
         return {
@@ -64,7 +63,6 @@ class SolidColorProcessor(Processor):
         }
 
     @classmethod
-    @property
     def outputs(cls) -> dict[str, tuple[str, ...]]:
         """Outputs of this operator."""
         return {

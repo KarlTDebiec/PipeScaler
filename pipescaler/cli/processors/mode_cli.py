@@ -32,8 +32,8 @@ class ModeCli(ProcessorCli):
         required.add_argument(
             "--mode",
             required=True,
-            type=cls.str_arg(options=ModeProcessor.inputs["input"]),
-            help=f"image mode ({ModeProcessor.inputs['input']})",
+            type=cls.str_arg(options=ModeProcessor.inputs()["input"]),
+            help=f"image mode ({ModeProcessor.inputs()['input']})",
         )
 
         optional = cls.get_optional_arguments_group(parser)

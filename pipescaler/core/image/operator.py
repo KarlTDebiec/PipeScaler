@@ -18,7 +18,6 @@ class Operator(ABC):
         return f"<{self.__class__.__name__}>"
 
     @classmethod
-    @property
     def help_markdown(cls) -> str:
         """Short description of this image operator in markdown, with links."""
         if cls.__doc__:
@@ -26,13 +25,11 @@ class Operator(ABC):
         return ""
 
     @classmethod
-    @property
     def inputs(cls) -> dict[str, tuple[str, ...]]:
         """Inputs to this operator."""
         raise NotImplementedError()
 
     @classmethod
-    @property
     def outputs(cls) -> dict[str, tuple[str, ...]]:
         """Outputs of this operator."""
         raise NotImplementedError()

@@ -33,7 +33,7 @@ class CropProcessor(Processor):
         Returns:
             Processed output image
         """
-        input_image = validate_image(input_image, self.inputs["input"])
+        input_image = validate_image(input_image, self.inputs()["input"])
         if (
             input_image.size[0] < self.left + self.right + 1
             or input_image.size[1] < self.top + self.bottom + 1
@@ -47,7 +47,6 @@ class CropProcessor(Processor):
         return output_image
 
     @classmethod
-    @property
     def inputs(cls) -> dict[str, tuple[str, ...]]:
         """Inputs to this operator."""
         return {
@@ -55,7 +54,6 @@ class CropProcessor(Processor):
         }
 
     @classmethod
-    @property
     def outputs(cls) -> dict[str, tuple[str, ...]]:
         """Outputs of this operator."""
         return {

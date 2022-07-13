@@ -39,7 +39,7 @@ class ThresholdProcessor(Processor):
             Processed output image
         """
         input_image, input_mode = validate_image_and_convert_mode(
-            input_image, self.inputs["input"]
+            input_image, self.inputs()["input"]
         )
 
         if input_mode == "L":
@@ -54,7 +54,6 @@ class ThresholdProcessor(Processor):
         return output_image
 
     @classmethod
-    @property
     def inputs(cls) -> dict[str, tuple[str, ...]]:
         """Inputs to this operator."""
         return {
@@ -62,7 +61,6 @@ class ThresholdProcessor(Processor):
         }
 
     @classmethod
-    @property
     def outputs(cls) -> dict[str, tuple[str, ...]]:
         """Outputs of this operator."""
         return {

@@ -17,7 +17,6 @@ class Utility(ABC):
         return f"<{self.__class__.__name__}>"
 
     @classmethod
-    @property
     def help_markdown(cls) -> str:
         """Short description of this utility in markdown, with links."""
         if cls.__doc__:

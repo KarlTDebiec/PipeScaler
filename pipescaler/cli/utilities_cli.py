@@ -39,7 +39,7 @@ class UtilitiesCli(CommandLineInterface):
         Arguments:
             **kwargs: Command-line arguments
         """
-        utility = cls.utilities[kwargs.pop("utility")]
+        utility = cls.utilities()[kwargs.pop("utility")]
         utility.execute(**kwargs)
 
     @classmethod

@@ -41,7 +41,7 @@ class PyTorchProcessor(Processor, ABC):
             Processed output image
         """
         input_image, output_mode = validate_image_and_convert_mode(
-            input_image, self.inputs["input"], "RGB"
+            input_image, self.inputs()["input"], "RGB"
         )
 
         input_array = np.array(input_image)
@@ -93,7 +93,6 @@ class PyTorchProcessor(Processor, ABC):
         self._model = value
 
     @classmethod
-    @property
     def inputs(cls) -> dict[str, tuple[str, ...]]:
         """Inputs to this operator."""
         return {
@@ -101,7 +100,6 @@ class PyTorchProcessor(Processor, ABC):
         }
 
     @classmethod
-    @property
     def outputs(cls) -> dict[str, tuple[str, ...]]:
         """Outputs of this operator."""
         return {

@@ -35,13 +35,11 @@ class PotraceRunner(Runner):
         )
 
     @classmethod
-    @property
     def executable(cls) -> str:
         """Name of executable."""
         return "potrace"
 
     @classmethod
-    @property
     def help_markdown(cls) -> str:
         """Short description of this tool in markdown, with links."""
         return (

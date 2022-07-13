@@ -33,7 +33,7 @@ class ExpandProcessor(Processor):
         Returns:
             Processed output image
         """
-        input_image = validate_image(input_image, self.inputs["input"])
+        input_image = validate_image(input_image, self.inputs()["input"])
 
         output_image = expand_image(
             input_image, self.left, self.top, self.right, self.bottom
@@ -42,7 +42,6 @@ class ExpandProcessor(Processor):
         return output_image
 
     @classmethod
-    @property
     def inputs(cls) -> dict[str, tuple[str, ...]]:
         """Inputs to this operator."""
         return {
@@ -50,7 +49,6 @@ class ExpandProcessor(Processor):
         }
 
     @classmethod
-    @property
     def outputs(cls) -> dict[str, tuple[str, ...]]:
         """Outputs of this operator."""
         return {

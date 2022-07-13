@@ -57,7 +57,6 @@ class Esrgan4x(Esrgan):
         return super().load_state_dict(state_dict, strict)
 
     @classmethod
-    @property
     def scale(cls) -> int:
         """Scale of model."""
         return 4

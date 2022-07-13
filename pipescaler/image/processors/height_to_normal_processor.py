@@ -37,7 +37,7 @@ class HeightToNormalProcessor(Processor):
         Returns:
             Processed output image
         """
-        input_image = validate_image(input_image, self.inputs["input"])
+        input_image = validate_image(input_image, self.inputs()["input"])
 
         if self.sigma is not None:
             input_image = smooth_image(input_image, self.sigma)
@@ -46,7 +46,6 @@ class HeightToNormalProcessor(Processor):
         return output_image
 
     @classmethod
-    @property
     def inputs(cls) -> dict[str, tuple[str, ...]]:
         """Inputs to this operator."""
         return {
@@ -54,7 +53,6 @@ class HeightToNormalProcessor(Processor):
         }
 
     @classmethod
-    @property
     def outputs(cls) -> dict[str, tuple[str, ...]]:
         """Outputs of this operator."""
         return {

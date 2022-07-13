@@ -31,13 +31,11 @@ class Sorter(ABC):
         return f"<{self.__class__.__name__}>"
 
     @property
-    @abstractmethod
     def outlets(self) -> tuple[str, ...]:
         """Outlets to which images may be sorted."""
         raise NotImplementedError()
 
     @classmethod
-    @property
     def help_markdown(cls) -> str:
         """Short description of this image operator in markdown, with links."""
         if cls.__doc__:
