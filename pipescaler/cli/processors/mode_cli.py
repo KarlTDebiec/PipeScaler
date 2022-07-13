@@ -5,8 +5,8 @@
 """Command line interface for ModeProcessor."""
 from __future__ import annotations
 
-from argparse import ArgumentParser, _SubParsersAction
-from typing import Type, Union
+from argparse import ArgumentParser
+from typing import Type
 
 from pipescaler.core.cli import ProcessorCli
 from pipescaler.core.image import Processor
@@ -17,10 +17,7 @@ class ModeCli(ProcessorCli):
     """Command line interface for ModeProcessor."""
 
     @classmethod
-    def add_arguments_to_argparser(
-        cls,
-        parser: Union[ArgumentParser, _SubParsersAction],
-    ) -> None:
+    def add_arguments_to_argparser(cls, parser: ArgumentParser) -> None:
         """Add arguments to a nascent argument parser.
 
         Arguments:

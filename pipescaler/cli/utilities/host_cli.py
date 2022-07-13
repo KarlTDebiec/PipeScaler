@@ -5,11 +5,11 @@
 """Command line interface for Host."""
 from __future__ import annotations
 
-from argparse import ArgumentParser, _SubParsersAction
+from argparse import ArgumentParser
 from logging import info
 from os import environ
 from os.path import expandvars, normpath
-from typing import Any, Type, Union
+from typing import Any, Type
 
 from pipescaler.common import set_logging_verbosity, validate_int
 from pipescaler.core import Utility
@@ -22,10 +22,7 @@ class HostCli(UtilityCli):
     """Command line interface for Host."""
 
     @classmethod
-    def add_arguments_to_argparser(
-        cls,
-        parser: Union[ArgumentParser, _SubParsersAction],
-    ) -> None:
+    def add_arguments_to_argparser(cls, parser: ArgumentParser) -> None:
         """Add arguments to a nascent argument parser.
 
         Arguments:

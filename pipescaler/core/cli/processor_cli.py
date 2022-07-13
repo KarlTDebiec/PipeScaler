@@ -6,9 +6,9 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from argparse import ArgumentParser, _SubParsersAction
+from argparse import ArgumentParser
 from inspect import cleandoc
-from typing import Any, Type, Union
+from typing import Any, Type
 
 from PIL import Image
 
@@ -20,10 +20,7 @@ class ProcessorCli(CommandLineInterface, ABC):
     """Abstract base class for Processor command line interfaces."""
 
     @classmethod
-    def add_arguments_to_argparser(
-        cls,
-        parser: Union[ArgumentParser, _SubParsersAction],
-    ) -> None:
+    def add_arguments_to_argparser(cls, parser: ArgumentParser) -> None:
         """Add arguments to a nascent argument parser.
 
         Arguments:
@@ -37,9 +34,7 @@ class ProcessorCli(CommandLineInterface, ABC):
     @classmethod
     def description(cls) -> str:
         """Long description of this tool displayed below usage."""
-        if cls.processor.__doc__:
-            return cleandoc(cls.processor.__doc__)
-        return ""
+        return cleandoc(str(cls.processor().__doc__)) if cls.processor().__doc__ else ""
 
     @classmethod
     def execute(cls, **kwargs: Any) -> None:
