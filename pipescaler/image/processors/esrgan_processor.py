@@ -60,7 +60,6 @@ class EsrganProcessor(PyTorchProcessor):
             )
 
     @classmethod
-    @property
     def help_markdown(cls) -> str:
         """Short description of this tool in markdown, with links."""
         return (

@@ -39,7 +39,7 @@ class AutomatorProcessor(Processor):
             Processed output image
         """
         input_image, output_mode = validate_image_and_convert_mode(
-            input_image, self.inputs["input"], "RGB"
+            input_image, self.inputs()["input"], "RGB"
         )
 
         with get_temp_file_path(".png") as temp_input_path:
@@ -53,7 +53,6 @@ class AutomatorProcessor(Processor):
         return output_image
 
     @classmethod
-    @property
     def help_markdown(cls) -> str:
         """Short description of this tool in markdown, with links."""
         return (
@@ -64,7 +63,6 @@ class AutomatorProcessor(Processor):
         )
 
     @classmethod
-    @property
     def inputs(cls) -> dict[str, tuple[str, ...]]:
         """Inputs to this operator."""
         return {
@@ -72,7 +70,6 @@ class AutomatorProcessor(Processor):
         }
 
     @classmethod
-    @property
     def outputs(cls) -> dict[str, tuple[str, ...]]:
         """Outputs of this operator."""
         return {

@@ -43,7 +43,6 @@ class WaifuRunner(Runner):
         )
 
     @classmethod
-    @property
     def executable(cls) -> str:
         """Name of executable."""
         if system() == "Windows":
@@ -51,7 +50,6 @@ class WaifuRunner(Runner):
         return "waifu2x"
 
     @classmethod
-    @property
     def help_markdown(cls) -> str:
         """Short description of this tool in markdown, with links."""
         return (

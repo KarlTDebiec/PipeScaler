@@ -56,6 +56,22 @@ class AppleScriptRunner(Runner):
             f"{self.executable_path} {self.script}" ' "{infile}" ' f"{self.arguments}"
         )
 
+    @classmethod
+    def executable(cls) -> str:
+        """Name of executable."""
+        return "osascript"
+
+    @classmethod
+    def help_markdown(cls) -> str:
+        """Short description of this tool in markdown, with links."""
+        return (
+            "Runs image through an [AppleScript]"
+            "(https://developer.apple.com/library/archive/documentation/AppleScript/"
+            "Conceptual/AppleScriptLangGuide/introduction/ASLR_intro.html), "
+            "using an application such as [Pixelmator Pro]"
+            "(https://www.pixelmator.com/support/guide/pixelmator-pro/1270/)."
+        )
+
     def run(self, infile: Path, outfile: Path) -> None:
         """Run executable on infile, yielding outfile.
 
@@ -69,25 +85,6 @@ class AppleScriptRunner(Runner):
         copyfile(infile, outfile)
 
     @classmethod
-    @property
-    def executable(cls) -> str:
-        """Name of executable."""
-        return "osascript"
-
-    @classmethod
-    @property
-    def help_markdown(cls) -> str:
-        """Short description of this tool in markdown, with links."""
-        return (
-            "Runs image through an [AppleScript]"
-            "(https://developer.apple.com/library/archive/documentation/AppleScript/"
-            "Conceptual/AppleScriptLangGuide/introduction/ASLR_intro.html), "
-            "using an application such as [Pixelmator Pro]"
-            "(https://www.pixelmator.com/support/guide/pixelmator-pro/1270/)."
-        )
-
-    @classmethod
-    @property
     def supported_platforms(cls) -> set[str]:
         """Platforms on which runner is supported."""
         return {"Darwin"}

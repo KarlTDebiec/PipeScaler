@@ -37,7 +37,7 @@ class XbrzProcessor(Processor):
             Processed output image
         """
         input_image, output_mode = validate_image_and_convert_mode(
-            input_image, self.inputs["input"], "RGBA"
+            input_image, self.inputs()["input"], "RGBA"
         )
 
         output_image: Image.Image = xbrz.scale_pillow(input_image, self.scale)
@@ -53,13 +53,11 @@ class XbrzProcessor(Processor):
         return output_image
 
     @classmethod
-    @property
     def help_markdown(cls) -> str:
         """Short description of this tool in markdown, with links."""
         return "Upscales image using [xbrz](https://github.com/ioistired/xbrz.py)."
 
     @classmethod
-    @property
     def inputs(cls) -> dict[str, tuple[str, ...]]:
         """Inputs to this operator."""
         return {
@@ -67,7 +65,6 @@ class XbrzProcessor(Processor):
         }
 
     @classmethod
-    @property
     def outputs(cls) -> dict[str, tuple[str, ...]]:
         """Outputs of this operator."""
         return {

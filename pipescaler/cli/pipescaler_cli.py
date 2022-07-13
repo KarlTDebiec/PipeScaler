@@ -43,7 +43,6 @@ class PipeScalerCli(CommandLineInterface):
         sub_cli.execute(**kwargs)
 
     @classmethod
-    @property
     def sub_clis(cls) -> dict[str, Type[CommandLineInterface]]:
         """Names and types of tools wrapped by command line interface."""
         return {tool.name: tool for tool in [ProcessorsCli, UtilitiesCli]}

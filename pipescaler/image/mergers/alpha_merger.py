@@ -23,8 +23,8 @@ class AlphaMerger(Merger):
         Returns:
             Merged output image
         """
-        color_image = validate_image(input_images[0], self.inputs["color"])
-        alpha_image = validate_image(input_images[1], self.inputs["alpha"])
+        color_image = validate_image(input_images[0], self.inputs()["color"])
+        alpha_image = validate_image(input_images[1], self.inputs()["alpha"])
 
         color_array = np.array(color_image)
         if alpha_image.mode == "L":
@@ -43,7 +43,6 @@ class AlphaMerger(Merger):
         return output_image
 
     @classmethod
-    @property
     def inputs(cls) -> dict[str, tuple[str, ...]]:
         """Inputs to this operator."""
         return {
@@ -52,7 +51,6 @@ class AlphaMerger(Merger):
         }
 
     @classmethod
-    @property
     def outputs(cls) -> dict[str, tuple[str, ...]]:
         """Outputs of this operator."""
         return {

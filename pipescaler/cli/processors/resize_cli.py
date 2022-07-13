@@ -40,12 +40,11 @@ class ResizeCli(ProcessorCli):
         optional.add_argument(
             "--resample",
             default="lanczos",
-            type=cls.str_arg(options=cls.processor.resample_methods.keys()),
+            type=cls.str_arg(options=ResizeProcessor.resample_methods.keys()),
             help="Resampling method (default: %(default)s)",
         )
 
     @classmethod
-    @property
     def processor(cls) -> Type[Processor]:
         """Type of processor wrapped by command line interface."""
         return ResizeProcessor

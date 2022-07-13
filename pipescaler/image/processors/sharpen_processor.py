@@ -26,7 +26,7 @@ class SharpenProcessor(Processor):
         Returns:
             Processed output image
         """
-        input_image = validate_image(input_image, self.inputs["input"])
+        input_image = validate_image(input_image, self.inputs()["input"])
 
         if input_image.mode == "L":
             input_array = np.array(input_image).astype(float)
@@ -45,7 +45,6 @@ class SharpenProcessor(Processor):
         return output_image
 
     @classmethod
-    @property
     def inputs(cls) -> dict[str, tuple[str, ...]]:
         """Inputs to this operator."""
         return {
@@ -53,7 +52,6 @@ class SharpenProcessor(Processor):
         }
 
     @classmethod
-    @property
     def outputs(cls) -> dict[str, tuple[str, ...]]:
         """Outputs of this operator."""
         return {

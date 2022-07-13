@@ -22,7 +22,7 @@ class ModeProcessor(Processor):
             mode: Output mode
             background_color: Background color
         """
-        self.mode = validate_str(mode, self.outputs["output"])
+        self.mode = validate_str(mode, self.outputs()["output"])
         self.background_color = ImageColor.getrgb(background_color)  # TODO: Validate
 
     def __call__(self, input_image: Image.Image) -> Image.Image:
@@ -33,7 +33,7 @@ class ModeProcessor(Processor):
         Returns:
             Processed output image
         """
-        input_image = validate_image(input_image, self.inputs["input"])
+        input_image = validate_image(input_image, self.inputs()["input"])
 
         if input_image.mode == self.mode:
             return input_image
@@ -46,7 +46,6 @@ class ModeProcessor(Processor):
         return output_image
 
     @classmethod
-    @property
     def inputs(cls) -> dict[str, tuple[str, ...]]:
         """Inputs to this operator."""
         return {
@@ -54,7 +53,6 @@ class ModeProcessor(Processor):
         }
 
     @classmethod
-    @property
     def outputs(cls) -> dict[str, tuple[str, ...]]:
         """Outputs of this operator."""
         return {

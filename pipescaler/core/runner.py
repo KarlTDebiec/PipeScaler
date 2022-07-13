@@ -32,14 +32,26 @@ class Runner(ABC):
         """String template with which to generate command."""
         raise NotImplementedError()
 
+    @classmethod
+    def executable(cls) -> str:
+        """Name of executable."""
+        raise NotImplementedError()
+
     @property
     def executable_path(self) -> Path:
         """Path to executable."""
         if self._executable_path is None:
             self._executable_path = Path(
-                validate_executable(self.executable, self.supported_platforms)
+                validate_executable(self.executable(), self.supported_platforms())
             )
         return self._executable_path
+
+    @classmethod
+    def help_markdown(cls) -> str:
+        """Short description of this tool in markdown, with links."""
+        if cls.__doc__:
+            return cleandoc(cls.__doc__).split(". ", maxsplit=1)[0]
+        return ""
 
     def run(self, infile: Path, outfile: Path) -> None:
         """Run executable on infile, yielding outfile.
@@ -53,21 +65,6 @@ class Runner(ABC):
         run_command(command, timeout=self.timeout)
 
     @classmethod
-    @property
-    def executable(cls) -> str:
-        """Name of executable."""
-        raise NotImplementedError()
-
-    @classmethod
-    @property
-    def help_markdown(cls) -> str:
-        """Short description of this tool in markdown, with links."""
-        if cls.__doc__:
-            return cleandoc(cls.__doc__).split(". ", maxsplit=1)[0]
-        return ""
-
-    @classmethod
-    @property
     def supported_platforms(cls) -> set[str]:
         """Platforms on which runner is supported."""
         return {"Darwin", "Linux", "Windows"}

@@ -23,9 +23,9 @@ class NormalMerger(Merger):
         Returns:
             Merged output image
         """
-        x_image = validate_image(input_images[0], self.inputs["x"])
-        y_image = validate_image(input_images[1], self.inputs["y"])
-        z_image = validate_image(input_images[2], self.inputs["z"])
+        x_image = validate_image(input_images[0], self.inputs()["x"])
+        y_image = validate_image(input_images[1], self.inputs()["y"])
+        z_image = validate_image(input_images[2], self.inputs()["z"])
 
         x_array = np.clip(np.array(x_image, float) - 128, -128, 127)
         y_array = np.clip(np.array(y_image, float) - 128, -128, 127)
@@ -43,7 +43,6 @@ class NormalMerger(Merger):
         return output_image
 
     @classmethod
-    @property
     def inputs(cls) -> dict[str, tuple[str, ...]]:
         """Inputs to this operator."""
         return {
@@ -53,7 +52,6 @@ class NormalMerger(Merger):
         }
 
     @classmethod
-    @property
     def outputs(cls) -> dict[str, tuple[str, ...]]:
         """Outputs of this operator."""
         return {

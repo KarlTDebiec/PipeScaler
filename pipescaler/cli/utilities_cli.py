@@ -29,8 +29,8 @@ class UtilitiesCli(CommandLineInterface):
         super().add_arguments_to_argparser(parser)
 
         subparsers = parser.add_subparsers(dest="utility")
-        for name in sorted(cls.utilities):
-            cls.utilities[name].argparser(subparsers=subparsers)
+        for name in sorted(cls.utilities()):
+            cls.utilities()[name].argparser(subparsers=subparsers)
 
     @classmethod
     def execute(cls, **kwargs: Any) -> None:
@@ -39,33 +39,29 @@ class UtilitiesCli(CommandLineInterface):
         Arguments:
             **kwargs: Command-line arguments
         """
-        utility = cls.utilities[kwargs.pop("utility")]
+        utility = cls.utilities()[kwargs.pop("utility")]
         utility.execute(**kwargs)
 
     @classmethod
-    @property
     def description(cls) -> str:
         """Long description of this tool displayed below usage."""
         return "Runs utilities."
 
     @classmethod
-    @property
     def help(cls) -> str:
         """Short description of this tool used when it is a subparser."""
         return "run utilities"
 
     @classmethod
-    @property
     def name(cls) -> str:
         """Name of this tool used to define it when it is a subparser."""
         return "utility"
 
     @classmethod
-    @property
     def utilities(cls) -> dict[str, Type[UtilityCli]]:
         """Names and types of utilities wrapped by command line interface."""
         return {
-            utility.name: utility
+            utility.name(): utility
             for utility in map(utilities.__dict__.get, utilities.__all__)
         }
 

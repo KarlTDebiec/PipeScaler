@@ -48,7 +48,7 @@ class PotraceProcessor(Processor):
             Processed output image
         """
         input_image, _ = validate_image_and_convert_mode(
-            input_image, self.inputs["input"], "L"
+            input_image, self.inputs()["input"], "L"
         )
         if self.invert:
             input_image = invert(input_image)
@@ -76,7 +76,6 @@ class PotraceProcessor(Processor):
         return output_image
 
     @classmethod
-    @property
     def help_markdown(cls) -> str:
         """Short description of this tool in markdown, with links."""
         return (
@@ -85,7 +84,6 @@ class PotraceProcessor(Processor):
         )
 
     @classmethod
-    @property
     def inputs(cls) -> dict[str, tuple[str, ...]]:
         """Inputs to this operator."""
         return {
@@ -93,7 +91,6 @@ class PotraceProcessor(Processor):
         }
 
     @classmethod
-    @property
     def outputs(cls) -> dict[str, tuple[str, ...]]:
         """Outputs of this operator."""
         return {

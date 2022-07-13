@@ -63,13 +63,11 @@ class AutomatorRunner(Runner):
         return f"{self.executable_path}" " -i {infile}" f" {self.workflow}"
 
     @classmethod
-    @property
     def executable(cls) -> str:
         """Name of executable."""
         return "automator"
 
     @classmethod
-    @property
     def help_markdown(cls) -> str:
         """Short description of this tool in markdown, with links."""
         return (
@@ -80,7 +78,6 @@ class AutomatorRunner(Runner):
         )
 
     @classmethod
-    @property
     def supported_platforms(cls) -> set[str]:
         """Platforms on which runner is supported."""
         return {"Darwin"}

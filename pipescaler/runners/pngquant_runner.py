@@ -57,13 +57,11 @@ class PngquantRunner(Runner):
             copyfile(infile, outfile)
 
     @classmethod
-    @property
     def executable(cls) -> str:
         """Name of executable."""
         return "pngquant"
 
     @classmethod
-    @property
     def help_markdown(cls) -> str:
         """Short description of this tool in markdown, with links."""
         return "Reduces image palette using [pngquant](https://pngquant.org/)."

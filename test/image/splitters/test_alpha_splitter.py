@@ -59,8 +59,8 @@ def test(infile: str, splitter: AlphaSplitter) -> None:
     input_image = Image.open(input_path)
     color_image, alpha_image = splitter(input_image)
 
-    assert color_image.mode in splitter.outputs["color"]
+    assert color_image.mode in splitter.outputs()["color"]
     assert color_image.mode == get_expected_output_mode(input_image).rstrip("A")
     assert color_image.size == input_image.size
-    assert alpha_image.mode in splitter.outputs["alpha"]
+    assert alpha_image.mode in splitter.outputs()["alpha"]
     assert alpha_image.size == input_image.size

@@ -50,7 +50,7 @@ class AlphaSplitter(Splitter):
         Returns:
             Split output images
         """
-        input_image = validate_image(input_image, self.inputs["input"])
+        input_image = validate_image(input_image, self.inputs()["input"])
 
         input_array = np.array(input_image)
 
@@ -68,7 +68,6 @@ class AlphaSplitter(Splitter):
         return color_image, alpha_image
 
     @classmethod
-    @property
     def inputs(cls) -> dict[str, tuple[str, ...]]:
         """Inputs to this operator."""
         return {
@@ -76,7 +75,6 @@ class AlphaSplitter(Splitter):
         }
 
     @classmethod
-    @property
     def outputs(cls) -> dict[str, tuple[str, ...]]:
         """Outputs of this operator."""
         return {

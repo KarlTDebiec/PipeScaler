@@ -52,17 +52,16 @@ class HostCli(UtilityCli):
         # Set environment variables
         for key, value in conf.pop("environment", {}).items():
             value = normpath(expandvars(value))
-            environ[key] = normpath(expandvars(value))
-            info(f"Environment variable '{key}' set to '{value}'")
+            environ[key] = value
+            info(f"Environment variable {key} set to {value}")
 
         verbosity = validate_int(kwargs.pop("verbosity", 1), min_value=0)
         set_logging_verbosity(verbosity)
 
-        utility = cls.utility(**{**kwargs, **conf})  # noqa
+        utility = cls.utility()(**{**kwargs, **conf})  # noqa
         utility()
 
     @classmethod
-    @property
     def utility(cls) -> Type[Utility]:
         """Type of utility wrapped by command line interface."""
         return Host

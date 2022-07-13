@@ -37,7 +37,6 @@ class EsrganSerializerCli(UtilityCli):
         )
 
     @classmethod
-    @property
     def utility(cls) -> Type[Utility]:
         """Type of utility wrapped by command line interface."""
         return EsrganSerializer

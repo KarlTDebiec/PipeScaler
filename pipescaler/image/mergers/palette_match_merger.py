@@ -51,8 +51,8 @@ class PaletteMatchMerger(Merger):
         Returns:
             Merged output image
         """
-        ref_image = validate_image(input_images[0], self.inputs["ref"])
-        fit_image = validate_image(input_images[1], self.inputs["fit"])
+        ref_image = validate_image(input_images[0], self.inputs()["ref"])
+        fit_image = validate_image(input_images[1], self.inputs()["fit"])
         if ref_image.mode != fit_image.mode:
             raise UnsupportedImageModeError(
                 f"Image mode '{ref_image.mode}' of reference image does not match mode "
@@ -64,7 +64,6 @@ class PaletteMatchMerger(Merger):
         return output_image
 
     @classmethod
-    @property
     def inputs(cls) -> dict[str, tuple[str, ...]]:
         """Inputs to this operator."""
         return {
@@ -73,7 +72,6 @@ class PaletteMatchMerger(Merger):
         }
 
     @classmethod
-    @property
     def outputs(cls) -> dict[str, tuple[str, ...]]:
         """Outputs of this operator."""
         return {

@@ -23,7 +23,7 @@ class NormalSplitter(Splitter):
         Returns:
             Split output images
         """
-        input_image = validate_image(input_image, self.inputs["input"])
+        input_image = validate_image(input_image, self.inputs()["input"])
         input_array = np.array(input_image)
         x_array = input_array[:, :, 0]
         y_array = input_array[:, :, 1]
@@ -37,7 +37,6 @@ class NormalSplitter(Splitter):
         return x_image, y_image, z_image
 
     @classmethod
-    @property
     def inputs(cls) -> dict[str, tuple[str, ...]]:
         """Inputs to this operator."""
         return {
@@ -45,7 +44,6 @@ class NormalSplitter(Splitter):
         }
 
     @classmethod
-    @property
     def outputs(cls) -> dict[str, tuple[str, ...]]:
         """Outputs of this operator."""
         return {

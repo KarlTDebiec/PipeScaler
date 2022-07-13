@@ -32,7 +32,6 @@ class WebCli(ProcessorCli):
         required.add_argument("--url", type=str, help="URL to which to POST image")
 
     @classmethod
-    @property
     def processor(cls) -> Type[Processor]:
         """Type of processor wrapped by command line interface."""
         return WebProcessor
