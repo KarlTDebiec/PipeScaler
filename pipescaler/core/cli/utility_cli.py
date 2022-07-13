@@ -17,6 +17,13 @@ class UtilityCli(CommandLineInterface, ABC):
     """Abstract base class for Utility command line interfaces."""
 
     @classmethod
+    def description(cls) -> str:
+        """Long description of this tool displayed below usage."""
+        if cls.utility.__doc__:
+            return cleandoc(cls.utility.__doc__)
+        return ""
+
+    @classmethod
     def execute(cls, **kwargs: Any) -> None:
         """Execute with provided keyword arguments.
 
@@ -38,21 +45,11 @@ class UtilityCli(CommandLineInterface, ABC):
         cls.execute(**kwargs)
 
     @classmethod
-    @property
-    def description(cls) -> str:
-        """Long description of this tool displayed below usage."""
-        if cls.utility.__doc__:
-            return cleandoc(cls.utility.__doc__)
-        return ""
-
-    @classmethod
-    @property
     def name(cls) -> str:
         """Name of this tool used to define it when it is a subparser."""
         return cls.__name__.removesuffix("Cli").lower()
 
     @classmethod
-    @property
     @abstractmethod
     def utility(cls) -> Type[Utility]:
         """Type of utility wrapped by command line interface."""

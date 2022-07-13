@@ -44,7 +44,6 @@ class ThresholdCli(ProcessorCli):
         )
 
     @classmethod
-    @property
     def processor(cls) -> Type[Processor]:
         """Type of processor wrapped by command line interface."""
         return ThresholdProcessor

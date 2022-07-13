@@ -31,8 +31,8 @@ class WaifuSerializerCli(UtilityCli):
         required = cls.get_required_arguments_group(parser)
         required.add_argument(
             "architecture",
-            type=cls.str_arg(options=cls.utility.architectures.keys()),
-            help=f"model architecture {cls.utility.architectures.keys()}",
+            type=cls.str_arg(options=cls.utility().architectures.keys()),
+            help=f"model architecture {cls.utility().architectures.keys()}",
         )
         required.add_argument(
             "infile", type=cls.input_file_arg(), help="input json file"
@@ -42,7 +42,6 @@ class WaifuSerializerCli(UtilityCli):
         )
 
     @classmethod
-    @property
     def utility(cls) -> Type[Utility]:
         """Type of utility wrapped by command line interface."""
         return WaifuSerializer

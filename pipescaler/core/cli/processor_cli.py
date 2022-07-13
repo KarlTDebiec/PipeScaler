@@ -35,6 +35,13 @@ class ProcessorCli(CommandLineInterface, ABC):
         parser.add_argument("outfile", type=cls.output_file_arg(), help="output file")
 
     @classmethod
+    def description(cls) -> str:
+        """Long description of this tool displayed below usage."""
+        if cls.processor.__doc__:
+            return cleandoc(cls.processor.__doc__)
+        return ""
+
+    @classmethod
     def execute(cls, **kwargs: Any) -> None:
         """Execute with provided keyword arguments.
 
@@ -47,11 +54,11 @@ class ProcessorCli(CommandLineInterface, ABC):
         infile = kwargs.pop("infile")
         outfile = kwargs.pop("outfile")
         set_logging_verbosity(kwargs.pop("verbosity", 1))
-        processor = cls.processor(**kwargs)  # noqa
+        processor = cls.processor()(**kwargs)  # noqa
         with Image.open(infile) as input_image:
             output_image = processor(input_image)
             output_image.save(outfile)
-            print(f"{cls}: '{outfile}' saved")
+            print(f"{cls.__name__}: '{outfile}' saved")
 
     @classmethod
     def main(cls) -> None:
@@ -61,21 +68,11 @@ class ProcessorCli(CommandLineInterface, ABC):
         cls.execute(**kwargs)
 
     @classmethod
-    @property
-    def description(cls) -> str:
-        """Long description of this tool displayed below usage."""
-        if cls.processor.__doc__:
-            return cleandoc(cls.processor.__doc__)
-        return ""
-
-    @classmethod
-    @property
     def name(cls) -> str:
         """Name of this tool used to define it when it is a subparser."""
         return cls.__name__.removesuffix("Cli").lower()
 
     @classmethod
-    @property
     @abstractmethod
     def processor(cls) -> Type[Processor]:
         """Type of processor wrapped by command line interface."""

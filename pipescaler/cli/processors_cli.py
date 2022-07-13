@@ -29,8 +29,13 @@ class ProcessorsCli(CommandLineInterface):
         super().add_arguments_to_argparser(parser)
 
         subparsers = parser.add_subparsers(dest="processor")
-        for name in sorted(cls.processors):
-            cls.processors[name].argparser(subparsers=subparsers)
+        for name in sorted(cls.processors()):
+            cls.processors()[name].argparser(subparsers=subparsers)
+
+    @classmethod
+    def description(cls) -> str:
+        """Long description of this tool displayed below usage."""
+        return "Processes images."
 
     @classmethod
     def execute(cls, **kwargs: Any) -> None:
@@ -39,33 +44,24 @@ class ProcessorsCli(CommandLineInterface):
         Arguments:
             **kwargs: Command-line arguments
         """
-        processor = cls.processors[kwargs.pop("processor")]
+        processor = cls.processors()[kwargs.pop("processor")]
         processor.execute(**kwargs)
 
     @classmethod
-    @property
-    def description(cls) -> str:
-        """Long description of this tool displayed below usage."""
-        return "Processes images."
-
-    @classmethod
-    @property
     def help(cls) -> str:
         """Short description of this tool used when it is a subparser."""
         return "process image"
 
     @classmethod
-    @property
     def name(cls) -> str:
         """Name of this tool used to define it when it is a subparser."""
         return "process"
 
     @classmethod
-    @property
     def processors(cls) -> dict[str, Type[ProcessorCli]]:
         """Names and types of processors wrapped by command line interface."""
         return {
-            processor.name: processor
+            processor.name(): processor
             for processor in map(processors.__dict__.get, processors.__all__)
         }
 
