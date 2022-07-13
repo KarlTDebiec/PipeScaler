@@ -22,7 +22,7 @@ class PaletteMatchMerger(Merger):
 
     def __init__(
         self,
-        palette_match_mode: Union[type(PaletteMatchMode), str] = PaletteMatchMode.BASIC,
+        palette_match_mode: Union[PaletteMatchMode, str] = PaletteMatchMode.BASIC,
         local_range: int = 1,
         **kwargs: Any,
     ) -> None:
@@ -37,9 +37,13 @@ class PaletteMatchMerger(Merger):
 
         self.palette_match_mode = validate_enum(palette_match_mode, PaletteMatchMode)
         if self.palette_match_mode == PaletteMatchMode.BASIC:
-            self.palette_matcher = PaletteMatcher()
+            self.palette_matcher: Union[
+                PaletteMatcher, LocalPaletteMatcher
+            ] = PaletteMatcher()
         else:
-            self.palette_matcher = LocalPaletteMatcher(local_range)
+            self.palette_matcher: Union[
+                PaletteMatcher, LocalPaletteMatcher
+            ] = LocalPaletteMatcher(local_range)
 
     def __call__(self, *input_images: Image.Image) -> Image.Image:
         """Merge images.
