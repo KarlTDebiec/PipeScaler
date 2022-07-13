@@ -109,7 +109,7 @@ class PaletteMatcher(Utility):
         # Prepare set of cells to check
         cell = (color[0] // 16, color[1] // 16, color[2] // 16)
         cell_range = 0
-        cells_to_check = set()
+        cells_to_check = set(tuple[int, int, int])
         while len(cells_to_check) == 0:
             cell_range += 1
             cell_ranges = [

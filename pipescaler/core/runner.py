@@ -9,6 +9,7 @@ from abc import ABC, abstractmethod
 from inspect import cleandoc
 from logging import debug
 from pathlib import Path
+from typing import Optional
 
 from pipescaler.common import run_command, validate_executable, validate_int
 
@@ -23,7 +24,7 @@ class Runner(ABC):
             timeout: Timeout for external tool invocation
         """
         self.timeout = validate_int(timeout, 0)
-        self._executable_path = None
+        self._executable_path: Optional[Path] = None
 
     @property
     @abstractmethod
