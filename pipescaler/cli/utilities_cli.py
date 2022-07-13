@@ -5,8 +5,8 @@
 """Command line interface for PipeScaler utilities."""
 from __future__ import annotations
 
-from argparse import ArgumentParser, _SubParsersAction
-from typing import Any, Type, Union
+from argparse import ArgumentParser
+from typing import Any, Type
 
 from pipescaler.cli import utilities
 from pipescaler.common import CommandLineInterface
@@ -17,10 +17,7 @@ class UtilitiesCli(CommandLineInterface):
     """Command line interface for PipeScaler utilities."""
 
     @classmethod
-    def add_arguments_to_argparser(
-        cls,
-        parser: Union[ArgumentParser, _SubParsersAction],
-    ) -> None:
+    def add_arguments_to_argparser(cls, parser: ArgumentParser) -> None:
         """Add arguments to a nascent argument parser.
 
         Arguments:
@@ -28,7 +25,9 @@ class UtilitiesCli(CommandLineInterface):
         """
         super().add_arguments_to_argparser(parser)
 
-        subparsers = parser.add_subparsers(dest="utility")
+        subparsers = parser.add_subparsers(
+            dest="utility", help="utility", required=True
+        )
         for name in sorted(cls.utilities()):
             cls.utilities()[name].argparser(subparsers=subparsers)
 
@@ -50,7 +49,7 @@ class UtilitiesCli(CommandLineInterface):
     @classmethod
     def help(cls) -> str:
         """Short description of this tool used when it is a subparser."""
-        return "run utilities"
+        return "run utility"
 
     @classmethod
     def name(cls) -> str:
@@ -63,6 +62,7 @@ class UtilitiesCli(CommandLineInterface):
         return {
             utility.name(): utility
             for utility in map(utilities.__dict__.get, utilities.__all__)
+            if isinstance(utility, type) and issubclass(utility, UtilityCli)
         }
 
 

@@ -5,8 +5,8 @@
 """Command line interface for PipeScaler."""
 from __future__ import annotations
 
-from argparse import ArgumentParser, _SubParsersAction
-from typing import Any, Type, Union
+from argparse import ArgumentParser
+from typing import Any, Type
 
 from pipescaler.cli.processors_cli import ProcessorsCli
 from pipescaler.cli.utilities_cli import UtilitiesCli
@@ -17,10 +17,7 @@ class PipeScalerCli(CommandLineInterface):
     """Command line interface for PipeScaler."""
 
     @classmethod
-    def add_arguments_to_argparser(
-        cls,
-        parser: Union[ArgumentParser, _SubParsersAction],
-    ) -> None:
+    def add_arguments_to_argparser(cls, parser: ArgumentParser) -> None:
         """Add arguments to a nascent argument parser.
 
         Arguments:
@@ -28,7 +25,7 @@ class PipeScalerCli(CommandLineInterface):
         """
         super().add_arguments_to_argparser(parser)
 
-        subparsers = parser.add_subparsers(dest="sub_cli")
+        subparsers = parser.add_subparsers(dest="action", help="action", required=True)
         ProcessorsCli.argparser(subparsers=subparsers)
         UtilitiesCli.argparser(subparsers=subparsers)
 
@@ -39,13 +36,15 @@ class PipeScalerCli(CommandLineInterface):
         Arguments:
             **kwargs: Command-line arguments
         """
-        sub_cli = cls.sub_clis[kwargs.pop("sub_cli")]
+        sub_cli = cls.subcommands()[kwargs.pop("action")]
         sub_cli.execute(**kwargs)
 
     @classmethod
-    def sub_clis(cls) -> dict[str, Type[CommandLineInterface]]:
+    def subcommands(cls) -> dict[str, Type[CommandLineInterface]]:
         """Names and types of tools wrapped by command line interface."""
-        return {tool.name: tool for tool in [ProcessorsCli, UtilitiesCli]}
+        return {
+            tool.name(): tool for tool in [ProcessorsCli, UtilitiesCli]  # type: ignore
+        }
 
 
 if __name__ == "__main__":

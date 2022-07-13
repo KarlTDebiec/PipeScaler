@@ -9,10 +9,10 @@ from inspect import getfile
 from signal import SIGTERM
 from subprocess import PIPE, Popen
 
-from pytest import fixture, mark
+from pytest import fixture
 
 from pipescaler.cli.utilities import HostCli
-from pipescaler.common import get_temp_file_path, run_command
+from pipescaler.common import get_temp_file_path
 
 
 @fixture()
@@ -30,29 +30,13 @@ def script(request) -> str:
     return getfile(HostCli)
 
 
-@mark.parametrize(
-    ("args"),
-    [
-        ("-h"),
-    ],
-)
-def test(script: str, args: str) -> None:
-    command = f"coverage run {script} {args}"
-    run_command(command)
-
-
-@mark.parametrize(
-    ("args"),
-    [
-        (""),
-    ],
-)
-def test_conf(script: str, conf: str, args: str) -> None:
+def test(script, conf: str) -> None:
     with get_temp_file_path(".yml") as conf_path:
         with open(conf_path, "w") as conf_file:
             conf_file.write(conf)
 
         command = f"coverage run {getfile(HostCli)} {conf_path}"
         with Popen(command, shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE) as child:
-            child.stderr.readline()
-            child.send_signal(SIGTERM)
+            if child.stderr is not None:
+                child.stderr.readline()
+                child.send_signal(SIGTERM)
