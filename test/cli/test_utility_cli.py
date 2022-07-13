@@ -11,6 +11,7 @@ from pytest import fixture, mark
 
 from pipescaler.cli import UtilitiesCli
 from pipescaler.common import run_command
+from pipescaler.testing import xfail_value
 
 
 @fixture
@@ -21,6 +22,7 @@ def script(request) -> str:
 @mark.parametrize(
     ("args"),
     [
+        xfail_value()(""),
         ("-h"),
         ("apngcreator -h"),
         ("esrganserializer -h"),

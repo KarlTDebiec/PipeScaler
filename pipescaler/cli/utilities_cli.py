@@ -28,7 +28,9 @@ class UtilitiesCli(CommandLineInterface):
         """
         super().add_arguments_to_argparser(parser)
 
-        subparsers = parser.add_subparsers(dest="utility")
+        subparsers = parser.add_subparsers(
+            dest="utility", help="utility", required=True
+        )
         for name in sorted(cls.utilities()):
             cls.utilities()[name].argparser(subparsers=subparsers)
 
@@ -50,7 +52,7 @@ class UtilitiesCli(CommandLineInterface):
     @classmethod
     def help(cls) -> str:
         """Short description of this tool used when it is a subparser."""
-        return "run utilities"
+        return "run utility"
 
     @classmethod
     def name(cls) -> str:

@@ -15,6 +15,7 @@ from pipescaler.testing import (
     get_test_infile_path,
     get_test_model_infile_path,
     skip_if_ci,
+    xfail_value,
 )
 
 
@@ -26,6 +27,7 @@ def script(request) -> str:
 @mark.parametrize(
     ("infile", "args"),
     [
+        xfail_value()("RGB", ""),
         ("RGB", "-h"),
         ("RGB", "crop -h"),
         ("RGB", "crop --pixels 4 4 4 4"),

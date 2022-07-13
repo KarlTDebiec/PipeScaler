@@ -28,7 +28,7 @@ class PipeScalerCli(CommandLineInterface):
         """
         super().add_arguments_to_argparser(parser)
 
-        subparsers = parser.add_subparsers(dest="sub_cli")
+        subparsers = parser.add_subparsers(dest="action", help="action", required=True)
         ProcessorsCli.argparser(subparsers=subparsers)
         UtilitiesCli.argparser(subparsers=subparsers)
 
@@ -39,7 +39,7 @@ class PipeScalerCli(CommandLineInterface):
         Arguments:
             **kwargs: Command-line arguments
         """
-        sub_cli = cls.sub_clis[kwargs.pop("sub_cli")]
+        sub_cli = cls.sub_clis[kwargs.pop("action")]
         sub_cli.execute(**kwargs)
 
     @classmethod

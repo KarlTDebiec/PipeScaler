@@ -11,6 +11,7 @@ from pytest import fixture, mark
 
 from pipescaler.cli import PipeScalerCli
 from pipescaler.common import run_command
+from pipescaler.testing import xfail_value
 
 
 @fixture
@@ -21,8 +22,11 @@ def script(request) -> str:
 @mark.parametrize(
     ("args"),
     [
+        xfail_value()(""),
         ("-h"),
+        xfail_value()("process"),
         ("process -h"),
+        xfail_value()("utility"),
         ("utility -h"),
     ],
 )

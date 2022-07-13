@@ -28,7 +28,9 @@ class ProcessorsCli(CommandLineInterface):
         """
         super().add_arguments_to_argparser(parser)
 
-        subparsers = parser.add_subparsers(dest="processor")
+        subparsers = parser.add_subparsers(
+            dest="processor", help="processor", required=True
+        )
         for name in sorted(cls.processors()):
             cls.processors()[name].argparser(subparsers=subparsers)
 
