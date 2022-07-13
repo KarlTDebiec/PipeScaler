@@ -9,7 +9,7 @@ from logging import info
 
 import numpy as np
 
-from pipescaler.common import validate_float, validate_int
+from pipescaler.common import validate_int
 from pipescaler.core.pipelines import PipeImage
 from pipescaler.core.pipelines.sorter import Sorter
 from pipescaler.core.validation import validate_image
@@ -18,7 +18,7 @@ from pipescaler.core.validation import validate_image
 class SolidColorSorter(Sorter):
     """Sorts image based on whether their entire canvas is a solid color."""
 
-    def __init__(self, mean_threshold: float = 1, max_threshold: float = 10) -> None:
+    def __init__(self, mean_threshold: int = 1, max_threshold: int = 10) -> None:
         """Validate configuration and initialize.
 
         Arguments:
@@ -27,7 +27,7 @@ class SolidColorSorter(Sorter):
             max_threshold: Sort as 'solid' if maximum diff between image and its average
               color is below this threshold
         """
-        self.mean_threshold = validate_float(mean_threshold, 0, 255)
+        self.mean_threshold = validate_int(mean_threshold, 0, 255)
         self.max_threshold = validate_int(max_threshold, 0, 255)
 
     def __call__(self, pipe_image: PipeImage) -> str:

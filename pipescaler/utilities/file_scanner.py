@@ -82,12 +82,12 @@ class FileScanner(Utility):
             self.reviewed_directories = validate_input_directories(reviewed_directories)
 
         # Prepare filename data structures
-        self.reviewed_names = {}
+        self.reviewed_names: set[str] = set()
         """Names of images that have been reviewed."""
         if self.reviewed_directories is not None:
             self.reviewed_names = get_names(self.reviewed_directories)
 
-        self.ignored_names = {}
+        self.ignored_names: set[str] = set()
         """Names of images to ignore."""
         if self.ignore_directory.exists():
             self.ignored_names = get_names(self.ignore_directory)

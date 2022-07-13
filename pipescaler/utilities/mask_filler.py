@@ -18,7 +18,7 @@ class MaskFiller(Utility):
     """Erases masked pixels within an image."""
 
     def __init__(
-        self, mask_fill_mode: Union[type(MaskFillMode), str] = MaskFillMode.BASIC
+        self, mask_fill_mode: Union[MaskFillMode, str] = MaskFillMode.BASIC
     ) -> None:
         """Validate and store static configuration and initialize.
 

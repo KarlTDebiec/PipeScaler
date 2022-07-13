@@ -10,7 +10,7 @@ from pipescaler.core.image import Merger, Processor, Splitter
 from pipescaler.core.pipelines.pipe_image import PipeImage
 
 
-def wrap_merger(merger: Merger) -> Callable[[PipeImage, ...], PipeImage]:
+def wrap_merger(merger: Merger) -> Callable[[PipeImage], PipeImage]:
     """Wrap a merger.
 
     Arguments:

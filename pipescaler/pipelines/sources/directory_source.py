@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from itertools import chain
 from pathlib import Path
-from typing import Any, Callable, Collection, Sequence, Union
+from typing import Any, Callable, Sequence, Union
 
 from pipescaler.common import validate_input_directory
 from pipescaler.core.pipelines import PipeImage, Source
@@ -23,8 +23,8 @@ class DirectorySource(Source):
     def __init__(
         self,
         directory: Union[Union[Path, str], Sequence[Union[Path, str]]],
-        exclusions: Union[str, Collection[str]] = None,
-        sort: Callable[[str], int] = basic_sort,
+        exclusions: set[str] = None,
+        sort: Union[Callable[[str], int], Callable[[str], str]] = basic_sort,
         **kwargs: Any,
     ) -> None:
         """Validate and store configuration and initialize.

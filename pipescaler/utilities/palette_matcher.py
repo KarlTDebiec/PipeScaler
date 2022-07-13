@@ -200,7 +200,7 @@ class PaletteMatcher(Utility):
             and blue dimensions, and whose values are an rgb_array of palette colors
             each chell
         """
-        palette_by_cell = {}
+        palette_by_cell: dict[tuple[int, int, int], list[int, int, int]] = {}
 
         for color in palette:
             cell = (color[0] // 16, color[1] // 16, color[2] // 16)

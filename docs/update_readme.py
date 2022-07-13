@@ -74,26 +74,26 @@ def get_stage_descriptions(module: ModuleType) -> str:
     """
     section = ""
     for stage in map(module.__dict__.get, module.__all__):
-        section += get_stage_description(stage)
+        if stage and issubclass(stage, Operator):
+            section += get_stage_description(stage)
     return section
 
 
 if __name__ == "__main__":
     # Read README
-    with open(
-        package_root.parent.joinpath("README.md"), "r", encoding="utf-8"
-    ) as readme_file:
+    readme_path = package_root.parent.joinpath("README.md")
+    with open(readme_path, "r", encoding="utf-8") as readme_file:
         readme = readme_file.read()
 
     # Update README
-    module_regexes = get_module_regexes([processors, splitters, mergers])
+    module_regexes = get_module_regexes(
+        [processors, splitters, mergers, sources, sorters, termini]
+    )
     for module, module_regex in module_regexes.items():
-        body = module_regex.match(readme)["body"]
-        readme = readme.replace(body, get_stage_descriptions(module))
-    module_regexes = get_module_regexes([sources, sorters, termini])
-    for module, module_regex in module_regexes.items():
-        body = module_regex.match(readme)["body"]
-        readme = readme.replace(body, get_stage_descriptions(module))
+        match = module_regex.match(readme)
+        if match:
+            body = match["body"]
+            readme = readme.replace(body, get_stage_descriptions(module))
 
     # Write README
     with open(

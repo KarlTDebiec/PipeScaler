@@ -36,7 +36,9 @@ def test_review() -> None:
                     height = round(parent.size[1] * scale)
                     if width < 8 or height < 8:
                         break
-                    child = parent.resize((width, height), Image.Resampling.NEAREST)
+                    child = parent.resize(
+                        (width, height), Image.Resampling.NEAREST  # type: ignore
+                    )
                     outfile = input_directory.joinpath(
                         f"{infile.stem}_{scale}{infile.suffix}"
                     )
@@ -56,7 +58,9 @@ def test_review() -> None:
                     height = round(parent.size[1] * scale)
                     if width < 8 or height < 8:
                         break
-                    child = parent.resize((width, height), Image.Resampling.NEAREST)
+                    child = parent.resize(
+                        (width, height), Image.Resampling.NEAREST  # type: ignore
+                    )
                     outfile = input_directory.joinpath(
                         f"{infile.stem}_alt_{scale}{infile.suffix}"
                     )

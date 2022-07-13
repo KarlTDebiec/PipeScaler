@@ -8,7 +8,7 @@ from logging import info
 from os import remove, rmdir
 from os.path import join
 from pathlib import Path
-from typing import Callable, Optional, Sequence, Union
+from typing import Callable, Sequence, Union
 
 from pipescaler.common import get_temp_file_path, validate_output_directory
 from pipescaler.core.pipelines import PipeImage
@@ -95,7 +95,7 @@ class CheckpointManager:
         return checkpoint_decorator
 
     def post_file(
-        self, name: str, suffix: Optional[str] = ".png"
+        self, name: str, suffix: str = ".png"
     ) -> Callable[[Callable[[Path, Path], None]], Callable[[PipeImage], PipeImage]]:
         """Get a decorator to be used to add a checkpoint after a processor function.
 
@@ -160,7 +160,7 @@ class CheckpointManager:
         Returns:
             Decorator to be used to add checkpoints after a splitter function
         """
-        self.checkpoint_names.add(names)
+        self.checkpoint_names.update(set(names))
 
         def checkpoint_decorator(
             function: Callable[[PipeImage], tuple[PipeImage, ...]]

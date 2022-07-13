@@ -22,8 +22,8 @@ class AlphaSplitter(Splitter):
 
     def __init__(
         self,
-        alpha_mode: Union[type(AlphaMode), str] = AlphaMode.GRAYSCALE,
-        mask_fill_mode: Optional[Union[type(MaskFillMode), str]] = None,
+        alpha_mode: Union[AlphaMode, str] = AlphaMode.GRAYSCALE,
+        mask_fill_mode: Optional[Union[MaskFillMode, str]] = None,
     ) -> None:
         """Validate configuration and initialize.
 

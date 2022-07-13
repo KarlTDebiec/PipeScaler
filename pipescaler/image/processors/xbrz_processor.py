@@ -40,7 +40,7 @@ class XbrzProcessor(Processor):
             input_image, self.inputs["input"], "RGBA"
         )
 
-        output_image = xbrz.scale_pillow(input_image, self.scale)
+        output_image: Image.Image = xbrz.scale_pillow(input_image, self.scale)
         if output_mode == "RGB":
             output_image = Image.fromarray(np.array(output_image)[:, :, :3])
         elif output_mode == "LA":

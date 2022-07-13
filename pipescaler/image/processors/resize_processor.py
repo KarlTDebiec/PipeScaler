@@ -16,10 +16,10 @@ class ResizeProcessor(Processor):
     """Resizes image canvas."""
 
     resample_methods = {
-        "bicubic": Image.Resampling.BICUBIC,
-        "bilinear": Image.Resampling.BILINEAR,
-        "lanczos": Image.Resampling.LANCZOS,
-        "nearest": Image.Resampling.NEAREST,
+        "bicubic": Image.Resampling.BICUBIC,  # type: ignore
+        "bilinear": Image.Resampling.BILINEAR,  # type: ignore
+        "lanczos": Image.Resampling.LANCZOS,  # type: ignore
+        "nearest": Image.Resampling.NEAREST,  # type: ignore
     }
 
     def __init__(self, scale: float, resample: str = "lanczos") -> None:

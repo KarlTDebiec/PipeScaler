@@ -74,10 +74,14 @@ def expand_image(
     Returns:
         Expanded image
     """
-    transposed_horizontally = image.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
-    transposed_vertically = image.transpose(Image.Transpose.FLIP_TOP_BOTTOM)
+    transposed_horizontally = image.transpose(
+        Image.Transpose.FLIP_LEFT_RIGHT  # type: ignore
+    )
+    transposed_vertically = image.transpose(
+        Image.Transpose.FLIP_TOP_BOTTOM  # type: ignore
+    )
     transposed_horizontally_and_vertically = transposed_horizontally.transpose(
-        Image.Transpose.FLIP_TOP_BOTTOM
+        Image.Transpose.FLIP_TOP_BOTTOM  # type: ignore
     )
 
     expanded = Image.new(

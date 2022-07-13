@@ -29,7 +29,7 @@ class CopyFileTerminus(Terminus):
             directory: Directory to which to copy images
         """
         self.directory = Path(validate_output_directory(directory))
-        self.observed_files = set()
+        self.observed_files: set[str] = set()
 
     def __call__(self, input_image: PipeImage) -> None:
         """Save image to output directory.
@@ -62,7 +62,9 @@ class CopyFileTerminus(Terminus):
             ):
                 info(f"{self}: {outfile} is newer; not overwritten")
                 return
-            if np.array_equal(input_image.image, Image.open(outfile)):
+            if np.array_equal(
+                np.array(input_image.image), np.array(Image.open(outfile))
+            ):
                 info(f"{self}: {outfile} unchanged; not overwritten")
                 epoch = datetime.now().timestamp()
                 utime(outfile, (epoch, epoch))
