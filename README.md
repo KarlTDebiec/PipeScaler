@@ -54,7 +54,7 @@ pipeline sections. PipeScaler includes the following image sorters:
 * [MonochromeSorter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/pipelines/sorters/monochrome_sorter.py) - Sorts image based on presence and use of colors other than black and white.
 * [RegexSorter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/pipelines/sorters/regex_sorter.py) - Sorts image based on filename using a regular expression.
 * [SizeSorter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/pipelines/sorters/size_sorter.py) - Sorts image based on canvas size.
-* [SolidColorSorter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/pipelines/sorters/solid_color_sorter.py) - Sorts image based on presence of multiple colors.
+* [SolidColorSorter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/pipelines/sorters/solid_color_sorter.py) - Sorts image based on whether their entire canvas is a solid color.
 
 **Termini** perform final operations on images. PipeScaler includes the following image
 termini:

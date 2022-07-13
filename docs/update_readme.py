@@ -11,6 +11,8 @@ from typing import Type
 
 from pipescaler.common import package_root
 from pipescaler.core.image import Operator
+from pipescaler.core.pipelines import Source, Terminus
+from pipescaler.core.pipelines.sorter import Sorter
 from pipescaler.image import mergers, processors, splitters
 from pipescaler.pipelines import sorters, sources, termini
 
@@ -61,7 +63,7 @@ def get_stage_description(stage: Type[Operator]) -> str:
     Returns:
         Formatted description of stage
     """
-    return f"* [{stage.__name__}]({get_github_link(stage)}) - {stage.help_markdown}\n"
+    return f"* [{stage.__name__}]({get_github_link(stage)}) - {stage.help_markdown()}\n"
 
 
 def get_stage_descriptions(module: ModuleType) -> str:
@@ -74,7 +76,7 @@ def get_stage_descriptions(module: ModuleType) -> str:
     """
     section = ""
     for stage in map(module.__dict__.get, module.__all__):
-        if stage and issubclass(stage, Operator):
+        if stage and issubclass(stage, (Operator, Source, Sorter, Terminus)):
             section += get_stage_description(stage)
     return section
 
