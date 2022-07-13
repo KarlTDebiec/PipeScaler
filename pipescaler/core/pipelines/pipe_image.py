@@ -91,8 +91,8 @@ class PipeImage:
         if self._image is None:
             if self.path is None:
                 raise ValueError(
-                    "PipeImage requires either an image or the path to an image; neither "
-                    "has been provided."
+                    "PipeImage requires either an image or the path to an image; "
+                    "neither has been provided."
                 )
             debug(f"<PipeImage>: Opening image {self.name} from '{self.path}'")
             image = Image.open(self.path)

@@ -200,7 +200,8 @@ class ImageHashCollection(Sequence):
                 if scaled_width < 8 or scaled_height < 8:
                     break
                 scaled_image = pipe_image.image.resize(
-                    (scaled_width, scaled_height), Image.Resampling.LANCZOS  # type: ignore
+                    (scaled_width, scaled_height),
+                    Image.Resampling.LANCZOS,  # type: ignore
                 )
 
             # Calculate hashes of channels of scaled image
