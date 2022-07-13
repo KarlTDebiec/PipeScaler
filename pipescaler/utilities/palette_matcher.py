@@ -109,7 +109,7 @@ class PaletteMatcher(Utility):
         # Prepare set of cells to check
         cell = (color[0] // 16, color[1] // 16, color[2] // 16)
         cell_range = 0
-        cells_to_check = set(tuple[int, int, int])
+        cells_to_check = set()
         while len(cells_to_check) == 0:
             cell_range += 1
             cell_ranges = [
@@ -200,7 +200,7 @@ class PaletteMatcher(Utility):
             and blue dimensions, and whose values are an rgb_array of palette colors
             each chell
         """
-        palette_by_cell = {}
+        palette_by_cell: dict[tuple[int, int, int], list[int, int, int]] = {}
 
         for color in palette:
             cell = (color[0] // 16, color[1] // 16, color[2] // 16)
