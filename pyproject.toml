@@ -61,7 +61,7 @@ include = ["pipescaler/data/**"]
 
 [tool.poetry.dependencies]
 python = "~3.9"
-Flask = "^2.2.0"
+Flask = "^2.2.1"
 ImageHash = "^4.2.1"
 numba = "^0.56.0"
 numpy = "^1.22.4"
