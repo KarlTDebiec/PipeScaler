@@ -187,7 +187,7 @@ flake8 = "*"
 
 [[package]]
 name = "flask"
-version = "2.2.0"
+version = "2.2.1"
 description = "A simple framework for building complex web applications."
 category = "main"
 optional = false
@@ -201,8 +201,8 @@ Jinja2 = ">=3.0"
 Werkzeug = ">=2.2.0"
 
 [package.extras]
-dotenv = ["python-dotenv"]
 async = ["asgiref (>=3.2)"]
+dotenv = ["python-dotenv"]
 
 [[package]]
 name = "idna"
@@ -1116,7 +1116,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "~3.9"
-content-hash = "88e3782bc15d16652d6ef88b277cab8efd14cc1c61196bd415b6fa2cb382a960"
+content-hash = "b234cbd8f045d53fdd6da31913990d5a9f29859b655b92e3cc4633706014cd0e"
 
 [metadata.files]
 astroid = [
@@ -1244,8 +1244,8 @@ flake8-polyfill = [
     {file = "flake8_polyfill-1.0.2-py2.py3-none-any.whl", hash = "sha256:12be6a34ee3ab795b19ca73505e7b55826d5f6ad7230d31b18e106400169b9e9"},
 ]
 flask = [
-    {file = "Flask-2.2.0-py3-none-any.whl", hash = "sha256:10dc2bae7a9b6ab59111d6dbece2e08fb0015d2e88d296c40323cc0c7aac2c2e"},
-    {file = "Flask-2.2.0.tar.gz", hash = "sha256:98b33b13ad76ee9c7a80d2f56a6c578780e55bf8281790c62d50d4b7fadec2b8"},
+    {file = "Flask-2.2.1-py3-none-any.whl", hash = "sha256:3c604c48c3d5b4c63e72134044c0b4fe90ff01ef65280b9fe2d38c8860d99fe5"},
+    {file = "Flask-2.2.1.tar.gz", hash = "sha256:9c2b81b9b1edcc835af72d600f1955e713a065e7cb41d7e51ee762b449d9c65d"},
 ]
 idna = [
     {file = "idna-3.3-py3-none-any.whl", hash = "sha256:84d9dd047ffa80596e0f246e2eab0b391788b0503584e8945f2368256d2735ff"},
