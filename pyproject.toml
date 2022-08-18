@@ -80,7 +80,7 @@ watchdog = "^2.1.9"
 
 [tool.poetry.dev-dependencies]
 black = "^22.6.0"
-coverage = "^6.4.2"
+coverage = "^6.4.4"
 isort = "^5.10.1"
 mypy = "^0.971"
 pandas-stubs = "^1.4.3.220815"
