@@ -206,8 +206,8 @@ optional = false
 python-versions = ">=3.5"
 
 [[package]]
-name = "imagehash"
-version = "4.2.1"
+name = "ImageHash"
+version = "4.3.0"
 description = "Image Hashing library"
 category = "main"
 optional = false
@@ -218,7 +218,6 @@ numpy = "*"
 pillow = "*"
 PyWavelets = "*"
 scipy = "*"
-six = "*"
 
 [[package]]
 name = "imageio"
@@ -1121,7 +1120,7 @@ testing = ["func-timeout", "jaraco.itertools", "pytest (>=6)", "pytest-black (>=
 [metadata]
 lock-version = "1.1"
 python-versions = "~3.9"
-content-hash = "3637d15e2f0b644a706355eb0fe55d63e239092e5e16701afbadc3bd97cc9c63"
+content-hash = "b663dc3442d5b572bf6c036d3c975f65bfe2f202e3107651d88810015c367e85"
 
 [metadata.files]
 astroid = [
@@ -1261,8 +1260,9 @@ idna = [
     {file = "idna-3.3-py3-none-any.whl", hash = "sha256:84d9dd047ffa80596e0f246e2eab0b391788b0503584e8945f2368256d2735ff"},
     {file = "idna-3.3.tar.gz", hash = "sha256:9d643ff0a55b762d5cdb124b8eaa99c66322e2157b69160bc32796e824360e6d"},
 ]
-imagehash = [
-    {file = "ImageHash-4.2.1.tar.gz", hash = "sha256:a4af957814bc9832d9241247ff03f76e778f890c18147900b4540af124e93011"},
+ImageHash = [
+    {file = "ImageHash-4.3.0-py2.py3-none-any.whl", hash = "sha256:afe0bcb17c88e6f28fd69b91f05c4f207b3d5018431c3f3e632af2162e451d03"},
+    {file = "ImageHash-4.3.0.tar.gz", hash = "sha256:3e843fed202105374b71767f93e6791a476dc92d212668dd3a6db61bfb18faf9"},
 ]
 imageio = [
     {file = "imageio-2.19.3-py3-none-any.whl", hash = "sha256:d36ab8616175a093676693a4dbc85c6cc767f981c9ce93041422569c76d06347"},
