@@ -449,7 +449,7 @@ test = ["hypothesis (>=5.5.3)", "pytest (>=6.0)", "pytest-xdist (>=1.31)"]
 
 [[package]]
 name = "pandas-stubs"
-version = "1.4.4.220905"
+version = "1.4.4.220906"
 description = "Type annotations for pandas"
 category = "dev"
 optional = false
@@ -457,7 +457,6 @@ python-versions = ">=3.8,<3.11"
 
 [package.dependencies]
 types-pytz = ">=2022.1.1"
-types_SQLAlchemy = ">=1.4.50"
 
 [[package]]
 name = "pathspec"
@@ -1025,14 +1024,6 @@ python-versions = "*"
 types-urllib3 = "<1.27"
 
 [[package]]
-name = "types-SQLAlchemy"
-version = "1.4.50"
-description = "Typing stubs for SQLAlchemy"
-category = "dev"
-optional = false
-python-versions = "*"
-
-[[package]]
 name = "types-urllib3"
 version = "1.26.23"
 description = "Typing stubs for urllib3"
@@ -1129,7 +1120,7 @@ testing = ["func-timeout", "jaraco.itertools", "pytest (>=6)", "pytest-black (>=
 [metadata]
 lock-version = "1.1"
 python-versions = "~3.9"
-content-hash = "f14234e334e63dfd39a8c3846b0383015352be6d5976589b1ac57d09d7038c16"
+content-hash = "7924e1a03b3b7ab0efdcfc4ec7c508c6225defa62e20c40a05fa422346b6c2c9"
 
 [metadata.files]
 astroid = [
@@ -1605,8 +1596,8 @@ pandas = [
     {file = "pandas-1.4.4.tar.gz", hash = "sha256:ab6c0d738617b675183e5f28db32b5148b694ad9bba0a40c3ea26d96b431db67"},
 ]
 pandas-stubs = [
-    {file = "pandas-stubs-1.4.4.220905.tar.gz", hash = "sha256:4b1cf2e887d5321363b04bd61371795f1c73c406749aea405d46d0bcb38b9213"},
-    {file = "pandas_stubs-1.4.4.220905-py3-none-any.whl", hash = "sha256:797345b3536361e6b1b09f845e281e38f4a90f07e660a51c3ec8b1df22fb424a"},
+    {file = "pandas-stubs-1.4.4.220906.tar.gz", hash = "sha256:05b6709b8edf721858ebc7523ff5e8c7b4dcb9774bf91b0e03abb64a6b4e330b"},
+    {file = "pandas_stubs-1.4.4.220906-py3-none-any.whl", hash = "sha256:514d801d30141be6af42bc2553c69cc7fb30ebf5e623ebfcc28589635275a448"},
 ]
 pathspec = [
     {file = "pathspec-0.9.0-py2.py3-none-any.whl", hash = "sha256:7d15c4ddb0b5c802d161efc417ec1a2558ea2653c2e8ad9c19098201dc1c993a"},
@@ -2011,10 +2002,6 @@ types-pyyaml = [
 types-requests = [
     {file = "types-requests-2.28.9.tar.gz", hash = "sha256:feaf581bd580497a47fe845d506fa3b91b484cf706ff27774e87659837de9962"},
     {file = "types_requests-2.28.9-py3-none-any.whl", hash = "sha256:86cb66d3de2f53eac5c09adc42cf6547eefbd0c7e1210beca1ee751c35d96083"},
-]
-types-SQLAlchemy = [
-    {file = "types-SQLAlchemy-1.4.50.tar.gz", hash = "sha256:a10b4b4daab424cd2492ef59ef15b01cb56bd5b43e27a7294030012d7a13586d"},
-    {file = "types_SQLAlchemy-1.4.50-py3-none-any.whl", hash = "sha256:c4074c21d19ebe01e60d3abaf632a5902b98f198e6a8db4f4fe6047b035529a7"},
 ]
 types-urllib3 = [
     {file = "types-urllib3-1.26.23.tar.gz", hash = "sha256:b78e819f0e350221d0689a5666162e467ba3910737bafda14b5c2c85e9bb1e56"},
