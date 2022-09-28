@@ -445,7 +445,7 @@ test = ["hypothesis (>=5.5.3)", "pytest (>=6.0)", "pytest-xdist (>=1.31)"]
 
 [[package]]
 name = "pandas-stubs"
-version = "1.4.4.220919"
+version = "1.5.0.220926"
 description = "Type annotations for pandas"
 category = "dev"
 optional = false
@@ -1116,7 +1116,7 @@ testing = ["func-timeout", "jaraco.itertools", "pytest (>=6)", "pytest-black (>=
 [metadata]
 lock-version = "1.1"
 python-versions = "~3.9"
-content-hash = "72ee157cbb55c67925404647c31895f063973564ba9a6a1c9a6f82606d9910fe"
+content-hash = "e5cf7f5a186153e530891240e18563049eba1cd63a526bbc08c95a64484f192f"
 
 [metadata.files]
 astroid = [
@@ -1599,8 +1599,8 @@ pandas = [
     {file = "pandas-1.5.0.tar.gz", hash = "sha256:3ee61b881d2f64dd90c356eb4a4a4de75376586cd3c9341c6c0fcaae18d52977"},
 ]
 pandas-stubs = [
-    {file = "pandas-stubs-1.4.4.220919.tar.gz", hash = "sha256:562cd423054095f49294aa39672c413b0d81b3e8850b808ede663369bcad223c"},
-    {file = "pandas_stubs-1.4.4.220919-py3-none-any.whl", hash = "sha256:cf90cf2d167f199cb2eb2826278271360eee5d5f975834096437105a7048e6da"},
+    {file = "pandas-stubs-1.5.0.220926.tar.gz", hash = "sha256:e0f69466cbd8cf1da137b5899e69d9d150648dd5f0398db0e6aeaefe3b2c7a76"},
+    {file = "pandas_stubs-1.5.0.220926-py3-none-any.whl", hash = "sha256:490b71dfa15eb862d8e0c2dc3af50dbb59546e3878a67822ec35f3ce0bc342c4"},
 ]
 pathspec = [
     {file = "pathspec-0.9.0-py2.py3-none-any.whl", hash = "sha256:7d15c4ddb0b5c802d161efc417ec1a2558ea2653c2e8ad9c19098201dc1c993a"},
