@@ -20,7 +20,7 @@ class TexconvRunner(Runner):
     """
 
     def __init__(
-        self, arguments: str = "-y -sepalpha -m 1 -ft DDS -f BC7_UNORM", **kwargs
+        self, arguments: str = "-y -sepalpha -ft DDS -f BC7_UNORM", **kwargs
     ) -> None:
         """Validate and store configuration and initialize.
 
@@ -36,7 +36,8 @@ class TexconvRunner(Runner):
     def command_template(self) -> str:
         """String template with which to generate command."""
         return (
-            f"{self.executable_path} {self.arguments}" " -o {outfile.parent} {infile}"
+            f"{self.executable_path} {self.arguments}"
+            ' -o "{outfile.parent}" "{infile}"'
         )
 
     def run(self, infile: Path, outfile: Path) -> None:
