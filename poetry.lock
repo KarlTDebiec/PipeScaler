@@ -23,7 +23,7 @@ python-versions = ">=3.5"
 dev = ["cloudpickle", "coverage[toml] (>=5.0.2)", "furo", "hypothesis", "mypy (>=0.900,!=0.940)", "pre-commit", "pympler", "pytest (>=4.3.0)", "pytest-mypy-plugins", "sphinx", "sphinx-notfound-page", "zope.interface"]
 docs = ["furo", "sphinx", "sphinx-notfound-page", "zope.interface"]
 tests = ["cloudpickle", "coverage[toml] (>=5.0.2)", "hypothesis", "mypy (>=0.900,!=0.940)", "pympler", "pytest (>=4.3.0)", "pytest-mypy-plugins", "zope.interface"]
-tests_no_zope = ["cloudpickle", "coverage[toml] (>=5.0.2)", "hypothesis", "mypy (>=0.900,!=0.940)", "pympler", "pytest (>=4.3.0)", "pytest-mypy-plugins"]
+tests-no-zope = ["cloudpickle", "coverage[toml] (>=5.0.2)", "hypothesis", "mypy (>=0.900,!=0.940)", "pympler", "pytest (>=4.3.0)", "pytest-mypy-plugins"]
 
 [[package]]
 name = "black"
@@ -64,7 +64,7 @@ optional = false
 python-versions = ">=3.6.0"
 
 [package.extras]
-unicode_backport = ["unicodedata2"]
+unicode-backport = ["unicodedata2"]
 
 [[package]]
 name = "click"
@@ -281,9 +281,9 @@ python-versions = ">=3.6.1,<4.0"
 
 [package.extras]
 colors = ["colorama (>=0.4.3,<0.5.0)"]
-pipfile_deprecated_finder = ["pipreqs", "requirementslib"]
+pipfile-deprecated-finder = ["pipreqs", "requirementslib"]
 plugins = ["setuptools"]
-requirements_deprecated_finder = ["pip-api", "pipreqs"]
+requirements-deprecated-finder = ["pip-api", "pipreqs"]
 
 [[package]]
 name = "itsdangerous"
@@ -542,12 +542,12 @@ setoptconf-tmp = ">=0.3.1,<0.4.0"
 toml = ">=0.10.2,<0.11.0"
 
 [package.extras]
-with_bandit = ["bandit (>=1.5.1)"]
-with_everything = ["bandit (>=1.5.1)", "frosted (>=1.4.1)", "mypy (>=0.600)", "pyroma (>=2.4)", "vulture (>=1.5)"]
-with_frosted = ["frosted (>=1.4.1)"]
-with_mypy = ["mypy (>=0.600)"]
-with_pyroma = ["pyroma (>=2.4)"]
-with_vulture = ["vulture (>=1.5)"]
+with-bandit = ["bandit (>=1.5.1)"]
+with-everything = ["bandit (>=1.5.1)", "frosted (>=1.4.1)", "mypy (>=0.600)", "pyroma (>=2.4)", "vulture (>=1.5)"]
+with-frosted = ["frosted (>=1.4.1)"]
+with-mypy = ["mypy (>=0.600)"]
+with-pyroma = ["pyroma (>=2.4)"]
+with-vulture = ["vulture (>=1.5)"]
 
 [[package]]
 name = "py"
@@ -636,8 +636,8 @@ pylint = ">=2.0,<3"
 pylint-plugin-utils = ">=0.7"
 
 [package.extras]
-for_tests = ["coverage", "django-tables2", "django-tastypie", "factory-boy", "pylint (>=2.13)", "pytest", "wheel"]
-with_django = ["Django"]
+for-tests = ["coverage", "django-tables2", "django-tastypie", "factory-boy", "pylint (>=2.13)", "pytest", "wheel"]
+with-django = ["Django"]
 
 [[package]]
 name = "pylint-flask"
@@ -826,7 +826,7 @@ urllib3 = ">=1.21.1,<1.27"
 
 [package.extras]
 socks = ["PySocks (>=1.5.6,!=1.5.7)"]
-use_chardet_on_py3 = ["chardet (>=3.0.2,<6)"]
+use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
 
 [[package]]
 name = "requirements-detector"
@@ -998,7 +998,7 @@ typing-extensions = "*"
 
 [[package]]
 name = "types-pillow"
-version = "9.2.2"
+version = "9.2.2.1"
 description = "Typing stubs for Pillow"
 category = "dev"
 optional = false
@@ -2005,8 +2005,8 @@ torch = [
     {file = "torch-1.12.1-cp39-none-macosx_11_0_arm64.whl", hash = "sha256:69fe2cae7c39ccadd65a123793d30e0db881f1c1927945519c5c17323131437e"},
 ]
 types-pillow = [
-    {file = "types-Pillow-9.2.2.tar.gz", hash = "sha256:6b525b0951ada076f3aefe2347e0bff6231283ce959ad8577a4416604acc673c"},
-    {file = "types_Pillow-9.2.2-py3-none-any.whl", hash = "sha256:bfe14afa1e9047a52b3dc326c93b4f57db72641794e194f11b511f68b0061814"},
+    {file = "types-Pillow-9.2.2.1.tar.gz", hash = "sha256:85c139e06e1c46ec5f9c634d5c54a156b0958d5d0e8be024ed353db0c804b426"},
+    {file = "types_Pillow-9.2.2.1-py3-none-any.whl", hash = "sha256:3a6a871cade8428433a21ef459bb0a65532b87d05f9e836a0664431ce445bdcf"},
 ]
 types-pytz = [
     {file = "types-pytz-2022.4.0.0.tar.gz", hash = "sha256:17d66e4b16e80ceae0787726f3a22288df7d3f9fdebeb091dc64b92c0e4ea09d"},
