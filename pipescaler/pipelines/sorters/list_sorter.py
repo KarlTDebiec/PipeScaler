@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from logging import info
 from pathlib import Path
-from typing import Collection, Union
+from typing import Any
 
 from pipescaler.core.pipelines import PipeImage
 from pipescaler.core.pipelines.sorter import Sorter
@@ -19,10 +19,7 @@ class ListSorter(Sorter):
     exclusions = {".DS_Store", "desktop"}
     """Base filenames to exclude"""
 
-    def __init__(
-        self,
-        **outlets: dict[str, Union[str, Path, Collection[Union[str, Path]]]],
-    ) -> None:
+    def __init__(self, **outlets: Any) -> None:
         """Validate configuration and initialize.
 
         Arguments:
@@ -39,7 +36,7 @@ class ListSorter(Sorter):
             if not isinstance(paths, list):
                 paths = [paths]
             for path in paths:
-                path = Path(path).absolute()
+                path = Path(path).resolve()
                 if path.exists():
                     names = []
                     if path.is_file():
