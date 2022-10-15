@@ -42,7 +42,7 @@ class MaskFiller(Utility):
             Image with masked pixels replaced
         """
         image_array = np.array(image)
-        mask_array = ~np.array(mask)
+        mask_array = np.array(mask)
 
         while mask_array.sum() > 0:
             image_array, mask_array = self.run_iteration(image_array, mask_array)
