@@ -36,8 +36,8 @@ class MaskFiller(Utility):
         pixels, iteratively.
 
         Arguments:
-            image: Image
-            mask: Mask
+            image: Image; mode must be RGB
+            mask: Mask; mode must be 1; white (True) pixels are masked
         Returns:
             Image with masked pixels replaced
         """
@@ -52,7 +52,7 @@ class MaskFiller(Utility):
                     pixels_to_fill.add((x, y))
 
         # Iterate until no pixels remain to be filled
-        opaque_neighbor_counts = dict()
+        opaque_neighbor_counts: dict[tuple[int, int], int] = {}
         pixels_to_recount = pixels_to_fill.copy()
         while len(pixels_to_fill) > 0:
             (
@@ -82,6 +82,17 @@ class MaskFiller(Utility):
         dict[tuple[int, int], int],
         set[tuple[int, int]],
     ]:
+        """Fills pixels whose number of opaque neighbors is equal to the max.
+
+        Arguments:
+            image_array: Image array
+            pixels_to_fill: Pixels that remain to be filled
+            opaque_neighbor_counts: Number of opaque neighbors of each pixel to fill
+            pixels_to_recount: Pixels whose opaque neighbor counts need to be updated
+        Returns:
+            Updated image array, pixels to fill, opaque neighbor counts, and pixels to
+            recount
+        """
         width = image_array.shape[0]
         height = image_array.shape[1]
 
