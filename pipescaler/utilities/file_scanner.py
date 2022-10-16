@@ -66,7 +66,7 @@ class FileScanner(Utility):
         self.input_directories = validate_input_directories(input_directories)
         """Directories from which to read input files."""
 
-        project_root = Path(expandvars(project_root)).absolute()
+        project_root = Path(expandvars(project_root)).resolve()
         self.ignore_directory = project_root.joinpath("ignore")
         """Directory of images to ignore if present in input directories."""
         self.copy_directory = project_root.joinpath("new")
