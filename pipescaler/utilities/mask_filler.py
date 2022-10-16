@@ -3,6 +3,7 @@
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Erases masked pixels within an image."""
+from itertools import chain
 from typing import Union
 
 import numpy as np
@@ -44,106 +45,60 @@ class MaskFiller(Utility):
         image_array = np.array(image)
         mask_array = np.array(mask)
 
-        while mask_array.sum() > 0:
-            image_array, mask_array = self.run_iteration(image_array, mask_array)
+        # Get all pixels to be filled
+        pixels_to_fill = set()
+        for x in range(mask_array.shape[0]):
+            for y in range(mask_array.shape[1]):
+                if mask_array[x, y]:
+                    pixels_to_fill.add((x, y))
 
+        # Iterate until no pixels remain to be filled
+        iteration = 0
+        while len(pixels_to_fill) > 0:
+            print(f"iteration {iteration}, {len(pixels_to_fill)} pixels to fill")
+            image_array, pixels_to_fill = self.run_iteration(
+                image_array, pixels_to_fill
+            )
+            iteration += 1
+
+        # Return image
         filled_image = Image.fromarray(image_array)
         if self.mask_fill_mode == MaskFillMode.MATCH_PALETTE:
             filled_image = self.palette_matcher.match_palette(image, filled_image)
         return filled_image
 
     def run_iteration(
-        self, image_array: np.ndarray, mask_array: np.ndarray
-    ) -> tuple[np.ndarray, np.ndarray]:
-        """Run one iteration of mask filling.
+        self, image_array: np.ndarray, pixels_to_fill: set[tuple[int, int]]
+    ) -> tuple[np.ndarray, set[tuple[int, int]]]:
+        width = image_array.shape[0]
+        height = image_array.shape[1]
 
-        Arguments:
-            image_array: Image array
-            mask_array: mask array
-        Returns:
-            image array with one additional round of pixel filling
-        """
-        # Count the number of opaque pixels adjacent to each pixel in image
-        adjacent_opaque_pixels = self.adjacent_opaque_pixels(mask_array)
+        # Count number of opaque pixels adjacent to each pixel to be filled
+        adjacent_opaque_pixels = dict()
+        for pixel_to_fill in pixels_to_fill:
+            x, y = pixel_to_fill
+            count = 0
+            for x_p in range(max(0, x - 1), min(width, x + 2)):
+                for y_p in range(max(0, y - 1), min(height, y + 2)):
+                    if (x_p, y_p) not in pixels_to_fill:
+                        count += 1
+            if count not in adjacent_opaque_pixels:
+                adjacent_opaque_pixels[count] = set()
+            adjacent_opaque_pixels[count].add(pixel_to_fill)
 
-        # Disregard the number of adjacent opaque pixels for pixels that are themselves
-        # opaque
-        adjacent_opaque_pixels[np.logical_not(mask_array)] = 0
+        count = max(adjacent_opaque_pixels)
+        for pixel_to_fill in adjacent_opaque_pixels.pop(count):
+            x, y = pixel_to_fill
+            pixel_sum = np.zeros(3, dtype=np.uint32)
+            for x_p in range(max(0, x - 1), min(width, x + 2)):
+                for y_p in range(max(0, y - 1), min(height, y + 2)):
+                    if (x_p, y_p) not in pixels_to_fill:
+                        pixel_sum += image_array[x_p, y_p]
+            pixel_sum //= count
+            image_array[x, y] = pixel_sum
 
-        # Identify pixels who have the max number of adjacent opaque pixels
-        pixels_to_fill = np.logical_and(
-            mask_array,
-            adjacent_opaque_pixels == adjacent_opaque_pixels.max(),
+        remaining_pixels_to_fill = set(
+            chain.from_iterable(adjacent_opaque_pixels.values())
         )
 
-        # Calculate the color of pixels to fill
-        sum_of_adjacent_opaque_pixels = self.sum_of_adjacent_opaque_pixels(
-            image_array, mask_array
-        )
-        colors_of_pixels_to_fill = np.round(
-            sum_of_adjacent_opaque_pixels[pixels_to_fill] / adjacent_opaque_pixels.max()
-        ).astype(np.uint8)
-
-        # Set colors, prepare updated mask, and return
-        image_array[pixels_to_fill] = colors_of_pixels_to_fill
-        mask_array = mask_array & ~pixels_to_fill
-        return image_array, mask_array
-
-    @staticmethod
-    def adjacent_opaque_pixels(transparent_pixels: np.ndarray) -> np.ndarray:
-        """Calculate the number of opaque pixels adjacent to each pixel.
-
-        Arguments:
-            transparent_pixels: Whether pixels are opaque
-        Returns:
-            Number of opaque pixels adjacent to each pixel
-        """
-        # Count total adjacent pixels
-        adjacent_opaque_pixels = np.zeros(transparent_pixels.shape, int)
-        adjacent_opaque_pixels[:-1, :-1] += 1
-        adjacent_opaque_pixels[:, :-1] += 1
-        adjacent_opaque_pixels[1:, :-1] += 1
-        adjacent_opaque_pixels[:-1, :] += 1
-        adjacent_opaque_pixels[1:, :] += 1
-        adjacent_opaque_pixels[:-1, 1:] += 1
-        adjacent_opaque_pixels[:, 1:] += 1
-        adjacent_opaque_pixels[1:, 1:] += 1
-
-        # Subtract transparent adjacent pixels
-        adjacent_opaque_pixels[:-1, :-1] -= transparent_pixels[1:, 1:]
-        adjacent_opaque_pixels[:, :-1] -= transparent_pixels[:, 1:]
-        adjacent_opaque_pixels[1:, :-1] -= transparent_pixels[:-1, 1:]
-        adjacent_opaque_pixels[:-1, :] -= transparent_pixels[1:, :]
-        adjacent_opaque_pixels[1:, :] -= transparent_pixels[:-1, :]
-        adjacent_opaque_pixels[:-1, 1:] -= transparent_pixels[1:, :-1]
-        adjacent_opaque_pixels[:, 1:] -= transparent_pixels[:, :-1]
-        adjacent_opaque_pixels[1:, 1:] -= transparent_pixels[:-1, :-1]
-
-        return adjacent_opaque_pixels
-
-    @staticmethod
-    def sum_of_adjacent_opaque_pixels(
-        image_array: np.ndarray, transparent_pixels: np.ndarray
-    ) -> np.ndarray:
-        """Calculate the sum of color of opaque pixels adjacent to each pixel.
-
-        Arguments:
-            image_array: Image array
-            transparent_pixels: Whether pixels are opaque
-        Returns:
-            Sum of color of opaque pixels adjacent to each pixel
-        """
-        weighted_color_array = np.copy(image_array)
-        weighted_color_array[transparent_pixels] = 0
-
-        sum_of_adjacent_opaque_pixels = np.zeros(image_array.shape, int)
-        sum_of_adjacent_opaque_pixels[:-1, :-1] += weighted_color_array[1:, 1:]
-        sum_of_adjacent_opaque_pixels[:, :-1] += weighted_color_array[:, 1:]
-        sum_of_adjacent_opaque_pixels[1:, :-1] += weighted_color_array[:-1, 1:]
-        sum_of_adjacent_opaque_pixels[:-1, :] += weighted_color_array[1:, :]
-        sum_of_adjacent_opaque_pixels[1:, :] += weighted_color_array[:-1, :]
-        sum_of_adjacent_opaque_pixels[:-1, 1:] += weighted_color_array[1:, :-1]
-        sum_of_adjacent_opaque_pixels[:, 1:] += weighted_color_array[:, :-1]
-        sum_of_adjacent_opaque_pixels[1:, 1:] += weighted_color_array[:-1, :-1]
-
-        return sum_of_adjacent_opaque_pixels
+        return image_array, remaining_pixels_to_fill
