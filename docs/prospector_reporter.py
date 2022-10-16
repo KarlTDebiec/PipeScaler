@@ -10,7 +10,7 @@ from inspect import cleandoc
 from io import TextIOWrapper
 from pathlib import Path
 
-package_root = Path(__file__).absolute().parent.parent
+package_root = Path(__file__).resolve().parent.parent
 
 
 @dataclass
