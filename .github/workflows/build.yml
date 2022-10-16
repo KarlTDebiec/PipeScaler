@@ -137,7 +137,7 @@ jobs:
           Invoke-WebRequest -Uri https://github.com/microsoft/DirectXTex/releases/download/nov2021/texconv.exe -Outfile ${env:GITHUB_WORKSPACE}/executables/texconv.exe
           echo "${env:GITHUB_WORKSPACE}/executables" | Out-File -FilePath $env:GITHUB_PATH
       - name: Install Poetry
-        uses: snok/install-poetry@v1
+        uses: snok/install-poetry@v1.3.2
         with:
           virtualenvs-create: true
           virtualenvs-in-project: true
