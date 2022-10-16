@@ -3,7 +3,6 @@
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Erases masked pixels within an image."""
-from itertools import chain
 from typing import Union
 
 import numpy as np
@@ -54,11 +53,22 @@ class MaskFiller(Utility):
 
         # Iterate until no pixels remain to be filled
         iteration = 0
+        adjacent_opaque_pixels = dict()
+        pixels_to_recount = pixels_to_fill.copy()
         while len(pixels_to_fill) > 0:
-            print(f"iteration {iteration}, {len(pixels_to_fill)} pixels to fill")
-            image_array, pixels_to_fill = self.run_iteration(
-                image_array, pixels_to_fill
+            print(
+                f"iteration {iteration}, pixels_to_fill={len(pixels_to_fill)}, "
+                f"pixels_to_recount={len(pixels_to_recount)}"
             )
+            (
+                image_array,
+                pixels_to_fill,
+                adjacent_opaque_pixels,
+                pixels_to_recount,
+            ) = self.run_iteration(
+                image_array, pixels_to_fill, adjacent_opaque_pixels, pixels_to_recount
+            )
+            # Image.fromarray(image_array).show()
             iteration += 1
 
         # Return image
@@ -68,37 +78,56 @@ class MaskFiller(Utility):
         return filled_image
 
     def run_iteration(
-        self, image_array: np.ndarray, pixels_to_fill: set[tuple[int, int]]
-    ) -> tuple[np.ndarray, set[tuple[int, int]]]:
+        self,
+        image_array: np.ndarray,
+        pixels_to_fill: set[tuple[int, int]],
+        adjacent_opaque_pixels: dict[tuple[int, int], int],
+        pixels_to_recount: set[tuple[int, int]],
+    ) -> tuple[
+        np.ndarray,
+        set[tuple[int, int]],
+        dict[tuple[int, int], int],
+        set[tuple[int, int]],
+    ]:
         width = image_array.shape[0]
         height = image_array.shape[1]
 
         # Count number of opaque pixels adjacent to each pixel to be filled
-        adjacent_opaque_pixels = dict()
-        for pixel_to_fill in pixels_to_fill:
-            x, y = pixel_to_fill
+        for pixel in pixels_to_recount:
             count = 0
-            for x_p in range(max(0, x - 1), min(width, x + 2)):
-                for y_p in range(max(0, y - 1), min(height, y + 2)):
+            for x_p in range(max(0, pixel[0] - 1), min(width, pixel[0] + 2)):
+                for y_p in range(max(0, pixel[1] - 1), min(height, pixel[1] + 2)):
                     if (x_p, y_p) not in pixels_to_fill:
                         count += 1
-            if count not in adjacent_opaque_pixels:
-                adjacent_opaque_pixels[count] = set()
-            adjacent_opaque_pixels[count].add(pixel_to_fill)
+            adjacent_opaque_pixels[pixel] = count
 
-        count = max(adjacent_opaque_pixels)
-        for pixel_to_fill in adjacent_opaque_pixels.pop(count):
-            x, y = pixel_to_fill
-            pixel_sum = np.zeros(3, dtype=np.uint32)
-            for x_p in range(max(0, x - 1), min(width, x + 2)):
-                for y_p in range(max(0, y - 1), min(height, y + 2)):
-                    if (x_p, y_p) not in pixels_to_fill:
-                        pixel_sum += image_array[x_p, y_p]
-            pixel_sum //= count
-            image_array[x, y] = pixel_sum
+        count = max(adjacent_opaque_pixels.values())
+        pixels_to_fill_next_iter = set()
+        pixels_to_recount_next_iter = set()
+        for pixel in pixels_to_fill:
+            if adjacent_opaque_pixels[pixel] == count:
+                color = np.zeros(3, dtype=np.uint32)
+                for x_p in range(max(0, pixel[0] - 1), min(width, pixel[0] + 2)):
+                    for y_p in range(max(0, pixel[1] - 1), min(height, pixel[1] + 2)):
+                        if (x_p, y_p) == pixel:
+                            continue
+                        if (x_p, y_p) not in pixels_to_fill:
+                            color += image_array[x_p, y_p]
+                        elif (
+                            x_p,
+                            y_p,
+                        ) in adjacent_opaque_pixels and adjacent_opaque_pixels[
+                            (x_p, y_p)
+                        ] != count:
+                            pixels_to_recount_next_iter.add((x_p, y_p))
+                image_array[pixel[0], pixel[1]] = color // count
+                adjacent_opaque_pixels.pop(pixel)
+            else:
+                pixels_to_fill_next_iter.add(pixel)
 
-        remaining_pixels_to_fill = set(
-            chain.from_iterable(adjacent_opaque_pixels.values())
+        return (
+            image_array,
+            pixels_to_fill_next_iter,
+            adjacent_opaque_pixels,
+            pixels_to_recount_next_iter,
         )
-
-        return image_array, remaining_pixels_to_fill
