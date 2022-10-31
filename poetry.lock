@@ -988,7 +988,7 @@ typing-extensions = "*"
 
 [[package]]
 name = "types-pillow"
-version = "9.2.2.2"
+version = "9.3.0.0"
 description = "Typing stubs for Pillow"
 category = "dev"
 optional = false
@@ -1118,7 +1118,7 @@ testing = ["func-timeout", "jaraco.itertools", "pytest (>=6)", "pytest-black (>=
 [metadata]
 lock-version = "1.1"
 python-versions = "~3.9"
-content-hash = "75a3284d57d3fd157dee46f267ffe81947baf248b0ad1c2f218862ee40d9b32e"
+content-hash = "189bded080fc8c4357b5b9a41320abfc58d6bfbf29c271cbdb5b188f62dac967"
 
 [metadata.files]
 astroid = [
@@ -1991,8 +1991,8 @@ torch = [
     {file = "torch-1.12.1-cp39-none-macosx_11_0_arm64.whl", hash = "sha256:69fe2cae7c39ccadd65a123793d30e0db881f1c1927945519c5c17323131437e"},
 ]
 types-pillow = [
-    {file = "types-Pillow-9.2.2.2.tar.gz", hash = "sha256:b88bd03d6b1d467d2dd1d54808b04631ca88941fe16f9eeb92bc114e5a145ec0"},
-    {file = "types_Pillow-9.2.2.2-py3-none-any.whl", hash = "sha256:49a633ad811446efeb2abbfea4596cff470b1a48adba6c944fae57b3a667e5cb"},
+    {file = "types-Pillow-9.3.0.0.tar.gz", hash = "sha256:0851a1b3ff002253a7af8f7eaf74d79fb761430933bd1aeb73d853a17f2a0a9d"},
+    {file = "types_Pillow-9.3.0.0-py3-none-any.whl", hash = "sha256:df09de7e557706c16fb30db887327c7f1c81e8ebc703d9d4739bfda7cad0e733"},
 ]
 types-pytz = [
     {file = "types-pytz-2022.4.0.0.tar.gz", hash = "sha256:17d66e4b16e80ceae0787726f3a22288df7d3f9fdebeb091dc64b92c0e4ea09d"},
