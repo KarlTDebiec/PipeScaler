@@ -12,6 +12,7 @@ from typing import Callable, Sequence, Union
 
 from pipescaler.common import get_temp_file_path, validate_output_directory
 from pipescaler.core.pipelines import PipeImage
+from pipescaler.core.typing import PipeFileProcessor, PipeProcessor, PipeSplitter
 
 
 class CheckpointManager:
@@ -20,18 +21,28 @@ class CheckpointManager:
     def __init__(self, directory: Union[Path, str]) -> None:
         """Validate and store configuration.
 
+        Attributes:
+            directory: Directory in which to store checkpoints
+            image_names: Names of images for which checkpoints have been created
+            checkpoint_names: Names of checkpoints
+
         Arguments:
             directory: Directory in which to store checkpoints
         """
         self.directory = validate_output_directory(directory)
+        """Directory in which to store checkpoints."""
         self.image_names: set[str] = set()
+        """Names of images for which checkpoints have been created."""
         self.checkpoint_names: set[str] = set()
+        """Names of checkpoint."""
 
     def __repr__(self):
         """Representation."""
         return f"<{self.__class__.__name__}>"
 
-    def get_checkpoint(self, image: PipeImage, name: str, suffix: str = ".png") -> Path:
+    def get_checkpoint_path(
+        self, image: PipeImage, name: str, suffix: str = ".png"
+    ) -> Path:
         """Get the path to a checkpoint for a provided image and name.
 
         Arguments:
@@ -47,9 +58,7 @@ class CheckpointManager:
         checkpoint = checkpoint_directory.joinpath(name).with_suffix(suffix)
         return checkpoint
 
-    def post(
-        self, name: str
-    ) -> Callable[[Callable[[PipeImage], PipeImage]], Callable[[PipeImage], PipeImage]]:
+    def post(self, name: str) -> Callable[[PipeProcessor], PipeProcessor]:
         """Get a decorator to be used to add a checkpoint after a processor function.
 
         Arguments:
@@ -59,9 +68,7 @@ class CheckpointManager:
         """
         self.checkpoint_names.add(name)
 
-        def checkpoint_decorator(
-            function: Callable[[PipeImage], PipeImage]
-        ) -> Callable[[PipeImage], PipeImage]:
+        def checkpoint_decorator(function: PipeProcessor) -> PipeProcessor:
             """Decorator to be used to add a checkpoint after a processor function.
 
             Arguments:
@@ -80,7 +87,7 @@ class CheckpointManager:
                     Processed image, loaded from checkpoint if available
                 """
                 self.image_names.add(image.name)
-                checkpoint = self.get_checkpoint(image, name)
+                checkpoint = self.get_checkpoint_path(image, name)
                 if checkpoint.exists():
                     output_image = PipeImage(path=checkpoint, parents=image)
                     info(f"{self}: {image.name} checkpoint {checkpoint.name} loaded")
@@ -96,7 +103,7 @@ class CheckpointManager:
 
     def post_file(
         self, name: str, suffix: str = ".png"
-    ) -> Callable[[Callable[[Path, Path], None]], Callable[[PipeImage], PipeImage]]:
+    ) -> Callable[[PipeFileProcessor], PipeProcessor]:
         """Get a decorator to be used to add a checkpoint after a processor function.
 
         Arguments:
@@ -107,9 +114,7 @@ class CheckpointManager:
         """
         self.checkpoint_names.add(name)
 
-        def checkpoint_decorator(
-            function: Callable[[Path, Path], None]
-        ) -> Callable[[PipeImage], PipeImage]:
+        def checkpoint_decorator(function: PipeFileProcessor) -> PipeProcessor:
             """Decorator to be used to add a checkpoint after a processor function.
 
             Arguments:
@@ -128,7 +133,7 @@ class CheckpointManager:
                     Processed image, loaded from checkpoint if available
                 """
                 self.image_names.add(image.name)
-                checkpoint = self.get_checkpoint(image, name, suffix=suffix)
+                checkpoint = self.get_checkpoint_path(image, name, suffix=suffix)
                 if checkpoint.exists():
                     output_image = PipeImage(path=checkpoint, parents=image)
                     info(f"{self}: {image.name} checkpoint {checkpoint.name} loaded")
@@ -149,10 +154,7 @@ class CheckpointManager:
 
     def post_splitter(
         self, names: Sequence[str]
-    ) -> Callable[
-        [Callable[[PipeImage], tuple[PipeImage, ...]]],
-        Callable[[PipeImage], tuple[PipeImage, ...]],
-    ]:
+    ) -> Callable[[PipeSplitter], PipeSplitter,]:
         """Get a decorator to be used to add checkpoints after a splitter function.
 
         Arguments:
@@ -162,9 +164,7 @@ class CheckpointManager:
         """
         self.checkpoint_names.update(set(names))
 
-        def checkpoint_decorator(
-            function: Callable[[PipeImage], tuple[PipeImage, ...]]
-        ) -> Callable[[PipeImage], tuple[PipeImage, ...]]:
+        def checkpoint_decorator(function: PipeSplitter) -> PipeSplitter:
             """Decorator to be used to add a checkpoint after a processor function.
 
             Arguments:
@@ -183,7 +183,7 @@ class CheckpointManager:
                     Split images, loaded from checkpoint if available
                 """
                 self.image_names.add(image.name)
-                checkpoints = [self.get_checkpoint(image, name) for name in names]
+                checkpoints = [self.get_checkpoint_path(image, name) for name in names]
                 if all(checkpoint.exists() for checkpoint in checkpoints):
                     output_images = tuple(
                         PipeImage(path=checkpoint, parents=image)
@@ -201,9 +201,7 @@ class CheckpointManager:
 
         return checkpoint_decorator
 
-    def pre(
-        self, name: str
-    ) -> Callable[[Callable[[PipeImage], PipeImage]], Callable[[PipeImage], PipeImage]]:
+    def pre(self, name: str) -> Callable[[PipeProcessor], PipeProcessor]:
         """Get a decorator to be used to add a checkpoint before a processor function.
 
         Arguments:
@@ -212,9 +210,7 @@ class CheckpointManager:
             Decorator to bue used to add checkpoint before a processor function.
         """
 
-        def checkpoint_decorator(
-            function: Callable[[PipeImage], PipeImage]
-        ) -> Callable[[PipeImage], PipeImage]:
+        def checkpoint_decorator(function: PipeProcessor) -> PipeProcessor:
             """Decorator to be used to add a checkpoint before a processor function.
 
             Arguments:
@@ -234,7 +230,7 @@ class CheckpointManager:
                     Processed image, loaded from checkpoint if available
                 """
                 self.image_names.add(image.name)
-                checkpoint = self.get_checkpoint(image, name)
+                checkpoint = self.get_checkpoint_path(image, name)
                 if not checkpoint.exists():
                     image.image.save(checkpoint)
                     info(f"{self}: {image.name} checkpoint {checkpoint.name} saved")
