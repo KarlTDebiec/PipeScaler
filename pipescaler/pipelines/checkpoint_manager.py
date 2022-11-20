@@ -12,7 +12,7 @@ from typing import Callable, Sequence, Union
 
 from pipescaler.common import get_temp_file_path, validate_output_directory
 from pipescaler.core.pipelines import PipeImage
-from pipescaler.core.typing import PipeFileProcessor, PipeProcessor, PipeSplitter
+from pipescaler.core.types import PipeFileProcessor, PipeProcessor, PipeSplitter
 
 
 class CheckpointManager:
@@ -20,11 +20,6 @@ class CheckpointManager:
 
     def __init__(self, directory: Union[Path, str]) -> None:
         """Validate and store configuration.
-
-        Attributes:
-            directory: Directory in which to store checkpoints
-            image_names: Names of images for which checkpoints have been created
-            checkpoint_names: Names of checkpoints
 
         Arguments:
             directory: Directory in which to store checkpoints
@@ -37,53 +32,6 @@ class CheckpointManager:
     def __repr__(self):
         """Representation."""
         return f"<{self.__class__.__name__}>"
-
-    def post_processor(
-        self,
-        checkpoint_name: str,
-    ) -> Callable[[PipeProcessor], PipeProcessor]:
-        """Get a decorator to be used to add a checkpoint after a processor function.
-
-        Arguments:
-            checkpoint_name: Name of checkpoints
-        Returns:
-            Decorator to be used to add checkpoint after a processor function
-        """
-        # self.checkpoint_names.add(checkpoint_name)
-
-        def decorator(function: PipeProcessor) -> PipeProcessor:
-            """Decorator to be used to add a checkpoint after a processor function.
-
-            Arguments:
-                function: Function to wrap
-            Returns:
-                Wrapped function
-            """
-
-            @wraps(function)
-            def wrapped(image: PipeImage) -> PipeImage:
-                """Image processor function, wrapped to make use of a checkpoint.
-
-                Arguments:
-                    image: Image to process
-                Returns:
-                    Processed image, loaded from checkpoint if available
-                """
-                self.observed_checkpoints.add((image.name, checkpoint_name))
-
-                checkpoint_path = self.directory / image.name / checkpoint_name
-                if checkpoint_path.exists():
-                    output_image = PipeImage(path=checkpoint_path, parents=image)
-                    info(f"{self}: {image.name} checkpoint {checkpoint_name} loaded")
-                else:
-                    output_image = function(image)
-                    output_image.image.save(checkpoint_path)
-                    info(f"{self}: {image.name} checkpoint {checkpoint_name} saved")
-                return output_image
-
-            return wrapped
-
-        return decorator
 
     def post_file_processor(
         self, checkpoint_name: str
@@ -130,6 +78,55 @@ class CheckpointManager:
                         function(image.path, checkpoint_path)
                     output_image = PipeImage(path=checkpoint_path, parents=image)
                     info(f"{self}: {image.name} checkpoint {checkpoint_name} saved")
+                return output_image
+
+            return wrapped
+
+        return decorator
+
+    def post_processor(
+        self,
+        cp_name: str,
+    ) -> Callable[[PipeProcessor], PipeProcessor]:
+        """Get a decorator to be used to add a checkpoint after a processor function.
+
+        Arguments:
+            cp_name: Name of checkpoints
+        Returns:
+            Decorator to be used to add checkpoint after a processor function
+        """
+        # self.checkpoint_names.add(checkpoint_name)
+
+        def decorator(function: PipeProcessor) -> PipeProcessor:
+            """Decorator to be used to add a checkpoint after a processor function.
+
+            Arguments:
+                function: Function to wrap
+            Returns:
+                Wrapped function
+            """
+
+            @wraps(function)
+            def wrapped(input_image: PipeImage) -> PipeImage:
+                """Image processor function, wrapped to make use of a checkpoint.
+
+                Arguments:
+                    input_image: Image to process
+                Returns:
+                    Processed image, loaded from checkpoint if available
+                """
+                self.observed_checkpoints.add((input_image.name, cp_name))
+
+                cp_path = self.directory / input_image.name / cp_name
+                if cp_path.exists():
+                    output_image = PipeImage(path=cp_path, parents=input_image)
+                    info(f"{self}: {input_image.name} checkpoint {cp_name} loaded")
+                else:
+                    output_image = function(input_image)
+                    if not cp_path.parent.exists():
+                        cp_path.parent.mkdir(parents=True)
+                    output_image.save(cp_path)
+                    info(f"{self}: {input_image.name} checkpoint {cp_name} saved")
                 return output_image
 
             return wrapped

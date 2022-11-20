@@ -85,6 +85,15 @@ class PipeImage:
             return len(self.parents) + sum(p.count_parents() for p in self.parents)
         return 0
 
+    def save(self, path: Union[Path, str]) -> None:
+        """Save image to file and set path.
+
+        Arguments:
+            path: Path to which to save image
+        """
+        self.image.save(path)
+        self.path = Path(path)
+
     @property
     def image(self) -> Image.Image:
         """Actual image; loaded from path is not already available."""
@@ -109,6 +118,10 @@ class PipeImage:
     def parents(self) -> Optional[list[PipeImage]]:
         """Parent images of this image."""
         return self._parents
+
+    @parents.setter
+    def parents(self, value: Optional[list[PipeImage]]) -> None:
+        self._parents = value
 
     @property
     def path(self) -> Optional[Path]:

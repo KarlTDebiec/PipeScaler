@@ -2,16 +2,16 @@
 #  Copyright 2020-2022 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Functions for routing."""
+"""Functions for pipelines."""
 from logging import info
-from typing import Callable
 
 from pipescaler.core.image import Merger, Processor, Splitter
 from pipescaler.core.pipelines.pipe_image import PipeImage
+from pipescaler.core.types import PipeMerger, PipeProcessor, PipeSplitter
 
 
-def wrap_merger(merger: Merger) -> Callable[[PipeImage], PipeImage]:
-    """Wrap a merger.
+def wrap_merger(merger: Merger) -> PipeMerger:
+    """Wraps a Merger to use PipeImages rather than PIL Images.
 
     Arguments:
         merger: Merger to wrap
@@ -36,8 +36,8 @@ def wrap_merger(merger: Merger) -> Callable[[PipeImage], PipeImage]:
     return wrapped
 
 
-def wrap_processor(processor: Processor) -> Callable[[PipeImage], PipeImage]:
-    """Wrap a processor.
+def wrap_processor(processor: Processor) -> PipeProcessor:
+    """Wraps a Processor to use PipeImages rather than PIL Images.
 
     Arguments:
         processor: Processor to wrap
@@ -64,8 +64,8 @@ def wrap_processor(processor: Processor) -> Callable[[PipeImage], PipeImage]:
     return wrapped
 
 
-def wrap_splitter(splitter: Splitter) -> Callable[[PipeImage], tuple[PipeImage, ...]]:
-    """Wrap a splitter.
+def wrap_splitter(splitter: Splitter) -> PipeSplitter:
+    """Wraps a Splitter to use PipeImages rather than PIL Images.
 
     Arguments:
         splitter: Splitter to wrap
