@@ -11,7 +11,7 @@ from typing import Optional, Sequence, Union
 
 from PIL import Image
 
-from pipescaler.common import validate_input_file
+from pipescaler.common import validate_input_file, validate_output_file
 from pipescaler.core.image import remove_palette
 
 
@@ -91,8 +91,9 @@ class PipeImage:
         Arguments:
             path: Path to which to save image
         """
+        path = validate_output_file(path)
         self.image.save(path)
-        self.path = Path(path)
+        self.path = path
 
     @property
     def image(self) -> Image.Image:
@@ -119,10 +120,6 @@ class PipeImage:
         """Parent images of this image."""
         return self._parents
 
-    @parents.setter
-    def parents(self, value: Optional[list[PipeImage]]) -> None:
-        self._parents = value
-
     @property
     def path(self) -> Optional[Path]:
         """Path to this image, if applicable."""
@@ -130,8 +127,7 @@ class PipeImage:
 
     @path.setter
     def path(self, value: Union[Path, str]) -> None:
-        if isinstance(value, str):
-            value = Path(validate_input_file(value))
+        value = validate_input_file(value)
         self._path = value
 
     @property

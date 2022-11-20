@@ -16,6 +16,6 @@ Note that this type is identical to PipeProcessor, because in Python f(x) and f(
 the same type annotations.
 """
 PipeProcessor = Callable[[PipeImage], PipeImage]
-"""Performs operation on a PipeImage, yielding a modified PipeImage."""
+"""Processes a PipeImage, yielding a modified PipeImage."""
 PipeSplitter = Callable[[PipeImage], tuple[PipeImage, ...]]
 """Splits one PipeImage into two or more downstream PipeImages."""
