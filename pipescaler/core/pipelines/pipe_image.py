@@ -126,8 +126,9 @@ class PipeImage:
         return self._path
 
     @path.setter
-    def path(self, value: Union[Path, str]) -> None:
-        value = validate_input_file(value)
+    def path(self, value: Optional[Union[Path, str]]) -> None:
+        if value is not None:
+            value = validate_input_file(value)
         self._path = value
 
     @property
