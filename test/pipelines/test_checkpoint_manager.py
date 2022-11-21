@@ -50,11 +50,11 @@ def test_post_processor(process_xbrz) -> None:
 
         input_image = PipeImage(path=get_test_infile_path("RGB"))
         output_image = function(input_image)
-        assert output_image.path == cp_directory / input_image.name / "checkpoint.png"
+        assert output_image.path == (cp_directory / input_image.name / "checkpoint.png")
         assert output_image._image is not None
 
         output_image = function(input_image)
-        assert output_image.path == cp_directory / input_image.name / "checkpoint.png"
+        assert output_image.path == (cp_directory / input_image.name / "checkpoint.png")
         assert output_image._image is None
 
         # touch an empty file
