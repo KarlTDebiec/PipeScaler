@@ -7,6 +7,8 @@ from os import mkdir
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+from PIL import Image
+
 from pipescaler.core.pipelines import PipeImage, wrap_processor, wrap_splitter
 from pipescaler.image.processors import XbrzProcessor
 from pipescaler.image.splitters import AlphaSplitter
@@ -24,18 +26,26 @@ def test_post_file_processor() -> None:
         def function(infile: Path, outfile: Path) -> None:
             outfile.write_bytes(infile.read_bytes())
 
+        # Test image loaded from a file
         input_img = PipeImage(path=get_test_infile_path("RGB"))
-        output_image = function(input_img)
-        assert output_image.path == (cp_directory / input_img.name / "checkpoint.png")
+        output_img = function(input_img)
+        assert output_img.path == (cp_directory / input_img.name / "checkpoint.png")
+        output_img = function(input_img)
+        assert output_img.path == (cp_directory / input_img.name / "checkpoint.png")
+        # TODO: Count calls
 
-        output_image = function(input_img)
-        assert output_image.path == (cp_directory / input_img.name / "checkpoint.png")
+        input_image = PipeImage(image=Image.new("RGB", (100, 100)), name="RGB_2")
+        output_img = function(input_img)
+        assert output_img.path == (cp_directory / input_img.name / "checkpoint.png")
+        output_img = function(input_img)
+        assert output_img.path == (cp_directory / input_img.name / "checkpoint.png")
+        # TODO: Count calls
 
-        # touch an empty file
+        # Test purge
         mkdir(cp_directory / "to_delete")
         open(cp_directory / input_img.name / "to_delete.png", "a").close()
-
         cp_manager.purge_unrecognized_files()
+        assert output_img.path.exists()
 
 
 def test_post_processor() -> None:
@@ -51,18 +61,18 @@ def test_post_processor() -> None:
             return output_img
 
         input_img = PipeImage(path=get_test_infile_path("RGB"))
-        output_image = function(input_img)
-        assert output_image.path == (cp_directory / input_img.name / "checkpoint.png")
+        output_img = function(input_img)
+        assert output_img.path == (cp_directory / input_img.name / "checkpoint.png")
 
-        output_image = function(input_img)
-        assert output_image.path == (cp_directory / input_img.name / "checkpoint.png")
+        output_img = function(input_img)
+        assert output_img.path == (cp_directory / input_img.name / "checkpoint.png")
         assert process.count == 1
 
-        # touch an empty file
+        # Test purge
         mkdir(cp_directory / "to_delete")
         open(cp_directory / input_img.name / "to_delete.png", "a").close()
-
         cp_manager.purge_unrecognized_files()
+        assert output_img.path.exists()
 
 
 def test_post_splitter() -> None:
@@ -87,7 +97,12 @@ def test_post_splitter() -> None:
         assert alpha_img.path == (cp_directory / input_img.name / "alpha.png")
         assert split.count == 1
 
+        # Test purge
+        mkdir(cp_directory / "to_delete")
+        open(cp_directory / input_img.name / "to_delete.png", "a").close()
         cp_manager.purge_unrecognized_files()
+        assert color_img.path.exists()
+        assert alpha_img.path.exists()
 
 
 def test_pre_processor() -> None:
@@ -104,9 +119,14 @@ def test_pre_processor() -> None:
 
         input_path = get_test_infile_path("RGB")
         input_img = PipeImage(path=input_path)
-        output_image = function(input_img)
+        output_img = function(input_img)
 
         assert input_img.path == (cp_directory / input_img.name / "checkpoint.png")
         assert PipeImage(path=input_path).image == PipeImage(path=input_img.path).image
 
+        # Test purge
+        mkdir(cp_directory / "to_delete")
+        open(cp_directory / input_img.name / "to_delete.png", "a").close()
         cp_manager.purge_unrecognized_files()
+        assert input_img.path.exists()
+        assert output_img.path.exists()
