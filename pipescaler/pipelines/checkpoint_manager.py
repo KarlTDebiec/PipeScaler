@@ -8,7 +8,7 @@ from logging import info
 from os import remove, rmdir
 from os.path import join
 from pathlib import Path
-from typing import Callable, Sequence, Union
+from typing import Callable, Union
 
 from pipescaler.common import get_temp_file_path, validate_output_directory
 from pipescaler.core.pipelines import PipeImage
@@ -84,16 +84,13 @@ class CheckpointManager:
 
         return decorator
 
-    def post_processor(
-        self,
-        cpt: str,
-    ) -> Callable[[PipeProcessor], PipeProcessor]:
+    def post_processor(self, cpt: str) -> Callable[[PipeProcessor], PipeProcessor]:
         """Get a decorator to be used to add a checkpoint after a processor function.
 
         Arguments:
             cpt: Name of checkpoints
         Returns:
-            Decorator to be used to add checkpoint after a processor function
+            Decorator to be used to add checkpoint after a PipeProcessor
         """
         # self.checkpoint_names.add(checkpoint_name)
 
@@ -133,15 +130,13 @@ class CheckpointManager:
 
         return decorator
 
-    def post_splitter(
-        self, checkpoint_names: Sequence[str]
-    ) -> Callable[[PipeSplitter], PipeSplitter]:
+    def post_splitter(self, *cpts: str) -> Callable[[PipeSplitter], PipeSplitter]:
         """Get a decorator to be used to add checkpoints after a splitter function.
 
         Arguments:
-            checkpoint_names: Names of checkpoints
+            cpts: Names of checkpoints
         Returns:
-            Decorator to be used to add checkpoints after a splitter function
+            Decorator to be used to add checkpoints after a PipeSplitter
         """
 
         def decorator(function: PipeSplitter) -> PipeSplitter:
@@ -154,34 +149,31 @@ class CheckpointManager:
             """
 
             @wraps(function)
-            def wrapped(image: PipeImage) -> tuple[PipeImage, ...]:
+            def wrapped(input_img: PipeImage) -> tuple[PipeImage, ...]:
                 """Image splitter function, wrapped to make use of checkpoints.
 
                 Arguments:
-                    image: Image to split
+                    input_img: Image to split
                 Returns:
                     Split images, loaded from checkpoint if available
                 """
-                self.observed_checkpoints.update(
-                    (image.name, checkpoint_name)
-                    for checkpoint_name in checkpoint_names
-                )
+                self.observed_checkpoints.update((input_img.name, cpt) for cpt in cpts)
 
-                checkpoint_paths = [
-                    self.directory / image.name / checkpoint_name
-                    for checkpoint_name in checkpoint_names
-                ]
-                if all(cp.exists() for cp in checkpoint_paths):
-                    output_images = tuple(
-                        PipeImage(path=cp, parents=image) for cp in checkpoint_paths
+                cpt_paths = [self.directory / input_img.name / cpt for cpt in cpts]
+                if all(cpt_path.exists() for cpt_path in cpt_paths):
+                    output_imgs = tuple(
+                        PipeImage(path=cpt_path, parents=input_img)
+                        for cpt_path in cpt_paths
                     )
-                    info(f"{self}: {image.name} checkpoints {checkpoint_names} loaded")
+                    info(f"{self}: {input_img.name} checkpoints {cpts} loaded")
                 else:
-                    output_images = function(image)
-                    for output_image, cp in zip(output_images, checkpoint_paths):
-                        output_image.image.save(cp)
-                        info(f"{self}: {image.name} checkpoint {cp} saved")
-                return output_images
+                    output_imgs = function(input_img)
+                    if not cpt_paths[0].parent.exists():
+                        cpt_paths[0].parent.mkdir(parents=True)
+                    for output_img, cpt_path in zip(output_imgs, cpt_paths):
+                        output_img.save(cpt_path)
+                        info(f"{self}: {input_img.name} checkpoint {cpt_path} saved")
+                return output_imgs
 
             return wrapped
 

@@ -38,28 +38,28 @@ def process_xbrz() -> PipeProcessor:
     return wrap_processor(XbrzProcessor())
 
 
-def test_post_processor(process_xbrz) -> None:
+def test_post_processor(process_xbrz: PipeProcessor) -> None:
     with TemporaryDirectory() as cp_directory:
         cp_directory = Path(cp_directory)
         cp_manager = CheckpointManager(cp_directory)
 
         @cp_manager.post_processor("checkpoint.png")
-        def function(image: PipeImage) -> PipeImage:
-            image = process_xbrz(image)
-            return image
+        def function(input_img: PipeImage) -> PipeImage:
+            output_img = process_xbrz(input_img)
+            return output_img
 
-        input_image = PipeImage(path=get_test_infile_path("RGB"))
-        output_image = function(input_image)
-        assert output_image.path == (cp_directory / input_image.name / "checkpoint.png")
+        input_img = PipeImage(path=get_test_infile_path("RGB"))
+        output_image = function(input_img)
+        assert output_image.path == (cp_directory / input_img.name / "checkpoint.png")
         assert output_image._image is not None
 
-        output_image = function(input_image)
-        assert output_image.path == (cp_directory / input_image.name / "checkpoint.png")
+        output_image = function(input_img)
+        assert output_image.path == (cp_directory / input_img.name / "checkpoint.png")
         assert output_image._image is None
 
         # touch an empty file
         mkdir(cp_directory / "to_delete")
-        open(cp_directory / input_image.name / "to_delete.png", "a").close()
+        open(cp_directory / input_img.name / "to_delete.png", "a").close()
 
         cp_manager.purge_unrecognized_files()
 
@@ -68,13 +68,31 @@ def test_post_file_processor() -> None:
     pass
 
 
-def test_post_splitter() -> None:
-    pass
+def test_post_splitter(split_alpha: PipeSplitter) -> None:
+    with TemporaryDirectory() as cp_directory:
+        cp_directory = Path(cp_directory)
+        cp_manager = CheckpointManager(cp_directory)
+
+        @cp_manager.post_splitter("color.png", "alpha.png")
+        def function(image: PipeImage) -> tuple[PipeImage, ...]:
+            color_img, alpha_img = split_alpha(image)
+            return color_img, alpha_img
+
+        input_img = PipeImage(path=get_test_infile_path("RGBA"))
+        color_img, alpha_img = function(input_img)
+        assert color_img.path == (cp_directory / input_img.name / "color.png")
+        assert color_img._image is not None
+        assert alpha_img.path == (cp_directory / input_img.name / "alpha.png")
+        assert alpha_img._image is not None
+
+        color_img, alpha_img = function(input_img)
+        assert color_img.path == (cp_directory / input_img.name / "color.png")
+        assert color_img._image is None
+        assert alpha_img.path == (cp_directory / input_img.name / "alpha.png")
+        assert alpha_img._image is None
+
+        cp_manager.purge_unrecognized_files()
 
 
 def test_pre_processor() -> None:
-    pass
-
-
-def test_purge_unrecognized_files() -> None:
     pass
