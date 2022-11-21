@@ -8,7 +8,7 @@ from logging import info
 from os import remove, rmdir
 from os.path import join
 from pathlib import Path
-from typing import Callable, Optional, Union
+from typing import Callable, Union
 
 from pipescaler.common import get_temp_file_path, validate_output_directory
 from pipescaler.core.pipelines import PipeImage
@@ -88,7 +88,7 @@ class CheckpointManager:
     def post_processor(
         self,
         cpt: str,
-        *called_functions: Optional[PipeProcessor],
+        *called_functions: PipeProcessor,
     ) -> Callable[[PipeProcessor], PipeProcessor]:
         """Get a decorator to be used to add a checkpoint after a processor function.
 
@@ -143,9 +143,7 @@ class CheckpointManager:
             if hasattr(function, "cpt"):
                 internal_cpts.append(function.cpt)
             wrapped.cpt = cpt
-            """Name of checkpoint."""
             wrapped.internal_cpts = internal_cpts
-            """Names of checkpoints associated with functions called within."""
             return wrapped
 
         return decorator
@@ -202,7 +200,7 @@ class CheckpointManager:
     def pre_processor(
         self,
         cpt: str,
-        *called_functions: Optional[PipeProcessor],
+        *called_functions: PipeProcessor,
     ) -> Callable[[PipeProcessor], PipeProcessor]:
         """Get a decorator to be used to add a checkpoint before a processor function.
 
@@ -253,9 +251,7 @@ class CheckpointManager:
             if hasattr(function, "internal_cpts"):
                 internal_cpts.extend(function.internal_cpts)
             wrapped.cpt = cpt
-            """Name of checkpoint."""
             wrapped.internal_cpts = internal_cpts
-            """Names of checkpoints associated with functions called within."""
             return wrapped
 
         return decorator
