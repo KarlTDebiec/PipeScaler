@@ -3,6 +3,7 @@
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Tests for CheckpointManager."""
+from os import mkdir
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -42,19 +43,25 @@ def test_post_processor(process_xbrz) -> None:
         cp_directory = Path(cp_directory)
         cp_manager = CheckpointManager(cp_directory)
 
-        @cp_manager.post_processor("test.png")
+        @cp_manager.post_processor("checkpoint.png")
         def function(image: PipeImage) -> PipeImage:
             image = process_xbrz(image)
             return image
 
         input_image = PipeImage(path=get_test_infile_path("RGB"))
         output_image = function(input_image)
-        assert output_image.path == cp_directory / input_image.name / "test.png"
+        assert output_image.path == cp_directory / input_image.name / "checkpoint.png"
         assert output_image._image is not None
 
         output_image = function(input_image)
-        assert output_image.path == cp_directory / input_image.name / "test.png"
+        assert output_image.path == cp_directory / input_image.name / "checkpoint.png"
         assert output_image._image is None
+
+        # touch an empty file
+        mkdir(cp_directory / "to_delete")
+        open(cp_directory / input_image.name / "to_delete.png", "a").close()
+
+        cp_manager.purge_unrecognized_files()
 
 
 def test_post_file_processor() -> None:

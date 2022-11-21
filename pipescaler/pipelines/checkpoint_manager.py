@@ -5,7 +5,7 @@
 """Manages checkpoints."""
 from functools import wraps
 from logging import info
-from os import remove
+from os import remove, rmdir
 from os.path import join
 from pathlib import Path
 from typing import Callable, Sequence, Union
@@ -86,12 +86,12 @@ class CheckpointManager:
 
     def post_processor(
         self,
-        cp_name: str,
+        cpt: str,
     ) -> Callable[[PipeProcessor], PipeProcessor]:
         """Get a decorator to be used to add a checkpoint after a processor function.
 
         Arguments:
-            cp_name: Name of checkpoints
+            cpt: Name of checkpoints
         Returns:
             Decorator to be used to add checkpoint after a processor function
         """
@@ -107,27 +107,27 @@ class CheckpointManager:
             """
 
             @wraps(function)
-            def wrapped(input_image: PipeImage) -> PipeImage:
+            def wrapped(input_img: PipeImage) -> PipeImage:
                 """Image processor function, wrapped to make use of a checkpoint.
 
                 Arguments:
-                    input_image: Image to process
+                    input_img: Image to process
                 Returns:
                     Processed image, loaded from checkpoint if available
                 """
-                self.observed_checkpoints.add((input_image.name, cp_name))
+                self.observed_checkpoints.add((input_img.name, cpt))
 
-                cp_path = self.directory / input_image.name / cp_name
-                if cp_path.exists():
-                    output_image = PipeImage(path=cp_path, parents=input_image)
-                    info(f"{self}: {input_image.name} checkpoint {cp_name} loaded")
+                cpt_path = self.directory / input_img.name / cpt
+                if cpt_path.exists():
+                    output_img = PipeImage(path=cpt_path, parents=input_img)
+                    info(f"{self}: {input_img.name} checkpoint {cpt} loaded")
                 else:
-                    output_image = function(input_image)
-                    if not cp_path.parent.exists():
-                        cp_path.parent.mkdir(parents=True)
-                    output_image.save(cp_path)
-                    info(f"{self}: {input_image.name} checkpoint {cp_name} saved")
-                return output_image
+                    output_img = function(input_img)
+                    if not cpt_path.parent.exists():
+                        cpt_path.parent.mkdir(parents=True)
+                    output_img.save(cpt_path)
+                    info(f"{self}: {input_img.name} checkpoint {cpt} saved")
+                return output_img
 
             return wrapped
 
@@ -230,17 +230,12 @@ class CheckpointManager:
 
     def purge_unrecognized_files(self) -> None:
         """Remove files in output directory that have not been logged as observed."""
-        for image_directory in self.directory.iterdir():
-            for checkpoint in image_directory.iterdir():
-                if (
-                    image_directory.name,
-                    checkpoint.name,
-                ) not in self.observed_checkpoints:
-                    remove(checkpoint)
-                    info(
-                        f"{self}: checkpoint "
-                        f"{join(checkpoint.parents[0].name, checkpoint.name)} removed"
-                    )
-            if not any(image_directory.iterdir()):
-                remove(image_directory)
-                info(f"{self}: directory {image_directory.name} removed")
+        for img in self.directory.iterdir():
+            for cpt in img.iterdir():
+                if (img.name, cpt.name) not in self.observed_checkpoints:
+                    name = join(cpt.parents[0].name, cpt.name)
+                    remove(cpt)
+                    info(f"{self}: checkpoint {name} removed")
+            if not any(img.iterdir()):
+                rmdir(img)
+                info(f"{self}: directory {img.name} removed")
