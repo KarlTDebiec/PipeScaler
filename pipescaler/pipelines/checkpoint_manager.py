@@ -31,18 +31,17 @@ class CheckpointManager:
 
     def __repr__(self):
         """Representation."""
-        return f"<{self.__class__.__name__}>"
+        return f"{self.__class__.__name__}(directory={self.directory})"
 
     def post_file_processor(
-        self, checkpoint_name: str
+        self, cpt: str
     ) -> Callable[[PipeFileProcessor], PipeProcessor]:
         """Get a decorator to be used to add a checkpoint after a processor function.
 
         Arguments:
-            checkpoint_name: Name of checkpoint
-            suffix: Suffix of checkpoint
+            cpt: Name of checkpoint
         Returns:
-            Decorator to be used to add checkpoint after a processor function
+            Decorator to be used to add checkpoint after a PipeFileProcessor function
         """
 
         def decorator(function: PipeFileProcessor) -> PipeProcessor:
@@ -55,30 +54,32 @@ class CheckpointManager:
             """
 
             @wraps(function)
-            def wrapped(image: PipeImage) -> PipeImage:
+            def wrapped(input_img: PipeImage) -> PipeImage:
                 """Image processor function, wrapped to make use of a checkpoint.
 
                 Arguments:
-                    image: Image to process
+                    input_img: Image to process
                 Returns:
                     Processed image, loaded from checkpoint if available
                 """
-                self.observed_checkpoints.add((image.name, checkpoint_name))
+                self.observed_checkpoints.add((input_img.name, cpt))
 
-                checkpoint_path = self.directory / image.name / checkpoint_name
-                if checkpoint_path.exists():
-                    output_image = PipeImage(path=checkpoint_path, parents=image)
-                    info(f"{self}: {image.name} checkpoint {checkpoint_name} loaded")
+                cpt_path = self.directory / input_img.name / cpt
+                if cpt_path.exists():
+                    output_img = PipeImage(path=cpt_path, parents=input_img)
+                    info(f"{self}: {input_img.name} checkpoint {cpt} loaded")
                 else:
-                    if image.path is None:
+                    if not cpt_path.parent.exists():
+                        cpt_path.parent.mkdir(parents=True)
+                    if input_img.path is None:
                         with get_temp_file_path(".png") as input_path:
-                            image.image.save(input_path)
-                            function(input_path, checkpoint_path)
+                            input_img.image.save(input_path)
+                            function(input_path, cpt_path)
                     else:
-                        function(image.path, checkpoint_path)
-                    output_image = PipeImage(path=checkpoint_path, parents=image)
-                    info(f"{self}: {image.name} checkpoint {checkpoint_name} saved")
-                return output_image
+                        function(input_img.path, cpt_path)
+                    output_img = PipeImage(path=cpt_path, parents=input_img)
+                    info(f"{self}: {input_img.name} checkpoint {cpt} saved")
+                return output_img
 
             return wrapped
 
@@ -92,7 +93,6 @@ class CheckpointManager:
         Returns:
             Decorator to be used to add checkpoint after a PipeProcessor
         """
-        # self.checkpoint_names.add(checkpoint_name)
 
         def decorator(function: PipeProcessor) -> PipeProcessor:
             """Decorator to be used to add a checkpoint after a processor function.
@@ -179,13 +179,11 @@ class CheckpointManager:
 
         return decorator
 
-    def pre_processor(
-        self, checkpoint_name: str
-    ) -> Callable[[PipeProcessor], PipeProcessor]:
+    def pre_processor(self, cpt: str) -> Callable[[PipeProcessor], PipeProcessor]:
         """Get a decorator to be used to add a checkpoint before a processor function.
 
         Arguments:
-            checkpoint_name: Name of checkpoint
+            cpt: Name of checkpoint
         Returns:
             Decorator to bue used to add checkpoint before a processor function.
         """
@@ -200,21 +198,21 @@ class CheckpointManager:
             """
 
             @wraps(function)
-            def wrapped(image: PipeImage) -> PipeImage:
+            def wrapped(input_img: PipeImage) -> PipeImage:
                 """Image processor function, wrapped to make use of a checkpoint.
 
                 Arguments:
-                    image: Image to process
+                    input_img: Image to process
                 Returns:
                     Processed image, loaded from checkpoint if available
                 """
-                self.observed_checkpoints.add((image.name, checkpoint_name))
+                self.observed_checkpoints.add((input_img.name, cpt))
 
-                checkpoint_path = self.directory / image.name / checkpoint_name
-                if not checkpoint_path.exists():
-                    image.image.save(checkpoint_path)
-                    info(f"{self}: {image.name} checkpoint {checkpoint_path} saved")
-                return function(image)
+                cpt_path = self.directory / input_img.name / cpt
+                if not cpt_path.exists():
+                    input_img.save(cpt_path)
+                    info(f"{self}: {input_img.name} checkpoint {cpt} saved")
+                return function(input_img)
 
             return wrapped
 
