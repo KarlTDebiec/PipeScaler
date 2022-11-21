@@ -5,54 +5,110 @@
 """Tests for CheckpointManager."""
 from os import mkdir
 from pathlib import Path
-from tempfile import TemporaryDirectory
 
 from PIL import Image
 
+from pipescaler.common import get_temp_directory_path
 from pipescaler.core.pipelines import PipeImage, wrap_processor, wrap_splitter
 from pipescaler.image.processors import XbrzProcessor
 from pipescaler.image.splitters import AlphaSplitter
 from pipescaler.pipelines import CheckpointManager
 from pipescaler.testing import count_executions, get_test_infile_path
 
+# TODO: Nested file checkpoints
+# TODO: ContextManager for CheckpointManager
+# TODO: Test with heavier pipeline
+
+
+def test_nested() -> None:
+    process_1 = wrap_processor(XbrzProcessor(scale=2))
+    process_2 = wrap_processor(XbrzProcessor(scale=2))
+    process_3 = wrap_processor(XbrzProcessor(scale=2))
+
+    def run(cp_directory: Path) -> None:
+        cp_manager = CheckpointManager(cp_directory)
+
+        @cp_manager.pre_processor("pre_1.png")
+        @cp_manager.post_processor("post_1.png")
+        def stage_1(input_img: PipeImage) -> PipeImage:
+            output_img = process_1(input_img)
+            return output_img
+
+        @cp_manager.pre_processor("pre_2.png")
+        @cp_manager.post_processor("post_2.png", stage_1)
+        def stage_2(input_img: PipeImage) -> PipeImage:
+            img = stage_1(input_img)
+            output_img = process_2(img)
+            return output_img
+
+        @cp_manager.pre_processor("pre_3.png")
+        @cp_manager.post_processor("post_3.png", stage_2)
+        def stage_3(input_img: PipeImage) -> PipeImage:
+            img = stage_2(input_img)
+            output_img = process_3(img)
+            return output_img
+
+        input_img = PipeImage(path=get_test_infile_path("RGB"))
+        output_img = stage_3(input_img)
+
+        cp_manager.purge_unrecognized_files()
+        assert (cp_directory / input_img.name / "pre_1.png").exists()
+        assert (cp_directory / input_img.name / "post_1.png").exists()
+        assert (cp_directory / input_img.name / "pre_2.png").exists()
+        assert (cp_directory / input_img.name / "post_2.png").exists()
+        assert (cp_directory / input_img.name / "pre_3.png").exists()
+        assert (cp_directory / input_img.name / "post_3.png").exists()
+
+    with get_temp_directory_path() as cp_directory:
+        run(cp_directory)
+        run(cp_directory)
+
 
 def test_post_file_processor() -> None:
 
-    with TemporaryDirectory() as cp_directory:
-        cp_directory = Path(cp_directory)
+    with get_temp_directory_path() as cp_directory:
         cp_manager = CheckpointManager(cp_directory)
 
         @cp_manager.post_file_processor("checkpoint.png")
         def function(infile: Path, outfile: Path) -> None:
             outfile.write_bytes(infile.read_bytes())
 
-        # Test image loaded from a file
-        input_img = PipeImage(path=get_test_infile_path("RGB"))
-        output_img = function(input_img)
-        assert output_img.path == (cp_directory / input_img.name / "checkpoint.png")
-        output_img = function(input_img)
-        assert output_img.path == (cp_directory / input_img.name / "checkpoint.png")
+        # Test image from file
+        file_input_img = PipeImage(path=get_test_infile_path("RGB"))
+        file_output_img = function(file_input_img)
+        assert file_output_img.path == (
+            cp_directory / file_input_img.name / "checkpoint.png"
+        )
+        file_output_img = function(file_input_img)
+        assert file_output_img.path == (
+            cp_directory / file_input_img.name / "checkpoint.png"
+        )
         # TODO: Count calls
 
-        input_image = PipeImage(image=Image.new("RGB", (100, 100)), name="RGB_2")
-        output_img = function(input_img)
-        assert output_img.path == (cp_directory / input_img.name / "checkpoint.png")
-        output_img = function(input_img)
-        assert output_img.path == (cp_directory / input_img.name / "checkpoint.png")
+        # Test image from code
+        image_input_img = PipeImage(image=Image.new("RGB", (100, 100)), name="RGB_2")
+        image_output_img = function(image_input_img)
+        assert image_output_img.path == (
+            cp_directory / image_input_img.name / "checkpoint.png"
+        )
+        image_output_img = function(image_input_img)
+        assert image_output_img.path == (
+            cp_directory / image_input_img.name / "checkpoint.png"
+        )
         # TODO: Count calls
 
         # Test purge
         mkdir(cp_directory / "to_delete")
-        open(cp_directory / input_img.name / "to_delete.png", "a").close()
+        open(cp_directory / file_input_img.name / "to_delete.png", "a").close()
         cp_manager.purge_unrecognized_files()
-        assert output_img.path.exists()
+        assert file_output_img.path.exists()
+        assert image_output_img.path.exists()
 
 
 def test_post_processor() -> None:
     process = count_executions(wrap_processor(XbrzProcessor()))
 
-    with TemporaryDirectory() as cp_directory:
-        cp_directory = Path(cp_directory)
+    with get_temp_directory_path() as cp_directory:
         cp_manager = CheckpointManager(cp_directory)
 
         @cp_manager.post_processor("checkpoint.png")
@@ -70,6 +126,7 @@ def test_post_processor() -> None:
 
         # Test purge
         mkdir(cp_directory / "to_delete")
+        mkdir(cp_directory / input_img.name / "to_delete")
         open(cp_directory / input_img.name / "to_delete.png", "a").close()
         cp_manager.purge_unrecognized_files()
         assert output_img.path.exists()
@@ -78,8 +135,7 @@ def test_post_processor() -> None:
 def test_post_splitter() -> None:
     split = count_executions(wrap_splitter(AlphaSplitter()))
 
-    with TemporaryDirectory() as cp_directory:
-        cp_directory = Path(cp_directory)
+    with get_temp_directory_path() as cp_directory:
         cp_manager = CheckpointManager(cp_directory)
 
         @cp_manager.post_splitter("color.png", "alpha.png")
@@ -108,8 +164,7 @@ def test_post_splitter() -> None:
 def test_pre_processor() -> None:
     process = wrap_processor(XbrzProcessor())
 
-    with TemporaryDirectory() as cp_directory:
-        cp_directory = Path(cp_directory)
+    with get_temp_directory_path() as cp_directory:
         cp_manager = CheckpointManager(cp_directory)
 
         @cp_manager.pre_processor("checkpoint.png")
@@ -129,4 +184,3 @@ def test_pre_processor() -> None:
         open(cp_directory / input_img.name / "to_delete.png", "a").close()
         cp_manager.purge_unrecognized_files()
         assert input_img.path.exists()
-        assert output_img.path.exists()

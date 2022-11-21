@@ -40,13 +40,18 @@ class PipeImage:
         """
         if image is None and path is None:
             raise ValueError(
-                "PipeImage requires either an image or the path to an image; neither "
-                "has been provided."
+                "PipeImage requires either an image or the path to an image; "
+                "neither has been provided."
             )
         if image is not None and path is not None:
             raise ValueError(
-                "PipeImage requires either an image or the path to an image; both "
-                "have been provided."
+                "PipeImage requires either an image or the path to an image; "
+                "both have been provided."
+            )
+        if image is not None and name is None and parents is None:
+            raise ValueError(
+                "PipeImage requires either a name or parents if image is provided; "
+                "neither has been provided."
             )
         self._image = image
         self.path = path
@@ -58,17 +63,17 @@ class PipeImage:
                 parents = list(parents)
         self._parents = parents
 
-        if name is None:
-            if self.parents is not None:
-                self._name = self.parents[0].name
-            elif self.path is not None:
-                self._name = self.path.stem
-            else:
-                raise ValueError(
-                    "PipeImage requires either a name, the path to an image whose "
-                    "filename will be used as the name, or a parent image whose name "
-                    "will be used."
-                )
+        if name is not None:
+            self._name = name
+        elif self.parents is not None:
+            self._name = self.parents[0].name
+        elif self.path is not None:
+            self._name = self.path.stem
+        else:
+            raise ValueError(
+                "PipeImage requires either a name, the path to an image whose filename "
+                "will be used as the name, or a parent image whose name will be used."
+            )
 
     def __repr__(self) -> str:
         """Representation of PipeImage."""

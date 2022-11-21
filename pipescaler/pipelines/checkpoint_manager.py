@@ -8,7 +8,7 @@ from logging import info
 from os import remove, rmdir
 from os.path import join
 from pathlib import Path
-from typing import Callable, Union
+from typing import Callable, Optional, Union
 
 from pipescaler.common import get_temp_file_path, validate_output_directory
 from pipescaler.core.pipelines import PipeImage
@@ -85,14 +85,25 @@ class CheckpointManager:
 
         return decorator
 
-    def post_processor(self, cpt: str) -> Callable[[PipeProcessor], PipeProcessor]:
+    def post_processor(
+        self,
+        cpt: str,
+        *called_functions: Optional[PipeProcessor],
+    ) -> Callable[[PipeProcessor], PipeProcessor]:
         """Get a decorator to be used to add a checkpoint after a processor function.
 
         Arguments:
             cpt: Name of checkpoints
+            called_functions: Functions called by the wrapped function
         Returns:
             Decorator to be used to add checkpoint after a PipeProcessor
         """
+        internal_cpts = []
+        for function in called_functions:
+            if hasattr(function, "cpt"):
+                internal_cpts.append(function.cpt)
+            if hasattr(function, "internal_cpts"):
+                internal_cpts.extend(function.internal_cpts)
 
         def decorator(function: PipeProcessor) -> PipeProcessor:
             """Decorator to be used to add a checkpoint after a processor function.
@@ -113,6 +124,9 @@ class CheckpointManager:
                     Processed image, loaded from checkpoint if available
                 """
                 self.observed_checkpoints.add((input_img.name, cpt))
+                self.observed_checkpoints.update(
+                    [(input_img.name, internal_cpt) for internal_cpt in internal_cpts]
+                )
 
                 cpt_path = self.directory / input_img.name / cpt
                 if cpt_path.exists():
@@ -126,6 +140,12 @@ class CheckpointManager:
                     info(f"{self}: {input_img.name} checkpoint {cpt} saved")
                 return output_img
 
+            if hasattr(function, "cpt"):
+                internal_cpts.append(function.cpt)
+            wrapped.cpt = cpt
+            """Name of checkpoint."""
+            wrapped.internal_cpts = internal_cpts
+            """Names of checkpoints associated with functions called within."""
             return wrapped
 
         return decorator
@@ -179,14 +199,25 @@ class CheckpointManager:
 
         return decorator
 
-    def pre_processor(self, cpt: str) -> Callable[[PipeProcessor], PipeProcessor]:
+    def pre_processor(
+        self,
+        cpt: str,
+        *called_functions: Optional[PipeProcessor],
+    ) -> Callable[[PipeProcessor], PipeProcessor]:
         """Get a decorator to be used to add a checkpoint before a processor function.
 
         Arguments:
             cpt: Name of checkpoint
+            called_functions: Functions called by the wrapped function
         Returns:
-            Decorator to bue used to add checkpoint before a processor function.
+            Decorator to be used to add checkpoint before a processor function.
         """
+        internal_cpts = []
+        for function in called_functions:
+            if hasattr(function, "cpt"):
+                internal_cpts.append(function.cpt)
+            if hasattr(function, "internal_cpts"):
+                internal_cpts.extend(function.internal_cpts)
 
         def decorator(function: PipeProcessor) -> PipeProcessor:
             """Decorator to be used to add a checkpoint before a processor function.
@@ -207,6 +238,9 @@ class CheckpointManager:
                     Processed image, loaded from checkpoint if available
                 """
                 self.observed_checkpoints.add((input_img.name, cpt))
+                self.observed_checkpoints.update(
+                    [(input_img.name, internal_cpt) for internal_cpt in internal_cpts]
+                )
 
                 cpt_path = self.directory / input_img.name / cpt
                 if not cpt_path.exists():
@@ -214,6 +248,14 @@ class CheckpointManager:
                     info(f"{self}: {input_img.name} checkpoint {cpt} saved")
                 return function(input_img)
 
+            if hasattr(function, "cpt"):
+                internal_cpts.append(function.cpt)
+            if hasattr(function, "internal_cpts"):
+                internal_cpts.extend(function.internal_cpts)
+            wrapped.cpt = cpt
+            """Name of checkpoint."""
+            wrapped.internal_cpts = internal_cpts
+            """Names of checkpoints associated with functions called within."""
             return wrapped
 
         return decorator
@@ -224,7 +266,10 @@ class CheckpointManager:
             for cpt in img.iterdir():
                 if (img.name, cpt.name) not in self.observed_checkpoints:
                     name = join(cpt.parents[0].name, cpt.name)
-                    remove(cpt)
+                    if cpt.is_dir():
+                        rmdir(cpt)
+                    else:
+                        remove(cpt)
                     info(f"{self}: checkpoint {name} removed")
             if not any(img.iterdir()):
                 rmdir(img)
