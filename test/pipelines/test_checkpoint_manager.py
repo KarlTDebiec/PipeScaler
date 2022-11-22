@@ -85,12 +85,15 @@ def test_post_file_processor() -> None:
         # Test image from file
         file_input_img = PipeImage(path=get_test_infile_path("RGB"))
         file_output_img = function(file_input_img)
-        assert file_output_img.path == (
-            cp_directory / file_input_img.name / "checkpoint.png"
+        assert (
+            file_output_img.path
+            == cp_directory / file_input_img.name / "checkpoint.png"
         )
+
         file_output_img = function(file_input_img)
-        assert file_output_img.path == (
-            cp_directory / file_input_img.name / "checkpoint.png"
+        assert (
+            file_output_img.path
+            == cp_directory / file_input_img.name / "checkpoint.png"
         )
 
         # Test image from code
