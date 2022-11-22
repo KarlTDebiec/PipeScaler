@@ -58,6 +58,7 @@ def test_nested() -> None:
             return output_img
 
         input_img = PipeImage(path=get_test_infile_path("RGB"))
+        output_img = stage_3(input_img)
 
         cp_manager.purge_unrecognized_files()
         assert (cp_directory / input_img.name / "pre_1.png").exists()
