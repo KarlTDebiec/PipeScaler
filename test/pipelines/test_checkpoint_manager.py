@@ -85,25 +85,19 @@ def test_post_file_processor() -> None:
         # Test image from file
         file_input_img = PipeImage(path=get_test_infile_path("RGB"))
         file_output_img = function(file_input_img)
-        assert (
-            file_output_img.path
-            == cp_directory / file_input_img.name / "checkpoint.png"
-        )
-
+        expected_path = cp_directory / file_input_img.name / "checkpoint.png"
+        assert file_output_img.path == expected_path
         file_output_img = function(file_input_img)
-        assert (
-            file_output_img.path
-            == cp_directory / file_input_img.name / "checkpoint.png"
-        )
+        assert file_output_img.path == expected_path
 
         # Test image from code
         image_input_img = PipeImage(image=Image.new("RGB", (100, 100)), name="RGB_2")
         image_output_img = function(image_input_img)
 
-        expoected_path = cp_directory / image_input_img.name / "checkpoint.png"
-        assert image_output_img.path == expoected_path
+        expected_path = cp_directory / image_input_img.name / "checkpoint.png"
+        assert image_output_img.path == expected_path
         image_output_img = function(image_input_img)
-        assert image_output_img.path == expoected_path
+        assert image_output_img.path == expected_path
 
         # Test purge
         mkdir(cp_directory / "to_delete")
