@@ -12,7 +12,7 @@ from typing import Callable, Union
 
 from pipescaler.common import get_temp_file_path, validate_output_directory
 from pipescaler.core.pipelines import PipeImage
-from pipescaler.core.types import PipeFileProcessor, PipeProcessor, PipeSplitter
+from pipescaler.core.types import PipeProcessor, PipeSplitter
 
 
 class CheckpointManager:
@@ -34,24 +34,17 @@ class CheckpointManager:
         return f"{self.__class__.__name__}(directory={self.directory})"
 
     def post_file_processor(
-        self, cpt: str, *called_functions: PipeProcessor
-    ) -> Callable[[PipeFileProcessor], PipeProcessor]:
+        self, cpt: str
+    ) -> Callable[[Callable[[Path, Path], None]], PipeProcessor]:
         """Get a decorator to be used to add a checkpoint after a processor function.
 
         Arguments:
             cpt: Name of checkpoint
-            called_functions: Functions called by the wrapped function
         Returns:
             Decorator to be used to add checkpoint after a PipeFileProcessor function
         """
-        internal_cpts = []
-        for function in called_functions:
-            if hasattr(function, "cpt"):
-                internal_cpts.append(function.cpt)
-            if hasattr(function, "internal_cpts"):
-                internal_cpts.extend(function.internal_cpts)
 
-        def decorator(function: PipeFileProcessor) -> PipeProcessor:
+        def decorator(function: Callable[[Path, Path], None]) -> PipeProcessor:
             """Decorator to be used to add a checkpoint after a processor function.
 
             Arguments:
@@ -70,9 +63,6 @@ class CheckpointManager:
                     Processed image, loaded from checkpoint if available
                 """
                 self.observed_checkpoints.add((input_img.name, cpt))
-                self.observed_checkpoints.update(
-                    [(input_img.name, internal_cpt) for internal_cpt in internal_cpts]
-                )
 
                 cpt_path = self.directory / input_img.name / cpt
                 if cpt_path.exists():
@@ -89,12 +79,9 @@ class CheckpointManager:
                         function(input_img.path, cpt_path)
                     output_img = PipeImage(path=cpt_path, parents=input_img)
                     info(f"{self}: {input_img.name} checkpoint {cpt} saved")
+
                 return output_img
 
-            if hasattr(function, "cpt"):
-                internal_cpts.append(function.cpt)
-            wrapped.cpt = cpt
-            wrapped.internal_cpts = internal_cpts
             return wrapped
 
         return decorator

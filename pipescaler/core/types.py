@@ -2,13 +2,10 @@
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Types."""
-from pathlib import Path
 from typing import Callable
 
 from pipescaler.core.pipelines.pipe_image import PipeImage
 
-PipeFileProcessor = Callable[[Path, Path], None]
-"""Function that processes a file."""
 PipeMerger = Callable[[PipeImage], PipeImage]
 """Merges two or more PipeImages into a single downstream PipeImage.
 

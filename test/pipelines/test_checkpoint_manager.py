@@ -15,9 +15,18 @@ from pipescaler.image.splitters import AlphaSplitter
 from pipescaler.pipelines import CheckpointManager
 from pipescaler.testing import count_executions, get_test_infile_path
 
-# TODO: Nested file checkpoints
 # TODO: ContextManager for CheckpointManager
 # TODO: Test with heavier pipeline
+
+
+def copy(infile: Path, outfile: Path) -> None:
+    """Copies a file.
+
+    Arguments:
+        infile: Input file
+        outfile: Output file
+    """
+    outfile.write_bytes(infile.read_bytes())
 
 
 def test_nested() -> None:
@@ -49,7 +58,6 @@ def test_nested() -> None:
             return output_img
 
         input_img = PipeImage(path=get_test_infile_path("RGB"))
-        output_img = stage_3(input_img)
 
         cp_manager.purge_unrecognized_files()
         assert (cp_directory / input_img.name / "pre_1.png").exists()
@@ -83,7 +91,6 @@ def test_post_file_processor() -> None:
         assert file_output_img.path == (
             cp_directory / file_input_img.name / "checkpoint.png"
         )
-        # TODO: Count calls
 
         # Test image from code
         image_input_img = PipeImage(image=Image.new("RGB", (100, 100)), name="RGB_2")
@@ -95,7 +102,6 @@ def test_post_file_processor() -> None:
         assert image_output_img.path == (
             cp_directory / image_input_img.name / "checkpoint.png"
         )
-        # TODO: Count calls
 
         # Test purge
         mkdir(cp_directory / "to_delete")
