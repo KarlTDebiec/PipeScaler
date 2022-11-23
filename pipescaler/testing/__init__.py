@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from pipescaler.testing.cli import run_cli_with_args
-from pipescaler.testing.count_executions import count_executions
+from pipescaler.testing.execution_counter import count_executions
 from pipescaler.testing.file import (
     get_test_infile_directory_path,
     get_test_infile_path,

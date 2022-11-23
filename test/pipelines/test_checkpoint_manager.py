@@ -15,7 +15,8 @@ from pipescaler.image.splitters import AlphaSplitter
 from pipescaler.pipelines import CheckpointManager
 from pipescaler.testing import count_executions, get_test_infile_path
 
-# TODO: ContextManager for CheckpointManager
+# TODO: internal_cpt should be a set
+# TODO: internal_cpt tracking for PipeSplitter
 # TODO: Test with heavier pipeline
 
 
@@ -27,6 +28,17 @@ def copy(infile: Path, outfile: Path) -> None:
         outfile: Output file
     """
     outfile.write_bytes(infile.read_bytes())
+
+
+def test_nay() -> None:
+    @count_executions
+    def yat() -> None:
+        print(yat)
+
+    yat()
+    assert yat.count == 1
+    yat()
+    assert yat.count == 2
 
 
 def test_nested() -> None:

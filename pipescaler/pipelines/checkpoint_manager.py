@@ -12,7 +12,11 @@ from typing import Callable, Union
 
 from pipescaler.common import get_temp_file_path, validate_output_directory
 from pipescaler.core.pipelines import PipeImage
-from pipescaler.core.types import PipeProcessor, PipeSplitter
+from pipescaler.core.pipelines.typing import (
+    PipeProcessor,
+    PipeProcessorWithCheckpoints,
+    PipeSplitter,
+)
 
 
 class CheckpointManager:
@@ -89,8 +93,8 @@ class CheckpointManager:
     def post_processor(
         self,
         cpt: str,
-        *called_functions: PipeProcessor,
-    ) -> Callable[[PipeProcessor], PipeProcessor]:
+        *called_functions: Union[PipeProcessor, PipeProcessorWithCheckpoints],
+    ) -> Callable[[PipeProcessor], PipeProcessorWithCheckpoints]:
         """Get a decorator to be used to add a checkpoint after a processor function.
 
         Arguments:
@@ -99,14 +103,13 @@ class CheckpointManager:
         Returns:
             Decorator to be used to add checkpoint after a PipeProcessor
         """
-        internal_cpts = []
+        internal_cpts: list[str] = []
         for function in called_functions:
-            if hasattr(function, "cpt"):
+            if isinstance(function, PipeProcessorWithCheckpoints):
                 internal_cpts.append(function.cpt)
-            if hasattr(function, "internal_cpts"):
                 internal_cpts.extend(function.internal_cpts)
 
-        def decorator(function: PipeProcessor) -> PipeProcessor:
+        def decorator(function: PipeProcessor) -> PipeProcessorWithCheckpoints:
             """Decorator to be used to add a checkpoint after a processor function.
 
             Arguments:
@@ -141,11 +144,11 @@ class CheckpointManager:
                     info(f"{self}: {input_img.name} checkpoint {cpt} saved")
                 return output_img
 
-            if hasattr(function, "cpt"):
+            if isinstance(function, PipeProcessorWithCheckpoints):
                 internal_cpts.append(function.cpt)
-            wrapped.cpt = cpt
-            wrapped.internal_cpts = internal_cpts
-            return wrapped
+                internal_cpts.extend(function.internal_cpts)
+
+            return PipeProcessorWithCheckpoints(wrapped, cpt, internal_cpts)
 
         return decorator
 
@@ -201,8 +204,8 @@ class CheckpointManager:
     def pre_processor(
         self,
         cpt: str,
-        *called_functions: PipeProcessor,
-    ) -> Callable[[PipeProcessor], PipeProcessor]:
+        *called_functions: Union[PipeProcessor, PipeProcessorWithCheckpoints],
+    ) -> Callable[[PipeProcessor], PipeProcessorWithCheckpoints]:
         """Get a decorator to be used to add a checkpoint before a processor function.
 
         Arguments:
@@ -211,14 +214,13 @@ class CheckpointManager:
         Returns:
             Decorator to be used to add checkpoint before a processor function.
         """
-        internal_cpts = []
+        internal_cpts: list[str] = []
         for function in called_functions:
-            if hasattr(function, "cpt"):
+            if isinstance(function, PipeProcessorWithCheckpoints):
                 internal_cpts.append(function.cpt)
-            if hasattr(function, "internal_cpts"):
                 internal_cpts.extend(function.internal_cpts)
 
-        def decorator(function: PipeProcessor) -> PipeProcessor:
+        def decorator(function: PipeProcessor) -> PipeProcessorWithCheckpoints:
             """Decorator to be used to add a checkpoint before a processor function.
 
             Arguments:
@@ -247,13 +249,11 @@ class CheckpointManager:
                     info(f"{self}: {input_img.name} checkpoint {cpt} saved")
                 return function(input_img)
 
-            if hasattr(function, "cpt"):
+            if isinstance(function, PipeProcessorWithCheckpoints):
                 internal_cpts.append(function.cpt)
-            if hasattr(function, "internal_cpts"):
                 internal_cpts.extend(function.internal_cpts)
-            wrapped.cpt = cpt
-            wrapped.internal_cpts = internal_cpts
-            return wrapped
+
+            return PipeProcessorWithCheckpoints(wrapped, cpt, internal_cpts)
 
         return decorator
 

@@ -7,7 +7,7 @@ from logging import info
 
 from pipescaler.core.image import Merger, Processor, Splitter
 from pipescaler.core.pipelines.pipe_image import PipeImage
-from pipescaler.core.types import PipeMerger, PipeProcessor, PipeSplitter
+from pipescaler.core.pipelines.typing import PipeMerger, PipeProcessor, PipeSplitter
 
 
 def wrap_merger(merger: Merger) -> PipeMerger:
