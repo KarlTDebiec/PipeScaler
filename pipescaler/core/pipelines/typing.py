@@ -1,7 +1,7 @@
 #  Copyright 2020-2022 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Types."""
+"""Types and classes for typing Pipeline elements."""
 from typing import Callable, Generic, TypeVar
 
 from typing_extensions import ParamSpec
@@ -40,8 +40,11 @@ class PipeProcessorWithCheckpoints(Generic[P, R]):
             internal_cpts: Names of internal checkpoints
         """
         self.function = function
+        """Function to wrap"""
         self.cpt = cpt
+        """Name of checkpoint"""
         self.internal_cpts = internal_cpts
+        """Names of checkpoints of functions called within the wrapped function"""
 
     def __call__(self, *args: P.args, **kwargs: P.kwargs) -> R:
         """Calls the function."""
