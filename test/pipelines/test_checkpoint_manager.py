@@ -9,7 +9,7 @@ from pathlib import Path
 from PIL import Image
 
 from pipescaler.common import get_temp_directory_path
-from pipescaler.core.pipelines import PipeImage, wrap_processor, wrap_splitter
+from pipescaler.core.pipelines import PipeImage, PipeProcessor, PipeSplitter
 from pipescaler.image.processors import XbrzProcessor
 from pipescaler.image.splitters import AlphaSplitter
 from pipescaler.pipelines import CheckpointManager
@@ -21,25 +21,25 @@ from pipescaler.testing import count_executions, get_test_infile_path
 
 
 def test_nested() -> None:
-    process_1 = wrap_processor(XbrzProcessor(scale=2))
-    process_2 = wrap_processor(XbrzProcessor(scale=2))
-    process_3 = wrap_processor(XbrzProcessor(scale=2))
+    process_1 = PipeProcessor(XbrzProcessor(scale=2))
+    process_2 = PipeProcessor(XbrzProcessor(scale=2))
+    process_3 = PipeProcessor(XbrzProcessor(scale=2))
 
     def run(cp_directory: Path) -> None:
         cp_manager = CheckpointManager(cp_directory)
 
-        @cp_manager.pre_processor("pre_1.png")
-        @cp_manager.post_processor("post_1.png")
+        @cp_manager.pre_processor2("pre_1.png")
+        @cp_manager.post_processor2("post_1.png")
         def stage_1(img: PipeImage) -> PipeImage:
             return process_1(img)
 
-        @cp_manager.pre_processor("pre_2.png")
-        @cp_manager.post_processor("post_2.png", stage_1)
+        @cp_manager.pre_processor2("pre_2.png")
+        @cp_manager.post_processor2("post_2.png", calls=(stage_1,))
         def stage_2(img: PipeImage) -> PipeImage:
             return process_2(stage_1(img))
 
-        @cp_manager.pre_processor("pre_3.png")
-        @cp_manager.post_processor("post_3.png", stage_2)
+        @cp_manager.pre_processor2("pre_3.png")
+        @cp_manager.post_processor2("post_3.png", calls=(stage_2,))
         def stage_3(img: PipeImage) -> PipeImage:
             return process_3(stage_2(img))
 
@@ -94,12 +94,12 @@ def test_post_file_processor() -> None:
 
 
 def test_post_processor() -> None:
-    process = count_executions(wrap_processor(XbrzProcessor()))
+    process = count_executions(PipeProcessor(XbrzProcessor()))
 
     with get_temp_directory_path() as cp_directory:
         cp_manager = CheckpointManager(cp_directory)
 
-        @cp_manager.post_processor("checkpoint.png")
+        @cp_manager.post_processor2("checkpoint.png")
         def function(img: PipeImage) -> PipeImage:
             return process(img)
 
@@ -120,12 +120,12 @@ def test_post_processor() -> None:
 
 
 def test_post_splitter() -> None:
-    split = count_executions(wrap_splitter(AlphaSplitter()))
+    split = count_executions(PipeSplitter(AlphaSplitter()))
 
     with get_temp_directory_path() as cp_directory:
         cp_manager = CheckpointManager(cp_directory)
 
-        @cp_manager.post_splitter("color.png", "alpha.png")
+        @cp_manager.post_splitter2("color.png", "alpha.png")
         def function(img: PipeImage) -> tuple[PipeImage, ...]:
             return split(img)
 
@@ -148,12 +148,12 @@ def test_post_splitter() -> None:
 
 
 def test_pre_processor() -> None:
-    process = wrap_processor(XbrzProcessor())
+    process = PipeProcessor(XbrzProcessor())
 
     with get_temp_directory_path() as cp_directory:
         cp_manager = CheckpointManager(cp_directory)
 
-        @cp_manager.pre_processor("checkpoint.png")
+        @cp_manager.pre_processor2("checkpoint.png")
         def function(img: PipeImage) -> PipeImage:
             return process(img)
 

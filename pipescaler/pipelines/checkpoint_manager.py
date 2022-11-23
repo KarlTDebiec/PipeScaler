@@ -8,30 +8,21 @@ from logging import info
 from os import remove, rmdir
 from os.path import join
 from pathlib import Path
-from typing import Callable, Union
+from typing import Callable, Collection, Optional, Union
 
-from pipescaler.common import get_temp_file_path, validate_output_directory
-from pipescaler.core.pipelines import PipeImage
-from pipescaler.core.pipelines.typing import (
-    PipeProcessor,
+from pipescaler.common import get_temp_file_path
+from pipescaler.core.pipelines import (
+    CheckpointManagerBase,
+    PipeImage,
     PipeProcessorWithCheckpoints,
-    PipeSplitter,
+    PipeProcessorWithPostCheckpoint,
+    PipeProcessorWithPreCheckpoint,
+    PipeSplitterWithPostCheckpoints,
 )
 
 
-class CheckpointManager:
+class CheckpointManager(CheckpointManagerBase):
     """Manages checkpoints."""
-
-    def __init__(self, directory: Union[Path, str]) -> None:
-        """Validate and store configuration.
-
-        Arguments:
-            directory: Directory in which to store checkpoints
-        """
-        self.directory = validate_output_directory(directory)
-        """Directory in which to store checkpoints."""
-        self.observed_checkpoints: set[tuple[str, str]] = set()
-        """Observed checkpoints as tuples of image and checkpoint names."""
 
     def __repr__(self):
         """Representation."""
@@ -39,7 +30,7 @@ class CheckpointManager:
 
     def post_file_processor(
         self, cpt: str
-    ) -> Callable[[Callable[[Path, Path], None]], PipeProcessor]:
+    ) -> Callable[[Callable[[Path, Path], None]], Callable[[PipeImage], PipeImage]]:
         """Get a decorator to be used to add a checkpoint after a processor function.
 
         Arguments:
@@ -48,7 +39,9 @@ class CheckpointManager:
             Decorator to be used to add checkpoint after a PipeFileProcessor function
         """
 
-        def decorator(function: Callable[[Path, Path], None]) -> PipeProcessor:
+        def decorator(
+            function: Callable[[Path, Path], None]
+        ) -> Callable[[PipeImage], PipeImage]:
             """Decorator to be used to add a checkpoint after a processor function.
 
             Arguments:
@@ -93,8 +86,8 @@ class CheckpointManager:
     def post_processor(
         self,
         cpt: str,
-        *called_functions: Union[PipeProcessor, PipeProcessorWithCheckpoints],
-    ) -> Callable[[PipeProcessor], PipeProcessorWithCheckpoints]:
+        *called_functions: Callable[[PipeImage], PipeImage],
+    ) -> Callable[[Callable[[PipeImage], PipeImage]], PipeProcessorWithCheckpoints]:
         """Get a decorator to be used to add a checkpoint after a processor function.
 
         Arguments:
@@ -109,7 +102,9 @@ class CheckpointManager:
                 internal_cpts.append(function.cpt)
                 internal_cpts.extend(function.internal_cpts)
 
-        def decorator(function: PipeProcessor) -> PipeProcessorWithCheckpoints:
+        def decorator(
+            function: Callable[[PipeImage], PipeImage]
+        ) -> PipeProcessorWithCheckpoints:
             """Decorator to be used to add a checkpoint after a processor function.
 
             Arguments:
@@ -152,7 +147,12 @@ class CheckpointManager:
 
         return decorator
 
-    def post_splitter(self, *cpts: str) -> Callable[[PipeSplitter], PipeSplitter]:
+    def post_splitter(
+        self, *cpts: str
+    ) -> Callable[
+        [Callable[[PipeImage], tuple[PipeImage, ...]]],
+        Callable[[PipeImage], tuple[PipeImage, ...]],
+    ]:
         """Get a decorator to be used to add checkpoints after a splitter function.
 
         Arguments:
@@ -161,7 +161,9 @@ class CheckpointManager:
             Decorator to be used to add checkpoints after a PipeSplitter
         """
 
-        def decorator(function: PipeSplitter) -> PipeSplitter:
+        def decorator(
+            function: Callable[[PipeImage], tuple[PipeImage, ...]]
+        ) -> Callable[[PipeImage], tuple[PipeImage, ...]]:
             """Decorator to be used to add a checkpoint after a processor function.
 
             Arguments:
@@ -204,8 +206,8 @@ class CheckpointManager:
     def pre_processor(
         self,
         cpt: str,
-        *called_functions: Union[PipeProcessor, PipeProcessorWithCheckpoints],
-    ) -> Callable[[PipeProcessor], PipeProcessorWithCheckpoints]:
+        *called_functions: Callable[[PipeImage], PipeImage],
+    ) -> Callable[[Callable[[PipeImage], PipeImage]], PipeProcessorWithCheckpoints]:
         """Get a decorator to be used to add a checkpoint before a processor function.
 
         Arguments:
@@ -220,7 +222,9 @@ class CheckpointManager:
                 internal_cpts.append(function.cpt)
                 internal_cpts.extend(function.internal_cpts)
 
-        def decorator(function: PipeProcessor) -> PipeProcessorWithCheckpoints:
+        def decorator(
+            function: Callable[[PipeImage], PipeImage]
+        ) -> PipeProcessorWithCheckpoints:
             """Decorator to be used to add a checkpoint before a processor function.
 
             Arguments:
@@ -257,6 +261,62 @@ class CheckpointManager:
 
         return decorator
 
+    def observe(self, img: PipeImage, cpt: str) -> None:
+        self.observed_checkpoints.add((img.name, cpt))
+
+    def post_processor2(
+        self,
+        cpt: str,
+        *,
+        calls: Optional[Collection[Callable[[PipeImage], PipeImage]]] = None,
+    ) -> Callable[[Callable[[PipeImage], PipeImage]], PipeProcessorWithPostCheckpoint]:
+        internal_cpts = self.get_internal_cpts(*calls) if calls else []
+
+        def decorator(
+            processor: Callable[[PipeImage], PipeImage]
+        ) -> PipeProcessorWithPostCheckpoint:
+            internal_cpts.extend(self.get_internal_cpts(processor))
+
+            return PipeProcessorWithPostCheckpoint(processor, self, cpt, internal_cpts)
+
+        return decorator
+
+    def pre_processor2(
+        self,
+        cpt: str,
+        *,
+        calls: Optional[Collection[Callable[[PipeImage], PipeImage]]] = None,
+    ) -> Callable[[Callable[[PipeImage], PipeImage]], PipeProcessorWithPreCheckpoint]:
+        internal_cpts = self.get_internal_cpts(*calls) if calls else []
+
+        def decorator(
+            processor: Callable[[PipeImage], PipeImage]
+        ) -> PipeProcessorWithPreCheckpoint:
+            internal_cpts.extend(self.get_internal_cpts(processor))
+
+            return PipeProcessorWithPreCheckpoint(processor, self, cpt, internal_cpts)
+
+        return decorator
+
+    def post_splitter2(
+        self,
+        *cpts: str,
+        calls: Optional[Collection[Callable[[PipeImage], PipeImage]]] = None,
+    ) -> Callable[
+        [Callable[[PipeImage], tuple[PipeImage, ...]]],
+        PipeSplitterWithPostCheckpoints,
+    ]:
+        internal_cpts = self.get_internal_cpts(*calls) if calls else []
+
+        def decorator(
+            splitter: Callable[[PipeImage], tuple[PipeImage, ...]]
+        ) -> PipeSplitterWithPostCheckpoints:
+            internal_cpts.extend(self.get_internal_cpts(splitter))
+
+            return PipeSplitterWithPostCheckpoints(splitter, self, cpts, internal_cpts)
+
+        return decorator
+
     def purge_unrecognized_files(self) -> None:
         """Remove files in output directory that have not been logged as observed."""
         for img in self.directory.iterdir():
@@ -271,3 +331,20 @@ class CheckpointManager:
             if not any(img.iterdir()):
                 rmdir(img)
                 info(f"{self}: directory {img.name} removed")
+
+    @staticmethod
+    def get_internal_cpts(
+        *called_functions: Union[
+            Callable[[PipeImage], PipeImage],
+            Callable[[PipeImage], tuple[PipeImage, ...]],
+        ],
+    ) -> list[str]:
+        internal_cpts: list[str] = []
+        for function in called_functions:
+            if hasattr(function, "cpt"):
+                internal_cpts.append(getattr(function, "cpt"))
+            if hasattr(function, "cpts"):
+                internal_cpts.extend(getattr(function, "cpts"))
+            if hasattr(function, "internal_cpts"):
+                internal_cpts.extend(getattr(function, "internal_cpts"))
+        return internal_cpts
