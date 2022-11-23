@@ -20,27 +20,6 @@ from pipescaler.testing import count_executions, get_test_infile_path
 # TODO: Test with heavier pipeline
 
 
-def copy(infile: Path, outfile: Path) -> None:
-    """Copies a file.
-
-    Arguments:
-        infile: Input file
-        outfile: Output file
-    """
-    outfile.write_bytes(infile.read_bytes())
-
-
-def test_nay() -> None:
-    @count_executions
-    def yat() -> None:
-        print(yat)
-
-    yat()
-    assert yat.count == 1
-    yat()
-    assert yat.count == 2
-
-
 def test_nested() -> None:
     process_1 = wrap_processor(XbrzProcessor(scale=2))
     process_2 = wrap_processor(XbrzProcessor(scale=2))
@@ -51,26 +30,21 @@ def test_nested() -> None:
 
         @cp_manager.pre_processor("pre_1.png")
         @cp_manager.post_processor("post_1.png")
-        def stage_1(input_img: PipeImage) -> PipeImage:
-            output_img = process_1(input_img)
-            return output_img
+        def stage_1(img: PipeImage) -> PipeImage:
+            return process_1(img)
 
         @cp_manager.pre_processor("pre_2.png")
         @cp_manager.post_processor("post_2.png", stage_1)
-        def stage_2(input_img: PipeImage) -> PipeImage:
-            img = stage_1(input_img)
-            output_img = process_2(img)
-            return output_img
+        def stage_2(img: PipeImage) -> PipeImage:
+            return process_2(stage_1(img))
 
         @cp_manager.pre_processor("pre_3.png")
         @cp_manager.post_processor("post_3.png", stage_2)
-        def stage_3(input_img: PipeImage) -> PipeImage:
-            img = stage_2(input_img)
-            output_img = process_3(img)
-            return output_img
+        def stage_3(img: PipeImage) -> PipeImage:
+            return process_3(stage_2(img))
 
         input_img = PipeImage(path=get_test_infile_path("RGB"))
-        output_img = stage_3(input_img)
+        stage_3(input_img)
 
         cp_manager.purge_unrecognized_files()
         assert (cp_directory / input_img.name / "pre_1.png").exists()
@@ -80,9 +54,9 @@ def test_nested() -> None:
         assert (cp_directory / input_img.name / "pre_3.png").exists()
         assert (cp_directory / input_img.name / "post_3.png").exists()
 
-    with get_temp_directory_path() as cp_directory:
-        run(cp_directory)
-        run(cp_directory)
+    with get_temp_directory_path() as temp_directory:
+        run(temp_directory)
+        run(temp_directory)
 
 
 def test_post_file_processor() -> None:
@@ -126,16 +100,15 @@ def test_post_processor() -> None:
         cp_manager = CheckpointManager(cp_directory)
 
         @cp_manager.post_processor("checkpoint.png")
-        def function(input_img: PipeImage) -> PipeImage:
-            output_img = process(input_img)
-            return output_img
+        def function(img: PipeImage) -> PipeImage:
+            return process(img)
 
         input_img = PipeImage(path=get_test_infile_path("RGB"))
         output_img = function(input_img)
-        assert output_img.path == (cp_directory / input_img.name / "checkpoint.png")
+        assert output_img.path == cp_directory / input_img.name / "checkpoint.png"
 
         output_img = function(input_img)
-        assert output_img.path == (cp_directory / input_img.name / "checkpoint.png")
+        assert output_img.path == cp_directory / input_img.name / "checkpoint.png"
         assert process.count == 1
 
         # Test purge
@@ -153,18 +126,17 @@ def test_post_splitter() -> None:
         cp_manager = CheckpointManager(cp_directory)
 
         @cp_manager.post_splitter("color.png", "alpha.png")
-        def function(image: PipeImage) -> tuple[PipeImage, ...]:
-            color_img, alpha_img = split(image)
-            return color_img, alpha_img
+        def function(img: PipeImage) -> tuple[PipeImage, ...]:
+            return split(img)
 
         input_img = PipeImage(path=get_test_infile_path("RGBA"))
         color_img, alpha_img = function(input_img)
-        assert color_img.path == (cp_directory / input_img.name / "color.png")
-        assert alpha_img.path == (cp_directory / input_img.name / "alpha.png")
+        assert color_img.path == cp_directory / input_img.name / "color.png"
+        assert alpha_img.path == cp_directory / input_img.name / "alpha.png"
 
         color_img, alpha_img = function(input_img)
-        assert color_img.path == (cp_directory / input_img.name / "color.png")
-        assert alpha_img.path == (cp_directory / input_img.name / "alpha.png")
+        assert color_img.path == cp_directory / input_img.name / "color.png"
+        assert alpha_img.path == cp_directory / input_img.name / "alpha.png"
         assert split.count == 1
 
         # Test purge
@@ -182,15 +154,14 @@ def test_pre_processor() -> None:
         cp_manager = CheckpointManager(cp_directory)
 
         @cp_manager.pre_processor("checkpoint.png")
-        def function(input_img: PipeImage) -> PipeImage:
-            output_img = process(input_img)
-            return output_img
+        def function(img: PipeImage) -> PipeImage:
+            return process(img)
 
         input_path = get_test_infile_path("RGB")
         input_img = PipeImage(path=input_path)
-        output_img = function(input_img)
+        function(input_img)
 
-        assert input_img.path == (cp_directory / input_img.name / "checkpoint.png")
+        assert input_img.path == cp_directory / input_img.name / "checkpoint.png"
         assert PipeImage(path=input_path).image == PipeImage(path=input_img.path).image
 
         # Test purge
