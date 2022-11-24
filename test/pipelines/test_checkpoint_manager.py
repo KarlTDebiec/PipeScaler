@@ -5,6 +5,7 @@
 """Tests for CheckpointManager."""
 from os import mkdir
 from pathlib import Path
+from typing import Collection
 
 from PIL import Image
 
@@ -126,7 +127,7 @@ def test_post_splitter() -> None:
         cp_manager = CheckpointManager(cp_directory)
 
         @cp_manager.post_splitter("color.png", "alpha.png")
-        def function(img: PipeImage) -> tuple[PipeImage, ...]:
+        def function(img: PipeImage) -> Collection[PipeImage]:
             return split(img)
 
         input_img = PipeImage(path=get_test_infile_path("RGBA"))

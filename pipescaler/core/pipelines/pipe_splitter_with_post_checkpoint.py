@@ -16,7 +16,7 @@ class PipeSplitterWithPostCheckpoints:
 
     def __init__(
         self,
-        splitter: Callable[[PipeImage], tuple[PipeImage, ...]],
+        splitter: Callable[[PipeImage], Collection[PipeImage]],
         cp_manager: CheckpointManagerBase,
         cpts: Collection[str],
         internal_cpts: list[str],
@@ -26,7 +26,7 @@ class PipeSplitterWithPostCheckpoints:
         self.cpts = cpts
         self.internal_cpts = internal_cpts
 
-    def __call__(self, input_pimg: PipeImage) -> tuple[PipeImage, ...]:
+    def __call__(self, input_pimg: PipeImage) -> Collection[PipeImage]:
         for cpt in self.cpts:
             self.cp_manager.observe(input_pimg, cpt)
         for internal_cpt in self.internal_cpts:

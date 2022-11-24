@@ -2,6 +2,7 @@
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 from logging import info
+from typing import Collection
 
 from pipescaler.core.image import Splitter
 from pipescaler.core.pipelines import PipeImage
@@ -12,7 +13,7 @@ class PipeSplitter(PipeOperator):
     def __init__(self, splitter: Splitter) -> None:
         self.splitter = splitter
 
-    def __call__(self, input_pimg: PipeImage) -> tuple[PipeImage, ...]:
+    def __call__(self, input_pimg: PipeImage) -> Collection[PipeImage]:
         input_img = input_pimg.image
 
         output_imgs = self.splitter(input_img)

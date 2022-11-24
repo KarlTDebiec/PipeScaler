@@ -2,7 +2,7 @@
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 from logging import info
-from typing import Callable
+from typing import Callable, Collection, Union
 
 from pipescaler.core.pipelines.checkpoint_manager_base import CheckpointManagerBase
 from pipescaler.core.pipelines.pipe_image import PipeImage
@@ -16,12 +16,15 @@ class PipeProcessorWithPreCheckpoint:
 
     def __init__(
         self,
-        processor: Callable[[PipeImage], PipeImage],
+        operator: Union[
+            Callable[[PipeImage], PipeImage],
+            Callable[[PipeImage], Collection[PipeImage]],
+        ],
         cp_manager: CheckpointManagerBase,
         cpt: str,
         internal_cpts: list[str],
     ) -> None:
-        self.processor = processor
+        self.processor = operator
         self.cp_manager = cp_manager
         self.cpt = cpt
         self.internal_cpts = internal_cpts
@@ -36,6 +39,4 @@ class PipeProcessorWithPreCheckpoint:
             input_pimg.save(cpt_path)
             info(f"{self}: {input_pimg.name} checkpoint {self.cpt} saved")
 
-        output_pimg = self.processor(input_pimg)
-
-        return output_pimg
+        return self.processor(input_pimg)

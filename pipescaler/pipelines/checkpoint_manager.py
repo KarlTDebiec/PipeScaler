@@ -107,13 +107,13 @@ class CheckpointManager(CheckpointManagerBase):
         *cpts: str,
         calls: Optional[Collection[Callable[[PipeImage], PipeImage]]] = None,
     ) -> Callable[
-        [Callable[[PipeImage], tuple[PipeImage, ...]]],
+        [Callable[[PipeImage], Collection[PipeImage]]],
         PipeSplitterWithPostCheckpoints,
     ]:
         internal_cpts = self.get_internal_cpts(*calls) if calls else []
 
         def decorator(
-            splitter: Callable[[PipeImage], tuple[PipeImage, ...]]
+            splitter: Callable[[PipeImage], Collection[PipeImage]]
         ) -> PipeSplitterWithPostCheckpoints:
             internal_cpts.extend(self.get_internal_cpts(splitter))
 
@@ -157,7 +157,7 @@ class CheckpointManager(CheckpointManagerBase):
     def get_internal_cpts(
         *called_functions: Union[
             Callable[[PipeImage], PipeImage],
-            Callable[[PipeImage], tuple[PipeImage, ...]],
+            Callable[[PipeImage], Collection[PipeImage]],
         ],
     ) -> list[str]:
         internal_cpts: list[str] = []
