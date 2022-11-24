@@ -14,7 +14,6 @@ from pipescaler.common import get_temp_file_path
 from pipescaler.core.pipelines import (
     CheckpointManagerBase,
     PipeImage,
-    PipeProcessorWithCheckpoints,
     PipeProcessorWithPostCheckpoint,
     PipeProcessorWithPreCheckpoint,
     PipeSplitterWithPostCheckpoints,
@@ -83,188 +82,10 @@ class CheckpointManager(CheckpointManagerBase):
 
         return decorator
 
-    def post_processor(
-        self,
-        cpt: str,
-        *called_functions: Callable[[PipeImage], PipeImage],
-    ) -> Callable[[Callable[[PipeImage], PipeImage]], PipeProcessorWithCheckpoints]:
-        """Get a decorator to be used to add a checkpoint after a processor function.
-
-        Arguments:
-            cpt: Name of checkpoints
-            called_functions: Functions called by the wrapped function
-        Returns:
-            Decorator to be used to add checkpoint after a PipeProcessor
-        """
-        internal_cpts: list[str] = []
-        for function in called_functions:
-            if isinstance(function, PipeProcessorWithCheckpoints):
-                internal_cpts.append(function.cpt)
-                internal_cpts.extend(function.internal_cpts)
-
-        def decorator(
-            function: Callable[[PipeImage], PipeImage]
-        ) -> PipeProcessorWithCheckpoints:
-            """Decorator to be used to add a checkpoint after a processor function.
-
-            Arguments:
-                function: Function to wrap
-            Returns:
-                Wrapped function
-            """
-
-            @wraps(function)
-            def wrapped(input_img: PipeImage) -> PipeImage:
-                """Image processor function, wrapped to make use of a checkpoint.
-
-                Arguments:
-                    input_img: Image to process
-                Returns:
-                    Processed image, loaded from checkpoint if available
-                """
-                self.observed_checkpoints.add((input_img.name, cpt))
-                self.observed_checkpoints.update(
-                    [(input_img.name, internal_cpt) for internal_cpt in internal_cpts]
-                )
-
-                cpt_path = self.directory / input_img.name / cpt
-                if cpt_path.exists():
-                    output_img = PipeImage(path=cpt_path, parents=input_img)
-                    info(f"{self}: {input_img.name} checkpoint {cpt} loaded")
-                else:
-                    output_img = function(input_img)
-                    if not cpt_path.parent.exists():
-                        cpt_path.parent.mkdir(parents=True)
-                    output_img.save(cpt_path)
-                    info(f"{self}: {input_img.name} checkpoint {cpt} saved")
-                return output_img
-
-            if isinstance(function, PipeProcessorWithCheckpoints):
-                internal_cpts.append(function.cpt)
-                internal_cpts.extend(function.internal_cpts)
-
-            return PipeProcessorWithCheckpoints(wrapped, cpt, internal_cpts)
-
-        return decorator
-
-    def post_splitter(
-        self, *cpts: str
-    ) -> Callable[
-        [Callable[[PipeImage], tuple[PipeImage, ...]]],
-        Callable[[PipeImage], tuple[PipeImage, ...]],
-    ]:
-        """Get a decorator to be used to add checkpoints after a splitter function.
-
-        Arguments:
-            cpts: Names of checkpoints
-        Returns:
-            Decorator to be used to add checkpoints after a PipeSplitter
-        """
-
-        def decorator(
-            function: Callable[[PipeImage], tuple[PipeImage, ...]]
-        ) -> Callable[[PipeImage], tuple[PipeImage, ...]]:
-            """Decorator to be used to add a checkpoint after a processor function.
-
-            Arguments:
-                function: Function to wrap
-            Returns:
-                Wrapped function
-            """
-
-            @wraps(function)
-            def wrapped(input_img: PipeImage) -> tuple[PipeImage, ...]:
-                """Image splitter function, wrapped to make use of checkpoints.
-
-                Arguments:
-                    input_img: Image to split
-                Returns:
-                    Split images, loaded from checkpoint if available
-                """
-                self.observed_checkpoints.update((input_img.name, cpt) for cpt in cpts)
-
-                cpt_paths = [self.directory / input_img.name / cpt for cpt in cpts]
-                if all(cpt_path.exists() for cpt_path in cpt_paths):
-                    output_imgs = tuple(
-                        PipeImage(path=cpt_path, parents=input_img)
-                        for cpt_path in cpt_paths
-                    )
-                    info(f"{self}: {input_img.name} checkpoints {cpts} loaded")
-                else:
-                    output_imgs = function(input_img)
-                    if not cpt_paths[0].parent.exists():
-                        cpt_paths[0].parent.mkdir(parents=True)
-                    for output_img, cpt_path in zip(output_imgs, cpt_paths):
-                        output_img.save(cpt_path)
-                        info(f"{self}: {input_img.name} checkpoint {cpt_path} saved")
-                return output_imgs
-
-            return wrapped
-
-        return decorator
-
-    def pre_processor(
-        self,
-        cpt: str,
-        *called_functions: Callable[[PipeImage], PipeImage],
-    ) -> Callable[[Callable[[PipeImage], PipeImage]], PipeProcessorWithCheckpoints]:
-        """Get a decorator to be used to add a checkpoint before a processor function.
-
-        Arguments:
-            cpt: Name of checkpoint
-            called_functions: Functions called by the wrapped function
-        Returns:
-            Decorator to be used to add checkpoint before a processor function.
-        """
-        internal_cpts: list[str] = []
-        for function in called_functions:
-            if isinstance(function, PipeProcessorWithCheckpoints):
-                internal_cpts.append(function.cpt)
-                internal_cpts.extend(function.internal_cpts)
-
-        def decorator(
-            function: Callable[[PipeImage], PipeImage]
-        ) -> PipeProcessorWithCheckpoints:
-            """Decorator to be used to add a checkpoint before a processor function.
-
-            Arguments:
-                function: Function to wrap
-            Returns:
-                Wrapped function
-            """
-
-            @wraps(function)
-            def wrapped(input_img: PipeImage) -> PipeImage:
-                """Image processor function, wrapped to make use of a checkpoint.
-
-                Arguments:
-                    input_img: Image to process
-                Returns:
-                    Processed image, loaded from checkpoint if available
-                """
-                self.observed_checkpoints.add((input_img.name, cpt))
-                self.observed_checkpoints.update(
-                    [(input_img.name, internal_cpt) for internal_cpt in internal_cpts]
-                )
-
-                cpt_path = self.directory / input_img.name / cpt
-                if not cpt_path.exists():
-                    input_img.save(cpt_path)
-                    info(f"{self}: {input_img.name} checkpoint {cpt} saved")
-                return function(input_img)
-
-            if isinstance(function, PipeProcessorWithCheckpoints):
-                internal_cpts.append(function.cpt)
-                internal_cpts.extend(function.internal_cpts)
-
-            return PipeProcessorWithCheckpoints(wrapped, cpt, internal_cpts)
-
-        return decorator
-
     def observe(self, img: PipeImage, cpt: str) -> None:
         self.observed_checkpoints.add((img.name, cpt))
 
-    def post_processor2(
+    def post_processor(
         self,
         cpt: str,
         *,
@@ -281,24 +102,7 @@ class CheckpointManager(CheckpointManagerBase):
 
         return decorator
 
-    def pre_processor2(
-        self,
-        cpt: str,
-        *,
-        calls: Optional[Collection[Callable[[PipeImage], PipeImage]]] = None,
-    ) -> Callable[[Callable[[PipeImage], PipeImage]], PipeProcessorWithPreCheckpoint]:
-        internal_cpts = self.get_internal_cpts(*calls) if calls else []
-
-        def decorator(
-            processor: Callable[[PipeImage], PipeImage]
-        ) -> PipeProcessorWithPreCheckpoint:
-            internal_cpts.extend(self.get_internal_cpts(processor))
-
-            return PipeProcessorWithPreCheckpoint(processor, self, cpt, internal_cpts)
-
-        return decorator
-
-    def post_splitter2(
+    def post_splitter(
         self,
         *cpts: str,
         calls: Optional[Collection[Callable[[PipeImage], PipeImage]]] = None,
@@ -314,6 +118,23 @@ class CheckpointManager(CheckpointManagerBase):
             internal_cpts.extend(self.get_internal_cpts(splitter))
 
             return PipeSplitterWithPostCheckpoints(splitter, self, cpts, internal_cpts)
+
+        return decorator
+
+    def pre_processor(
+        self,
+        cpt: str,
+        *,
+        calls: Optional[Collection[Callable[[PipeImage], PipeImage]]] = None,
+    ) -> Callable[[Callable[[PipeImage], PipeImage]], PipeProcessorWithPreCheckpoint]:
+        internal_cpts = self.get_internal_cpts(*calls) if calls else []
+
+        def decorator(
+            processor: Callable[[PipeImage], PipeImage]
+        ) -> PipeProcessorWithPreCheckpoint:
+            internal_cpts.extend(self.get_internal_cpts(processor))
+
+            return PipeProcessorWithPreCheckpoint(processor, self, cpt, internal_cpts)
 
         return decorator
 

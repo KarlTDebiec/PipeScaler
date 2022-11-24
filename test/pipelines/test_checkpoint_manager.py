@@ -28,18 +28,18 @@ def test_nested() -> None:
     def run(cp_directory: Path) -> None:
         cp_manager = CheckpointManager(cp_directory)
 
-        @cp_manager.pre_processor2("pre_1.png")
-        @cp_manager.post_processor2("post_1.png")
+        @cp_manager.pre_processor("pre_1.png")
+        @cp_manager.post_processor("post_1.png")
         def stage_1(img: PipeImage) -> PipeImage:
             return process_1(img)
 
-        @cp_manager.pre_processor2("pre_2.png")
-        @cp_manager.post_processor2("post_2.png", calls=(stage_1,))
+        @cp_manager.pre_processor("pre_2.png")
+        @cp_manager.post_processor("post_2.png", calls=(stage_1,))
         def stage_2(img: PipeImage) -> PipeImage:
             return process_2(stage_1(img))
 
-        @cp_manager.pre_processor2("pre_3.png")
-        @cp_manager.post_processor2("post_3.png", calls=(stage_2,))
+        @cp_manager.pre_processor("pre_3.png")
+        @cp_manager.post_processor("post_3.png", calls=(stage_2,))
         def stage_3(img: PipeImage) -> PipeImage:
             return process_3(stage_2(img))
 
@@ -99,7 +99,7 @@ def test_post_processor() -> None:
     with get_temp_directory_path() as cp_directory:
         cp_manager = CheckpointManager(cp_directory)
 
-        @cp_manager.post_processor2("checkpoint.png")
+        @cp_manager.post_processor("checkpoint.png")
         def function(img: PipeImage) -> PipeImage:
             return process(img)
 
@@ -125,7 +125,7 @@ def test_post_splitter() -> None:
     with get_temp_directory_path() as cp_directory:
         cp_manager = CheckpointManager(cp_directory)
 
-        @cp_manager.post_splitter2("color.png", "alpha.png")
+        @cp_manager.post_splitter("color.png", "alpha.png")
         def function(img: PipeImage) -> tuple[PipeImage, ...]:
             return split(img)
 
@@ -153,7 +153,7 @@ def test_pre_processor() -> None:
     with get_temp_directory_path() as cp_directory:
         cp_manager = CheckpointManager(cp_directory)
 
-        @cp_manager.pre_processor2("checkpoint.png")
+        @cp_manager.pre_processor("checkpoint.png")
         def function(img: PipeImage) -> PipeImage:
             return process(img)
 
