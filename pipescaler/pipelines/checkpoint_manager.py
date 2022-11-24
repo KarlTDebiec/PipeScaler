@@ -14,8 +14,8 @@ from pipescaler.common import get_temp_file_path
 from pipescaler.core.pipelines import (
     CheckpointManagerBase,
     PipeImage,
+    PipePreCheckpoint,
     PipeProcessorWithPostCheckpoint,
-    PipeProcessorWithPreCheckpoint,
     PipeSplitterWithPostCheckpoints,
 )
 
@@ -125,33 +125,46 @@ class CheckpointManager(CheckpointManagerBase):
         self,
         cpt: str,
         *,
-        calls: Optional[Collection[Callable[[PipeImage], PipeImage]]] = None,
-    ) -> Callable[[Callable[[PipeImage], PipeImage]], PipeProcessorWithPreCheckpoint]:
+        calls: Optional[
+            Collection[
+                Union[
+                    Callable[[PipeImage], PipeImage],
+                    Callable[[PipeImage], Collection[PipeImage]],
+                ],
+            ]
+        ] = None,
+    ) -> Callable[[Callable[[PipeImage], PipeImage]], PipePreCheckpoint]:
         internal_cpts = self.get_internal_cpts(*calls) if calls else []
 
         def decorator(
-            processor: Callable[[PipeImage], PipeImage]
-        ) -> PipeProcessorWithPreCheckpoint:
-            internal_cpts.extend(self.get_internal_cpts(processor))
+            operator: Union[
+                Callable[[PipeImage], PipeImage],
+                Callable[[PipeImage], Collection[PipeImage]],
+            ],
+        ) -> PipePreCheckpoint:
+            internal_cpts.extend(self.get_internal_cpts(operator))
 
-            return PipeProcessorWithPreCheckpoint(processor, self, cpt, internal_cpts)
+            return PipePreCheckpoint(operator, self, cpt, internal_cpts)
 
         return decorator
 
     def purge_unrecognized_files(self) -> None:
         """Remove files in output directory that have not been logged as observed."""
         for img in self.directory.iterdir():
-            for cpt in img.iterdir():
-                if (img.name, cpt.name) not in self.observed_checkpoints:
-                    name = join(cpt.parents[0].name, cpt.name)
+            if img.is_dir():
+                for cpt in img.iterdir():
                     if cpt.is_dir():
                         rmdir(cpt)
-                    else:
+                        info(f"{self}: directory {join(img.name, cpt.name)} removed")
+                    elif (img.name, cpt.name) not in self.observed_checkpoints:
                         remove(cpt)
-                    info(f"{self}: checkpoint {name} removed")
-            if not any(img.iterdir()):
-                rmdir(img)
-                info(f"{self}: directory {img.name} removed")
+                        info(f"{self}: file {join(img.name, cpt.name)} removed")
+                if not any(img.iterdir()):
+                    rmdir(img)
+                    info(f"{self}: directory {img.name} removed")
+            else:
+                remove(img)
+                info(f"{self}: file {img.name} removed")
 
     @staticmethod
     def get_internal_cpts(

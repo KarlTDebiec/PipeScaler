@@ -7,6 +7,7 @@ from os import mkdir
 from pathlib import Path
 from typing import Collection
 
+import numpy as np
 from PIL import Image
 
 from pipescaler.common import get_temp_directory_path
@@ -148,6 +149,29 @@ def test_post_splitter() -> None:
         assert alpha_img.path.exists()
 
 
+def test_pre_splitter() -> None:
+    split = PipeSplitter(AlphaSplitter())
+
+    with get_temp_directory_path() as cp_directory:
+        cp_manager = CheckpointManager(cp_directory)
+
+        @cp_manager.pre_processor("checkpoint.png")
+        def function(img: PipeImage) -> Collection[PipeImage]:
+            return split(img)
+
+        input_path = get_test_infile_path("RGBA")
+        input_img = PipeImage(path=input_path)
+        function(input_img)
+        cp_manager.purge_unrecognized_files()
+
+        assert (cp_directory / input_img.name / "checkpoint.png").exists()
+        assert input_img.path == cp_directory / input_img.name / "checkpoint.png"
+        assert (
+            np.array(PipeImage(path=input_path).image)
+            == np.array(PipeImage(path=input_img.path).image)
+        ).all()
+
+
 def test_pre_processor() -> None:
     process = PipeProcessor(XbrzProcessor())
 
@@ -161,12 +185,23 @@ def test_pre_processor() -> None:
         input_path = get_test_infile_path("RGB")
         input_img = PipeImage(path=input_path)
         function(input_img)
-
-        assert input_img.path == cp_directory / input_img.name / "checkpoint.png"
-        assert PipeImage(path=input_path).image == PipeImage(path=input_img.path).image
-
-        # Test purge
-        mkdir(cp_directory / "to_delete")
-        open(cp_directory / input_img.name / "to_delete.png", "a").close()
         cp_manager.purge_unrecognized_files()
-        assert input_img.path.exists()
+
+        assert (cp_directory / input_img.name / "checkpoint.png").exists()
+        assert input_img.path == cp_directory / input_img.name / "checkpoint.png"
+        assert (
+            np.array(PipeImage(path=input_path).image)
+            == np.array(PipeImage(path=input_img.path).image)
+        ).all()
+
+
+def test_purge_unrecognized_files() -> None:
+    with get_temp_directory_path() as cp_directory:
+        cp_manager = CheckpointManager(cp_directory)
+
+        mkdir(cp_directory / "to_delete")
+        open(cp_directory / "to_delete.png", "a").close()
+        cp_manager.purge_unrecognized_files()
+
+        assert not (cp_directory / "to_delete").exists()
+        assert not (cp_directory / "to_delete.png").exists()

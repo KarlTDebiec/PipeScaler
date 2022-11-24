@@ -8,15 +8,16 @@ from __future__ import annotations
 from pipescaler.core.pipelines.checkpoint_manager_base import CheckpointManagerBase
 from pipescaler.core.pipelines.pipe_image import PipeImage
 from pipescaler.core.pipelines.pipe_merger import PipeMerger
+from pipescaler.core.pipelines.pipe_operator_with_checkpoints import (
+    PipeOperatorWithCheckpoints,
+)
+from pipescaler.core.pipelines.pipe_pre_checkpoint import PipePreCheckpoint
 from pipescaler.core.pipelines.pipe_processor import PipeProcessor
 from pipescaler.core.pipelines.pipe_processor_with_checkpoints import (
     PipeProcessorWithCheckpoints,
 )
 from pipescaler.core.pipelines.pipe_processor_with_post_checkpoint import (
     PipeProcessorWithPostCheckpoint,
-)
-from pipescaler.core.pipelines.pipe_processor_with_pre_checkpoint import (
-    PipeProcessorWithPreCheckpoint,
 )
 from pipescaler.core.pipelines.pipe_splitter import PipeSplitter
 from pipescaler.core.pipelines.pipe_splitter_with_checkpoints import (
@@ -32,10 +33,11 @@ __all__: list[str] = [
     "CheckpointManagerBase",
     "PipeImage",
     "PipeMerger",
+    "PipeOperatorWithCheckpoints",
     "PipeProcessor",
     "PipeProcessorWithCheckpoints",
     "PipeProcessorWithPostCheckpoint",
-    "PipeProcessorWithPreCheckpoint",
+    "PipePreCheckpoint",
     "PipeSplitterWithCheckpoints",
     "PipeSplitterWithPostCheckpoints",
     "PipeSplitter",
