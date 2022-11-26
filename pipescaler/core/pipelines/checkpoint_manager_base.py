@@ -3,7 +3,7 @@
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Abstract base class for checkpoint managers."""
-from abc import ABC, abstractmethod
+from abc import ABC
 from pathlib import Path
 from typing import Union
 
@@ -25,7 +25,5 @@ class CheckpointManagerBase(ABC):
         self.observed_checkpoints: set[tuple[str, str]] = set()
         """Observed checkpoints as tuples of image and checkpoint names."""
 
-    @abstractmethod
     def observe(self, img: PipeImage, cpt: str) -> None:
-        """Observe an image."""
-        raise NotImplementedError()
+        self.observed_checkpoints.add((img.name, cpt))

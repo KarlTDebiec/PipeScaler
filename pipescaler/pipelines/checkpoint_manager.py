@@ -8,16 +8,16 @@ from logging import info
 from os import remove, rmdir
 from os.path import join
 from pathlib import Path
-from typing import Callable, Collection, Optional, Union
+from typing import Callable, Collection, Optional
 
 from pipescaler.common import get_temp_file_path
 from pipescaler.core.pipelines import (
     CheckpointManagerBase,
     PipeImage,
-    PipePreCheckpoint,
-    PipeProcessorWithPostCheckpoint,
-    PipeSplitterWithPostCheckpoints,
+    PipeWithPreCheckpoints,
 )
+from pipescaler.core.pipelines.pipe_stage import PipeStage
+from pipescaler.core.pipelines.pipe_with_post_checkpoints import PipeWithPostCheckpoints
 
 
 class CheckpointManager(CheckpointManagerBase):
@@ -82,69 +82,27 @@ class CheckpointManager(CheckpointManagerBase):
 
         return decorator
 
-    def observe(self, img: PipeImage, cpt: str) -> None:
-        self.observed_checkpoints.add((img.name, cpt))
-
-    def post_processor(
-        self,
-        cpt: str,
-        *,
-        calls: Optional[Collection[Callable[[PipeImage], PipeImage]]] = None,
-    ) -> Callable[[Callable[[PipeImage], PipeImage]], PipeProcessorWithPostCheckpoint]:
+    def post(
+        self, *cpts: str, calls: Optional[Collection[PipeStage]] = None
+    ) -> Callable[[PipeStage], PipeWithPostCheckpoints]:
         internal_cpts = self.get_internal_cpts(*calls) if calls else []
 
-        def decorator(
-            processor: Callable[[PipeImage], PipeImage]
-        ) -> PipeProcessorWithPostCheckpoint:
-            internal_cpts.extend(self.get_internal_cpts(processor))
+        def decorator(stage: PipeStage) -> PipeWithPostCheckpoints:
+            internal_cpts.extend(self.get_internal_cpts(stage))
 
-            return PipeProcessorWithPostCheckpoint(processor, self, cpt, internal_cpts)
+            return PipeWithPostCheckpoints(stage, self, cpts, internal_cpts)
 
         return decorator
 
-    def post_splitter(
-        self,
-        *cpts: str,
-        calls: Optional[Collection[Callable[[PipeImage], PipeImage]]] = None,
-    ) -> Callable[
-        [Callable[[PipeImage], Collection[PipeImage]]],
-        PipeSplitterWithPostCheckpoints,
-    ]:
+    def pre(
+        self, *cpts: str, calls: Optional[Collection[PipeStage]] = None
+    ) -> Callable[[PipeStage], PipeWithPreCheckpoints]:
         internal_cpts = self.get_internal_cpts(*calls) if calls else []
 
-        def decorator(
-            splitter: Callable[[PipeImage], Collection[PipeImage]]
-        ) -> PipeSplitterWithPostCheckpoints:
-            internal_cpts.extend(self.get_internal_cpts(splitter))
+        def decorator(stage: PipeStage) -> PipeWithPreCheckpoints:
+            internal_cpts.extend(self.get_internal_cpts(stage))
 
-            return PipeSplitterWithPostCheckpoints(splitter, self, cpts, internal_cpts)
-
-        return decorator
-
-    def pre_processor(
-        self,
-        cpt: str,
-        *,
-        calls: Optional[
-            Collection[
-                Union[
-                    Callable[[PipeImage], PipeImage],
-                    Callable[[PipeImage], Collection[PipeImage]],
-                ],
-            ]
-        ] = None,
-    ) -> Callable[[Callable[[PipeImage], PipeImage]], PipePreCheckpoint]:
-        internal_cpts = self.get_internal_cpts(*calls) if calls else []
-
-        def decorator(
-            operator: Union[
-                Callable[[PipeImage], PipeImage],
-                Callable[[PipeImage], Collection[PipeImage]],
-            ],
-        ) -> PipePreCheckpoint:
-            internal_cpts.extend(self.get_internal_cpts(operator))
-
-            return PipePreCheckpoint(operator, self, cpt, internal_cpts)
+            return PipeWithPreCheckpoints(stage, self, cpts, internal_cpts)
 
         return decorator
 
@@ -167,12 +125,7 @@ class CheckpointManager(CheckpointManagerBase):
                 info(f"{self}: file {img.name} removed")
 
     @staticmethod
-    def get_internal_cpts(
-        *called_functions: Union[
-            Callable[[PipeImage], PipeImage],
-            Callable[[PipeImage], Collection[PipeImage]],
-        ],
-    ) -> list[str]:
+    def get_internal_cpts(*called_functions: PipeStage) -> list[str]:
         internal_cpts: list[str] = []
         for function in called_functions:
             if hasattr(function, "cpt"):
