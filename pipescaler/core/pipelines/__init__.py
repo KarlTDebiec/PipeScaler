@@ -7,24 +7,28 @@ from __future__ import annotations
 
 from pipescaler.core.pipelines.checkpoint_manager_base import CheckpointManagerBase
 from pipescaler.core.pipelines.pipe_image import PipeImage
-from pipescaler.core.pipelines.pipe_merger import PipeMerger
-from pipescaler.core.pipelines.pipe_processor import PipeProcessor
-from pipescaler.core.pipelines.pipe_splitter import PipeSplitter
-from pipescaler.core.pipelines.pipe_with_checkpoints import PipeWithCheckpoints
-from pipescaler.core.pipelines.pipe_with_post_checkpoints import PipeWithPostCheckpoints
-from pipescaler.core.pipelines.pipe_with_pre_checkpoints import PipeWithPreCheckpoints
+from pipescaler.core.pipelines.segment import Segment
+from pipescaler.core.pipelines.segments.checkpointed.pre_checkpointed_segment import (
+    PostCheckpointedSegment,
+)
+from pipescaler.core.pipelines.segments.operators.merger_segment import MergerSegment
+from pipescaler.core.pipelines.segments.operators.processor_segment import (
+    ProcessorSegment,
+)
+from pipescaler.core.pipelines.segments.operators.splitter_segment import (
+    SplitterSegment,
+)
 from pipescaler.core.pipelines.source import Source
 from pipescaler.core.pipelines.terminus import Terminus
 
 __all__: list[str] = [
     "CheckpointManagerBase",
     "PipeImage",
-    "PipeMerger",
-    "PipeWithCheckpoints",
-    "PipeWithPostCheckpoints",
-    "PipeWithPreCheckpoints",
-    "PipeProcessor",
-    "PipeSplitter",
+    "MergerSegment",
+    "PostCheckpointedSegment",
+    "ProcessorSegment",
+    "Segment",
     "Source",
+    "SplitterSegment",
     "Terminus",
 ]

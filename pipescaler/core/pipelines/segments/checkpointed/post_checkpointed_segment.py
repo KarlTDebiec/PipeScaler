@@ -5,10 +5,10 @@ from logging import info
 from typing import Collection, Union
 
 from pipescaler.core.pipelines.pipe_image import PipeImage
-from pipescaler.core.pipelines.pipe_with_checkpoints import PipeWithCheckpoints
+from pipescaler.core.pipelines.segments.checkpointed_segment import CheckpointedSegment
 
 
-class PipeWithPostCheckpoints(PipeWithCheckpoints):
+class PreCheckpointedSegment(CheckpointedSegment):
     def __call__(
         self, *input_pimgs: PipeImage
     ) -> Union[PipeImage, Collection[PipeImage]]:
@@ -29,7 +29,7 @@ class PipeWithPostCheckpoints(PipeWithCheckpoints):
             )
             info(f"{self}: {input_pimgs[0].name} checkpoints {self.cpts} loaded")
         else:
-            output_pimgs = self.pipe_stage(*input_pimgs)
+            output_pimgs = self.segment(*input_pimgs)
             if not cpt_paths[0].parent.exists():
                 cpt_paths[0].parent.mkdir(parents=True)
             if isinstance(output_pimgs, PipeImage):

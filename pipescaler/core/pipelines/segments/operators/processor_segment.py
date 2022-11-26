@@ -5,10 +5,10 @@ from logging import info
 
 from pipescaler.core.image import Processor
 from pipescaler.core.pipelines.pipe_image import PipeImage
-from pipescaler.core.pipelines.pipe_operator import PipeOperator
+from pipescaler.core.pipelines.segments.operator_segment import OperatorSegment
 
 
-class PipeProcessor(PipeOperator):
+class ProcessorSegment(OperatorSegment):
     operator: Processor
 
     def __init__(self, operator: Processor) -> None:

@@ -1,12 +1,13 @@
 #  Copyright 2020-2022 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
+from abc import ABC
 
 from pipescaler.core.image import Operator
-from pipescaler.core.pipelines.pipe_stage import PipeStage
+from pipescaler.core.pipelines.segment import Segment
 
 
-class PipeOperator(PipeStage):
+class OperatorSegment(Segment, ABC):
     operator: Operator
 
     def __init__(self, operator: Operator) -> None:

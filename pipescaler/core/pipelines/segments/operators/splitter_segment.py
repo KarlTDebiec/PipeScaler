@@ -6,10 +6,10 @@ from typing import Collection
 
 from pipescaler.core.image import Splitter
 from pipescaler.core.pipelines.pipe_image import PipeImage
-from pipescaler.core.pipelines.pipe_operator import PipeOperator
+from pipescaler.core.pipelines.segments.operator_segment import OperatorSegment
 
 
-class PipeSplitter(PipeOperator):
+class SplitterSegment(OperatorSegment):
     operator: Splitter
 
     def __init__(self, operator: Splitter) -> None:

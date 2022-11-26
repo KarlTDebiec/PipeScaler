@@ -3,21 +3,23 @@
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Manages checkpoints."""
-from functools import wraps
 from logging import info
 from os import remove, rmdir
 from os.path import join
 from pathlib import Path
 from typing import Callable, Collection, Optional
 
-from pipescaler.common import get_temp_file_path
-from pipescaler.core.pipelines import (
-    CheckpointManagerBase,
-    PipeImage,
-    PipeWithPreCheckpoints,
+from pipescaler.core.pipelines import CheckpointManagerBase, PostCheckpointedSegment
+from pipescaler.core.pipelines.segment import Segment
+from pipescaler.core.pipelines.segments.checkpointed.checkpointed_file_processor_segment import (
+    CheckpointedFileProcessorSegment,
 )
-from pipescaler.core.pipelines.pipe_stage import PipeStage
-from pipescaler.core.pipelines.pipe_with_post_checkpoints import PipeWithPostCheckpoints
+from pipescaler.core.pipelines.segments.checkpointed.post_checkpointed_segment import (
+    PreCheckpointedSegment,
+)
+from pipescaler.core.pipelines.segments.file_processor_segment import (
+    FileProcessorSegment,
+)
 
 
 class CheckpointManager(CheckpointManagerBase):
@@ -29,80 +31,39 @@ class CheckpointManager(CheckpointManagerBase):
 
     def post_file_processor(
         self, cpt: str
-    ) -> Callable[[Callable[[Path, Path], None]], Callable[[PipeImage], PipeImage]]:
-        """Get a decorator to be used to add a checkpoint after a processor function.
-
-        Arguments:
-            cpt: Name of checkpoint
-        Returns:
-            Decorator to be used to add checkpoint after a PipeFileProcessor function
-        """
-
+    ) -> Callable[[Callable[[Path, Path], None]], CheckpointedFileProcessorSegment]:
         def decorator(
-            function: Callable[[Path, Path], None]
-        ) -> Callable[[PipeImage], PipeImage]:
-            """Decorator to be used to add a checkpoint after a processor function.
+            file_processor: Callable[[Path, Path], None]
+        ) -> CheckpointedFileProcessorSegment:
+            file_processor_segment = FileProcessorSegment(
+                file_processor, output_extension=Path(cpt).suffix
+            )
 
-            Arguments:
-                function: Function to wrap
-            Returns:
-                Wrapped function
-            """
-
-            @wraps(function)
-            def wrapped(input_img: PipeImage) -> PipeImage:
-                """Image processor function, wrapped to make use of a checkpoint.
-
-                Arguments:
-                    input_img: Image to process
-                Returns:
-                    Processed image, loaded from checkpoint if available
-                """
-                self.observed_checkpoints.add((input_img.name, cpt))
-
-                cpt_path = self.directory / input_img.name / cpt
-                if cpt_path.exists():
-                    output_img = PipeImage(path=cpt_path, parents=input_img)
-                    info(f"{self}: {input_img.name} checkpoint {cpt} loaded")
-                else:
-                    if not cpt_path.parent.exists():
-                        cpt_path.parent.mkdir(parents=True)
-                    if input_img.path is None:
-                        with get_temp_file_path(".png") as input_path:
-                            input_img.image.save(input_path)
-                            function(input_path, cpt_path)
-                    else:
-                        function(input_img.path, cpt_path)
-                    output_img = PipeImage(path=cpt_path, parents=input_img)
-                    info(f"{self}: {input_img.name} checkpoint {cpt} saved")
-
-                return output_img
-
-            return wrapped
+            return CheckpointedFileProcessorSegment(file_processor_segment, self, [cpt])
 
         return decorator
 
-    def post(
-        self, *cpts: str, calls: Optional[Collection[PipeStage]] = None
-    ) -> Callable[[PipeStage], PipeWithPostCheckpoints]:
+    def post_segment(
+        self, *cpts: str, calls: Optional[Collection[Segment]] = None
+    ) -> Callable[[Segment], PreCheckpointedSegment]:
         internal_cpts = self.get_internal_cpts(*calls) if calls else []
 
-        def decorator(stage: PipeStage) -> PipeWithPostCheckpoints:
+        def decorator(stage: Segment) -> PreCheckpointedSegment:
             internal_cpts.extend(self.get_internal_cpts(stage))
 
-            return PipeWithPostCheckpoints(stage, self, cpts, internal_cpts)
+            return PreCheckpointedSegment(stage, self, cpts, internal_cpts)
 
         return decorator
 
-    def pre(
-        self, *cpts: str, calls: Optional[Collection[PipeStage]] = None
-    ) -> Callable[[PipeStage], PipeWithPreCheckpoints]:
+    def pre_segment(
+        self, *cpts: str, calls: Optional[Collection[Segment]] = None
+    ) -> Callable[[Segment], PostCheckpointedSegment]:
         internal_cpts = self.get_internal_cpts(*calls) if calls else []
 
-        def decorator(stage: PipeStage) -> PipeWithPreCheckpoints:
+        def decorator(stage: Segment) -> PostCheckpointedSegment:
             internal_cpts.extend(self.get_internal_cpts(stage))
 
-            return PipeWithPreCheckpoints(stage, self, cpts, internal_cpts)
+            return PostCheckpointedSegment(stage, self, cpts, internal_cpts)
 
         return decorator
 
@@ -125,7 +86,7 @@ class CheckpointManager(CheckpointManagerBase):
                 info(f"{self}: file {img.name} removed")
 
     @staticmethod
-    def get_internal_cpts(*called_functions: PipeStage) -> list[str]:
+    def get_internal_cpts(*called_functions: Segment) -> list[str]:
         internal_cpts: list[str] = []
         for function in called_functions:
             if hasattr(function, "cpt"):

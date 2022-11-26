@@ -5,10 +5,10 @@ from logging import info
 
 from pipescaler.core.image import Merger
 from pipescaler.core.pipelines.pipe_image import PipeImage
-from pipescaler.core.pipelines.pipe_operator import PipeOperator
+from pipescaler.core.pipelines.segments.operator_segment import OperatorSegment
 
 
-class PipeMerger(PipeOperator):
+class MergerSegment(OperatorSegment):
     operator: Merger
 
     def __init__(self, operator: Merger) -> None:
