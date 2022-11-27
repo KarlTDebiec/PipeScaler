@@ -11,7 +11,7 @@ from pipescaler.core.pipelines.segments.checkpointed_segment import Checkpointed
 class PreCheckpointedSegment(CheckpointedSegment):
     """Segment with pre-execution checkpoints."""
 
-    def __call__(self, *inputs: PipeImage) -> tuple[PipeImage]:
+    def __call__(self, *inputs: PipeImage) -> tuple[PipeImage, ...]:
         """Checkpoint inputs and return outputs of wrapped Segment.
 
         Arguments:

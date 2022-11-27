@@ -35,14 +35,15 @@ class PostCheckpointedRunnerSegment(CheckpointedSegment):
             raise ValueError(
                 f"{self} requires exactly one checkpoint but received {len(cpts)}."
             )
-        if len(internal_cpts or []) != 0:
+        internal_cpts = internal_cpts or []
+        if len(internal_cpts) != 0:
             raise ValueError(
                 f"{self} does not support internal checkpoints but received "
                 f"{len(internal_cpts)}."
             )
         super().__init__(segment, cp_manager, cpts, internal_cpts)
 
-    def __call__(self, *inputs: PipeImage) -> tuple[PipeImage]:
+    def __call__(self, *inputs: PipeImage) -> tuple[PipeImage, ...]:
         """Return outputs of wrapped Segment, loaded from checkpoints if available.
 
         Arguments:

@@ -22,7 +22,7 @@ class ProcessorSegment(OperatorSegment):
         """
         super().__init__(operator)
 
-    def __call__(self, *inputs: PipeImage) -> tuple[PipeImage]:
+    def __call__(self, *inputs: PipeImage) -> tuple[PipeImage, ...]:
         """Process an image.
 
         Arguments:

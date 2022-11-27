@@ -11,7 +11,7 @@ from pipescaler.core.pipelines.segments.checkpointed_segment import Checkpointed
 class PostCheckpointedSegment(CheckpointedSegment):
     """Segment with post-execution checkpoints."""
 
-    def __call__(self, *inputs: PipeImage) -> tuple[PipeImage]:
+    def __call__(self, *inputs: PipeImage) -> tuple[PipeImage, ...]:
         """Return outputs of wrapped Segment, loaded from checkpoints if available.
 
         Arguments:

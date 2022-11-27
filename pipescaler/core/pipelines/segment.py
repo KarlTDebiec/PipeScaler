@@ -11,7 +11,7 @@ class Segment(ABC):
     """Segment within a pipeline."""
 
     @abstractmethod
-    def __call__(self, *inputs: PipeImage) -> tuple[PipeImage]:
+    def __call__(self, *inputs: PipeImage) -> tuple[PipeImage, ...]:
         """Receive input images and returns output images.
 
         Arguments:

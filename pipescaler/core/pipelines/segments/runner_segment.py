@@ -33,7 +33,7 @@ class RunnerSegment(Segment):
         self.output_extension = output_extension
         """Extension of output file"""
 
-    def __call__(self, *inputs: PipeImage) -> tuple[PipeImage]:
+    def __call__(self, *inputs: PipeImage) -> tuple[PipeImage, ...]:
         """Receive input image and returns output image.
 
         Arguments:

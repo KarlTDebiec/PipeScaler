@@ -61,13 +61,13 @@ def test_nested(
 
         @cp_manager.pre_segment("pre_inner.png")
         @cp_manager.post_segment("post_inner.png")
-        def inner_segment(*inputs: PipeImage) -> tuple[PipeImage]:
+        def inner_segment(*inputs: PipeImage) -> tuple[PipeImage, ...]:
             xbrz_outputs = xbrz_processor(*inputs)
             return xbrz_outputs
 
         @cp_manager.pre_segment("pre_outer.png")
         @cp_manager.post_segment("post_outer.png", calls=[inner_segment])
-        def outer_segment(*inputs: PipeImage) -> tuple[PipeImage]:
+        def outer_segment(*inputs: PipeImage) -> tuple[PipeImage, ...]:
             xbrz_outputs = xbrz_processor(*inputs)
             return inner_segment(*xbrz_outputs)
 
