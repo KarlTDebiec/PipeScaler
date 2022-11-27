@@ -14,7 +14,7 @@ class OperatorSegment(Segment, ABC):
     operator: Operator
 
     def __init__(self, operator: Operator) -> None:
-        """Initializes.
+        """Initialize.
 
         Arguments:
             operator: Operator to apply

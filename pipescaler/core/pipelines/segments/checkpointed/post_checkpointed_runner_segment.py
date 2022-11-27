@@ -1,7 +1,7 @@
 #  Copyright 2020-2022 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Segment that applies a Runner with a with post-execution checkpoint."""
+"""Segment that applies a Runner with a post-execution checkpoint."""
 from logging import info
 from typing import Optional, Sequence
 
@@ -12,7 +12,7 @@ from pipescaler.core.pipelines.segments.runner_segment import RunnerSegment
 
 
 class PostCheckpointedRunnerSegment(CheckpointedSegment):
-    """Segment that applies a Runner with a with post-execution checkpoint."""
+    """Segment that applies a Runner with a post-execution checkpoint."""
 
     segment: RunnerSegment
 
@@ -23,7 +23,7 @@ class PostCheckpointedRunnerSegment(CheckpointedSegment):
         cpts: Sequence[str],
         internal_cpts: Optional[Sequence[str]] = None,
     ) -> None:
-        """Initializes.
+        """Initialize.
 
         Arguments:
             segment: Segment to apply
@@ -31,34 +31,41 @@ class PostCheckpointedRunnerSegment(CheckpointedSegment):
             cpts: Checkpoints to save
             internal_cpts: Checkpoints to save internally
         """
+        if len(cpts) != 1:
+            raise ValueError(
+                f"{self} requires exactly one checkpoint but received {len(cpts)}."
+            )
+        if len(internal_cpts or []) != 0:
+            raise ValueError(
+                f"{self} does not support internal checkpoints but received "
+                f"{len(internal_cpts)}."
+            )
         super().__init__(segment, cp_manager, cpts, internal_cpts)
 
-    def __call__(self, *inputs: PipeImage) -> PipeImage:
-        """Receives input image and returns output image.
+    def __call__(self, *inputs: PipeImage) -> tuple[PipeImage]:
+        """Return outputs of wrapped Segment, loaded from checkpoints if available.
 
         Arguments:
-            inputs: Input image
+            inputs: Input images
         Returns:
-            Output image, loaded from checkpoint if available
+            Output images, loaded from checkpoint if available, within a tuple for
+            consistency with other Segments
         """
-        if len(inputs) != 1:
-            raise ValueError("RunnerSegment requires 1 input")
-        self.cp_manager.observe(inputs[0], self.cpts[0])
-
         cpt_path = self.cp_manager.directory / inputs[0].name / self.cpts[0]
         if cpt_path.exists():
-            output = PipeImage(path=cpt_path, parents=inputs[0])
-            info(f"{self}: {output.name} checkpoint {self.cpts[0]} loaded")
+            output = PipeImage(path=cpt_path, parents=inputs)
+            info(f"{self}: {inputs[0].name} checkpoints {self.cpts} loaded")
         else:
             if not cpt_path.parent.exists():
                 cpt_path.parent.mkdir(parents=True)
             if inputs[0].path is None:
-                with get_temp_file_path(".png") as input_path:
+                with get_temp_file_path(self.segment.input_extension) as input_path:
                     inputs[0].image.save(input_path)
                     self.segment.runner(input_path, cpt_path)
             else:
                 self.segment.runner(inputs[0].path, cpt_path)
             output = PipeImage(path=cpt_path, parents=inputs[0])
             info(f"{self}: {output.name} checkpoint {self.cpts[0]} saved")
+        self.cp_manager.observe(inputs[0], self.cpts[0])
 
-        return output
+        return (output,)

@@ -21,19 +21,20 @@ class CheckpointedSegment(Segment, ABC):
         cpts: Sequence[str],
         internal_cpts: Optional[Sequence[str]] = None,
     ) -> None:
-        """Initializes.
+        """Initialize.
 
         Arguments:
             segment: Segment to apply
             cp_manager: Checkpoint manager
             cpts: Checkpoints to save
-            internal_cpts: Checkpoints to save internally
+            internal_cpts: Names of additional checkpoints saved by Segments within
+              this Segment
         """
         self.segment = segment
-        """Segment through which to run images"""
+        """Segment to apply"""
         self.cp_manager = cp_manager
         """Checkpoint manager"""
         self.cpts = cpts
         """Names of checkpoints to save"""
         self.internal_cpts = internal_cpts or []
-        """Names of additional checkpoints saved by segments within this segment"""
+        """Names of additional checkpoints saved by Segments within this Segment"""

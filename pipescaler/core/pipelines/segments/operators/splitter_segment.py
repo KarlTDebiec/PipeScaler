@@ -3,7 +3,6 @@
 #  the terms of the BSD license. See the LICENSE file for details.
 """Segment that applies a Splitter."""
 from logging import info
-from typing import Sequence
 
 from pipescaler.core.image import Splitter
 from pipescaler.core.pipelines.pipe_image import PipeImage
@@ -16,18 +15,18 @@ class SplitterSegment(OperatorSegment):
     operator: Splitter
 
     def __init__(self, operator: Splitter) -> None:
-        """Initializes.
+        """Initialize.
 
         Arguments:
             operator: Splitter to apply
         """
         super().__init__(operator)
 
-    def __call__(self, *inputs: PipeImage) -> Sequence[PipeImage]:
-        """Receives input image and returns output images.
+    def __call__(self, *inputs: PipeImage) -> tuple[PipeImage]:
+        """Split an image.
 
         Arguments:
-            inputs: Input image
+            inputs: Input image, within a tuple for consistency with other Segments
         Returns:
             Output images
         """

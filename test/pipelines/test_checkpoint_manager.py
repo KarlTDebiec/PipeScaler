@@ -16,6 +16,7 @@ from pipescaler.core.pipelines import (
     MergerSegment,
     PipeImage,
     ProcessorSegment,
+    Segment,
     SplitterSegment,
 )
 from pipescaler.image.mergers import AlphaMerger
@@ -60,25 +61,25 @@ def test_nested(
 
         @cp_manager.pre_segment("pre_inner.png")
         @cp_manager.post_segment("post_inner.png")
-        def inner_segment(image: PipeImage) -> PipeImage:
-            xbrz_image = xbrz_processor(image)
-            return xbrz_image
+        def inner_segment(*inputs: PipeImage) -> tuple[PipeImage]:
+            xbrz_outputs = xbrz_processor(*inputs)
+            return xbrz_outputs
 
         @cp_manager.pre_segment("pre_outer.png")
         @cp_manager.post_segment("post_outer.png", calls=[inner_segment])
-        def outer_segment(image: PipeImage) -> PipeImage:
-            xbrz_image = xbrz_processor(image)
-            return inner_segment(xbrz_image)
+        def outer_segment(*inputs: PipeImage) -> tuple[PipeImage]:
+            xbrz_outputs = xbrz_processor(*inputs)
+            return inner_segment(*xbrz_outputs)
 
         input_path = get_test_infile_path("RGB")
-        input_img = PipeImage(path=input_path)
-        outer_segment(input_img)
+        inputs = (PipeImage(path=input_path),)
+        outer_segment(*inputs)
 
         cp_manager.purge_unrecognized_files()
-        assert (cp_directory / input_img.name / "pre_inner.png").exists()
-        assert (cp_directory / input_img.name / "post_inner.png").exists()
-        assert (cp_directory / input_img.name / "pre_outer.png").exists()
-        assert (cp_directory / input_img.name / "post_outer.png").exists()
+        assert (cp_directory / inputs[0].name / "pre_inner.png").exists()
+        assert (cp_directory / inputs[0].name / "post_inner.png").exists()
+        assert (cp_directory / inputs[0].name / "pre_outer.png").exists()
+        assert (cp_directory / inputs[0].name / "post_outer.png").exists()
 
     with get_temp_directory_path() as temp_directory:
         run(temp_directory)
@@ -86,7 +87,7 @@ def test_nested(
         run(temp_directory)
 
 
-def test_post_file_processor(copy_file: Callable[[Path, Path], None]) -> None:
+def test_post_runner(copy_file: Callable[[Path, Path], None]) -> None:
 
     with get_temp_directory_path() as cp_directory:
         cp_manager = CheckpointManager(cp_directory)
@@ -94,144 +95,112 @@ def test_post_file_processor(copy_file: Callable[[Path, Path], None]) -> None:
 
         # Test image from file
         file_input_path = get_test_infile_path("RGB")
-        input_img = PipeImage(path=file_input_path)
-        file_output_img = segment(input_img)
-        assert file_output_img.path == cp_directory / input_img.name / "checkpoint.png"
-        file_output_img = segment(input_img)
-        assert file_output_img.path == cp_directory / input_img.name / "checkpoint.png"
+        inputs = (PipeImage(path=file_input_path),)
+
+        outputs = segment(*inputs)
+        cp_manager.purge_unrecognized_files()
+        assert outputs[0].path == cp_directory / inputs[0].name / "checkpoint.png"
+        assert outputs[0].path.exists()
+
+        outputs = segment(*inputs)
+        cp_manager.purge_unrecognized_files()
+        assert outputs[0].path == cp_directory / inputs[0].name / "checkpoint.png"
+        assert outputs[0].path.exists()
 
         # Test image from code
-        image_input_img = PipeImage(image=Image.new("RGB", (100, 100)), name="RGB_2")
-        image_output_img = segment(image_input_img)
+        inputs = (PipeImage(image=Image.new("RGB", (100, 100)), name="RGB_2"),)
 
-        assert (
-            image_output_img.path
-            == cp_directory / image_input_img.name / "checkpoint.png"
-        )
-        image_output_img = segment(image_input_img)
-        assert (
-            image_output_img.path
-            == cp_directory / image_input_img.name / "checkpoint.png"
-        )
-
-        # Test purge
+        outputs = segment(*inputs)
         cp_manager.purge_unrecognized_files()
-        assert file_output_img.path.exists()
-        assert image_output_img.path.exists()
+        assert outputs[0].path == cp_directory / inputs[0].name / "checkpoint.png"
+        assert outputs[0].path.exists()
+
+        outputs = segment(*inputs)
+        cp_manager.purge_unrecognized_files()
+        assert outputs[0].path == cp_directory / inputs[0].name / "checkpoint.png"
+        assert outputs[0].path.exists()
 
 
-def test_post_merger(alpha_merger: MergerSegment) -> None:
+@pytest.mark.parametrize(
+    ("segment_name", "infiles", "checkpoints"),
+    [
+        (
+            "alpha_merger",
+            ("split/RGBA_color_RGB", "split/RGBA_alpha_L"),
+            ("post.png",),
+        ),
+        (
+            "alpha_splitter",
+            ("RGBA",),
+            ("color.png", "alpha.png"),
+        ),
+        (
+            "xbrz_processor",
+            ("RGB",),
+            ("post.png",),
+        ),
+    ],
+)
+def test_post_segment(
+    segment_name: str, infiles: tuple[str], checkpoints: tuple[str], request
+) -> None:
+    segment = request.getfixturevalue(segment_name)
+    assert isinstance(segment, Segment)
+
     with get_temp_directory_path() as cp_directory:
         cp_manager = CheckpointManager(cp_directory)
-        segment = cp_manager.post_segment("checkpoint.png")(alpha_merger)
-
-        color_input_path = get_test_infile_path("split/RGBA_color_RGB")
-        color_input_img = PipeImage(path=color_input_path, name="test")
-        alpha_input_path = get_test_infile_path("split/RGBA_alpha_L")
-        alpha_input_img = PipeImage(path=alpha_input_path, name="test")
-        output_img = segment(color_input_img, alpha_input_img)
+        segment = cp_manager.post_segment(*checkpoints)(segment)
+        input_paths = [get_test_infile_path(infile) for infile in infiles]
+        inputs = [PipeImage(path=input_path, name="test") for input_path in input_paths]
+        outputs = segment(*inputs)
         cp_manager.purge_unrecognized_files()
 
-        assert output_img.path == cp_directory / "test" / "checkpoint.png"
-        assert output_img.path.exists()
+        for o, c in zip(outputs, checkpoints):
+            assert o.path == cp_directory / o.name / c
+            assert o.path.exists()
 
 
-def test_post_processor(xbrz_processor: ProcessorSegment) -> None:
+@pytest.mark.parametrize(
+    ("segment_name", "infiles", "checkpoints"),
+    [
+        (
+            "alpha_merger",
+            ("split/RGBA_color_RGB", "split/RGBA_alpha_L"),
+            ("color.png", "alpha.png"),
+        ),
+        (
+            "alpha_splitter",
+            ("RGBA",),
+            ("pre.png",),
+        ),
+        (
+            "xbrz_processor",
+            ("RGB",),
+            ("pre.png",),
+        ),
+    ],
+)
+def test_pre_segment(
+    segment_name: str, infiles: tuple[str], checkpoints: tuple[str], request
+) -> None:
+    segment = request.getfixturevalue(segment_name)
+    assert isinstance(segment, Segment)
+
     with get_temp_directory_path() as cp_directory:
         cp_manager = CheckpointManager(cp_directory)
-        segment = cp_manager.post_segment("checkpoint.png")(xbrz_processor)
-
-        input_path = get_test_infile_path("RGB")
-        input_img = PipeImage(path=input_path)
-        output_img = segment(input_img)
+        segment = cp_manager.pre_segment(*checkpoints)(segment)
+        input_paths = [get_test_infile_path(infile) for infile in infiles]
+        inputs = [PipeImage(path=input_path, name="test") for input_path in input_paths]
+        outputs = segment(*inputs)
         cp_manager.purge_unrecognized_files()
 
-        assert output_img.path == cp_directory / input_img.name / "checkpoint.png"
-        assert output_img.path.exists()
-
-        # output_img = function(input_img)
-        # assert process.count == 1
-
-
-def test_post_splitter(alpha_splitter: SplitterSegment) -> None:
-    with get_temp_directory_path() as cp_directory:
-        cp_manager = CheckpointManager(cp_directory)
-        segment = cp_manager.post_segment("color.png", "alpha.png")(alpha_splitter)
-
-        input_path = get_test_infile_path("RGBA")
-        input_img = PipeImage(path=input_path)
-        color_img, alpha_img = segment(input_img)
-        cp_manager.purge_unrecognized_files()
-
-        assert color_img.path == cp_directory / input_img.name / "color.png"
-        assert color_img.path.exists()
-        assert alpha_img.path == cp_directory / input_img.name / "alpha.png"
-        assert alpha_img.path.exists()
-
-        # color_img, alpha_img = function(input_img)
-        # assert split.count == 1
-
-
-def test_pre_merger(alpha_merger: MergerSegment) -> None:
-    with get_temp_directory_path() as cp_directory:
-        cp_manager = CheckpointManager(cp_directory)
-        segment = cp_manager.pre_segment("color.png", "alpha.png")(alpha_merger)
-
-        color_input_path = get_test_infile_path("split/RGBA_color_RGB")
-        color_input_img = PipeImage(path=color_input_path, name="test")
-        alpha_input_path = get_test_infile_path("split/RGBA_alpha_L")
-        alpha_input_img = PipeImage(path=alpha_input_path, name="test")
-        segment(color_input_img, alpha_input_img)
-        cp_manager.purge_unrecognized_files()
-
-        assert color_input_img.path == cp_directory / color_input_img.name / "color.png"
-        assert color_input_img.path.exists()
-        assert (
-            np.array(PipeImage(path=color_input_path).image)
-            == np.array(PipeImage(path=color_input_img.path).image)
-        ).all()
-        assert alpha_input_img.path == cp_directory / alpha_input_img.name / "alpha.png"
-        assert alpha_input_img.path.exists()
-        assert (
-            np.array(PipeImage(path=alpha_input_path).image)
-            == np.array(PipeImage(path=alpha_input_img.path).image)
-        ).all()
-
-
-def test_pre_processor(xbrz_processor: ProcessorSegment) -> None:
-    with get_temp_directory_path() as cp_directory:
-        cp_manager = CheckpointManager(cp_directory)
-        segment = cp_manager.pre_segment("checkpoint.png")(xbrz_processor)
-
-        input_path = get_test_infile_path("RGB")
-        input_img = PipeImage(path=input_path)
-        segment(input_img)
-        cp_manager.purge_unrecognized_files()
-
-        assert input_img.path == cp_directory / input_img.name / "checkpoint.png"
-        assert input_img.path.exists()
-        assert (
-            np.array(PipeImage(path=input_path).image)
-            == np.array(PipeImage(path=input_img.path).image)
-        ).all()
-
-
-def test_pre_splitter(alpha_splitter: SplitterSegment) -> None:
-    with get_temp_directory_path() as cp_directory:
-        cp_manager = CheckpointManager(cp_directory)
-        segment = cp_manager.pre_segment("checkpoint.png")(alpha_splitter)
-
-        input_path = get_test_infile_path("RGBA")
-        input_img = PipeImage(path=input_path)
-        segment(input_img)
-        cp_manager.purge_unrecognized_files()
-
-        assert input_img.path == cp_directory / input_img.name / "checkpoint.png"
-        assert input_img.path.exists()
-        assert (
-            np.array(PipeImage(path=input_path).image)
-            == np.array(PipeImage(path=input_img.path).image)
-        ).all()
+        for i, c, p in zip(inputs, checkpoints, input_paths):
+            assert i.path == cp_directory / i.name / c
+            assert i.path.exists()
+            assert (
+                np.array(PipeImage(path=p).image)
+                == np.array(PipeImage(path=i.path).image)
+            ).all()
 
 
 def test_purge_unrecognized_files() -> None:

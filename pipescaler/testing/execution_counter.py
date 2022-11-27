@@ -18,7 +18,7 @@ class ExecutionCounter(Generic[P, R]):
     count: int
 
     def __init__(self, function: Callable[P, R]) -> None:
-        """Initializes.
+        """Initialize.
 
         Arguments:
             function: Function whose execution to count
@@ -29,7 +29,7 @@ class ExecutionCounter(Generic[P, R]):
         """Function whose executions to count"""
 
     def __call__(self, *args: P.args, **kwargs: P.kwargs) -> R:
-        """Calls the function and increments the counter.
+        """Call the function and increments the counter.
 
         Arguments:
             args: Positional arguments

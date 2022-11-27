@@ -19,7 +19,7 @@ class RunnerSegment(Segment):
         input_extension: str = ".png",
         output_extension: str = ".png",
     ) -> None:
-        """Initializes.
+        """Initialize.
 
         Arguments:
             runner: Runner to apply
@@ -33,13 +33,13 @@ class RunnerSegment(Segment):
         self.output_extension = output_extension
         """Extension of output file"""
 
-    def __call__(self, *inputs: PipeImage) -> PipeImage:
-        """Receives input image and returns output image.
+    def __call__(self, *inputs: PipeImage) -> tuple[PipeImage]:
+        """Receive input image and returns output image.
 
         Arguments:
-            inputs: Input image
+            inputs: Input image, within a tuple for consistency with other Segments
         Returns:
-            Output image
+            Output image, within a tuple for consistency with other Segments
         """
         if len(inputs) != 1:
             raise ValueError("RunnerSegment requires 1 input")
@@ -53,11 +53,11 @@ class RunnerSegment(Segment):
                 self.runner(inputs[0].path, output_path)
             output = PipeImage(path=output_path, parents=inputs[0])
             warning(
-                f"{self}: Output file is temporary and only image is retained; if "
-                f"output file is needed (e.g. if the purpose of this processor is to "
-                f"convert to a format such as DDS), use a "
+                f"{self}: Output file is temporary and only image content is retained; "
+                f"if output file is needed (e.g. if the purpose of this processor is "
+                f"to convert an image to a specific format such as DDS), use a "
                 f"PostCheckpointedRunnerSegment."
             )
         output.path = None
 
-        return output
+        return (output,)

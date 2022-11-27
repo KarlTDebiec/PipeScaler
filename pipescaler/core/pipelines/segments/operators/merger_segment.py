@@ -15,20 +15,20 @@ class MergerSegment(OperatorSegment):
     operator: Merger
 
     def __init__(self, operator: Merger) -> None:
-        """Initializes.
+        """Initialize.
 
         Arguments:
             operator: Merger to apply
         """
         super().__init__(operator)
 
-    def __call__(self, *inputs: PipeImage) -> PipeImage:
-        """Receives input images and returns output image.
+    def __call__(self, *inputs: PipeImage) -> tuple[PipeImage]:
+        """Merge images.
 
         Arguments:
             inputs: Input images
         Returns:
-            Output image
+            Output image, within a tuple for consistency with other Segments
         """
         if len(inputs) != len(self.operator.inputs()):
             raise ValueError(
@@ -41,4 +41,4 @@ class MergerSegment(OperatorSegment):
         output = PipeImage(output_image, parents=inputs)
         info(f"{self.operator}: {output.name} merged")
 
-        return output
+        return (output,)

@@ -15,20 +15,20 @@ class ProcessorSegment(OperatorSegment):
     operator: Processor
 
     def __init__(self, operator: Processor) -> None:
-        """Initializes.
+        """Initialize.
 
         Arguments:
             operator: Processor to apply
         """
         super().__init__(operator)
 
-    def __call__(self, *inputs: PipeImage) -> PipeImage:
-        """Receives input image and returns output image.
+    def __call__(self, *inputs: PipeImage) -> tuple[PipeImage]:
+        """Process an image.
 
         Arguments:
-            inputs: Input image
+            inputs: Input image, within a tuple for consistency with other Segments
         Returns:
-            Output image
+            Output image, within a tuple for consistency with other Segments
         """
         if len(inputs) != len(self.operator.inputs()):
             raise ValueError(
@@ -41,4 +41,4 @@ class ProcessorSegment(OperatorSegment):
         output = PipeImage(output_image, parents=inputs[0])
         info(f"{self.operator}: {inputs[0].name} processed")
 
-        return output
+        return (output,)
