@@ -3,7 +3,7 @@
 #  the terms of the BSD license. See the LICENSE file for details.
 """Segment with pre-execution checkpoint(s)."""
 from logging import info
-from typing import Collection, Union
+from typing import Sequence, Union
 
 from pipescaler.core.pipelines.pipe_image import PipeImage
 from pipescaler.core.pipelines.segments.checkpointed_segment import CheckpointedSegment
@@ -12,7 +12,7 @@ from pipescaler.core.pipelines.segments.checkpointed_segment import Checkpointed
 class PreCheckpointedSegment(CheckpointedSegment):
     """Segment with pre-execution checkpoint(s)."""
 
-    def __call__(self, *inputs: PipeImage) -> Union[PipeImage, Collection[PipeImage]]:
+    def __call__(self, *inputs: PipeImage) -> Union[PipeImage, Sequence[PipeImage]]:
         """Receives input images and returns output images.
 
         Arguments:
@@ -24,7 +24,9 @@ class PreCheckpointedSegment(CheckpointedSegment):
             raise ValueError(
                 f"Expected {len(self.cpts)} inputs but received {len(inputs)}."
             )
-        [self.cp_manager.observe(i, cpt) for i in inputs for cpt in self.cpts]
+        for i in inputs:
+            for c in self.cpts:
+                self.cp_manager.observe(i, c)
 
         cpt_paths = [
             self.cp_manager.directory / i.name / cpt

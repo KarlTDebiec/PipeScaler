@@ -22,7 +22,7 @@ from pipescaler.core.pipelines.segments.operators.splitter_segment import (
 )
 from pipescaler.core.pipelines.segments.runner_segment import RunnerSegment
 
-___all__ = [
+__all__ = [
     "CheckpointedSegment",
     "MergerSegment",
     "OperatorSegment",

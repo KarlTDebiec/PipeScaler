@@ -16,8 +16,8 @@ class Segment(ABC):
         """Receives input images and returns output images.
 
         Arguments:
-            inputs: Input image(s)
+            inputs: Input images
         Returns:
-            Output image(s)
+            Output images
         """
         raise NotImplementedError()
