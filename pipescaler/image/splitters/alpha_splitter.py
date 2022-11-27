@@ -63,7 +63,9 @@ class AlphaSplitter(Splitter):
             if is_monochrome(alpha_image):
                 alpha_image = alpha_image.convert("1")
         if self.mask_fill_mode is not None and alpha_image.mode == "1":
-            color_image = self.mask_filler.fill(color_image, alpha_image)
+            color_image = self.mask_filler.fill(
+                color_image, Image.fromarray(~np.array(alpha_image))
+            )
 
         return color_image, alpha_image
 

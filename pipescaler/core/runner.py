@@ -26,6 +26,15 @@ class Runner(ABC):
         self.timeout = validate_int(timeout, 0)
         self._executable_path: Optional[Path] = None
 
+    def __call__(self, infile: Path, outfile: Path) -> None:
+        """Run executable on infile, yielding outfile.
+
+        Arguments:
+            infile: Input file path
+            outfile: Output file path
+        """
+        self.run(infile, outfile)
+
     @property
     @abstractmethod
     def command_template(self) -> str:
