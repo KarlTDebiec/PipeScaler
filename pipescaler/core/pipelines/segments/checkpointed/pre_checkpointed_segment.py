@@ -24,9 +24,6 @@ class PreCheckpointedSegment(CheckpointedSegment):
             raise ValueError(
                 f"Expected {len(self.cpts)} inputs but received {len(inputs)}."
             )
-        for i in inputs:
-            for c in self.cpts:
-                self.cp_manager.observe(i, c)
 
         cpt_paths = [
             self.cp_manager.directory / i.name / cpt
@@ -37,5 +34,8 @@ class PreCheckpointedSegment(CheckpointedSegment):
             for i, cpt, cpt_path in zip(inputs, self.cpts, cpt_paths):
                 i.save(cpt_path)
                 info(f"{self}: {i.name} checkpoint {cpt} saved")
+        for i in inputs:
+            for c in self.cpts:
+                self.cp_manager.observe(i, c)
 
         return self.segment(*inputs)

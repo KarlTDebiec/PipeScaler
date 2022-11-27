@@ -20,10 +20,6 @@ class PostCheckpointedSegment(CheckpointedSegment):
         Returns:
             Output image(s), loaded from checkpoint if available
         """
-        for i in inputs:
-            for c in self.cpts:
-                self.cp_manager.observe(i, c)
-
         cpt_paths = [
             self.cp_manager.directory / i.name / cpt
             for i in inputs
@@ -31,7 +27,12 @@ class PostCheckpointedSegment(CheckpointedSegment):
         ]
         if all(cpt_cath.exists() for cpt_cath in cpt_paths):
             outputs = tuple(PipeImage(path=c, parents=inputs) for c in cpt_paths)
+            if len(outputs) == 1:
+                outputs = outputs[0]
             info(f"{self}: {inputs[0].name} checkpoints {self.cpts} loaded")
+            for i in inputs:
+                for c in self.internal_cpts:
+                    self.cp_manager.observe(i, c)
         else:
             outputs = self.segment(*inputs)
             if isinstance(outputs, PipeImage):
@@ -53,5 +54,8 @@ class PostCheckpointedSegment(CheckpointedSegment):
                 for output_pimg, cpt_path in zip(outputs, cpt_paths):
                     output_pimg.save(cpt_path)
                     info(f"{self}: {output_pimg.name} checkpoint {cpt_path} saved")
+        for i in inputs:
+            for c in self.cpts:
+                self.cp_manager.observe(i, c)
 
         return outputs

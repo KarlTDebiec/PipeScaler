@@ -50,43 +50,40 @@ def copy_file() -> Callable[[Path, Path], None]:
     return function
 
 
-# def test_nested() -> None:
-#     process_1 = PipeProcessor(XbrzProcessor(scale=2))
-#     process_2 = PipeProcessor(XbrzProcessor(scale=2))
-#     process_3 = PipeProcessor(XbrzProcessor(scale=2))
-#
-#     def run(cp_directory: Path) -> None:
-#         cp_manager = CheckpointManager(cp_directory)
-#
-#         @cp_manager.pre("pre_1.png")
-#         @cp_manager.post_processor("post_1.png")
-#         def stage_1(img: PipeImage) -> PipeImage:
-#             return process_1(img)
-#
-#         @cp_manager.pre("pre_2.png")
-#         @cp_manager.post_processor("post_2.png", calls=(stage_1,))
-#         def stage_2(img: PipeImage) -> PipeImage:
-#             return process_2(stage_1(img))
-#
-#         @cp_manager.pre("pre_3.png")
-#         @cp_manager.post_processor("post_3.png", calls=(stage_2,))
-#         def stage_3(img: PipeImage) -> PipeImage:
-#             return process_3(stage_2(img))
-#
-#         input_img = PipeImage(path=get_test_infile_path("RGB"))
-#         stage_3(input_img)
-#
-#         cp_manager.purge_unrecognized_files()
-#         assert (cp_directory / input_img.name / "pre_1.png").exists()
-#         assert (cp_directory / input_img.name / "post_1.png").exists()
-#         assert (cp_directory / input_img.name / "pre_2.png").exists()
-#         assert (cp_directory / input_img.name / "post_2.png").exists()
-#         assert (cp_directory / input_img.name / "pre_3.png").exists()
-#         assert (cp_directory / input_img.name / "post_3.png").exists()
-#
-#     with get_temp_directory_path() as temp_directory:
-#         run(temp_directory)
-#         run(temp_directory)
+def test_nested(
+    xbrz_processor: ProcessorSegment,
+    alpha_splitter: SplitterSegment,
+    alpha_merger: AlphaMerger,
+) -> None:
+    def run(cp_directory: Path) -> None:
+        cp_manager = CheckpointManager(cp_directory)
+
+        @cp_manager.pre_segment("pre_inner.png")
+        @cp_manager.post_segment("post_inner.png")
+        def inner_segment(image: PipeImage) -> PipeImage:
+            xbrz_image = xbrz_processor(image)
+            return xbrz_image
+
+        @cp_manager.pre_segment("pre_outer.png")
+        @cp_manager.post_segment("post_outer.png", calls=[inner_segment])
+        def outer_segment(image: PipeImage) -> PipeImage:
+            xbrz_image = xbrz_processor(image)
+            return inner_segment(xbrz_image)
+
+        input_path = get_test_infile_path("RGB")
+        input_img = PipeImage(path=input_path)
+        outer_segment(input_img)
+
+        cp_manager.purge_unrecognized_files()
+        assert (cp_directory / input_img.name / "pre_inner.png").exists()
+        assert (cp_directory / input_img.name / "post_inner.png").exists()
+        assert (cp_directory / input_img.name / "pre_outer.png").exists()
+        assert (cp_directory / input_img.name / "post_outer.png").exists()
+
+    with get_temp_directory_path() as temp_directory:
+        run(temp_directory)
+        run(temp_directory)
+        run(temp_directory)
 
 
 def test_post_file_processor(copy_file: Callable[[Path, Path], None]) -> None:
