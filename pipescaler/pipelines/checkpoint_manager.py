@@ -3,265 +3,102 @@
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Manages checkpoints."""
-from functools import wraps
 from logging import info
 from os import remove, rmdir
 from os.path import join
 from pathlib import Path
-from typing import Callable, Sequence, Union
+from typing import Callable, Collection, Optional
 
-from pipescaler.common import get_temp_file_path, validate_output_directory
-from pipescaler.core.pipelines import PipeImage
+from pipescaler.core import Runner
+from pipescaler.core.pipelines import (
+    CheckpointManagerBase,
+    PostCheckpointedRunnerSegment,
+    PostCheckpointedSegment,
+    PreCheckpointedSegment,
+    RunnerSegment,
+    Segment,
+)
 
 
-class CheckpointManager:
+class CheckpointManager(CheckpointManagerBase):
     """Manages checkpoints."""
-
-    def __init__(self, directory: Union[Path, str]) -> None:
-        """Validate and store configuration.
-
-        Arguments:
-            directory: Directory in which to store checkpoints
-        """
-        self.directory = validate_output_directory(directory)
-        self.image_names: set[str] = set()
-        self.checkpoint_names: set[str] = set()
 
     def __repr__(self):
         """Representation."""
-        return f"<{self.__class__.__name__}>"
+        return f"{self.__class__.__name__}(directory={self.directory})"
 
-    def get_checkpoint(self, image: PipeImage, name: str, suffix: str = ".png") -> Path:
-        """Get the path to a checkpoint for a provided image and name.
+    def post_runner(
+        self, cpt: str
+    ) -> Callable[[Runner], PostCheckpointedRunnerSegment]:
+        """Get decorator to wrap Runner to Segment with post-execution checkpoint."""
 
-        Arguments:
-            image: Image; used to determine subdirectory
-            name: Name of checkpoint
-            suffix: Suffix of checkpoint
-        Returns:
-            Path to checkpoint
-        """
-        checkpoint_directory = self.directory.joinpath(image.name)
-        if not checkpoint_directory.exists():
-            checkpoint_directory.mkdir()
-        checkpoint = checkpoint_directory.joinpath(name).with_suffix(suffix)
-        return checkpoint
+        def decorator(runner: Runner) -> PostCheckpointedRunnerSegment:
+            """Wrap Runner to Segment with post-execution checkpoint."""
+            runner_segment = RunnerSegment(runner, output_extension=Path(cpt).suffix)
 
-    def post(
-        self, name: str
-    ) -> Callable[[Callable[[PipeImage], PipeImage]], Callable[[PipeImage], PipeImage]]:
-        """Get a decorator to be used to add a checkpoint after a processor function.
+            return PostCheckpointedRunnerSegment(runner_segment, self, [cpt])
 
-        Arguments:
-            name: Name of checkpoint
-        Returns:
-            Decorator to be used to add checkpoint after a processor function
-        """
-        self.checkpoint_names.add(name)
+        return decorator
 
-        def checkpoint_decorator(
-            function: Callable[[PipeImage], PipeImage]
-        ) -> Callable[[PipeImage], PipeImage]:
-            """Decorator to be used to add a checkpoint after a processor function.
+    def post_segment(
+        self, *cpts: str, calls: Optional[Collection[Segment]] = None
+    ) -> Callable[[Segment], PostCheckpointedSegment]:
+        """Get decorator to wrap Segment to Segment with post-execution checkpoint."""
+        internal_cpts = self.get_internal_cpts(*calls) if calls else []
 
-            Arguments:
-                function: Function to wrap
-            Returns:
-                Wrapped function
-            """
+        def decorator(stage: Segment) -> PostCheckpointedSegment:
+            """Wrap Segment to Segment with post-execution checkpoint."""
+            internal_cpts.extend(self.get_internal_cpts(stage))
 
-            @wraps(function)
-            def wrapped(image: PipeImage) -> PipeImage:
-                """Image processor function, wrapped to make use of a checkpoint.
+            return PostCheckpointedSegment(stage, self, cpts, internal_cpts)
 
-                Arguments:
-                    image: Image to process
-                Returns:
-                    Processed image, loaded from checkpoint if available
-                """
-                self.image_names.add(image.name)
-                checkpoint = self.get_checkpoint(image, name)
-                if checkpoint.exists():
-                    output_image = PipeImage(path=checkpoint, parents=image)
-                    info(f"{self}: {image.name} checkpoint {checkpoint.name} loaded")
-                else:
-                    output_image = function(image)
-                    output_image.image.save(checkpoint)
-                    info(f"{self}: {image.name} checkpoint {checkpoint.name} saved")
-                return output_image
+        return decorator
 
-            return wrapped
+    def pre_segment(
+        self, *cpts: str, calls: Optional[Collection[Segment]] = None
+    ) -> Callable[[Segment], PreCheckpointedSegment]:
+        """Get decorator to wrap Segment to Segment with pre-execution checkpoint."""
+        internal_cpts = self.get_internal_cpts(*calls) if calls else []
 
-        return checkpoint_decorator
+        def decorator(stage: Segment) -> PreCheckpointedSegment:
+            """Wrap Segment to Segment with pre-execution checkpoint."""
+            internal_cpts.extend(self.get_internal_cpts(stage))
 
-    def post_file(
-        self, name: str, suffix: str = ".png"
-    ) -> Callable[[Callable[[Path, Path], None]], Callable[[PipeImage], PipeImage]]:
-        """Get a decorator to be used to add a checkpoint after a processor function.
+            return PreCheckpointedSegment(stage, self, cpts, internal_cpts)
 
-        Arguments:
-            name: Name of checkpoint
-            suffix: Suffix of checkpoint
-        Returns:
-            Decorator to be used to add checkpoint after a processor function
-        """
-        self.checkpoint_names.add(name)
-
-        def checkpoint_decorator(
-            function: Callable[[Path, Path], None]
-        ) -> Callable[[PipeImage], PipeImage]:
-            """Decorator to be used to add a checkpoint after a processor function.
-
-            Arguments:
-                function: Function to wrap
-            Returns:
-                Wrapped function
-            """
-
-            @wraps(function)
-            def wrapped(image: PipeImage) -> PipeImage:
-                """Image processor function, wrapped to make use of a checkpoint.
-
-                Arguments:
-                    image: Image to process
-                Returns:
-                    Processed image, loaded from checkpoint if available
-                """
-                self.image_names.add(image.name)
-                checkpoint = self.get_checkpoint(image, name, suffix=suffix)
-                if checkpoint.exists():
-                    output_image = PipeImage(path=checkpoint, parents=image)
-                    info(f"{self}: {image.name} checkpoint {checkpoint.name} loaded")
-                else:
-                    if image.path is None:
-                        with get_temp_file_path(".png") as input_path:
-                            image.image.save(input_path)
-                            function(input_path, checkpoint)
-                    else:
-                        function(image.path, checkpoint)
-                    output_image = PipeImage(path=checkpoint, parents=image)
-                    info(f"{self}: {image.name} checkpoint {checkpoint.name} saved")
-                return output_image
-
-            return wrapped
-
-        return checkpoint_decorator
-
-    def post_splitter(
-        self, names: Sequence[str]
-    ) -> Callable[
-        [Callable[[PipeImage], tuple[PipeImage, ...]]],
-        Callable[[PipeImage], tuple[PipeImage, ...]],
-    ]:
-        """Get a decorator to be used to add checkpoints after a splitter function.
-
-        Arguments:
-            names: Names of checkpoints
-        Returns:
-            Decorator to be used to add checkpoints after a splitter function
-        """
-        self.checkpoint_names.update(set(names))
-
-        def checkpoint_decorator(
-            function: Callable[[PipeImage], tuple[PipeImage, ...]]
-        ) -> Callable[[PipeImage], tuple[PipeImage, ...]]:
-            """Decorator to be used to add a checkpoint after a processor function.
-
-            Arguments:
-                function: Function to wrap
-            Returns:
-                Wrapped function
-            """
-
-            @wraps(function)
-            def wrapped(image: PipeImage) -> tuple[PipeImage, ...]:
-                """Image splitter function, wrapped to make use of checkpoints.
-
-                Arguments:
-                    image: Image to split
-                Returns:
-                    Split images, loaded from checkpoint if available
-                """
-                self.image_names.add(image.name)
-                checkpoints = [self.get_checkpoint(image, name) for name in names]
-                if all(checkpoint.exists() for checkpoint in checkpoints):
-                    output_images = tuple(
-                        PipeImage(path=checkpoint, parents=image)
-                        for checkpoint in checkpoints
-                    )
-                    info(f"{self}: {image.name} checkpoints {names} loaded")
-                else:
-                    output_images = function(image)
-                    for output_image, checkpoint in zip(output_images, checkpoints):
-                        output_image.image.save(checkpoint)
-                        info(f"{self}: {image.name} checkpoint {checkpoint.name} saved")
-                return output_images
-
-            return wrapped
-
-        return checkpoint_decorator
-
-    def pre(
-        self, name: str
-    ) -> Callable[[Callable[[PipeImage], PipeImage]], Callable[[PipeImage], PipeImage]]:
-        """Get a decorator to be used to add a checkpoint before a processor function.
-
-        Arguments:
-            name: Name of checkpoint
-        Returns:
-            Decorator to bue used to add checkpoint before a processor function.
-        """
-
-        def checkpoint_decorator(
-            function: Callable[[PipeImage], PipeImage]
-        ) -> Callable[[PipeImage], PipeImage]:
-            """Decorator to be used to add a checkpoint before a processor function.
-
-            Arguments:
-                function: Function to wrap
-            Returns:
-                Wrapped function
-            """
-            self.checkpoint_names.add(name)
-
-            @wraps(function)
-            def wrapped(image: PipeImage) -> PipeImage:
-                """Image processor function, wrapped to make use of a checkpoint.
-
-                Arguments:
-                    image: Image to process
-                Returns:
-                    Processed image, loaded from checkpoint if available
-                """
-                self.image_names.add(image.name)
-                checkpoint = self.get_checkpoint(image, name)
-                if not checkpoint.exists():
-                    image.image.save(checkpoint)
-                    info(f"{self}: {image.name} checkpoint {checkpoint.name} saved")
-                return function(image)
-
-            return wrapped
-
-        return checkpoint_decorator
+        return decorator
 
     def purge_unrecognized_files(self) -> None:
         """Remove files in output directory that have not been logged as observed."""
-        for checkpoint_directory in self.directory.iterdir():
-            for checkpoint in checkpoint_directory.iterdir():
-                if (
-                    checkpoint_directory.name not in self.image_names
-                    or checkpoint.stem not in self.checkpoint_names
-                ):
-                    remove(checkpoint)
-                    info(
-                        f"{self}: checkpoint "
-                        f"{join(checkpoint_directory.name,checkpoint.name)} removed"
-                    )
-            if checkpoint_directory.name not in self.image_names or not any(
-                checkpoint_directory.iterdir()
-            ):
-                rmdir(checkpoint_directory)
-                info(
-                    f"{self}: checkpoint directory "
-                    f"{checkpoint_directory.name} removed"
-                )
+        for image in self.directory.iterdir():
+            if image.is_dir():
+                for cpt in image.iterdir():
+                    if cpt.is_dir():
+                        rmdir(cpt)
+                        info(f"{self}: directory {join(image.name, cpt.name)} removed")
+                    elif (image.name, cpt.name) not in self.observed_checkpoints:
+                        remove(cpt)
+                        info(f"{self}: file {join(image.name, cpt.name)} removed")
+                if not any(image.iterdir()):
+                    rmdir(image)
+                    info(f"{self}: directory {image.name} removed")
+            else:
+                remove(image)
+                info(f"{self}: file {image.name} removed")
+
+    @staticmethod
+    def get_internal_cpts(*internal_segments: Segment) -> list[str]:
+        """Get checkpoints created by Segments contained within another Segment.
+
+        Arguments:
+            internal_segments: Internal Segments
+        Returns:
+            All checkpoints created by internal Segments
+        """
+        internal_cpts: list[str] = []
+        for function in internal_segments:
+            if hasattr(function, "cpts"):
+                internal_cpts.extend(getattr(function, "cpts"))
+            if hasattr(function, "internal_cpts"):
+                internal_cpts.extend(getattr(function, "internal_cpts"))
+        return internal_cpts
