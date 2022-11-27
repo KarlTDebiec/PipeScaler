@@ -51,6 +51,52 @@ def copy_file() -> Callable[[Path, Path], None]:
     return function
 
 
+def test_split_merge(
+    xbrz_processor: ProcessorSegment,
+    alpha_splitter: SplitterSegment,
+    alpha_merger: AlphaMerger,
+) -> None:
+    def run(cp_directory: Path) -> None:
+        cp_manager = CheckpointManager(cp_directory)
+
+        @cp_manager.pre_segment("pre_color.png")
+        @cp_manager.post_segment("post_color.png")
+        def color_segment(*inputs: PipeImage) -> tuple[PipeImage, ...]:
+            xbrz_outputs = xbrz_processor(*inputs)
+            return xbrz_outputs
+
+        @cp_manager.pre_segment("pre_alpha.png")
+        @cp_manager.post_segment("post_alpha.png")
+        def alpha_segment(*inputs: PipeImage) -> tuple[PipeImage, ...]:
+            xbrz_outputs = xbrz_processor(*inputs)
+            return xbrz_outputs
+
+        @cp_manager.pre_segment("pre_split.png")
+        @cp_manager.post_segment("post_merge.png", calls=[alpha_segment, color_segment])
+        def split_merge_segment(*inputs: PipeImage) -> tuple[PipeImage, ...]:
+            color, alpha = alpha_splitter(*inputs)
+            color = color_segment(color)
+            alpha = alpha_segment(alpha)
+            merged = alpha_merger(*color, *alpha)
+            return merged
+
+        input_path = get_test_infile_path("RGBA")
+        inputs = (PipeImage(path=input_path),)
+        split_merge_segment(*inputs)
+        cp_manager.purge_unrecognized_files()
+
+        assert (cp_directory / inputs[0].name / "pre_split.png").exists()
+        assert (cp_directory / inputs[0].name / "pre_color.png").exists()
+        assert (cp_directory / inputs[0].name / "post_color.png").exists()
+        assert (cp_directory / inputs[0].name / "pre_alpha.png").exists()
+        assert (cp_directory / inputs[0].name / "post_alpha.png").exists()
+        assert (cp_directory / inputs[0].name / "post_merge.png").exists()
+
+    with get_temp_directory_path() as temp_directory:
+        run(temp_directory)
+        run(temp_directory)
+
+
 def test_nested(
     xbrz_processor: ProcessorSegment,
     alpha_splitter: SplitterSegment,
@@ -74,15 +120,14 @@ def test_nested(
         input_path = get_test_infile_path("RGB")
         inputs = (PipeImage(path=input_path),)
         outer_segment(*inputs)
-
         cp_manager.purge_unrecognized_files()
+
         assert (cp_directory / inputs[0].name / "pre_inner.png").exists()
         assert (cp_directory / inputs[0].name / "post_inner.png").exists()
         assert (cp_directory / inputs[0].name / "pre_outer.png").exists()
         assert (cp_directory / inputs[0].name / "post_outer.png").exists()
 
     with get_temp_directory_path() as temp_directory:
-        run(temp_directory)
         run(temp_directory)
         run(temp_directory)
 
