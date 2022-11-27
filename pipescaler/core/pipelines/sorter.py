@@ -37,7 +37,7 @@ class Sorter(ABC):
 
     @classmethod
     def help_markdown(cls) -> str:
-        """Short description of this image operator in markdown, with links."""
+        """Short description of this class in markdown, with links."""
         if cls.__doc__:
             return re.split(r' *[.?!][\'")\]]* *', cleandoc(cls.__doc__))[0] + "."
         return ""

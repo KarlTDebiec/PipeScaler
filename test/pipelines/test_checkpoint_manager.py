@@ -24,14 +24,12 @@ from pipescaler.image.splitters import AlphaSplitter
 from pipescaler.pipelines import CheckpointManager
 from pipescaler.testing import get_test_infile_path
 
-# TODO: internal_cpt should be a set
-# TODO: internal_cpt tracking for PipeSplitter
 # TODO: Test with heavier pipeline
 
 
 @pytest.fixture
 def xbrz_processor() -> ProcessorSegment:
-    return ProcessorSegment(XbrzProcessor())
+    return ProcessorSegment(XbrzProcessor(scale=2))
 
 
 @pytest.fixture
@@ -95,7 +93,7 @@ def test_post_file_processor(copy_file: Callable[[Path, Path], None]) -> None:
 
     with get_temp_directory_path() as cp_directory:
         cp_manager = CheckpointManager(cp_directory)
-        segment = cp_manager.post_file_processor("checkpoint.png")(copy_file)
+        segment = cp_manager.post_runner("checkpoint.png")(copy_file)
 
         # Test image from file
         file_input_path = get_test_infile_path("RGB")

@@ -9,16 +9,14 @@ from os.path import join
 from pathlib import Path
 from typing import Callable, Collection, Optional
 
-from pipescaler.core.pipelines import CheckpointManagerBase, PostCheckpointedSegment
-from pipescaler.core.pipelines.segment import Segment
-from pipescaler.core.pipelines.segments.checkpointed.checkpointed_file_processor_segment import (
-    CheckpointedFileProcessorSegment,
-)
-from pipescaler.core.pipelines.segments.checkpointed.post_checkpointed_segment import (
+from pipescaler.core import Runner
+from pipescaler.core.pipelines import (
+    CheckpointManagerBase,
+    PostCheckpointedRunnerSegment,
+    PostCheckpointedSegment,
     PreCheckpointedSegment,
-)
-from pipescaler.core.pipelines.segments.file_processor_segment import (
-    FileProcessorSegment,
+    RunnerSegment,
+    Segment,
 )
 
 
@@ -29,68 +27,76 @@ class CheckpointManager(CheckpointManagerBase):
         """Representation."""
         return f"{self.__class__.__name__}(directory={self.directory})"
 
-    def post_file_processor(
+    def post_runner(
         self, cpt: str
-    ) -> Callable[[Callable[[Path, Path], None]], CheckpointedFileProcessorSegment]:
-        def decorator(
-            file_processor: Callable[[Path, Path], None]
-        ) -> CheckpointedFileProcessorSegment:
-            file_processor_segment = FileProcessorSegment(
-                file_processor, output_extension=Path(cpt).suffix
-            )
+    ) -> Callable[[Runner], PostCheckpointedRunnerSegment]:
+        """Get decorator to wrap Runner to Segment with post-execution checkpoint."""
 
-            return CheckpointedFileProcessorSegment(file_processor_segment, self, [cpt])
+        def decorator(runner: Runner) -> PostCheckpointedRunnerSegment:
+            """Wrap Runner to Segment with post-execution checkpoint."""
+            runner_segment = RunnerSegment(runner, output_extension=Path(cpt).suffix)
+
+            return PostCheckpointedRunnerSegment(runner_segment, self, [cpt])
 
         return decorator
 
     def post_segment(
         self, *cpts: str, calls: Optional[Collection[Segment]] = None
-    ) -> Callable[[Segment], PreCheckpointedSegment]:
-        internal_cpts = self.get_internal_cpts(*calls) if calls else []
-
-        def decorator(stage: Segment) -> PreCheckpointedSegment:
-            internal_cpts.extend(self.get_internal_cpts(stage))
-
-            return PreCheckpointedSegment(stage, self, cpts, internal_cpts)
-
-        return decorator
-
-    def pre_segment(
-        self, *cpts: str, calls: Optional[Collection[Segment]] = None
     ) -> Callable[[Segment], PostCheckpointedSegment]:
+        """Get decorator to wrap Segment to Segment with post-execution checkpoint."""
         internal_cpts = self.get_internal_cpts(*calls) if calls else []
 
         def decorator(stage: Segment) -> PostCheckpointedSegment:
+            """Wrap Segment to Segment with post-execution checkpoint."""
             internal_cpts.extend(self.get_internal_cpts(stage))
 
             return PostCheckpointedSegment(stage, self, cpts, internal_cpts)
 
         return decorator
 
+    def pre_segment(
+        self, *cpts: str, calls: Optional[Collection[Segment]] = None
+    ) -> Callable[[Segment], PreCheckpointedSegment]:
+        """Get decorator to wrap Segment to Segment with pre-execution checkpoint."""
+        internal_cpts = self.get_internal_cpts(*calls) if calls else []
+
+        def decorator(stage: Segment) -> PreCheckpointedSegment:
+            """Wrap Segment to Segment with pre-execution checkpoint."""
+            internal_cpts.extend(self.get_internal_cpts(stage))
+
+            return PreCheckpointedSegment(stage, self, cpts, internal_cpts)
+
+        return decorator
+
     def purge_unrecognized_files(self) -> None:
         """Remove files in output directory that have not been logged as observed."""
-        for img in self.directory.iterdir():
-            if img.is_dir():
-                for cpt in img.iterdir():
+        for image in self.directory.iterdir():
+            if image.is_dir():
+                for cpt in image.iterdir():
                     if cpt.is_dir():
                         rmdir(cpt)
-                        info(f"{self}: directory {join(img.name, cpt.name)} removed")
-                    elif (img.name, cpt.name) not in self.observed_checkpoints:
+                        info(f"{self}: directory {join(image.name, cpt.name)} removed")
+                    elif (image.name, cpt.name) not in self.observed_checkpoints:
                         remove(cpt)
-                        info(f"{self}: file {join(img.name, cpt.name)} removed")
-                if not any(img.iterdir()):
-                    rmdir(img)
-                    info(f"{self}: directory {img.name} removed")
+                        info(f"{self}: file {join(image.name, cpt.name)} removed")
+                if not any(image.iterdir()):
+                    rmdir(image)
+                    info(f"{self}: directory {image.name} removed")
             else:
-                remove(img)
-                info(f"{self}: file {img.name} removed")
+                remove(image)
+                info(f"{self}: file {image.name} removed")
 
     @staticmethod
-    def get_internal_cpts(*called_functions: Segment) -> list[str]:
+    def get_internal_cpts(*internal_segments: Segment) -> list[str]:
+        """Get checkpoints created by Segments contained within another Segment.
+
+        Arguments:
+            internal_segments: Internal Segments
+        Returns:
+            All checkpoints created by internal Segments
+        """
         internal_cpts: list[str] = []
-        for function in called_functions:
-            if hasattr(function, "cpt"):
-                internal_cpts.append(getattr(function, "cpt"))
+        for function in internal_segments:
             if hasattr(function, "cpts"):
                 internal_cpts.extend(getattr(function, "cpts"))
             if hasattr(function, "internal_cpts"):
