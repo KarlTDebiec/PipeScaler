@@ -1,43 +1,43 @@
 #  Copyright 2020-2022 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-from typing import Optional
-
+"""Image divided into subdivisions."""
 import numpy as np
 from PIL import Image
 from scipy.special import erf
 
 from pipescaler.common import validate_int
-from pipescaler.core import Utility
-
-# [x] Subdivide image into subdivisions of provided size and overlap
-# [x] Loop over images, perform operations on each, and store results
-# [x] Calculate weights for each subdivision based on overlap and location
-# [ ] Recompose subdivisions into a single image
-# [ ] Recompose scaled subdivisions into a single image
-
-np.set_printoptions(threshold=np.inf)
 
 
 class SubdividedImage:
-    def __init__(self, image: Image.Image, boxes: np.array) -> None:
-        self._image = image
-        self.boxes = boxes
-        self.scale = 1
-        self._subs = [image.crop(box) for box in boxes]
+    """Image divided into subdivisions."""
 
-    @property
-    def image(self) -> Optional[Image.Image]:
-        """Un-subdivided image"""
-        return self._image
+    def __init__(self, image: Image.Image, size: int, overlap: int) -> None:
+        """Initialize.
 
-    @image.setter
-    def image(self, value: Optional[Image.Image]) -> None:
-        self._image = value
+        Arguments:
+            image: Image to subdivide
+            size: Size of subdivisions
+            overlap: Overlap between subdivisions
+        """
+        self.image = image
+        self.size = validate_int(size, 4)
+        self.overlap = validate_int(overlap, 2)
+        self.boxes = self.get_boxes(image.width, image.height, self.size, self.overlap)
+
+        self._subs = self.get_subs(image, self.boxes)
 
     @property
     def subs(self) -> list[Image.Image]:
-        """Subdivisions of image"""
+        """Subdivisions of image.
+
+        When changed, the new size of the subdivisions is compared to the current size.
+        If it has changed, size, overlap, and boxes are scaled accordingly, and the
+        image is recomposed from the new subdivisions. The new subdivisions are then
+        re-extracted from the recomposed image. A consequence of this is that setting
+        subs to a particular value will not necessarily result in subs being set to
+        that value.
+        """
         return self._subs
 
     @subs.setter
@@ -46,62 +46,20 @@ class SubdividedImage:
             raise ValueError(
                 f"Expected {len(self._subs)} subdivisions, received {len(value)}"
             )
-        original_size = self._subs[0].width
-        new_size = value[0].width
-        self.image = None
-        self.scale = int(new_size / original_size)
-        self.boxes *= self.scale
-        self._subs = value
+        scale = int(value[0].width / self._subs[0].width)
+        if scale != 1:
+            self.size *= scale
+            self.overlap *= scale
+            self.boxes *= scale
 
-
-class Subdivider(Utility):
-    def __init__(self, size: int = 128, overlap: int = 8) -> None:
-        self.size = validate_int(size, 4)
-        self.overlap = validate_int(overlap, 2)
-
-    def recompose(self, subdivided_image: SubdividedImage) -> Image.Image:
-        subs = subdivided_image.subs
-        boxes = subdivided_image.boxes
-        scale = subdivided_image.scale
-
-        width = boxes[:, 3].max()
-        height = boxes[:, 2].max()
-        n_dim = {"L": 1, "RGB": 3}[subs[0].mode]
-
-        recomposed_array = np.zeros((width, height, n_dim), float)
-        recomposed_weights = np.zeros((width, height), float)
-
-        weights = self.get_sub_weights(boxes, self.size * scale, self.overlap * scale)
-        for sub, box, weight in zip(subs, boxes, weights):
-            sub_array = np.array(sub).astype(float)
-            weighted_sub_array = sub_array * np.stack([weight] * n_dim, axis=2)
-            recomposed_array[box[1] : box[3], box[0] : box[2]] += weighted_sub_array
-            recomposed_weights[box[1] : box[3], box[0] : box[2]] += weight
-            print("a")
-
-        recomposed_array = recomposed_array / np.stack(
-            [recomposed_weights] * n_dim, axis=2
+        self.image = self.get_recomposed_image(
+            value, self.boxes, self.size, self.overlap
         )
-        recomposed_array = np.clip(np.round(recomposed_array), 0, 255).astype(np.uint8)
-        recomposed_image = Image.fromarray(recomposed_array)
-
-        return recomposed_image
-
-    def subdivide(self, image: Image.Image) -> SubdividedImage:
-        """Subdivide an image into subdivisions
-
-        Arguments:
-            image: Image to subdivide
-        Returns:
-            Subdivided image
-        """
-        boxes = self.get_boxes(image.width, image.height, self.size, self.overlap)
-
-        return SubdividedImage(image, boxes)
+        self._subs = self.get_subs(self.image, self.boxes)
 
     @classmethod
     def get_boxes(cls, width: int, height: int, size: int, overlap: int) -> np.array:
-        """Get subdivisions of image in format of (left, upper, right, lower)
+        """Get subdivisions of image in format of (left, upper, right, lower).
 
         Arguments
             width: Width of image
@@ -124,6 +82,52 @@ class Subdivider(Utility):
         boxes = np.array(boxes)
 
         return boxes
+
+    @classmethod
+    def get_recomposed_image(
+        cls, subs: list[Image.Image], boxes: np.ndarray, size: int, overlap: int
+    ) -> Image.Image:
+        """Get recomposed image from subdivisions.
+
+        Arguments:
+            subs: Subdivisions of image
+            boxes: Boxes for subdivisions in format of (left, upper, right, lower)
+            size: Size of subdivisions
+            overlap: Overlap of subdivisions
+        Returns:
+            Recomposed image
+        """
+        width = boxes[:, 2].max()
+        height = boxes[:, 3].max()
+        n_dim = len(subs[0].getbands())
+
+        # Prepare arrays to hold image data and total weights
+        if n_dim == 1:
+            recomposed_array = np.zeros((height, width), float)
+        else:
+            recomposed_array = np.zeros((height, width, n_dim), float)
+        recomposed_weights = np.zeros((height, width), float)
+
+        # Sum image data and weights
+        weights = cls.get_sub_weights(boxes, size, overlap)
+        for sub, box, weight in zip(subs, boxes, weights):
+            sub_array = np.array(sub).astype(float)
+            if n_dim == 1:
+                weighted_sub_array = sub_array * weight
+            else:
+                weighted_sub_array = sub_array * np.stack([weight] * n_dim, axis=2)
+            recomposed_array[box[1] : box[3], box[0] : box[2]] += weighted_sub_array
+            recomposed_weights[box[1] : box[3], box[0] : box[2]] += weight
+
+        # Normalize image data and convert to image
+        if n_dim == 1:
+            recomposed_array /= recomposed_weights
+        else:
+            recomposed_array /= np.stack([recomposed_weights] * n_dim, axis=2)
+        recomposed_array = np.clip(np.round(recomposed_array), 0, 255).astype(np.uint8)
+        recomposed_image = Image.fromarray(recomposed_array)
+
+        return recomposed_image
 
     @classmethod
     def get_sub_weights(cls, boxes: np.array, size: int, overlap: int) -> np.array:
@@ -154,8 +158,20 @@ class Subdivider(Utility):
         return weights
 
     @staticmethod
+    def get_subs(image: Image.Image, boxes: np.ndarray) -> list[Image.Image]:
+        """Get subdivisions of image.
+
+        Arguments:
+            image: Image to be subdivided
+            boxes: Boxes for subdivisions in form of [[left, upper, right, lower], ...]
+        Returns:
+            Subdivisions of image
+        """
+        return [image.crop(box) for box in boxes]
+
+    @staticmethod
     def get_sub_count(full_size: int, size: int, overlap: int) -> int:
-        """Get number of subdivisions in one dimension
+        """Get number of subdivisions in one dimension.
 
         Arguments:
             full_size: Full size of image in this dimension
@@ -203,7 +219,7 @@ class Subdivider(Utility):
     def get_sub_edge_tapers(
         size: int, overlap: int
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-        """Get weights for tapering edges of subdivisions during recompoision.
+        """Get weights for tapering edges of subdivisions during recomposition.
 
         Weights are generated using the error function, whose x range  from (-2, 2)
         is shifted to (0, overlap - 1) and whose y range from (-1, 1) is shifted to
@@ -212,6 +228,10 @@ class Subdivider(Utility):
         For example, for an overlap of 8 pixels, the weights yielded are
         (0.002, 0.022, 0.113, 0.343, 0.657, 0.887, 0.978, 0.998), which for a channel
         with an original value of 255 yield (1, 6, 29, 87, 168, 226, 249, 254).
+
+        These weights are then rotated and tiled, yielding four arrays that can be
+        used to taper the left, top, right, and bottom edges of subdivisions during
+        recomposition.
 
         Arguments:
             size: Size of subdivisions
