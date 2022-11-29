@@ -32,14 +32,14 @@ def test_subdivider(infile: str, processor: XbrzProcessor) -> None:
     input_image = Image.open(input_path)
     # input_image = input_image.resize((96, 48))
 
-    subdivider = Subdivider(32, 8)
+    subdivider = Subdivider(4, 2)
 
     subdivided_image = subdivider.subdivide(input_image)
-    # processed_subdivisions = []
-    # for subdivision in subdivided_image.subdivisions:
-    #     processed_image = processor(subdivision)
-    #     processed_subdivisions.append(processed_image)
-    # subdivided_image.subdivisions = processed_subdivisions
+    subs = []
+    for sub in subdivided_image.subs:
+        image = processor(sub)
+        subs.append(image)
+    subdivided_image.subs = subs
     recomposed = subdivider.recompose(subdivided_image)
 
     # with subdivider(input_image) as subdivided_image:

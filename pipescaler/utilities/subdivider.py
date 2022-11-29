@@ -1,9 +1,10 @@
 #  Copyright 2020-2022 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
+from typing import Optional
 
 import numpy as np
-from PIL import Image, ImageChops
+from PIL import Image
 from scipy.special import erf
 
 from pipescaler.common import validate_int
@@ -19,21 +20,38 @@ np.set_printoptions(threshold=np.inf)
 
 
 class SubdividedImage:
-    def __init__(
-        self,
-        image: Image.Image,
-        boxes: np.array,
-        sub_size: int,
-        sub_overlap: int,
-    ) -> None:
-        self.original_image = image
-        self.original_sub_size = sub_size
-        self.original_sub_overlap = sub_overlap
-        self.original_boxes = boxes
-        self.original_subs = [image.crop(box) for box in boxes]
+    def __init__(self, image: Image.Image, boxes: np.array) -> None:
+        self._image = image
+        self.boxes = boxes
+        self.scale = 1
+        self._subs = [image.crop(box) for box in boxes]
 
-    def nay(self, image: Image.Image) -> None:
-        pass
+    @property
+    def image(self) -> Optional[Image.Image]:
+        """Un-subdivided image"""
+        return self._image
+
+    @image.setter
+    def image(self, value: Optional[Image.Image]) -> None:
+        self._image = value
+
+    @property
+    def subs(self) -> list[Image.Image]:
+        """Subdivisions of image"""
+        return self._subs
+
+    @subs.setter
+    def subs(self, value: list[Image.Image]) -> None:
+        if len(value) != len(self._subs):
+            raise ValueError(
+                f"Expected {len(self._subs)} subdivisions, received {len(value)}"
+            )
+        original_size = self._subs[0].width
+        new_size = value[0].width
+        self.image = None
+        self.scale = int(new_size / original_size)
+        self.boxes *= self.scale
+        self._subs = value
 
 
 class Subdivider(Utility):
@@ -42,17 +60,17 @@ class Subdivider(Utility):
         self.overlap = validate_int(overlap, 2)
 
     def recompose(self, subdivided_image: SubdividedImage) -> Image.Image:
-        subs = subdivided_image.original_subs
-        scale = 1
+        subs = subdivided_image.subs
+        boxes = subdivided_image.boxes
+        scale = subdivided_image.scale
 
-        original_array = np.array(subdivided_image.original_image)
-        width = original_array.shape[0] * scale
-        height = original_array.shape[1] * scale
-        n_dim = {"L": 1, "RGB": 3}[subdivided_image.original_image.mode]
+        width = boxes[:, 3].max()
+        height = boxes[:, 2].max()
+        n_dim = {"L": 1, "RGB": 3}[subs[0].mode]
+
         recomposed_array = np.zeros((width, height, n_dim), float)
         recomposed_weights = np.zeros((width, height), float)
 
-        boxes = subdivided_image.original_boxes * scale
         weights = self.get_sub_weights(boxes, self.size * scale, self.overlap * scale)
         for sub, box, weight in zip(subs, boxes, weights):
             sub_array = np.array(sub).astype(float)
@@ -67,16 +85,19 @@ class Subdivider(Utility):
         recomposed_array = np.clip(np.round(recomposed_array), 0, 255).astype(np.uint8)
         recomposed_image = Image.fromarray(recomposed_array)
 
-        diff_image = ImageChops.difference(
-            subdivided_image.original_image, recomposed_image
-        )
-        diff_array = np.array(diff_image)
-
         return recomposed_image
 
     def subdivide(self, image: Image.Image) -> SubdividedImage:
+        """Subdivide an image into subdivisions
+
+        Arguments:
+            image: Image to subdivide
+        Returns:
+            Subdivided image
+        """
         boxes = self.get_boxes(image.width, image.height, self.size, self.overlap)
-        return SubdividedImage(image, boxes, self.size, self.overlap)
+
+        return SubdividedImage(image, boxes)
 
     @classmethod
     def get_boxes(cls, width: int, height: int, size: int, overlap: int) -> np.array:
