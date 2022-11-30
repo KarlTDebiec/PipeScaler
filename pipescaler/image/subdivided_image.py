@@ -61,7 +61,7 @@ class SubdividedImage:
     def get_boxes(cls, width: int, height: int, size: int, overlap: int) -> np.array:
         """Get subdivisions of image in format of (left, upper, right, lower).
 
-        Arguments
+        Arguments:
             width: Width of image
             height: Height of image
             size: Size of subdivisions
@@ -164,6 +164,7 @@ class SubdividedImage:
         Arguments:
             image: Image to be subdivided
             boxes: Boxes for subdivisions in form of [[left, upper, right, lower], ...]
+
         Returns:
             Subdivisions of image
         """
@@ -196,7 +197,7 @@ class SubdividedImage:
             Edges of subdivisions
         """
         if count == 1:
-            return np.array([[0, full_size]], dtype=np.int)
+            return np.array([[0, full_size]], dtype=int)
         overlap = int(((count * sub_size) - full_size) / (count - 1))
         centers = np.round(
             np.linspace(

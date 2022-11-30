@@ -1,20 +1,22 @@
 #  Copyright 2020-2022 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
+"""Tests for SubdividedImage."""
 import pytest
 from PIL import Image
 
 from pipescaler.core.image import Processor
+from pipescaler.image import SubdividedImage
 from pipescaler.image.processors import (
     EsrganProcessor,
     PotraceProcessor,
     WaifuProcessor,
     XbrzProcessor,
 )
-from pipescaler.image.subdivided_image import SubdividedImage
 from pipescaler.testing import (
     get_test_infile_path,
     get_test_model_infile_path,
+    skip_if_ci,
     xfail_unsupported_image_mode,
 )
 
@@ -51,12 +53,12 @@ def potrace_processor() -> PotraceProcessor:
 @pytest.mark.parametrize(
     ("processor_name", "infile", "scale"),
     [
-        ("esrgan_bc1s2_processor", "L", 1),
-        ("esrgan_bc1s2_processor", "RGB", 1),
-        xfail_unsupported_image_mode()("esrgan_bc1s2_processor", "RGBA", 1),
-        ("esrgan_rrdb_processor", "RGB", 4),
+        skip_if_ci()("esrgan_bc1s2_processor", "L", 1),
+        skip_if_ci()("esrgan_bc1s2_processor", "RGB", 1),
+        skip_if_ci(xfail_unsupported_image_mode())("esrgan_bc1s2_processor", "RGBA", 1),
+        skip_if_ci()("esrgan_rrdb_processor", "RGB", 4),
         ("potrace_processor", "L", 10),
-        ("waifu_processor", "RGB", 2),
+        skip_if_ci()("waifu_processor", "RGB", 2),
         ("xbrz_processor", "RGB", 6),
     ],
 )
