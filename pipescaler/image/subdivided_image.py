@@ -128,7 +128,9 @@ class SubdividedImage:
         return Image.fromarray(recomposed_array)
 
     @classmethod
-    def get_sub_weights(cls, boxes: np.array, size: int, overlap: int) -> np.ndarray:
+    def get_sub_weights(
+        cls, boxes: np.ndarray, size: int, overlap: int
+    ) -> list[np.ndarray]:
         """Get weights for each subdivision to be used when recomposing full image.
 
         Arguments:
