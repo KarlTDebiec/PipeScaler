@@ -58,7 +58,7 @@ class SubdividedImage:
         self._subs = self.get_subs(self.image, self.boxes)
 
     @classmethod
-    def get_boxes(cls, width: int, height: int, size: int, overlap: int) -> np.array:
+    def get_boxes(cls, width: int, height: int, size: int, overlap: int) -> np.ndarray:
         """Get subdivisions of image in format of (left, upper, right, lower).
 
         Arguments:
@@ -79,9 +79,8 @@ class SubdividedImage:
             for y_sub_edge in y_sub_edges:
                 box = (x_sub_edge[0], y_sub_edge[0], x_sub_edge[1], y_sub_edge[1])
                 boxes.append(box)
-        boxes = np.array(boxes)
 
-        return boxes
+        return np.array(boxes)
 
     @classmethod
     def get_recomposed_image(
@@ -113,10 +112,10 @@ class SubdividedImage:
         for sub, box, weight in zip(subs, boxes, weights):
             sub_array = np.array(sub).astype(float)
             if n_dim == 1:
-                weighted_sub_array = sub_array * weight
+                sub_array *= weight
             else:
-                weighted_sub_array = sub_array * np.stack([weight] * n_dim, axis=2)
-            recomposed_array[box[1] : box[3], box[0] : box[2]] += weighted_sub_array
+                sub_array *= np.stack([weight] * n_dim, axis=2)
+            recomposed_array[box[1] : box[3], box[0] : box[2]] += sub_array
             recomposed_weights[box[1] : box[3], box[0] : box[2]] += weight
 
         # Normalize image data and convert to image
@@ -125,12 +124,11 @@ class SubdividedImage:
         else:
             recomposed_array /= np.stack([recomposed_weights] * n_dim, axis=2)
         recomposed_array = np.clip(np.round(recomposed_array), 0, 255).astype(np.uint8)
-        recomposed_image = Image.fromarray(recomposed_array)
 
-        return recomposed_image
+        return Image.fromarray(recomposed_array)
 
     @classmethod
-    def get_sub_weights(cls, boxes: np.array, size: int, overlap: int) -> np.array:
+    def get_sub_weights(cls, boxes: np.array, size: int, overlap: int) -> np.ndarray:
         """Get weights for each subdivision to be used when recomposing full image.
 
         Arguments:
