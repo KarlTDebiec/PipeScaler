@@ -190,9 +190,9 @@ class CheckpointManager(CheckpointManagerBase):
             All checkpoints created by internal Segments
         """
         cpts: list[str] = []
-        for segments in segments:
-            if hasattr(segments, "cpts"):
-                cpts.extend(getattr(segments, "cpts"))
-            if hasattr(segments, "internal_cpts"):
-                cpts.extend(getattr(segments, "internal_cpts"))
+        for segment in segments:
+            if hasattr(segment, "cpts"):
+                cpts.extend(getattr(segment, "cpts"))
+            if hasattr(segment, "internal_cpts"):
+                cpts.extend(getattr(segment, "internal_cpts"))
         return cpts

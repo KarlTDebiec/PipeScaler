@@ -5,9 +5,9 @@
 from logging import warning
 
 from pipescaler.common import get_temp_file_path
-from pipescaler.core import Runner
 from pipescaler.core.pipelines import PipeImage
 from pipescaler.core.pipelines.segment import Segment
+from pipescaler.core.types import RunnerLike
 
 
 class RunnerSegment(Segment):
@@ -15,7 +15,7 @@ class RunnerSegment(Segment):
 
     def __init__(
         self,
-        runner: Runner,
+        runner: RunnerLike,
         input_extension: str = ".png",
         output_extension: str = ".png",
     ) -> None:

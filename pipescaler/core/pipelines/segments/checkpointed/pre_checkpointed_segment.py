@@ -14,7 +14,7 @@ class PreCheckpointedSegment(CheckpointedSegment):
     def __call__(self, *inputs: PipeImage) -> tuple[PipeImage, ...]:
         """Checkpoint inputs and return outputs of wrapped Segment.
 
-        Input image's paths are set to checkpoint paths before passing on to wrapped
+        Input images' paths are set to checkpoint paths before passing on to wrapped
         Segment.
 
         Arguments:

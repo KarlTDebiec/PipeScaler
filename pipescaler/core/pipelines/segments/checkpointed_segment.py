@@ -7,6 +7,7 @@ from typing import Optional, Sequence
 
 from pipescaler.core.pipelines.checkpoint_manager_base import CheckpointManagerBase
 from pipescaler.core.pipelines.segment import Segment
+from pipescaler.core.pipelines.types import SegmentLike
 
 
 class CheckpointedSegment(Segment, ABC):
@@ -16,7 +17,7 @@ class CheckpointedSegment(Segment, ABC):
 
     def __init__(
         self,
-        segment: Segment,
+        segment: SegmentLike,
         cp_manager: CheckpointManagerBase,
         cpts: Sequence[str],
         internal_cpts: Optional[Sequence[str]] = None,

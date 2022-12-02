@@ -50,7 +50,7 @@ class DirectorySource(Source):
         # Store list of filenames
         filenames = list(chain.from_iterable(d.iterdir() for d in self.directories))
         filenames = [f for f in filenames if f.stem not in self.exclusions]
-        filenames.sort(key=lambda filename: self.sort(filename.stem), reverse=True)
+        filenames.sort(key=lambda filename: self.sort(filename.stem))
         self.filenames = filenames
         self.index = 0
 
