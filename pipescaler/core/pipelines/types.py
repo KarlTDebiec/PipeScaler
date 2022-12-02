@@ -4,6 +4,6 @@
 """Type hints for pipelines."""
 from typing import Callable, Union
 
-from pipescaler.core.pipelines import PipeImage, Segment
+from pipescaler.core.pipelines.segment import PipeImage, Segment
 
 SegmentLike = Union[Segment, Callable[[PipeImage], tuple[PipeImage, ...]]]

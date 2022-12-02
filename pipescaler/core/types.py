@@ -5,6 +5,6 @@
 from pathlib import Path
 from typing import Callable, Union
 
-from pipescaler.core import Runner
+from pipescaler.core.runner import Runner
 
 RunnerLike = Union[Runner, Callable[[Path, Path], None]]
