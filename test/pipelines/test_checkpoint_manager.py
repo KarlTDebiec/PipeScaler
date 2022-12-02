@@ -12,11 +12,10 @@ import pytest
 from PIL import Image
 
 from pipescaler.common import get_temp_directory_path
-from pipescaler.core.pipelines import (
+from pipescaler.core.pipelines import PipeImage, Segment
+from pipescaler.core.pipelines.segments.operators import (
     MergerSegment,
-    PipeImage,
     ProcessorSegment,
-    Segment,
     SplitterSegment,
 )
 from pipescaler.image.mergers import AlphaMerger

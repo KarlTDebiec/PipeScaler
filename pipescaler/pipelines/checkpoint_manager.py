@@ -9,16 +9,14 @@ from os.path import join
 from pathlib import Path
 from typing import Callable, Collection, Optional
 
-from pipescaler.core.pipelines import (
-    CheckpointManagerBase,
-    PipeImage,
+from pipescaler.core import RunnerLike
+from pipescaler.core.pipelines import CheckpointManagerBase, PipeImage, SegmentLike
+from pipescaler.core.pipelines.segments import RunnerSegment
+from pipescaler.core.pipelines.segments.checkpointed import (
     PostCheckpointedRunnerSegment,
     PostCheckpointedSegment,
     PreCheckpointedSegment,
-    RunnerSegment,
 )
-from pipescaler.core.pipelines.types import SegmentLike
-from pipescaler.core.types import RunnerLike
 
 
 class CheckpointManager(CheckpointManagerBase):
