@@ -14,6 +14,9 @@ class PreCheckpointedSegment(CheckpointedSegment):
     def __call__(self, *inputs: PipeImage) -> tuple[PipeImage, ...]:
         """Checkpoint inputs and return outputs of wrapped Segment.
 
+        Input image's paths are set to checkpoint paths before passing on to wrapped
+        Segment.
+
         Arguments:
             inputs: Input images, saved to checkpoints if not already present
         Returns:
@@ -28,12 +31,12 @@ class PreCheckpointedSegment(CheckpointedSegment):
         cpt_paths = [
             self.cp_manager.directory / i.name / c for i in inputs for c in self.cpts
         ]
-        if not all(p.exists() for p in cpt_paths):
-            for i, c, p in zip(inputs, self.cpts, cpt_paths):
+        for i, c, p in zip(inputs, self.cpts, cpt_paths):
+            if p.exists():
+                i.path = p
+            else:
                 i.save(p)
-                info(f"{self}: {i.name} checkpoint {c} saved")
-        for i in inputs:
-            for c in self.cpts:
-                self.cp_manager.observe(i, c)
+                info(f"{self}: {i.name} checkpoint {p} saved")
+            self.cp_manager.observe(i, c)
 
         return self.segment(*inputs)

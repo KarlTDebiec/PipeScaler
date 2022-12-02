@@ -25,8 +25,6 @@ from pipescaler.image.splitters import AlphaSplitter
 from pipescaler.pipelines import CheckpointManager
 from pipescaler.testing import get_test_infile_path
 
-# TODO: Test with heavier pipeline
-
 
 @pytest.fixture
 def xbrz_processor() -> ProcessorSegment:
@@ -54,7 +52,7 @@ def copy_file() -> Callable[[Path, Path], None]:
 def test_split_merge(
     xbrz_processor: ProcessorSegment,
     alpha_splitter: SplitterSegment,
-    alpha_merger: AlphaMerger,
+    alpha_merger: MergerSegment,
 ) -> None:
     def run(cp_directory: Path) -> None:
         cp_manager = CheckpointManager(cp_directory)

@@ -9,15 +9,16 @@ from os.path import join
 from pathlib import Path
 from typing import Callable, Collection, Optional
 
-from pipescaler.core import Runner
 from pipescaler.core.pipelines import (
     CheckpointManagerBase,
+    PipeImage,
     PostCheckpointedRunnerSegment,
     PostCheckpointedSegment,
     PreCheckpointedSegment,
     RunnerSegment,
-    Segment,
 )
+from pipescaler.core.pipelines.types import SegmentLike
+from pipescaler.core.types import RunnerLike
 
 
 class CheckpointManager(CheckpointManagerBase):
@@ -27,13 +28,51 @@ class CheckpointManager(CheckpointManagerBase):
         """Representation."""
         return f"{self.__class__.__name__}(directory={self.directory})"
 
+    def load(
+        self, images: tuple[PipeImage, ...], cpts: Collection[str]
+    ) -> Optional[tuple[PipeImage, ...]]:
+        """Load images from checkpoints, if available, otherwise return None.
+
+        Arguments:
+            images: Images
+            cpts: Names of checkpoints to load
+        Returns:
+            Images loaded from checkpoints if available, otherwise None
+        """
+        if len(images) != len(cpts):
+            raise ValueError(f"Expected {len(cpts)} inputs but received {len(images)}.")
+        cpt_paths = [self.directory / i.name / c for i in images for c in cpts]
+        for i, c in zip(images, cpts):
+            self.observe(i, c)
+        if all(p.exists() for p in cpt_paths):
+            outputs = tuple(
+                PipeImage(path=p, parents=i) for i, p in zip(images, cpt_paths)
+            )
+            info(f"{self}: {images[0].name} checkpoints {cpts} loaded")
+
+            return outputs
+
+        return None
+
     def post_runner(
         self, cpt: str
-    ) -> Callable[[Runner], PostCheckpointedRunnerSegment]:
-        """Get decorator to wrap Runner to Segment with post-execution checkpoint."""
+    ) -> Callable[[RunnerLike], PostCheckpointedRunnerSegment]:
+        """Get decorator to wrap Runner to Segment with post-execution checkpoint.
 
-        def decorator(runner: Runner) -> PostCheckpointedRunnerSegment:
-            """Wrap Runner to Segment with post-execution checkpoint."""
+        Arguments:
+            cpt: Name of checkpoint
+        Returns:
+            Decorator to wrap Runner to Segment with post-execution checkpoint
+        """
+
+        def decorator(runner: RunnerLike) -> PostCheckpointedRunnerSegment:
+            """Wrap Runner to Segment with post-execution checkpoint.
+
+            Arguments:
+                runner: Runner to wrap
+            Returns:
+                Segment with post-execution checkpoint
+            """
             runner_segment = RunnerSegment(runner, output_extension=Path(cpt).suffix)
 
             return PostCheckpointedRunnerSegment(runner_segment, self, [cpt])
@@ -41,30 +80,56 @@ class CheckpointManager(CheckpointManagerBase):
         return decorator
 
     def post_segment(
-        self, *cpts: str, calls: Optional[Collection[Segment]] = None
-    ) -> Callable[[Segment], PostCheckpointedSegment]:
-        """Get decorator to wrap Segment to Segment with post-execution checkpoint."""
-        internal_cpts = self.get_internal_cpts(*calls) if calls else []
+        self, *cpts: str, calls: Optional[Collection[SegmentLike]] = None
+    ) -> Callable[[SegmentLike], PostCheckpointedSegment]:
+        """Get decorator to wrap Segment to Segment with post-execution checkpoint.
 
-        def decorator(stage: Segment) -> PostCheckpointedSegment:
-            """Wrap Segment to Segment with post-execution checkpoint."""
-            internal_cpts.extend(self.get_internal_cpts(stage))
+        Arguments:
+            cpts: Names of checkpoints
+            calls: Segments called within decorated Segment
+        Returns:
+            Decorator to wrap Segment to Segment with post-execution checkpoint
+        """
+        internal_cpts = self.get_cpts_of_segments(*calls) if calls else []
 
-            return PostCheckpointedSegment(stage, self, cpts, internal_cpts)
+        def decorator(segment: SegmentLike) -> PostCheckpointedSegment:
+            """Wrap Segment to Segment with post-execution checkpoint.
+
+            Arguments:
+                segment: Segment to wrap
+            Returns:
+                Segment with post-execution checkpoint
+            """
+            internal_cpts.extend(self.get_cpts_of_segments(segment))
+
+            return PostCheckpointedSegment(segment, self, cpts, internal_cpts)
 
         return decorator
 
     def pre_segment(
-        self, *cpts: str, calls: Optional[Collection[Segment]] = None
-    ) -> Callable[[Segment], PreCheckpointedSegment]:
-        """Get decorator to wrap Segment to Segment with pre-execution checkpoint."""
-        internal_cpts = self.get_internal_cpts(*calls) if calls else []
+        self, *cpts: str, calls: Optional[Collection[SegmentLike]] = None
+    ) -> Callable[[SegmentLike], PreCheckpointedSegment]:
+        """Get decorator to wrap Segment to Segment with pre-execution checkpoint.
 
-        def decorator(stage: Segment) -> PreCheckpointedSegment:
-            """Wrap Segment to Segment with pre-execution checkpoint."""
-            internal_cpts.extend(self.get_internal_cpts(stage))
+        Arguments:
+            cpts: Names of checkpoints
+            calls: Segments called within decorated Segment
+        Returns:
+            Decorator to wrap Segment to Segment with pre-execution checkpoint
+        """
+        internal_cpts = self.get_cpts_of_segments(*calls) if calls else []
 
-            return PreCheckpointedSegment(stage, self, cpts, internal_cpts)
+        def decorator(segment: SegmentLike) -> PreCheckpointedSegment:
+            """Wrap Segment to Segment with pre-execution checkpoint.
+
+            Arguments:
+                segment: Segment to wrap
+            Returns:
+                Segment with pre-execution checkpoint
+            """
+            internal_cpts.extend(self.get_cpts_of_segments(segment))
+
+            return PreCheckpointedSegment(segment, self, cpts, internal_cpts)
 
         return decorator
 
@@ -86,19 +151,48 @@ class CheckpointManager(CheckpointManagerBase):
                 remove(image)
                 info(f"{self}: file {image.name} removed")
 
-    @staticmethod
-    def get_internal_cpts(*internal_segments: Segment) -> list[str]:
-        """Get checkpoints created by Segments contained within another Segment.
+    def save(
+        self,
+        images: tuple[PipeImage, ...],
+        cpts: Collection[str],
+        *,
+        overwrite: bool = True,
+    ) -> tuple[PipeImage, ...]:
+        """Save images to checkpoints.
 
         Arguments:
-            internal_segments: Internal Segments
+            images: Images
+            cpts: Names of checkpoints
+            overwrite: Whether to overwrite existing checkpoints
+        Returns:
+            Images, with paths updated to checkpoints
+        """
+        if len(images) != len(cpts):
+            raise ValueError(f"Expected {len(cpts)} inputs but received {len(images)}.")
+        cpt_paths = [self.directory / i.name / c for i in images for c in cpts]
+        for o, c, p in zip(images, cpts, cpt_paths):
+            if not p.parent.exists():
+                p.parent.mkdir(parents=True)
+            if overwrite or not p.exists():
+                o.save(p)
+                info(f"{self}: {o.name} checkpoint {c} saved")
+            self.observe(o, c)
+
+        return images
+
+    @staticmethod
+    def get_cpts_of_segments(*segments: SegmentLike) -> list[str]:
+        """Get checkpoints created by a collection of Segments.
+
+        Arguments:
+            segments: Internal Segments
         Returns:
             All checkpoints created by internal Segments
         """
-        internal_cpts: list[str] = []
-        for function in internal_segments:
-            if hasattr(function, "cpts"):
-                internal_cpts.extend(getattr(function, "cpts"))
-            if hasattr(function, "internal_cpts"):
-                internal_cpts.extend(getattr(function, "internal_cpts"))
-        return internal_cpts
+        cpts: list[str] = []
+        for segments in segments:
+            if hasattr(segments, "cpts"):
+                cpts.extend(getattr(segments, "cpts"))
+            if hasattr(segments, "internal_cpts"):
+                cpts.extend(getattr(segments, "internal_cpts"))
+        return cpts
