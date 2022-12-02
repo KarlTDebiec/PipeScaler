@@ -86,10 +86,13 @@ def test_load_save(
         cp_manager = CheckpointManager(cp_directory)
 
         input_paths = [get_test_infile_path(infile) for infile in infiles]
-        inputs = [PipeImage(path=input_path, name="test") for input_path in input_paths]
+        inputs = tuple(
+            PipeImage(path=input_path, name="test") for input_path in input_paths
+        )
         inputs = cp_manager.save(inputs, pre_checkpoints, overwrite=False)
         if not (outputs := cp_manager.load(inputs, post_checkpoints)):
             outputs = segment(*inputs)
+            assert outputs
             outputs = cp_manager.save(outputs, post_checkpoints)
         cp_manager.purge_unrecognized_files()
 
