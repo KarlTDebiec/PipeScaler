@@ -39,8 +39,6 @@ class CheckpointManager(CheckpointManagerBase):
         Returns:
             Images loaded from checkpoints if available, otherwise None
         """
-        if len(images) != len(cpts):
-            raise ValueError(f"Expected {len(cpts)} inputs but received {len(images)}.")
         cpt_paths = [self.directory / i.name / c for i in images for c in cpts]
         for i, c in zip(images, cpts):
             self.observe(i, c)
@@ -173,9 +171,11 @@ class CheckpointManager(CheckpointManagerBase):
         for o, c, p in zip(images, cpts, cpt_paths):
             if not p.parent.exists():
                 p.parent.mkdir(parents=True)
-            if overwrite or not p.exists():
+            if not p.exists() or overwrite:
                 o.save(p)
                 info(f"{self}: {o.name} checkpoint {c} saved")
+            else:
+                o.path = p
             self.observe(o, c)
 
         return images
