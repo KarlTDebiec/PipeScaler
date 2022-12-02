@@ -12,11 +12,10 @@ import pytest
 from PIL import Image
 
 from pipescaler.common import get_temp_directory_path
-from pipescaler.core.pipelines import (
+from pipescaler.core.pipelines import PipeImage, Segment
+from pipescaler.core.pipelines.segments.operators import (
     MergerSegment,
-    PipeImage,
     ProcessorSegment,
-    Segment,
     SplitterSegment,
 )
 from pipescaler.image.mergers import AlphaMerger
@@ -24,8 +23,6 @@ from pipescaler.image.processors import XbrzProcessor
 from pipescaler.image.splitters import AlphaSplitter
 from pipescaler.pipelines import CheckpointManager
 from pipescaler.testing import get_test_infile_path
-
-# TODO: Test with heavier pipeline
 
 
 @pytest.fixture
@@ -51,10 +48,74 @@ def copy_file() -> Callable[[Path, Path], None]:
     return function
 
 
+@pytest.mark.parametrize(
+    ("segment_name", "infiles", "pre_checkpoints", "post_checkpoints"),
+    [
+        (
+            "alpha_merger",
+            ("split/RGBA_color_RGB", "split/RGBA_alpha_L"),
+            ("color.png", "alpha.png"),
+            ("merged.png",),
+        ),
+        (
+            "alpha_splitter",
+            ("RGBA",),
+            ("pre.png",),
+            ("color.png", "alpha.png"),
+        ),
+        (
+            "xbrz_processor",
+            ("RGB",),
+            ("pre.png",),
+            ("post.png",),
+        ),
+    ],
+)
+def test_load_save(
+    segment_name: str,
+    infiles: tuple[str],
+    pre_checkpoints: tuple[str],
+    post_checkpoints: tuple[str],
+    request,
+) -> None:
+    segment = request.getfixturevalue(segment_name)
+    assert isinstance(segment, Segment)
+
+    def run(cp_directory: Path) -> None:
+        cp_manager = CheckpointManager(cp_directory)
+
+        input_paths = [get_test_infile_path(infile) for infile in infiles]
+        inputs = tuple(
+            PipeImage(path=input_path, name="test") for input_path in input_paths
+        )
+        inputs = cp_manager.save(inputs, pre_checkpoints, overwrite=False)
+        if not (outputs := cp_manager.load(inputs, post_checkpoints)):
+            outputs = segment(*inputs)
+            assert outputs
+            outputs = cp_manager.save(outputs, post_checkpoints)
+        cp_manager.purge_unrecognized_files()
+
+        for i, c, p in zip(inputs, pre_checkpoints, input_paths):
+            assert i.path == cp_directory / i.name / c
+            assert i.path.exists()
+            assert (
+                np.array(PipeImage(path=p).image)
+                == np.array(PipeImage(path=i.path).image)
+            ).all()
+
+        for o, c in zip(outputs, post_checkpoints):
+            assert o.path == cp_directory / o.name / c
+            assert o.path.exists()
+
+    with get_temp_directory_path() as temp_directory:
+        run(temp_directory)
+        run(temp_directory)
+
+
 def test_split_merge(
     xbrz_processor: ProcessorSegment,
     alpha_splitter: SplitterSegment,
-    alpha_merger: AlphaMerger,
+    alpha_merger: MergerSegment,
 ) -> None:
     def run(cp_directory: Path) -> None:
         cp_manager = CheckpointManager(cp_directory)
@@ -74,9 +135,9 @@ def test_split_merge(
         @cp_manager.pre_segment("pre_split.png")
         @cp_manager.post_segment("post_merge.png", calls=[alpha_segment, color_segment])
         def split_merge_segment(*inputs: PipeImage) -> tuple[PipeImage, ...]:
-            color, alpha = alpha_splitter(*inputs)
-            color = color_segment(color)
-            alpha = alpha_segment(alpha)
+            outputs = alpha_splitter(*inputs)
+            color = color_segment(outputs[0])
+            alpha = alpha_segment(outputs[1])
             merged = alpha_merger(*color, *alpha)
             return merged
 

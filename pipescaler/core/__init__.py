@@ -6,9 +6,11 @@
 from __future__ import annotations
 
 from pipescaler.core.runner import Runner
+from pipescaler.core.types import RunnerLike
 from pipescaler.core.utility import Utility
 
 __all__: list[str] = [
     "Runner",
+    "RunnerLike",
     "Utility",
 ]
