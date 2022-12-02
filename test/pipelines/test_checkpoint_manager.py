@@ -72,9 +72,9 @@ def test_split_merge(
         @cp_manager.pre_segment("pre_split.png")
         @cp_manager.post_segment("post_merge.png", calls=[alpha_segment, color_segment])
         def split_merge_segment(*inputs: PipeImage) -> tuple[PipeImage, ...]:
-            color, alpha = alpha_splitter(*inputs)
-            color = color_segment(color)
-            alpha = alpha_segment(alpha)
+            outputs = alpha_splitter(*inputs)
+            color = color_segment(outputs[0])
+            alpha = alpha_segment(outputs[1])
             merged = alpha_merger(*color, *alpha)
             return merged
 
