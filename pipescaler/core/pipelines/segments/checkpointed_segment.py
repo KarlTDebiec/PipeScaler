@@ -13,7 +13,7 @@ from pipescaler.core.pipelines.types import SegmentLike
 class CheckpointedSegment(Segment, ABC):
     """Segment with checkpoints."""
 
-    segment: Segment
+    segment: SegmentLike
 
     def __init__(
         self,
