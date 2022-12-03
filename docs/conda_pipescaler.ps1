@@ -13,26 +13,26 @@ conda install -y `
     brotlipy
 
 pip install `
-   black `
-   flask `
-   imagehash `
-   ipython `
-   isort `
-   numba `
-   numpy `
-   pandas `
-   pillow `
-   prospector `
-   pytest `
-   pytest-cov `
-   pytest-xdist `
-   pyyaml `
-   requests `
-   scikit-image `
-   setuptools `
-   svglib `
-   watchdog `
-   xbrz.py
+    black `
+    flask `
+    imagehash `
+    ipython `
+    isort `
+    mypy `
+    numba `
+    numpy `
+    pandas `
+    pillow `
+    prospector `
+    pytest `
+    pytest-cov `
+    pytest-xdist `
+    pyyaml `
+    requests `
+    scikit-image `
+    setuptools `
+    svglib `
+    xbrz.py
 
 conda install -y -c pytorch -c nvidia `
     pytorch `
