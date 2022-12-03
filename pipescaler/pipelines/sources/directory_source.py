@@ -27,12 +27,12 @@ class DirectorySource(Source):
         sort: Union[Callable[[str], int], Callable[[str], str]] = basic_sort,
         **kwargs: Any,
     ) -> None:
-        """Validate and store configuration and initialize.
+        """Initialize.
 
         Arguments:
             directory: Directory or directories from which to yield files
-            exclusions: Filenames stems to exclude
-            sort: Function to sort filenames
+            exclusions: Filename stems to exclude
+            sort: Function with which to sort filenames
             **kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
@@ -55,7 +55,7 @@ class DirectorySource(Source):
         self.index = 0
 
     def __next__(self):
-        """Yield next image."""
+        """Get next image from directories."""
         if self.index < len(self.filenames):
             filename = self.filenames[self.index]
             self.index += 1

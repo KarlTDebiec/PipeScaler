@@ -2,7 +2,7 @@
 #  Copyright 2020-2022 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Image within a pipeline."""
+"""Image from a video within a pipeline."""
 from __future__ import annotations
 
 from logging import debug
@@ -13,10 +13,11 @@ from PIL import Image
 
 from pipescaler.common import validate_input_file, validate_output_file
 from pipescaler.core.image import remove_palette
+from pipescaler.core.pipelines import PipeImage
 
 
-class PipeImage:
-    """Image within a pipeline."""
+class PipeVideoImage(PipeImage):
+    """Image from a video within a pipeline."""
 
     def __init__(
         self,

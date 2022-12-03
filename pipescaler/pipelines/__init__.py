@@ -6,9 +6,11 @@
 from __future__ import annotations
 
 from pipescaler.pipelines.checkpoint_manager import CheckpointManager
+from pipescaler.pipelines.pipe_video_image import PipeVideoImage
 from pipescaler.pipelines.substituter import Substituter
 
 __all__: list[str] = [
     "CheckpointManager",
+    "PipeVideoImage",
     "Substituter",
 ]
