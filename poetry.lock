@@ -1188,7 +1188,7 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "1.1"
 python-versions = "~3.9"
-content-hash = "bc303817160fb00eaf2c9178f223f976964a5dc64dc636551bc571952e007884"
+content-hash = "a4896dedc457461dd14b2d94b3553dba6fa1e18db00dd2635ba1da8b48860ec3"
 
 [metadata.files]
 astroid = [
