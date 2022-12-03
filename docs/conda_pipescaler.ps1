@@ -13,31 +13,27 @@ conda install -y `
     brotlipy
 
 pip install `
-    black `
-    flask `
-    imagehash `
-    ipython `
-    isort `
-    numba `
-    numpy `
-    pandas `
-    pillow `
-    prospector `
-    pytest `
-    pytest-cov `
-    pytest-xdist `
-    pywinauto `
-    pyyaml `
-    requests `
-    scikit-image `
-    setuptools `
-    svglib `
-    watchdog `
-    xbrz.py
+   black `
+   flask `
+   imagehash `
+   ipython `
+   isort `
+   numba `
+   numpy `
+   pandas `
+   pillow `
+   prospector `
+   pytest `
+   pytest-cov `
+   pytest-xdist `
+   pyyaml `
+   requests `
+   scikit-image `
+   setuptools `
+   svglib `
+   watchdog `
+   xbrz.py
 
-conda install -y `
-    pywin32
-
-conda install -y -c pytorch `
-    cudatoolkit=11.3 `
-    pytorch
+conda install -y -c pytorch -c nvidia `
+    pytorch `
+    pytorch-cuda=11.7

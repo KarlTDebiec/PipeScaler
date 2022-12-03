@@ -36,4 +36,3 @@ pip install \
 
 conda install -y -c pytorch \
     pytorch
-
