@@ -7,7 +7,7 @@ from logging import info
 from os import remove, rmdir
 from os.path import join
 from pathlib import Path
-from typing import Callable, Collection, Optional
+from typing import Callable, Collection, Optional, Union
 
 from pipescaler.core import RunnerLike
 from pipescaler.core.pipelines import CheckpointManagerBase, PipeImage, SegmentLike
@@ -27,24 +27,37 @@ class CheckpointManager(CheckpointManagerBase):
         return f"{self.__class__.__name__}(directory={self.directory})"
 
     def load(
-        self, images: tuple[PipeImage, ...], cpts: Collection[str]
+        self,
+        images: tuple[PipeImage, ...],
+        cpts: Collection[str],
+        *,
+        calls: Optional[Collection[Union[SegmentLike, str]]] = None,
     ) -> Optional[tuple[PipeImage, ...]]:
         """Load images from checkpoints, if available, otherwise return None.
 
         Arguments:
             images: Images
             cpts: Names of checkpoints to load
+            calls: Collection of checkpoint names and potentially-checkpointed segments
+              used to prepare list of checkpoint names expected to be present whenever
+              cpts are present.
         Returns:
             Images loaded from checkpoints if available, otherwise None
         """
-        cpt_paths = [self.directory / i.name / c for i in images for c in cpts]
         for i, c in zip(images, cpts):
             self.observe(i, c)
+
+        cpt_paths = [self.directory / i.name / c for i in images for c in cpts]
         if all(p.exists() for p in cpt_paths):
             outputs = tuple(
                 PipeImage(path=p, parents=i) for i, p in zip(images, cpt_paths)
             )
             info(f"{self}: {images[0].name} checkpoints {cpts} loaded")
+
+            internal_cpts = self.get_cpts_of_segments(*calls) if calls else []
+            for i in images:
+                for c in internal_cpts:
+                    self.observe(i, c)
 
             return outputs
 
@@ -179,18 +192,23 @@ class CheckpointManager(CheckpointManagerBase):
         return images
 
     @staticmethod
-    def get_cpts_of_segments(*segments: SegmentLike) -> list[str]:
+    def get_cpts_of_segments(*cpts_or_segments: Union[SegmentLike, str]) -> list[str]:
         """Get checkpoints created by a collection of Segments.
 
         Arguments:
-            segments: Internal Segments
+            cpts_or_segments: Collection of checkpoint names and
+            potentially-checkpointed segments used to prepare list of checkpoint names
         Returns:
-            All checkpoints created by internal Segments
+            All checkpoint names either provided directly or associated with a provided
+            Segment
         """
         cpts: list[str] = []
-        for segment in segments:
-            if hasattr(segment, "cpts"):
-                cpts.extend(getattr(segment, "cpts"))
-            if hasattr(segment, "internal_cpts"):
-                cpts.extend(getattr(segment, "internal_cpts"))
+        for cpt_or_segment in cpts_or_segments:
+            if isinstance(cpt_or_segment, str):
+                cpts.append(cpt_or_segment)
+            else:
+                if hasattr(cpt_or_segment, "cpts"):
+                    cpts.extend(getattr(cpt_or_segment, "cpts"))
+                if hasattr(cpt_or_segment, "internal_cpts"):
+                    cpts.extend(getattr(cpt_or_segment, "internal_cpts"))
         return cpts
