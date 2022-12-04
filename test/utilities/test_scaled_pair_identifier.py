@@ -27,7 +27,7 @@ def test_review() -> None:
             # Copy basic infiles and prepare scaled pairs
             for mode in ["L", "LA", "RGB", "RGBA"]:
                 infile = get_test_infile_path(mode)
-                outfile = input_directory.joinpath(f"{infile.stem}_1{infile.suffix}")
+                outfile = input_directory / f"{infile.stem}_1{infile.suffix}"
                 copy(infile, outfile)
 
                 parent = Image.open(infile)
@@ -39,17 +39,15 @@ def test_review() -> None:
                     child = parent.resize(
                         (width, height), Image.Resampling.NEAREST  # type: ignore
                     )
-                    outfile = input_directory.joinpath(
-                        f"{infile.stem}_{scale}{infile.suffix}"
-                    )
+                    outfile = input_directory / f"{infile.stem}_{scale}{infile.suffix}"
+
                     child.save(outfile)
 
             # Copy alternate infiles and prepare scaled pairs
             for mode in ["L", "LA", "RGB", "RGBA"]:
                 infile = get_test_infile_path(f"alt/{mode}")
-                outfile = input_directory.joinpath(
-                    f"{infile.stem}_alt_1{infile.suffix}"
-                )
+                outfile = input_directory / f"{infile.stem}_alt_1{infile.suffix}"
+
                 copy(infile, outfile)
 
                 parent = Image.open(infile)
@@ -61,8 +59,8 @@ def test_review() -> None:
                     child = parent.resize(
                         (width, height), Image.Resampling.NEAREST  # type: ignore
                     )
-                    outfile = input_directory.joinpath(
-                        f"{infile.stem}_alt_{scale}{infile.suffix}"
+                    outfile = (
+                        input_directory / f"{infile.stem}_alt_{scale}{infile.suffix}"
                     )
                     child.save(outfile)
 

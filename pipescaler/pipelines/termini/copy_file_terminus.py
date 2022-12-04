@@ -53,7 +53,7 @@ class CopyFileTerminus(Terminus):
                 input_image.image.save(outfile)
 
         suffix = input_image.path.suffix if input_image.path is not None else ".png"
-        outfile = self.directory.joinpath(input_image.name).with_suffix(suffix)
+        outfile = (self.directory / input_image.name).with_suffix(suffix)
         self.observed_files.add(outfile.name)
         if outfile.exists():
             if (

@@ -67,13 +67,13 @@ class FileScanner(Utility):
         """Directories from which to read input files."""
 
         project_root = Path(expandvars(project_root)).resolve()
-        self.ignore_directory = project_root.joinpath("ignore")
+        self.ignore_directory = project_root / "ignore"
         """Directory of images to ignore if present in input directories."""
-        self.copy_directory = project_root.joinpath("new")
+        self.copy_directory = project_root / "new"
         """Directory to which to copy images that match 'copy' rule."""
-        self.move_directory = project_root.joinpath("review")
+        self.move_directory = project_root / "review"
         """Directory to which to move images that match 'move' rule."""
-        self.remove_directory = project_root.joinpath("remove")
+        self.remove_directory = project_root / "remove"
         """Directory of images that should be removed from input directories."""
 
         self.reviewed_directories = None
@@ -151,7 +151,7 @@ class FileScanner(Utility):
         if self.remove_prefix is not None:
             output_name = output_name.removeprefix(self.remove_prefix)
 
-        output_path = self.copy_directory.joinpath(output_name)
+        output_path = self.copy_directory / output_name
         if self.output_format is not None:
             output_path = output_path.with_suffix(self.output_format)
 
@@ -196,7 +196,7 @@ class FileScanner(Utility):
         if self.remove_prefix is not None:
             output_name = output_name.removeprefix(self.remove_prefix)
 
-        output_path = self.move_directory.joinpath(output_name)
+        output_path = self.move_directory / output_name
         if self.output_format is not None:
             output_path = output_path.with_suffix(self.output_format)
 

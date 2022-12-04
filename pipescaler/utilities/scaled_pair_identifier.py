@@ -58,9 +58,9 @@ class ScaledPairIdentifier(Utility):
         self.input_directories = validate_input_directories(input_directories)
         """Directories from which to read input files."""
         project_root = validate_input_directory(project_root)
-        self.scaled_directory = project_root.joinpath("scaled")
+        self.scaled_directory = project_root / "scaled"
         """Directory to which to move scaled images."""
-        self.comparison_directory = project_root.joinpath("scaled_images")
+        self.comparison_directory = project_root / "scaled_images"
         """Directory to which to write stacked scaled image sets."""
         self.interactive = interactive
         """Whether to prompt for user input."""
@@ -158,7 +158,7 @@ class ScaledPairIdentifier(Utility):
                 to_save = self.get_stacked_image(
                     [parent, *list(known_pairs["scaled name"])]
                 )
-                outfile = self.comparison_directory.joinpath(f"{parent}.png")
+                outfile = self.comparison_directory / f"{parent}.png"
                 to_save.save(outfile)
                 info(f"Saved {outfile}")
 
@@ -169,14 +169,14 @@ class ScaledPairIdentifier(Utility):
         for name, file_path in self.file_paths.items():
             if name in self.pair_collection.children:
                 if not file_path.is_relative_to(self.scaled_directory):
-                    new_path = self.scaled_directory.joinpath(file_path.name)
+                    new_path = self.scaled_directory / file_path.name
                     move(file_path, new_path)
                     self.file_paths[name] = new_path
                     info(f"Moved {file_path} to {new_path}")
 
         for file_path in self.scaled_directory.iterdir():
             if file_path.stem not in self.pair_collection.children:
-                new_path = self.input_directories[0].joinpath(file_path.name)
+                new_path = self.input_directories[0] / file_path.name
                 move(file_path, new_path)
                 self.file_paths[file_path.stem] = new_path
                 info(f"Moved {file_path} to {new_path}")
