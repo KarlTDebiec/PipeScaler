@@ -227,7 +227,7 @@ def get_text_size(
         text: Text to get size of
         width: width of image
         height: Height of image
-        font: Font
+        font: Font name
         size: Font size
     Returns:
         Width and height of text
@@ -235,10 +235,10 @@ def get_text_size(
     image = Image.new("L", (width, height))
     draw = ImageDraw.Draw(image)
     try:
-        font = ImageFont.truetype(font, size)
+        font_type = ImageFont.truetype(font, size)
     except OSError:
-        font = ImageFont.truetype(font.lower(), size)
-    return draw.textsize(text, font)
+        font_type = ImageFont.truetype(font.lower(), size)
+    return draw.textsize(text, font_type)
 
 
 @no_type_check
@@ -327,9 +327,9 @@ def label_image(image: Image.Image, text: str, font: str = "Arial") -> Image.Ima
 
     size = get_font_size(text, image.width, image.height, font=font)
     try:
-        font = ImageFont.truetype(font, size)
+        font_type = ImageFont.truetype(font, size)
     except OSError:
-        font = ImageFont.truetype(font.lower(), size)
+        font_type = ImageFont.truetype(font.lower(), size)
 
     ImageDraw.Draw(labeled_image).text(
         (
@@ -337,7 +337,7 @@ def label_image(image: Image.Image, text: str, font: str = "Arial") -> Image.Ima
             round(image.height * 0.025),
         ),
         text,
-        font=font,
+        font=font_type,
         stroke="white",
         stroke_fill="black",
         stroke_width=2,
@@ -354,7 +354,13 @@ def remove_palette(image: Image.Image) -> Image.Image:
     Returns:
         Image in 'L', 'LA', 'RGB', or 'RGBA' mode
     """
-    palette = np.reshape(image.getpalette(), (-1, 3))
+    palette = image.getpalette()
+    if palette is None:
+        raise UnsupportedImageModeError(
+            "remove_palette() only works on paletted images of mode 'P'; "
+            f"image of mode {image.mode} provided"
+        )
+    palette = np.reshape(palette, (-1, 3))
     non_grayscale_colors = set(
         np.where(
             np.logical_or(
