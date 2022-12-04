@@ -9,7 +9,7 @@ from datetime import datetime
 from logging import info
 from os import remove, utime
 from pathlib import Path
-from shutil import copyfile
+from shutil import copyfile, rmtree
 from typing import Union
 
 import numpy as np
@@ -80,7 +80,11 @@ class CopyFileTerminus(Terminus):
         """Remove files in output directory that have not been logged as observed."""
         if not self.directory.exists():
             return
-        for filepath in self.directory.iterdir():
-            if filepath.name not in self.observed_files:
-                remove(filepath)
-                info(f"{self}: {filepath} removed")
+        for image in self.directory.iterdir():
+            if image.is_dir():
+                rmtree(image)
+                info(f"{self}: directory {image.name} removed")
+            else:
+                if image.name not in self.observed_files:
+                    remove(image)
+                    info(f"{self}: file {image.name} removed")
