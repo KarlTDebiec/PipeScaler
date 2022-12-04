@@ -364,9 +364,12 @@ def remove_palette(image: Image.Image) -> Image.Image:
     )
     if "transparency" in image.info:
         array = np.array(image)
-        fully_transparent_colors = set(
-            np.where(np.array(list(image.info["transparency"])) == 0)[0]
-        )
+        transparency = image.info["transparency"]
+        if isinstance(transparency, int):
+            transparency = [transparency]
+        else:
+            transparency = list(transparency)
+        fully_transparent_colors = set(np.where(np.array(transparency) == 0)[0])
         pixels_per_non_grayscale_color = np.array(
             [
                 (array == color).sum()
