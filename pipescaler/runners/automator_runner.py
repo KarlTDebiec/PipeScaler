@@ -38,7 +38,7 @@ class AutomatorRunner(Runner):
         if workflow.suffix != ".workflow":
             workflow = workflow.with_suffix(".workflow")
         if not workflow.is_absolute():
-            workflow = package_root.joinpath("data", "workflows", workflow)
+            workflow = package_root / "data" / "workflows" / workflow
         if not workflow.exists():
             raise DirectoryNotFoundError()
         if not workflow.is_dir():

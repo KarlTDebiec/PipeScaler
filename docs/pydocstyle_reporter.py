@@ -89,13 +89,9 @@ class PydocstyleReporter:
         """
         annotations = []
         for line, issue in zip_longest(*[infile] * 2):
-            file_path, line = line.split()[0].split(":")
-            file_path = (
-                package_root.joinpath(Path(file_path))
-                .resolve()
-                .relative_to(package_root)
-            )
-            line = int(line)
+            file_path = Path(line.split()[0].split(":")[0])
+            file_path = (package_root / file_path).resolve().relative_to(package_root)
+            line = int(line.split()[0].split(":")[1])
             kind, message = issue.strip().split(": ")
             annotations.append(
                 Annotation(

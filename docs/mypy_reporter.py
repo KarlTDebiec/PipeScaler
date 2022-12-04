@@ -103,11 +103,8 @@ class MypyReporter:
 
         last_error_index = None
         for match in [m.groupdict() for m in cls.annotation_regex.finditer(text)]:
-            file_path = (
-                package_root.joinpath(Path(match["file_path"]))
-                .resolve()
-                .relative_to(package_root)
-            )
+            file_path = Path(match["file_path"])
+            file_path = (package_root / file_path).resolve().relative_to(package_root)
             if match["kind"] == "error":
                 annotations.append(
                     Annotation(

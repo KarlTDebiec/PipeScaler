@@ -174,11 +174,8 @@ class PytestReporter:
         """
         annotations = []
         for match in [m.groupdict() for m in cls.failure_regex.finditer(body)]:
-            file_path = (
-                package_root.joinpath("test", match["file_path"])
-                .resolve()
-                .relative_to(package_root)
-            )
+            file_path = Path("test") / match["file_path"]
+            file_path = (package_root / file_path).resolve().relative_to(package_root)
             annotations.append(
                 Annotation(
                     source="pytest",
