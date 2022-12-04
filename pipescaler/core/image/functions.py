@@ -354,13 +354,13 @@ def remove_palette(image: Image.Image) -> Image.Image:
     Returns:
         Image in 'L', 'LA', 'RGB', or 'RGBA' mode
     """
-    palette = image.getpalette()
-    if palette is None:
+    palette_list = image.getpalette()
+    if palette_list is None:
         raise UnsupportedImageModeError(
             "remove_palette() only works on paletted images of mode 'P'; "
             f"image of mode {image.mode} provided"
         )
-    palette = np.reshape(palette, (-1, 3))
+    palette = np.reshape(palette_list, (-1, 3))
     non_grayscale_colors = set(
         np.where(
             np.logical_or(
