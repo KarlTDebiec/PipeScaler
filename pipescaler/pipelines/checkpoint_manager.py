@@ -41,7 +41,7 @@ class CheckpointManager(CheckpointManagerBase):
             cpts: Names of checkpoints to load
             calls: Collection of checkpoint names and potentially-checkpointed segments
               used to prepare list of checkpoint names expected to be present whenever
-              cpts are present.
+              cpts are present
         Returns:
             Images loaded from checkpoints if available, otherwise None
         """
