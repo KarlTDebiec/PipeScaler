@@ -137,9 +137,10 @@ class ScaledPairIdentifier(Utility):
             # Update image sets
             if len(new_scores) > 0:
                 known_scores = self.get_known_scores(parent)
-                new_scores = pd.DataFrame(new_scores)
                 if self.interactive:
-                    if not self.review_candidate_pairs(known_scores, new_scores):
+                    if not self.review_candidate_pairs(
+                        known_scores, pd.DataFrame(new_scores)
+                    ):
                         break
                 else:
                     pass
