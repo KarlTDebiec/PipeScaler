@@ -7,6 +7,7 @@ from logging import info
 from os import remove, rmdir
 from os.path import join
 from pathlib import Path
+from shutil import rmtree
 from typing import Callable, Collection, Optional, Union
 
 from pipescaler.core import RunnerLike
@@ -148,7 +149,7 @@ class CheckpointManager(CheckpointManagerBase):
             if image.is_dir():
                 for cpt in image.iterdir():
                     if cpt.is_dir():
-                        rmdir(cpt)
+                        rmtree(cpt)
                         info(f"{self}: directory {join(image.name, cpt.name)} removed")
                     elif (image.name, cpt.name) not in self.observed_checkpoints:
                         remove(cpt)
