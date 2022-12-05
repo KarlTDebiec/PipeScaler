@@ -75,7 +75,7 @@ class PipeImage:
                 "will be used as the name, or a parent image whose name will be used."
             )
 
-    def _str__(self) -> str:
+    def __str__(self) -> str:
         """String representation."""
         return (
             f"<PipeImage '{self.name}' "
