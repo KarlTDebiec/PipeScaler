@@ -52,6 +52,10 @@ class XbrzProcessor(Processor):
 
         return output_image
 
+    def __repr__(self):
+        """Representation."""
+        return f"{self.__class__.__name__}(scale={self.scale})"
+
     @classmethod
     def help_markdown(cls) -> str:
         """Short description of this tool in markdown, with links."""

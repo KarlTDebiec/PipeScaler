@@ -63,6 +63,14 @@ class PaletteMatchMerger(Merger):
 
         return output_image
 
+    def __repr__(self):
+        """Representation."""
+        return (
+            f"{self.__class__.__name__}("
+            f"palette_match_mode={self.palette_match_mode},"
+            f"local_range={self.palette_matcher.local_range})"
+        )
+
     @classmethod
     def inputs(cls) -> dict[str, tuple[str, ...]]:
         """Inputs to this operator."""

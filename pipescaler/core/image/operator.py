@@ -14,7 +14,11 @@ class Operator(ABC):
     """Abstract base class for image operators."""
 
     def __repr__(self):
-        """Representation of operator."""
+        """Representation."""
+        return f"{self.__class__.__name__}()"
+
+    def __str__(self):
+        """String representation."""
         return f"<{self.__class__.__name__}>"
 
     @classmethod

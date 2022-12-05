@@ -35,6 +35,10 @@ class PngquantRunner(Runner):
 
         self.arguments = arguments
 
+    def __repr__(self):
+        """Representation."""
+        return f"{self.__class__.__name__}(arguments={self.arguments!r})"
+
     @property
     def command_template(self) -> str:
         """String template with which to generate command."""

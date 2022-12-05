@@ -42,6 +42,14 @@ class WaifuProcessor(PyTorchProcessor):
                 f"falling back to cpu"
             )
 
+    def __repr__(self):
+        """Representation."""
+        return (
+            f"{self.__class__.__name__}("
+            f"device={self.device},"
+            f"model_infile={self.model_infile})"
+        )
+
     @classmethod
     def help_markdown(cls) -> str:
         """Short description of this tool in markdown, with links."""

@@ -24,6 +24,14 @@ class CheckpointManagerBase:
         self.observed_checkpoints: set[tuple[str, str]] = set()
         """Observed checkpoints as tuples of image and checkpoint names."""
 
+    def __repr__(self):
+        """Representation."""
+        return f"{self.__class__.__name__}(directory={self.directory})"
+
+    def __str__(self):
+        """String representation."""
+        return f"<{self.__class__.__name__}>"
+
     def observe(self, image: PipeImage, cpt: str) -> None:
         """Log observation of a checkpoint.
 

@@ -21,3 +21,7 @@ class OperatorSegment(Segment, ABC):
         """
         self.operator = operator
         """Operator to apply"""
+
+    def __repr__(self):
+        """Representation."""
+        return f"{self.__class__.__name__}(operator={self.operator!r})"

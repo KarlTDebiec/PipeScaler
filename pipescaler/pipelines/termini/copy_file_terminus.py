@@ -76,6 +76,10 @@ class CopyFileTerminus(Terminus):
         save_image()
         info(f"{self}: '{outfile}' saved")
 
+    def __repr__(self):
+        """Representation."""
+        return f"{self.__class__.__name__}(directory={self.directory})"
+
     def purge_unrecognized_files(self) -> None:
         """Remove files in output directory that have not been logged as observed."""
         if not self.directory.exists():

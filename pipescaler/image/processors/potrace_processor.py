@@ -75,6 +75,15 @@ class PotraceProcessor(Processor):
 
         return output_image
 
+    def __repr__(self):
+        """Representation."""
+        return (
+            f"{self.__class__.__name__}("
+            f"arguments={self.potrace_runner.arguments!r},"
+            f"invert={self.invert},"
+            f"scale={self.scale})"
+        )
+
     @classmethod
     def help_markdown(cls) -> str:
         """Short description of this tool in markdown, with links."""

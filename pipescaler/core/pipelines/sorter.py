@@ -27,8 +27,8 @@ class Sorter(ABC):
         raise NotImplementedError()
 
     def __repr__(self):
-        """Representation of sorter."""
-        return f"<{self.__class__.__name__}>"
+        """Representation."""
+        return f"{self.__class__.__name__}()"
 
     @property
     def outlets(self) -> tuple[str, ...]:
