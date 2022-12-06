@@ -61,3 +61,11 @@ class RunnerSegment(Segment):
         output.path = None
 
         return (output,)
+
+    def __repr__(self):
+        """Representation."""
+        return (
+            f"{self.__class__.__name__}(runner={self.runner!r},"
+            f"input_extension={self.input_extension},"
+            f" output_extension={self.output_extension})"
+        )

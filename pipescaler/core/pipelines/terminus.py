@@ -21,7 +21,11 @@ class Terminus(ABC):
         raise NotImplementedError
 
     def __repr__(self):
-        """Representation of terminus."""
+        """Representation."""
+        return f"{self.__class__.__name__}()"
+
+    def __str__(self):
+        """String representation."""
         return f"<{self.__class__.__name__}>"
 
     @classmethod

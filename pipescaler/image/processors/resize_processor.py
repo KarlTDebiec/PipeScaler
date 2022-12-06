@@ -71,6 +71,14 @@ class ResizeProcessor(Processor):
 
         return output_image
 
+    def __repr__(self):
+        """Representation."""
+        return (
+            f"{self.__class__.__name__}("
+            f"scale={self.scale},"
+            f"resample={self.resample})"
+        )
+
     @classmethod
     def inputs(cls) -> dict[str, tuple[str, ...]]:
         """Inputs to this operator."""

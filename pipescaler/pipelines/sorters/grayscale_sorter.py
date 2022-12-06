@@ -55,6 +55,14 @@ class GrayscaleSorter(Sorter):
         info(f"{self}: {pipe_image.name} matches {outlet}")
         return outlet
 
+    def __repr__(self):
+        """Representation."""
+        return (
+            f"{self.__class__.__name__}("
+            f"mean_threshold={self.mean_threshold},"
+            f"max_threshold={self.max_threshold})"
+        )
+
     @property
     def outlets(self) -> tuple[str, ...]:
         """Outlets to which images may be sorted."""

@@ -69,6 +69,14 @@ class AlphaSplitter(Splitter):
 
         return color_image, alpha_image
 
+    def __repr__(self):
+        """Representation."""
+        return (
+            f"{self.__class__.__name__}("
+            f"alpha_mode={self.alpha_mode},"
+            f"mask_fill_mode={self.mask_fill_mode})"
+        )
+
     @classmethod
     def inputs(cls) -> dict[str, tuple[str, ...]]:
         """Inputs to this operator."""

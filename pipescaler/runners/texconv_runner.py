@@ -40,6 +40,10 @@ class TexconvRunner(Runner):
             ' -o "{outfile.parent}" "{infile}"'
         )
 
+    def __repr__(self):
+        """Representation."""
+        return f"{self.__class__.__name__}(arguments={self.arguments!r})"
+
     def run(self, infile: Path, outfile: Path) -> None:
         """Run executable on infile, yielding outfile.
 

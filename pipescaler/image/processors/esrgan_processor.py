@@ -59,6 +59,14 @@ class EsrganProcessor(PyTorchProcessor):
                 f"falling back to cpu"
             )
 
+    def __repr__(self):
+        """Representation."""
+        return (
+            f"{self.__class__.__name__}("
+            f"model_infile={self.model_infile!r},"
+            f"device={self.device})"
+        )
+
     @classmethod
     def help_markdown(cls) -> str:
         """Short description of this tool in markdown, with links."""

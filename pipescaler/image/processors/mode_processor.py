@@ -45,6 +45,14 @@ class ModeProcessor(Processor):
 
         return output_image
 
+    def __repr__(self):
+        """Representation."""
+        return (
+            f"{self.__class__.__name__}("
+            f"mode={self.mode},"
+            f"background_color={self.background_color})"
+        )
+
     @classmethod
     def inputs(cls) -> dict[str, tuple[str, ...]]:
         """Inputs to this operator."""

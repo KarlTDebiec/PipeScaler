@@ -46,6 +46,13 @@ class CropProcessor(Processor):
 
         return output_image
 
+    def __repr__(self):
+        """Representation."""
+        return (
+            f"{self.__class__.__name__}("
+            f"pixels={(self.left,self.top,self.right,self.bottom)})"
+        )
+
     @classmethod
     def inputs(cls) -> dict[str, tuple[str, ...]]:
         """Inputs to this operator."""

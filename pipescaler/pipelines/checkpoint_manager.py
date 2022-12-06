@@ -23,10 +23,6 @@ from pipescaler.core.pipelines.segments.checkpointed import (
 class CheckpointManager(CheckpointManagerBase):
     """Manages checkpoints."""
 
-    def __repr__(self):
-        """Representation."""
-        return f"{self.__class__.__name__}(directory={self.directory})"
-
     def load(
         self,
         images: tuple[PipeImage, ...],
