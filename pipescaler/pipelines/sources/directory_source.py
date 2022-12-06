@@ -9,7 +9,7 @@ from itertools import chain
 from pathlib import Path
 from typing import Any, Callable, Optional, Sequence, Union
 
-from pipescaler.common import validate_input_directory
+from pipescaler.common import validate_input_directories
 from pipescaler.core.pipelines import PipeImage, Source
 from pipescaler.core.sorting import basic_sort
 
@@ -17,7 +17,7 @@ from pipescaler.core.sorting import basic_sort
 class DirectorySource(Source):
     """Yields images from a directory."""
 
-    exclusions = {".DS_Store", "desktop"}
+    cls_exclusions = {".DS_Store", "desktop"}
     """Base filenames to exclude"""
 
     def __init__(
@@ -25,6 +25,7 @@ class DirectorySource(Source):
         directory: Union[Union[Path, str], Sequence[Union[Path, str]]],
         exclusions: Optional[set[str]] = None,
         sort: Union[Callable[[str], int], Callable[[str], str]] = basic_sort,
+        reverse: bool = False,
         **kwargs: Any,
     ) -> None:
         """Validate and store configuration and initialize.
@@ -33,24 +34,25 @@ class DirectorySource(Source):
             directory: Directory or directories from which to yield files
             exclusions: Filenames stems to exclude
             sort: Function to sort filenames
+            reverse: Whether to reverse sort order
             **kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
 
-        if exclusions is None:
-            exclusions = set()
-        exclusions |= self.exclusions
-
         # Store configuration
-        if isinstance(directory, (Path, str)):
-            directory = [directory]
-        self.directories = [Path(validate_input_directory(d)) for d in directory]
+        self.directories = validate_input_directories(directory)
+        self.exclusions = self.cls_exclusions
+        if exclusions is not None:
+            self.exclusions |= exclusions
         self.sort = sort
+        self.reverse = reverse
 
         # Store list of filenames
         filenames = list(chain.from_iterable(d.iterdir() for d in self.directories))
         filenames = [f for f in filenames if f.stem not in self.exclusions]
-        filenames.sort(key=lambda filename: self.sort(filename.stem), reverse=True)
+        filenames.sort(
+            key=lambda filename: self.sort(filename.stem), reverse=self.reverse
+        )
         self.filenames = filenames
         self.index = 0
 
@@ -61,3 +63,13 @@ class DirectorySource(Source):
             self.index += 1
             return PipeImage(path=filename)
         raise StopIteration
+
+    def __repr__(self):
+        """Representation."""
+        return (
+            f"{self.__class__.__name__}("
+            f"directory={self.directories}, "
+            f"exclusions={self.exclusions}"
+            f"sort={self.sort},"
+            f"reverse={self.reverse})"
+        )
