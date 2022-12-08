@@ -20,3 +20,11 @@ class Segment(ABC):
             Output images, within a tuple even if only one
         """
         raise NotImplementedError()
+
+    def __repr__(self):
+        """Representation."""
+        return f"{self.__class__.__name__}()"
+
+    def __str__(self):
+        """String representation."""
+        return f"<{self.__class__.__name__}>"
