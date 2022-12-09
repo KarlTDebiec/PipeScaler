@@ -28,7 +28,7 @@ class PotraceProcessor(Processor):
         invert: bool = False,
         scale: float = 1.0,
     ) -> None:
-        """Validate and store configuration and initialize.
+        """Initialize.
 
         Arguments:
             arguments: Command-line arguments to pass to potrace
@@ -88,8 +88,8 @@ class PotraceProcessor(Processor):
     def help_markdown(cls) -> str:
         """Short description of this tool in markdown, with links."""
         return (
-            "Traces image using [Potrace](http://potrace.sourceforge.net/) and"
-            " re-rasterizes, optionally resizing."
+            "Traces image using [Potrace](http://potrace.sourceforge.net/) and "
+            "re-rasterizes, optionally resizing."
         )
 
     @classmethod

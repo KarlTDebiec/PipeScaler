@@ -16,7 +16,7 @@ from pipescaler.core.validation import validate_image
 
 
 class SolidColorSorter(Sorter):
-    """Sorts image based on whether their entire canvas is a solid color."""
+    """Sorts images based on whether their entire canvas is a solid color."""
 
     def __init__(self, mean_threshold: int = 1, max_threshold: int = 10) -> None:
         """Validate configuration and initialize.
