@@ -552,14 +552,15 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [[package]]
 name = "prospector"
-version = "1.8.2"
-description = ""
+version = "1.8.3"
+description = "Prospector is a tool to analyse Python code by aggregating the result of other tools."
 category = "dev"
 optional = false
 python-versions = ">=3.7,<4.0"
 
 [package.dependencies]
 dodgy = ">=0.2.1,<0.3.0"
+flake8 = "<6.0.0"
 GitPython = ">=3.1.27,<4.0.0"
 mccabe = ">=0.7.0,<0.8.0"
 pep8-naming = ">=0.3.3,<=0.10.0"
@@ -1122,7 +1123,7 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "1.1"
 python-versions = "~3.9"
-content-hash = "ff31c27dd18501b037afa27e4cb92690219dd69dabc73e2e912d3f2b51ce1903"
+content-hash = "3db0b05b7b31ed87253666f0470aea7d6e47a302277a6787e69f0b5bf47f9756"
 
 [metadata.files]
 astroid = [
@@ -1681,8 +1682,8 @@ poetry-semver = [
     {file = "poetry_semver-0.1.0-py2.py3-none-any.whl", hash = "sha256:4e6349bd7231cc657f0e1930f7b204e87e33dfd63eef5cac869363969515083a"},
 ]
 prospector = [
-    {file = "prospector-1.8.2-py3-none-any.whl", hash = "sha256:3afabfce9b013796dc83edba86e83d84f6069c43da9ec5bf18b88e10e0facf05"},
-    {file = "prospector-1.8.2.tar.gz", hash = "sha256:931003914c2df58aebf3c026c3c2f1c9d1c3eb6115599dfecd06e99516486f88"},
+    {file = "prospector-1.8.3-py3-none-any.whl", hash = "sha256:75d65a6f40682f25ea6f69dc12add9f921dbafdd307bf27aa099728f89d77b67"},
+    {file = "prospector-1.8.3.tar.gz", hash = "sha256:b674b619e1b9923eb750aea4ccda6254d2ebaca11eb1c43fbddf019a7cfcc5cb"},
 ]
 pycodestyle = [
     {file = "pycodestyle-2.10.0-py2.py3-none-any.whl", hash = "sha256:8a4eaf0d0495c7395bdab3589ac2db602797d76207242c17d470186815706610"},
