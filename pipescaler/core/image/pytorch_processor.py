@@ -14,7 +14,7 @@ from PIL import Image
 from torch.nn import Module
 
 from pipescaler.common import validate_input_file
-from pipescaler.core.image.operators.processor import Processor
+from pipescaler.core.image.processor import Processor
 from pipescaler.core.image.validation import validate_image_and_convert_mode
 
 

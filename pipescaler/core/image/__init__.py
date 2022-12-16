@@ -22,17 +22,22 @@ from pipescaler.core.image.functions import (
     smooth_image,
     vstack_images,
 )
+from pipescaler.core.image.merger import Merger
 from pipescaler.core.image.operator import Operator
-from pipescaler.core.image.operators.merger import Merger
-from pipescaler.core.image.operators.processor import Processor
-from pipescaler.core.image.operators.splitter import Splitter
+from pipescaler.core.image.processor import Processor
+from pipescaler.core.image.pytorch_processor import PyTorchProcessor
+from pipescaler.core.image.splitter import Splitter
 from pipescaler.core.image.validation import (
     validate_image,
     validate_image_and_convert_mode,
 )
 
 __all__ = [
+    "Merger",
     "Operator",
+    "Processor",
+    "PyTorchProcessor",
+    "Splitter",
     "UnsupportedImageModeError",
     "convert_mode",
     "crop_image",

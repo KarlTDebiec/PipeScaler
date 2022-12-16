@@ -5,8 +5,7 @@
 from logging import info
 
 from pipescaler.core.image import Processor
-from pipescaler.core.pipelines.pipe_image import PipeImage
-from pipescaler.core.pipelines.segments.operator_segment import OperatorSegment
+from pipescaler.core.pipelines import OperatorSegment, PipeImage
 
 
 class ProcessorSegment(OperatorSegment):

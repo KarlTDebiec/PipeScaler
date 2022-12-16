@@ -13,7 +13,7 @@ from typing import Any, Type
 from PIL import Image
 
 from pipescaler.common import CommandLineInterface, set_logging_verbosity
-from pipescaler.core.image.operators import Processor
+from pipescaler.core.image import Processor
 
 
 class ProcessorCli(CommandLineInterface, ABC):
