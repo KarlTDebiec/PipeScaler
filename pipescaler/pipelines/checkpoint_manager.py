@@ -42,12 +42,12 @@ class CheckpointManager(CheckpointManagerBase):
         for i, c in zip(images, cpts):
             self.observe(i, c)
 
-        cpt_paths = [self.directory / i.name / c for i in images for c in cpts]
+        cpt_paths = self.get_cpt_paths(self.directory, images, cpts)
         if all(p.exists() for p in cpt_paths):
             outputs = tuple(
                 PipeImage(path=p, parents=i) for i, p in zip(images, cpt_paths)
             )
-            info(f"{self}: {images[0].name} checkpoints {cpts} loaded")
+            info(f"{self}: {images[0].relative_name} checkpoints {cpts} loaded")
 
             internal_cpts = self.get_cpts_of_segments(*calls) if calls else []
             for i in images:
@@ -191,7 +191,7 @@ class CheckpointManager(CheckpointManagerBase):
     @staticmethod
     def get_cpt_paths(
         root_directory: Path, images: Collection[PipeImage], cpts: Collection[str]
-    ) -> list[Path, ...]:
+    ) -> list[Path]:
         """Get paths to checkpoints.
 
         Arguments:
