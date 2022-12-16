@@ -8,7 +8,6 @@ from pathlib import Path
 from typing import Union
 
 from pipescaler.common import validate_output_directory
-from pipescaler.core.pipelines.pipe_image import PipeImage
 
 
 class CheckpointManagerBase:
@@ -33,22 +32,21 @@ class CheckpointManagerBase:
         """String representation."""
         return f"<{self.__class__.__name__}>"
 
-    def observe(self, image: PipeImage, cpt: str) -> None:
+    def observe(self, location_name: str, cpt: str) -> None:
         """Log observation of a checkpoint.
 
-        Strips trailing '.' from image.relative_name because Windows does not support
+        Strips trailing '.' from relative_name because Windows does not support
         directory names with trailing periods.
 
         Arguments:
-            image: Image
+            location_name: Location and name of image
             cpt: Checkpoint name
         """
-        relative_name = image.relative_name
-        if relative_name.endswith("."):
-            relative_name = relative_name.rstrip(".")
+        if location_name.endswith("."):
             warning(
-                f"{self}: image {image.name} has trailing '.', which is not "
-                f"supported for directories on Windows; stripping trailing '.'"
-                f"from checkpoint directory path."
+                f"{self}: {location_name} has trailing '.', which is not supported for "
+                f"directories on Windows; stripping trailing '.' from checkpoint "
+                f"directory name."
             )
-        self.observed_checkpoints.add((relative_name, cpt))
+            location_name = location_name.rstrip(".")
+        self.observed_checkpoints.add((location_name, cpt))

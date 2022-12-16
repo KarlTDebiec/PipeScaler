@@ -56,7 +56,7 @@ class HierarchicalCopyFileTerminus(Terminus):
                 input_image.image.save(outfile)
 
         suffix = input_image.path.suffix if input_image.path is not None else ".png"
-        outfile = (self.directory / input_image.relative_name).with_suffix(suffix)
+        outfile = (self.directory / input_image.location_name).with_suffix(suffix)
         self.observed_files.add(str(outfile.relative_to(self.directory)))
         if outfile.exists():
             if (

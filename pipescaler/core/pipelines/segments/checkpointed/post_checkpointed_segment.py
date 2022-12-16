@@ -28,7 +28,7 @@ class PostCheckpointedSegment(CheckpointedSegment):
             info(f"{self}: {inputs[0].name} checkpoints {self.cpts} loaded")
             for i in inputs:
                 for c in self.internal_cpts:
-                    self.cp_manager.observe(i, c)
+                    self.cp_manager.observe(i.location_name, c)
         else:
             outputs = self.segment(*inputs)
             if len(outputs) != len(self.cpts):
@@ -43,6 +43,6 @@ class PostCheckpointedSegment(CheckpointedSegment):
                 info(f"{self}: {o.name} checkpoint {p} saved")
         for i in inputs:
             for c in self.cpts:
-                self.cp_manager.observe(i, c)
+                self.cp_manager.observe(i.location_name, c)
 
         return outputs

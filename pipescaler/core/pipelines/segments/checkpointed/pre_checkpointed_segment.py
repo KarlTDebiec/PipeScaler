@@ -37,6 +37,6 @@ class PreCheckpointedSegment(CheckpointedSegment):
             else:
                 i.save(p)
                 info(f"{self}: {i.name} checkpoint {p} saved")
-            self.cp_manager.observe(i, c)
+            self.cp_manager.observe(i.location_name, c)
 
         return self.segment(*inputs)

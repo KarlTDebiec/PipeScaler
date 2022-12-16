@@ -3,6 +3,7 @@
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Manages checkpoints."""
+from itertools import cycle
 from logging import info
 from os import remove, rmdir
 from pathlib import Path
@@ -39,20 +40,22 @@ class CheckpointManager(CheckpointManagerBase):
         Returns:
             Images loaded from checkpoints if available, otherwise None
         """
-        for i, c in zip(images, cpts):
-            self.observe(i, c)
+        if len(images) == len(cpts):
+            location_names = [i.location_name for i in images]
+        else:
+            location_names = list(dict.fromkeys([i.location_name for i in images]))
+        for ln, c in zip(cycle(location_names), cpts):
+            self.observe(ln, c)
 
-        cpt_paths = self.get_cpt_paths(self.directory, images, cpts)
+        cpt_paths = self.get_cpt_paths(self.directory, location_names, cpts)
         if all(p.exists() for p in cpt_paths):
-            outputs = tuple(
-                PipeImage(path=p, parents=i) for i, p in zip(images, cpt_paths)
-            )
-            info(f"{self}: {images[0].relative_name} checkpoints {cpts} loaded")
+            outputs = tuple(PipeImage(path=p, parents=images) for p in cpt_paths)
+            info(f"{self}: {location_names} checkpoints {cpts} loaded")
 
             internal_cpts = self.get_cpts_of_segments(*calls) if calls else []
-            for i in images:
+            for ln in location_names:
                 for c in internal_cpts:
-                    self.observe(i, c)
+                    self.observe(ln, c)
 
             return outputs
 
@@ -173,42 +176,42 @@ class CheckpointManager(CheckpointManagerBase):
             Images, with paths updated to checkpoints
         """
         if len(images) != len(cpts):
-            raise ValueError(f"Expected {len(cpts)} inputs but received {len(images)}.")
-        cpt_paths = self.get_cpt_paths(self.directory, images, cpts)
+            raise ValueError(
+                f"Number of cpts ({len(cpts)}) must equal number of images "
+                f"({len(images)})"
+            )
+        cpt_paths = self.get_cpt_paths(
+            self.directory, [i.location_name for i in images], cpts
+        )
         for i, c, p in zip(images, cpts, cpt_paths):
             if not p.parent.exists():
                 p.parent.mkdir(parents=True)
                 info(f"{self}: directory {p.parent} created")
             if not p.exists() or overwrite:
                 i.save(p)
-                info(f"{self}: {i.relative_name} checkpoint {c} saved")
+                info(f"{self}: {i.location_name} checkpoint {c} saved")
             else:
                 i.path = p
-            self.observe(i, c)
+            self.observe(i.location_name, c)
 
         return images
 
     @staticmethod
     def get_cpt_paths(
-        root_directory: Path, images: Collection[PipeImage], cpts: Collection[str]
+        root_directory: Path, location_names: Collection[str], cpts: Collection[str]
     ) -> list[Path]:
         """Get paths to checkpoints.
 
         Arguments:
             root_directory: Root directory of checkpoints
-            images: Images
+            location_names: Locations and names of images
             cpts: Names of checkpoints
         Returns:
             Paths to checkpoints
         """
-        if len(images) != len(cpts):
-            raise ValueError(f"Expected {len(cpts)} inputs but received {len(images)}.")
         cpt_paths = []
-        for i, c in zip(images, cpts):
-            if i.relative_path:
-                cpt_paths.append(root_directory / i.relative_path / i.name / c)
-            else:
-                cpt_paths.append(root_directory / i.name / c)
+        for ln, c in zip(cycle(location_names), cpts):
+            cpt_paths.append(root_directory / ln / c)
 
         return cpt_paths
 

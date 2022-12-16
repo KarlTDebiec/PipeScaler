@@ -77,11 +77,11 @@ class PipeImage:
                 "will be used as the name, or a parent image whose name will be used."
             )
         if relative_path is not None:
-            self._relative_path = relative_path
+            self._location = relative_path
         elif self.parents is not None:
-            self._relative_path = self.parents[0].relative_path
+            self._location = self.parents[0].location
         else:
-            self._relative_path = None
+            self._location = None
 
     def __str__(self) -> str:
         """String representation."""
@@ -150,13 +150,13 @@ class PipeImage:
         return self._name
 
     @property
-    def relative_name(self) -> str:
-        """Name of this image relative to root directory."""
-        if self.relative_path is not None:
-            return str(self.relative_path / self.name)
+    def location_name(self) -> str:
+        """Location relative to root directory and name."""
+        if self.location is not None:
+            return str(self.location / self.name)
         return self.name
 
     @property
-    def relative_path(self) -> Optional[Path]:
-        """Path relative to root directory."""
-        return self._relative_path
+    def location(self) -> Optional[Path]:
+        """Location relative to root directory."""
+        return self._location

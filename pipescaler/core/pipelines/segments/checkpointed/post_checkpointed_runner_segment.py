@@ -67,6 +67,6 @@ class PostCheckpointedRunnerSegment(CheckpointedSegment):
                 self.segment.runner(inputs[0].path, cpt_path)
             output = PipeImage(path=cpt_path, parents=inputs[0])
             info(f"{self}: {output.name} checkpoint {self.cpts[0]} saved")
-        self.cp_manager.observe(inputs[0], self.cpts[0])
+        self.cp_manager.observe(inputs[0].location_name, self.cpts[0])
 
         return (output,)
