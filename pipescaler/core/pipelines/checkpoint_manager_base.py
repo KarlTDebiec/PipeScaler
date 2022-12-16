@@ -3,6 +3,7 @@
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Base class for checkpoint managers."""
+from logging import warning
 from pathlib import Path
 from typing import Union
 
@@ -35,8 +36,19 @@ class CheckpointManagerBase:
     def observe(self, image: PipeImage, cpt: str) -> None:
         """Log observation of a checkpoint.
 
+        Strips trailing '.' from image.relative_name because Windows does not support
+        directory names with trailing periods.
+
         Arguments:
             image: Image
             cpt: Checkpoint name
         """
-        self.observed_checkpoints.add((image.name, cpt))
+        relative_name = image.relative_name
+        if relative_name.endswith("."):
+            relative_name = relative_name.rstrip(".")
+            warning(
+                f"{self}: image {image.name} has trailing '.', which is not "
+                f"supported for directories on Windows; stripping trailing '.'"
+                f"from checkpoint directory path."
+            )
+        self.observed_checkpoints.add((relative_name, cpt))

@@ -150,6 +150,13 @@ class PipeImage:
         return self._name
 
     @property
+    def relative_name(self) -> str:
+        """Name of this image relative to root directory."""
+        if self.relative_path is not None:
+            return str(self.relative_path / self.name)
+        return self.name
+
+    @property
     def relative_path(self) -> Optional[Path]:
         """Path relative to root directory."""
         return self._relative_path

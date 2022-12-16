@@ -5,9 +5,7 @@
 """Manages checkpoints."""
 from logging import info
 from os import remove, rmdir
-from os.path import join
 from pathlib import Path
-from shutil import rmtree
 from typing import Callable, Collection, Optional, Union
 
 from pipescaler.core import RunnerLike
@@ -139,23 +137,24 @@ class CheckpointManager(CheckpointManagerBase):
 
         return decorator
 
-    def purge_unrecognized_files(self) -> None:
-        """Remove files in output directory that have not been logged as observed."""
-        for image in self.directory.iterdir():
-            if image.is_dir():
-                for cpt in image.iterdir():
-                    if cpt.is_dir():
-                        rmtree(cpt)
-                        info(f"{self}: directory {join(image.name, cpt.name)} removed")
-                    elif (image.name, cpt.name) not in self.observed_checkpoints:
-                        remove(cpt)
-                        info(f"{self}: file {join(image.name, cpt.name)} removed")
-                if not any(image.iterdir()):
-                    rmdir(image)
-                    info(f"{self}: directory {image.name} removed")
+    def purge_unrecognized_files(self, directory: Optional[Path] = None) -> None:
+        """Remove unrecognized files and subdirectories in checkpoint directory."""
+        if directory is None:
+            directory = self.directory
+        for path in directory.iterdir():
+            if path.is_dir():
+                self.purge_unrecognized_files(path)
+            elif path.is_file():
+                relative_path = path.relative_to(self.directory)
+                checkpoint = (str(relative_path.parent), path.name)
+                if checkpoint not in self.observed_checkpoints:
+                    remove(path)
+                    info(f"{self}: file {relative_path} removed")
             else:
-                remove(image)
-                info(f"{self}: file {image.name} removed")
+                raise ValueError(f"Unsupported path type: {path}")
+        if not any(directory.iterdir()) and directory != self.directory:
+            rmdir(directory)
+            info(f"{self}: directory {directory.relative_to(self.directory)} removed")
 
     def save(
         self,
@@ -175,18 +174,43 @@ class CheckpointManager(CheckpointManagerBase):
         """
         if len(images) != len(cpts):
             raise ValueError(f"Expected {len(cpts)} inputs but received {len(images)}.")
-        cpt_paths = [self.directory / i.name / c for i in images for c in cpts]
-        for o, c, p in zip(images, cpts, cpt_paths):
+        cpt_paths = self.get_cpt_paths(self.directory, images, cpts)
+        for i, c, p in zip(images, cpts, cpt_paths):
             if not p.parent.exists():
                 p.parent.mkdir(parents=True)
+                info(f"{self}: directory {p.parent} created")
             if not p.exists() or overwrite:
-                o.save(p)
-                info(f"{self}: {o.name} checkpoint {c} saved")
+                i.save(p)
+                info(f"{self}: {i.relative_name} checkpoint {c} saved")
             else:
-                o.path = p
-            self.observe(o, c)
+                i.path = p
+            self.observe(i, c)
 
         return images
+
+    @staticmethod
+    def get_cpt_paths(
+        root_directory: Path, images: Collection[PipeImage], cpts: Collection[str]
+    ) -> list[Path, ...]:
+        """Get paths to checkpoints.
+
+        Arguments:
+            root_directory: Root directory of checkpoints
+            images: Images
+            cpts: Names of checkpoints
+        Returns:
+            Paths to checkpoints
+        """
+        if len(images) != len(cpts):
+            raise ValueError(f"Expected {len(cpts)} inputs but received {len(images)}.")
+        cpt_paths = []
+        for i, c in zip(images, cpts):
+            if i.relative_path:
+                cpt_paths.append(root_directory / i.relative_path / i.name / c)
+            else:
+                cpt_paths.append(root_directory / i.name / c)
+
+        return cpt_paths
 
     @staticmethod
     def get_cpts_of_segments(*cpts_or_segments: Union[SegmentLike, str]) -> list[str]:
