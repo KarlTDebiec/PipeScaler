@@ -23,6 +23,7 @@ class HierarchicalDirectorySource(Source):
     def __init__(
         self,
         directory: Union[Path, str],
+        *,
         exclusions: Optional[set[str]] = None,
         inclusions: Optional[set[str]] = None,
         sort: Union[Callable[[str], int], Callable[[str], str]] = basic_sort,
@@ -48,7 +49,7 @@ class HierarchicalDirectorySource(Source):
         if exclusions is None:
             exclusions = set()
         exclusions |= self.cls_exclusions
-        self.exclusions = set()
+        self.exclusions: set[re.Pattern] = set()
         """File path regular expressions to exclude"""
         for exclusion in exclusions:
             if isinstance(exclusion, str):
@@ -58,7 +59,7 @@ class HierarchicalDirectorySource(Source):
                     f"Exclusion must be str or re.Pattern, not {type(exclusion)}"
                 )
             self.exclusions.add(exclusion)
-        self.inclusions = None
+        self.inclusions: Optional[set[re.Pattern]] = None
         """File path regular expressions to include"""
         if inclusions is not None:
             self.inclusions = set()
@@ -118,7 +119,7 @@ class HierarchicalDirectorySource(Source):
             relative_path = file_path.parent.relative_to(self.directory)
             if relative_path == Path("."):
                 relative_path = None
-            return PipeImage(path=file_path, relative_path=relative_path)
+            return PipeImage(path=file_path, location=relative_path)
         raise StopIteration
 
     def __repr__(self):
