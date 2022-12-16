@@ -52,7 +52,7 @@ class GrayscaleSorter(Sorter):
         else:
             outlet = "no_rgb"
 
-        info(f"{self}: {pipe_image.name} matches {outlet}")
+        info(f"{self}: '{pipe_image.location_name}' matches '{outlet}'")
         return outlet
 
     def __repr__(self):

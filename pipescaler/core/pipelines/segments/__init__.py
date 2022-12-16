@@ -4,10 +4,8 @@
 """Segments."""
 from pipescaler.core.pipelines.segments.checkpointed_segment import CheckpointedSegment
 from pipescaler.core.pipelines.segments.operator_segment import OperatorSegment
-from pipescaler.core.pipelines.segments.runner_segment import RunnerSegment
 
 __all__ = [
     "CheckpointedSegment",
     "OperatorSegment",
-    "RunnerSegment",
 ]

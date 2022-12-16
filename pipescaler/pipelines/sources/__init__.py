@@ -6,8 +6,7 @@
 from __future__ import annotations
 
 from pipescaler.pipelines.sources.directory_source import DirectorySource
-from pipescaler.pipelines.sources.hierarchical_directory_source import (
-    HierarchicalDirectorySource,
-)
 
-__all__: list[str] = ["DirectorySource", "HierarchicalDirectorySource"]
+__all__: list[str] = [
+    "DirectorySource",
+]

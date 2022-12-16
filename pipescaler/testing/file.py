@@ -53,12 +53,12 @@ def get_test_model_infile_path(name: str) -> Path:
 
 
 def get_test_infile_directory_path(name: str = "basic") -> Path:
-    """Get path of sub-directory within test data directory.
+    """Get path of subdirectory within test data directory.
 
     Arguments:
-        name: Name of sub-directory
+        name: Name of subdirectory
     Returns:
-        Path to sub-directory
+        Path to subdirectory
     """
     path = package_root.parent / "test" / "data" / "infiles" / name
     if not path.exists():

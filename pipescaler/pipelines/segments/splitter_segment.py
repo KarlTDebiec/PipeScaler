@@ -39,6 +39,6 @@ class SplitterSegment(OperatorSegment):
         input_image = inputs[0].image
         output_images = self.operator(input_image)
         outputs = tuple(PipeImage(o, parents=inputs[0]) for o in output_images)
-        info(f"{self.operator}: {inputs[0].name} split")
+        info(f"{self.operator}: '{inputs[0].location_name}' split")
 
         return outputs

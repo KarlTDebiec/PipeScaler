@@ -5,8 +5,7 @@
 """Traces image using potrace and re-rasterizes, optionally resizing."""
 from __future__ import annotations
 
-from PIL import Image
-from PIL.ImageOps import invert
+from PIL import Image, ImageOps
 from reportlab.graphics.renderPM import drawToFile
 from svglib.svglib import svg2rlg
 
@@ -51,7 +50,7 @@ class PotraceProcessor(Processor):
             input_image, self.inputs()["input"], "L"
         )
         if self.invert:
-            input_image = invert(input_image)
+            input_image = ImageOps.invert(input_image)
 
         with get_temp_file_path(".bmp") as temp_bmp_path:
             input_image.save(temp_bmp_path)
@@ -71,7 +70,7 @@ class PotraceProcessor(Processor):
                     output_image = Image.open(temp_png_path).convert("L")
 
         if self.invert:
-            output_image = invert(output_image)
+            output_image = ImageOps.invert(output_image)
 
         return output_image
 

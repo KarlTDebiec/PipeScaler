@@ -5,11 +5,11 @@
 """Yields images from a directory."""
 from __future__ import annotations
 
-from itertools import chain
+import re
 from pathlib import Path
-from typing import Any, Callable, Optional, Sequence, Union
+from typing import Any, Callable, Optional, Union
 
-from pipescaler.common import validate_input_directories
+from pipescaler.common import validate_input_directory
 from pipescaler.core.pipelines import PipeImage, Source
 from pipescaler.core.sorting import basic_sort
 
@@ -17,13 +17,15 @@ from pipescaler.core.sorting import basic_sort
 class DirectorySource(Source):
     """Yields images from a directory."""
 
-    cls_exclusions = {".DS_Store", "desktop"}
-    """Base filenames to exclude"""
+    cls_exclusions = {r".*\.DS_Store$", r".*Thumbs.db$", r".*desktop$"}
+    """File paths to exclude"""
 
     def __init__(
         self,
-        directory: Union[Union[Path, str], Sequence[Union[Path, str]]],
+        directory: Union[Path, str],
+        *,
         exclusions: Optional[set[str]] = None,
+        inclusions: Optional[set[str]] = None,
         sort: Union[Callable[[str], int], Callable[[str], str]] = basic_sort,
         reverse: bool = False,
         **kwargs: Any,
@@ -31,45 +33,104 @@ class DirectorySource(Source):
         """Validate and store configuration and initialize.
 
         Arguments:
-            directory: Directory or directories from which to yield files
-            exclusions: Filenames stems to exclude
-            sort: Function to sort filenames
-            reverse: Whether to reverse sort order
+            directory: Directory from which to yield files
+            exclusions: File path regular expressions to exclude
+            inclusions: File path regular expressions to include
+            sort: Function with which to sort file paths
+            reverse: Whether to reverse file path sort order
             **kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
 
         # Store configuration
-        self.directories = validate_input_directories(directory)
-        self.exclusions = self.cls_exclusions
-        if exclusions is not None:
-            self.exclusions |= exclusions
-        self.sort = sort
-        self.reverse = reverse
+        self.directory = validate_input_directory(directory)
+        """Directory from which to yield files"""
 
-        # Store list of filenames
-        filenames = list(chain.from_iterable(d.iterdir() for d in self.directories))
-        filenames = [f for f in filenames if f.stem not in self.exclusions]
-        filenames.sort(
-            key=lambda filename: self.sort(filename.stem), reverse=self.reverse
+        if exclusions is None:
+            exclusions = set()
+        exclusions |= self.cls_exclusions
+        self.exclusions: set[re.Pattern] = set()
+        """File path regular expressions to exclude"""
+        for exclusion in exclusions:
+            if isinstance(exclusion, str):
+                exclusion = re.compile(exclusion)
+            elif not isinstance(exclusion, re.Pattern):
+                raise TypeError(
+                    f"Exclusion must be str or re.Pattern, not {type(exclusion)}"
+                )
+            self.exclusions.add(exclusion)
+
+        self.inclusions: Optional[set[re.Pattern]] = None
+        """File path regular expressions to include"""
+        if inclusions is not None:
+            self.inclusions = set()
+            """File path regular expressions to include"""
+            for inclusion in inclusions:
+                if isinstance(inclusion, str):
+                    inclusion = re.compile(inclusion)
+                elif not isinstance(inclusion, re.Pattern):
+                    raise TypeError(
+                        f"Inclusion must be str or re.Pattern, not {type(inclusion)}"
+                    )
+                self.inclusions.add(inclusion)
+
+        self.sort = sort
+        """Function with which to sort file paths"""
+        self.reverse = reverse
+        """Whether to reverse file path sort order"""
+
+        # Store list of file_paths
+        file_paths = self.scan_directory(self.directory, self.directory)
+        file_paths.sort(
+            key=lambda file_path: self.sort(str(file_path.relative_to(self.directory))),
+            reverse=self.reverse,
         )
-        self.filenames = filenames
+        self.file_paths = file_paths
+        """File paths to be yielded"""
         self.index = 0
+        """Index of next file path to be yielded"""
+
+    def scan_directory(self, root_directory: Path, directory: Path) -> list[Path]:
+        """Recursively scan directory for files.
+
+        Arguments:
+            root_directory: Root directory being scanned overall
+            directory: Directory to scan presently
+        Returns:
+            List of file paths within directory
+        """
+        file_paths = []
+        for file_path in [f for f in directory.iterdir() if f.is_file()]:
+            relative_path = file_path.relative_to(root_directory)
+            if any(e.match(str(relative_path)) for e in self.exclusions):
+                continue
+            if self.inclusions is not None:
+                if not any(i.match(str(relative_path)) for i in self.inclusions):
+                    continue
+            file_paths.append(file_path)
+        for subdirectory_path in [d for d in directory.iterdir() if d.is_dir()]:
+            file_paths.extend(self.scan_directory(root_directory, subdirectory_path))
+
+        return file_paths
 
     def __next__(self):
         """Yield next image."""
-        if self.index < len(self.filenames):
-            filename = self.filenames[self.index]
+        if self.index < len(self.file_paths):
+            file_path = self.file_paths[self.index]
             self.index += 1
-            return PipeImage(path=filename)
+            relative_path = file_path.parent.relative_to(self.directory)
+            if relative_path == Path("."):
+                relative_path = None
+            return PipeImage(path=file_path, location=relative_path)
         raise StopIteration
 
     def __repr__(self):
         """Representation."""
         return (
             f"{self.__class__.__name__}("
-            f"directory={self.directories}, "
-            f"exclusions={self.exclusions}"
+            f"directory={self.directory},"
+            f"exclusions={self.exclusions},"
+            f"inclusions={self.inclusions},"
             f"sort={self.sort},"
             f"reverse={self.reverse})"
         )

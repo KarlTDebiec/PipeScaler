@@ -7,15 +7,15 @@ from itertools import cycle
 from logging import info
 from os import remove, rmdir
 from pathlib import Path
-from typing import Callable, Collection, Optional, Union
+from typing import Callable, Collection, Optional, Sequence, Union
 
 from pipescaler.core import RunnerLike
 from pipescaler.core.pipelines import CheckpointManagerBase, PipeImage, SegmentLike
-from pipescaler.core.pipelines.segments import RunnerSegment
-from pipescaler.core.pipelines.segments.checkpointed import (
+from pipescaler.pipelines.segments import (
     PostCheckpointedRunnerSegment,
     PostCheckpointedSegment,
     PreCheckpointedSegment,
+    RunnerSegment,
 )
 
 
@@ -25,7 +25,7 @@ class CheckpointManager(CheckpointManagerBase):
     def load(
         self,
         images: tuple[PipeImage, ...],
-        cpts: Collection[str],
+        cpts: Sequence[str],
         *,
         calls: Optional[Collection[Union[SegmentLike, str]]] = None,
     ) -> Optional[tuple[PipeImage, ...]]:
@@ -50,7 +50,11 @@ class CheckpointManager(CheckpointManagerBase):
         cpt_paths = self.get_cpt_paths(self.directory, location_names, cpts)
         if all(p.exists() for p in cpt_paths):
             outputs = tuple(PipeImage(path=p, parents=images) for p in cpt_paths)
-            info(f"{self}: {location_names} checkpoints {cpts} loaded")
+            info(
+                f"{self}: "
+                f"'{location_names[0] if len(location_names)==1 else location_names}' "
+                f"checkpoints '{cpts[0] if len(cpts) ==1 else cpts}' loaded"
+            )
 
             internal_cpts = self.get_cpts_of_segments(*calls) if calls else []
             for ln in location_names:
@@ -152,12 +156,12 @@ class CheckpointManager(CheckpointManagerBase):
                 checkpoint = (str(relative_path.parent), path.name)
                 if checkpoint not in self.observed_checkpoints:
                     remove(path)
-                    info(f"{self}: file {relative_path} removed")
+                    info(f"{self}: file '{relative_path}' removed")
             else:
                 raise ValueError(f"Unsupported path type: {path}")
         if not any(directory.iterdir()) and directory != self.directory:
             rmdir(directory)
-            info(f"{self}: directory {directory.relative_to(self.directory)} removed")
+            info(f"{self}: directory '{directory.relative_to(self.directory)}' removed")
 
     def save(
         self,
@@ -186,10 +190,10 @@ class CheckpointManager(CheckpointManagerBase):
         for i, c, p in zip(images, cpts, cpt_paths):
             if not p.parent.exists():
                 p.parent.mkdir(parents=True)
-                info(f"{self}: directory {p.parent} created")
+                info(f"{self}: directory '{p.parent}' created")
             if not p.exists() or overwrite:
                 i.save(p)
-                info(f"{self}: {i.location_name} checkpoint {c} saved")
+                info(f"{self}: '{i.location_name}' checkpoint '{c}' saved")
             else:
                 i.path = p
             self.observe(i.location_name, c)

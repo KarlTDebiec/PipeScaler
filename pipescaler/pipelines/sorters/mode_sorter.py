@@ -34,7 +34,7 @@ class ModeSorter(Sorter):
         if outlet == "1":
             outlet = "M"
 
-        info(f"{self}: '{pipe_image.name}' matches '{outlet}'")
+        info(f"{self}: '{pipe_image.location_name}' matches '{outlet}'")
         return outlet
 
     @property

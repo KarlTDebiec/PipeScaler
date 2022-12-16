@@ -3,6 +3,7 @@
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Base class for checkpoint managers."""
+from abc import ABC
 from logging import warning
 from pathlib import Path
 from typing import Union
@@ -10,7 +11,7 @@ from typing import Union
 from pipescaler.common import validate_output_directory
 
 
-class CheckpointManagerBase:
+class CheckpointManagerBase(ABC):
     """Base class for checkpoint managers."""
 
     def __init__(self, directory: Union[Path, str]) -> None:
@@ -44,8 +45,8 @@ class CheckpointManagerBase:
         """
         if location_name.endswith("."):
             warning(
-                f"{self}: {location_name} has trailing '.', which is not supported for "
-                f"directories on Windows; stripping trailing '.' from checkpoint "
+                f"{self}: '{location_name}' has trailing '.', which is not supported "
+                f"for directories on Windows; stripping trailing '.' from checkpoint "
                 f"directory name."
             )
             location_name = location_name.rstrip(".")
