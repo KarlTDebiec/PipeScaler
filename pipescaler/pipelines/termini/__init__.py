@@ -6,7 +6,8 @@
 from __future__ import annotations
 
 from pipescaler.pipelines.termini.copy_file_terminus import CopyFileTerminus
+from pipescaler.pipelines.termini.hierarchical_copy_file_terminus import (
+    HierarchicalCopyFileTerminus,
+)
 
-__all__: list[str] = [
-    "CopyFileTerminus",
-]
+__all__: list[str] = ["CopyFileTerminus", "HierarchicalCopyFileTerminus"]

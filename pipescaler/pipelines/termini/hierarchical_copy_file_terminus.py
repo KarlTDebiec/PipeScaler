@@ -19,7 +19,7 @@ from pipescaler.common import validate_output_directory
 from pipescaler.core.pipelines import PipeImage, Terminus
 
 
-class CopyFileTerminus(Terminus):
+class HierarchicalCopyFileTerminus(Terminus):
     """Copies images to a defined output directory."""
 
     def __init__(self, directory: Union[Path, str]) -> None:
@@ -47,14 +47,17 @@ class CopyFileTerminus(Terminus):
             if not self.directory.exists():
                 self.directory.mkdir(parents=True)
                 info(f"{self}: {self.directory} created")
+            if not outfile.parent.exists():
+                outfile.parent.mkdir(parents=True)
+                info(f"{self}: {outfile.parent.relative_to(self.directory)} created")
             if input_image.path is not None:
                 copyfile(input_image.path, outfile)
             else:
                 input_image.image.save(outfile)
 
         suffix = input_image.path.suffix if input_image.path is not None else ".png"
-        outfile = (self.directory / input_image.name).with_suffix(suffix)
-        self.observed_files.add(outfile.name)
+        outfile = (self.directory / input_image.relative_name).with_suffix(suffix)
+        self.observed_files.add(str(outfile.relative_to(self.directory)))
         if outfile.exists():
             if (
                 input_image.path is not None
