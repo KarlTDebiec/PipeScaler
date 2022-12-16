@@ -12,7 +12,7 @@ from typing import Type
 from pytest import mark, param
 
 from pipescaler.common import UnsupportedPlatformError
-from pipescaler.core.exceptions import UnsupportedImageModeError
+from pipescaler.core.image import UnsupportedImageModeError
 
 
 def parametrize_with_readable_ids(*args, **kwargs) -> partial:

@@ -7,7 +7,7 @@ from typing import Optional, Sequence
 
 from pipescaler.core.pipelines.checkpoint_manager_base import CheckpointManagerBase
 from pipescaler.core.pipelines.segment import Segment
-from pipescaler.core.pipelines.types import SegmentLike
+from pipescaler.core.pipelines.typing import SegmentLike
 
 
 class CheckpointedSegment(Segment, ABC):

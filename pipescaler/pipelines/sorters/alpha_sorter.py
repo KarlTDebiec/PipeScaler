@@ -10,9 +10,9 @@ from logging import info
 import numpy as np
 
 from pipescaler.common import validate_int
+from pipescaler.core.image.validation import validate_image_and_convert_mode
 from pipescaler.core.pipelines import PipeImage
 from pipescaler.core.pipelines.sorter import Sorter
-from pipescaler.core.validation import validate_image_and_convert_mode
 
 
 class AlphaSorter(Sorter):

@@ -3,6 +3,8 @@
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Image pair scorer."""
+from __future__ import annotations
+
 from functools import partial
 from logging import info
 from typing import Optional
@@ -11,7 +13,8 @@ import numpy as np
 import pandas as pd
 from scipy.stats import zscore
 
-from pipescaler.core.analytics.aliases import (
+from pipescaler.analytics.image_hash_collection import ImageHashCollection
+from pipescaler.core.analytics import (
     HashDataFrame,
     HashSeries,
     PairDataFrame,
@@ -19,15 +22,12 @@ from pipescaler.core.analytics.aliases import (
     ScoreDataFrame,
     ScoreStatsDataFrame,
     ScoreStatsSeries,
-)
-from pipescaler.core.analytics.hashing import (
     multichannel_average_hamming,
     multichannel_color_hamming,
     multichannel_difference_hamming,
     multichannel_perceptual_hamming,
     multichannel_wavelet_hamming,
 )
-from pipescaler.core.analytics.image_hash_collection import ImageHashCollection
 
 
 class ImagePairScorer:

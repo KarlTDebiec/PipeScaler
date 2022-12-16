@@ -11,8 +11,10 @@ from PIL import Image
 
 from pipescaler.common import validate_int
 from pipescaler.core import Utility
-from pipescaler.core.exceptions import UnsupportedImageModeError
-from pipescaler.core.image import get_perceptually_weighted_distance
+from pipescaler.core.image import (
+    UnsupportedImageModeError,
+    get_perceptually_weighted_distance,
+)
 
 
 class LocalPaletteMatcher(Utility):
