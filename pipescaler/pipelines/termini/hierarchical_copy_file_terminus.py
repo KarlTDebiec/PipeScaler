@@ -7,10 +7,10 @@ from __future__ import annotations
 
 from datetime import datetime
 from logging import info
-from os import remove, utime
+from os import remove, rmdir, utime
 from pathlib import Path
-from shutil import copyfile, rmtree
-from typing import Union
+from shutil import copyfile
+from typing import Optional, Union
 
 import numpy as np
 from PIL import Image
@@ -83,15 +83,20 @@ class HierarchicalCopyFileTerminus(Terminus):
         """Representation."""
         return f"{self.__class__.__name__}(directory={self.directory})"
 
-    def purge_unrecognized_files(self) -> None:
-        """Remove files in output directory that have not been logged as observed."""
-        if not self.directory.exists():
-            return
-        for image in self.directory.iterdir():
-            if image.is_dir():
-                rmtree(image)
-                info(f"{self}: directory {image.name} removed")
+    def purge_unrecognized_files(self, directory: Optional[Path] = None) -> None:
+        """Remove unrecognized files and subdirectories in output directory."""
+        if directory is None:
+            directory = self.directory
+        for path in directory.iterdir():
+            if path.is_dir():
+                self.purge_unrecognized_files(path)
+            elif path.is_file():
+                relative_path = path.relative_to(self.directory)
+                if str(relative_path) not in self.observed_files:
+                    remove(path)
+                    info(f"{self}: {relative_path} removed")
             else:
-                if image.name not in self.observed_files:
-                    remove(image)
-                    info(f"{self}: file {image.name} removed")
+                raise ValueError(f"Unsupported path type: {path}")
+        if not any(directory.iterdir()) and directory != self.directory:
+            rmdir(directory)
+            info(f"{self}: directory {directory.relative_to(self.directory)} removed")

@@ -30,6 +30,10 @@ class Sorter(ABC):
         """Representation."""
         return f"{self.__class__.__name__}()"
 
+    def __str__(self):
+        """String representation."""
+        return f"<{self.__class__.__name__}>"
+
     @property
     def outlets(self) -> tuple[str, ...]:
         """Outlets to which images may be sorted."""
