@@ -45,35 +45,10 @@ class DirectorySource(Source):
         # Store configuration
         self.directory = validate_input_directory(directory)
         """Directory from which to yield files"""
-
-        if exclusions is None:
-            exclusions = set()
-        exclusions |= self.cls_exclusions
-        self.exclusions: set[re.Pattern] = set()
+        self.exclusions = self.parse_exclusions(exclusions)
         """File path regular expressions to exclude"""
-        for exclusion in exclusions:
-            if isinstance(exclusion, str):
-                exclusion = re.compile(exclusion)
-            elif not isinstance(exclusion, re.Pattern):
-                raise TypeError(
-                    f"Exclusion must be str or re.Pattern, not {type(exclusion)}"
-                )
-            self.exclusions.add(exclusion)
-
-        self.inclusions: Optional[set[re.Pattern]] = None
+        self.inclusions = self.parse_inclusions(inclusions)
         """File path regular expressions to include"""
-        if inclusions is not None:
-            self.inclusions = set()
-            """File path regular expressions to include"""
-            for inclusion in inclusions:
-                if isinstance(inclusion, str):
-                    inclusion = re.compile(inclusion)
-                elif not isinstance(inclusion, re.Pattern):
-                    raise TypeError(
-                        f"Inclusion must be str or re.Pattern, not {type(inclusion)}"
-                    )
-                self.inclusions.add(inclusion)
-
         self.sort = sort
         """Function with which to sort file paths"""
         self.reverse = reverse
@@ -134,3 +109,53 @@ class DirectorySource(Source):
             f"sort={self.sort},"
             f"reverse={self.reverse})"
         )
+
+    @classmethod
+    def parse_exclusions(
+        cls, exclusions: Optional[set[Union[str, re.Pattern]]]
+    ) -> set[re.Pattern]:
+        """Parse exclusions.
+
+        Arguments:
+            exclusions: Exclusions to parse
+        Returns:
+            Parsed exclusions
+        """
+        parsed_exclusions = set()
+
+        for exclusion in cls.cls_exclusions.union(exclusions if exclusions else set()):
+            if isinstance(exclusion, str):
+                exclusion = re.compile(exclusion)
+            elif not isinstance(exclusion, re.Pattern):
+                raise TypeError(
+                    f"Exclusion must be str or re.Pattern, not {type(exclusion)}"
+                )
+            parsed_exclusions.add(exclusion)
+
+        return parsed_exclusions
+
+    @classmethod
+    def parse_inclusions(
+        cls, inclusions: Optional[set[Union[str, re.Pattern]]]
+    ) -> Optional[set[re.Pattern]]:
+        """Parse inclusions.
+
+        Arguments:
+            inclusions: Inclusions to parse
+        Returns:
+            Parsed inclusions
+        """
+        if inclusions is None:
+            return None
+
+        parsed_inclusions = set()
+        for inclusion in inclusions:
+            if isinstance(inclusion, str):
+                inclusion = re.compile(inclusion)
+            elif not isinstance(inclusion, re.Pattern):
+                raise TypeError(
+                    f"Inclusion must be str or re.Pattern, not {type(inclusion)}"
+                )
+            parsed_inclusions.add(inclusion)
+
+        return parsed_inclusions
