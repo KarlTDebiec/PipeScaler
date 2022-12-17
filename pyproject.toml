@@ -20,6 +20,10 @@ warn_return_any = true
 warn_unused_configs = true
 
 [[tool.mypy.overrides]]
+module = "cv2"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
 module = "imagehash"
 ignore_missing_imports = true
 
@@ -61,6 +65,7 @@ Flask = "^2.2.2"
 ImageHash = "^4.3.1"
 numba = "^0.56.4"
 numpy = "^1.23.5"
+opencv-python = "^4.6.0.66"
 pandas = "^1.5.2"
 Pillow = "^9.3.0"
 PyYAML = "^6.0"
