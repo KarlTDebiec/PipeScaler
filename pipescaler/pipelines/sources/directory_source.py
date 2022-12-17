@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
-from typing import Any, Callable, Optional, Union
+from typing import Any, Callable, Optional, Type, Union
 
 from pipescaler.common import PathLike, validate_input_directory
 from pipescaler.core.pipelines import PipeImage, PipeObject, Source
@@ -26,7 +26,7 @@ class DirectorySource(Source):
         *,
         exclusions: Optional[set[Union[str, re.Pattern]]] = None,
         inclusions: Optional[set[Union[str, re.Pattern]]] = None,
-        pipe_object_cls: PipeObject = PipeImage,
+        pipe_object_cls: Type[PipeImage] = PipeImage,
         sort: Union[Callable[[str], int], Callable[[str], str]] = basic_sort,
         reverse: bool = False,
         **kwargs: Any,
@@ -75,7 +75,7 @@ class DirectorySource(Source):
         if self.index < len(self.file_paths):
             file_path = self.file_paths[self.index]
             self.index += 1
-            relative_path = file_path.parent.relative_to(self.directory)
+            relative_path: Optional[Path] = file_path.parent.relative_to(self.directory)
             if relative_path == Path("."):
                 relative_path = None
             return self.pipe_object_cls(path=file_path, location=relative_path)
