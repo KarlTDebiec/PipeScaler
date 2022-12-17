@@ -10,5 +10,3 @@ from pipescaler.core.pipelines.pipe_object import PipeObject
 
 class PipeVideo(PipeObject):
     """Video within a pipeline."""
-
-    pass

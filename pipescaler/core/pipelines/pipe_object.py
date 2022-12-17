@@ -75,12 +75,6 @@ class PipeObject(ABC):
         """String representation."""
         return f"<{self.__class__.__name__} '{self.location_name}'>"
 
-    def count_parents(self) -> int:
-        """Count number of parents of this object."""
-        if self.parents is not None:
-            return len(self.parents) + sum(p.count_parents() for p in self.parents)
-        return 0
-
     @property
     def location_name(self) -> str:
         """Location relative to root directory and name."""
@@ -92,6 +86,11 @@ class PipeObject(ABC):
     def location(self) -> Optional[Path]:
         """Location relative to root directory."""
         return self._location
+
+    @property
+    def name(self) -> str:
+        """Name of this object."""
+        return self._name
 
     @property
     def parents(self) -> Optional[list[PipeObject]]:
@@ -108,8 +107,3 @@ class PipeObject(ABC):
         if value is not None:
             value = validate_input_file(value)
         self._path = value
-
-    @property
-    def name(self) -> str:
-        """Name of this object."""
-        return self._name
