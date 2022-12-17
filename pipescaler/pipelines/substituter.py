@@ -6,12 +6,10 @@
 from __future__ import annotations
 
 from logging import info
-from pathlib import Path
-from typing import Union
 
 from PIL import Image
 
-from pipescaler.common import validate_input_directory
+from pipescaler.common import PathLike, validate_input_directory
 from pipescaler.core.pipelines import PipeImage
 
 
@@ -20,7 +18,7 @@ class Substituter:
 
     def __init__(
         self,
-        directory: Union[str, Path],
+        directory: PathLike,
         required: bool = False,
         match_input_mode: bool = True,
     ) -> None:

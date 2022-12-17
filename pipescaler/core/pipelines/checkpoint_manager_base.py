@@ -5,16 +5,14 @@
 """Base class for checkpoint managers."""
 from abc import ABC
 from logging import warning
-from pathlib import Path
-from typing import Union
 
-from pipescaler.common import validate_output_directory
+from pipescaler.common import PathLike, validate_output_directory
 
 
 class CheckpointManagerBase(ABC):
     """Base class for checkpoint managers."""
 
-    def __init__(self, directory: Union[Path, str]) -> None:
+    def __init__(self, directory: PathLike) -> None:
         """Initialize.
 
         Arguments:

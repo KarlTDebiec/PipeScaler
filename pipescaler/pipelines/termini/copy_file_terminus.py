@@ -10,19 +10,19 @@ from logging import info
 from os import remove, rmdir, utime
 from pathlib import Path
 from shutil import copyfile
-from typing import Optional, Union
+from typing import Optional
 
 import numpy as np
 from PIL import Image
 
-from pipescaler.common import validate_output_directory
+from pipescaler.common import PathLike, validate_output_directory
 from pipescaler.core.pipelines import PipeImage, Terminus
 
 
 class CopyFileTerminus(Terminus):
     """Copies images to a defined output directory."""
 
-    def __init__(self, directory: Union[Path, str]) -> None:
+    def __init__(self, directory: PathLike) -> None:
         """Validate and store configuration and initialize.
 
         Arguments:

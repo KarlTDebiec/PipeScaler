@@ -6,7 +6,6 @@
 import re
 from itertools import chain
 from logging import info
-from pathlib import Path
 from shutil import move
 from typing import Iterable, Union
 
@@ -19,7 +18,11 @@ from pipescaler.analytics import (
     ImagePairCollection,
     ImagePairScorer,
 )
-from pipescaler.common import validate_input_directories, validate_input_directory
+from pipescaler.common import (
+    PathLike,
+    validate_input_directories,
+    validate_input_directory,
+)
 from pipescaler.core import Utility, citra_sort
 from pipescaler.core.analytics import ScoreDataFrame, ScoreStatsDataFrame
 from pipescaler.core.image import hstack_images, vstack_images
@@ -36,11 +39,11 @@ class ScaledPairIdentifier(Utility):
 
     def __init__(
         self,
-        input_directories: Union[Union[str, Path], Iterable[Union[str, Path]]],
-        project_root: Union[str, Path],
+        input_directories: Union[PathLike, Iterable[PathLike]],
+        project_root: PathLike,
         *,
-        hash_file: Union[str, Path] = "hashes.csv",
-        pairs_file: Union[str, Path] = "pairs.csv",
+        hash_file: PathLike = "hashes.csv",
+        pairs_file: PathLike = "pairs.csv",
         interactive: bool = True,
     ):
         """Validate configuration and initialize.

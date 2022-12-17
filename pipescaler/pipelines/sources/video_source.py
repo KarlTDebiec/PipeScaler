@@ -5,12 +5,11 @@
 """Yields images from a video file."""
 from __future__ import annotations
 
-from pathlib import Path
-from typing import Any, Union
+from typing import Any
 
 import cv2
 
-from pipescaler.common import validate_input_file
+from pipescaler.common import PathLike, validate_input_file
 from pipescaler.core.pipelines import Source
 
 
@@ -19,7 +18,7 @@ class VideoSource(Source):
 
     def __init__(
         self,
-        infile: Union[Path, str],
+        infile: PathLike,
         **kwargs: Any,
     ) -> None:
         """Initialize.
