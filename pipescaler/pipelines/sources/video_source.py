@@ -8,9 +8,10 @@ from __future__ import annotations
 from typing import Any
 
 import cv2
+from PIL import Image
 
 from pipescaler.common import PathLike, validate_input_file
-from pipescaler.core.pipelines import Source
+from pipescaler.core.pipelines import PipeImage, Source
 
 
 class VideoSource(Source):
@@ -31,7 +32,7 @@ class VideoSource(Source):
 
         # Count number of frames in video file
         self.infile = validate_input_file(infile)
-        self.cap = cv2.VideoCapture(self.infile)
+        self.cap = cv2.VideoCapture(str(self.infile))
         self.length = int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
         self.index = 0
@@ -42,7 +43,8 @@ class VideoSource(Source):
             self.cap.set(cv2.CAP_PROP_POS_FRAMES, self.index)
             ret, frame = self.cap.read()
             self.index += 1
-            return frame
+            image = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+            return PipeImage(image=image, name=f"{self.index:06d}")
         else:
             self.cap.release()
             raise StopIteration()
