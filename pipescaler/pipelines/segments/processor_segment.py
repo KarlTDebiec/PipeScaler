@@ -1,32 +1,31 @@
 #  Copyright 2020-2022 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Segment that applies a Merger."""
+"""Segment that applies a Processor."""
 from logging import info
 
-from pipescaler.core.image import Merger
-from pipescaler.core.pipelines.pipe_image import PipeImage
-from pipescaler.core.pipelines.segments.operator_segment import OperatorSegment
+from pipescaler.core.image import Processor
+from pipescaler.core.pipelines import OperatorSegment, PipeImage
 
 
-class MergerSegment(OperatorSegment):
-    """Segment that applies a Merger."""
+class ProcessorSegment(OperatorSegment):
+    """Segment that applies a Processor."""
 
-    operator: Merger
+    operator: Processor
 
-    def __init__(self, operator: Merger) -> None:
+    def __init__(self, operator: Processor) -> None:
         """Initialize.
 
         Arguments:
-            operator: Merger to apply
+            operator: Processor to apply
         """
         super().__init__(operator)
 
     def __call__(self, *inputs: PipeImage) -> tuple[PipeImage, ...]:
-        """Merge images.
+        """Process an image.
 
         Arguments:
-            inputs: Input images
+            inputs: Input image, within a tuple for consistency with other Segments
         Returns:
             Output image, within a tuple for consistency with other Segments
         """
@@ -36,9 +35,9 @@ class MergerSegment(OperatorSegment):
                 f"but {len(inputs)} were provided."
             )
 
-        input_images = tuple(i.image for i in inputs)
-        output_image = self.operator(*input_images)
-        output = PipeImage(output_image, parents=inputs)
-        info(f"{self.operator}: {output.name} merged")
+        input_image = inputs[0].image
+        output_image = self.operator(input_image)
+        output = PipeImage(output_image, parents=inputs[0])
+        info(f"{self.operator}: '{inputs[0].location_name}' processed")
 
         return (output,)

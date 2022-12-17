@@ -10,9 +10,8 @@ from logging import info
 import numpy as np
 
 from pipescaler.common import validate_int
-from pipescaler.core.pipelines import PipeImage
-from pipescaler.core.pipelines.sorter import Sorter
-from pipescaler.core.validation import validate_image
+from pipescaler.core.image import validate_image
+from pipescaler.core.pipelines import PipeImage, Sorter
 
 
 class SolidColorSorter(Sorter):
@@ -56,7 +55,7 @@ class SolidColorSorter(Sorter):
             else:
                 outlet = "not_solid"
 
-        info(f"{self}: {pipe_image.name} matches {outlet}")
+        info(f"{self}: '{pipe_image.location_name}' matches '{outlet}'")
         return outlet
 
     def __repr__(self):

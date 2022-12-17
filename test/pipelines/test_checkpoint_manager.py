@@ -13,15 +13,15 @@ from PIL import Image
 
 from pipescaler.common import get_temp_directory_path
 from pipescaler.core.pipelines import PipeImage, Segment
-from pipescaler.core.pipelines.segments.operators import (
-    MergerSegment,
-    ProcessorSegment,
-    SplitterSegment,
-)
 from pipescaler.image.mergers import AlphaMerger
 from pipescaler.image.processors import XbrzProcessor
 from pipescaler.image.splitters import AlphaSplitter
 from pipescaler.pipelines import CheckpointManager
+from pipescaler.pipelines.segments import (
+    MergerSegment,
+    ProcessorSegment,
+    SplitterSegment,
+)
 from pipescaler.testing import get_test_infile_path
 
 

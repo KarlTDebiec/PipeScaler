@@ -35,7 +35,7 @@ class RegexSorter(Sorter):
             outlet = "matched"
         else:
             outlet = "unmatched"
-        info(f"{self}: {pipe_image.name} matches {outlet}")
+        info(f"{self}: '{pipe_image.location_name}' matches '{outlet}'")
         return outlet
 
     def __repr__(self):

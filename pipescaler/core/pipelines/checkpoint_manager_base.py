@@ -3,14 +3,15 @@
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Base class for checkpoint managers."""
+from abc import ABC
+from logging import warning
 from pathlib import Path
 from typing import Union
 
 from pipescaler.common import validate_output_directory
-from pipescaler.core.pipelines.pipe_image import PipeImage
 
 
-class CheckpointManagerBase:
+class CheckpointManagerBase(ABC):
     """Base class for checkpoint managers."""
 
     def __init__(self, directory: Union[Path, str]) -> None:
@@ -32,11 +33,21 @@ class CheckpointManagerBase:
         """String representation."""
         return f"<{self.__class__.__name__}>"
 
-    def observe(self, image: PipeImage, cpt: str) -> None:
+    def observe(self, location_name: str, cpt: str) -> None:
         """Log observation of a checkpoint.
 
+        Strips trailing '.' from relative_name because Windows does not support
+        directory names with trailing periods.
+
         Arguments:
-            image: Image
+            location_name: Location and name of image
             cpt: Checkpoint name
         """
-        self.observed_checkpoints.add((image.name, cpt))
+        if location_name.endswith("."):
+            warning(
+                f"{self}: '{location_name}' has trailing '.', which is not supported "
+                f"for directories on Windows; stripping trailing '.' from checkpoint "
+                f"directory name."
+            )
+            location_name = location_name.rstrip(".")
+        self.observed_checkpoints.add((location_name, cpt))

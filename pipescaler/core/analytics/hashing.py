@@ -3,6 +3,8 @@
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Functions related to image hashing."""
+from __future__ import annotations
+
 from functools import partial
 from typing import Callable
 
@@ -18,7 +20,7 @@ from imagehash import (
 )
 from PIL import Image
 
-from pipescaler.core.analytics.aliases import HashSeries
+from pipescaler.core.analytics.typing import HashSeries
 
 
 def multichannel_hamming(first: HashSeries, second: HashSeries, hash_type: str) -> int:

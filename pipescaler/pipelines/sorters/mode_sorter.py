@@ -7,9 +7,8 @@ from __future__ import annotations
 
 from logging import info
 
-from pipescaler.core.pipelines import PipeImage
-from pipescaler.core.pipelines.sorter import Sorter
-from pipescaler.core.validation import validate_image
+from pipescaler.core.image import validate_image
+from pipescaler.core.pipelines import PipeImage, Sorter
 
 
 class ModeSorter(Sorter):
@@ -34,7 +33,7 @@ class ModeSorter(Sorter):
         if outlet == "1":
             outlet = "M"
 
-        info(f"{self}: '{pipe_image.name}' matches '{outlet}'")
+        info(f"{self}: '{pipe_image.location_name}' matches '{outlet}'")
         return outlet
 
     @property

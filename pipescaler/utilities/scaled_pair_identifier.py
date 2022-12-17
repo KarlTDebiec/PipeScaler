@@ -14,18 +14,16 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 
-from pipescaler.common import validate_input_directories, validate_input_directory
-from pipescaler.core import Utility
-from pipescaler.core.analytics import (
+from pipescaler.analytics import (
     ImageHashCollection,
     ImagePairCollection,
     ImagePairScorer,
-    ScoreDataFrame,
-    ScoreStatsDataFrame,
 )
+from pipescaler.common import validate_input_directories, validate_input_directory
+from pipescaler.core import Utility, citra_sort
+from pipescaler.core.analytics import ScoreDataFrame, ScoreStatsDataFrame
 from pipescaler.core.image import hstack_images, vstack_images
 from pipescaler.core.pipelines import PipeImage
-from pipescaler.core.sorting import citra_sort
 from pipescaler.pipelines.sorters import AlphaSorter, GrayscaleSorter
 
 pd.set_option("display.max_rows", None)
