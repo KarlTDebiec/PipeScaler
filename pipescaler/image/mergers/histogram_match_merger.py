@@ -9,9 +9,7 @@ import numpy as np
 from PIL import Image
 from skimage.exposure import match_histograms
 
-from pipescaler.core.exceptions import UnsupportedImageModeError
-from pipescaler.core.image import Merger
-from pipescaler.core.validation import validate_image
+from pipescaler.core.image import Merger, UnsupportedImageModeError, validate_image
 
 
 class HistogramMatchMerger(Merger):

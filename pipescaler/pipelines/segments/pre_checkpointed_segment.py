@@ -4,8 +4,7 @@
 """Segment with pre-execution checkpoints."""
 from logging import info
 
-from pipescaler.core.pipelines.pipe_image import PipeImage
-from pipescaler.core.pipelines.segments.checkpointed_segment import CheckpointedSegment
+from pipescaler.core.pipelines import CheckpointedSegment, PipeImage
 
 
 class PreCheckpointedSegment(CheckpointedSegment):
@@ -29,14 +28,16 @@ class PreCheckpointedSegment(CheckpointedSegment):
             )
 
         cpt_paths = [
-            self.cp_manager.directory / i.name / c for i in inputs for c in self.cpts
+            self.cp_manager.directory / i.location_name / c
+            for i in inputs
+            for c in self.cpts
         ]
         for i, c, p in zip(inputs, self.cpts, cpt_paths):
             if p.exists():
                 i.path = p
             else:
                 i.save(p)
-                info(f"{self}: {i.name} checkpoint {p} saved")
-            self.cp_manager.observe(i, c)
+                info(f"{self}: '{i.location_name}' checkpoint '{p}' saved")
+            self.cp_manager.observe(i.location_name, c)
 
         return self.segment(*inputs)

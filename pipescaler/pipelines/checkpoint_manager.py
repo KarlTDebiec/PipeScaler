@@ -3,20 +3,19 @@
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Manages checkpoints."""
+from itertools import cycle
 from logging import info
 from os import remove, rmdir
-from os.path import join
 from pathlib import Path
-from shutil import rmtree
-from typing import Callable, Collection, Optional, Union
+from typing import Callable, Collection, Optional, Sequence, Union
 
 from pipescaler.core import RunnerLike
 from pipescaler.core.pipelines import CheckpointManagerBase, PipeImage, SegmentLike
-from pipescaler.core.pipelines.segments import RunnerSegment
-from pipescaler.core.pipelines.segments.checkpointed import (
+from pipescaler.pipelines.segments import (
     PostCheckpointedRunnerSegment,
     PostCheckpointedSegment,
     PreCheckpointedSegment,
+    RunnerSegment,
 )
 
 
@@ -26,7 +25,7 @@ class CheckpointManager(CheckpointManagerBase):
     def load(
         self,
         images: tuple[PipeImage, ...],
-        cpts: Collection[str],
+        cpts: Sequence[str],
         *,
         calls: Optional[Collection[Union[SegmentLike, str]]] = None,
     ) -> Optional[tuple[PipeImage, ...]]:
@@ -41,20 +40,26 @@ class CheckpointManager(CheckpointManagerBase):
         Returns:
             Images loaded from checkpoints if available, otherwise None
         """
-        for i, c in zip(images, cpts):
-            self.observe(i, c)
+        if len(images) == len(cpts):
+            location_names = [i.location_name for i in images]
+        else:
+            location_names = list(dict.fromkeys([i.location_name for i in images]))
+        for ln, c in zip(cycle(location_names), cpts):
+            self.observe(ln, c)
 
-        cpt_paths = [self.directory / i.name / c for i in images for c in cpts]
+        cpt_paths = self.get_cpt_paths(self.directory, location_names, cpts)
         if all(p.exists() for p in cpt_paths):
-            outputs = tuple(
-                PipeImage(path=p, parents=i) for i, p in zip(images, cpt_paths)
+            outputs = tuple(PipeImage(path=p, parents=images) for p in cpt_paths)
+            info(
+                f"{self}: "
+                f"'{location_names[0] if len(location_names)==1 else location_names}' "
+                f"checkpoints '{cpts[0] if len(cpts) ==1 else cpts}' loaded"
             )
-            info(f"{self}: {images[0].name} checkpoints {cpts} loaded")
 
             internal_cpts = self.get_cpts_of_segments(*calls) if calls else []
-            for i in images:
+            for ln in location_names:
                 for c in internal_cpts:
-                    self.observe(i, c)
+                    self.observe(ln, c)
 
             return outputs
 
@@ -139,23 +144,24 @@ class CheckpointManager(CheckpointManagerBase):
 
         return decorator
 
-    def purge_unrecognized_files(self) -> None:
-        """Remove files in output directory that have not been logged as observed."""
-        for image in self.directory.iterdir():
-            if image.is_dir():
-                for cpt in image.iterdir():
-                    if cpt.is_dir():
-                        rmtree(cpt)
-                        info(f"{self}: directory {join(image.name, cpt.name)} removed")
-                    elif (image.name, cpt.name) not in self.observed_checkpoints:
-                        remove(cpt)
-                        info(f"{self}: file {join(image.name, cpt.name)} removed")
-                if not any(image.iterdir()):
-                    rmdir(image)
-                    info(f"{self}: directory {image.name} removed")
+    def purge_unrecognized_files(self, directory: Optional[Path] = None) -> None:
+        """Remove unrecognized files and subdirectories in checkpoint directory."""
+        if directory is None:
+            directory = self.directory
+        for path in directory.iterdir():
+            if path.is_dir():
+                self.purge_unrecognized_files(path)
+            elif path.is_file():
+                relative_path = path.relative_to(self.directory)
+                checkpoint = (str(relative_path.parent), path.name)
+                if checkpoint not in self.observed_checkpoints:
+                    remove(path)
+                    info(f"{self}: file '{relative_path}' removed")
             else:
-                remove(image)
-                info(f"{self}: file {image.name} removed")
+                raise ValueError(f"Unsupported path type: {path}")
+        if not any(directory.iterdir()) and directory != self.directory:
+            rmdir(directory)
+            info(f"{self}: directory '{directory.relative_to(self.directory)}' removed")
 
     def save(
         self,
@@ -174,19 +180,44 @@ class CheckpointManager(CheckpointManagerBase):
             Images, with paths updated to checkpoints
         """
         if len(images) != len(cpts):
-            raise ValueError(f"Expected {len(cpts)} inputs but received {len(images)}.")
-        cpt_paths = [self.directory / i.name / c for i in images for c in cpts]
-        for o, c, p in zip(images, cpts, cpt_paths):
+            raise ValueError(
+                f"Number of cpts ({len(cpts)}) must equal number of images "
+                f"({len(images)})"
+            )
+        cpt_paths = self.get_cpt_paths(
+            self.directory, [i.location_name for i in images], cpts
+        )
+        for i, c, p in zip(images, cpts, cpt_paths):
             if not p.parent.exists():
                 p.parent.mkdir(parents=True)
+                info(f"{self}: directory '{p.parent}' created")
             if not p.exists() or overwrite:
-                o.save(p)
-                info(f"{self}: {o.name} checkpoint {c} saved")
+                i.save(p)
+                info(f"{self}: '{i.location_name}' checkpoint '{c}' saved")
             else:
-                o.path = p
-            self.observe(o, c)
+                i.path = p
+            self.observe(i.location_name, c)
 
         return images
+
+    @staticmethod
+    def get_cpt_paths(
+        root_directory: Path, location_names: Collection[str], cpts: Collection[str]
+    ) -> list[Path]:
+        """Get paths to checkpoints.
+
+        Arguments:
+            root_directory: Root directory of checkpoints
+            location_names: Locations and names of images
+            cpts: Names of checkpoints
+        Returns:
+            Paths to checkpoints
+        """
+        cpt_paths = []
+        for ln, c in zip(cycle(location_names), cpts):
+            cpt_paths.append(root_directory / ln / c)
+
+        return cpt_paths
 
     @staticmethod
     def get_cpts_of_segments(*cpts_or_segments: Union[SegmentLike, str]) -> list[str]:

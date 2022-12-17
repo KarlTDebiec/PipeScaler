@@ -3,6 +3,8 @@
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Collection of image hashes."""
+from __future__ import annotations
+
 from collections.abc import Sequence
 from logging import info
 from pathlib import Path
@@ -13,8 +15,8 @@ import pandas as pd
 from PIL import Image
 
 from pipescaler.common import validate_output_file
-from pipescaler.core.analytics.aliases import HashDataFrame
-from pipescaler.core.analytics.hashing import (
+from pipescaler.core.analytics import (
+    HashDataFrame,
     multichannel_average_hash,
     multichannel_color_hash,
     multichannel_difference_hash,

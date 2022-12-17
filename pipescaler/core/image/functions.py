@@ -2,7 +2,7 @@
 #  Copyright 2020-2022 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Functions for interacting with images."""
+"""Functions related to images."""
 from __future__ import annotations
 
 from typing import no_type_check
@@ -13,7 +13,7 @@ from PIL import Image, ImageDraw, ImageFont
 from scipy.ndimage import convolve
 
 from pipescaler.common import validate_float
-from pipescaler.core.exceptions import UnsupportedImageModeError
+from pipescaler.core.image.exceptions import UnsupportedImageModeError
 
 
 def convert_mode(image: Image.Image, mode: str) -> tuple[Image.Image, str]:

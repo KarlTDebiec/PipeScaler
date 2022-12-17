@@ -2,19 +2,9 @@
 #  Copyright 2020-2022 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Core pipescaler analytics classes."""
+"""Analytics."""
 from __future__ import annotations
 
-from pipescaler.core.analytics.aliases import (
-    HashDataFrame,
-    HashSeries,
-    PairDataFrame,
-    PairSeries,
-    ScoreDataFrame,
-    ScoreSeries,
-    ScoreStatsDataFrame,
-    ScoreStatsSeries,
-)
 from pipescaler.core.analytics.hashing import (
     multichannel_average_hamming,
     multichannel_average_hash,
@@ -29,16 +19,20 @@ from pipescaler.core.analytics.hashing import (
     multichannel_wavelet_hamming,
     multichannel_wavelet_hash,
 )
-from pipescaler.core.analytics.image_hash_collection import ImageHashCollection
-from pipescaler.core.analytics.image_pair_collection import ImagePairCollection
-from pipescaler.core.analytics.image_pair_scorer import ImagePairScorer
+from pipescaler.core.analytics.typing import (
+    HashDataFrame,
+    HashSeries,
+    PairDataFrame,
+    PairSeries,
+    ScoreDataFrame,
+    ScoreSeries,
+    ScoreStatsDataFrame,
+    ScoreStatsSeries,
+)
 
-__all__: list[str] = [
+__all__ = [
     "HashDataFrame",
     "HashSeries",
-    "ImageHashCollection",
-    "ImagePairCollection",
-    "ImagePairScorer",
     "PairDataFrame",
     "PairSeries",
     "ScoreDataFrame",
