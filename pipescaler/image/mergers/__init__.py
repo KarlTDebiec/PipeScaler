@@ -10,7 +10,7 @@ from pipescaler.image.mergers.histogram_match_merger import HistogramMatchMerger
 from pipescaler.image.mergers.normal_merger import NormalMerger
 from pipescaler.image.mergers.palette_match_merger import PaletteMatchMerger
 
-__all__: list[str] = [
+__all__ = [
     "AlphaMerger",
     "HistogramMatchMerger",
     "NormalMerger",

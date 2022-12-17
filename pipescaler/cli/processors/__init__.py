@@ -18,7 +18,7 @@ from pipescaler.cli.processors.waifu_cli import WaifuCli
 from pipescaler.cli.processors.web_cli import WebCli
 from pipescaler.cli.processors.xbrz_cli import XbrzCli
 
-__all__: list[str] = [
+__all__ = [
     "CropCli",
     "EsrganCli",
     "ExpandCli",

@@ -14,7 +14,7 @@ from pipescaler.pipelines.sorters.regex_sorter import RegexSorter
 from pipescaler.pipelines.sorters.size_sorter import SizeSorter
 from pipescaler.pipelines.sorters.solid_color_sorter import SolidColorSorter
 
-__all__: list[str] = [
+__all__ = [
     "AlphaSorter",
     "GrayscaleSorter",
     "ListSorter",

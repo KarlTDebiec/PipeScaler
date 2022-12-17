@@ -8,7 +8,7 @@ from __future__ import annotations
 from pipescaler.pipelines.sources.directory_source import DirectorySource
 from pipescaler.pipelines.sources.video_source import VideoSource
 
-__all__: list[str] = [
+__all__ = [
     "DirectorySource",
     "VideoSource",
 ]

@@ -24,7 +24,7 @@ from pipescaler.testing.mark import (
     xfail_value,
 )
 
-__all__: list[str] = [
+__all__ = [
     "count_executions",
     "get_expected_output_mode",
     "get_test_infile_directory_path",

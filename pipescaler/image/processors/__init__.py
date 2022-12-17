@@ -24,7 +24,7 @@ from pipescaler.image.processors.waifu_processor import WaifuProcessor
 from pipescaler.image.processors.web_processor import WebProcessor
 from pipescaler.image.processors.xbrz_processor import XbrzProcessor
 
-__all__: list[str] = [
+__all__ = [
     "AppleScriptProcessor",
     "AutomatorProcessor",
     "CropProcessor",

@@ -8,7 +8,7 @@ from __future__ import annotations
 from pipescaler.models.esrgan.esrgan_1x import Esrgan1x
 from pipescaler.models.esrgan.esrgan_4x import Esrgan4x
 
-__all__: list[str] = [
+__all__ = [
     "Esrgan1x",
     "Esrgan4x",
 ]
