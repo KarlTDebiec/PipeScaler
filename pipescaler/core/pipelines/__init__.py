@@ -16,7 +16,7 @@ from pipescaler.core.pipelines.source import Source
 from pipescaler.core.pipelines.terminus import Terminus
 from pipescaler.core.pipelines.typing import SegmentLike
 
-__all__: list[str] = [
+__all__ = [
     "CheckpointManagerBase",
     "CheckpointedSegment",
     "OperatorSegment",

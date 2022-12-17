@@ -10,7 +10,7 @@ from pipescaler.cli.utilities.esrgan_serializer_cli import EsrganSerializerCli
 from pipescaler.cli.utilities.host_cli import HostCli
 from pipescaler.cli.utilities.waifu_serializer_cli import WaifuSerializerCli
 
-__all__: list[str] = [
+__all__ = [
     "ApngCreatorCli",
     "EsrganSerializerCli",
     "HostCli",

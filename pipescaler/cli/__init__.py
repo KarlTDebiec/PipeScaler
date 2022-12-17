@@ -9,7 +9,7 @@ from pipescaler.cli.pipescaler_cli import PipeScalerCli
 from pipescaler.cli.processors_cli import ProcessorsCli
 from pipescaler.cli.utilities_cli import UtilitiesCli
 
-__all__: list[str] = [
+__all__ = [
     "PipeScalerCli",
     "ProcessorsCli",
     "UtilitiesCli",

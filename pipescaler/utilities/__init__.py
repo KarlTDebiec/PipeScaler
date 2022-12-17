@@ -13,7 +13,7 @@ from pipescaler.utilities.palette_matcher import PaletteMatcher
 from pipescaler.utilities.scaled_pair_identifier import ScaledPairIdentifier
 from pipescaler.utilities.waifu_serializer import WaifuSerializer
 
-__all__: list[str] = [
+__all__ = [
     "FileScanner",
     "Host",
     "LocalPaletteMatcher",

@@ -16,6 +16,7 @@ from typing import Iterable, Optional, Sequence, Union
 
 from PIL import Image
 
+from pipescaler.common import PathLike
 from pipescaler.common.validation import validate_input_directories
 from pipescaler.core import Utility
 
@@ -27,9 +28,9 @@ class FileScanner(Utility):
 
     def __init__(
         self,
-        input_directories: Union[Union[str, Path], Iterable[Union[str, Path]]],
-        project_root: Union[str, Path],
-        reviewed_directories: Optional[Union[Union[str, Path], list[Union[str, Path]]]],
+        input_directories: Union[PathLike, Iterable[PathLike]],
+        project_root: PathLike,
+        reviewed_directories: Optional[Union[PathLike, list[PathLike]]],
         rules: Optional[list[tuple[str, str]]] = None,
         *,
         remove_prefix: Optional[str] = None,

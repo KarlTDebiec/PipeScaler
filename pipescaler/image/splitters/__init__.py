@@ -8,7 +8,7 @@ from __future__ import annotations
 from pipescaler.image.splitters.alpha_splitter import AlphaSplitter
 from pipescaler.image.splitters.normal_splitter import NormalSplitter
 
-__all__: list[str] = [
+__all__ = [
     "AlphaSplitter",
     "NormalSplitter",
 ]

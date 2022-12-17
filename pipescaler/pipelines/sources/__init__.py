@@ -7,6 +7,6 @@ from __future__ import annotations
 
 from pipescaler.pipelines.sources.directory_source import DirectorySource
 
-__all__: list[str] = [
+__all__ = [
     "DirectorySource",
 ]

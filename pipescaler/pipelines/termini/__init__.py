@@ -7,6 +7,6 @@ from __future__ import annotations
 
 from pipescaler.pipelines.termini.copy_file_terminus import CopyFileTerminus
 
-__all__: list[str] = [
+__all__ = [
     "CopyFileTerminus",
 ]

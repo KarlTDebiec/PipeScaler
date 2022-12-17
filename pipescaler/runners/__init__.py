@@ -12,7 +12,7 @@ from pipescaler.runners.potrace_runner import PotraceRunner
 from pipescaler.runners.texconv_runner import TexconvRunner
 from pipescaler.runners.waifu_runner import WaifuRunner
 
-__all__: list[str] = [
+__all__ = [
     "AppleScriptRunner",
     "AutomatorRunner",
     "PngquantRunner",

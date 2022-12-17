@@ -9,7 +9,7 @@ import re
 from pathlib import Path
 from typing import Any, Callable, Optional, Union
 
-from pipescaler.common import validate_input_directory
+from pipescaler.common import PathLike, validate_input_directory
 from pipescaler.core.pipelines import PipeImage, Source
 from pipescaler.core.sorting import basic_sort
 
@@ -22,7 +22,7 @@ class DirectorySource(Source):
 
     def __init__(
         self,
-        directory: Union[Path, str],
+        directory: PathLike,
         *,
         exclusions: Optional[set[Union[str, re.Pattern]]] = None,
         inclusions: Optional[set[Union[str, re.Pattern]]] = None,

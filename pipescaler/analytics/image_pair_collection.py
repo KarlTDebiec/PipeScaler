@@ -7,19 +7,18 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from logging import info
-from pathlib import Path
 from typing import Iterable, Union
 
 import pandas as pd
 
-from pipescaler.common import validate_output_file
+from pipescaler.common import PathLike, validate_output_file
 from pipescaler.core.analytics import PairDataFrame
 
 
 class ImagePairCollection(Sequence):
     """Collection of image pairs."""
 
-    def __init__(self, cache: Union[str, Path] = "pairs.csv") -> None:
+    def __init__(self, cache: PathLike = "pairs.csv") -> None:
         """Validate configuration and initialize.
 
         Arguments:

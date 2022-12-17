@@ -16,7 +16,7 @@ from pipescaler.pipelines.segments.processor_segment import ProcessorSegment
 from pipescaler.pipelines.segments.runner_segment import RunnerSegment
 from pipescaler.pipelines.segments.splitter_segment import SplitterSegment
 
-__all__: list[str] = [
+__all__ = [
     "MergerSegment",
     "PostCheckpointedRunnerSegment",
     "PostCheckpointedSegment",

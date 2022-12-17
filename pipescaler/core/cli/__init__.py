@@ -8,7 +8,7 @@ from __future__ import annotations
 from pipescaler.core.cli.processor_cli import ProcessorCli
 from pipescaler.core.cli.utility_cli import UtilityCli
 
-__all__: list[str] = [
+__all__ = [
     "ProcessorCli",
     "UtilityCli",
 ]
