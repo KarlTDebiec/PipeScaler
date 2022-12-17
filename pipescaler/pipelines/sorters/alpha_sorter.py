@@ -10,9 +10,8 @@ from logging import info
 import numpy as np
 
 from pipescaler.common import validate_int
-from pipescaler.core.pipelines import PipeImage
-from pipescaler.core.pipelines.sorter import Sorter
-from pipescaler.core.validation import validate_image_and_convert_mode
+from pipescaler.core.image import validate_image_and_convert_mode
+from pipescaler.core.pipelines import PipeImage, Sorter
 
 
 class AlphaSorter(Sorter):
@@ -47,8 +46,12 @@ class AlphaSorter(Sorter):
         else:
             outlet = "no_alpha"
 
-        info(f"{self}: {pipe_image.name} matches {outlet}")
+        info(f"{self}: '{pipe_image.location_name}' matches '{outlet}'")
         return outlet
+
+    def __repr__(self):
+        """Representation."""
+        return f"{self.__class__.__name__}(threshold={self.threshold})"
 
     @property
     def outlets(self) -> tuple[str, ...]:

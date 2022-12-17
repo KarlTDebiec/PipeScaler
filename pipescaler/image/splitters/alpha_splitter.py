@@ -11,9 +11,8 @@ import numpy as np
 from PIL import Image
 
 from pipescaler.common import ArgumentConflictError, validate_enum
-from pipescaler.core.enums import AlphaMode, MaskFillMode
-from pipescaler.core.image import Splitter, is_monochrome
-from pipescaler.core.validation import validate_image
+from pipescaler.core import AlphaMode, MaskFillMode
+from pipescaler.core.image import Splitter, is_monochrome, validate_image
 from pipescaler.utilities import MaskFiller
 
 
@@ -68,6 +67,14 @@ class AlphaSplitter(Splitter):
             )
 
         return color_image, alpha_image
+
+    def __repr__(self):
+        """Representation."""
+        return (
+            f"{self.__class__.__name__}("
+            f"alpha_mode={self.alpha_mode},"
+            f"mask_fill_mode={self.mask_fill_mode})"
+        )
 
     @classmethod
     def inputs(cls) -> dict[str, tuple[str, ...]]:

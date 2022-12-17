@@ -35,8 +35,12 @@ class RegexSorter(Sorter):
             outlet = "matched"
         else:
             outlet = "unmatched"
-        info(f"{self}: {pipe_image.name} matches {outlet}")
+        info(f"{self}: '{pipe_image.location_name}' matches '{outlet}'")
         return outlet
+
+    def __repr__(self):
+        """Representation."""
+        return f"{self.__class__.__name__}(regex={self.regex.pattern})"
 
     @property
     def outlets(self) -> tuple[str, ...]:

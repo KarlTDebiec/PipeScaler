@@ -14,8 +14,8 @@ from pipescaler.core.image import (
     Processor,
     generate_normal_map_from_height_map_image,
     smooth_image,
+    validate_image,
 )
-from pipescaler.core.validation import validate_image
 
 
 class HeightToNormalProcessor(Processor):
@@ -44,6 +44,10 @@ class HeightToNormalProcessor(Processor):
         output_image = generate_normal_map_from_height_map_image(input_image)
 
         return output_image
+
+    def __repr__(self):
+        """Representation."""
+        return f"{self.__class__.__name__}(sigma={self.sigma})"
 
     @classmethod
     def inputs(cls) -> dict[str, tuple[str, ...]]:

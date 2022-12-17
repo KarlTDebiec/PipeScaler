@@ -38,8 +38,12 @@ class SizeSorter(Sorter):
             outlet = "less_than"
         else:
             outlet = "greater_than_or_equal_to"
-        info(f"{self}: '{pipe_image.name}' matches '{outlet}'")
+        info(f"{self}: '{pipe_image.location_name}' matches '{outlet}'")
         return outlet
+
+    def __repr__(self):
+        """Representation."""
+        return f"{self.__class__.__name__}(cutoff={self.cutoff})"
 
     @property
     def outlets(self) -> tuple[str, ...]:

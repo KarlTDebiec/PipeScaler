@@ -22,8 +22,10 @@ class PipeImage:
         self,
         image: Optional[Image.Image] = None,
         path: Optional[Path] = None,
-        parents: Optional[Union[PipeImage, Sequence[PipeImage]]] = None,
+        *,
         name: Optional[str] = None,
+        parents: Optional[Union[PipeImage, Sequence[PipeImage]]] = None,
+        location: Optional[Path] = None,
     ) -> None:
         """Initialize.
 
@@ -37,6 +39,7 @@ class PipeImage:
               that is not available will use filename of path excluding extension; one
               of these must be available
             parents: Parent image(s) from which this image is descended
+            location: Path relative to parent directory
         """
         if image is None and path is None:
             raise ValueError(
@@ -75,8 +78,15 @@ class PipeImage:
                 "will be used as the name, or a parent image whose name will be used."
             )
 
-    def __repr__(self) -> str:
-        """Representation of PipeImage."""
+        if location is not None:
+            self._location: Optional[Path] = location
+        elif self.parents is not None:
+            self._location = self.parents[0].location
+        else:
+            self._location = None
+
+    def __str__(self) -> str:
+        """String representation."""
         return (
             f"<PipeImage '{self.name}' "
             f"of mode={self.image.mode} "
@@ -140,3 +150,15 @@ class PipeImage:
     def name(self) -> str:
         """Name of this image."""
         return self._name
+
+    @property
+    def location_name(self) -> str:
+        """Location relative to root directory and name."""
+        if self.location is not None:
+            return str(self.location / self.name)
+        return self.name
+
+    @property
+    def location(self) -> Optional[Path]:
+        """Location relative to root directory."""
+        return self._location

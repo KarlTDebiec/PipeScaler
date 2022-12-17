@@ -10,13 +10,12 @@ from logging import info
 import numpy as np
 
 from pipescaler.common import validate_int
-from pipescaler.core.pipelines import PipeImage
-from pipescaler.core.pipelines.sorter import Sorter
-from pipescaler.core.validation import validate_image
+from pipescaler.core.image import validate_image
+from pipescaler.core.pipelines import PipeImage, Sorter
 
 
 class SolidColorSorter(Sorter):
-    """Sorts image based on whether their entire canvas is a solid color."""
+    """Sorts images based on whether their entire canvas is a solid color."""
 
     def __init__(self, mean_threshold: int = 1, max_threshold: int = 10) -> None:
         """Validate configuration and initialize.
@@ -56,8 +55,16 @@ class SolidColorSorter(Sorter):
             else:
                 outlet = "not_solid"
 
-        info(f"{self}: {pipe_image.name} matches {outlet}")
+        info(f"{self}: '{pipe_image.location_name}' matches '{outlet}'")
         return outlet
+
+    def __repr__(self):
+        """Representation."""
+        return (
+            f"{self.__class__.__name__}("
+            f"mean_threshold={self.mean_threshold},"
+            f"max_threshold={self.max_threshold})"
+        )
 
     @property
     def outlets(self) -> tuple[str, ...]:

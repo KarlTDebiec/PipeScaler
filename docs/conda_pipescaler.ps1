@@ -18,6 +18,7 @@ pip install `
     imagehash `
     ipython `
     isort `
+    mypy `
     numba `
     numpy `
     pandas `
@@ -26,18 +27,13 @@ pip install `
     pytest `
     pytest-cov `
     pytest-xdist `
-    pywinauto `
     pyyaml `
     requests `
     scikit-image `
     setuptools `
     svglib `
-    watchdog `
     xbrz.py
 
-conda install -y `
-    pywin32
-
-conda install -y -c pytorch `
-    cudatoolkit=11.3 `
-    pytorch
+conda install -y -c pytorch -c nvidia `
+    pytorch `
+    pytorch-cuda=11.7

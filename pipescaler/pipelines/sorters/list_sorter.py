@@ -63,9 +63,9 @@ class ListSorter(Sorter):
         """
         outlet = self.outlets_by_filename.get(pipe_image.name, None)
         if outlet is not None:
-            info(f"{self}: '{pipe_image.name}' matches '{outlet}'")
+            info(f"{self}: '{pipe_image.location_name}' matches '{outlet}'")
         else:
-            info(f"{self}: '{pipe_image.name}' does not match any outlet")
+            info(f"{self}: '{pipe_image.location_name}' does not match any outlet")
             outlet = "none"
         return outlet
 

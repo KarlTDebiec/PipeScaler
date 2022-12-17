@@ -10,10 +10,8 @@ from typing import Any, Union
 from PIL import Image
 
 from pipescaler.common import validate_enum
-from pipescaler.core.enums import PaletteMatchMode
-from pipescaler.core.exceptions import UnsupportedImageModeError
-from pipescaler.core.image import Merger
-from pipescaler.core.validation import validate_image
+from pipescaler.core import PaletteMatchMode
+from pipescaler.core.image import Merger, UnsupportedImageModeError, validate_image
 from pipescaler.utilities import LocalPaletteMatcher, PaletteMatcher
 
 
@@ -62,6 +60,14 @@ class PaletteMatchMerger(Merger):
         output_image = self.palette_matcher.match_palette(ref_image, fit_image)
 
         return output_image
+
+    def __repr__(self):
+        """Representation."""
+        return (
+            f"{self.__class__.__name__}("
+            f"palette_match_mode={self.palette_match_mode},"
+            f"local_range={self.palette_matcher.local_range})"
+        )
 
     @classmethod
     def inputs(cls) -> dict[str, tuple[str, ...]]:

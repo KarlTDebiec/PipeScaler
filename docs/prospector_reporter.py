@@ -91,11 +91,8 @@ class ProspectorReporter:
         report = json.load(infile)
 
         for match in report["messages"]:
-            file_path = (
-                package_root.joinpath(Path(match["location"]["path"]))
-                .resolve()
-                .relative_to(package_root)
-            )
+            file_path = Path(match["location"]["path"])
+            file_path = (package_root / file_path).resolve().relative_to(package_root)
             annotations.append(
                 Annotation(
                     source="prospector",

@@ -11,9 +11,8 @@ import numpy as np
 from PIL import Image
 
 from pipescaler.common import validate_float
-from pipescaler.core.pipelines import PipeImage
-from pipescaler.core.pipelines.sorter import Sorter
-from pipescaler.core.validation import validate_image
+from pipescaler.core.image import validate_image
+from pipescaler.core.pipelines import PipeImage, Sorter
 
 
 class GrayscaleSorter(Sorter):
@@ -52,8 +51,16 @@ class GrayscaleSorter(Sorter):
         else:
             outlet = "no_rgb"
 
-        info(f"{self}: {pipe_image.name} matches {outlet}")
+        info(f"{self}: '{pipe_image.location_name}' matches '{outlet}'")
         return outlet
+
+    def __repr__(self):
+        """Representation."""
+        return (
+            f"{self.__class__.__name__}("
+            f"mean_threshold={self.mean_threshold},"
+            f"max_threshold={self.max_threshold})"
+        )
 
     @property
     def outlets(self) -> tuple[str, ...]:

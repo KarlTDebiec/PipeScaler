@@ -2,15 +2,15 @@
 #  Copyright 2020-2022 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Functions for validation."""
+"""Validation functions related to images."""
 from __future__ import annotations
 
 from typing import Collection, Optional, Union
 
 from PIL import Image
 
-from pipescaler.core.exceptions import UnsupportedImageModeError
-from pipescaler.core.image import remove_palette
+from pipescaler.core.image.exceptions import UnsupportedImageModeError
+from pipescaler.core.image.functions import remove_palette
 
 
 def validate_image(

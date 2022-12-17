@@ -22,10 +22,10 @@ def get_test_infile_path(name: str) -> Path:
     """
     path = Path(name)
     if str(path.parent) == ".":
-        path = Path("basic").joinpath(path)
+        path = Path("basic") / path
     if path.suffix == "":
         path = path.with_suffix(".png")
-    path = package_root.parent.joinpath("test", "data", "infiles", path)
+    path = package_root.parent / "test" / "data" / "infiles" / path
     if not path.exists():
         raise FileNotFoundError()
 
@@ -42,10 +42,10 @@ def get_test_model_infile_path(name: str) -> Path:
     """
     path = Path(name)
     if str(path.parent) == ".":
-        path = Path("WaifuUpConv7").joinpath(path)
+        path = Path("WaifuUpConv7") / path
     if path.suffix == "":
         path = path.with_suffix(".pth")
-    path = package_root.parent.joinpath("test", "data", "models", path)
+    path = package_root.parent / "test" / "data" / "models" / path
     if getenv("CI") is None and not path.exists():
         raise FileNotFoundError()
 
@@ -53,14 +53,14 @@ def get_test_model_infile_path(name: str) -> Path:
 
 
 def get_test_infile_directory_path(name: str = "basic") -> Path:
-    """Get path of sub-directory within test data directory.
+    """Get path of subdirectory within test data directory.
 
     Arguments:
-        name: Name of sub-directory
+        name: Name of subdirectory
     Returns:
-        Path to sub-directory
+        Path to subdirectory
     """
-    path = package_root.parent.joinpath("test", "data", "infiles", name)
+    path = package_root.parent / "test" / "data" / "infiles" / name
     if not path.exists():
         raise FileNotFoundError()
 

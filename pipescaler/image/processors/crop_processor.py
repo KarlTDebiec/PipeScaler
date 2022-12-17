@@ -8,8 +8,7 @@ from __future__ import annotations
 from PIL import Image
 
 from pipescaler.common import validate_ints
-from pipescaler.core.image import Processor, crop_image
-from pipescaler.core.validation import validate_image
+from pipescaler.core.image import Processor, crop_image, validate_image
 
 
 class CropProcessor(Processor):
@@ -45,6 +44,13 @@ class CropProcessor(Processor):
         )
 
         return output_image
+
+    def __repr__(self):
+        """Representation."""
+        return (
+            f"{self.__class__.__name__}("
+            f"pixels={(self.left,self.top,self.right,self.bottom)})"
+        )
 
     @classmethod
     def inputs(cls) -> dict[str, tuple[str, ...]]:

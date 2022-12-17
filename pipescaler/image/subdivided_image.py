@@ -27,6 +27,15 @@ class SubdividedImage:
 
         self._subs = self.get_subs(image, self.boxes)
 
+    def __repr__(self):
+        """Representation."""
+        return (
+            f"{self.__class__.__name__}("
+            f"image={self.image},"
+            f"size={self.size},"
+            f"overlap={self.overlap})"
+        )
+
     @property
     def subs(self) -> list[Image.Image]:
         """Subdivisions of image.

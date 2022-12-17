@@ -83,7 +83,7 @@ def get_stage_descriptions(module: ModuleType) -> str:
 
 if __name__ == "__main__":
     # Read README
-    readme_path = package_root.parent.joinpath("README.md")
+    readme_path = package_root.parent / "README.md"
     with open(readme_path, "r", encoding="utf-8") as readme_file:
         readme = readme_file.read()
 
@@ -98,7 +98,5 @@ if __name__ == "__main__":
             readme = readme.replace(body, get_stage_descriptions(module))
 
     # Write README
-    with open(
-        package_root.parent.joinpath("README.md"), "w", encoding="utf-8"
-    ) as readme_file:
+    with open(package_root.parent / "README.md", "w", encoding="utf-8") as readme_file:
         readme_file.write(readme)

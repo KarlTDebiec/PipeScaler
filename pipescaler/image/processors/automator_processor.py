@@ -10,8 +10,7 @@ from pathlib import Path
 from PIL import Image
 
 from pipescaler.common import get_temp_file_path
-from pipescaler.core.image import Processor
-from pipescaler.core.validation import validate_image_and_convert_mode
+from pipescaler.core.image import Processor, validate_image_and_convert_mode
 from pipescaler.runners import AutomatorRunner
 
 

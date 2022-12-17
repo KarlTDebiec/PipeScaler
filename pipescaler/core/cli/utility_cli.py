@@ -10,7 +10,7 @@ from inspect import cleandoc
 from typing import Any, Type
 
 from pipescaler.common import CommandLineInterface
-from pipescaler.core import Utility
+from pipescaler.core.utility import Utility
 
 
 class UtilityCli(CommandLineInterface, ABC):

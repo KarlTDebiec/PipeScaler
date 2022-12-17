@@ -35,6 +35,10 @@ class Runner(ABC):
         """
         self.run(infile, outfile)
 
+    def __repr__(self):
+        """Representation."""
+        return f"{self.__class__.__name__}(timeout={self.timeout})"
+
     @property
     @abstractmethod
     def command_template(self) -> str:

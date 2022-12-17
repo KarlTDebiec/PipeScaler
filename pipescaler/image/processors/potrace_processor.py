@@ -5,14 +5,12 @@
 """Traces image using potrace and re-rasterizes, optionally resizing."""
 from __future__ import annotations
 
-from PIL import Image
-from PIL.ImageOps import invert
+from PIL import Image, ImageOps
 from reportlab.graphics.renderPM import drawToFile
 from svglib.svglib import svg2rlg
 
 from pipescaler.common import get_temp_file_path, validate_float
-from pipescaler.core.image import Processor
-from pipescaler.core.validation import validate_image_and_convert_mode
+from pipescaler.core.image import Processor, validate_image_and_convert_mode
 from pipescaler.runners import PotraceRunner
 
 
@@ -28,7 +26,7 @@ class PotraceProcessor(Processor):
         invert: bool = False,
         scale: float = 1.0,
     ) -> None:
-        """Validate and store configuration and initialize.
+        """Initialize.
 
         Arguments:
             arguments: Command-line arguments to pass to potrace
@@ -51,7 +49,7 @@ class PotraceProcessor(Processor):
             input_image, self.inputs()["input"], "L"
         )
         if self.invert:
-            input_image = invert(input_image)
+            input_image = ImageOps.invert(input_image)
 
         with get_temp_file_path(".bmp") as temp_bmp_path:
             input_image.save(temp_bmp_path)
@@ -71,16 +69,25 @@ class PotraceProcessor(Processor):
                     output_image = Image.open(temp_png_path).convert("L")
 
         if self.invert:
-            output_image = invert(output_image)
+            output_image = ImageOps.invert(output_image)
 
         return output_image
+
+    def __repr__(self):
+        """Representation."""
+        return (
+            f"{self.__class__.__name__}("
+            f"arguments={self.potrace_runner.arguments!r},"
+            f"invert={self.invert},"
+            f"scale={self.scale})"
+        )
 
     @classmethod
     def help_markdown(cls) -> str:
         """Short description of this tool in markdown, with links."""
         return (
-            "Traces image using [Potrace](http://potrace.sourceforge.net/) and"
-            " re-rasterizes, optionally resizing."
+            "Traces image using [Potrace](http://potrace.sourceforge.net/) and "
+            "re-rasterizes, optionally resizing."
         )
 
     @classmethod

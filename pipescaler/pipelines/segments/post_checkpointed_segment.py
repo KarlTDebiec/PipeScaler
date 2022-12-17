@@ -4,8 +4,7 @@
 """Segment with post-execution checkpoints."""
 from logging import info
 
-from pipescaler.core.pipelines.pipe_image import PipeImage
-from pipescaler.core.pipelines.segments.checkpointed_segment import CheckpointedSegment
+from pipescaler.core.pipelines import CheckpointedSegment, PipeImage
 
 
 class PostCheckpointedSegment(CheckpointedSegment):
@@ -21,14 +20,18 @@ class PostCheckpointedSegment(CheckpointedSegment):
             only one
         """
         cpt_paths = [
-            self.cp_manager.directory / i.name / c for i in inputs for c in self.cpts
+            self.cp_manager.directory / i.location_name / c
+            for i in inputs
+            for c in self.cpts
         ]
         if all(p.exists() for p in cpt_paths):
             outputs = tuple(PipeImage(path=p, parents=inputs) for p in cpt_paths)
-            info(f"{self}: {inputs[0].name} checkpoints {self.cpts} loaded")
+            info(
+                f"{self}: '{inputs[0].location_name}' checkpoints '{self.cpts}' loaded"
+            )
             for i in inputs:
                 for c in self.internal_cpts:
-                    self.cp_manager.observe(i, c)
+                    self.cp_manager.observe(i.location_name, c)
         else:
             outputs = self.segment(*inputs)
             if len(outputs) != len(self.cpts):
@@ -38,11 +41,11 @@ class PostCheckpointedSegment(CheckpointedSegment):
                 )
             if not cpt_paths[0].parent.exists():
                 cpt_paths[0].parent.mkdir(parents=True)
-            for o, p in zip(outputs, cpt_paths):
+            for o, c, p in zip(outputs, self.cpts, cpt_paths):
                 o.save(p)
-                info(f"{self}: {o.name} checkpoint {p} saved")
+                info(f"{self}: '{o.location_name}' checkpoint '{c}' saved")
         for i in inputs:
             for c in self.cpts:
-                self.cp_manager.observe(i, c)
+                self.cp_manager.observe(i.location_name, c)
 
         return outputs

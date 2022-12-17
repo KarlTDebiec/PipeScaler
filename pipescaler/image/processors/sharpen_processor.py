@@ -9,8 +9,7 @@ import numpy as np
 from PIL import Image
 from scipy.signal import convolve2d
 
-from pipescaler.core.image import Processor
-from pipescaler.core.validation import validate_image
+from pipescaler.core.image import Processor, validate_image
 
 
 class SharpenProcessor(Processor):

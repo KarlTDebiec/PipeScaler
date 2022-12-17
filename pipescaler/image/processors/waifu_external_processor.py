@@ -8,8 +8,7 @@ from __future__ import annotations
 from PIL import Image
 
 from pipescaler.common import get_temp_file_path
-from pipescaler.core.image import Processor
-from pipescaler.core.validation import validate_image_and_convert_mode
+from pipescaler.core.image import Processor, validate_image_and_convert_mode
 from pipescaler.runners import WaifuRunner
 
 
@@ -48,6 +47,10 @@ class WaifuExternalProcessor(Processor):
             output_image = output_image.convert(output_mode)
 
         return output_image
+
+    def __repr__(self):
+        """Representation."""
+        return f"{self.__class__.__name__}(arguments={self.waifu_runner.arguments!r})"
 
     @classmethod
     def help_markdown(cls) -> str:

@@ -11,8 +11,7 @@ import numpy as np
 from PIL import Image
 
 from pipescaler.common import validate_float
-from pipescaler.core.image import Processor
-from pipescaler.core.validation import validate_image_and_convert_mode
+from pipescaler.core.image import Processor, validate_image_and_convert_mode
 
 
 class SolidColorProcessor(Processor):
@@ -54,6 +53,10 @@ class SolidColorProcessor(Processor):
         output_image = Image.new(output_mode, size, color)
 
         return output_image
+
+    def __repr__(self):
+        """Representation."""
+        return f"{self.__class__.__name__}(scale={self.scale})"
 
     @classmethod
     def inputs(cls) -> dict[str, tuple[str, ...]]:

@@ -8,8 +8,7 @@ from __future__ import annotations
 from PIL import Image, ImageColor
 
 from pipescaler.common import validate_str
-from pipescaler.core.image import Processor
-from pipescaler.core.validation import validate_image
+from pipescaler.core.image import Processor, validate_image
 
 
 class ModeProcessor(Processor):
@@ -44,6 +43,14 @@ class ModeProcessor(Processor):
             output_image = output_image.convert(self.mode)
 
         return output_image
+
+    def __repr__(self):
+        """Representation."""
+        return (
+            f"{self.__class__.__name__}("
+            f"mode={self.mode},"
+            f"background_color={self.background_color})"
+        )
 
     @classmethod
     def inputs(cls) -> dict[str, tuple[str, ...]]:

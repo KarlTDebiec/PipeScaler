@@ -14,8 +14,8 @@ from PIL import Image
 from torch.nn import Module
 
 from pipescaler.common import validate_input_file
-from pipescaler.core.image.operators.processor import Processor
-from pipescaler.core.validation import validate_image_and_convert_mode
+from pipescaler.core.image.processor import Processor
+from pipescaler.core.image.validation import validate_image_and_convert_mode
 
 
 class PyTorchProcessor(Processor, ABC):
@@ -52,6 +52,10 @@ class PyTorchProcessor(Processor, ABC):
             output_image = output_image.convert(output_mode)
 
         return output_image
+
+    def __repr__(self):
+        """Representation."""
+        return f"{self.__class__.__name__}(model_infile={self.model_infile})"
 
     def upscale(self, input_array: np.ndarray) -> np.ndarray:
         """Upscale an image array.

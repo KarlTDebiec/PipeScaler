@@ -2,6 +2,8 @@
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Segment within a pipeline."""
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 
 from pipescaler.core.pipelines.pipe_image import PipeImage
@@ -20,3 +22,11 @@ class Segment(ABC):
             Output images, within a tuple even if only one
         """
         raise NotImplementedError()
+
+    def __repr__(self):
+        """Representation."""
+        return f"{self.__class__.__name__}()"
+
+    def __str__(self):
+        """String representation."""
+        return f"<{self.__class__.__name__}>"

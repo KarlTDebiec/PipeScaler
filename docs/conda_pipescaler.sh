@@ -18,6 +18,7 @@ pip install \
     imagehash \
     ipython \
     isort \
+    mypy \
     numba \
     numpy \
     pandas \
@@ -31,9 +32,7 @@ pip install \
     scikit-image \
     setuptools \
     svglib \
-    watchdog \
     xbrz.py
 
 conda install -y -c pytorch \
     pytorch
-

@@ -7,7 +7,7 @@ from typing import Optional, Sequence
 
 from pipescaler.core.pipelines.checkpoint_manager_base import CheckpointManagerBase
 from pipescaler.core.pipelines.segment import Segment
-from pipescaler.core.pipelines.types import SegmentLike
+from pipescaler.core.pipelines.typing import SegmentLike
 
 
 class CheckpointedSegment(Segment, ABC):
@@ -39,3 +39,13 @@ class CheckpointedSegment(Segment, ABC):
         """Names of checkpoints to save"""
         self.internal_cpts = internal_cpts or []
         """Names of additional checkpoints saved by Segments within this Segment"""
+
+    def __repr__(self):
+        """Representation."""
+        return (
+            f"{self.__class__.__name__}("
+            f"segment={self.segment!r},"
+            f"cp_manager={self.cp_manager!r},"
+            f"cpts={self.cpts},"
+            f"internal_cpts={self.internal_cpts})"
+        )

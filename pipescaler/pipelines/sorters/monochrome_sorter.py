@@ -8,10 +8,8 @@ from __future__ import annotations
 from logging import info
 
 from pipescaler.common import validate_float
-from pipescaler.core.image import is_monochrome
-from pipescaler.core.pipelines import PipeImage
-from pipescaler.core.pipelines.sorter import Sorter
-from pipescaler.core.validation import validate_image
+from pipescaler.core.image import is_monochrome, validate_image
+from pipescaler.core.pipelines import PipeImage, Sorter
 
 
 class MonochromeSorter(Sorter):
@@ -47,8 +45,16 @@ class MonochromeSorter(Sorter):
         else:
             outlet = "no_gray"
 
-        info(f"{self}: {pipe_image.name} matches {outlet}")
+        info(f"{self}: '{pipe_image.location_name}' matches {outlet}")
         return outlet
+
+    def __repr__(self):
+        """Representation."""
+        return (
+            f"{self.__class__.__name__}("
+            f"mean_threshold={self.mean_threshold}, "
+            f"max_threshold={self.max_threshold})"
+        )
 
     @property
     def outlets(self) -> tuple[str, ...]:

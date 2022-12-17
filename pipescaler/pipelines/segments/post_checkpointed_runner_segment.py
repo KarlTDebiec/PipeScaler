@@ -6,9 +6,12 @@ from logging import info
 from typing import Optional, Sequence
 
 from pipescaler.common import get_temp_file_path
-from pipescaler.core.pipelines import CheckpointManagerBase, PipeImage
-from pipescaler.core.pipelines.segments.checkpointed_segment import CheckpointedSegment
-from pipescaler.core.pipelines.segments.runner_segment import RunnerSegment
+from pipescaler.core.pipelines import (
+    CheckpointedSegment,
+    CheckpointManagerBase,
+    PipeImage,
+)
+from pipescaler.pipelines.segments.runner_segment import RunnerSegment
 
 
 class PostCheckpointedRunnerSegment(CheckpointedSegment):
@@ -52,10 +55,12 @@ class PostCheckpointedRunnerSegment(CheckpointedSegment):
             Output images, loaded from checkpoint if available, within a tuple for
             consistency with other Segments
         """
-        cpt_path = self.cp_manager.directory / inputs[0].name / self.cpts[0]
+        cpt_path = self.cp_manager.directory / inputs[0].location_name / self.cpts[0]
         if cpt_path.exists():
             output = PipeImage(path=cpt_path, parents=inputs)
-            info(f"{self}: {inputs[0].name} checkpoints {self.cpts} loaded")
+            info(
+                f"{self}: '{inputs[0].location_name}' checkpoints '{self.cpts}' loaded"
+            )
         else:
             if not cpt_path.parent.exists():
                 cpt_path.parent.mkdir(parents=True)
@@ -66,7 +71,7 @@ class PostCheckpointedRunnerSegment(CheckpointedSegment):
             else:
                 self.segment.runner(inputs[0].path, cpt_path)
             output = PipeImage(path=cpt_path, parents=inputs[0])
-            info(f"{self}: {output.name} checkpoint {self.cpts[0]} saved")
-        self.cp_manager.observe(inputs[0], self.cpts[0])
+            info(f"{self}: '{output.location_name}' checkpoint '{self.cpts[0]}' saved")
+        self.cp_manager.observe(inputs[0].location_name, self.cpts[0])
 
         return (output,)

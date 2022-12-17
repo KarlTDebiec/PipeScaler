@@ -11,7 +11,7 @@ from typing import Any
 
 import torch
 
-from pipescaler.core.image.operators.processors import PyTorchProcessor
+from pipescaler.core.image import PyTorchProcessor
 from pipescaler.models.esrgan import Esrgan1x, Esrgan4x
 from pipescaler.utilities.esrgan_serializer import EsrganSerializer
 
@@ -58,6 +58,14 @@ class EsrganProcessor(PyTorchProcessor):
                 f"{self}: Torch raised '{error}' with device '{device}', "
                 f"falling back to cpu"
             )
+
+    def __repr__(self):
+        """Representation."""
+        return (
+            f"{self.__class__.__name__}("
+            f"model_infile={self.model_infile!r},"
+            f"device={self.device})"
+        )
 
     @classmethod
     def help_markdown(cls) -> str:

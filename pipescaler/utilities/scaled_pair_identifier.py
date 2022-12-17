@@ -14,18 +14,16 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 
-from pipescaler.common import validate_input_directories, validate_input_directory
-from pipescaler.core import Utility
-from pipescaler.core.analytics import (
+from pipescaler.analytics import (
     ImageHashCollection,
     ImagePairCollection,
     ImagePairScorer,
-    ScoreDataFrame,
-    ScoreStatsDataFrame,
 )
+from pipescaler.common import validate_input_directories, validate_input_directory
+from pipescaler.core import Utility, citra_sort
+from pipescaler.core.analytics import ScoreDataFrame, ScoreStatsDataFrame
 from pipescaler.core.image import hstack_images, vstack_images
 from pipescaler.core.pipelines import PipeImage
-from pipescaler.core.sorting import citra_sort
 from pipescaler.pipelines.sorters import AlphaSorter, GrayscaleSorter
 
 pd.set_option("display.max_rows", None)
@@ -58,9 +56,9 @@ class ScaledPairIdentifier(Utility):
         self.input_directories = validate_input_directories(input_directories)
         """Directories from which to read input files."""
         project_root = validate_input_directory(project_root)
-        self.scaled_directory = project_root.joinpath("scaled")
+        self.scaled_directory = project_root / "scaled"
         """Directory to which to move scaled images."""
-        self.comparison_directory = project_root.joinpath("scaled_images")
+        self.comparison_directory = project_root / "scaled_images"
         """Directory to which to write stacked scaled image sets."""
         self.interactive = interactive
         """Whether to prompt for user input."""
@@ -137,9 +135,10 @@ class ScaledPairIdentifier(Utility):
             # Update image sets
             if len(new_scores) > 0:
                 known_scores = self.get_known_scores(parent)
-                new_scores = pd.DataFrame(new_scores)
                 if self.interactive:
-                    if not self.review_candidate_pairs(known_scores, new_scores):
+                    if not self.review_candidate_pairs(
+                        known_scores, pd.DataFrame(new_scores)
+                    ):
                         break
                 else:
                     pass
@@ -158,7 +157,7 @@ class ScaledPairIdentifier(Utility):
                 to_save = self.get_stacked_image(
                     [parent, *list(known_pairs["scaled name"])]
                 )
-                outfile = self.comparison_directory.joinpath(f"{parent}.png")
+                outfile = self.comparison_directory / f"{parent}.png"
                 to_save.save(outfile)
                 info(f"Saved {outfile}")
 
@@ -169,14 +168,14 @@ class ScaledPairIdentifier(Utility):
         for name, file_path in self.file_paths.items():
             if name in self.pair_collection.children:
                 if not file_path.is_relative_to(self.scaled_directory):
-                    new_path = self.scaled_directory.joinpath(file_path.name)
+                    new_path = self.scaled_directory / file_path.name
                     move(file_path, new_path)
                     self.file_paths[name] = new_path
                     info(f"Moved {file_path} to {new_path}")
 
         for file_path in self.scaled_directory.iterdir():
             if file_path.stem not in self.pair_collection.children:
-                new_path = self.input_directories[0].joinpath(file_path.name)
+                new_path = self.input_directories[0] / file_path.name
                 move(file_path, new_path)
                 self.file_paths[file_path.stem] = new_path
                 info(f"Moved {file_path} to {new_path}")

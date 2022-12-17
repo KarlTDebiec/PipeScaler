@@ -7,7 +7,7 @@ from logging import warning
 from pipescaler.common import get_temp_file_path
 from pipescaler.core.pipelines import PipeImage
 from pipescaler.core.pipelines.segment import Segment
-from pipescaler.core.types import RunnerLike
+from pipescaler.core.typing import RunnerLike
 
 
 class RunnerSegment(Segment):
@@ -61,3 +61,11 @@ class RunnerSegment(Segment):
         output.path = None
 
         return (output,)
+
+    def __repr__(self):
+        """Representation."""
+        return (
+            f"{self.__class__.__name__}(runner={self.runner!r},"
+            f"input_extension={self.input_extension},"
+            f" output_extension={self.output_extension})"
+        )

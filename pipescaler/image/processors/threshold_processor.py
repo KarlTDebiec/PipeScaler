@@ -12,8 +12,7 @@ from numba import njit
 from PIL import Image
 
 from pipescaler.common import validate_int
-from pipescaler.core.image import Processor
-from pipescaler.core.validation import validate_image_and_convert_mode
+from pipescaler.core.image import Processor, validate_image_and_convert_mode
 
 
 class ThresholdProcessor(Processor):
@@ -52,6 +51,14 @@ class ThresholdProcessor(Processor):
             output_image = Image.fromarray(output_data)
 
         return output_image
+
+    def __repr__(self):
+        """Representation."""
+        return (
+            f"{self.__class__.__name__}("
+            f"threshold={self.threshold},"
+            f"denoise={self.denoise})"
+        )
 
     @classmethod
     def inputs(cls) -> dict[str, tuple[str, ...]]:
