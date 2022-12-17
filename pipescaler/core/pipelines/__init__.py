@@ -11,6 +11,7 @@ from pipescaler.core.pipelines.exceptions import TerminusReached
 from pipescaler.core.pipelines.operator_segment import OperatorSegment
 from pipescaler.core.pipelines.pipe_image import PipeImage
 from pipescaler.core.pipelines.pipe_object import PipeObject
+from pipescaler.core.pipelines.pipe_video import PipeVideo
 from pipescaler.core.pipelines.segment import Segment
 from pipescaler.core.pipelines.sorter import Sorter
 from pipescaler.core.pipelines.source import Source
@@ -23,6 +24,7 @@ __all__ = [
     "OperatorSegment",
     "PipeImage",
     "PipeObject",
+    "PipeVideo",
     "Segment",
     "SegmentLike",
     "Sorter",

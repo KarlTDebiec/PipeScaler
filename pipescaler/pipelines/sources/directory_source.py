@@ -26,7 +26,7 @@ class DirectorySource(Source):
         *,
         exclusions: Optional[set[Union[str, re.Pattern]]] = None,
         inclusions: Optional[set[Union[str, re.Pattern]]] = None,
-        pipe_object_cls: Type[PipeImage] = PipeImage,
+        pipe_object_cls: Type[PipeObject] = PipeImage,
         sort: Union[Callable[[str], int], Callable[[str], str]] = basic_sort,
         reverse: bool = False,
         **kwargs: Any,
