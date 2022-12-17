@@ -55,7 +55,7 @@ class PyTorchProcessor(Processor, ABC):
 
     def __repr__(self) -> str:
         """Representation."""
-        return f"{self.__class__.__name__}(model_infile={self.model_infile})"
+        return f"{self.__class__.__name__}(model_infile={self.model_infile!r})"
 
     def upscale(self, input_array: np.ndarray) -> np.ndarray:
         """Upscale an image array.

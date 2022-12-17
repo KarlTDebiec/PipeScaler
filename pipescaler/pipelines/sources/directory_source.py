@@ -85,11 +85,11 @@ class DirectorySource(Source):
         """Representation."""
         return (
             f"{self.__class__.__name__}("
-            f"directory={self.directory},"
-            f"exclusions={self.exclusions},"
-            f"inclusions={self.inclusions},"
-            f"sort={self.sort},"
-            f"reverse={self.reverse})"
+            f"directory={self.directory!r}, "
+            f"exclusions={self.exclusions!r}, "
+            f"inclusions={self.inclusions!r}, "
+            f"sort={self.sort!r}, "
+            f"reverse={self.reverse!r})"
         )
 
     def scan_directory(self, root_directory: Path, directory: Path) -> list[Path]:

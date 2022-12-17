@@ -63,7 +63,7 @@ class EsrganProcessor(PyTorchProcessor):
         """Representation."""
         return (
             f"{self.__class__.__name__}("
-            f"model_infile={self.model_infile!r},"
+            f"model_infile={self.model_infile!r}, "
             f"device={self.device})"
         )
 

@@ -75,8 +75,8 @@ class ResizeProcessor(Processor):
         """Representation."""
         return (
             f"{self.__class__.__name__}("
-            f"scale={self.scale},"
-            f"resample={self.resample})"
+            f"scale={self.scale!r}, "
+            f"resample={self.resample!r})"
         )
 
     @classmethod

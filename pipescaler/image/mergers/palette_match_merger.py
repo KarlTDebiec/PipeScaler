@@ -65,8 +65,8 @@ class PaletteMatchMerger(Merger):
         """Representation."""
         return (
             f"{self.__class__.__name__}("
-            f"palette_match_mode={self.palette_match_mode},"
-            f"local_range={self.palette_matcher.local_range})"
+            f"palette_match_mode={self.palette_match_mode!r}, "
+            f"local_range={self.palette_matcher.local_range!r})"
         )
 
     @classmethod

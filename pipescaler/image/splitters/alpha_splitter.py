@@ -72,8 +72,8 @@ class AlphaSplitter(Splitter):
         """Representation."""
         return (
             f"{self.__class__.__name__}("
-            f"alpha_mode={self.alpha_mode},"
-            f"mask_fill_mode={self.mask_fill_mode})"
+            f"alpha_mode={self.alpha_mode!r}, "
+            f"mask_fill_mode={self.mask_fill_mode!r})"
         )
 
     @classmethod

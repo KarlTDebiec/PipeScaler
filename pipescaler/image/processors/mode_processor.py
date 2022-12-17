@@ -48,8 +48,8 @@ class ModeProcessor(Processor):
         """Representation."""
         return (
             f"{self.__class__.__name__}("
-            f"mode={self.mode},"
-            f"background_color={self.background_color})"
+            f"mode={self.mode!r}, "
+            f"background_color={self.background_color!r})"
         )
 
     @classmethod

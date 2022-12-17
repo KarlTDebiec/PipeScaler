@@ -47,7 +47,7 @@ class HeightToNormalProcessor(Processor):
 
     def __repr__(self) -> str:
         """Representation."""
-        return f"{self.__class__.__name__}(sigma={self.sigma})"
+        return f"{self.__class__.__name__}(sigma={self.sigma!r})"
 
     @classmethod
     def inputs(cls) -> dict[str, tuple[str, ...]]:

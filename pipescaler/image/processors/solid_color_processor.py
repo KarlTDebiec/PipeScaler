@@ -56,7 +56,7 @@ class SolidColorProcessor(Processor):
 
     def __repr__(self) -> str:
         """Representation."""
-        return f"{self.__class__.__name__}(scale={self.scale})"
+        return f"{self.__class__.__name__}(scale={self.scale!r})"
 
     @classmethod
     def inputs(cls) -> dict[str, tuple[str, ...]]:

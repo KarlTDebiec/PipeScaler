@@ -43,7 +43,7 @@ class SizeSorter(Sorter):
 
     def __repr__(self) -> str:
         """Representation."""
-        return f"{self.__class__.__name__}(cutoff={self.cutoff})"
+        return f"{self.__class__.__name__}(cutoff={self.cutoff!r})"
 
     @property
     def outlets(self) -> tuple[str, ...]:

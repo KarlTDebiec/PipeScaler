@@ -61,6 +61,16 @@ class PipeObject(ABC):
         else:
             self._location = None
 
+    def __repr__(self) -> str:
+        """Representation."""
+        return (
+            f"{self.__class__.__name__}("
+            f"path={self.path!r}, "
+            f"name={self.name!r}, "
+            f"parents={self.parents!r}, "
+            f"location={self.location!r})"
+        )
+
     def __str__(self) -> str:
         """String representation."""
         return f"<{self.__class__.__name__} '{self.location_name}'>"

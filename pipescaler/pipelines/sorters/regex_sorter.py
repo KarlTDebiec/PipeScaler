@@ -40,7 +40,7 @@ class RegexSorter(Sorter):
 
     def __repr__(self) -> str:
         """Representation."""
-        return f"{self.__class__.__name__}(regex={self.regex.pattern})"
+        return f"{self.__class__.__name__}(regex={self.regex.pattern!r})"
 
     @property
     def outlets(self) -> tuple[str, ...]:

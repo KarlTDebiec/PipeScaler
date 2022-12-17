@@ -56,8 +56,8 @@ class ThresholdProcessor(Processor):
         """Representation."""
         return (
             f"{self.__class__.__name__}("
-            f"threshold={self.threshold},"
-            f"denoise={self.denoise})"
+            f"threshold={self.threshold!r},"
+            f"denoise={self.denoise!r})"
         )
 
     @classmethod

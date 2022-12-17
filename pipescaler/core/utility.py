@@ -14,7 +14,7 @@ class Utility(ABC):
 
     def __repr__(self) -> str:
         """Representation of utility."""
-        return f"<{self.__class__.__name__}>"
+        return f"{self.__class__.__name__}()"
 
     @classmethod
     def help_markdown(cls) -> str:

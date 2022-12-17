@@ -27,7 +27,7 @@ class CheckpointManagerBase(ABC):
 
     def __repr__(self) -> str:
         """Representation."""
-        return f"{self.__class__.__name__}(directory={self.directory})"
+        return f"{self.__class__.__name__}(directory={self.directory!r})"
 
     def __str__(self) -> str:
         """String representation."""

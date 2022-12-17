@@ -62,8 +62,8 @@ class SolidColorSorter(Sorter):
         """Representation."""
         return (
             f"{self.__class__.__name__}("
-            f"mean_threshold={self.mean_threshold},"
-            f"max_threshold={self.max_threshold})"
+            f"mean_threshold={self.mean_threshold!r}, "
+            f"max_threshold={self.max_threshold!r})"
         )
 
     @property

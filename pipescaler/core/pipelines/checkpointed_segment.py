@@ -46,8 +46,8 @@ class CheckpointedSegment(Segment, ABC):
         """Representation."""
         return (
             f"{self.__class__.__name__}("
-            f"segment={self.segment!r},"
-            f"cp_manager={self.cp_manager!r},"
-            f"cpts={self.cpts},"
-            f"internal_cpts={self.internal_cpts})"
+            f"segment={self.segment!r}, "
+            f"cp_manager={self.cp_manager!r}, "
+            f"cpts={self.cpts!r}, "
+            f"internal_cpts={self.internal_cpts!r})"
         )

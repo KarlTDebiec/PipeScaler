@@ -37,7 +37,7 @@ class Runner(ABC):
 
     def __repr__(self) -> str:
         """Representation."""
-        return f"{self.__class__.__name__}(timeout={self.timeout})"
+        return f"{self.__class__.__name__}(timeout={self.timeout!r})"
 
     @property
     @abstractmethod

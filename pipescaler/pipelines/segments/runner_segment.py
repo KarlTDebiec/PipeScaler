@@ -68,6 +68,6 @@ class RunnerSegment(Segment):
         """Representation."""
         return (
             f"{self.__class__.__name__}(runner={self.runner!r},"
-            f"input_extension={self.input_extension},"
-            f" output_extension={self.output_extension})"
+            f"input_extension={self.input_extension!r}, "
+            f" output_extension={self.output_extension!r})"
         )

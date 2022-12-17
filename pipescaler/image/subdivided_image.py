@@ -33,9 +33,9 @@ class SubdividedImage:
         """Representation."""
         return (
             f"{self.__class__.__name__}("
-            f"image={self.image},"
-            f"size={self.size},"
-            f"overlap={self.overlap})"
+            f"image={self.image!r}, "
+            f"size={self.size!r}, "
+            f"overlap={self.overlap!r})"
         )
 
     @property
