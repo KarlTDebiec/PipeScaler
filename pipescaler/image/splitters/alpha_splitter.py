@@ -11,9 +11,8 @@ import numpy as np
 from PIL import Image
 
 from pipescaler.common import ArgumentConflictError, validate_enum
-from pipescaler.core.enums import AlphaMode, MaskFillMode
-from pipescaler.core.image import Splitter, is_monochrome
-from pipescaler.core.image.validation import validate_image
+from pipescaler.core import AlphaMode, MaskFillMode
+from pipescaler.core.image import Splitter, is_monochrome, validate_image
 from pipescaler.utilities import MaskFiller
 
 

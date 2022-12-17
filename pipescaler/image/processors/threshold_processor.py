@@ -12,8 +12,7 @@ from numba import njit
 from PIL import Image
 
 from pipescaler.common import validate_int
-from pipescaler.core.image import Processor
-from pipescaler.core.image.validation import validate_image_and_convert_mode
+from pipescaler.core.image import Processor, validate_image_and_convert_mode
 
 
 class ThresholdProcessor(Processor):

@@ -14,8 +14,8 @@ from pipescaler.core.image import (
     Processor,
     generate_normal_map_from_height_map_image,
     smooth_image,
+    validate_image,
 )
-from pipescaler.core.image.validation import validate_image
 
 
 class HeightToNormalProcessor(Processor):

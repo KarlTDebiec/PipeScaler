@@ -10,8 +10,7 @@ from reportlab.graphics.renderPM import drawToFile
 from svglib.svglib import svg2rlg
 
 from pipescaler.common import get_temp_file_path, validate_float
-from pipescaler.core.image import Processor
-from pipescaler.core.image.validation import validate_image_and_convert_mode
+from pipescaler.core.image import Processor, validate_image_and_convert_mode
 from pipescaler.runners import PotraceRunner
 
 

@@ -8,8 +8,7 @@ from __future__ import annotations
 from PIL import Image
 
 from pipescaler.common import validate_ints
-from pipescaler.core.image import Processor, expand_image
-from pipescaler.core.image.validation import validate_image
+from pipescaler.core.image import Processor, expand_image, validate_image
 
 
 class ExpandProcessor(Processor):

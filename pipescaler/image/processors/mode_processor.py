@@ -8,8 +8,7 @@ from __future__ import annotations
 from PIL import Image, ImageColor
 
 from pipescaler.common import validate_str
-from pipescaler.core.image import Processor
-from pipescaler.core.image.validation import validate_image
+from pipescaler.core.image import Processor, validate_image
 
 
 class ModeProcessor(Processor):

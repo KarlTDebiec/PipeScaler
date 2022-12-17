@@ -8,8 +8,7 @@ from __future__ import annotations
 import numpy as np
 from PIL import Image
 
-from pipescaler.core.image import Splitter
-from pipescaler.core.image.validation import validate_image
+from pipescaler.core.image import Splitter, validate_image
 
 
 class NormalSplitter(Splitter):

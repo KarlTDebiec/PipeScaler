@@ -8,10 +8,8 @@ from __future__ import annotations
 from logging import info
 
 from pipescaler.common import validate_float
-from pipescaler.core.image import is_monochrome
-from pipescaler.core.image.validation import validate_image
-from pipescaler.core.pipelines import PipeImage
-from pipescaler.core.pipelines.sorter import Sorter
+from pipescaler.core.image import is_monochrome, validate_image
+from pipescaler.core.pipelines import PipeImage, Sorter
 
 
 class MonochromeSorter(Sorter):

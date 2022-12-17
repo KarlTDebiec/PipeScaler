@@ -8,8 +8,7 @@ from __future__ import annotations
 from PIL import Image
 
 from pipescaler.common import validate_ints
-from pipescaler.core.image import Processor, crop_image
-from pipescaler.core.image.validation import validate_image
+from pipescaler.core.image import Processor, crop_image, validate_image
 
 
 class CropProcessor(Processor):
