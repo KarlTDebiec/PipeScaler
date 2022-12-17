@@ -41,10 +41,10 @@ class VideoSource(Source):
         """Get next image from video."""
         if self.index < self.length:
             self.cap.set(cv2.CAP_PROP_POS_FRAMES, self.index)
-            ret, frame = self.cap.read()
+            _, frame = self.cap.read()
             self.index += 1
             image = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
             return PipeImage(image=image, name=f"{self.index:06d}")
-        else:
-            self.cap.release()
-            raise StopIteration()
+
+        self.cap.release()
+        raise StopIteration()
