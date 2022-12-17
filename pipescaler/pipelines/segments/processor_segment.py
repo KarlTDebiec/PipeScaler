@@ -37,7 +37,7 @@ class ProcessorSegment(OperatorSegment):
 
         input_image = inputs[0].image
         output_image = self.operator(input_image)
-        output = PipeImage(output_image, parents=inputs[0])
+        output = PipeImage(image=output_image, parents=inputs[0])
         info(f"{self.operator}: '{inputs[0].location_name}' processed")
 
         return (output,)

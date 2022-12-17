@@ -7,25 +7,26 @@ from __future__ import annotations
 
 from logging import debug
 from pathlib import Path
-from typing import Optional, Sequence, Union
+from typing import Any, Optional, Sequence, Union
 
 from PIL import Image
 
-from pipescaler.common import PathLike, validate_input_file, validate_output_file
+from pipescaler.common import PathLike, validate_output_file
 from pipescaler.core.image import remove_palette
+from pipescaler.core.pipelines.pipe_object import PipeObject
 
 
-class PipeImage:
+class PipeImage(PipeObject):
     """Image within a pipeline."""
 
     def __init__(
         self,
+        *,
         image: Optional[Image.Image] = None,
         path: Optional[Path] = None,
-        *,
         name: Optional[str] = None,
         parents: Optional[Union[PipeImage, Sequence[PipeImage]]] = None,
-        location: Optional[Path] = None,
+        **kwargs: Any,
     ) -> None:
         """Initialize.
 
@@ -40,65 +41,26 @@ class PipeImage:
               of these must be available
             parents: Parent image(s) from which this image is descended
             location: Path relative to parent directory
+            kwargs: Additional keyword arguments
         """
         if image is None and path is None:
             raise ValueError(
-                "PipeImage requires either an image or the path to an image; "
-                "neither has been provided."
+                f"{self.__class__.__name__} requires either an image or the path to an "
+                f"image; neither has been provided."
             )
         if image is not None and path is not None:
             raise ValueError(
-                "PipeImage requires either an image or the path to an image; "
-                "both have been provided."
+                f"{self.__class__.__name__} requires either an image or the path to an "
+                f"image; both have been provided."
             )
         if image is not None and name is None and parents is None:
             raise ValueError(
-                "PipeImage requires either a name or parents if image is provided; "
-                "neither has been provided."
+                f"{self.__class__.__name__} requires either a name or parents if image "
+                f"is provided; neither has been provided."
             )
+        super().__init__(path=path, name=name, parents=parents, **kwargs)
+
         self._image = image
-        self.path = path
-
-        if parents is not None:
-            if isinstance(parents, PipeImage):
-                parents = [parents]
-            if not isinstance(parents, list):
-                parents = list(parents)
-        self._parents = parents
-
-        if name is not None:
-            self._name = name
-        elif self.parents is not None:
-            self._name = self.parents[0].name
-        elif self.path is not None:
-            self._name = self.path.stem
-        else:
-            raise ValueError(
-                "PipeImage requires either a name, the path to an image whose filename "
-                "will be used as the name, or a parent image whose name will be used."
-            )
-
-        if location is not None:
-            self._location: Optional[Path] = location
-        elif self.parents is not None:
-            self._location = self.parents[0].location
-        else:
-            self._location = None
-
-    def __str__(self) -> str:
-        """String representation."""
-        return (
-            f"<PipeImage '{self.name}' "
-            f"of mode={self.image.mode} "
-            f"and size={self.image.size} "
-            f"and parents={self.count_parents()}>"
-        )
-
-    def count_parents(self) -> int:
-        """Count number of parents of this image."""
-        if self.parents is not None:
-            return len(self.parents) + sum(p.count_parents() for p in self.parents)
-        return 0
 
     def save(self, path: PathLike) -> None:
         """Save image to file and set path.
@@ -112,14 +74,14 @@ class PipeImage:
 
     @property
     def image(self) -> Image.Image:
-        """Actual image; loaded from path is not already available."""
+        """Image; loaded from path is not already available."""
         if self._image is None:
             if self.path is None:
                 raise ValueError(
-                    "PipeImage requires either an image or the path to an image; "
-                    "neither has been provided."
+                    f"{self.__class__.__name__} requires either an image or the path "
+                    f"to an image; neither has been provided."
                 )
-            debug(f"<PipeImage>: Opening image {self.name} from '{self.path}'")
+            debug(f"{self}: Opening image '{self.location_name}' from '{self.path}'")
             image = Image.open(self.path)
             if image.mode == "P":
                 image = remove_palette(image)
@@ -129,36 +91,3 @@ class PipeImage:
     @image.setter
     def image(self, value: Image.Image) -> None:
         self._image = value
-
-    @property
-    def parents(self) -> Optional[list[PipeImage]]:
-        """Parent images of this image."""
-        return self._parents
-
-    @property
-    def path(self) -> Optional[Path]:
-        """Path to this image, if applicable."""
-        return self._path
-
-    @path.setter
-    def path(self, value: Optional[PathLike]) -> None:
-        if value is not None:
-            value = validate_input_file(value)
-        self._path = value
-
-    @property
-    def name(self) -> str:
-        """Name of this image."""
-        return self._name
-
-    @property
-    def location_name(self) -> str:
-        """Location relative to root directory and name."""
-        if self.location is not None:
-            return str(self.location / self.name)
-        return self.name
-
-    @property
-    def location(self) -> Optional[Path]:
-        """Location relative to root directory."""
-        return self._location

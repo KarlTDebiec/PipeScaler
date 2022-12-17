@@ -51,7 +51,7 @@ class Substituter:
                     f"{self}: {self.substitutes[pipe_image.name].name} updated to mode "
                     f"{image.mode}"
                 )
-            return PipeImage(image, parents=pipe_image)
+            return PipeImage(image=image, parents=pipe_image)
         if self.required:
             raise FileNotFoundError()
         return pipe_image

@@ -65,6 +65,28 @@ class DirectorySource(Source):
         self.index = 0
         """Index of next file path to be yielded"""
 
+    def __next__(self):
+        """Yield next image."""
+        if self.index < len(self.file_paths):
+            file_path = self.file_paths[self.index]
+            self.index += 1
+            relative_path = file_path.parent.relative_to(self.directory)
+            if relative_path == Path("."):
+                relative_path = None
+            return PipeImage(path=file_path, location=relative_path)
+        raise StopIteration
+
+    def __repr__(self):
+        """Representation."""
+        return (
+            f"{self.__class__.__name__}("
+            f"directory={self.directory},"
+            f"exclusions={self.exclusions},"
+            f"inclusions={self.inclusions},"
+            f"sort={self.sort},"
+            f"reverse={self.reverse})"
+        )
+
     def scan_directory(self, root_directory: Path, directory: Path) -> list[Path]:
         """Recursively scan directory for files.
 
@@ -87,28 +109,6 @@ class DirectorySource(Source):
             file_paths.extend(self.scan_directory(root_directory, subdirectory_path))
 
         return file_paths
-
-    def __next__(self):
-        """Yield next image."""
-        if self.index < len(self.file_paths):
-            file_path = self.file_paths[self.index]
-            self.index += 1
-            relative_path = file_path.parent.relative_to(self.directory)
-            if relative_path == Path("."):
-                relative_path = None
-            return PipeImage(path=file_path, location=relative_path)
-        raise StopIteration
-
-    def __repr__(self):
-        """Representation."""
-        return (
-            f"{self.__class__.__name__}("
-            f"directory={self.directory},"
-            f"exclusions={self.exclusions},"
-            f"inclusions={self.inclusions},"
-            f"sort={self.sort},"
-            f"reverse={self.reverse})"
-        )
 
     @classmethod
     def parse_exclusions(

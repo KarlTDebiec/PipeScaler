@@ -37,7 +37,7 @@ class MergerSegment(OperatorSegment):
 
         input_images = tuple(i.image for i in inputs)
         output_image = self.operator(*input_images)
-        output = PipeImage(output_image, parents=inputs)
+        output = PipeImage(image=output_image, parents=inputs)
         info(f"{self.operator}: '{output.location_name}' merged")
 
         return (output,)
