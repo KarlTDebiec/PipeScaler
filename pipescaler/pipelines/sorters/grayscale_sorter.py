@@ -54,7 +54,7 @@ class GrayscaleSorter(Sorter):
         info(f"{self}: '{pipe_image.location_name}' matches '{outlet}'")
         return outlet
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Representation."""
         return (
             f"{self.__class__.__name__}("

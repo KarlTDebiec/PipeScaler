@@ -79,7 +79,7 @@ class CopyFileTerminus(Terminus):
         save_image()
         info(f"{self}: '{outfile}' saved")
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Representation."""
         return f"{self.__class__.__name__}(directory={self.directory})"
 

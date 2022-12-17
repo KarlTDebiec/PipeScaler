@@ -71,7 +71,7 @@ class ResizeProcessor(Processor):
 
         return output_image
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Representation."""
         return (
             f"{self.__class__.__name__}("

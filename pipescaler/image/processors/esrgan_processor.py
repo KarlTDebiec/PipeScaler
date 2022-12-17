@@ -59,7 +59,7 @@ class EsrganProcessor(PyTorchProcessor):
                 f"falling back to cpu"
             )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Representation."""
         return (
             f"{self.__class__.__name__}("

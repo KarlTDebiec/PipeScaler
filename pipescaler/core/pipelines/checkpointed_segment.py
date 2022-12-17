@@ -2,6 +2,8 @@
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Segment with checkpoints."""
+from __future__ import annotations
+
 from abc import ABC
 from typing import Optional, Sequence
 
@@ -40,7 +42,7 @@ class CheckpointedSegment(Segment, ABC):
         self.internal_cpts = internal_cpts or []
         """Names of additional checkpoints saved by Segments within this Segment"""
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Representation."""
         return (
             f"{self.__class__.__name__}("
