@@ -51,8 +51,10 @@ class WebProcessor(Processor):
             output_image = Image.open(output_path)
         return output_image
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Representation."""
         return (
-            f"{self.__class__.__name__}(" f"url={self.url}," f"timeout={self.timeout})"
+            f"{self.__class__.__name__}("
+            f"url={self.url!r}, "
+            f"timeout={self.timeout!r})"
         )

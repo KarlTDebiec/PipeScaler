@@ -20,11 +20,11 @@ class Terminus(ABC):
         """Terminates image."""
         raise NotImplementedError
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Representation."""
         return f"{self.__class__.__name__}()"
 
-    def __str__(self):
+    def __str__(self) -> str:
         """String representation."""
         return f"<{self.__class__.__name__}>"
 

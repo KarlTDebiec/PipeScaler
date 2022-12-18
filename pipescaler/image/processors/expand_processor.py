@@ -40,11 +40,11 @@ class ExpandProcessor(Processor):
 
         return output_image
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Representation."""
         return (
             f"{self.__class__.__name__}("
-            f"pixels={(self.left,self.top,self.right,self.bottom)})"
+            f"pixels=({self.left!r}, {self.top!r}, {self.right!r}, {self.bottom!r}))"
         )
 
     @classmethod

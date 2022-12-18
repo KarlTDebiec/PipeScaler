@@ -52,12 +52,12 @@ class ThresholdProcessor(Processor):
 
         return output_image
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Representation."""
         return (
             f"{self.__class__.__name__}("
-            f"threshold={self.threshold},"
-            f"denoise={self.denoise})"
+            f"threshold={self.threshold!r},"
+            f"denoise={self.denoise!r})"
         )
 
     @classmethod

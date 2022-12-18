@@ -3,6 +3,8 @@
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Base class for checkpoint managers."""
+from __future__ import annotations
+
 from abc import ABC
 from logging import warning
 
@@ -23,11 +25,11 @@ class CheckpointManagerBase(ABC):
         self.observed_checkpoints: set[tuple[str, str]] = set()
         """Observed checkpoints as tuples of image and checkpoint names."""
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Representation."""
-        return f"{self.__class__.__name__}(directory={self.directory})"
+        return f"{self.__class__.__name__}(directory={self.directory!r})"
 
-    def __str__(self):
+    def __str__(self) -> str:
         """String representation."""
         return f"<{self.__class__.__name__}>"
 

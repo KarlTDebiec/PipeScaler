@@ -42,12 +42,12 @@ class WaifuProcessor(PyTorchProcessor):
                 f"falling back to cpu"
             )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Representation."""
         return (
             f"{self.__class__.__name__}("
-            f"device={self.device},"
-            f"model_infile={self.model_infile})"
+            f"device={self.device!r}, "
+            f"model_infile={self.model_infile!r})"
         )
 
     @classmethod

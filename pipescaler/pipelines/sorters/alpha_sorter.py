@@ -49,9 +49,9 @@ class AlphaSorter(Sorter):
         info(f"{self}: '{pipe_image.location_name}' matches '{outlet}'")
         return outlet
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Representation."""
-        return f"{self.__class__.__name__}(threshold={self.threshold})"
+        return f"{self.__class__.__name__}(threshold={self.threshold!r})"
 
     @property
     def outlets(self) -> tuple[str, ...]:

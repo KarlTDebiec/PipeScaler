@@ -2,6 +2,8 @@
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Segment that applies an Operator."""
+from __future__ import annotations
+
 from abc import ABC
 
 from pipescaler.core.image import Operator
@@ -22,6 +24,6 @@ class OperatorSegment(Segment, ABC):
         self.operator = operator
         """Operator to apply"""
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Representation."""
         return f"{self.__class__.__name__}(operator={self.operator!r})"

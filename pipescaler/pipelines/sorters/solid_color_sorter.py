@@ -58,12 +58,12 @@ class SolidColorSorter(Sorter):
         info(f"{self}: '{pipe_image.location_name}' matches '{outlet}'")
         return outlet
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Representation."""
         return (
             f"{self.__class__.__name__}("
-            f"mean_threshold={self.mean_threshold},"
-            f"max_threshold={self.max_threshold})"
+            f"mean_threshold={self.mean_threshold!r}, "
+            f"max_threshold={self.max_threshold!r})"
         )
 
     @property

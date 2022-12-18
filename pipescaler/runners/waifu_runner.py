@@ -33,7 +33,7 @@ class WaifuRunner(Runner):
 
         self.arguments = arguments
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Representation."""
         return f"{self.__class__.__name__}(arguments={self.arguments!r})"
 

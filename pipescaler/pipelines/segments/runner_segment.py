@@ -2,6 +2,8 @@
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Segment that applies a Runner."""
+from __future__ import annotations
+
 from logging import warning
 
 from pipescaler.common import get_temp_file_path
@@ -62,10 +64,10 @@ class RunnerSegment(Segment):
 
         return (output,)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Representation."""
         return (
             f"{self.__class__.__name__}(runner={self.runner!r},"
-            f"input_extension={self.input_extension},"
-            f" output_extension={self.output_extension})"
+            f"input_extension={self.input_extension!r}, "
+            f" output_extension={self.output_extension!r})"
         )

@@ -73,13 +73,13 @@ class PotraceProcessor(Processor):
 
         return output_image
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Representation."""
         return (
             f"{self.__class__.__name__}("
-            f"arguments={self.potrace_runner.arguments!r},"
-            f"invert={self.invert},"
-            f"scale={self.scale})"
+            f"arguments={self.potrace_runner.arguments!r}, "
+            f"invert={self.invert!r}, "
+            f"scale={self.scale!r})"
         )
 
     @classmethod

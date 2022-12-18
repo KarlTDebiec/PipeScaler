@@ -2,6 +2,8 @@
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Segment that applies a Processor."""
+from __future__ import annotations
+
 from logging import info
 
 from pipescaler.core.image import Processor
@@ -37,7 +39,7 @@ class ProcessorSegment(OperatorSegment):
 
         input_image = inputs[0].image
         output_image = self.operator(input_image)
-        output = PipeImage(output_image, parents=inputs[0])
+        output = PipeImage(image=output_image, parents=inputs[0])
         info(f"{self.operator}: '{inputs[0].location_name}' processed")
 
         return (output,)

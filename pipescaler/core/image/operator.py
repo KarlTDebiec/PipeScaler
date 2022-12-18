@@ -13,11 +13,11 @@ from inspect import cleandoc
 class Operator(ABC):
     """Abstract base class for image operators."""
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Representation."""
         return f"{self.__class__.__name__}()"
 
-    def __str__(self):
+    def __str__(self) -> str:
         """String representation."""
         return f"<{self.__class__.__name__}>"
 
