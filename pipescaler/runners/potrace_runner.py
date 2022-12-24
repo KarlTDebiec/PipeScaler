@@ -17,10 +17,10 @@ class PotraceRunner(Runner):
     def __init__(
         self, arguments: str = "-b svg -k 0.3 -a 1.34 -O 0.2", **kwargs
     ) -> None:
-        """Validate and store configuration and initialize.
+        """Initialize.
 
         Arguments:
-            arguments: Command-line arguments to pass to pngquant
+            arguments: Command-line arguments to pass to potrace
             kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)

@@ -22,15 +22,19 @@ class TexconvRunner(Runner):
     def __init__(
         self, arguments: str = "-y -sepalpha -ft DDS -f BC7_UNORM", **kwargs
     ) -> None:
-        """Validate and store configuration and initialize.
+        """Initialize.
 
         Arguments:
-            arguments: Command-line arguments to pass to pngquant
+            arguments: Command-line arguments to pass to texconv
             kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
 
         self.arguments = arguments
+
+    def __repr__(self) -> str:
+        """Representation."""
+        return f"{self.__class__.__name__}(arguments={self.arguments!r})"
 
     @property
     def command_template(self) -> str:
@@ -39,10 +43,6 @@ class TexconvRunner(Runner):
             f"{self.executable_path} {self.arguments}"
             ' -o "{outfile.parent}" "{infile}"'
         )
-
-    def __repr__(self) -> str:
-        """Representation."""
-        return f"{self.__class__.__name__}(arguments={self.arguments!r})"
 
     def run(self, infile: Path, outfile: Path) -> None:
         """Run executable on infile, yielding outfile.

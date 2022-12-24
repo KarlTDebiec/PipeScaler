@@ -23,10 +23,10 @@ class WaifuRunner(Runner):
     """
 
     def __init__(self, arguments: str = "-s 2 -n 1", **kwargs) -> None:
-        """Validate and store configuration and initialize.
+        """Initialize.
 
         Arguments:
-            arguments: Command-line arguments to pass to pngquant
+            arguments: Command-line arguments to pass to waifu2x
             kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)

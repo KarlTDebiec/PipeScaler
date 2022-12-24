@@ -2,7 +2,7 @@
 #  Copyright 2020-2022 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Runs pngquant tool for reducing image palette."""
+"""Runs an AppleScript."""
 from __future__ import annotations
 
 from logging import debug
@@ -15,9 +15,9 @@ from pipescaler.core import Runner
 
 
 class AppleScriptRunner(Runner):
-    """Runs pngquant tool for reducing image palette.
+    """Runs an AppleScript.
 
-    See [pngquant](https://pngquant.org/).
+    See [AppleScript](https://developer.apple.com/library/archive/documentation/AppleScript/Conceptual/AppleScriptLangGuide/introduction/ASLR_intro.html).
     """
 
     def __init__(
@@ -26,7 +26,7 @@ class AppleScriptRunner(Runner):
         arguments: str = "",
         **kwargs: Any,
     ) -> None:
-        """Validate and store configuration and initialize.
+        """Initialize.
 
         Arguments:
             script: AppleScript to run

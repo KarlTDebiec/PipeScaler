@@ -25,7 +25,7 @@ class PngquantRunner(Runner):
         arguments: str = " --skip-if-larger --force --quality 10-100 --speed 1 --nofs",
         **kwargs: Any,
     ) -> None:
-        """Validate and store configuration and initialize.
+        """Initialize.
 
         Arguments:
             arguments: Command-line arguments to pass to pngquant
