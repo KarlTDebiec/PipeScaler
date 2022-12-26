@@ -54,14 +54,14 @@ class TopazVideoAiRunner(Runner):
         ' "{outfile}"'
     )
 
-    def __init__(self, arguments: str = None, timeout: int = 5, **kwargs) -> None:
+    def __init__(self, arguments: str, **kwargs) -> None:
         """Initialize.
 
         Arguments:
             arguments: Command-line arguments to pass to Topaz Video AI
             kwargs: Additional keyword arguments
         """
-        super().__init__(timeout=timeout, **kwargs)
+        super().__init__(**kwargs)
 
         self.arguments = self.proteus_4_3 if arguments is None else arguments
 

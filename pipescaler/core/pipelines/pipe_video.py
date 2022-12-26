@@ -26,6 +26,20 @@ class PipeVideo(PipeObject):
         parents: Optional[Union[PipeVideo, Sequence[PipeVideo]]] = None,
         **kwargs: Any,
     ) -> None:
+        """Initialize.
+
+        Arguments:
+            video: Video; either video or path must be provided, and both may not be
+              provided; if path is provided, video will be loaded from path on first
+              access
+            path: Path to video file; either video or path must be provided, and both
+              may not be provided
+            name: Name of video; if not provided will name of first parent video, and if
+              that is not available will use filename of path excluding extension; one
+              of these must be available
+            parents: Parent video(s) from which this video is descended
+            kwargs: Additional keyword arguments
+        """
         if video is None and path is None:
             raise ValueError(
                 f"{self.__class__.__name__} requires either a video or the path to a "

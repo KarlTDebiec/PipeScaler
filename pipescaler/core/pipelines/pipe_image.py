@@ -40,7 +40,6 @@ class PipeImage(PipeObject):
               that is not available will use filename of path excluding extension; one
               of these must be available
             parents: Parent image(s) from which this image is descended
-            location: Path relative to parent directory
             kwargs: Additional keyword arguments
         """
         if image is None and path is None:

@@ -20,7 +20,7 @@ class ListSorter(Sorter):
     exclusions = {".DS_Store", "desktop"}
     """Base filenames to exclude"""
 
-    def __init__(self, **outlets: dict[str, Union[PathLike, list[PathLike]]]) -> None:
+    def __init__(self, **outlets: Union[PathLike, list[PathLike]]) -> None:
         """Validate configuration and initialize.
 
         Arguments:
