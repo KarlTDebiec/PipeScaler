@@ -78,8 +78,8 @@ torch = "~1.12"
 
 [tool.poetry.dev-dependencies]
 black = "^22.12.0"
-coverage = "^6.5.0"
-isort = "^5.11.3"
+coverage = "^7.0.1"
+isort = "^5.11.4"
 mypy = "^0.991"
 pandas-stubs = "^1.5.2.221213"
 prospector = "^1.8.3"
