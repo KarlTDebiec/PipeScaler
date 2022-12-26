@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from logging import info
 from pathlib import Path
-from typing import Iterable, Union
+from typing import Iterable, Optional, Union
 
 from pipescaler.common import PathLike
 from pipescaler.core.pipelines import PipeImage
@@ -56,7 +56,7 @@ class ListSorter(Sorter):
                             continue
                         self.outlets_by_filename[name] = outlet
 
-    def __call__(self, pipe_object: PipeImage) -> str:
+    def __call__(self, pipe_object: PipeImage) -> Optional[str]:
         """Get the outlet to which an image should be sorted.
 
         Arguments:
@@ -65,11 +65,11 @@ class ListSorter(Sorter):
             Outlet to which image should be sorted
         """
         outlet = self.outlets_by_filename.get(pipe_object.name, None)
-        if outlet is not None:
+
+        if outlet:
             info(f"{self}: '{pipe_object.location_name}' matches '{outlet}'")
         else:
             info(f"{self}: '{pipe_object.location_name}' does not match any outlet")
-            outlet = "none"
         return outlet
 
     @property

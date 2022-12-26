@@ -8,6 +8,7 @@ from __future__ import annotations
 import re
 from abc import ABC, abstractmethod
 from inspect import cleandoc
+from typing import Optional
 
 from pipescaler.core.pipelines import PipeObject
 
@@ -16,7 +17,7 @@ class Sorter(ABC):
     """Base class for sorters."""
 
     @abstractmethod
-    def __call__(self, pipe_object: PipeObject) -> str:
+    def __call__(self, pipe_object: PipeObject) -> Optional[str]:
         """Get the outlet to which an object should be sorted.
 
         Arguments:

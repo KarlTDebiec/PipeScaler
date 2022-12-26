@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from logging import info
+from typing import Optional
 
 import numpy as np
 
@@ -29,7 +30,7 @@ class SolidColorSorter(Sorter):
         self.mean_threshold = validate_int(mean_threshold, 0, 255)
         self.max_threshold = validate_int(max_threshold, 0, 255)
 
-    def __call__(self, pipe_object: PipeImage) -> str:
+    def __call__(self, pipe_object: PipeImage) -> Optional[str]:
         """Get the outlet to which an image should be sorted.
 
         Arguments:

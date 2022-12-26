@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from logging import info
+from typing import Optional
 
 import numpy as np
 from PIL import Image
@@ -30,7 +31,7 @@ class GrayscaleSorter(Sorter):
         self.mean_threshold = validate_float(mean_threshold, 0, 255)
         self.max_threshold = validate_float(max_threshold, 0, 255)
 
-    def __call__(self, pipe_object: PipeImage) -> str:
+    def __call__(self, pipe_object: PipeImage) -> Optional[str]:
         """Get the outlet to which an image should be sorted.
 
         Arguments:

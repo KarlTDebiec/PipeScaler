@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from logging import info
+from typing import Optional
 
 from pipescaler.core.image import validate_image
 from pipescaler.core.pipelines import PipeImage, Sorter
@@ -19,7 +20,7 @@ class ModeSorter(Sorter):
     keyword arguments,
     """
 
-    def __call__(self, pipe_object: PipeImage) -> str:
+    def __call__(self, pipe_object: PipeImage) -> Optional[str]:
         """Get the outlet to which an image should be sorted.
 
         Arguments:
