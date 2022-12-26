@@ -63,7 +63,7 @@ class TopazVideoAiRunner(Runner):
         """
         super().__init__(timeout=timeout, **kwargs)
 
-        self.arguments = self.proteus_16_9 if arguments is None else arguments
+        self.arguments = self.proteus_4_3 if arguments is None else arguments
 
     def __repr__(self) -> str:
         """Representation."""
