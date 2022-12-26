@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Iterable, Optional, Union
 
 from pipescaler.common import PathLike
-from pipescaler.core.pipelines import PipeImage
+from pipescaler.core.pipelines import PipeObject
 from pipescaler.core.pipelines.sorter import Sorter
 
 
@@ -56,7 +56,7 @@ class ListSorter(Sorter):
                             continue
                         self.outlets_by_filename[name] = outlet
 
-    def __call__(self, pipe_object: PipeImage) -> Optional[str]:
+    def __call__(self, pipe_object: PipeObject) -> Optional[str]:
         """Get the outlet to which an image should be sorted.
 
         Arguments:
