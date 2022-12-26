@@ -6,7 +6,7 @@
 import pytest
 
 from pipescaler.core.pipelines import PipeImage
-from pipescaler.pipelines.sorters import MonochromeSorter
+from pipescaler.pipelines.sorters.image import MonochromeSorter
 from pipescaler.testing import get_test_infile_path, parametrized_fixture
 
 

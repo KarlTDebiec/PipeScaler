@@ -53,19 +53,19 @@ class ListSorter(Sorter):
                             continue
                         self.outlets_by_filename[name] = outlet
 
-    def __call__(self, pipe_image: PipeImage) -> str:
+    def __call__(self, object: PipeImage) -> str:
         """Get the outlet to which an image should be sorted.
 
         Arguments:
-            pipe_image: Image to sort
+            object: Image to sort
         Returns:
             Outlet to which image should be sorted
         """
-        outlet = self.outlets_by_filename.get(pipe_image.name, None)
+        outlet = self.outlets_by_filename.get(object.name, None)
         if outlet is not None:
-            info(f"{self}: '{pipe_image.location_name}' matches '{outlet}'")
+            info(f"{self}: '{object.location_name}' matches '{outlet}'")
         else:
-            info(f"{self}: '{pipe_image.location_name}' does not match any outlet")
+            info(f"{self}: '{object.location_name}' does not match any outlet")
             outlet = "none"
         return outlet
 

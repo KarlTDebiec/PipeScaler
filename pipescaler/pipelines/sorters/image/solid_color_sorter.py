@@ -29,15 +29,15 @@ class SolidColorSorter(Sorter):
         self.mean_threshold = validate_int(mean_threshold, 0, 255)
         self.max_threshold = validate_int(max_threshold, 0, 255)
 
-    def __call__(self, pipe_image: PipeImage) -> str:
+    def __call__(self, object: PipeImage) -> str:
         """Get the outlet to which an image should be sorted.
 
         Arguments:
-            pipe_image: Image to sort
+            object: Image to sort
         Returns:
             Outlet to which image should be sorted
         """
-        image = validate_image(pipe_image.image, ("1", "L", "LA", "RGB", "RGBA"))
+        image = validate_image(object.image, ("1", "L", "LA", "RGB", "RGBA"))
         array = np.array(image)
 
         if image.mode in ("L", "LA", "RGB", "RGBA"):
@@ -55,7 +55,7 @@ class SolidColorSorter(Sorter):
             else:
                 outlet = "not_solid"
 
-        info(f"{self}: '{pipe_image.location_name}' matches '{outlet}'")
+        info(f"{self}: '{object.location_name}' matches '{outlet}'")
         return outlet
 
     def __repr__(self) -> str:

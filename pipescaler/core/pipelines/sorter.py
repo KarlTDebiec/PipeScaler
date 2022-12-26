@@ -9,20 +9,20 @@ import re
 from abc import ABC, abstractmethod
 from inspect import cleandoc
 
-from pipescaler.core.pipelines.pipe_image import PipeImage
+from pipescaler.core.pipelines import PipeObject
 
 
 class Sorter(ABC):
     """Base class for sorters."""
 
     @abstractmethod
-    def __call__(self, pipe_image: PipeImage) -> str:
-        """Get the outlet to which an image should be sorted.
+    def __call__(self, object: PipeObject) -> str:
+        """Get the outlet to which an object should be sorted.
 
         Arguments:
-            pipe_image: Image to sort
+            object: Object to sort
         Returns:
-            Outlet to which image should be sorted
+            Outlet to which object should be sorted
         """
         raise NotImplementedError()
 

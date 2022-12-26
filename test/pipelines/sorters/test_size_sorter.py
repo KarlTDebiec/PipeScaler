@@ -6,7 +6,7 @@
 import pytest
 
 from pipescaler.core.pipelines import PipeImage
-from pipescaler.pipelines.sorters import SizeSorter
+from pipescaler.pipelines.sorters.image import SizeSorter
 from pipescaler.testing import get_test_infile_path, parametrized_fixture
 
 

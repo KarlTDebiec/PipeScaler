@@ -24,7 +24,7 @@ from pipescaler.core.analytics import (
     multichannel_wavelet_hash,
 )
 from pipescaler.core.pipelines import PipeImage
-from pipescaler.pipelines.sorters import AlphaSorter, GrayscaleSorter
+from pipescaler.pipelines.sorters.image import AlphaSorter, GrayscaleSorter
 
 
 class ImageHashCollection(Sequence):
