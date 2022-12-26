@@ -30,15 +30,15 @@ class GrayscaleSorter(Sorter):
         self.mean_threshold = validate_float(mean_threshold, 0, 255)
         self.max_threshold = validate_float(max_threshold, 0, 255)
 
-    def __call__(self, object: PipeImage) -> str:
+    def __call__(self, pipe_object: PipeImage) -> str:
         """Get the outlet to which an image should be sorted.
 
         Arguments:
-            object: Image to sort
+            pipe_object: Image to sort
         Returns:
             Outlet to which image should be sorted
         """
-        image = validate_image(object.image, ("L", "LA", "RGB", "RGBA"))
+        image = validate_image(pipe_object.image, ("L", "LA", "RGB", "RGBA"))
 
         if image.mode in ("RGB", "RGBA"):
             rgb_array = np.array(image)[:, :, :3]
@@ -51,7 +51,7 @@ class GrayscaleSorter(Sorter):
         else:
             outlet = "no_rgb"
 
-        info(f"{self}: '{object.location_name}' matches '{outlet}'")
+        info(f"{self}: '{pipe_object.location_name}' matches '{outlet}'")
         return outlet
 
     def __repr__(self) -> str:

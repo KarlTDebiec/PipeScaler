@@ -19,21 +19,21 @@ class ModeSorter(Sorter):
     keyword arguments,
     """
 
-    def __call__(self, object: PipeImage) -> str:
+    def __call__(self, pipe_object: PipeImage) -> str:
         """Get the outlet to which an image should be sorted.
 
         Arguments:
-            object: Image to sort
+            pipe_object: Image to sort
         Returns:
             Outlet to which image should be sorted
         """
-        image = validate_image(object.image, ("1", "L", "LA", "RGB", "RGBA"))
+        image = validate_image(pipe_object.image, ("1", "L", "LA", "RGB", "RGBA"))
 
         outlet = image.mode
         if outlet == "1":
             outlet = "M"
 
-        info(f"{self}: '{object.location_name}' matches '{outlet}'")
+        info(f"{self}: '{pipe_object.location_name}' matches '{outlet}'")
         return outlet
 
     @property

@@ -24,21 +24,21 @@ class SizeSorter(Sorter):
         """
         self.cutoff = validate_int(cutoff, min_value=1)
 
-    def __call__(self, object: PipeImage) -> str:
+    def __call__(self, pipe_object: PipeImage) -> str:
         """Get the outlet to which an image should be sorted.
 
         Arguments:
-            object: Image to sort
+            pipe_object: Image to sort
         Returns:
             Outlet to which image should be sorted
         """
-        image = object.image
+        image = pipe_object.image
 
         if image.size[0] < self.cutoff or image.size[1] < self.cutoff:
             outlet = "less_than"
         else:
             outlet = "greater_than_or_equal_to"
-        info(f"{self}: '{object.location_name}' matches '{outlet}'")
+        info(f"{self}: '{pipe_object.location_name}' matches '{outlet}'")
         return outlet
 
     def __repr__(self) -> str:

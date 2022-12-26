@@ -25,16 +25,16 @@ class AlphaSorter(Sorter):
         """
         self.threshold = validate_int(threshold, 0, 255)
 
-    def __call__(self, object: PipeImage) -> str:
+    def __call__(self, pipe_object: PipeImage) -> str:
         """Get the outlet to which an image should be sorted.
 
         Arguments:
-            object: Image to sort
+            pipe_object: Image to sort
         Returns:
             Outlet to which image should be sorted
         """
         image, mode = validate_image_and_convert_mode(
-            object.image, ("1", "L", "LA", "RGB", "RGBA")
+            pipe_object.image, ("1", "L", "LA", "RGB", "RGBA")
         )
 
         if mode in ("LA", "RGBA"):
@@ -46,7 +46,7 @@ class AlphaSorter(Sorter):
         else:
             outlet = "no_alpha"
 
-        info(f"{self}: '{object.location_name}' matches '{outlet}'")
+        info(f"{self}: '{pipe_object.location_name}' matches '{outlet}'")
         return outlet
 
     def __repr__(self) -> str:

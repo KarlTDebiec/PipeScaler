@@ -5,9 +5,9 @@
 """Sorts video based on aspect ratio."""
 from __future__ import annotations
 
-from logging import info
+import cv2
+import numpy as np
 
-from pipescaler.common import validate_int
 from pipescaler.core.pipelines import PipeVideo
 from pipescaler.core.pipelines.sorter import Sorter
 
@@ -15,31 +15,32 @@ from pipescaler.core.pipelines.sorter import Sorter
 class AspectRatioSorter(Sorter):
     """Sorts image based on canvas size."""
 
-    def __init__(self, cutoff: int = 32) -> None:
-        """Validate configuration and initialize.
+    def __init__(self, **outlets: dict[str, float]) -> None:
+        """Initialize.
 
         Arguments:
-            cutoff: Sort as 'less_than' if image's smallest dimension is less than this;
-              otherwise, sort as 'greater_than_or_equal_to'
+            **outlets: Outlets to which videos may be sorted; keys are outlet names;
+            values are aspect ratios
         """
-        self.cutoff = validate_int(cutoff, min_value=1)
+        self._outlets = {k: str(v) for k, v in outlets.items()}
 
-    def __call__(self, pipe_video: PipeVideo) -> str:
-        """Get the outlet to which an image should be sorted.
+    def __call__(self, pipe_object: PipeVideo) -> str:
+        """Get the outlet to which a video should be sorted.
 
         Arguments:
-            pipe_video: Image to sort
+            pipe_object: Video to sort
         Returns:
             Outlet to which image should be sorted
         """
-        image = pipe_video
-
-        if image.size[0] < self.cutoff or image.size[1] < self.cutoff:
-            outlet = "less_than"
-        else:
-            outlet = "greater_than_or_equal_to"
-        info(f"{self}: '{pipe_image.location_name}' matches '{outlet}'")
-        return outlet
+        width = pipe_object.video.get(cv2.CAP_PROP_FRAME_WIDTH)
+        height = pipe_object.video.get(cv2.CAP_PROP_FRAME_HEIGHT)
+        for outlet, aspect_ratio in self._outlets.items():
+            if (
+                str(np.round(width / height, len(aspect_ratio.split(".")[1])))
+                == aspect_ratio
+            ):
+                return outlet
+        return None
 
     def __repr__(self) -> str:
         """Representation."""
@@ -47,5 +48,5 @@ class AspectRatioSorter(Sorter):
 
     @property
     def outlets(self) -> tuple[str, ...]:
-        """Outlets to which images may be sorted."""
-        return ("less_than", "greater_than_or_equal_to")
+        """Outlets to which videos may be sorted."""
+        return self._outlets

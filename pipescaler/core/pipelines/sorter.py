@@ -16,11 +16,11 @@ class Sorter(ABC):
     """Base class for sorters."""
 
     @abstractmethod
-    def __call__(self, object: PipeObject) -> str:
+    def __call__(self, pipe_object: PipeObject) -> str:
         """Get the outlet to which an object should be sorted.
 
         Arguments:
-            object: Object to sort
+            pipe_object: Object to sort
         Returns:
             Outlet to which object should be sorted
         """

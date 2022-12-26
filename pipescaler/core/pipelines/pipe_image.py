@@ -74,7 +74,7 @@ class PipeImage(PipeObject):
 
     @property
     def image(self) -> Image.Image:
-        """Image; loaded from path is not already available."""
+        """Image; loaded from path if not already available."""
         if self._image is None:
             if self.path is None:
                 raise ValueError(
