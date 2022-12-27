@@ -11,11 +11,10 @@ from typing import Optional
 import cv2
 import numpy as np
 
-from pipescaler.core.pipelines import PipeVideo
-from pipescaler.core.pipelines.sorter import Sorter
+from pipescaler.core.pipelines import ImageSorter, PipeVideo
 
 
-class AspectRatioSorter(Sorter):
+class AspectRatioSorter(ImageSorter):
     """Sorts image based on canvas size."""
 
     def __init__(self, **outlets: dict[str, float]) -> None:

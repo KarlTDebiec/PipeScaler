@@ -12,10 +12,10 @@ import numpy as np
 
 from pipescaler.common import validate_int
 from pipescaler.core.image import validate_image_and_convert_mode
-from pipescaler.core.pipelines import PipeImage, Sorter
+from pipescaler.core.pipelines import ImageSorter, PipeImage
 
 
-class AlphaSorter(Sorter):
+class AlphaSorter(ImageSorter):
     """Sorts image based on presence and use of alpha channel."""
 
     def __init__(self, threshold: int = 255) -> None:
