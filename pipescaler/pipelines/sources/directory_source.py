@@ -2,7 +2,7 @@
 #  Copyright 2020-2022 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Yields images from a directory."""
+"""Yields objects from a directory."""
 from __future__ import annotations
 
 import re
@@ -10,12 +10,13 @@ from pathlib import Path
 from typing import Any, Callable, Optional, Type, Union
 
 from pipescaler.common import PathLike, validate_input_directory
-from pipescaler.core.pipelines import PipeImage, PipeObject, Source
+from pipescaler.core.pipelines import PipeObject, Source
+from pipescaler.core.pipelines.image import PipeImage
 from pipescaler.core.sorting import basic_sort
 
 
 class DirectorySource(Source):
-    """Yields images from a directory."""
+    """Yields objects from a directory."""
 
     cls_exclusions = {r".*\.DS_Store$", r".*Thumbs.db$", r".*desktop$"}
     """File paths to exclude"""

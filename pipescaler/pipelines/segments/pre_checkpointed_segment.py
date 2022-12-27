@@ -4,7 +4,8 @@
 """Segment with pre-execution checkpoints."""
 from logging import info
 
-from pipescaler.core.pipelines import CheckpointedSegment, PipeImage
+from pipescaler.core.pipelines import CheckpointedSegment
+from pipescaler.core.pipelines.image import PipeImage
 
 
 class PreCheckpointedSegment(CheckpointedSegment):

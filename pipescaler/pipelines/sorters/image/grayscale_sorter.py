@@ -13,10 +13,10 @@ from PIL import Image
 
 from pipescaler.common import validate_float
 from pipescaler.core.image import validate_image
-from pipescaler.core.pipelines import PipeImage, Sorter
+from pipescaler.core.pipelines.image import ImageSorter, PipeImage
 
 
-class GrayscaleSorter(Sorter):
+class GrayscaleSorter(ImageSorter):
     """Sorts image based on presence and use of color channels."""
 
     def __init__(self, mean_threshold: float = 1, max_threshold: float = 10) -> None:

@@ -10,7 +10,8 @@ from pathlib import Path
 from typing import Callable, Collection, Optional, Sequence, Union
 
 from pipescaler.core import RunnerLike
-from pipescaler.core.pipelines import CheckpointManagerBase, PipeImage, SegmentLike
+from pipescaler.core.pipelines import CheckpointManagerBase
+from pipescaler.core.pipelines.image import ImageSegmentLike, PipeImage
 from pipescaler.pipelines.segments import (
     PostCheckpointedRunnerSegment,
     PostCheckpointedSegment,
@@ -27,7 +28,7 @@ class CheckpointManager(CheckpointManagerBase):
         images: tuple[PipeImage, ...],
         cpts: Sequence[str],
         *,
-        calls: Optional[Collection[Union[SegmentLike, str]]] = None,
+        calls: Optional[Collection[Union[ImageSegmentLike, str]]] = None,
     ) -> Optional[tuple[PipeImage, ...]]:
         """Load images from checkpoints, if available, otherwise return None.
 
@@ -91,8 +92,8 @@ class CheckpointManager(CheckpointManagerBase):
         return decorator
 
     def post_segment(
-        self, *cpts: str, calls: Optional[Collection[SegmentLike]] = None
-    ) -> Callable[[SegmentLike], PostCheckpointedSegment]:
+        self, *cpts: str, calls: Optional[Collection[ImageSegmentLike]] = None
+    ) -> Callable[[ImageSegmentLike], PostCheckpointedSegment]:
         """Get decorator to wrap Segment to Segment with post-execution checkpoint.
 
         Arguments:
@@ -103,7 +104,7 @@ class CheckpointManager(CheckpointManagerBase):
         """
         internal_cpts = self.get_cpts_of_segments(*calls) if calls else []
 
-        def decorator(segment: SegmentLike) -> PostCheckpointedSegment:
+        def decorator(segment: ImageSegmentLike) -> PostCheckpointedSegment:
             """Wrap Segment to Segment with post-execution checkpoint.
 
             Arguments:
@@ -118,8 +119,8 @@ class CheckpointManager(CheckpointManagerBase):
         return decorator
 
     def pre_segment(
-        self, *cpts: str, calls: Optional[Collection[SegmentLike]] = None
-    ) -> Callable[[SegmentLike], PreCheckpointedSegment]:
+        self, *cpts: str, calls: Optional[Collection[ImageSegmentLike]] = None
+    ) -> Callable[[ImageSegmentLike], PreCheckpointedSegment]:
         """Get decorator to wrap Segment to Segment with pre-execution checkpoint.
 
         Arguments:
@@ -130,7 +131,7 @@ class CheckpointManager(CheckpointManagerBase):
         """
         internal_cpts = self.get_cpts_of_segments(*calls) if calls else []
 
-        def decorator(segment: SegmentLike) -> PreCheckpointedSegment:
+        def decorator(segment: ImageSegmentLike) -> PreCheckpointedSegment:
             """Wrap Segment to Segment with pre-execution checkpoint.
 
             Arguments:
@@ -220,7 +221,9 @@ class CheckpointManager(CheckpointManagerBase):
         return cpt_paths
 
     @staticmethod
-    def get_cpts_of_segments(*cpts_or_segments: Union[SegmentLike, str]) -> list[str]:
+    def get_cpts_of_segments(
+        *cpts_or_segments: Union[ImageSegmentLike, str]
+    ) -> list[str]:
         """Get checkpoints created by a collection of Segments.
 
         Arguments:

@@ -5,7 +5,7 @@
 """Tests for ListSorter"""
 import pytest
 
-from pipescaler.core.pipelines import PipeImage
+from pipescaler.core.pipelines.image import PipeImage
 from pipescaler.pipelines.sorters import ListSorter
 from pipescaler.testing import (
     get_test_infile_directory_path,

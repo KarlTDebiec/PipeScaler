@@ -2,7 +2,7 @@
 #  Copyright 2020-2022 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Base class for sorters."""
+"""Abstract base class for sorters."""
 from __future__ import annotations
 
 import re
@@ -11,7 +11,7 @@ from inspect import cleandoc
 
 
 class Sorter(ABC):
-    """Base class for sorters."""
+    """Abstract base class for sorters."""
 
     def __repr__(self) -> str:
         """Representation."""

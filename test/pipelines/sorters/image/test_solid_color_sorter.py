@@ -5,7 +5,7 @@
 """Tests for SolidColorSorter"""
 import pytest
 
-from pipescaler.core.pipelines import PipeImage
+from pipescaler.core.pipelines.image import PipeImage
 from pipescaler.pipelines.sorters.image import SolidColorSorter
 from pipescaler.testing import get_test_infile_path, parametrized_fixture
 

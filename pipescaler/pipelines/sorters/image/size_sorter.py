@@ -9,7 +9,7 @@ from logging import info
 from typing import Optional
 
 from pipescaler.common import validate_int
-from pipescaler.core.pipelines import PipeImage
+from pipescaler.core.pipelines.image import PipeImage
 from pipescaler.core.pipelines.sorter import Sorter
 
 

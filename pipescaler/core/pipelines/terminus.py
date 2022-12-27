@@ -6,19 +6,12 @@
 from __future__ import annotations
 
 import re
-from abc import ABC, abstractmethod
+from abc import ABC
 from inspect import cleandoc
-
-from pipescaler.core.pipelines.pipe_image import PipeImage
 
 
 class Terminus(ABC):
     """Abstract base class for termini."""
-
-    @abstractmethod
-    def __call__(self, input_image: PipeImage) -> None:
-        """Terminates image."""
-        raise NotImplementedError
 
     def __repr__(self) -> str:
         """Representation."""

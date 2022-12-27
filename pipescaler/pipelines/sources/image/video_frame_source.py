@@ -12,10 +12,10 @@ import cv2
 from PIL import Image
 
 from pipescaler.common import PathLike, validate_input_file
-from pipescaler.core.pipelines import PipeImage, Source
+from pipescaler.core.pipelines.image import ImageSource, PipeImage
 
 
-class VideoSource(Source):
+class VideoFrameSource(ImageSource):
     """Yields images from a video file."""
 
     def __init__(

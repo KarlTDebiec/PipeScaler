@@ -5,7 +5,7 @@
 from logging import info
 
 from pipescaler.core.image import Splitter
-from pipescaler.core.pipelines import OperatorSegment, PipeImage
+from pipescaler.core.pipelines.image import OperatorSegment, PipeImage
 
 
 class SplitterSegment(OperatorSegment):

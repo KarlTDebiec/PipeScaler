@@ -10,7 +10,7 @@ from logging import info
 from PIL import Image
 
 from pipescaler.common import PathLike, validate_input_directory
-from pipescaler.core.pipelines import PipeImage
+from pipescaler.core.pipelines.image import PipeImage
 
 
 class Substituter:

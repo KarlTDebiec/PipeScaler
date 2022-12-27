@@ -2,18 +2,18 @@
 #  Copyright 2020-2022 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Base class for video sorters."""
+"""Abstract base class for video sorters."""
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from typing import Optional
 
-from pipescaler.core.pipelines import PipeVideo
 from pipescaler.core.pipelines.sorter import Sorter
+from pipescaler.core.pipelines.video.pipe_video import PipeVideo
 
 
 class VideoSorter(Sorter, ABC):
-    """Base class for video sorters."""
+    """Abstract base class for video sorters."""
 
     @abstractmethod
     def __call__(self, pipe_video: PipeVideo) -> Optional[str]:

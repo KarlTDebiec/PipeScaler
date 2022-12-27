@@ -2,7 +2,7 @@
 #  Copyright 2020-2022 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Object within a pipeline."""
+"""Abstract base class for object within pipelines."""
 from __future__ import annotations
 
 from abc import ABC
@@ -13,7 +13,7 @@ from pipescaler.common import PathLike, validate_input_file
 
 
 class PipeObject(ABC):
-    """Object within a pipeline."""
+    """Abstract base class for object within pipelines."""
 
     def __init__(
         self,

@@ -12,10 +12,10 @@ import numpy as np
 
 from pipescaler.common import validate_int
 from pipescaler.core.image import validate_image
-from pipescaler.core.pipelines import PipeImage, Sorter
+from pipescaler.core.pipelines.image import ImageSorter, PipeImage
 
 
-class SolidColorSorter(Sorter):
+class SolidColorSorter(ImageSorter):
     """Sorts images based on whether their entire canvas is a solid color."""
 
     def __init__(self, mean_threshold: int = 1, max_threshold: int = 10) -> None:

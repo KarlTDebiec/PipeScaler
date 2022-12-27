@@ -2,34 +2,23 @@
 #  Copyright 2020-2022 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Copies images to a defined output directory."""
+"""Copies images to an output directory."""
 from __future__ import annotations
 
 from datetime import datetime
 from logging import info
-from os import remove, rmdir, utime
-from pathlib import Path
+from os import utime
 from shutil import copyfile
-from typing import Optional
 
 import numpy as np
 from PIL import Image
 
-from pipescaler.common import PathLike, validate_output_directory
-from pipescaler.core.pipelines import PipeImage, Terminus
+from pipescaler.core.pipelines import CopyTerminus
+from pipescaler.core.pipelines.image import ImageTerminus, PipeImage
 
 
-class CopyFileTerminus(Terminus):
-    """Copies images to a defined output directory."""
-
-    def __init__(self, directory: PathLike) -> None:
-        """Validate and store configuration and initialize.
-
-        Arguments:
-            directory: Directory to which to copy images
-        """
-        self.directory = validate_output_directory(directory)
-        self.observed_files: set[str] = set()
+class CopyImageTerminus(CopyTerminus, ImageTerminus):
+    """Copies images to an output directory."""
 
     def __call__(self, input_image: PipeImage) -> None:
         """Save image to output directory.
@@ -78,25 +67,3 @@ class CopyFileTerminus(Terminus):
             return
         save_image()
         info(f"{self}: '{outfile}' saved")
-
-    def __repr__(self) -> str:
-        """Representation."""
-        return f"{self.__class__.__name__}(directory={self.directory!r})"
-
-    def purge_unrecognized_files(self, directory: Optional[Path] = None) -> None:
-        """Remove unrecognized files and subdirectories in output directory."""
-        if directory is None:
-            directory = self.directory
-        for path in directory.iterdir():
-            if path.is_dir():
-                self.purge_unrecognized_files(path)
-            elif path.is_file():
-                relative_path = path.relative_to(self.directory)
-                if str(relative_path) not in self.observed_files:
-                    remove(path)
-                    info(f"{self}: '{relative_path}' removed")
-            else:
-                raise ValueError(f"Unsupported path type: {path}")
-        if not any(directory.iterdir()) and directory != self.directory:
-            rmdir(directory)
-            info(f"{self}: directory '{directory.relative_to(self.directory)}' removed")

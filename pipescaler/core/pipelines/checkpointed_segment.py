@@ -1,25 +1,25 @@
 #  Copyright 2020-2022 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Segment with checkpoints."""
+"""Abstract base class for Segments with checkpoints."""
 from __future__ import annotations
 
 from abc import ABC
 from typing import Optional, Sequence
 
 from pipescaler.core.pipelines.checkpoint_manager_base import CheckpointManagerBase
+from pipescaler.core.pipelines.image.typing import ImageSegmentLike
 from pipescaler.core.pipelines.segment import Segment
-from pipescaler.core.pipelines.typing import SegmentLike
 
 
 class CheckpointedSegment(Segment, ABC):
-    """Segment with checkpoints."""
+    """Abstract base class for Segments with checkpoints."""
 
-    segment: SegmentLike
+    segment: ImageSegmentLike
 
     def __init__(
         self,
-        segment: SegmentLike,
+        segment: ImageSegmentLike,
         cp_manager: CheckpointManagerBase,
         cpts: Sequence[str],
         internal_cpts: Optional[Sequence[str]] = None,

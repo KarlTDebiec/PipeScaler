@@ -26,7 +26,7 @@ from pipescaler.common import (
 from pipescaler.core import Utility, citra_sort
 from pipescaler.core.analytics import ScoreDataFrame, ScoreStatsDataFrame
 from pipescaler.core.image import hstack_images, vstack_images
-from pipescaler.core.pipelines import PipeImage
+from pipescaler.core.pipelines.image import PipeImage
 from pipescaler.pipelines.sorters.image import AlphaSorter, GrayscaleSorter
 
 pd.set_option("display.max_rows", None)

@@ -23,7 +23,7 @@ from pipescaler.core.analytics import (
     multichannel_perceptual_hash,
     multichannel_wavelet_hash,
 )
-from pipescaler.core.pipelines import PipeImage
+from pipescaler.core.pipelines.image import PipeImage
 from pipescaler.pipelines.sorters.image import AlphaSorter, GrayscaleSorter
 
 

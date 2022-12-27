@@ -12,7 +12,7 @@ import pytest
 from PIL import Image
 
 from pipescaler.common import get_temp_directory_path
-from pipescaler.core.pipelines import PipeImage, Segment
+from pipescaler.core.pipelines.image import ImageSegment, PipeImage
 from pipescaler.image.mergers import AlphaMerger
 from pipescaler.image.processors import XbrzProcessor
 from pipescaler.image.splitters import AlphaSplitter
@@ -79,7 +79,7 @@ def test_load_save(
     request,
 ) -> None:
     segment = request.getfixturevalue(segment_name)
-    assert isinstance(segment, Segment)
+    assert isinstance(segment, ImageSegment)
 
     def run(cp_directory: Path) -> None:
         cp_manager = CheckpointManager(cp_directory)
@@ -194,7 +194,6 @@ def test_nested(
 
 
 def test_post_runner(copy_file: Callable[[Path, Path], None]) -> None:
-
     with get_temp_directory_path() as cp_directory:
         cp_manager = CheckpointManager(cp_directory)
         segment = cp_manager.post_runner("checkpoint.png")(copy_file)
@@ -251,7 +250,7 @@ def test_post_segment(
     segment_name: str, infiles: tuple[str], checkpoints: tuple[str], request
 ) -> None:
     segment = request.getfixturevalue(segment_name)
-    assert isinstance(segment, Segment)
+    assert isinstance(segment, ImageSegment)
 
     with get_temp_directory_path() as cp_directory:
         cp_manager = CheckpointManager(cp_directory)
@@ -290,7 +289,7 @@ def test_pre_segment(
     segment_name: str, infiles: tuple[str], checkpoints: tuple[str], request
 ) -> None:
     segment = request.getfixturevalue(segment_name)
-    assert isinstance(segment, Segment)
+    assert isinstance(segment, ImageSegment)
 
     with get_temp_directory_path() as cp_directory:
         cp_manager = CheckpointManager(cp_directory)

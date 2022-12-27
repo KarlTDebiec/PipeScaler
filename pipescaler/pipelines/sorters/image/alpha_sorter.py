@@ -12,7 +12,7 @@ import numpy as np
 
 from pipescaler.common import validate_int
 from pipescaler.core.image import validate_image_and_convert_mode
-from pipescaler.core.pipelines import ImageSorter, PipeImage
+from pipescaler.core.pipelines.image import ImageSorter, PipeImage
 
 
 class AlphaSorter(ImageSorter):

@@ -5,7 +5,7 @@
 """Tests for AlphaSorter"""
 import pytest
 
-from pipescaler.core.pipelines import PipeImage
+from pipescaler.core.pipelines.image import PipeImage
 from pipescaler.pipelines.sorters.image import AlphaSorter
 from pipescaler.testing import get_test_infile_path, parametrized_fixture
 

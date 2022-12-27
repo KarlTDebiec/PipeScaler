@@ -2,31 +2,33 @@
 #  Copyright 2020-2022 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Tests for SizeSorter"""
+"""Tests for MonochromeSorter"""
 import pytest
 
-from pipescaler.core.pipelines import PipeImage
-from pipescaler.pipelines.sorters.image import SizeSorter
+from pipescaler.core.pipelines.image import PipeImage
+from pipescaler.pipelines.sorters.image import MonochromeSorter
 from pipescaler.testing import get_test_infile_path, parametrized_fixture
 
 
 @parametrized_fixture(
-    cls=SizeSorter,
+    cls=MonochromeSorter,
     params=[
-        {"cutoff": 128},
+        {"mean_threshold": 1, "max_threshold": 10},
     ],
 )
-def sorter(request) -> SizeSorter:
-    return SizeSorter(**request.param)
+def sorter(request) -> MonochromeSorter:
+    return MonochromeSorter(**request.param)
 
 
 @pytest.mark.parametrize(
     ("infile", "outlet"),
     [
-        ("L", "greater_than_or_equal_to"),
+        ("1", "no_gray"),
+        ("extra/1_L", "drop_gray"),
+        ("L", "keep_gray"),
     ],
 )
-def test(infile: str, outlet: str, sorter: SizeSorter) -> None:
+def test(infile: str, outlet: str, sorter: MonochromeSorter) -> None:
     image = PipeImage(path=get_test_infile_path(infile))
 
     assert sorter(image) == outlet

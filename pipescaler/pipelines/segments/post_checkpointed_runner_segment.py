@@ -6,11 +6,8 @@ from logging import info
 from typing import Optional, Sequence
 
 from pipescaler.common import get_temp_file_path
-from pipescaler.core.pipelines import (
-    CheckpointedSegment,
-    CheckpointManagerBase,
-    PipeImage,
-)
+from pipescaler.core.pipelines import CheckpointedSegment, CheckpointManagerBase
+from pipescaler.core.pipelines.image import PipeImage
 from pipescaler.pipelines.segments.runner_segment import RunnerSegment
 
 

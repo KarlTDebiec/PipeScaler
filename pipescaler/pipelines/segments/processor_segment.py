@@ -7,7 +7,7 @@ from __future__ import annotations
 from logging import info
 
 from pipescaler.core.image import Processor
-from pipescaler.core.pipelines import OperatorSegment, PipeImage
+from pipescaler.core.pipelines.image import OperatorSegment, PipeImage
 
 
 class ProcessorSegment(OperatorSegment):

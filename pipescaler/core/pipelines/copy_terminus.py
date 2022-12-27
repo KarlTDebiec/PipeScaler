@@ -1,0 +1,50 @@
+#!/usr/bin/env python
+#  Copyright 2020-2022 Karl T Debiec
+#  All rights reserved. This software may be modified and distributed under
+#  the terms of the BSD license. See the LICENSE file for details.
+"""Abstract base class for termini that copy objects to an output directory."""
+from __future__ import annotations
+
+from abc import ABC
+from logging import info
+from os import remove, rmdir
+from pathlib import Path
+from typing import Optional
+
+from pipescaler.common import PathLike, validate_output_directory
+from pipescaler.core.pipelines.terminus import Terminus
+
+
+class CopyTerminus(Terminus, ABC):
+    """Abstract base class for termini that copy objects to an output directory."""
+
+    def __init__(self, directory: PathLike) -> None:
+        """Validate and store configuration and initialize.
+
+        Arguments:
+            directory: Directory to which to copy images
+        """
+        self.directory = validate_output_directory(directory)
+        self.observed_files: set[str] = set()
+
+    def __repr__(self) -> str:
+        """Representation."""
+        return f"{self.__class__.__name__}(directory={self.directory!r})"
+
+    def purge_unrecognized_files(self, directory: Optional[Path] = None) -> None:
+        """Remove unrecognized files and subdirectories in output directory."""
+        if directory is None:
+            directory = self.directory
+        for path in directory.iterdir():
+            if path.is_dir():
+                self.purge_unrecognized_files(path)
+            elif path.is_file():
+                relative_path = path.relative_to(self.directory)
+                if str(relative_path) not in self.observed_files:
+                    remove(path)
+                    info(f"{self}: '{relative_path}' removed")
+            else:
+                raise ValueError(f"Unsupported path type: {path}")
+        if not any(directory.iterdir()) and directory != self.directory:
+            rmdir(directory)
+            info(f"{self}: directory '{directory.relative_to(self.directory)}' removed")

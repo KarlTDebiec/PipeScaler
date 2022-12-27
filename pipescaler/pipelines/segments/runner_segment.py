@@ -7,7 +7,7 @@ from __future__ import annotations
 from logging import warning
 
 from pipescaler.common import get_temp_file_path
-from pipescaler.core.pipelines import PipeImage
+from pipescaler.core.pipelines.image import PipeImage
 from pipescaler.core.pipelines.segment import Segment
 from pipescaler.core.typing import RunnerLike
 

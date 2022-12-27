@@ -9,10 +9,10 @@ from logging import info
 from typing import Optional
 
 from pipescaler.core.image import validate_image
-from pipescaler.core.pipelines import PipeImage, Sorter
+from pipescaler.core.pipelines.image import ImageSorter, PipeImage
 
 
-class ModeSorter(Sorter):
+class ModeSorter(ImageSorter):
     """Sorts image based on mode.
 
     Supports pillow's modes 1, L, LA, RGB, and RGBA. Monochrome image mode is named 'M'
