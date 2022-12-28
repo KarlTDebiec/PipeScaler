@@ -4,8 +4,12 @@
 """Image sources."""
 from __future__ import annotations
 
-from pipescaler.pipelines.sources.image.video_frame_source import VideoFrameSource
+from pipescaler.pipelines.sources.image.image_directory_source import (
+    ImageDirectorySource,
+)
+from pipescaler.pipelines.sources.image.image_video_source import ImageVideoSource
 
 __all__ = [
-    "VideoFrameSource",
+    "ImageVideoSource",
+    "ImageDirectorySource",
 ]

@@ -7,12 +7,11 @@ from __future__ import annotations
 from logging import warning
 
 from pipescaler.common import get_temp_file_path
-from pipescaler.core.pipelines.image import PipeImage
-from pipescaler.core.pipelines.segment import Segment
+from pipescaler.core.pipelines.image import ImageSegment, PipeImage
 from pipescaler.core.typing import RunnerLike
 
 
-class RunnerSegment(Segment):
+class RunnerSegment(ImageSegment):
     """Segment that applies a Runner."""
 
     def __init__(

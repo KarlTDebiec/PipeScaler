@@ -2,21 +2,21 @@
 #  Copyright 2020-2022 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Yields objects from a directory."""
+"""Abstract base class for sources that yield objects from a directory."""
 from __future__ import annotations
 
 import re
+from abc import ABC
 from pathlib import Path
-from typing import Any, Callable, Optional, Type, Union
+from typing import Any, Callable, Optional, Union
 
 from pipescaler.common import PathLike, validate_input_directory
-from pipescaler.core.pipelines import PipeObject, Source
-from pipescaler.core.pipelines.image import PipeImage
+from pipescaler.core.pipelines.source import Source
 from pipescaler.core.sorting import basic_sort
 
 
-class DirectorySource(Source):
-    """Yields objects from a directory."""
+class DirectorySource(Source, ABC):
+    """Abstract base class for sources that yield objects from a directory."""
 
     cls_exclusions = {r".*\.DS_Store$", r".*Thumbs.db$", r".*desktop$"}
     """File paths to exclude"""
@@ -27,7 +27,6 @@ class DirectorySource(Source):
         *,
         exclusions: Optional[set[Union[str, re.Pattern]]] = None,
         inclusions: Optional[set[Union[str, re.Pattern]]] = None,
-        pipe_object_cls: Type[PipeObject] = PipeImage,
         sort: Union[Callable[[str], int], Callable[[str], str]] = basic_sort,
         reverse: bool = False,
         **kwargs: Any,
@@ -38,7 +37,6 @@ class DirectorySource(Source):
             directory: Directory from which to yield files
             exclusions: File path regular expressions to exclude
             inclusions: File path regular expressions to include
-            pipe_object_cls: Class to use for yielded objects
             sort: Function with which to sort file paths
             reverse: Whether to reverse file path sort order
             **kwargs: Additional keyword arguments
@@ -52,13 +50,10 @@ class DirectorySource(Source):
         """File path regular expressions to exclude"""
         self.inclusions = self.parse_inclusions(inclusions)
         """File path regular expressions to include"""
-        self.pipe_object_cls = pipe_object_cls
-        """Class to use for yielded objects"""
         self.sort = sort
         """Function with which to sort file paths"""
         self.reverse = reverse
         """Whether to reverse file path sort order"""
-        self.pipe_cls = PipeImage
 
         # Store list of file_paths
         file_paths = self.scan_directory(self.directory, self.directory)
@@ -70,17 +65,6 @@ class DirectorySource(Source):
         """File paths to be yielded"""
         self.index = 0
         """Index of next file path to be yielded"""
-
-    def __next__(self) -> PipeObject:
-        """Yield next image."""
-        if self.index < len(self.file_paths):
-            file_path = self.file_paths[self.index]
-            self.index += 1
-            relative_path: Optional[Path] = file_path.parent.relative_to(self.directory)
-            if relative_path == Path("."):
-                relative_path = None
-            return self.pipe_object_cls(path=file_path, location=relative_path)
-        raise StopIteration
 
     def __repr__(self) -> str:
         """Representation."""

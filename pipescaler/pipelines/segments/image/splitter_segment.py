@@ -1,33 +1,35 @@
 #  Copyright 2020-2022 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Segment that applies a Merger."""
+"""Segment that applies a Splitter."""
+from __future__ import annotations
+
 from logging import info
 
-from pipescaler.core.image import Merger
+from pipescaler.core.image import Splitter
 from pipescaler.core.pipelines.image import OperatorSegment, PipeImage
 
 
-class MergerSegment(OperatorSegment):
-    """Segment that applies a Merger."""
+class SplitterSegment(OperatorSegment):
+    """Segment that applies a Splitter."""
 
-    operator: Merger
+    operator: Splitter
 
-    def __init__(self, operator: Merger) -> None:
+    def __init__(self, operator: Splitter) -> None:
         """Initialize.
 
         Arguments:
-            operator: Merger to apply
+            operator: Splitter to apply
         """
         super().__init__(operator)
 
     def __call__(self, *inputs: PipeImage) -> tuple[PipeImage, ...]:
-        """Merge images.
+        """Split an image.
 
         Arguments:
-            inputs: Input images
+            inputs: Input image, within a tuple for consistency with other Segments
         Returns:
-            Output image, within a tuple for consistency with other Segments
+            Output images
         """
         if len(inputs) != len(self.operator.inputs()):
             raise ValueError(
@@ -35,9 +37,9 @@ class MergerSegment(OperatorSegment):
                 f"but {len(inputs)} were provided."
             )
 
-        input_images = tuple(i.image for i in inputs)
-        output_image = self.operator(*input_images)
-        output = PipeImage(image=output_image, parents=inputs)
-        info(f"{self.operator}: '{output.location_name}' merged")
+        input_image = inputs[0].image
+        output_images = self.operator(input_image)
+        outputs = tuple(PipeImage(image=o, parents=inputs[0]) for o in output_images)
+        info(f"{self.operator}: '{inputs[0].location_name}' split")
 
-        return (output,)
+        return outputs

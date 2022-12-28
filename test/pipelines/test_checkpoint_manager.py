@@ -17,7 +17,7 @@ from pipescaler.image.mergers import AlphaMerger
 from pipescaler.image.processors import XbrzProcessor
 from pipescaler.image.splitters import AlphaSplitter
 from pipescaler.pipelines import CheckpointManager
-from pipescaler.pipelines.segments import (
+from pipescaler.pipelines.segments.image import (
     MergerSegment,
     ProcessorSegment,
     SplitterSegment,

@@ -79,7 +79,7 @@ class LocalPaletteMatcher(Utility):
         """
         scale = fit_array.shape[0] // ref_array.shape[0]
         matched_array = np.zeros_like(fit_array)
-        dists = dict()  # noqa
+        dists = dict()  # noqa pylint: disable=use-dict-literal
         for fit_x in range(fit_array.shape[0]):
             for fit_y in range(fit_array.shape[1]):
                 best_dist = -1.0
@@ -125,7 +125,7 @@ class LocalPaletteMatcher(Utility):
         """
         scale = fit_array.shape[0] // ref_array.shape[0]
         matched_array = np.zeros_like(fit_array)
-        dists = dict()  # noqa
+        dists = dict()  # noqa pylint: disable=use-dict-literal
         for fit_x in range(fit_array.shape[0]):
             for fit_y in range(fit_array.shape[1]):
                 best_dist = -1.0

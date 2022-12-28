@@ -16,8 +16,8 @@ from pipescaler.pipelines.segments import (
     PostCheckpointedRunnerSegment,
     PostCheckpointedSegment,
     PreCheckpointedSegment,
-    RunnerSegment,
 )
+from pipescaler.pipelines.segments.image import RunnerSegment
 
 
 class CheckpointManager(CheckpointManagerBase):

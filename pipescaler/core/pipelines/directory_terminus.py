@@ -2,7 +2,7 @@
 #  Copyright 2020-2022 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Abstract base class for termini that copy objects to an output directory."""
+"""Abstract base class for termini that write objects to an output directory."""
 from __future__ import annotations
 
 from abc import ABC
@@ -15,8 +15,8 @@ from pipescaler.common import PathLike, validate_output_directory
 from pipescaler.core.pipelines.terminus import Terminus
 
 
-class CopyTerminus(Terminus, ABC):
-    """Abstract base class for termini that copy objects to an output directory."""
+class DirectoryTerminus(Terminus, ABC):
+    """Abstract base class for termini that write objects to an output directory."""
 
     def __init__(self, directory: PathLike) -> None:
         """Validate and store configuration and initialize.

@@ -13,11 +13,11 @@ from shutil import copyfile
 import numpy as np
 from PIL import Image
 
-from pipescaler.core.pipelines import CopyTerminus
+from pipescaler.core.pipelines import DirectoryTerminus
 from pipescaler.core.pipelines.image import ImageTerminus, PipeImage
 
 
-class CopyImageTerminus(CopyTerminus, ImageTerminus):
+class ImageDirectoryTerminus(DirectoryTerminus, ImageTerminus):
     """Copies images to an output directory."""
 
     def __call__(self, input_image: PipeImage) -> None:
@@ -49,7 +49,7 @@ class CopyImageTerminus(CopyTerminus, ImageTerminus):
         self.observed_files.add(str(outfile.relative_to(self.directory)))
         if outfile.exists():
             if (
-                input_image.path is not None
+                input_image.path
                 and outfile.stat().st_mtime > input_image.path.stat().st_mtime
             ):
                 info(f"{self}: '{outfile}' is newer; not overwritten")

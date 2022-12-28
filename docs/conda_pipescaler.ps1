@@ -22,6 +22,7 @@ pip install `
     numba `
     numpy `
     pandas `
+    pandas-stubs `
     pillow `
     prospector `
     pytest `
@@ -32,6 +33,9 @@ pip install `
     scikit-image `
     setuptools `
     svglib `
+    types-Pillow `
+    types-PyYAML `
+    types-requests `
     xbrz.py
 
 conda install -y -c pytorch -c nvidia `

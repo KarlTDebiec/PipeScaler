@@ -6,8 +6,10 @@
 from __future__ import annotations
 
 import re
-from abc import ABC
+from abc import ABC, abstractmethod
 from inspect import cleandoc
+
+from pipescaler.core.pipelines.pipe_object import PipeObject
 
 
 class Source(ABC):
@@ -16,6 +18,11 @@ class Source(ABC):
     def __iter__(self) -> Source:
         """Iterator for objects."""
         return self
+
+    @abstractmethod
+    def __next__(self) -> PipeObject:
+        """Return next object."""
+        raise NotImplementedError()
 
     def __repr__(self) -> str:
         """Representation."""

@@ -58,4 +58,4 @@ pipeline sections. PipeScaler includes the following image sorters:
 
 **Termini** perform final operations on images. PipeScaler includes the following image
 termini:
-* [CopyImageTerminus](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/pipelines/termini/copy_file_terminus.py) - Copies images to a defined output directory.
+* [ImageDirectoryTerminus](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/pipelines/termini/copy_file_terminus.py) - Copies images to a defined output directory.

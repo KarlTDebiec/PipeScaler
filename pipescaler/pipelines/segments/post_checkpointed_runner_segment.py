@@ -2,13 +2,15 @@
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Segment that applies a Runner with a post-execution checkpoint."""
+from __future__ import annotations
+
 from logging import info
 from typing import Optional, Sequence
 
 from pipescaler.common import get_temp_file_path
 from pipescaler.core.pipelines import CheckpointedSegment, CheckpointManagerBase
 from pipescaler.core.pipelines.image import PipeImage
-from pipescaler.pipelines.segments.runner_segment import RunnerSegment
+from pipescaler.pipelines.segments.image.runner_segment import RunnerSegment
 
 
 class PostCheckpointedRunnerSegment(CheckpointedSegment):

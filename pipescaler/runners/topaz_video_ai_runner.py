@@ -5,7 +5,7 @@
 from logging import debug
 from pathlib import Path
 
-from pipescaler.common import run_command_long
+from pipescaler.common import run_command_long, validate_input_directory
 from pipescaler.core import Runner
 
 
@@ -54,16 +54,23 @@ class TopazVideoAiRunner(Runner):
         ' "{outfile}"'
     )
 
-    def __init__(self, arguments: str, **kwargs) -> None:
+    def __init__(
+        self,
+        arguments: str,
+        working_directory: str = r"C:\Program Files\Topaz Labs LLC\Topaz Video AI",
+        **kwargs,
+    ) -> None:
         """Initialize.
 
         Arguments:
             arguments: Command-line arguments to pass to Topaz Video AI
+            working_directory: Directory in which Topaz Video AI is installed
             kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
 
-        self.arguments = self.proteus_4_3 if arguments is None else arguments
+        self.arguments = arguments
+        self.working_directory = validate_input_directory(working_directory)
 
     def __repr__(self) -> str:
         """Representation."""
@@ -72,15 +79,13 @@ class TopazVideoAiRunner(Runner):
     @property
     def command_template(self) -> str:
         """String template with which to generate command."""
-        return (
-            f'cd "C:\Program Files\Topaz Labs LLC\Topaz Video AI" & '
-            f"ffmpeg {self.arguments}"
-        )
+        return f'cd "{self.working_directory}" & ffmpeg {self.arguments}'
 
     @property
     def executable_path(self) -> Path:
         """Path to executable."""
-        # Check environment variables?
+        # TODO: Check environment variables?
+        # TODO: Actually validate executable?
         return Path(self.executable())
 
     def run(self, infile: Path, outfile: Path) -> None:
@@ -92,10 +97,8 @@ class TopazVideoAiRunner(Runner):
         """
         command = self.command_template.format(infile=infile, outfile=outfile)
         debug(f"{self}: {command}")
-        exitcode, stdout_str, stderr_str = run_command_long(command)
-        print(exitcode)
-        print(stdout_str)
-        print(stderr_str)
+        # TODO: Improve this
+        run_command_long(command)
 
     @classmethod
     def executable(cls) -> str:

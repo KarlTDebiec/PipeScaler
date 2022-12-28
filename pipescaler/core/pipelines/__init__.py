@@ -7,7 +7,8 @@ from __future__ import annotations
 
 from pipescaler.core.pipelines.checkpoint_manager_base import CheckpointManagerBase
 from pipescaler.core.pipelines.checkpointed_segment import CheckpointedSegment
-from pipescaler.core.pipelines.copy_terminus import CopyTerminus
+from pipescaler.core.pipelines.directory_source import DirectorySource
+from pipescaler.core.pipelines.directory_terminus import DirectoryTerminus
 from pipescaler.core.pipelines.exceptions import TerminusReached
 from pipescaler.core.pipelines.pipe_object import PipeObject
 from pipescaler.core.pipelines.segment import Segment
@@ -18,7 +19,8 @@ from pipescaler.core.pipelines.terminus import Terminus
 __all__ = [
     "CheckpointManagerBase",
     "CheckpointedSegment",
-    "CopyTerminus",
+    "DirectorySource",
+    "DirectoryTerminus",
     "PipeObject",
     "Segment",
     "Sorter",

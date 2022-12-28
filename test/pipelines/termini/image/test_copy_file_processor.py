@@ -6,13 +6,13 @@
 from tempfile import TemporaryDirectory
 
 from pipescaler.core.pipelines.image import PipeImage
-from pipescaler.pipelines.termini.image import CopyImageTerminus
+from pipescaler.pipelines.termini.image import ImageDirectoryTerminus
 from pipescaler.testing import get_test_infile_directory_path
 
 
 def test() -> None:
     with TemporaryDirectory() as output_directory:
-        terminus = CopyImageTerminus(directory=output_directory)
+        terminus = ImageDirectoryTerminus(directory=output_directory)
 
         for infile in get_test_infile_directory_path("basic").iterdir():
             terminus(PipeImage(path=infile))
@@ -21,5 +21,5 @@ def test() -> None:
         for infile in get_test_infile_directory_path("alt").iterdir():
             terminus(PipeImage(path=infile))
 
-        terminus = CopyImageTerminus(directory=output_directory)
+        terminus = ImageDirectoryTerminus(directory=output_directory)
         terminus.purge_unrecognized_files()

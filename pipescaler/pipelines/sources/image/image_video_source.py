@@ -15,7 +15,7 @@ from pipescaler.common import PathLike, validate_input_file
 from pipescaler.core.pipelines.image import ImageSource, PipeImage
 
 
-class VideoFrameSource(ImageSource):
+class ImageVideoSource(ImageSource):
     """Yields images from a video file."""
 
     def __init__(

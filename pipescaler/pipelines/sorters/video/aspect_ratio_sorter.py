@@ -11,7 +11,7 @@ from typing import Optional
 import cv2
 import numpy as np
 
-from pipescaler.core.pipelines.image import PipeVideo, VideoSorter
+from pipescaler.core.pipelines.video import PipeVideo, VideoSorter
 
 
 class AspectRatioSorter(VideoSorter):

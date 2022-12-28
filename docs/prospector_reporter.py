@@ -3,6 +3,8 @@
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Prints prospector output formatted for consumption by GitHub."""
+from __future__ import annotations
+
 import json
 from argparse import ArgumentParser, FileType, RawDescriptionHelpFormatter
 from dataclasses import dataclass
