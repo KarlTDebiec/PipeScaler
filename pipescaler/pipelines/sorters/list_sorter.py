@@ -17,8 +17,8 @@ from pipescaler.core.pipelines.sorter import Sorter
 class ListSorter(Sorter):
     """Sorts objects based on location/name using a set of configured lists."""
 
-    exclusions = {".DS_Store", "desktop"}
-    """Base filenames to exclude"""
+    exclusions = {".DS_Store", "Thumbs", "desktop"}
+    """File stems to exclude"""
 
     def __init__(self, **outlets: Union[PathLike, list[PathLike]]) -> None:
         """Validate configuration and initialize.

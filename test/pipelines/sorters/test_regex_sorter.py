@@ -37,3 +37,9 @@ def sorter(request) -> RegexSorter:
 def test(infile_name: str, outlet: str, sorter: RegexSorter) -> None:
     image = PipeImage(path=get_test_infile_path(infile_name))
     assert sorter(image) == outlet
+
+    # Test miscellaneous methods
+    print(sorter)
+    print(repr(sorter))
+    print(sorter.outlets)
+    print(sorter.help_markdown())

@@ -23,11 +23,11 @@ def mock_pipe_object_save(path: PathLike) -> None:
 
 
 def test():
-    with get_temp_directory_path() as cp_directory:
+    with get_temp_directory_path() as cp_directory_path:
         # Mocks
         mock_segment = Mock(spec=Segment)
         mock_cp_manager = Mock(spec=CheckpointManager)
-        mock_cp_manager.directory = cp_directory
+        mock_cp_manager.directory = cp_directory_path
         mock_pipe_object = Mock(spec=PipeObject)
         mock_pipe_object.location_name = "test"
         mock_pipe_object.save.side_effect = mock_pipe_object_save
@@ -41,7 +41,7 @@ def test():
         pre_checkpointed_segment(mock_pipe_object)
         assert mock_pipe_object.save.call_count == 1
         assert mock_pipe_object.save.call_args_list[0][0] == (
-            cp_directory / mock_pipe_object.location_name / "pre.txt",
+            cp_directory_path / mock_pipe_object.location_name / "pre.txt",
         )
 
         assert mock_cp_manager.observe.call_count == 1
@@ -61,6 +61,6 @@ def test():
         except ValueError:
             pass
 
-        # Test __str__ and __repr__
+        # Test miscellaneous methods
         print(pre_checkpointed_segment)
         print(repr(pre_checkpointed_segment))
