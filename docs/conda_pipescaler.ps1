@@ -14,7 +14,6 @@ conda install -y `
 
 pip install `
     black `
-    flask `
     imagehash `
     ipython `
     isort `
@@ -28,14 +27,10 @@ pip install `
     pytest `
     pytest-cov `
     pytest-xdist `
-    pyyaml `
-    requests `
     scikit-image `
     setuptools `
     svglib `
     types-Pillow `
-    types-PyYAML `
-    types-requests `
     xbrz.py
 
 conda install -y -c pytorch -c nvidia `

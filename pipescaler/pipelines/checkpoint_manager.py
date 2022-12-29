@@ -9,15 +9,11 @@ from os import remove, rmdir
 from pathlib import Path
 from typing import Callable, Collection, Optional, Sequence, Union
 
-from pipescaler.core import RunnerLike
-from pipescaler.core.pipelines import CheckpointManagerBase
-from pipescaler.core.pipelines.image import ImageSegmentLike, PipeImage
+from pipescaler.core.pipelines import CheckpointManagerBase, PipeObject, SegmentLike
 from pipescaler.pipelines.segments import (
-    PostCheckpointedRunnerSegment,
     PostCheckpointedSegment,
     PreCheckpointedSegment,
 )
-from pipescaler.pipelines.segments.image import RunnerSegment
 
 
 class CheckpointManager(CheckpointManagerBase):
@@ -25,15 +21,15 @@ class CheckpointManager(CheckpointManagerBase):
 
     def load(
         self,
-        images: tuple[PipeImage, ...],
+        inputs: tuple[PipeObject, ...],
         cpts: Sequence[str],
         *,
-        calls: Optional[Collection[Union[ImageSegmentLike, str]]] = None,
-    ) -> Optional[tuple[PipeImage, ...]]:
+        calls: Optional[Collection[Union[SegmentLike, str]]] = None,
+    ) -> Optional[tuple[PipeObject, ...]]:
         """Load images from checkpoints, if available, otherwise return None.
 
         Arguments:
-            images: Images
+            inputs: Input objects
             cpts: Names of checkpoints to load
             calls: Collection of checkpoint names and potentially-checkpointed segments
               used to prepare list of checkpoint names expected to be present whenever
@@ -41,16 +37,18 @@ class CheckpointManager(CheckpointManagerBase):
         Returns:
             Images loaded from checkpoints if available, otherwise None
         """
-        if len(images) == len(cpts):
-            location_names = [i.location_name for i in images]
+        cls = inputs[0].__class__
+
+        if len(inputs) == len(cpts):
+            location_names = [i.location_name for i in inputs]
         else:
-            location_names = list(dict.fromkeys([i.location_name for i in images]))
+            location_names = list(dict.fromkeys([i.location_name for i in inputs]))
         for ln, c in zip(cycle(location_names), cpts):
             self.observe(ln, c)
 
         cpt_paths = self.get_cpt_paths(self.directory, location_names, cpts)
         if all(p.exists() for p in cpt_paths):
-            outputs = tuple(PipeImage(path=p, parents=images) for p in cpt_paths)
+            outputs = tuple(cls(path=p, parents=inputs) for p in cpt_paths)
             info(
                 f"{self}: "
                 f"'{location_names[0] if len(location_names)==1 else location_names}' "
@@ -66,34 +64,9 @@ class CheckpointManager(CheckpointManagerBase):
 
         return None
 
-    def post_runner(
-        self, cpt: str
-    ) -> Callable[[RunnerLike], PostCheckpointedRunnerSegment]:
-        """Get decorator to wrap Runner to Segment with post-execution checkpoint.
-
-        Arguments:
-            cpt: Name of checkpoint
-        Returns:
-            Decorator to wrap Runner to Segment with post-execution checkpoint
-        """
-
-        def decorator(runner: RunnerLike) -> PostCheckpointedRunnerSegment:
-            """Wrap Runner to Segment with post-execution checkpoint.
-
-            Arguments:
-                runner: Runner to wrap
-            Returns:
-                Segment with post-execution checkpoint
-            """
-            runner_segment = RunnerSegment(runner, output_extension=Path(cpt).suffix)
-
-            return PostCheckpointedRunnerSegment(runner_segment, self, [cpt])
-
-        return decorator
-
     def post_segment(
-        self, *cpts: str, calls: Optional[Collection[ImageSegmentLike]] = None
-    ) -> Callable[[ImageSegmentLike], PostCheckpointedSegment]:
+        self, *cpts: str, calls: Optional[Collection[SegmentLike]] = None
+    ) -> Callable[[SegmentLike], PostCheckpointedSegment]:
         """Get decorator to wrap Segment to Segment with post-execution checkpoint.
 
         Arguments:
@@ -104,7 +77,7 @@ class CheckpointManager(CheckpointManagerBase):
         """
         internal_cpts = self.get_cpts_of_segments(*calls) if calls else []
 
-        def decorator(segment: ImageSegmentLike) -> PostCheckpointedSegment:
+        def decorator(segment: SegmentLike) -> PostCheckpointedSegment:
             """Wrap Segment to Segment with post-execution checkpoint.
 
             Arguments:
@@ -119,8 +92,8 @@ class CheckpointManager(CheckpointManagerBase):
         return decorator
 
     def pre_segment(
-        self, *cpts: str, calls: Optional[Collection[ImageSegmentLike]] = None
-    ) -> Callable[[ImageSegmentLike], PreCheckpointedSegment]:
+        self, *cpts: str, calls: Optional[Collection[SegmentLike]] = None
+    ) -> Callable[[SegmentLike], PreCheckpointedSegment]:
         """Get decorator to wrap Segment to Segment with pre-execution checkpoint.
 
         Arguments:
@@ -131,7 +104,7 @@ class CheckpointManager(CheckpointManagerBase):
         """
         internal_cpts = self.get_cpts_of_segments(*calls) if calls else []
 
-        def decorator(segment: ImageSegmentLike) -> PreCheckpointedSegment:
+        def decorator(segment: SegmentLike) -> PreCheckpointedSegment:
             """Wrap Segment to Segment with pre-execution checkpoint.
 
             Arguments:
@@ -166,11 +139,11 @@ class CheckpointManager(CheckpointManagerBase):
 
     def save(
         self,
-        images: tuple[PipeImage, ...],
+        images: tuple[PipeObject, ...],
         cpts: Collection[str],
         *,
         overwrite: bool = True,
-    ) -> tuple[PipeImage, ...]:
+    ) -> tuple[PipeObject, ...]:
         """Save images to checkpoints.
 
         Arguments:
@@ -221,9 +194,7 @@ class CheckpointManager(CheckpointManagerBase):
         return cpt_paths
 
     @staticmethod
-    def get_cpts_of_segments(
-        *cpts_or_segments: Union[ImageSegmentLike, str]
-    ) -> list[str]:
+    def get_cpts_of_segments(*cpts_or_segments: Union[SegmentLike, str]) -> list[str]:
         """Get checkpoints created by a collection of Segments.
 
         Arguments:

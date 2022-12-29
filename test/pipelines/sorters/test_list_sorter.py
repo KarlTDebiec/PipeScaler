@@ -2,10 +2,14 @@
 #  Copyright 2020-2022 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Tests for ListSorter"""
+"""Tests for ListSorter."""
+from __future__ import annotations
+
+from typing import Optional
+
 import pytest
 
-from pipescaler.core.pipelines.image import PipeImage
+from pipescaler.image.core.pipelines import PipeImage
 from pipescaler.pipelines.sorters import ListSorter
 from pipescaler.testing import (
     get_test_infile_directory_path,
@@ -17,11 +21,11 @@ from pipescaler.testing import (
 @parametrized_fixture(
     cls=ListSorter,
     params=[
-        {
-            "basic": get_test_infile_directory_path("basic"),
-            "extra": get_test_infile_directory_path("extra"),
-            "novel": get_test_infile_directory_path("novel"),
-        },
+        dict(
+            basic=get_test_infile_directory_path("basic"),
+            extra=get_test_infile_directory_path("extra"),
+            novel=get_test_infile_directory_path("novel"),
+        ),
     ],
 )
 def sorter(request) -> ListSorter:
@@ -29,13 +33,14 @@ def sorter(request) -> ListSorter:
 
 
 @pytest.mark.parametrize(
-    ("infile", "outlet"),
+    ("infile_name", "outlet"),
     [
         ("basic/L", "basic"),
         ("extra/1_L", "extra"),
         ("novel/L_solid", "novel"),
+        ("split/LA_alpha_L", None),
     ],
 )
-def test(infile: str, outlet: str, sorter: ListSorter) -> None:
-    image = PipeImage(path=get_test_infile_path(infile))
+def test(infile_name: str, outlet: Optional[str], sorter: ListSorter) -> None:
+    image = PipeImage(path=get_test_infile_path(infile_name))
     assert sorter(image) == outlet

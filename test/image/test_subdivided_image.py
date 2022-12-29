@@ -4,10 +4,10 @@
 """Tests for SubdividedImage."""
 import pytest
 from PIL import Image
+from prompt_toolkit.layout.processors import Processor
 
-from pipescaler.core.image import Processor
-from pipescaler.image import SubdividedImage
-from pipescaler.image.processors import (
+from pipescaler.image import SubdividedImage, xfail_unsupported_image_mode
+from pipescaler.image.operators.processors import (
     EsrganProcessor,
     PotraceProcessor,
     WaifuProcessor,
@@ -17,7 +17,6 @@ from pipescaler.testing import (
     get_test_infile_path,
     get_test_model_infile_path,
     skip_if_ci,
-    xfail_unsupported_image_mode,
 )
 
 

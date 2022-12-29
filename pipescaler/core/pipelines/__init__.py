@@ -2,7 +2,7 @@
 #  Copyright 2020-2022 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Pipelines."""
+"""Core pipelines."""
 from __future__ import annotations
 
 from pipescaler.core.pipelines.checkpoint_manager_base import CheckpointManagerBase
@@ -15,6 +15,7 @@ from pipescaler.core.pipelines.segment import Segment
 from pipescaler.core.pipelines.sorter import Sorter
 from pipescaler.core.pipelines.source import Source
 from pipescaler.core.pipelines.terminus import Terminus
+from pipescaler.core.pipelines.typing import SegmentLike
 
 __all__ = [
     "CheckpointManagerBase",
@@ -23,6 +24,7 @@ __all__ = [
     "DirectoryTerminus",
     "PipeObject",
     "Segment",
+    "SegmentLike",
     "Sorter",
     "Source",
     "Terminus",

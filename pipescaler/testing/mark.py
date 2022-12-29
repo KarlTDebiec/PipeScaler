@@ -12,7 +12,6 @@ from typing import Type
 from pytest import mark, param
 
 from pipescaler.common import UnsupportedPlatformError
-from pipescaler.core.image import UnsupportedImageModeError
 
 
 def parametrize_with_readable_ids(*args, **kwargs) -> partial:
@@ -109,20 +108,6 @@ def xfail_system_exit(inner: partial = None) -> partial:
         Partial function of pytest.param with marks
     """
     marks = [mark.xfail(raises=SystemExit)]
-    if inner is not None:
-        marks.extend(inner.keywords["marks"])
-    return partial(param, marks=marks)
-
-
-def xfail_unsupported_image_mode(inner: partial = None) -> partial:
-    """Mark test to be expected to fail due to an unsupported image mode.
-
-    Arguments:
-        inner: Nascent partial function of pytest.param with additional marks
-    Returns:
-        Partial function of pytest.param with marks
-    """
-    marks = [mark.xfail(raises=UnsupportedImageModeError)]
     if inner is not None:
         marks.extend(inner.keywords["marks"])
     return partial(param, marks=marks)

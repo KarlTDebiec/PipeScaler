@@ -8,9 +8,9 @@ from __future__ import annotations
 from argparse import ArgumentParser
 from typing import Any, Type
 
-from pipescaler.cli.processors_cli import ProcessorsCli
-from pipescaler.cli.utilities_cli import UtilitiesCli
 from pipescaler.common import CommandLineInterface
+from pipescaler.image.cli.processors_cli import ProcessorsCli
+from pipescaler.image.cli.utilities_cli import UtilitiesCli
 
 
 class PipeScalerCli(CommandLineInterface):

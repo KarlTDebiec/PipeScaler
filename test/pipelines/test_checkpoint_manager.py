@@ -12,32 +12,32 @@ import pytest
 from PIL import Image
 
 from pipescaler.common import get_temp_directory_path
-from pipescaler.core.pipelines.image import ImageSegment, PipeImage
-from pipescaler.image.mergers import AlphaMerger
-from pipescaler.image.processors import XbrzProcessor
-from pipescaler.image.splitters import AlphaSplitter
-from pipescaler.pipelines import CheckpointManager
-from pipescaler.pipelines.segments.image import (
-    MergerSegment,
-    ProcessorSegment,
-    SplitterSegment,
+from pipescaler.image.core.pipelines import ImageSegment, PipeImage
+from pipescaler.image.operators.mergers import AlphaMerger
+from pipescaler.image.operators.processors import XbrzProcessor
+from pipescaler.image.operators.splitters import AlphaSplitter
+from pipescaler.image.pipelines.segments import (
+    ImageMergerSegment,
+    ImageProcessorSegment,
+    ImageSplitterSegment,
 )
+from pipescaler.pipelines import CheckpointManager
 from pipescaler.testing import get_test_infile_path
 
 
 @pytest.fixture
-def xbrz_processor() -> ProcessorSegment:
-    return ProcessorSegment(XbrzProcessor(scale=2))
+def xbrz_processor() -> ImageProcessorSegment:
+    return ImageProcessorSegment(XbrzProcessor(scale=2))
 
 
 @pytest.fixture
-def alpha_splitter() -> SplitterSegment:
-    return SplitterSegment(AlphaSplitter())
+def alpha_splitter() -> ImageSplitterSegment:
+    return ImageSplitterSegment(AlphaSplitter())
 
 
 @pytest.fixture
-def alpha_merger() -> MergerSegment:
-    return MergerSegment(AlphaMerger())
+def alpha_merger() -> ImageMergerSegment:
+    return ImageMergerSegment(AlphaMerger())
 
 
 @pytest.fixture
@@ -113,9 +113,9 @@ def test_load_save(
 
 
 def test_split_merge(
-    xbrz_processor: ProcessorSegment,
-    alpha_splitter: SplitterSegment,
-    alpha_merger: MergerSegment,
+    xbrz_processor: ImageProcessorSegment,
+    alpha_splitter: ImageSplitterSegment,
+    alpha_merger: ImageMergerSegment,
 ) -> None:
     def run(cp_directory: Path) -> None:
         cp_manager = CheckpointManager(cp_directory)
@@ -159,8 +159,8 @@ def test_split_merge(
 
 
 def test_nested(
-    xbrz_processor: ProcessorSegment,
-    alpha_splitter: SplitterSegment,
+    xbrz_processor: ImageProcessorSegment,
+    alpha_splitter: ImageSplitterSegment,
     alpha_merger: AlphaMerger,
 ) -> None:
     def run(cp_directory: Path) -> None:

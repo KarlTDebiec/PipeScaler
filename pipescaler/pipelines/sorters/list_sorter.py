@@ -2,7 +2,7 @@
 #  Copyright 2020-2022 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Sorts image based on filename using a set of configured lists."""
+"""Sorts objects based on location/name using a set of configured lists."""
 from __future__ import annotations
 
 from logging import info
@@ -15,7 +15,7 @@ from pipescaler.core.pipelines.sorter import Sorter
 
 
 class ListSorter(Sorter):
-    """Sorts image based on filename using a set of configured lists."""
+    """Sorts objects based on location/name using a set of configured lists."""
 
     exclusions = {".DS_Store", "desktop"}
     """Base filenames to exclude"""
@@ -57,12 +57,12 @@ class ListSorter(Sorter):
                         self.outlets_by_filename[name] = outlet
 
     def __call__(self, pipe_object: PipeObject) -> Optional[str]:
-        """Get the outlet to which an image should be sorted.
+        """Get the outlet to which an object should be sorted.
 
         Arguments:
-            pipe_object: Image to sort
+            pipe_object: Object to sort
         Returns:
-            Outlet to which image should be sorted
+            Outlet to which object should be sorted
         """
         outlet = self.outlets_by_filename.get(pipe_object.name, None)
 

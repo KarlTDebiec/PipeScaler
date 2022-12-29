@@ -14,7 +14,6 @@ from pipescaler.common import package_root, run_command
 from pipescaler.core import Runner
 
 
-# pylint: disable=line-too-long
 class AppleScriptRunner(Runner):
     """Runs an AppleScript.
 

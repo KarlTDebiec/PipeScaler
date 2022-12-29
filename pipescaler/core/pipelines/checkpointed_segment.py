@@ -8,18 +8,18 @@ from abc import ABC
 from typing import Optional, Sequence
 
 from pipescaler.core.pipelines.checkpoint_manager_base import CheckpointManagerBase
-from pipescaler.core.pipelines.image.typing import ImageSegmentLike
 from pipescaler.core.pipelines.segment import Segment
+from pipescaler.core.pipelines.typing import SegmentLike
 
 
 class CheckpointedSegment(Segment, ABC):
     """Abstract base class for Segments with checkpoints."""
 
-    segment: ImageSegmentLike
+    segment: SegmentLike
 
     def __init__(
         self,
-        segment: ImageSegmentLike,
+        segment: SegmentLike,
         cp_manager: CheckpointManagerBase,
         cpts: Sequence[str],
         internal_cpts: Optional[Sequence[str]] = None,

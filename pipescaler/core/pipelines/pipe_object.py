@@ -5,7 +5,7 @@
 """Abstract base class for object within pipelines."""
 from __future__ import annotations
 
-from abc import ABC
+from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Optional, Sequence, Union
 
@@ -107,3 +107,12 @@ class PipeObject(ABC):
         if value is not None:
             value = validate_input_file(value)
         self._path = value
+
+    @abstractmethod
+    def save(self, path: PathLike) -> None:
+        """Save object to file and set path.
+
+        Arguments:
+            path: Path to which to save object
+        """
+        raise NotImplementedError()

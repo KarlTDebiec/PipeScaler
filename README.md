@@ -30,7 +30,6 @@ PipeScaler includes the following image processors:
 * [ThresholdProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/processors/threshold_processor.py) - Converts image to black and white using threshold, optionally denoising.
 * [WaifuExternalProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/processors/waifu_external_processor.py) - Upscales and/or denoises image using [Waifu2x](https://github.com/nagadomi/waifu2x) via an external executable.
 * [WaifuProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/processors/waifu_processor.py) - Upscales and/or denoises image using [Waifu2x](https://github.com/nagadomi/waifu2x) via PyTorch.
-* [WebProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/processors/web_processor.py) - POSTs image to a defined URL, which responds with processed image.
 * [XbrzProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/processors/xbrz_processor.py) - Upscales image using [xbrz](https://github.com/ioistired/xbrz.py).
 
 **Splitters** separate one image into two or more downstream images. PipeScaler includes

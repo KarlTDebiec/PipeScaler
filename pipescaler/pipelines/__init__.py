@@ -6,9 +6,7 @@
 from __future__ import annotations
 
 from pipescaler.pipelines.checkpoint_manager import CheckpointManager
-from pipescaler.pipelines.substituter import Substituter
 
 __all__ = [
     "CheckpointManager",
-    "Substituter",
 ]

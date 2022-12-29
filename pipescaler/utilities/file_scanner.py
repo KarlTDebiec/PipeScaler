@@ -2,7 +2,7 @@
 #  Copyright 2020-2022 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Scans directories for new image files."""
+"""Scans directories for new files."""
 from __future__ import annotations
 
 import re
@@ -22,7 +22,7 @@ from pipescaler.core import Utility
 
 
 class FileScanner(Utility):
-    """Scans directories for new image files."""
+    """Scans directories for new files."""
 
     exclusions = {".DS_Store", "desktop"}
 

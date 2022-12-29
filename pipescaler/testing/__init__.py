@@ -13,20 +13,17 @@ from pipescaler.testing.file import (
     get_test_model_infile_path,
 )
 from pipescaler.testing.fixture import parametrized_fixture
-from pipescaler.testing.image import get_expected_output_mode
 from pipescaler.testing.mark import (
     parametrize_with_readable_ids,
     skip_if_ci,
     xfail_file_not_found,
     xfail_if_platform,
     xfail_system_exit,
-    xfail_unsupported_image_mode,
     xfail_value,
 )
 
 __all__ = [
     "count_executions",
-    "get_expected_output_mode",
     "get_test_infile_directory_path",
     "get_test_infile_path",
     "get_test_model_infile_path",
@@ -37,6 +34,5 @@ __all__ = [
     "xfail_file_not_found",
     "xfail_if_platform",
     "xfail_system_exit",
-    "xfail_unsupported_image_mode",
     "xfail_value",
 ]

@@ -12,14 +12,14 @@ from types import ModuleType
 from typing import Type
 
 from pipescaler.common import package_root
-from pipescaler.core.image import Operator
 from pipescaler.core.pipelines import Source, Terminus
 from pipescaler.core.pipelines.sorter import Sorter
-from pipescaler.image import mergers, processors, splitters
-from pipescaler.pipelines import sorters, sources, termini
+from pipescaler.image.core import ImageOperator
+from pipescaler.image.operators import mergers, processors, splitters
+from pipescaler.image.pipelines import sorters, sources, termini
 
 
-def get_github_link(cls: Type[Operator]) -> str:
+def get_github_link(cls: Type[ImageOperator]) -> str:
     """Get the GitHub master branch link to the file containing a class.
 
     Arguments:
@@ -55,7 +55,7 @@ def get_module_regexes(modules: list[ModuleType]) -> dict[ModuleType, re.Pattern
     return module_regexes
 
 
-def get_stage_description(stage: Type[Operator]) -> str:
+def get_stage_description(stage: Type[ImageOperator]) -> str:
     """Get the formatted description of a stage, including GitHub link.
 
     Uses the first block of lines in the Stage's docstring.
@@ -78,7 +78,7 @@ def get_stage_descriptions(module: ModuleType) -> str:
     """
     section = ""
     for stage in map(module.__dict__.get, module.__all__):
-        if stage and issubclass(stage, (Operator, Source, Sorter, Terminus)):
+        if stage and issubclass(stage, (ImageOperator, Source, Sorter, Terminus)):
             section += get_stage_description(stage)
     return section
 
