@@ -22,6 +22,7 @@ class CheckpointedSegment(Segment, ABC):
         segment: SegmentLike,
         cp_manager: CheckpointManagerBase,
         cpts: Sequence[str],
+        *,
         internal_cpts: Optional[Sequence[str]] = None,
     ) -> None:
         """Initialize.
