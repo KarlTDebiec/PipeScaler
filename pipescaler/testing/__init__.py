@@ -21,8 +21,10 @@ from pipescaler.testing.mark import (
     xfail_system_exit,
     xfail_value,
 )
+from pipescaler.testing.test_pipe_object import TestPipeObject
 
 __all__ = [
+    "TestPipeObject",
     "count_executions",
     "get_test_infile_directory_path",
     "get_test_infile_path",

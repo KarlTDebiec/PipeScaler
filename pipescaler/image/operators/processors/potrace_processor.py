@@ -6,16 +6,16 @@
 from __future__ import annotations
 
 from PIL import Image, ImageOps
-from prompt_toolkit.layout.processors import Processor
 from reportlab.graphics.renderPM import drawToFile
 from svglib.svglib import svg2rlg
 
 from pipescaler.common import get_temp_file_path, validate_float
 from pipescaler.image.core import validate_image_and_convert_mode
+from pipescaler.image.core.operators import ImageProcessor
 from pipescaler.image.runners import PotraceRunner
 
 
-class PotraceProcessor(Processor):
+class PotraceProcessor(ImageProcessor):
     """Traces image using potrace and re-rasterizes, optionally resizing.
 
     See [Potrace](http://potrace.sourceforge.net/).

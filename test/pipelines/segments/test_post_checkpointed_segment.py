@@ -4,7 +4,7 @@
 """Tests for PostCheckpointedSegment."""
 from __future__ import annotations
 
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 from pipescaler.common import PathLike, get_temp_directory_path, validate_output_file
 from pipescaler.core.pipelines import PipeObject, Segment
@@ -22,18 +22,6 @@ def mock_pipe_object_save(path: PathLike) -> None:
     path.touch()
 
 
-def mock_pipe_object_save_2(self, path: PathLike) -> None:
-    """Save object to file and set path.
-
-    Arguments:
-        path: Path to which to save object
-    """
-    path = validate_output_file(path)
-    path.touch()
-
-
-@patch.object(PipeObject, "save", mock_pipe_object_save_2)
-@patch.object(PipeObject, "__abstractmethods__", set())
 def test():
     with get_temp_directory_path() as cp_directory_path:
         # Mocks

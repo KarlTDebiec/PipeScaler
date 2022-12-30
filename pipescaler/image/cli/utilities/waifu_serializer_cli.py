@@ -35,8 +35,16 @@ class WaifuSerializerCli(UtilityCli):
             "infile", type=cls.input_file_arg(), help="input json file"
         )
         required.add_argument(
-            "outfile", type=cls.input_file_arg(), help="output pth file"
+            "outfile", type=cls.output_file_arg(), help="output pth file"
         )
+
+    @classmethod
+    def main(cls) -> None:
+        """Execute from command line."""
+        parser = cls.argparser()
+        kwargs = vars(parser.parse_args())
+        kwargs.pop("verbosity")
+        WaifuSerializer()(**kwargs)
 
     @classmethod
     def utility(cls) -> Type[Utility]:

@@ -12,7 +12,7 @@ from pipescaler.core.pipelines import PipeObject
 from pipescaler.pipelines import CheckpointManager
 
 
-def test_load():
+def test_load_save():
 
     with get_temp_directory_path() as cp_directory_path:
         # Mocks
@@ -22,7 +22,12 @@ def test_load():
         mock_pipe_object_output.location_name = "test"
         cp_manager = CheckpointManager(cp_directory_path)
 
-        cp_manager.load((mock_pipe_object_input,), ("load.txt",))
+        # Load unavailable checkpoint
+        result = cp_manager.load((mock_pipe_object_input,), ("cpt.txt",))
+        assert result == None
+
+        # Save checkpoint
+        cp_manager.save((mock_pipe_object_output,), ("cpt.txt",))
 
     # Test miscellaneous methods
     print(cp_manager)
