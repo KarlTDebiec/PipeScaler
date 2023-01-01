@@ -1,20 +1,20 @@
 #!/usr/bin/env python
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Command line interface for PipeScaler."""
+"""Command-line interface for PipeScaler."""
 from __future__ import annotations
 
 from argparse import ArgumentParser
 from typing import Any, Type
 
 from pipescaler.common import CommandLineInterface
-from pipescaler.image.cli.processors_cli import ProcessorsCli
+from pipescaler.image.cli.image_processors_cli import ImageProcessorsCli
 from pipescaler.image.cli.utilities_cli import UtilitiesCli
 
 
 class PipeScalerCli(CommandLineInterface):
-    """Command line interface for PipeScaler."""
+    """Command-line interface for PipeScaler."""
 
     @classmethod
     def add_arguments_to_argparser(cls, parser: ArgumentParser) -> None:
@@ -26,7 +26,7 @@ class PipeScalerCli(CommandLineInterface):
         super().add_arguments_to_argparser(parser)
 
         subparsers = parser.add_subparsers(dest="action", help="action", required=True)
-        ProcessorsCli.argparser(subparsers=subparsers)
+        ImageProcessorsCli.argparser(subparsers=subparsers)
         UtilitiesCli.argparser(subparsers=subparsers)
 
     @classmethod
@@ -41,9 +41,9 @@ class PipeScalerCli(CommandLineInterface):
 
     @classmethod
     def subcommands(cls) -> dict[str, Type[CommandLineInterface]]:
-        """Names and types of tools wrapped by command line interface."""
+        """Names and types of tools wrapped by command-line interface."""
         return {
-            tool.name(): tool for tool in [ProcessorsCli, UtilitiesCli]  # type: ignore
+            tool.name(): tool for tool in [ImageProcessorsCli, UtilitiesCli]  # type: ignore
         }
 
 

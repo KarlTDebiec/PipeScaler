@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Command line interface for WaifuSerializer."""
+"""Command-line interface for WaifuSerializer."""
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -14,7 +14,7 @@ from pipescaler.image.utilities import WaifuSerializer
 
 
 class WaifuSerializerCli(UtilityCli):
-    """Command line interface for WaifuSerializer."""
+    """Command-line interface for WaifuSerializer."""
 
     @classmethod
     def add_arguments_to_argparser(cls, parser: ArgumentParser) -> None:
@@ -48,7 +48,7 @@ class WaifuSerializerCli(UtilityCli):
 
     @classmethod
     def utility(cls) -> Type[Utility]:
-        """Type of utility wrapped by command line interface."""
+        """Type of utility wrapped by command-line interface."""
         return WaifuSerializer
 
 

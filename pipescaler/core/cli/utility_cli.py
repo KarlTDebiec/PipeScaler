@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Abstract base class for Utility command line interfaces."""
+"""Abstract base class for Utility command-line interfaces."""
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -14,7 +14,7 @@ from pipescaler.core.utility import Utility
 
 
 class UtilityCli(CommandLineInterface, ABC):
-    """Abstract base class for Utility command line interfaces."""
+    """Abstract base class for Utility command-line interfaces."""
 
     @classmethod
     def description(cls) -> str:
@@ -52,5 +52,5 @@ class UtilityCli(CommandLineInterface, ABC):
     @classmethod
     @abstractmethod
     def utility(cls) -> Type[Utility]:
-        """Type of utility wrapped by command line interface."""
+        """Type of utility wrapped by command-line interface."""
         raise NotImplementedError()

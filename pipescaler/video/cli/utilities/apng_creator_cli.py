@@ -2,7 +2,7 @@
 #  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Command line interface for ApngCreator."""
+"""Command-line interface for ApngCreator."""
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -14,7 +14,7 @@ from pipescaler.video.utilities.apng_creator import ApngCreator
 
 
 class ApngCreatorCli(UtilityCli):
-    """Command line interface for ApngCreator."""
+    """Command-line interface for ApngCreator."""
 
     @classmethod
     def add_arguments_to_argparser(cls, parser: ArgumentParser) -> None:
@@ -64,7 +64,7 @@ class ApngCreatorCli(UtilityCli):
 
     @classmethod
     def utility(cls) -> Type[Utility]:
-        """Type of utility wrapped by command line interface."""
+        """Type of utility wrapped by command-line interface."""
         return ApngCreator
 
 

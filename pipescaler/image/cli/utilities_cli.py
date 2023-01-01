@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Command line interface for PipeScaler utilities."""
+"""Command-line interface for PipeScaler utilities."""
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -14,7 +14,7 @@ from pipescaler.image import utilities
 
 
 class UtilitiesCli(CommandLineInterface):
-    """Command line interface for PipeScaler utilities."""
+    """Command-line interface for PipeScaler utilities."""
 
     @classmethod
     def add_arguments_to_argparser(cls, parser: ArgumentParser) -> None:
@@ -58,7 +58,7 @@ class UtilitiesCli(CommandLineInterface):
 
     @classmethod
     def utilities(cls) -> dict[str, Type[UtilityCli]]:
-        """Names and types of utilities wrapped by command line interface."""
+        """Names and types of utilities wrapped by command-line interface."""
         return {
             utility.name(): utility
             for utility in map(utilities.__dict__.get, utilities.__all__)

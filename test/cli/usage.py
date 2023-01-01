@@ -1,7 +1,7 @@
 #  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Tests for usage text of command line interfaces."""
+"""Tests for usage text of command-line interfaces."""
 from contextlib import redirect_stderr, redirect_stdout
 from inspect import getfile
 from io import StringIO
@@ -10,6 +10,7 @@ from typing import Type
 
 from pipescaler.cli import PipeScalerCli
 from pipescaler.common import CommandLineInterface
+from pipescaler.image.cli.image_processors_cli import ImageProcessorsCli
 from pipescaler.image.cli.processors import (
     CropCli,
     EsrganCli,
@@ -23,7 +24,6 @@ from pipescaler.image.cli.processors import (
     WaifuCli,
     XbrzCli,
 )
-from pipescaler.image.cli.processors_cli import ProcessorsCli
 from pipescaler.image.cli.utilities import EsrganSerializerCli, WaifuSerializerCli
 from pipescaler.image.cli.utilities_cli import UtilitiesCli
 from pipescaler.testing import parametrize_with_readable_ids, run_cli_with_args
@@ -41,7 +41,7 @@ from pipescaler.video.cli.utilities import ApngCreatorCli
         ((HeightToNormalCli,)),
         ((ModeCli,)),
         ((PipeScalerCli,)),
-        ((ProcessorsCli,)),
+        ((ImageProcessorsCli,)),
         ((ResizeCli,)),
         ((SharpenCli,)),
         ((SolidColorCli,)),
@@ -50,32 +50,32 @@ from pipescaler.video.cli.utilities import ApngCreatorCli
         ((WaifuCli,)),
         ((WaifuSerializerCli,)),
         ((XbrzCli,)),
-        ((ProcessorsCli, CropCli)),
-        ((ProcessorsCli, EsrganCli)),
-        ((ProcessorsCli, ExpandCli)),
-        ((ProcessorsCli, HeightToNormalCli)),
-        ((ProcessorsCli, ModeCli)),
-        ((ProcessorsCli, ResizeCli)),
-        ((ProcessorsCli, SharpenCli)),
-        ((ProcessorsCli, SolidColorCli)),
-        ((ProcessorsCli, ThresholdCli)),
-        ((ProcessorsCli, WaifuCli)),
-        ((ProcessorsCli, XbrzCli)),
+        ((ImageProcessorsCli, CropCli)),
+        ((ImageProcessorsCli, EsrganCli)),
+        ((ImageProcessorsCli, ExpandCli)),
+        ((ImageProcessorsCli, HeightToNormalCli)),
+        ((ImageProcessorsCli, ModeCli)),
+        ((ImageProcessorsCli, ResizeCli)),
+        ((ImageProcessorsCli, SharpenCli)),
+        ((ImageProcessorsCli, SolidColorCli)),
+        ((ImageProcessorsCli, ThresholdCli)),
+        ((ImageProcessorsCli, WaifuCli)),
+        ((ImageProcessorsCli, XbrzCli)),
         ((UtilitiesCli, ApngCreatorCli)),
         ((UtilitiesCli, EsrganSerializerCli)),
         ((UtilitiesCli, WaifuSerializerCli)),
-        ((PipeScalerCli, ProcessorsCli)),
-        ((PipeScalerCli, ProcessorsCli, CropCli)),
-        ((PipeScalerCli, ProcessorsCli, EsrganCli)),
-        ((PipeScalerCli, ProcessorsCli, ExpandCli)),
-        ((PipeScalerCli, ProcessorsCli, HeightToNormalCli)),
-        ((PipeScalerCli, ProcessorsCli, ModeCli)),
-        ((PipeScalerCli, ProcessorsCli, ResizeCli)),
-        ((PipeScalerCli, ProcessorsCli, SharpenCli)),
-        ((PipeScalerCli, ProcessorsCli, SolidColorCli)),
-        ((PipeScalerCli, ProcessorsCli, ThresholdCli)),
-        ((PipeScalerCli, ProcessorsCli, WaifuCli)),
-        ((PipeScalerCli, ProcessorsCli, XbrzCli)),
+        ((PipeScalerCli, ImageProcessorsCli)),
+        ((PipeScalerCli, ImageProcessorsCli, CropCli)),
+        ((PipeScalerCli, ImageProcessorsCli, EsrganCli)),
+        ((PipeScalerCli, ImageProcessorsCli, ExpandCli)),
+        ((PipeScalerCli, ImageProcessorsCli, HeightToNormalCli)),
+        ((PipeScalerCli, ImageProcessorsCli, ModeCli)),
+        ((PipeScalerCli, ImageProcessorsCli, ResizeCli)),
+        ((PipeScalerCli, ImageProcessorsCli, SharpenCli)),
+        ((PipeScalerCli, ImageProcessorsCli, SolidColorCli)),
+        ((PipeScalerCli, ImageProcessorsCli, ThresholdCli)),
+        ((PipeScalerCli, ImageProcessorsCli, WaifuCli)),
+        ((PipeScalerCli, ImageProcessorsCli, XbrzCli)),
         ((PipeScalerCli, UtilitiesCli)),
         ((PipeScalerCli, UtilitiesCli, ApngCreatorCli)),
         ((PipeScalerCli, UtilitiesCli, EsrganSerializerCli)),

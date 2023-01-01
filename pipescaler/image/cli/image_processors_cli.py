@@ -2,19 +2,19 @@
 #  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Command line interface for PipeScaler Processors."""
+"""Command-line interface for PipeScaler Processors."""
 from __future__ import annotations
 
 from argparse import ArgumentParser
 from typing import Any, Type
 
-from pipescaler.common import CommandLineInterface
+from pipescaler.common import CommandLineInterface, set_logging_verbosity
 from pipescaler.image.cli import processors
 from pipescaler.image.core.cli.image_processor_cli import ImageProcessorCli
 
 
-class ProcessorsCli(CommandLineInterface):
-    """Command line interface for PipeScaler Processors."""
+class ImageProcessorsCli(CommandLineInterface):
+    """Command-line interface for PipeScaler Processors."""
 
     @classmethod
     def add_arguments_to_argparser(cls, parser: ArgumentParser) -> None:
@@ -43,13 +43,21 @@ class ProcessorsCli(CommandLineInterface):
         Arguments:
             **kwargs: Command-line arguments
         """
-        processor = cls.processors()[kwargs.pop("processor")]
-        processor.execute(**kwargs)
 
     @classmethod
     def help(cls) -> str:
         """Short description of this tool used when it is a subparser."""
         return "process image"
+
+    @classmethod
+    def main(cls) -> None:
+        """Execute from command line."""
+        parser = cls.argparser()
+        kwargs = vars(parser.parse_args())
+        set_logging_verbosity(kwargs.pop("verbosity", 1))
+        processor_name = kwargs.pop("processor")
+        processor_cli_cls = cls.processors()[processor_name]
+        processor_cli_cls.run(**kwargs)
 
     @classmethod
     def name(cls) -> str:
@@ -58,7 +66,7 @@ class ProcessorsCli(CommandLineInterface):
 
     @classmethod
     def processors(cls) -> dict[str, Type[ImageProcessorCli]]:
-        """Names and types of processors wrapped by command line interface."""
+        """Names and types of processors wrapped by command-line interface."""
         return {
             processor.name(): processor
             for processor in map(processors.__dict__.get, processors.__all__)
@@ -67,4 +75,4 @@ class ProcessorsCli(CommandLineInterface):
 
 
 if __name__ == "__main__":
-    ProcessorsCli.main()
+    ImageProcessorsCli.main()
