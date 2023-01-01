@@ -1,12 +1,12 @@
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Tests for SubdividedImage."""
 import pytest
 from PIL import Image
-from prompt_toolkit.layout.processors import Processor
 
 from pipescaler.image import SubdividedImage, xfail_unsupported_image_mode
+from pipescaler.image.core.operators import ImageProcessor
 from pipescaler.image.operators.processors import (
     EsrganProcessor,
     PotraceProcessor,
@@ -63,7 +63,7 @@ def potrace_processor() -> PotraceProcessor:
 )
 def test_subdivider(processor_name: str, infile: str, scale: int, request) -> None:
     processor = request.getfixturevalue(processor_name)
-    assert isinstance(processor, Processor)
+    assert isinstance(processor, ImageProcessor)
 
     input_path = get_test_infile_path(infile)
     input_image = Image.open(input_path)
