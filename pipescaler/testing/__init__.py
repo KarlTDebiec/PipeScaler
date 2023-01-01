@@ -2,7 +2,7 @@
 #  Copyright 2020-2022 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Functions for testing."""
+"""Testing."""
 from __future__ import annotations
 
 from pipescaler.testing.cli import run_cli_with_args
@@ -21,10 +21,8 @@ from pipescaler.testing.mark import (
     xfail_system_exit,
     xfail_value,
 )
-from pipescaler.testing.test_pipe_object import TestPipeObject
 
 __all__ = [
-    "TestPipeObject",
     "count_executions",
     "get_test_infile_directory_path",
     "get_test_infile_path",

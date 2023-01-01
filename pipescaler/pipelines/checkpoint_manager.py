@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Manages checkpoints."""
@@ -28,6 +28,9 @@ class CheckpointManager(CheckpointManagerBase):
     ) -> Optional[tuple[PipeObject, ...]]:
         """Load images from checkpoints, if available, otherwise return None.
 
+        If the length of inputs is equal to the length of cpts, inputs and cpts are
+        zipped. Otherwise, the first input is used for all cpts.
+
         Arguments:
             inputs: Input objects
             cpts: Names of checkpoints to load
@@ -39,10 +42,13 @@ class CheckpointManager(CheckpointManagerBase):
         """
         cls = inputs[0].__class__
 
-        if len(inputs) == len(cpts):
+        if len(inputs) in (1, len(cpts)):
             location_names = [i.location_name for i in inputs]
         else:
-            location_names = list(dict.fromkeys([i.location_name for i in inputs]))
+            raise ValueError(
+                "Number of inputs must equal either 1 or number of cpts;"
+                f"received {len(inputs)} and {len(cpts)}."
+            )
         for ln, c in zip(cycle(location_names), cpts):
             self.observe(ln, c)
 
@@ -87,7 +93,9 @@ class CheckpointManager(CheckpointManagerBase):
             """
             internal_cpts.extend(self.get_cpts_of_segments(segment))
 
-            return PostCheckpointedSegment(segment, self, cpts, internal_cpts)
+            return PostCheckpointedSegment(
+                segment, self, cpts, internal_cpts=internal_cpts
+            )
 
         return decorator
 
@@ -114,7 +122,9 @@ class CheckpointManager(CheckpointManagerBase):
             """
             internal_cpts.extend(self.get_cpts_of_segments(segment))
 
-            return PreCheckpointedSegment(segment, self, cpts, internal_cpts)
+            return PreCheckpointedSegment(
+                segment, self, cpts, internal_cpts=internal_cpts
+            )
 
         return decorator
 
@@ -139,7 +149,7 @@ class CheckpointManager(CheckpointManagerBase):
 
     def save(
         self,
-        images: tuple[PipeObject, ...],
+        inputs: tuple[PipeObject, ...],
         cpts: Collection[str],
         *,
         overwrite: bool = True,
@@ -147,21 +157,21 @@ class CheckpointManager(CheckpointManagerBase):
         """Save images to checkpoints.
 
         Arguments:
-            images: Images
+            inputs: Images
             cpts: Names of checkpoints
             overwrite: Whether to overwrite existing checkpoints
         Returns:
             Images, with paths updated to checkpoints
         """
-        if len(images) != len(cpts):
+        if len(inputs) != len(cpts):
             raise ValueError(
                 f"Number of cpts ({len(cpts)}) must equal number of images "
-                f"({len(images)})"
+                f"({len(inputs)})"
             )
         cpt_paths = self.get_cpt_paths(
-            self.directory, [i.location_name for i in images], cpts
+            self.directory, [i.location_name for i in inputs], cpts
         )
-        for i, c, p in zip(images, cpts, cpt_paths):
+        for i, c, p in zip(inputs, cpts, cpt_paths):
             if not p.parent.exists():
                 p.parent.mkdir(parents=True)
                 info(f"{self}: directory '{p.parent}' created")
@@ -172,7 +182,7 @@ class CheckpointManager(CheckpointManagerBase):
                 i.path = p
             self.observe(i.location_name, c)
 
-        return images
+        return inputs
 
     @staticmethod
     def get_cpt_paths(
