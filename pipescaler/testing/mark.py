@@ -47,7 +47,7 @@ def skip_if_ci(inner: partial = None) -> partial:
     Returns:
         Partial function of pytest.param with marks
     """
-    marks = [mark.skipif(getenv("CI"), reason="Skip when running in CI")]
+    marks = [mark.skipif(getenv("CI") is not None, reason="Skip when running in CI")]
     if inner:
         marks.extend(inner.keywords["marks"])
     return partial(param, marks=marks)
