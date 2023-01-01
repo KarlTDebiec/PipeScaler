@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Runs an Automator QuickAction."""
@@ -38,7 +38,7 @@ class AutomatorRunner(Runner):
         if workflow.suffix != ".workflow":
             workflow = workflow.with_suffix(".workflow")
         if not workflow.is_absolute():
-            workflow = package_root / "data" / "workflows" / workflow
+            workflow = package_root / "image/data/workflows" / workflow
         if not workflow.exists():
             raise DirectoryNotFoundError()
         if not workflow.is_dir():
