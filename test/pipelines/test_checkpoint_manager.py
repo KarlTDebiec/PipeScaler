@@ -5,12 +5,18 @@
 """Tests for CheckpointManager."""
 from __future__ import annotations
 
-from pathlib import Path
+from platform import system
 from unittest.mock import Mock, patch
 
 from pipescaler.common import PathLike, get_temp_directory_path, validate_output_file
 from pipescaler.core.pipelines import PipeObject, Segment
 from pipescaler.pipelines import CheckpointManager
+
+if system() == "Windows":
+    from pathlib import WindowsPath
+
+else:
+    from pathlib import PosixPath
 
 
 def mock_pipe_object_save(path: PathLike) -> None:
@@ -117,9 +123,11 @@ def test_post_segment():
 
 
 def test_print():
-
     with get_temp_directory_path() as cp_directory_path:
-        assert isinstance(cp_directory_path, Path)
+        if system() == "Windows":
+            assert isinstance(cp_directory_path, WindowsPath)
+        else:
+            assert isinstance(cp_directory_path, PosixPath)
 
         cp_manager = CheckpointManager(cp_directory_path)
         print(cp_manager)

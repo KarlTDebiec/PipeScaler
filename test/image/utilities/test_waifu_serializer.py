@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Tests for WaifuSerializer."""
@@ -21,7 +21,7 @@ def utility(request) -> WaifuSerializer:
     ("architecture", "infile"),
     [
         skip_if_ci()("upconv7", "WaifuUpConv7/a-2-1.json"),
-        skip_if_ci()("vgg7", "WaifuVgg7/a-2-1.json"),
+        skip_if_ci()("vgg7", "WaifuVgg7/a-2-0.json"),
     ],
 )
 def test(architecture: str, infile: str, utility: WaifuSerializer) -> None:
