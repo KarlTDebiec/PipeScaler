@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Command line interface for PipeScaler Processors."""
@@ -10,7 +10,7 @@ from typing import Any, Type
 
 from pipescaler.common import CommandLineInterface
 from pipescaler.image.cli import processors
-from pipescaler.image.core.cli.processor_cli import ProcessorCli
+from pipescaler.image.core.cli.image_processor_cli import ImageProcessorCli
 
 
 class ProcessorsCli(CommandLineInterface):
@@ -57,12 +57,12 @@ class ProcessorsCli(CommandLineInterface):
         return "process"
 
     @classmethod
-    def processors(cls) -> dict[str, Type[ProcessorCli]]:
+    def processors(cls) -> dict[str, Type[ImageProcessorCli]]:
         """Names and types of processors wrapped by command line interface."""
         return {
             processor.name(): processor
             for processor in map(processors.__dict__.get, processors.__all__)
-            if isinstance(processor, type) and issubclass(processor, ProcessorCli)
+            if isinstance(processor, type) and issubclass(processor, ImageProcessorCli)
         }
 
 

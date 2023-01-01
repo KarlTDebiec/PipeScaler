@@ -1,20 +1,21 @@
 #!/usr/bin/env python
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Command line interface for ThresholdProcessor."""
+"""Command-line interface for ThresholdProcessor."""
 from __future__ import annotations
 
 from argparse import ArgumentParser
 from typing import Type
 
-from pipescaler.image.core.cli.processor_cli import ProcessorCli
+from pipescaler.common import get_arg_groups_by_name, int_arg
+from pipescaler.image.core.cli.image_processor_cli import ImageProcessorCli
 from pipescaler.image.core.operators import ImageProcessor
 from pipescaler.image.operators.processors import ThresholdProcessor
 
 
-class ThresholdCli(ProcessorCli):
-    """Command line interface for ThresholdProcessor."""
+class ThresholdCli(ImageProcessorCli):
+    """Command-line interface for ThresholdProcessor."""
 
     @classmethod
     def add_arguments_to_argparser(cls, parser: ArgumentParser) -> None:
@@ -25,15 +26,20 @@ class ThresholdCli(ProcessorCli):
         """
         super().add_arguments_to_argparser(parser)
 
-        optional = cls.get_optional_arguments_group(parser)
-        optional.add_argument(
+        arg_groups = get_arg_groups_by_name(
+            parser,
+            "required arguments",
+            optional_arguments_name="additional arguments",
+        )
+
+        arg_groups["additional arguments"].add_argument(
             "--threshold",
             default=128,
-            type=cls.int_arg(min_value=0, max_value=255),
+            type=int_arg(min_value=0, max_value=255),
             help="threshold differentiating black and white (0-255, default: "
             "%(default)s)",
         )
-        optional.add_argument(
+        arg_groups["additional arguments"].add_argument(
             "--denoise",
             action="store_true",
             help="Flip color of pixels bordered by less than 5 pixels of "
@@ -42,7 +48,7 @@ class ThresholdCli(ProcessorCli):
 
     @classmethod
     def processor(cls) -> Type[ImageProcessor]:
-        """Type of processor wrapped by command line interface."""
+        """Type of processor wrapped by command-line interface."""
         return ThresholdProcessor
 
 

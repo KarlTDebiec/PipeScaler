@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Abstract base class for Processor command line interfaces."""
@@ -8,15 +8,21 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from argparse import ArgumentParser
 from inspect import cleandoc
+from logging import info
 from typing import Any, Type
 
 from PIL import Image
 
-from pipescaler.common import CommandLineInterface, set_logging_verbosity
+from pipescaler.common import (
+    CommandLineInterface,
+    input_file_arg,
+    output_file_arg,
+    set_logging_verbosity,
+)
 from pipescaler.image.core.operators import ImageProcessor
 
 
-class ProcessorCli(CommandLineInterface, ABC):
+class ImageProcessorCli(CommandLineInterface, ABC):
     """Abstract base class for Processor command line interfaces."""
 
     @classmethod
@@ -28,8 +34,8 @@ class ProcessorCli(CommandLineInterface, ABC):
         """
         super().add_arguments_to_argparser(parser)
 
-        parser.add_argument("infile", type=cls.input_file_arg(), help="input file")
-        parser.add_argument("outfile", type=cls.output_file_arg(), help="output file")
+        parser.add_argument("infile", type=input_file_arg(), help="input file")
+        parser.add_argument("outfile", type=output_file_arg(), help="output file")
 
     @classmethod
     def description(cls) -> str:
@@ -37,30 +43,12 @@ class ProcessorCli(CommandLineInterface, ABC):
         return cleandoc(str(cls.processor().__doc__)) if cls.processor().__doc__ else ""
 
     @classmethod
-    def execute(cls, **kwargs: Any) -> None:
-        """Execute with provided keyword arguments.
-
-        TODO: Decide on a consistent way for ProcessorCli and UtilityCli to manage
-          arguments destined for __init__ and arguments destined for __call__
-
-        Arguments:
-            **kwargs: Command-line arguments
-        """
-        infile = kwargs.pop("infile")
-        outfile = kwargs.pop("outfile")
-        set_logging_verbosity(kwargs.pop("verbosity", 1))
-        processor = cls.processor()(**kwargs)
-        with Image.open(infile) as input_image:
-            output_image = processor(input_image)
-            output_image.save(outfile)
-            print(f"{cls.__name__}: '{outfile}' saved")
-
-    @classmethod
     def main(cls) -> None:
         """Execute from command line."""
         parser = cls.argparser()
         kwargs = vars(parser.parse_args())
-        cls.execute(**kwargs)
+        set_logging_verbosity(kwargs.pop("verbosity", 1))
+        cls.run(**kwargs)
 
     @classmethod
     def name(cls) -> str:
@@ -72,3 +60,19 @@ class ProcessorCli(CommandLineInterface, ABC):
     def processor(cls) -> Type[ImageProcessor]:
         """Type of processor wrapped by command line interface."""
         raise NotImplementedError()
+
+    @classmethod
+    def run(cls, **kwargs: Any) -> None:
+        """Execute with provided keyword arguments.
+
+        Arguments:
+            **kwargs: Command-line arguments
+        """
+        infile = kwargs.pop("infile")
+        outfile = kwargs.pop("outfile")
+        processor_cls = cls.processor()
+        processor = processor_cls(**kwargs)
+        with Image.open(infile) as input_image:
+            output_image = processor(input_image)
+            output_image.save(outfile)
+            info(f"{cls}: '{outfile}' saved")

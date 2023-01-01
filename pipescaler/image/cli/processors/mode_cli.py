@@ -1,20 +1,21 @@
 #!/usr/bin/env python
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Command line interface for ModeProcessor."""
+"""Command-line interface for ModeProcessor."""
 from __future__ import annotations
 
 from argparse import ArgumentParser
 from typing import Type
 
-from pipescaler.image.core.cli.processor_cli import ProcessorCli
+from pipescaler.common import get_arg_groups_by_name, str_arg
+from pipescaler.image.core.cli.image_processor_cli import ImageProcessorCli
 from pipescaler.image.core.operators import ImageProcessor
 from pipescaler.image.operators.processors import ModeProcessor
 
 
-class ModeCli(ProcessorCli):
-    """Command line interface for ModeProcessor."""
+class ModeCli(ImageProcessorCli):
+    """Command-line interface for ModeProcessor."""
 
     @classmethod
     def add_arguments_to_argparser(cls, parser: ArgumentParser) -> None:
@@ -25,16 +26,20 @@ class ModeCli(ProcessorCli):
         """
         super().add_arguments_to_argparser(parser)
 
-        required = cls.get_required_arguments_group(parser)
-        required.add_argument(
+        arg_groups = get_arg_groups_by_name(
+            parser,
+            "required arguments",
+            optional_arguments_name="additional arguments",
+        )
+
+        arg_groups["required arguments"].add_argument(
             "--mode",
             required=True,
-            type=cls.str_arg(options=ModeProcessor.inputs()["input"]),
+            type=str_arg(options=ModeProcessor.inputs()["input"]),
             help=f"image mode ({ModeProcessor.inputs()['input']})",
         )
 
-        optional = cls.get_optional_arguments_group(parser)
-        optional.add_argument(
+        arg_groups["additional arguments"].add_argument(
             "--background_color",
             default="#000000",
             type=str,
@@ -44,7 +49,7 @@ class ModeCli(ProcessorCli):
 
     @classmethod
     def processor(cls) -> Type[ImageProcessor]:
-        """Type of processor wrapped by command line interface."""
+        """Type of processor wrapped by command-line interface."""
         return ModeProcessor
 
 
