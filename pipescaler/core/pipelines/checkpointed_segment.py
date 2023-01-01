@@ -1,7 +1,7 @@
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Segment with checkpoints."""
+"""Abstract base class for Segments with checkpoints."""
 from __future__ import annotations
 
 from abc import ABC
@@ -13,7 +13,7 @@ from pipescaler.core.pipelines.typing import SegmentLike
 
 
 class CheckpointedSegment(Segment, ABC):
-    """Segment with checkpoints."""
+    """Abstract base class for Segments with checkpoints."""
 
     segment: SegmentLike
 
@@ -22,6 +22,7 @@ class CheckpointedSegment(Segment, ABC):
         segment: SegmentLike,
         cp_manager: CheckpointManagerBase,
         cpts: Sequence[str],
+        *,
         internal_cpts: Optional[Sequence[str]] = None,
     ) -> None:
         """Initialize.
@@ -33,6 +34,11 @@ class CheckpointedSegment(Segment, ABC):
             internal_cpts: Names of additional checkpoints saved by Segments within
               this Segment
         """
+        if len(cpts) == 0:
+            raise ValueError(
+                f"{self.__class__.__name__} requires at least one checkpoint."
+            )
+
         self.segment = segment
         """Segment to apply"""
         self.cp_manager = cp_manager

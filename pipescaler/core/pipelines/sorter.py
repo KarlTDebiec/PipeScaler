@@ -6,25 +6,12 @@
 from __future__ import annotations
 
 import re
-from abc import ABC, abstractmethod
+from abc import ABC
 from inspect import cleandoc
-
-from pipescaler.core.pipelines.pipe_image import PipeImage
 
 
 class Sorter(ABC):
-    """Base class for sorters."""
-
-    @abstractmethod
-    def __call__(self, pipe_image: PipeImage) -> str:
-        """Get the outlet to which an image should be sorted.
-
-        Arguments:
-            pipe_image: Image to sort
-        Returns:
-            Outlet to which image should be sorted
-        """
-        raise NotImplementedError()
+    """Abstract base class for sorters."""
 
     def __repr__(self) -> str:
         """Representation."""

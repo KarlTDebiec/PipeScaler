@@ -7,8 +7,9 @@ from __future__ import annotations
 
 import re
 from logging import info
+from typing import Optional
 
-from pipescaler.core.pipelines import PipeImage
+from pipescaler.core.pipelines import PipeObject
 from pipescaler.core.pipelines.sorter import Sorter
 
 
@@ -23,19 +24,19 @@ class RegexSorter(Sorter):
         """
         self.regex = re.compile(regex)
 
-    def __call__(self, pipe_image: PipeImage) -> str:
+    def __call__(self, pipe_object: PipeObject) -> Optional[str]:
         """Get the outlet to which an image should be sorted.
 
         Arguments:
-            pipe_image: Image to sort
+            pipe_object: Image to sort
         Returns:
             Outlet to which image should be sorted
         """
-        if self.regex.match(pipe_image.name):
+        if self.regex.match(pipe_object.location_name):
             outlet = "matched"
         else:
             outlet = "unmatched"
-        info(f"{self}: '{pipe_image.location_name}' matches '{outlet}'")
+        info(f"{self}: '{pipe_object.location_name}' matches '{outlet}'")
         return outlet
 
     def __repr__(self) -> str:

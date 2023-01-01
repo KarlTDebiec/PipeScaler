@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Runs pngquant tool for reducing image palette."""
+"""Runs an Automator QuickAction."""
 from __future__ import annotations
 
 from logging import debug
@@ -15,9 +15,9 @@ from pipescaler.core import Runner
 
 
 class AutomatorRunner(Runner):
-    """Runs pngquant tool for reducing image palette.
+    """Runs an Automator QuickAction.
 
-    See [pngquant](https://pngquant.org/).
+    See [Automator QuickAction](https://support.apple.com/guide/automator/welcome/mac).
     """
 
     def __init__(
@@ -25,7 +25,7 @@ class AutomatorRunner(Runner):
         workflow: Path,
         **kwargs: Any,
     ) -> None:
-        """Validate and store configuration and initialize.
+        """Initialize.
 
         Arguments:
             workflow: Workflow to run
@@ -38,7 +38,7 @@ class AutomatorRunner(Runner):
         if workflow.suffix != ".workflow":
             workflow = workflow.with_suffix(".workflow")
         if not workflow.is_absolute():
-            workflow = package_root / "data" / "workflows" / workflow
+            workflow = package_root / "image/data/workflows" / workflow
         if not workflow.exists():
             raise DirectoryNotFoundError()
         if not workflow.is_dir():

@@ -34,7 +34,7 @@ class UtilityCli(CommandLineInterface, ABC):
             **kwargs: Command-line arguments
         """
         verbosity = kwargs.pop("verbosity", 1)
-        utility = cls.utility(verbosity=verbosity)  # noqa
+        utility = cls.utility()  # noqa
         utility(**kwargs)
 
     @classmethod

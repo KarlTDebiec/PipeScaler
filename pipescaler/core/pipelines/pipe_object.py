@@ -1,11 +1,11 @@
 #!/usr/bin/env python
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Object within a pipeline."""
+"""Abstract base class for object within pipelines."""
 from __future__ import annotations
 
-from abc import ABC
+from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Optional, Sequence, Union
 
@@ -13,7 +13,7 @@ from pipescaler.common import PathLike, validate_input_file
 
 
 class PipeObject(ABC):
-    """Object within a pipeline."""
+    """Abstract base class for object within pipelines."""
 
     def __init__(
         self,
@@ -35,18 +35,18 @@ class PipeObject(ABC):
         """
         self.path = path
 
-        if parents is not None:
+        if parents:
             if isinstance(parents, PipeObject):
                 parents = [parents]
             if not isinstance(parents, list):
                 parents = list(parents)
         self._parents = parents
 
-        if name is not None:
+        if name:
             self._name = name
-        elif self.parents is not None:
+        elif self.parents:
             self._name = self.parents[0].name
-        elif self.path is not None:
+        elif self.path:
             self._name = self.path.stem
         else:
             raise ValueError(
@@ -54,9 +54,9 @@ class PipeObject(ABC):
                 f"whose name will be used, or a parent object whose name will be used."
             )
 
-        if location is not None:
+        if location:
             self._location: Optional[Path] = location
-        elif self.parents is not None:
+        elif self.parents:
             self._location = self.parents[0].location
         else:
             self._location = None
@@ -78,7 +78,7 @@ class PipeObject(ABC):
     @property
     def location_name(self) -> str:
         """Location relative to root directory and name."""
-        if self.location is not None:
+        if self.location:
             return str(self.location / self.name)
         return self.name
 
@@ -104,6 +104,15 @@ class PipeObject(ABC):
 
     @path.setter
     def path(self, value: Optional[PathLike]) -> None:
-        if value is not None:
+        if value:
             value = validate_input_file(value)
         self._path = value
+
+    @abstractmethod
+    def save(self, path: PathLike) -> None:
+        """Save object to file and set path.
+
+        Arguments:
+            path: Path to which to save object
+        """
+        raise NotImplementedError()

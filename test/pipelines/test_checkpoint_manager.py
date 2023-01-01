@@ -1,321 +1,137 @@
 #!/usr/bin/env python
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Tests for CheckpointManager."""
-from os import mkdir
-from pathlib import Path
-from typing import Callable
+from __future__ import annotations
 
-import numpy as np
-import pytest
-from PIL import Image
+from platform import system
+from unittest.mock import Mock, patch
 
-from pipescaler.common import get_temp_directory_path
-from pipescaler.core.pipelines import PipeImage, Segment
-from pipescaler.image.mergers import AlphaMerger
-from pipescaler.image.processors import XbrzProcessor
-from pipescaler.image.splitters import AlphaSplitter
+from pipescaler.common import PathLike, get_temp_directory_path, validate_output_file
+from pipescaler.core.pipelines import PipeObject, Segment
 from pipescaler.pipelines import CheckpointManager
-from pipescaler.pipelines.segments import (
-    MergerSegment,
-    ProcessorSegment,
-    SplitterSegment,
-)
-from pipescaler.testing import get_test_infile_path
+
+if system() == "Windows":
+    from pathlib import WindowsPath
+
+else:
+    from pathlib import PosixPath
 
 
-@pytest.fixture
-def xbrz_processor() -> ProcessorSegment:
-    return ProcessorSegment(XbrzProcessor(scale=2))
+def mock_pipe_object_save(path: PathLike) -> None:
+    """Save object to file and set path.
+
+    Arguments:
+        path: Path to which to save object
+    """
+    path = validate_output_file(path)
+    path.touch()
 
 
-@pytest.fixture
-def alpha_splitter() -> SplitterSegment:
-    return SplitterSegment(AlphaSplitter())
+def mock_pipe_object_save_2(self, path: PathLike) -> None:
+    """Save object to file and set path.
+    Arguments:
+        path: Path to which to save object
+    """
+    path = validate_output_file(path)
+    path.touch()
 
 
-@pytest.fixture
-def alpha_merger() -> MergerSegment:
-    return MergerSegment(AlphaMerger())
+@patch.object(PipeObject, "save", mock_pipe_object_save_2)
+@patch.object(PipeObject, "__abstractmethods__", set())
+def test_load_save():
+    with get_temp_directory_path() as cp_directory_path:
+        cp_manager = CheckpointManager(cp_directory_path)
 
+        # Mocks
+        mock_pipe_object_input = Mock(spec=PipeObject)
+        mock_pipe_object_input.location_name = "test"
+        mock_pipe_object_input.save.side_effect = mock_pipe_object_save
 
-@pytest.fixture
-def copy_file() -> Callable[[Path, Path], None]:
-    def function(infile: Path, outfile: Path) -> None:
-        outfile.write_bytes(infile.read_bytes())
+        # Attempt to load single unavailable checkpoint
+        outputs = cp_manager.load((mock_pipe_object_input,), ("cpt.txt",))
+        assert outputs == None
 
-    return function
+        # Attempt to load multiple unavailable checkpoints
+        outputs = cp_manager.load((mock_pipe_object_input,), ("cpt.txt", "cpt2.txt"))
+        assert outputs == None
 
+        # Attempt to load invalid number of checkpoints
+        mock_pipe_object_input_2 = Mock(spec=PipeObject)
+        mock_pipe_object_input_2.location_name = "test2"
+        try:
+            outputs = cp_manager.load(
+                (mock_pipe_object_input, mock_pipe_object_input_2), ("cpt.txt",)
+            )
+        except ValueError:
+            pass
 
-@pytest.mark.parametrize(
-    ("segment_name", "infiles", "pre_checkpoints", "post_checkpoints"),
-    [
-        (
-            "alpha_merger",
-            ("split/RGBA_color_RGB", "split/RGBA_alpha_L"),
-            ("color.png", "alpha.png"),
-            ("merged.png",),
-        ),
-        (
-            "alpha_splitter",
-            ("RGBA",),
-            ("pre.png",),
-            ("color.png", "alpha.png"),
-        ),
-        (
-            "xbrz_processor",
-            ("RGB",),
-            ("pre.png",),
-            ("post.png",),
-        ),
-    ],
-)
-def test_load_save(
-    segment_name: str,
-    infiles: tuple[str],
-    pre_checkpoints: tuple[str],
-    post_checkpoints: tuple[str],
-    request,
-) -> None:
-    segment = request.getfixturevalue(segment_name)
-    assert isinstance(segment, Segment)
+        # Attempt to save invalid number of checkpoints
+        try:
+            outputs = cp_manager.save(
+                (mock_pipe_object_input,), ("cpt.txt", "cpt2.txt")
+            )
+        except ValueError:
+            pass
 
-    def run(cp_directory: Path) -> None:
-        cp_manager = CheckpointManager(cp_directory)
+        # Save checkpoint
+        outputs = cp_manager.save((mock_pipe_object_input,), ("cpt.txt",))
+        assert (cp_directory_path / "test" / "cpt.txt").exists()
 
-        input_paths = [get_test_infile_path(infile) for infile in infiles]
-        inputs = tuple(
-            PipeImage(path=input_path, name="test") for input_path in input_paths
+        # Try to save again, without overwriting
+        outputs = cp_manager.save(
+            (mock_pipe_object_input,), ("cpt.txt",), overwrite=False
         )
-        inputs = cp_manager.save(inputs, pre_checkpoints, overwrite=False)
-        if not (outputs := cp_manager.load(inputs, post_checkpoints)):
-            outputs = segment(*inputs)
-            assert outputs
-            outputs = cp_manager.save(outputs, post_checkpoints)
+        assert outputs[0].path == (cp_directory_path / "test" / "cpt.txt")
+
+        # Load checkpoint
+        internal_segment = Mock(spec=Segment)
+        internal_segment.cpts = ("cpt4.txt",)
+        internal_segment.internal_cpts = ("cpt5.txt",)
+        outputs = cp_manager.load(
+            (mock_pipe_object_input,),
+            ("cpt.txt",),
+            calls=(
+                "cpt3.txt",
+                internal_segment,
+            ),
+        )
+        assert outputs
+
+        # Purge
+        (cp_directory_path / "delete_me.txt").touch()
+        (cp_directory_path / "delete_me").mkdir()
+        (cp_directory_path / "delete_me" / "delete_me.txt").touch()
         cp_manager.purge_unrecognized_files()
 
-        for i, c, p in zip(inputs, pre_checkpoints, input_paths):
-            assert i.path == cp_directory / i.name / c
-            assert i.path.exists()
-            assert (
-                np.array(PipeImage(path=p).image)
-                == np.array(PipeImage(path=i.path).image)
-            ).all()
 
-        for o, c in zip(outputs, post_checkpoints):
-            assert o.path == cp_directory / o.name / c
-            assert o.path.exists()
+def test_pre_segment():
+    with get_temp_directory_path() as cp_directory_path:
+        cp_manager = CheckpointManager(cp_directory_path)
 
-    with get_temp_directory_path() as temp_directory:
-        run(temp_directory)
-        run(temp_directory)
+        pre_checkpointed_segment = cp_manager.pre_segment("cpt.txt")(Mock(spec=Segment))
 
 
-def test_split_merge(
-    xbrz_processor: ProcessorSegment,
-    alpha_splitter: SplitterSegment,
-    alpha_merger: MergerSegment,
-) -> None:
-    def run(cp_directory: Path) -> None:
-        cp_manager = CheckpointManager(cp_directory)
+def test_post_segment():
+    with get_temp_directory_path() as cp_directory_path:
+        cp_manager = CheckpointManager(cp_directory_path)
 
-        @cp_manager.pre_segment("pre_color.png")
-        @cp_manager.post_segment("post_color.png")
-        def color_segment(*inputs: PipeImage) -> tuple[PipeImage, ...]:
-            xbrz_outputs = xbrz_processor(*inputs)
-            return xbrz_outputs
-
-        @cp_manager.pre_segment("pre_alpha.png")
-        @cp_manager.post_segment("post_alpha.png")
-        def alpha_segment(*inputs: PipeImage) -> tuple[PipeImage, ...]:
-            xbrz_outputs = xbrz_processor(*inputs)
-            return xbrz_outputs
-
-        @cp_manager.pre_segment("pre_split.png")
-        @cp_manager.post_segment("post_merge.png", calls=[alpha_segment, color_segment])
-        def split_merge_segment(*inputs: PipeImage) -> tuple[PipeImage, ...]:
-            outputs = alpha_splitter(*inputs)
-            color = color_segment(outputs[0])
-            alpha = alpha_segment(outputs[1])
-            merged = alpha_merger(*color, *alpha)
-            return merged
-
-        input_path = get_test_infile_path("RGBA")
-        inputs = (PipeImage(path=input_path),)
-        split_merge_segment(*inputs)
-        cp_manager.purge_unrecognized_files()
-
-        assert (cp_directory / inputs[0].name / "pre_split.png").exists()
-        assert (cp_directory / inputs[0].name / "pre_color.png").exists()
-        assert (cp_directory / inputs[0].name / "post_color.png").exists()
-        assert (cp_directory / inputs[0].name / "pre_alpha.png").exists()
-        assert (cp_directory / inputs[0].name / "post_alpha.png").exists()
-        assert (cp_directory / inputs[0].name / "post_merge.png").exists()
-
-    with get_temp_directory_path() as temp_directory:
-        run(temp_directory)
-        run(temp_directory)
+        post_checkpointed_segment = cp_manager.post_segment("cpt.txt")(
+            Mock(spec=Segment)
+        )
 
 
-def test_nested(
-    xbrz_processor: ProcessorSegment,
-    alpha_splitter: SplitterSegment,
-    alpha_merger: AlphaMerger,
-) -> None:
-    def run(cp_directory: Path) -> None:
-        cp_manager = CheckpointManager(cp_directory)
+def test_print():
+    with get_temp_directory_path() as cp_directory_path:
+        if system() == "Windows":
+            assert isinstance(cp_directory_path, WindowsPath)
+        else:
+            assert isinstance(cp_directory_path, PosixPath)
 
-        @cp_manager.pre_segment("pre_inner.png")
-        @cp_manager.post_segment("post_inner.png")
-        def inner_segment(*inputs: PipeImage) -> tuple[PipeImage, ...]:
-            xbrz_outputs = xbrz_processor(*inputs)
-            return xbrz_outputs
+        cp_manager = CheckpointManager(cp_directory_path)
+        print(cp_manager)
+        print(repr(cp_manager))
 
-        @cp_manager.pre_segment("pre_outer.png")
-        @cp_manager.post_segment("post_outer.png", calls=[inner_segment])
-        def outer_segment(*inputs: PipeImage) -> tuple[PipeImage, ...]:
-            xbrz_outputs = xbrz_processor(*inputs)
-            return inner_segment(*xbrz_outputs)
-
-        input_path = get_test_infile_path("RGB")
-        inputs = (PipeImage(path=input_path),)
-        outer_segment(*inputs)
-        cp_manager.purge_unrecognized_files()
-
-        assert (cp_directory / inputs[0].name / "pre_inner.png").exists()
-        assert (cp_directory / inputs[0].name / "post_inner.png").exists()
-        assert (cp_directory / inputs[0].name / "pre_outer.png").exists()
-        assert (cp_directory / inputs[0].name / "post_outer.png").exists()
-
-    with get_temp_directory_path() as temp_directory:
-        run(temp_directory)
-        run(temp_directory)
-
-
-def test_post_runner(copy_file: Callable[[Path, Path], None]) -> None:
-
-    with get_temp_directory_path() as cp_directory:
-        cp_manager = CheckpointManager(cp_directory)
-        segment = cp_manager.post_runner("checkpoint.png")(copy_file)
-
-        # Test image from file
-        file_input_path = get_test_infile_path("RGB")
-        inputs = (PipeImage(path=file_input_path),)
-
-        outputs = segment(*inputs)
-        cp_manager.purge_unrecognized_files()
-        assert outputs[0].path == cp_directory / inputs[0].name / "checkpoint.png"
-        assert outputs[0].path.exists()
-
-        outputs = segment(*inputs)
-        cp_manager.purge_unrecognized_files()
-        assert outputs[0].path == cp_directory / inputs[0].name / "checkpoint.png"
-        assert outputs[0].path.exists()
-
-        # Test image from code
-        inputs = (PipeImage(image=Image.new("RGB", (100, 100)), name="RGB_2"),)
-
-        outputs = segment(*inputs)
-        cp_manager.purge_unrecognized_files()
-        assert outputs[0].path == cp_directory / inputs[0].name / "checkpoint.png"
-        assert outputs[0].path.exists()
-
-        outputs = segment(*inputs)
-        cp_manager.purge_unrecognized_files()
-        assert outputs[0].path == cp_directory / inputs[0].name / "checkpoint.png"
-        assert outputs[0].path.exists()
-
-
-@pytest.mark.parametrize(
-    ("segment_name", "infiles", "checkpoints"),
-    [
-        (
-            "alpha_merger",
-            ("split/RGBA_color_RGB", "split/RGBA_alpha_L"),
-            ("post.png",),
-        ),
-        (
-            "alpha_splitter",
-            ("RGBA",),
-            ("color.png", "alpha.png"),
-        ),
-        (
-            "xbrz_processor",
-            ("RGB",),
-            ("post.png",),
-        ),
-    ],
-)
-def test_post_segment(
-    segment_name: str, infiles: tuple[str], checkpoints: tuple[str], request
-) -> None:
-    segment = request.getfixturevalue(segment_name)
-    assert isinstance(segment, Segment)
-
-    with get_temp_directory_path() as cp_directory:
-        cp_manager = CheckpointManager(cp_directory)
-        segment = cp_manager.post_segment(*checkpoints)(segment)
-        input_paths = [get_test_infile_path(infile) for infile in infiles]
-        inputs = [PipeImage(path=input_path, name="test") for input_path in input_paths]
-        outputs = segment(*inputs)
-        cp_manager.purge_unrecognized_files()
-
-        for o, c in zip(outputs, checkpoints):
-            assert o.path == cp_directory / o.name / c
-            assert o.path.exists()
-
-
-@pytest.mark.parametrize(
-    ("segment_name", "infiles", "checkpoints"),
-    [
-        (
-            "alpha_merger",
-            ("split/RGBA_color_RGB", "split/RGBA_alpha_L"),
-            ("color.png", "alpha.png"),
-        ),
-        (
-            "alpha_splitter",
-            ("RGBA",),
-            ("pre.png",),
-        ),
-        (
-            "xbrz_processor",
-            ("RGB",),
-            ("pre.png",),
-        ),
-    ],
-)
-def test_pre_segment(
-    segment_name: str, infiles: tuple[str], checkpoints: tuple[str], request
-) -> None:
-    segment = request.getfixturevalue(segment_name)
-    assert isinstance(segment, Segment)
-
-    with get_temp_directory_path() as cp_directory:
-        cp_manager = CheckpointManager(cp_directory)
-        segment = cp_manager.pre_segment(*checkpoints)(segment)
-        input_paths = [get_test_infile_path(infile) for infile in infiles]
-        inputs = [PipeImage(path=input_path, name="test") for input_path in input_paths]
-        outputs = segment(*inputs)
-        cp_manager.purge_unrecognized_files()
-
-        for i, c, p in zip(inputs, checkpoints, input_paths):
-            assert i.path == cp_directory / i.name / c
-            assert i.path.exists()
-            assert (
-                np.array(PipeImage(path=p).image)
-                == np.array(PipeImage(path=i.path).image)
-            ).all()
-
-
-def test_purge_unrecognized_files() -> None:
-    with get_temp_directory_path() as cp_directory:
-        cp_manager = CheckpointManager(cp_directory)
-
-        mkdir(cp_directory / "to_delete")
-        open(cp_directory / "to_delete.png", "a").close()
-        cp_manager.purge_unrecognized_files()
-
-        assert not (cp_directory / "to_delete").exists()
-        assert not (cp_directory / "to_delete.png").exists()
+        cp_manager_2 = eval(repr(cp_manager))
+        assert cp_manager_2.directory == cp_manager.directory

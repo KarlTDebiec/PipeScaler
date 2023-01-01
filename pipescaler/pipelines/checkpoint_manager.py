@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Manages checkpoints."""
@@ -9,13 +9,10 @@ from os import remove, rmdir
 from pathlib import Path
 from typing import Callable, Collection, Optional, Sequence, Union
 
-from pipescaler.core import RunnerLike
-from pipescaler.core.pipelines import CheckpointManagerBase, PipeImage, SegmentLike
+from pipescaler.core.pipelines import CheckpointManagerBase, PipeObject, SegmentLike
 from pipescaler.pipelines.segments import (
-    PostCheckpointedRunnerSegment,
     PostCheckpointedSegment,
     PreCheckpointedSegment,
-    RunnerSegment,
 )
 
 
@@ -24,15 +21,18 @@ class CheckpointManager(CheckpointManagerBase):
 
     def load(
         self,
-        images: tuple[PipeImage, ...],
+        inputs: tuple[PipeObject, ...],
         cpts: Sequence[str],
         *,
         calls: Optional[Collection[Union[SegmentLike, str]]] = None,
-    ) -> Optional[tuple[PipeImage, ...]]:
+    ) -> Optional[tuple[PipeObject, ...]]:
         """Load images from checkpoints, if available, otherwise return None.
 
+        If the length of inputs is equal to the length of cpts, inputs and cpts are
+        zipped. Otherwise, the first input is used for all cpts.
+
         Arguments:
-            images: Images
+            inputs: Input objects
             cpts: Names of checkpoints to load
             calls: Collection of checkpoint names and potentially-checkpointed segments
               used to prepare list of checkpoint names expected to be present whenever
@@ -40,16 +40,21 @@ class CheckpointManager(CheckpointManagerBase):
         Returns:
             Images loaded from checkpoints if available, otherwise None
         """
-        if len(images) == len(cpts):
-            location_names = [i.location_name for i in images]
+        cls = inputs[0].__class__
+
+        if len(inputs) in (1, len(cpts)):
+            location_names = [i.location_name for i in inputs]
         else:
-            location_names = list(dict.fromkeys([i.location_name for i in images]))
+            raise ValueError(
+                "Number of inputs must equal either 1 or number of cpts;"
+                f"received {len(inputs)} and {len(cpts)}."
+            )
         for ln, c in zip(cycle(location_names), cpts):
             self.observe(ln, c)
 
         cpt_paths = self.get_cpt_paths(self.directory, location_names, cpts)
         if all(p.exists() for p in cpt_paths):
-            outputs = tuple(PipeImage(path=p, parents=images) for p in cpt_paths)
+            outputs = tuple(cls(path=p, parents=inputs) for p in cpt_paths)
             info(
                 f"{self}: "
                 f"'{location_names[0] if len(location_names)==1 else location_names}' "
@@ -64,31 +69,6 @@ class CheckpointManager(CheckpointManagerBase):
             return outputs
 
         return None
-
-    def post_runner(
-        self, cpt: str
-    ) -> Callable[[RunnerLike], PostCheckpointedRunnerSegment]:
-        """Get decorator to wrap Runner to Segment with post-execution checkpoint.
-
-        Arguments:
-            cpt: Name of checkpoint
-        Returns:
-            Decorator to wrap Runner to Segment with post-execution checkpoint
-        """
-
-        def decorator(runner: RunnerLike) -> PostCheckpointedRunnerSegment:
-            """Wrap Runner to Segment with post-execution checkpoint.
-
-            Arguments:
-                runner: Runner to wrap
-            Returns:
-                Segment with post-execution checkpoint
-            """
-            runner_segment = RunnerSegment(runner, output_extension=Path(cpt).suffix)
-
-            return PostCheckpointedRunnerSegment(runner_segment, self, [cpt])
-
-        return decorator
 
     def post_segment(
         self, *cpts: str, calls: Optional[Collection[SegmentLike]] = None
@@ -113,7 +93,9 @@ class CheckpointManager(CheckpointManagerBase):
             """
             internal_cpts.extend(self.get_cpts_of_segments(segment))
 
-            return PostCheckpointedSegment(segment, self, cpts, internal_cpts)
+            return PostCheckpointedSegment(
+                segment, self, cpts, internal_cpts=internal_cpts
+            )
 
         return decorator
 
@@ -140,7 +122,9 @@ class CheckpointManager(CheckpointManagerBase):
             """
             internal_cpts.extend(self.get_cpts_of_segments(segment))
 
-            return PreCheckpointedSegment(segment, self, cpts, internal_cpts)
+            return PreCheckpointedSegment(
+                segment, self, cpts, internal_cpts=internal_cpts
+            )
 
         return decorator
 
@@ -165,29 +149,29 @@ class CheckpointManager(CheckpointManagerBase):
 
     def save(
         self,
-        images: tuple[PipeImage, ...],
+        inputs: tuple[PipeObject, ...],
         cpts: Collection[str],
         *,
         overwrite: bool = True,
-    ) -> tuple[PipeImage, ...]:
+    ) -> tuple[PipeObject, ...]:
         """Save images to checkpoints.
 
         Arguments:
-            images: Images
+            inputs: Images
             cpts: Names of checkpoints
             overwrite: Whether to overwrite existing checkpoints
         Returns:
             Images, with paths updated to checkpoints
         """
-        if len(images) != len(cpts):
+        if len(inputs) != len(cpts):
             raise ValueError(
                 f"Number of cpts ({len(cpts)}) must equal number of images "
-                f"({len(images)})"
+                f"({len(inputs)})"
             )
         cpt_paths = self.get_cpt_paths(
-            self.directory, [i.location_name for i in images], cpts
+            self.directory, [i.location_name for i in inputs], cpts
         )
-        for i, c, p in zip(images, cpts, cpt_paths):
+        for i, c, p in zip(inputs, cpts, cpt_paths):
             if not p.parent.exists():
                 p.parent.mkdir(parents=True)
                 info(f"{self}: directory '{p.parent}' created")
@@ -198,7 +182,7 @@ class CheckpointManager(CheckpointManagerBase):
                 i.path = p
             self.observe(i.location_name, c)
 
-        return images
+        return inputs
 
     @staticmethod
     def get_cpt_paths(
