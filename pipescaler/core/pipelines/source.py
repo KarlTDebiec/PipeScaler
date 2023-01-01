@@ -2,7 +2,7 @@
 #  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Abstract base class for sources."""
+"""Abstract base class for pipeline sources."""
 from __future__ import annotations
 
 import re
@@ -13,7 +13,7 @@ from pipescaler.core.pipelines.pipe_object import PipeObject
 
 
 class Source(ABC):
-    """Abstract base class for sources."""
+    """Abstract base class for pipeline sources."""
 
     def __iter__(self) -> Source:
         """Iterator for objects."""
