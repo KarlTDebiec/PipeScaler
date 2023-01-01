@@ -11,12 +11,19 @@ from pathlib import Path, PurePosixPath
 from types import ModuleType
 from typing import Type
 
+import pipescaler.image.operators.mergers as image_mergers
+import pipescaler.image.operators.processors as image_processors
+import pipescaler.image.operators.splitters as image_splitters
+import pipescaler.image.pipelines.sorters as image_sorters
+import pipescaler.image.pipelines.sources as image_sources
+import pipescaler.image.pipelines.termini as image_termini
+import pipescaler.video.pipelines.sorters as video_sorters
+import pipescaler.video.pipelines.sources as video_sources
+import pipescaler.video.pipelines.termini as video_termini
 from pipescaler.common import package_root
 from pipescaler.core.pipelines import Source, Terminus
 from pipescaler.core.pipelines.sorter import Sorter
 from pipescaler.image.core import ImageOperator
-from pipescaler.image.operators import mergers, processors, splitters
-from pipescaler.image.pipelines import sorters, sources, termini
 
 
 def get_github_link(cls: Type[ImageOperator]) -> str:
@@ -42,10 +49,11 @@ def get_module_regexes(modules: list[ModuleType]) -> dict[ModuleType, re.Pattern
     """
     module_regexes = {}
     for module in modules:
-        module_name = module.__name__.split(".")[-1]
+        module_domain = module.__name__.split(".")[1]
+        module_name = module.__name__.split(".")[-1].capitalize()
         module_regex = re.compile(
             r"[\S\s]*"
-            r"(?P<header>^.*" + module_name + r":$)"
+            r"(?P<header>^.*" + module_name + r".+" + module_domain + r".*:$)"
             r"\n"
             r"(?P<body>(^\*\s.*$\n)+)"
             r"[\S\s]*",
@@ -91,7 +99,17 @@ if __name__ == "__main__":
 
     # Update README
     module_regexes = get_module_regexes(
-        [processors, splitters, mergers, sources, sorters, termini]
+        [
+            image_processors,
+            image_splitters,
+            image_mergers,
+            image_sources,
+            image_sorters,
+            image_termini,
+            video_sources,
+            video_sorters,
+            video_termini,
+        ]
     )
     for module, module_regex in module_regexes.items():
         match = module_regex.match(readme)

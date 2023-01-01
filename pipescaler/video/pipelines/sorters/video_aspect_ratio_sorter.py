@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Sorts video based on aspect ratio."""
@@ -15,7 +15,7 @@ from pipescaler.video.core.pipelines import PipeVideo, VideoSorter
 
 
 class VideoAspectRatioSorter(VideoSorter):
-    """Sorts image based on canvas size."""
+    """Sorts video based on aspect ratio."""
 
     def __init__(self, **outlets: dict[str, float]) -> None:
         """Initialize.
