@@ -5,6 +5,7 @@
 """Tests for CheckpointManager."""
 from __future__ import annotations
 
+from pathlib import Path
 from unittest.mock import Mock, patch
 
 from pipescaler.common import PathLike, get_temp_directory_path, validate_output_file
