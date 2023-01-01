@@ -7,9 +7,11 @@ from __future__ import annotations
 from pipescaler.image.pipelines.sources.image_directory_source import (
     ImageDirectorySource,
 )
-from pipescaler.image.pipelines.sources.image_video_source import ImageVideoSource
+from pipescaler.image.pipelines.sources.image_video_frame_source import (
+    ImageVideoFrameSource,
+)
 
 __all__ = [
     "ImageDirectorySource",
-    "ImageVideoSource",
+    "ImageVideoFrameSource",
 ]

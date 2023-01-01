@@ -19,7 +19,7 @@ class ImageSplitterSegment(ImageOperatorSegment):
         """Initialize.
 
         Arguments:
-            operator: Splitter to apply
+            operator: ImageSplitter to apply
         """
         super().__init__(operator)
 

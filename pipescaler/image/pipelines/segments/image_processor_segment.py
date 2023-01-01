@@ -1,7 +1,7 @@
 #  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Segment that applies a Processor."""
+"""Segment that applies an ImageProcessor."""
 from __future__ import annotations
 
 from logging import info
@@ -11,7 +11,7 @@ from pipescaler.image.core.pipelines import ImageOperatorSegment, PipeImage
 
 
 class ImageProcessorSegment(ImageOperatorSegment):
-    """Segment that applies a Processor."""
+    """Segment that applies an ImageProcessor."""
 
     operator: ImageProcessor
 
@@ -19,7 +19,7 @@ class ImageProcessorSegment(ImageOperatorSegment):
         """Initialize.
 
         Arguments:
-            operator: Processor to apply
+            operator: ImageProcessor to apply
         """
         super().__init__(operator)
 

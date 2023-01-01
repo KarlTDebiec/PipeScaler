@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Sorts image based on presence and use of color channels."""
@@ -31,15 +31,15 @@ class GrayscaleSorter(ImageSorter):
         self.mean_threshold = validate_float(mean_threshold, 0, 255)
         self.max_threshold = validate_float(max_threshold, 0, 255)
 
-    def __call__(self, pipe_object: PipeImage) -> Optional[str]:
+    def __call__(self, pipe_image: PipeImage) -> Optional[str]:
         """Get the outlet to which an image should be sorted.
 
         Arguments:
-            pipe_object: Image to sort
+            pipe_image: Image to sort
         Returns:
             Outlet to which image should be sorted
         """
-        image = validate_image(pipe_object.image, ("L", "LA", "RGB", "RGBA"))
+        image = validate_image(pipe_image.image, ("L", "LA", "RGB", "RGBA"))
 
         if image.mode in ("RGB", "RGBA"):
             rgb_array = np.array(image)[:, :, :3]
@@ -52,7 +52,7 @@ class GrayscaleSorter(ImageSorter):
         else:
             outlet = "no_rgb"
 
-        info(f"{self}: '{pipe_object.location_name}' matches '{outlet}'")
+        info(f"{self}: '{pipe_image.location_name}' matches '{outlet}'")
         return outlet
 
     def __repr__(self) -> str:

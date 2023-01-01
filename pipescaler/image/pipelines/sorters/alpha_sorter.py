@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Sorts image based on presence and use of alpha channel."""
@@ -26,16 +26,16 @@ class AlphaSorter(ImageSorter):
         """
         self.threshold = validate_int(threshold, 0, 255)
 
-    def __call__(self, pipe_object: PipeImage) -> Optional[str]:
+    def __call__(self, pipe_image: PipeImage) -> Optional[str]:
         """Get the outlet to which an image should be sorted.
 
         Arguments:
-            pipe_object: Image to sort
+            pipe_image: Image to sort
         Returns:
             Outlet to which image should be sorted
         """
         image, mode = validate_image_and_convert_mode(
-            pipe_object.image, ("1", "L", "LA", "RGB", "RGBA")
+            pipe_image.image, ("1", "L", "LA", "RGB", "RGBA")
         )
 
         if mode in ("LA", "RGBA"):
@@ -47,7 +47,7 @@ class AlphaSorter(ImageSorter):
         else:
             outlet = "no_alpha"
 
-        info(f"{self}: '{pipe_object.location_name}' matches '{outlet}'")
+        info(f"{self}: '{pipe_image.location_name}' matches '{outlet}'")
         return outlet
 
     def __repr__(self) -> str:
