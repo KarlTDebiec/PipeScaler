@@ -91,7 +91,7 @@ class DirectorySource(Source, ABC):
             relative_path = file_path.relative_to(root_directory)
             if any(e.match(str(relative_path)) for e in self.exclusions):
                 continue
-            if self.inclusions is not None:
+            if self.inclusions:
                 if not any(i.match(str(relative_path)) for i in self.inclusions):
                     continue
             file_paths.append(file_path)

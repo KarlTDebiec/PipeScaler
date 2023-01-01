@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Image-related functions for testing."""
@@ -34,6 +34,6 @@ def xfail_unsupported_image_mode(inner: partial = None) -> partial:
         Partial function of pytest.param with marks
     """
     marks = [mark.xfail(raises=UnsupportedImageModeError)]
-    if inner is not None:
+    if inner:
         marks.extend(inner.keywords["marks"])
     return partial(param, marks=marks)

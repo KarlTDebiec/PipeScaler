@@ -47,12 +47,12 @@ class PipeImage(PipeObject):
                 f"{self.__class__.__name__} requires either an image or the path to an "
                 f"image; neither has been provided."
             )
-        if image is not None and path is not None:
+        if image and path:
             raise ValueError(
                 f"{self.__class__.__name__} requires either an image or the path to an "
                 f"image; both have been provided."
             )
-        if image is not None and name is None and parents is None:
+        if image and name is None and parents is None:
             raise ValueError(
                 f"{self.__class__.__name__} requires either a name or parents if image "
                 f"is provided; neither has been provided."

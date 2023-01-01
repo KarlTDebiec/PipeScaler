@@ -56,7 +56,7 @@ class PydocstyleReporter:
     def argparser(cls) -> ArgumentParser:
         """Get argument parser."""
         parser = ArgumentParser(
-            description=str(cleandoc(cls.__doc__) if cls.__doc__ is not None else ""),
+            description=str(cleandoc(cls.__doc__) if cls.__doc__ else ""),
             formatter_class=RawDescriptionHelpFormatter,
         )
         parser.add_argument(

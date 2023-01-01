@@ -26,7 +26,7 @@ def validate_image(
     """
     if image.mode == "P":
         image = remove_palette(image)
-    if valid_modes is not None:
+    if valid_modes:
         if isinstance(valid_modes, str):
             valid_modes = [valid_modes]
         valid_modes = sorted(valid_modes)
@@ -52,6 +52,6 @@ def validate_image_and_convert_mode(
         Validated image and original mode
     """
     image = validate_image(image, valid_modes)
-    if convert_mode is not None and image.mode != convert_mode:
+    if convert_mode and image.mode != convert_mode:
         return (image.convert(convert_mode), image.mode)
     return (image, image.mode)

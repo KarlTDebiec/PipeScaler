@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Video within a pipeline."""
@@ -46,12 +46,12 @@ class PipeVideo(PipeObject):
                 f"{self.__class__.__name__} requires either a video or the path to a "
                 f"video; neither has been provided."
             )
-        if video is not None and path is not None:
+        if video and path:
             raise ValueError(
                 f"{self.__class__.__name__} requires either a video or the path to a "
                 f"video; both have been provided."
             )
-        if video is not None and name is None and parents is None:
+        if video and name is None and parents is None:
             raise ValueError(
                 f"{self.__class__.__name__} requires either a name or parents if video "
                 f"is provided; neither has been provided."

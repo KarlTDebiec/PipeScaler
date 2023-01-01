@@ -47,7 +47,7 @@ class ApngCreator(Utility):
         self.infiles = validate_input_files(infiles)
         self.outfile = validate_output_file(outfile)
         self.labels = labels
-        if self.labels is not None and len(self.labels) != len(self.infiles):
+        if self.labels and len(self.labels) != len(self.infiles):
             raise ValueError
         self.show_size = show_size
         self.duration = duration
@@ -70,7 +70,7 @@ class ApngCreator(Utility):
                 image = image.resize(final_size, resample=Image.NEAREST)
             draw = ImageDraw.Draw(image)
             font = ImageFont.truetype("Arial", 32)
-            if self.labels is not None:
+            if self.labels:
                 label = f"{label} → {self.labels[i]}".strip(" → ")
                 draw.text(
                     (15, final_size[1] - 45),

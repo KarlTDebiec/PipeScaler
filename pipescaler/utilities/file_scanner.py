@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Scans directories for new files."""
@@ -79,13 +79,13 @@ class FileScanner(Utility):
 
         self.reviewed_directories = None
         """Directories of files that have been reviewed."""
-        if reviewed_directories is not None:
+        if reviewed_directories:
             self.reviewed_directories = validate_input_directories(reviewed_directories)
 
         # Prepare filename data structures
         self.reviewed_names: set[str] = set()
         """Names of images that have been reviewed."""
-        if self.reviewed_directories is not None:
+        if self.reviewed_directories:
             self.reviewed_names = get_names(self.reviewed_directories)
 
         self.ignored_names: set[str] = set()
@@ -96,7 +96,7 @@ class FileScanner(Utility):
         # Prepare rules
         self.rules = None
         """Rules by which to classify images."""
-        if rules is not None:
+        if rules:
             self.rules = [(re.compile(regex), action) for regex, action in rules]
 
         # Prepare output configuration
@@ -104,7 +104,7 @@ class FileScanner(Utility):
         """Prefix to remove from output file names."""
         self.output_format = output_format
         """Format of output files."""
-        if output_format is not None and not output_format.startswith("."):
+        if output_format and not output_format.startswith("."):
             self.output_format = f".{output_format}"
 
     def __call__(self) -> None:
@@ -127,7 +127,7 @@ class FileScanner(Utility):
         if self.remove_directory.exists():
             for file_path in self.remove_directory.iterdir():
                 name = file_path.name
-                if self.remove_prefix is not None:
+                if self.remove_prefix:
                     name = f"{self.remove_prefix}{name}"
                 for input_directory in self.input_directories:
                     for match in input_directory.glob(f"{Path(name).stem}.*"):
@@ -149,11 +149,11 @@ class FileScanner(Utility):
             info(f"'{self.copy_directory}' created")
 
         output_name = file_path.name
-        if self.remove_prefix is not None:
+        if self.remove_prefix:
             output_name = output_name.removeprefix(self.remove_prefix)
 
         output_path = self.copy_directory / output_name
-        if self.output_format is not None:
+        if self.output_format:
             output_path = output_path.with_suffix(self.output_format)
 
         if self.output_format is None:
@@ -170,13 +170,13 @@ class FileScanner(Utility):
         Returns:
             Operation to perform
         """
-        if self.remove_prefix is not None:
+        if self.remove_prefix:
             name = name.removeprefix(self.remove_prefix)
         if name in self.reviewed_names:
             return "known"
         if name in self.ignored_names:
             return "ignore"
-        if self.rules is not None:
+        if self.rules:
             for regex, status in self.rules:
                 if regex.match(name):
                     return status
@@ -194,11 +194,11 @@ class FileScanner(Utility):
             info(f"'{self.move_directory}' created")
 
         output_name = file_path.name
-        if self.remove_prefix is not None:
+        if self.remove_prefix:
             output_name = output_name.removeprefix(self.remove_prefix)
 
         output_path = self.move_directory / output_name
-        if self.output_format is not None:
+        if self.output_format:
             output_path = output_path.with_suffix(self.output_format)
 
         if self.output_format is None:

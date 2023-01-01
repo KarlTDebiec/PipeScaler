@@ -52,7 +52,7 @@ class ImageVideoFrameSource(ImageSource):
             self.index += 1
             image = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
             location = Path(f"{self.infile.stem}_{self.infile.suffix.lstrip('.')}")
-            if self.location is not None:
+            if self.location:
                 location = self.location / location
             return PipeImage(
                 image=image,

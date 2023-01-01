@@ -29,12 +29,12 @@ class VideoDirectoryTerminus(VideoTerminus, DirectoryTerminus):
             if not outfile.parent.exists():
                 outfile.parent.mkdir(parents=True)
                 info(f"{self}: '{outfile.parent.relative_to(self.directory)}' created")
-            if input_video.path is not None:
+            if input_video.path:
                 copyfile(input_video.path, outfile)
             else:
                 raise NotImplementedError("Saving video from memory not implemented")
 
-        suffix = input_video.path.suffix if input_video.path is not None else ".mp4"
+        suffix = input_video.path.suffix if input_video.path else ".mp4"
         outfile = (self.directory / input_video.location_name).with_suffix(suffix)
         self.observed_files.add(str(outfile.relative_to(self.directory)))
         if outfile.exists():

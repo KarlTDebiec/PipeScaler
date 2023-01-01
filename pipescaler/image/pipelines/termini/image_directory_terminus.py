@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Copies images to an output directory."""
@@ -39,12 +39,12 @@ class ImageDirectoryTerminus(ImageTerminus, DirectoryTerminus):
             if not outfile.parent.exists():
                 outfile.parent.mkdir(parents=True)
                 info(f"{self}: '{outfile.parent.relative_to(self.directory)}' created")
-            if input_image.path is not None:
+            if input_image.path:
                 copyfile(input_image.path, outfile)
             else:
                 input_image.image.save(outfile)
 
-        suffix = input_image.path.suffix if input_image.path is not None else ".png"
+        suffix = input_image.path.suffix if input_image.path else ".png"
         outfile = (self.directory / input_image.location_name).with_suffix(suffix)
         self.observed_files.add(str(outfile.relative_to(self.directory)))
         if outfile.exists():

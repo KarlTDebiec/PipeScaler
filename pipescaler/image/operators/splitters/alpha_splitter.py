@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Splits image with transparency into separate alpha and color images."""
@@ -32,7 +32,7 @@ class AlphaSplitter(ImageSplitter):
         """
         self.alpha_mode = validate_enum(alpha_mode, AlphaMode)
         self.mask_fill_mode = None
-        if mask_fill_mode is not None:
+        if mask_fill_mode:
             if self.alpha_mode == AlphaMode.GRAYSCALE:
                 raise ArgumentConflictError(
                     "Mask filling is only supported for "
@@ -61,7 +61,7 @@ class AlphaSplitter(ImageSplitter):
         if self.alpha_mode == AlphaMode.MONOCHROME_OR_GRAYSCALE:
             if is_monochrome(alpha_image):
                 alpha_image = alpha_image.convert("1")
-        if self.mask_fill_mode is not None and alpha_image.mode == "1":
+        if self.mask_fill_mode and alpha_image.mode == "1":
             color_image = self.mask_filler.fill(
                 color_image, Image.fromarray(~np.array(alpha_image))
             )
