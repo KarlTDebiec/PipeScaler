@@ -5,7 +5,6 @@
 """Tests for CheckpointManager."""
 from __future__ import annotations
 
-from pathlib import WindowsPath
 from unittest.mock import Mock, patch
 
 from pipescaler.common import PathLike, get_temp_directory_path, validate_output_file
@@ -119,7 +118,7 @@ def test_post_segment():
 def test_print():
 
     with get_temp_directory_path() as cp_directory_path:
-        assert isinstance(cp_directory_path, WindowsPath)
+        assert isinstance(cp_directory_path, Path)
 
         cp_manager = CheckpointManager(cp_directory_path)
         print(cp_manager)
