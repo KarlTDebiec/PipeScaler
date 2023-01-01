@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Testing."""
+"""PipeScaler general testing package."""
 from __future__ import annotations
 
 from pipescaler.testing.cli import run_cli_with_args

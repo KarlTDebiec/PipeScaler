@@ -1,7 +1,7 @@
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Core image pipelines."""
+"""PipeScaler image core pipelines package."""
 from __future__ import annotations
 
 from pipescaler.image.core.pipelines.image_operator_segment import ImageOperatorSegment
