@@ -2,7 +2,7 @@
 #  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Concatenates images into an animated PNG file."""
+"""Runs apngasm."""
 from __future__ import annotations
 
 from os import remove
@@ -17,11 +17,10 @@ from pipescaler.common import (
     validate_input_files,
     validate_output_file,
 )
-from pipescaler.core import Utility
 
 
-class ApngCreator(Utility):
-    """Concatenates images into an animated PNG file."""
+class ApngasmRunner:
+    """Runs apngasm."""
 
     def __init__(
         self,

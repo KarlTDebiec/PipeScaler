@@ -42,7 +42,7 @@ class ImageHashCollection(Sequence):
         self.grayscale_sorter = GrayscaleSorter()
         """Grayscale sorter."""
 
-        self.cache = validate_output_file(cache, exists_ok=True)
+        self.cache = validate_output_file(cache, may_exist=True)
         """CSV cache file path."""
 
         # Prepare image hashes

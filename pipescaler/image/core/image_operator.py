@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Abstract base class for image operators."""
@@ -8,10 +8,14 @@ from __future__ import annotations
 import re
 from abc import ABC
 from inspect import cleandoc
+from typing import Any
 
 
 class ImageOperator(ABC):
     """Abstract base class for image operators."""
+
+    def __init__(self, **kwargs: Any) -> None:
+        """Initializes an image operator."""
 
     def __repr__(self) -> str:
         """Representation."""

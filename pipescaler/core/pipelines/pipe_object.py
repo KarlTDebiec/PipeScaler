@@ -18,7 +18,7 @@ class PipeObject(ABC):
     def __init__(
         self,
         *,
-        path: Optional[Path] = None,
+        path: Optional[PathLike] = None,
         name: Optional[str] = None,
         parents: Optional[Union[PipeObject, Sequence[PipeObject]]] = None,
         location: Optional[Path] = None,
@@ -33,14 +33,23 @@ class PipeObject(ABC):
             parents: Parent object(s) from which this object is descended
             location: Path relative to parent directory
         """
-        self.path = path
+        self._path = None
+        if path:
+            self._path = validate_input_file(path)
 
+        self._parents = None
         if parents:
-            if isinstance(parents, PipeObject):
-                parents = [parents]
-            if not isinstance(parents, list):
-                parents = list(parents)
-        self._parents = parents
+            if isinstance(parents, self.__class__):
+                self._parents = [parents]
+            elif isinstance(parents, Sequence) and all(
+                isinstance(p, self.__class__) for p in parents
+            ):
+                self._parents = list(parents)
+            else:
+                raise TypeError(
+                    f"{self.__class__.__name__}'s parents must be a list of "
+                    f"{self.__class__.__name__}"
+                )
 
         if name:
             self._name = name
@@ -105,8 +114,9 @@ class PipeObject(ABC):
     @path.setter
     def path(self, value: Optional[PathLike]) -> None:
         if value:
-            value = validate_input_file(value)
-        self._path = value
+            self._path = validate_input_file(value)
+        else:
+            self._path = None
 
     @abstractmethod
     def save(self, path: PathLike) -> None:

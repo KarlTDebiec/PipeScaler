@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Converts ESRGAN models to PyTorch's serialized pth format."""
@@ -7,34 +7,17 @@ from __future__ import annotations
 
 from collections import OrderedDict
 from logging import info
-from pathlib import Path
 
 import torch
 from torch import Tensor
 
-from pipescaler.common import validate_input_file, validate_output_file
+from pipescaler.common import PathLike, validate_input_file, validate_output_file
 from pipescaler.core import Utility
 from pipescaler.image.models.esrgan import Esrgan, Esrgan1x, Esrgan4x
 
 
 class EsrganSerializer(Utility):
     """Converts ESRGAN models to PyTorch's serialized pth format."""
-
-    def __call__(self, infile: Path, outfile: Path) -> None:
-        """Convert infile to outfile.
-
-        Arguments:
-            infile: Input file
-            outfile: Output file
-        """
-        self.infile = validate_input_file(infile)
-        self.outfile = validate_output_file(outfile)
-
-        state_dict = torch.load(self.infile)
-        model = self.get_model(state_dict)
-
-        torch.save(model, self.outfile)
-        info(f"{self}: Complete serialized model saved to '{self.outfile}'")
 
     @classmethod
     def get_model(cls, state_dict: OrderedDict[str, Tensor]) -> Esrgan:
@@ -78,6 +61,24 @@ class EsrganSerializer(Utility):
             scale = cls.get_scale_index(state_dict)
 
         return state_dict, scale
+
+    @classmethod
+    def run(cls, infile: PathLike, outfile: PathLike) -> None:
+        """Convert infile to outfile.
+
+        Arguments:
+            infile: Input file
+            outfile: Output file
+        """
+        infile = validate_input_file(infile)
+        outfile = validate_output_file(outfile)
+
+        state_dict = torch.load(infile)
+        model = cls.get_model(state_dict)
+        info(f"{cls}: Model built from '{infile}'")
+
+        torch.save(model, outfile)
+        info(f"{cls}: Complete serialized model saved to '{outfile}'")
 
     @staticmethod
     def build_old_keymap(scale: int) -> dict[str, str]:

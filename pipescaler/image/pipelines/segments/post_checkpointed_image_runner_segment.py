@@ -43,7 +43,7 @@ class PostCheckpointedImageRunnerSegment(CheckpointedSegment):
                 f"{self} does not support internal checkpoints but received "
                 f"{len(internal_cpts)}."
             )
-        super().__init__(segment, cp_manager, cpts, internal_cpts)
+        super().__init__(segment, cp_manager, cpts, internal_cpts=internal_cpts)
 
     def __call__(self, *inputs: PipeImage) -> tuple[PipeImage, ...]:
         """Return outputs of wrapped Segment, loaded from checkpoints if available.

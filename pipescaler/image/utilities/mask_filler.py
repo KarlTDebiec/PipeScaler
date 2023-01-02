@@ -1,14 +1,13 @@
 #!/usr/bin/env python
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Erases masked pixels within an image."""
-from typing import Union
+from __future__ import annotations
 
 import numpy as np
 from PIL import Image
 
-from pipescaler.common import validate_enum
 from pipescaler.core import Utility
 from pipescaler.image.core.enums import MaskFillMode
 from pipescaler.image.utilities.palette_matcher import PaletteMatcher
@@ -17,19 +16,10 @@ from pipescaler.image.utilities.palette_matcher import PaletteMatcher
 class MaskFiller(Utility):
     """Erases masked pixels within an image."""
 
-    def __init__(
-        self, mask_fill_mode: Union[MaskFillMode, str] = MaskFillMode.BASIC
-    ) -> None:
-        """Validate and store static configuration and initialize.
-
-        Arguments:
-            mask_fill_mode: Mode to use for mask filling
-        """
-        self.mask_fill_mode = validate_enum(mask_fill_mode, MaskFillMode)
-        if self.mask_fill_mode == MaskFillMode.MATCH_PALETTE:
-            self.palette_matcher = PaletteMatcher()
-
-    def fill(self, image: Image.Image, mask: Image.Image) -> Image.Image:
+    @classmethod
+    def run(
+        cls, image: Image.Image, mask: Image.Image, mask_fill_mode: MaskFillMode
+    ) -> Image.Image:
         """Erases masked pixels within an image.
 
         Each erased pixel is replaced with the average color of adjacent unmasked
@@ -38,6 +28,7 @@ class MaskFiller(Utility):
         Arguments:
             image: Image; mode must be RGB
             mask: Mask; mode must be 1; white (True) pixels are masked
+            mask_fill_mode: Mask fill mode
         Returns:
             Image with masked pixels replaced
         """
@@ -60,14 +51,14 @@ class MaskFiller(Utility):
                 pixels_to_fill,
                 opaque_neighbor_counts,
                 pixels_to_recount,
-            ) = self.run_iteration(
+            ) = cls.run_iteration(
                 image_array, pixels_to_fill, opaque_neighbor_counts, pixels_to_recount
             )
 
         # Return image
         filled_image = Image.fromarray(image_array)
-        if self.mask_fill_mode == MaskFillMode.MATCH_PALETTE:
-            filled_image = self.palette_matcher.match_palette(image, filled_image)
+        if mask_fill_mode == MaskFillMode.MATCH_PALETTE:
+            filled_image = PaletteMatcher.run(image, filled_image)
         return filled_image
 
     @staticmethod

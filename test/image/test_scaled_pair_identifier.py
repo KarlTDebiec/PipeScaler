@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Tests for ScaledPairIdentifier."""
@@ -11,7 +11,7 @@ import pytest
 from PIL import Image
 
 from pipescaler.common import get_temp_directory_path, get_temp_file_path
-from pipescaler.image.utilities import ScaledPairIdentifier
+from pipescaler.image import ScaledPairIdentifier
 from pipescaler.testing import get_test_infile_path
 
 

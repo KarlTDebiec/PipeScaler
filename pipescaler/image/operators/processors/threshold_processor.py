@@ -27,6 +27,8 @@ class ThresholdProcessor(ImageProcessor):
             denoise: Flip color of pixels bordered by less than 5 pixels of the same
               color
         """
+        super().__init__()
+
         self.threshold = validate_int(threshold, 1, 244)
         self.denoise = denoise
 

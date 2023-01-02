@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Command line interface for PipeScaler Processors."""
+"""Command-line interface for PipeScaler ImageProcessors."""
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -10,11 +10,11 @@ from typing import Any, Type
 
 from pipescaler.common import CommandLineInterface
 from pipescaler.image.cli import processors
-from pipescaler.image.core.cli.processor_cli import ProcessorCli
+from pipescaler.image.core.cli import ImageProcessorCli
 
 
-class ProcessorsCli(CommandLineInterface):
-    """Command line interface for PipeScaler Processors."""
+class ImageProcessorsCli(CommandLineInterface):
+    """Command-line interface for PipeScaler Processors."""
 
     @classmethod
     def add_arguments_to_argparser(cls, parser: ArgumentParser) -> None:
@@ -26,7 +26,9 @@ class ProcessorsCli(CommandLineInterface):
         super().add_arguments_to_argparser(parser)
 
         subparsers = parser.add_subparsers(
-            dest="processor", help="processor", required=True
+            dest="processor",
+            help="processor",
+            required=True,
         )
         for name in sorted(cls.processors()):
             cls.processors()[name].argparser(subparsers=subparsers)
@@ -43,8 +45,6 @@ class ProcessorsCli(CommandLineInterface):
         Arguments:
             **kwargs: Command-line arguments
         """
-        processor = cls.processors()[kwargs.pop("processor")]
-        processor.execute(**kwargs)
 
     @classmethod
     def help(cls) -> str:
@@ -52,19 +52,26 @@ class ProcessorsCli(CommandLineInterface):
         return "process image"
 
     @classmethod
+    def main_internal(cls, **kwargs: Any) -> None:
+        """Execute with provided keyword arguments."""
+        processor_name = kwargs.pop("processor")
+        processor_cli_cls = cls.processors()[processor_name]
+        processor_cli_cls.main_internal(**kwargs)
+
+    @classmethod
     def name(cls) -> str:
         """Name of this tool used to define it when it is a subparser."""
         return "process"
 
     @classmethod
-    def processors(cls) -> dict[str, Type[ProcessorCli]]:
-        """Names and types of processors wrapped by command line interface."""
+    def processors(cls) -> dict[str, Type[ImageProcessorCli]]:
+        """Names and types of processors wrapped by command-line interface."""
         return {
             processor.name(): processor
             for processor in map(processors.__dict__.get, processors.__all__)
-            if isinstance(processor, type) and issubclass(processor, ProcessorCli)
+            if isinstance(processor, type) and issubclass(processor, ImageProcessorCli)
         }
 
 
 if __name__ == "__main__":
-    ProcessorsCli.main()
+    ImageProcessorsCli.main()

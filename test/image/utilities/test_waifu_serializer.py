@@ -26,5 +26,6 @@ def utility(request) -> WaifuSerializer:
 )
 def test(architecture: str, infile: str, utility: WaifuSerializer) -> None:
     input_path = get_test_model_infile_path(infile)
+
     with get_temp_file_path(".pth") as output_path:
-        utility(architecture, input_path, output_path)
+        utility.run(architecture, input_path, output_path)

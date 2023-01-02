@@ -29,6 +29,8 @@ class ResizeProcessor(ImageProcessor):
             scale: Output image scale relative to input image
             resample: Resample algorithm
         """
+        super().__init__()
+
         self.scale = validate_float(scale, min_value=0)
         self.resample = self.resample_methods[
             validate_str(resample, options=self.resample_methods.keys())

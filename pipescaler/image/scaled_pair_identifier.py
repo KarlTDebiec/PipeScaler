@@ -3,6 +3,8 @@
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Identifies pairs of images in which one is rescaled from another."""
+from __future__ import annotations
+
 import re
 from itertools import chain
 from logging import info
@@ -18,7 +20,6 @@ from pipescaler.common import (
     validate_input_directories,
     validate_input_directory,
 )
-from pipescaler.core import Utility
 from pipescaler.image.analytics import (
     ImageHashCollection,
     ImagePairCollection,
@@ -34,7 +35,7 @@ pd.set_option("display.max_columns", None)
 pd.set_option("display.width", 0)
 
 
-class ScaledPairIdentifier(Utility):
+class ScaledPairIdentifier:
     """Identifies pairs of images in which one is rescaled from another."""
 
     def __init__(

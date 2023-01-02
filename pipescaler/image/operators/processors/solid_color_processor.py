@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Sets entire image color to its average color, optionally resizing."""
@@ -24,6 +24,8 @@ class SolidColorProcessor(ImageProcessor):
         Arguments:
             scale: Scale of output image relative to input
         """
+        super().__init__()
+
         self.scale = validate_float(scale)
 
     def __call__(self, input_image: Image.Image) -> Image.Image:
@@ -45,7 +47,7 @@ class SolidColorProcessor(ImageProcessor):
         array = np.array(input_image)
         if input_image.mode in ("LA", "RGB", "RGBA"):
             color: Union[int, tuple[int, int, int]] = tuple(
-                np.rint(array.mean(axis=(0, 1))).astype(np.uint8)
+                np.rint(array.mean(axis=(0, 1))).astype(np.uint8)  # type: ignore
             )
         elif input_image.mode == "L":
             color = round(array.mean())

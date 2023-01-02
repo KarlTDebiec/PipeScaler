@@ -24,7 +24,7 @@ class ImagePairCollection(Sequence):
         Arguments:
             cache: Path to cache file
         """
-        self.cache = validate_output_file(cache, exists_ok=True)
+        self.cache = validate_output_file(cache, may_exist=True)
         """CSV cache file path."""
 
         # Prepare image pairs

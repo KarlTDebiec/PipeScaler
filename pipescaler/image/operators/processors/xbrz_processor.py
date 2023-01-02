@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Upscales image using xbrz."""
@@ -26,6 +26,8 @@ class XbrzProcessor(ImageProcessor):
         Arguments:
             scale: Factor by which to scale output image relative to input
         """
+        super().__init__()
+
         self.scale = validate_int(scale, 2, 6)
 
     def __call__(self, input_image: Image.Image) -> Image.Image:

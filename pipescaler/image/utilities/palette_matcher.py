@@ -1,8 +1,10 @@
 #!/usr/bin/env python
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Matches the palette of one image to another."""
+from __future__ import annotations
+
 from itertools import product
 from typing import Optional, no_type_check
 
@@ -20,50 +22,6 @@ from pipescaler.image.core import (
 
 class PaletteMatcher(Utility):
     """Matches the palette of one image to another."""
-
-    def match_palette(
-        self, ref_image: Image.Image, fit_image: Image.Image
-    ) -> Image.Image:
-        """Match the palette of an image to a reference.
-
-        Arguments:
-            ref_image: Image whose palette to use as reference
-            fit_image: Image whose palette to fit to reference
-        Returns:
-            Image with palette fit to reference
-        """
-        if ref_image.mode != fit_image.mode:
-            raise UnsupportedImageModeError(
-                f"Image mode '{ref_image.mode}' of reference image does not match mode "
-                f"'{fit_image.mode}' of fit image"
-            )
-        ref_palette = get_palette(ref_image).astype(np.uint8)
-        fit_palette = get_palette(fit_image).astype(np.uint8)
-        fit_array = np.array(fit_image)
-
-        if fit_image.mode == "L":
-            color_to_index = {color: i for i, color in enumerate(fit_palette)}
-            fit_array_by_index = np.zeros(fit_array.shape[:2], np.int32)
-            for i in range(fit_array.shape[0]):
-                for j in range(fit_array.shape[1]):
-                    fit_array_by_index[i, j] = color_to_index[fit_array[i, j]]
-            dist = (ref_palette.astype(float) - fit_palette.astype(float)[:, None]) ** 2
-            best_fit_palette = ref_palette[dist.argmin(axis=1)]
-            matched_array = np.zeros_like(fit_array)
-            for i in range(fit_array.shape[0]):
-                for j in range(fit_array.shape[1]):
-                    matched_array[i, j] = best_fit_palette[fit_array_by_index[i, j]]
-        else:
-            fit_array_by_index = self.get_indexed_array_from_rgb_array(
-                fit_array, fit_palette
-            )
-            best_fit_palette = self.get_best_fit_palette(fit_palette, ref_palette)
-            matched_array = self.get_rgb_array_from_indexed_array(
-                fit_array_by_index, best_fit_palette
-            )
-
-        matched_image = Image.fromarray(matched_array)
-        return matched_image
 
     @classmethod
     def get_best_fit_palette(
@@ -135,6 +93,49 @@ class PaletteMatcher(Utility):
                 best_color = best_color_in_cell
 
         return best_color
+
+    @classmethod
+    def run(cls, ref_image: Image.Image, fit_image: Image.Image) -> Image.Image:
+        """Match the palette of an image to a reference.
+
+        Arguments:
+            ref_image: Image whose palette to use as reference
+            fit_image: Image whose palette to fit to reference
+        Returns:
+            Image with palette fit to reference
+        """
+        if ref_image.mode != fit_image.mode:
+            raise UnsupportedImageModeError(
+                f"Image mode '{ref_image.mode}' of reference image does not match mode "
+                f"'{fit_image.mode}' of fit image"
+            )
+        ref_palette = get_palette(ref_image).astype(np.uint8)
+        fit_palette = get_palette(fit_image).astype(np.uint8)
+        fit_array = np.array(fit_image)
+
+        if fit_image.mode == "L":
+            color_to_index = {color: i for i, color in enumerate(fit_palette)}
+            fit_array_by_index = np.zeros(fit_array.shape[:2], np.int32)
+            for i in range(fit_array.shape[0]):
+                for j in range(fit_array.shape[1]):
+                    fit_array_by_index[i, j] = color_to_index[fit_array[i, j]]
+            dist = (ref_palette.astype(float) - fit_palette.astype(float)[:, None]) ** 2
+            best_fit_palette = ref_palette[dist.argmin(axis=1)]
+            matched_array = np.zeros_like(fit_array)
+            for i in range(fit_array.shape[0]):
+                for j in range(fit_array.shape[1]):
+                    matched_array[i, j] = best_fit_palette[fit_array_by_index[i, j]]
+        else:
+            fit_array_by_index = cls.get_indexed_array_from_rgb_array(
+                fit_array, fit_palette
+            )
+            best_fit_palette = cls.get_best_fit_palette(fit_palette, ref_palette)
+            matched_array = cls.get_rgb_array_from_indexed_array(
+                fit_array_by_index, best_fit_palette
+            )
+
+        matched_image = Image.fromarray(matched_array)
+        return matched_image
 
     @no_type_check
     @staticmethod

@@ -39,7 +39,6 @@ class AlphaSplitter(ImageSplitter):
                     "alpha_mode MONOCHROME_OR_GRAYSCALE"
                 )
             self.mask_fill_mode = validate_enum(mask_fill_mode, MaskFillMode)
-            self.mask_filler = MaskFiller(mask_fill_mode=self.mask_fill_mode)
 
     def __call__(self, input_image: Image.Image) -> tuple[Image.Image, ...]:
         """Split an image.
@@ -62,8 +61,10 @@ class AlphaSplitter(ImageSplitter):
             if is_monochrome(alpha_image):
                 alpha_image = alpha_image.convert("1")
         if self.mask_fill_mode and alpha_image.mode == "1":
-            color_image = self.mask_filler.fill(
-                color_image, Image.fromarray(~np.array(alpha_image))
+            color_image = MaskFiller.run(
+                color_image,
+                Image.fromarray(~np.array(alpha_image)),
+                self.mask_fill_mode,
             )
 
         return color_image, alpha_image

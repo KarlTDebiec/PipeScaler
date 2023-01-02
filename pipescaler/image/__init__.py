@@ -5,6 +5,7 @@
 """PipeScaler image package; contains code specific to image processing."""
 from __future__ import annotations
 
+from pipescaler.image.scaled_pair_identifier import ScaledPairIdentifier
 from pipescaler.image.subdivided_image import SubdividedImage
 from pipescaler.image.testing import (
     get_expected_output_mode,
@@ -14,5 +15,6 @@ from pipescaler.image.testing import (
 __all__ = [
     "get_expected_output_mode",
     "xfail_unsupported_image_mode",
+    "ScaledPairIdentifier",
     "SubdividedImage",
 ]

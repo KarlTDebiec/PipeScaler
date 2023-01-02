@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Tests for EsrganSerializer."""
@@ -28,4 +28,4 @@ def utility(request) -> EsrganSerializer:
 def test(infile: str, utility: EsrganSerializer) -> None:
     input_path = get_test_model_infile_path(infile)
     with get_temp_file_path(".pth") as output_path:
-        utility(input_path, output_path)
+        utility.run(input_path, output_path)

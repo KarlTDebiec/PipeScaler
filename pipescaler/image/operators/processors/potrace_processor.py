@@ -34,6 +34,8 @@ class PotraceProcessor(ImageProcessor):
             invert: Whether to invert image before tracing
             scale: Scale of re-rasterized output image relative to input
         """
+        super().__init__()
+
         self.potrace_runner = PotraceRunner(arguments)
         self.invert = invert
         self.scale = validate_float(scale, min_value=0)
