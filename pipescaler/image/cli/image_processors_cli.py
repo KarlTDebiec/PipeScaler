@@ -55,9 +55,10 @@ class ImageProcessorsCli(CommandLineInterface):
         parser = cls.argparser()
         kwargs = vars(parser.parse_args())
         set_logging_verbosity(kwargs.pop("verbosity", 1))
+
         processor_name = kwargs.pop("processor")
         processor_cli_cls = cls.processors()[processor_name]
-        processor_cli_cls.run(**kwargs)
+        processor_cli_cls.main_internal(**kwargs)
 
     @classmethod
     def name(cls) -> str:

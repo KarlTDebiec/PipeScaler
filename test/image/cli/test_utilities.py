@@ -10,6 +10,7 @@ from typing import Type
 from pytest import mark
 
 from pipescaler.common import CommandLineInterface, get_temp_file_path
+from pipescaler.image.cli import ImageUtilitiesCli
 from pipescaler.image.cli.utilities import EsrganSerializerCli, WaifuSerializerCli
 from pipescaler.testing import (
     get_test_model_infile_path,
@@ -46,6 +47,9 @@ def test(cli: Type[CommandLineInterface], args: str, infile: str) -> None:
     [
         xfail_system_exit()(EsrganSerializerCli, "-h"),
         xfail_system_exit()(WaifuSerializerCli, "-h"),
+        xfail_system_exit()(ImageUtilitiesCli, "-h"),
+        xfail_system_exit()(ImageUtilitiesCli, "esrganserializer -h"),
+        xfail_system_exit()(ImageUtilitiesCli, "waifuserializer -h"),
     ],
 )
 def test_help(cli: Type[CommandLineInterface], args: str) -> None:

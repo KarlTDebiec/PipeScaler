@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from inspect import cleandoc
-from typing import Type
+from typing import Any, Type
 
 from pipescaler.common import CommandLineInterface, set_logging_verbosity
 from pipescaler.core.utility import Utility
@@ -28,6 +28,11 @@ class UtilityCli(CommandLineInterface, ABC):
         parser = cls.argparser()
         kwargs = vars(parser.parse_args())
         set_logging_verbosity(kwargs.pop("verbosity", 1))
+
+        cls.main_internal(**kwargs)
+
+    @classmethod
+    def main_internal(cls, **kwargs: Any) -> None:
         utility_cls = cls.utility()
         utility_cls.run(**kwargs)
 

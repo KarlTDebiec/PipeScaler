@@ -10,7 +10,7 @@ from typing import Any, Type
 
 from pipescaler.common import CommandLineInterface
 from pipescaler.image.cli.image_processors_cli import ImageProcessorsCli
-from pipescaler.image.cli.utilities_cli import UtilitiesCli
+from pipescaler.image.cli.image_utilities_cli import ImageUtilitiesCli
 
 
 class PipeScalerCli(CommandLineInterface):
@@ -27,7 +27,7 @@ class PipeScalerCli(CommandLineInterface):
 
         subparsers = parser.add_subparsers(dest="action", help="action", required=True)
         ImageProcessorsCli.argparser(subparsers=subparsers)
-        UtilitiesCli.argparser(subparsers=subparsers)
+        ImageUtilitiesCli.argparser(subparsers=subparsers)
 
     @classmethod
     def execute(cls, **kwargs: Any) -> None:
@@ -43,7 +43,7 @@ class PipeScalerCli(CommandLineInterface):
     def subcommands(cls) -> dict[str, Type[CommandLineInterface]]:
         """Names and types of tools wrapped by command-line interface."""
         return {
-            tool.name(): tool for tool in [ImageProcessorsCli, UtilitiesCli]  # type: ignore
+            tool.name(): tool for tool in [ImageProcessorsCli, ImageUtilitiesCli]  # type: ignore
         }
 
 

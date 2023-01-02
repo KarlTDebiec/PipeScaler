@@ -11,6 +11,7 @@ from typing import Type
 from pipescaler.cli import PipeScalerCli
 from pipescaler.common import CommandLineInterface
 from pipescaler.image.cli.image_processors_cli import ImageProcessorsCli
+from pipescaler.image.cli.image_utilities_cli import ImageUtilitiesCli
 from pipescaler.image.cli.processors import (
     CropCli,
     EsrganCli,
@@ -25,7 +26,6 @@ from pipescaler.image.cli.processors import (
     XbrzCli,
 )
 from pipescaler.image.cli.utilities import EsrganSerializerCli, WaifuSerializerCli
-from pipescaler.image.cli.utilities_cli import UtilitiesCli
 from pipescaler.testing import parametrize_with_readable_ids, run_cli_with_args
 from pipescaler.video.cli.utilities import ApngCreatorCli
 
@@ -46,7 +46,7 @@ from pipescaler.video.cli.utilities import ApngCreatorCli
         ((SharpenCli,)),
         ((SolidColorCli,)),
         ((ThresholdCli,)),
-        ((UtilitiesCli,)),
+        ((ImageUtilitiesCli,)),
         ((WaifuCli,)),
         ((WaifuSerializerCli,)),
         ((XbrzCli,)),
@@ -61,9 +61,9 @@ from pipescaler.video.cli.utilities import ApngCreatorCli
         ((ImageProcessorsCli, ThresholdCli)),
         ((ImageProcessorsCli, WaifuCli)),
         ((ImageProcessorsCli, XbrzCli)),
-        ((UtilitiesCli, ApngCreatorCli)),
-        ((UtilitiesCli, EsrganSerializerCli)),
-        ((UtilitiesCli, WaifuSerializerCli)),
+        ((ImageUtilitiesCli, ApngCreatorCli)),
+        ((ImageUtilitiesCli, EsrganSerializerCli)),
+        ((ImageUtilitiesCli, WaifuSerializerCli)),
         ((PipeScalerCli, ImageProcessorsCli)),
         ((PipeScalerCli, ImageProcessorsCli, CropCli)),
         ((PipeScalerCli, ImageProcessorsCli, EsrganCli)),
@@ -76,10 +76,10 @@ from pipescaler.video.cli.utilities import ApngCreatorCli
         ((PipeScalerCli, ImageProcessorsCli, ThresholdCli)),
         ((PipeScalerCli, ImageProcessorsCli, WaifuCli)),
         ((PipeScalerCli, ImageProcessorsCli, XbrzCli)),
-        ((PipeScalerCli, UtilitiesCli)),
-        ((PipeScalerCli, UtilitiesCli, ApngCreatorCli)),
-        ((PipeScalerCli, UtilitiesCli, EsrganSerializerCli)),
-        ((PipeScalerCli, UtilitiesCli, WaifuSerializerCli)),
+        ((PipeScalerCli, ImageUtilitiesCli)),
+        ((PipeScalerCli, ImageUtilitiesCli, ApngCreatorCli)),
+        ((PipeScalerCli, ImageUtilitiesCli, EsrganSerializerCli)),
+        ((PipeScalerCli, ImageUtilitiesCli, WaifuSerializerCli)),
     ],
 )
 def test(commands: tuple[Type[CommandLineInterface], ...]) -> None:

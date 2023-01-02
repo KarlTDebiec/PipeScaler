@@ -5,7 +5,9 @@
 from __future__ import annotations
 
 from pipescaler.image.cli.image_processors_cli import ImageProcessorsCli
+from pipescaler.image.cli.image_utilities_cli import ImageUtilitiesCli
 
 __all__ = [
     "ImageProcessorsCli",
+    "ImageUtilitiesCli",
 ]

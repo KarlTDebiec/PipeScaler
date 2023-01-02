@@ -2,19 +2,19 @@
 #  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Command-line interface for PipeScaler utilities."""
+"""Command-line interface for PipeScaler image utilities."""
 from __future__ import annotations
 
 from argparse import ArgumentParser
-from typing import Any, Type
+from typing import Type
 
-from pipescaler.common import CommandLineInterface
+from pipescaler.common import CommandLineInterface, set_logging_verbosity
 from pipescaler.core.cli import UtilityCli
 from pipescaler.image import utilities
 
 
-class UtilitiesCli(CommandLineInterface):
-    """Command-line interface for PipeScaler utilities."""
+class ImageUtilitiesCli(CommandLineInterface):
+    """Command-line interface for PipeScaler image utilities."""
 
     @classmethod
     def add_arguments_to_argparser(cls, parser: ArgumentParser) -> None:
@@ -32,16 +32,6 @@ class UtilitiesCli(CommandLineInterface):
             cls.utilities()[name].argparser(subparsers=subparsers)
 
     @classmethod
-    def execute(cls, **kwargs: Any) -> None:
-        """Execute with provided keyword arguments.
-
-        Arguments:
-            **kwargs: Command-line arguments
-        """
-        utility = cls.utilities()[kwargs.pop("utility")]
-        utility.execute(**kwargs)
-
-    @classmethod
     def description(cls) -> str:
         """Long description of this tool displayed below usage."""
         return "Runs utilities."
@@ -50,6 +40,17 @@ class UtilitiesCli(CommandLineInterface):
     def help(cls) -> str:
         """Short description of this tool used when it is a subparser."""
         return "run utility"
+
+    @classmethod
+    def main(cls) -> None:
+        """Execute from command line."""
+        parser = cls.argparser()
+        kwargs = vars(parser.parse_args())
+        set_logging_verbosity(kwargs.pop("verbosity", 1))
+
+        utility_name = kwargs.pop("utility")
+        utility_cli_cls = cls.utilities()[utility_name]
+        utility_cli_cls.main_internal(**kwargs)
 
     @classmethod
     def name(cls) -> str:
@@ -67,4 +68,4 @@ class UtilitiesCli(CommandLineInterface):
 
 
 if __name__ == "__main__":
-    UtilitiesCli.main()
+    ImageUtilitiesCli.main()

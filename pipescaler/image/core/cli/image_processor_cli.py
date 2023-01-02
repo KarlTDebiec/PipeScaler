@@ -9,7 +9,7 @@ from abc import ABC, abstractmethod
 from argparse import ArgumentParser
 from inspect import cleandoc
 from logging import info
-from typing import Type
+from typing import Any, Type
 
 from PIL import Image
 
@@ -57,6 +57,10 @@ class ImageProcessorCli(CommandLineInterface, ABC):
         kwargs = vars(parser.parse_args())
         set_logging_verbosity(kwargs.pop("verbosity", 1))
 
+        cls.main_internal(**kwargs)
+
+    @classmethod
+    def main_internal(cls, **kwargs: Any) -> None:
         infile = kwargs.pop("infile")
         outfile = kwargs.pop("outfile")
         processor_cls = cls.processor()
