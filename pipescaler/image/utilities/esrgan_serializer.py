@@ -56,7 +56,9 @@ class EsrganSerializer(Utility):
         if "model.0.weight" in state_dict:
             scale = cls.get_old_scale_index(state_dict)
             keymap = cls.build_old_keymap(scale)
-            state_dict = {keymap[k]: v for k, v in state_dict.items()}
+            state_dict = OrderedDict()
+            for k, v in state_dict.items():
+                state_dict[keymap[k]] = v
         else:
             scale = cls.get_scale_index(state_dict)
 
