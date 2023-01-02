@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from inspect import cleandoc
-from typing import Any, Type
+from typing import Type
 
 from pipescaler.common import CommandLineInterface
 from pipescaler.core.utility import Utility
@@ -20,12 +20,6 @@ class UtilityCli(CommandLineInterface, ABC):
     def description(cls) -> str:
         """Long description of this tool displayed below usage."""
         return cleandoc(str(cls.utility().__doc__)) if cls.utility().__doc__ else ""
-
-    @classmethod
-    def main_internal(cls, **kwargs: Any) -> None:
-        """Execute with provided keyword arguments."""
-        utility_cls = cls.utility()
-        utility_cls.run(**kwargs)
 
     @classmethod
     def name(cls) -> str:

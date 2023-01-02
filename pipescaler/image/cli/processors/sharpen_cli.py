@@ -8,7 +8,6 @@ from __future__ import annotations
 from typing import Type
 
 from pipescaler.image.core.cli import ImageProcessorCli
-from pipescaler.image.core.operators import ImageProcessor
 from pipescaler.image.operators.processors import SharpenProcessor
 
 
@@ -16,7 +15,7 @@ class SharpenCli(ImageProcessorCli):
     """Command-line interface for SharpenProcessor."""
 
     @classmethod
-    def processor(cls) -> Type[ImageProcessor]:
+    def processor(cls) -> Type[SharpenProcessor]:
         """Type of processor wrapped by command-line interface."""
         return SharpenProcessor
 

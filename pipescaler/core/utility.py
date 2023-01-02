@@ -5,7 +5,7 @@
 """Abstract base class for utilities."""
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABC
 from inspect import cleandoc
 
 
@@ -18,9 +18,3 @@ class Utility(ABC):
         if cls.__doc__:
             return cleandoc(cls.__doc__).split(". ", maxsplit=1)[0]
         return ""
-
-    @classmethod
-    @abstractmethod
-    def run(cls, **kwargs) -> None:
-        """Run utility."""
-        raise NotImplementedError()

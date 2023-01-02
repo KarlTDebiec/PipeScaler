@@ -10,7 +10,6 @@ from typing import Type
 
 from pipescaler.common import get_arg_groups_by_name, int_arg
 from pipescaler.image.core.cli import ImageProcessorCli
-from pipescaler.image.core.operators import ImageProcessor
 from pipescaler.image.operators.processors import CropProcessor
 
 
@@ -42,7 +41,7 @@ class CropCli(ImageProcessorCli):
         )
 
     @classmethod
-    def processor(cls) -> Type[ImageProcessor]:
+    def processor(cls) -> Type[CropProcessor]:
         """Type of processor wrapped by command-line interface."""
         return CropProcessor
 

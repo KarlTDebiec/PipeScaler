@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Optional, Sequence, Union
+from typing import Optional, Union
 
 from pipescaler.common import PathLike, validate_input_file
 
@@ -18,9 +18,9 @@ class PipeObject(ABC):
     def __init__(
         self,
         *,
-        path: Optional[Path] = None,
+        path: Optional[PathLike] = None,
         name: Optional[str] = None,
-        parents: Optional[Union[PipeObject, Sequence[PipeObject]]] = None,
+        parents: Optional[Union[PipeObject, list[PipeObject]]] = None,
         location: Optional[Path] = None,
     ) -> None:
         """Initialize.
@@ -36,10 +36,17 @@ class PipeObject(ABC):
         self.path = path
 
         if parents:
-            if isinstance(parents, PipeObject):
+            if isinstance(parents, self.__class__):
                 parents = [parents]
             if not isinstance(parents, list):
                 parents = list(parents)
+            if not isinstance(parents, list) and all(
+                [isinstance(p, self.__class__) for p in parents]
+            ):
+                raise TypeError(
+                    f"{self.__class__.__name__}'s parents must be"
+                    f"{self.__class__.__name__} or a list of {self.__class__.__name__}"
+                )
         self._parents = parents
 
         if name:

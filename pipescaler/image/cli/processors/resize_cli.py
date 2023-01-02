@@ -10,7 +10,6 @@ from typing import Type
 
 from pipescaler.common import float_arg, get_arg_groups_by_name, str_arg
 from pipescaler.image.core.cli import ImageProcessorCli
-from pipescaler.image.core.operators import ImageProcessor
 from pipescaler.image.operators.processors import ResizeProcessor
 
 
@@ -47,7 +46,7 @@ class ResizeCli(ImageProcessorCli):
         )
 
     @classmethod
-    def processor(cls) -> Type[ImageProcessor]:
+    def processor(cls) -> Type[ResizeProcessor]:
         """Type of processor wrapped by command-line interface."""
         return ResizeProcessor
 

@@ -6,10 +6,9 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
-from typing import Type
+from typing import Any, Type
 
 from pipescaler.common import get_arg_groups_by_name, input_file_arg, output_file_arg
-from pipescaler.core import Utility
 from pipescaler.core.cli import UtilityCli
 from pipescaler.image.utilities.esrgan_serializer import EsrganSerializer
 
@@ -44,7 +43,13 @@ class EsrganSerializerCli(UtilityCli):
         )
 
     @classmethod
-    def utility(cls) -> Type[Utility]:
+    def main_internal(cls, **kwargs: Any) -> None:
+        """Execute with provided keyword arguments."""
+        utility_cls = cls.utility()
+        utility_cls.run(**kwargs)
+
+    @classmethod
+    def utility(cls) -> Type[EsrganSerializer]:
         """Type of utility wrapped by command-line interface."""
         return EsrganSerializer
 

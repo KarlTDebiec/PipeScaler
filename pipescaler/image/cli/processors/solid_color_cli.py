@@ -10,7 +10,6 @@ from typing import Type
 
 from pipescaler.common import float_arg, get_arg_groups_by_name
 from pipescaler.image.core.cli import ImageProcessorCli
-from pipescaler.image.core.operators import ImageProcessor
 from pipescaler.image.operators.processors import SolidColorProcessor
 
 
@@ -40,7 +39,7 @@ class SolidColorCli(ImageProcessorCli):
         )
 
     @classmethod
-    def processor(cls) -> Type[ImageProcessor]:
+    def processor(cls) -> Type[SolidColorProcessor]:
         """Type of processor wrapped by command-line interface."""
         return SolidColorProcessor
 
