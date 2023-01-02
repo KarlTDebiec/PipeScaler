@@ -61,6 +61,7 @@ class ImageProcessorCli(CommandLineInterface, ABC):
 
     @classmethod
     def main_internal(cls, **kwargs: Any) -> None:
+        """Execute with provided keyword arguments."""
         infile = kwargs.pop("infile")
         outfile = kwargs.pop("outfile")
         processor_cls = cls.processor()

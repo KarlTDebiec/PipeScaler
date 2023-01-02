@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
-from typing import Type, Union
+from typing import Any, Type, Union
 
 from pipescaler.common import CommandLineInterface, set_logging_verbosity
 from pipescaler.image.cli.image_processors_cli import ImageProcessorsCli
@@ -47,6 +47,11 @@ class ImageCli(CommandLineInterface):
         kwargs = vars(parser.parse_args())
         set_logging_verbosity(kwargs.pop("verbosity", 1))
 
+        cls.main_internal(**kwargs)
+
+    @classmethod
+    def main_internal(cls, **kwargs: Any) -> None:
+        """Execute with provided keyword arguments."""
         subcommand_name = kwargs.pop("subcommand")
         subcommand_cli_class = cls.subcommands()[subcommand_name]
         subcommand_cli_class.main_internal(**kwargs)

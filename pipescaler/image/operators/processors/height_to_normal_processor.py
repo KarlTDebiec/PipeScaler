@@ -27,6 +27,8 @@ class HeightToNormalProcessor(ImageProcessor):
         Arguments:
             sigma: Gaussian smoothing to apply to image
         """
+        super().__init__()
+
         self.sigma = validate_float(sigma, min_value=0) if sigma else None
 
     def __call__(self, input_image: Image.Image) -> Image.Image:

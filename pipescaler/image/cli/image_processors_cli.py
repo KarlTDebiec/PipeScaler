@@ -10,7 +10,7 @@ from typing import Any, Type
 
 from pipescaler.common import CommandLineInterface, set_logging_verbosity
 from pipescaler.image.cli import processors
-from pipescaler.image.core.cli.image_processor_cli import ImageProcessorCli
+from pipescaler.image.core.cli import ImageProcessorCli
 
 
 class ImageProcessorsCli(CommandLineInterface):
@@ -60,6 +60,7 @@ class ImageProcessorsCli(CommandLineInterface):
 
     @classmethod
     def main_internal(cls, **kwargs: Any) -> None:
+        """Execute with provided keyword arguments."""
         processor_name = kwargs.pop("processor")
         processor_cli_cls = cls.processors()[processor_name]
         processor_cli_cls.main_internal(**kwargs)

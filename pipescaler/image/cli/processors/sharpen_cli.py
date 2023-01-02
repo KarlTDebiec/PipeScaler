@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from typing import Type
 
-from pipescaler.image.core.cli.image_processor_cli import ImageProcessorCli
+from pipescaler.image.core.cli import ImageProcessorCli
 from pipescaler.image.core.operators import ImageProcessor
 from pipescaler.image.operators.processors import SharpenProcessor
 

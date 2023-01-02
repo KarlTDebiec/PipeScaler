@@ -33,6 +33,7 @@ class UtilityCli(CommandLineInterface, ABC):
 
     @classmethod
     def main_internal(cls, **kwargs: Any) -> None:
+        """Execute with provided keyword arguments."""
         utility_cls = cls.utility()
         utility_cls.run(**kwargs)
 

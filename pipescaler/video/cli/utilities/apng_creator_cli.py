@@ -8,6 +8,12 @@ from __future__ import annotations
 from argparse import ArgumentParser
 from typing import Type
 
+from pipescaler.common import (
+    get_optional_arguments_group,
+    input_file_arg,
+    int_arg,
+    output_file_arg,
+)
 from pipescaler.core import Utility
 from pipescaler.core.cli import UtilityCli
 from pipescaler.video.runners.apngasm_runner import ApngasmRunner
@@ -31,7 +37,7 @@ class ApngCreatorCli(UtilityCli):
             "--infiles",
             nargs="+",
             required=True,
-            type=cls.input_file_arg(),
+            type=input_file_arg(),
             help="input image files",
         )
         required.add_argument(
@@ -39,11 +45,11 @@ class ApngCreatorCli(UtilityCli):
             "--outfile",
             default="out.png",
             required=True,
-            type=cls.output_file_arg(),
+            type=output_file_arg(),
             help="output animated png",
         )
 
-        optional = cls.get_optional_arguments_group(parser)
+        optional = get_optional_arguments_group(parser)
         optional.add_argument(
             "--labels",
             nargs="+",
@@ -58,7 +64,7 @@ class ApngCreatorCli(UtilityCli):
         optional.add_argument(
             "--duration",
             default=500,
-            type=cls.int_arg(min_value=1),
+            type=int_arg(min_value=1),
             help="duration for which to show each image (ms)",
         )
 

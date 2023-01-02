@@ -52,6 +52,7 @@ class ImageUtilitiesCli(CommandLineInterface):
 
     @classmethod
     def main_internal(cls, **kwargs: Any) -> None:
+        """Execute with provided keyword arguments."""
         utility_name = kwargs.pop("utility")
         utility_cli_cls = cls.utilities()[utility_name]
         utility_cli_cls.main_internal(**kwargs)

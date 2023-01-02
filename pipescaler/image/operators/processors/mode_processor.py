@@ -22,6 +22,8 @@ class ModeProcessor(ImageProcessor):
             mode: Output mode
             background_color: Background color
         """
+        super().__init__()
+
         self.mode = validate_str(mode, self.outputs()["output"])
         self.background_color = ImageColor.getrgb(background_color)  # TODO: Validate
 

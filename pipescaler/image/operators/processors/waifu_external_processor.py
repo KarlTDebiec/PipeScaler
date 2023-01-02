@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Upscales and/or denoises image using Waifu2x via an external executable."""
@@ -25,6 +25,8 @@ class WaifuExternalProcessor(ImageProcessor):
         Arguments:
             arguments: Command-line arguments to pass to waifu2x
         """
+        super().__init__()
+
         self.waifu_runner = WaifuRunner(arguments)
 
     def __call__(self, input_image: Image.Image) -> Image.Image:

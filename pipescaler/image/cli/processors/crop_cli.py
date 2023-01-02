@@ -9,7 +9,7 @@ from argparse import ArgumentParser
 from typing import Type
 
 from pipescaler.common import get_arg_groups_by_name, int_arg
-from pipescaler.image.core.cli.image_processor_cli import ImageProcessorCli
+from pipescaler.image.core.cli import ImageProcessorCli
 from pipescaler.image.core.operators import ImageProcessor
 from pipescaler.image.operators.processors import CropProcessor
 
