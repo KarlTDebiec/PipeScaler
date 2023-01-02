@@ -47,7 +47,7 @@ class SolidColorProcessor(ImageProcessor):
         array = np.array(input_image)
         if input_image.mode in ("LA", "RGB", "RGBA"):
             color: Union[int, tuple[int, int, int]] = tuple(
-                np.rint(array.mean(axis=(0, 1))).astype(np.uint8)
+                np.rint(array.mean(axis=(0, 1))).astype(np.uint8)  # type: ignore
             )
         elif input_image.mode == "L":
             color = round(array.mean())
