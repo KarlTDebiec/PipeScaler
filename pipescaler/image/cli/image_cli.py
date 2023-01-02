@@ -59,4 +59,7 @@ class ImageCli(CommandLineInterface):
         cls,
     ) -> dict[str, Union[Type[ImageProcessorsCli], Type[ImageUtilitiesCli]]]:
         """Names and types of tools wrapped by command-line interface."""
-        return {tool.name(): tool for tool in [ImageProcessorsCli, ImageUtilitiesCli]}
+        return {
+            ImageProcessorsCli.name(): ImageProcessorsCli,
+            ImageUtilitiesCli.name(): ImageUtilitiesCli,
+        }
