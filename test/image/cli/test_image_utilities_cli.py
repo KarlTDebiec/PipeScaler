@@ -45,10 +45,15 @@ def test(cli: Type[CommandLineInterface], args: str, infile: str) -> None:
 @mark.parametrize(
     ("cli", "args"),
     [
+        xfail_system_exit()(ImageUtilitiesCli, ""),
         xfail_system_exit()(EsrganSerializerCli, "-h"),
+        xfail_system_exit()(WaifuSerializerCli, ""),
         xfail_system_exit()(WaifuSerializerCli, "-h"),
+        xfail_system_exit()(ImageUtilitiesCli, ""),
         xfail_system_exit()(ImageUtilitiesCli, "-h"),
+        xfail_system_exit()(ImageUtilitiesCli, "esrgan-serializer"),
         xfail_system_exit()(ImageUtilitiesCli, "esrganserializer -h"),
+        xfail_system_exit()(ImageUtilitiesCli, "waifu-serializer"),
         xfail_system_exit()(ImageUtilitiesCli, "waifuserializer -h"),
     ],
 )

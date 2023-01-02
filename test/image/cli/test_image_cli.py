@@ -14,8 +14,11 @@ from pipescaler.testing import run_cli_with_args, xfail_system_exit
 @pytest.mark.parametrize(
     ("cli", "args"),
     [
+        xfail_system_exit()(ImageCli, ""),
         xfail_system_exit()(ImageCli, "-h"),
+        xfail_system_exit()(ImageCli, "process"),
         xfail_system_exit()(ImageCli, "process -h"),
+        xfail_system_exit()(ImageCli, "utility"),
         xfail_system_exit()(ImageCli, "utility -h"),
     ],
 )
