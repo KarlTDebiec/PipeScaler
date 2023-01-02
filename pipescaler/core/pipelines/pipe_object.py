@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional, Sequence, Union
 
 from pipescaler.common import PathLike, validate_input_file
 
@@ -20,7 +20,7 @@ class PipeObject(ABC):
         *,
         path: Optional[PathLike] = None,
         name: Optional[str] = None,
-        parents: Optional[Union[PipeObject, list[PipeObject]]] = None,
+        parents: Optional[Union[PipeObject, Sequence[PipeObject]]] = None,
         location: Optional[Path] = None,
     ) -> None:
         """Initialize.
@@ -33,21 +33,23 @@ class PipeObject(ABC):
             parents: Parent object(s) from which this object is descended
             location: Path relative to parent directory
         """
-        self.path = path
+        self._path = None
+        if path:
+            self._path = validate_input_file(path)
 
+        self._parents = None
         if parents:
             if isinstance(parents, self.__class__):
-                parents = [parents]
-            if not isinstance(parents, list):
-                parents = list(parents)
-            if not isinstance(parents, list) and all(
-                [isinstance(p, self.__class__) for p in parents]
+                self._parents = [parents]
+            elif isinstance(parents, Sequence) and all(
+                isinstance(p, self.__class__) for p in parents
             ):
+                self._parents = list(parents)
+            else:
                 raise TypeError(
-                    f"{self.__class__.__name__}'s parents must be"
-                    f"{self.__class__.__name__} or a list of {self.__class__.__name__}"
+                    f"{self.__class__.__name__}'s parents must be a list of "
+                    f"{self.__class__.__name__}"
                 )
-        self._parents = parents
 
         if name:
             self._name = name
@@ -112,8 +114,9 @@ class PipeObject(ABC):
     @path.setter
     def path(self, value: Optional[PathLike]) -> None:
         if value:
-            value = validate_input_file(value)
-        self._path = value
+            self._path = validate_input_file(value)
+        else:
+            self._path = None
 
     @abstractmethod
     def save(self, path: PathLike) -> None:
