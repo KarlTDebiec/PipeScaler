@@ -39,12 +39,6 @@ class PaletteMatchMerger(ImageMerger):
 
         self.palette_match_mode = validate_enum(palette_match_mode, PaletteMatchMode)
         self.local_range = validate_int(local_range, min_value=1)
-        if self.palette_match_mode == PaletteMatchMode.BASIC:
-            self.palette_matcher: Union[
-                PaletteMatcher, LocalPaletteMatcher
-            ] = PaletteMatcher()
-        else:
-            self.palette_matcher = LocalPaletteMatcher(local_range)
 
     def __call__(self, *input_images: Image.Image) -> Image.Image:
         """Merge images.

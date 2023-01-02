@@ -5,22 +5,21 @@
 """Tests for processor command-line interfaces."""
 from __future__ import annotations
 
+from contextlib import redirect_stderr, redirect_stdout
+from inspect import getfile
+from io import StringIO
+from pathlib import Path
 from typing import Type
 
-from pytest import mark
+import pytest
 
 from pipescaler.common import CommandLineInterface, get_temp_file_path
 from pipescaler.image.cli import ImageUtilitiesCli
 from pipescaler.image.cli.utilities import EsrganSerializerCli, WaifuSerializerCli
-from pipescaler.testing import (
-    get_test_model_infile_path,
-    run_cli_with_args,
-    skip_if_ci,
-    xfail_system_exit,
-)
+from pipescaler.testing import get_test_model_infile_path, run_cli_with_args, skip_if_ci
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     ("cli", "args", "infile"),
     [
         skip_if_ci()(
@@ -42,20 +41,55 @@ def test(cli: Type[CommandLineInterface], args: str, infile: str) -> None:
         run_cli_with_args(cli, f"{args} {input_path} {output_path}")
 
 
-@mark.parametrize(
-    ("cli", "args"),
+@pytest.mark.parametrize(
+    ("commands"),
     [
-        xfail_system_exit()(ImageUtilitiesCli, ""),
-        xfail_system_exit()(EsrganSerializerCli, "-h"),
-        xfail_system_exit()(WaifuSerializerCli, ""),
-        xfail_system_exit()(WaifuSerializerCli, "-h"),
-        xfail_system_exit()(ImageUtilitiesCli, ""),
-        xfail_system_exit()(ImageUtilitiesCli, "-h"),
-        xfail_system_exit()(ImageUtilitiesCli, "esrgan-serializer"),
-        xfail_system_exit()(ImageUtilitiesCli, "esrganserializer -h"),
-        xfail_system_exit()(ImageUtilitiesCli, "waifu-serializer"),
-        xfail_system_exit()(ImageUtilitiesCli, "waifuserializer -h"),
+        ((EsrganSerializerCli,)),
+        ((WaifuSerializerCli,)),
+        ((ImageUtilitiesCli,)),
+        ((ImageUtilitiesCli, EsrganSerializerCli)),
+        ((ImageUtilitiesCli, WaifuSerializerCli)),
     ],
 )
-def test_help(cli: Type[CommandLineInterface], args: str) -> None:
-    run_cli_with_args(cli, f"{args}")
+def test_help(commands: tuple[Type[CommandLineInterface], ...]) -> None:
+    subcommands = " ".join(f"{command.name()}" for command in commands[1:])
+
+    stdout = StringIO()
+    stderr = StringIO()
+    try:
+        with redirect_stdout(stdout):
+            with redirect_stderr(stderr):
+                run_cli_with_args(commands[0], f"{subcommands} -h")
+    except SystemExit as error:
+        assert error.code == 0
+        assert stdout.getvalue().startswith(
+            f"usage: {Path(getfile(commands[0])).name} {subcommands}"
+        )
+        assert stderr.getvalue() == ""
+
+
+@pytest.mark.parametrize(
+    ("commands"),
+    [
+        ((EsrganSerializerCli,)),
+        ((WaifuSerializerCli,)),
+        ((ImageUtilitiesCli,)),
+        ((ImageUtilitiesCli, EsrganSerializerCli)),
+        ((ImageUtilitiesCli, WaifuSerializerCli)),
+    ],
+)
+def test_usage(commands: tuple[Type[CommandLineInterface], ...]):
+    subcommands = " ".join(f"{command.name()}" for command in commands[1:])
+
+    stdout = StringIO()
+    stderr = StringIO()
+    try:
+        with redirect_stdout(stdout):
+            with redirect_stderr(stderr):
+                run_cli_with_args(commands[0], subcommands)
+    except SystemExit as error:
+        assert error.code == 2
+        assert stdout.getvalue() == ""
+        assert stderr.getvalue().startswith(
+            f"usage: {Path(getfile(commands[0])).name} {subcommands}"
+        )

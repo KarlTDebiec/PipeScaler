@@ -1,7 +1,7 @@
 #  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Tests for image command-line interface."""
+"""Tests for pipescaler command-line interface."""
 from __future__ import annotations
 
 from contextlib import redirect_stderr, redirect_stdout
@@ -12,17 +12,17 @@ from typing import Type
 
 import pytest
 
+from pipescaler.cli import PipeScalerCli
 from pipescaler.common import CommandLineInterface
-from pipescaler.image.cli import ImageCli, ImageProcessorsCli, ImageUtilitiesCli
-from pipescaler.testing import run_cli_with_args
+from pipescaler.image.cli import ImageCli
+from pipescaler.testing import parametrize_with_readable_ids, run_cli_with_args
 
 
-@pytest.mark.parametrize(
+@parametrize_with_readable_ids(
     ("commands"),
     [
-        ((ImageCli,)),
-        ((ImageCli, ImageProcessorsCli)),
-        ((ImageCli, ImageUtilitiesCli)),
+        ((PipeScalerCli,)),
+        ((PipeScalerCli, ImageCli)),
     ],
 )
 def test_help(commands: tuple[Type[CommandLineInterface], ...]) -> None:
@@ -45,9 +45,8 @@ def test_help(commands: tuple[Type[CommandLineInterface], ...]) -> None:
 @pytest.mark.parametrize(
     ("commands"),
     [
-        ((ImageCli,)),
-        ((ImageCli, ImageProcessorsCli)),
-        ((ImageCli, ImageUtilitiesCli)),
+        ((PipeScalerCli,)),
+        ((PipeScalerCli, ImageCli)),
     ],
 )
 def test_usage(commands: tuple[Type[CommandLineInterface], ...]):

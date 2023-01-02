@@ -16,7 +16,6 @@ class ImageOperator(ABC):
 
     def __init__(self, **kwargs: Any) -> None:
         """Initializes an image operator."""
-        pass
 
     def __repr__(self) -> str:
         """Representation."""

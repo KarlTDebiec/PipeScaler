@@ -9,7 +9,7 @@ from abc import ABC, abstractmethod
 from inspect import cleandoc
 from typing import Any, Type
 
-from pipescaler.common import CommandLineInterface, set_logging_verbosity
+from pipescaler.common import CommandLineInterface
 from pipescaler.core.utility import Utility
 
 
@@ -20,16 +20,6 @@ class UtilityCli(CommandLineInterface, ABC):
     def description(cls) -> str:
         """Long description of this tool displayed below usage."""
         return cleandoc(str(cls.utility().__doc__)) if cls.utility().__doc__ else ""
-
-    @classmethod
-    @abstractmethod
-    def main(cls) -> None:
-        """Execute from command line."""
-        parser = cls.argparser()
-        kwargs = vars(parser.parse_args())
-        set_logging_verbosity(kwargs.pop("verbosity", 1))
-
-        cls.main_internal(**kwargs)
 
     @classmethod
     def main_internal(cls, **kwargs: Any) -> None:

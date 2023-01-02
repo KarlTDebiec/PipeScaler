@@ -8,7 +8,7 @@ from __future__ import annotations
 from argparse import ArgumentParser
 from typing import Any, Type
 
-from pipescaler.common import CommandLineInterface, set_logging_verbosity
+from pipescaler.common import CommandLineInterface
 from pipescaler.core.cli import UtilityCli
 from pipescaler.image.cli import utilities
 
@@ -26,7 +26,9 @@ class ImageUtilitiesCli(CommandLineInterface):
         super().add_arguments_to_argparser(parser)
 
         subparsers = parser.add_subparsers(
-            dest="utility", help="utility", required=True
+            dest="utility",
+            help="utility",
+            required=True,
         )
         for name in sorted(cls.utilities()):
             cls.utilities()[name].argparser(subparsers=subparsers)
@@ -40,15 +42,6 @@ class ImageUtilitiesCli(CommandLineInterface):
     def help(cls) -> str:
         """Short description of this tool used when it is a subparser."""
         return "run image utility"
-
-    @classmethod
-    def main(cls) -> None:
-        """Execute from command line."""
-        parser = cls.argparser()
-        kwargs = vars(parser.parse_args())
-        set_logging_verbosity(kwargs.pop("verbosity", 1))
-
-        cls.main_internal(**kwargs)
 
     @classmethod
     def main_internal(cls, **kwargs: Any) -> None:

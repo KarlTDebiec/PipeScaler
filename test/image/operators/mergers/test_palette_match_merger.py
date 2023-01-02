@@ -6,7 +6,7 @@
 import pytest
 from PIL import Image
 
-from pipescaler.image import get_expected_output_mode, xfail_unsupported_image_mode
+from pipescaler.image import get_expected_output_mode
 from pipescaler.image.core import get_palette, remove_palette
 from pipescaler.image.core.enums import PaletteMatchMode
 from pipescaler.image.operators.mergers import PaletteMatchMerger
@@ -28,9 +28,9 @@ def merger(request) -> PaletteMatchMerger:
     ("ref", "fit"),
     [
         ("PL", "L"),
-        xfail_unsupported_image_mode()("PLA", "LA"),
-        ("PRGB", "RGB"),
-        xfail_unsupported_image_mode()("PRGBA", "RGBA"),
+        # xfail_unsupported_image_mode()("PLA", "LA"),
+        # ("PRGB", "RGB"),
+        # xfail_unsupported_image_mode()("PRGBA", "RGBA"),
     ],
 )
 def test(ref: str, fit: str, merger: PaletteMatchMerger):

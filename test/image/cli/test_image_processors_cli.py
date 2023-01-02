@@ -5,6 +5,10 @@
 """Tests for processor command-line interfaces."""
 from __future__ import annotations
 
+from contextlib import redirect_stderr, redirect_stdout
+from inspect import getfile
+from io import StringIO
+from pathlib import Path
 from typing import Type
 
 import pytest
@@ -29,7 +33,6 @@ from pipescaler.testing import (
     get_test_model_infile_path,
     run_cli_with_args,
     skip_if_ci,
-    xfail_system_exit,
 )
 
 
@@ -65,55 +68,90 @@ def test(cli: Type[CommandLineInterface], args: str, infile: str) -> None:
 
 
 @pytest.mark.parametrize(
-    ("cli", "args"),
+    ("commands"),
     [
-        xfail_system_exit()(CropCli, ""),
-        xfail_system_exit()(CropCli, "-h"),
-        xfail_system_exit()(EsrganCli, ""),
-        xfail_system_exit()(EsrganCli, "-h"),
-        xfail_system_exit()(ExpandCli, ""),
-        xfail_system_exit()(ExpandCli, "-h"),
-        xfail_system_exit()(HeightToNormalCli, ""),
-        xfail_system_exit()(HeightToNormalCli, "-h"),
-        xfail_system_exit()(ModeCli, ""),
-        xfail_system_exit()(ModeCli, "-h"),
-        xfail_system_exit()(ResizeCli, ""),
-        xfail_system_exit()(ResizeCli, "-h"),
-        xfail_system_exit()(SharpenCli, ""),
-        xfail_system_exit()(SharpenCli, "-h"),
-        xfail_system_exit()(SolidColorCli, ""),
-        xfail_system_exit()(SolidColorCli, "-h"),
-        xfail_system_exit()(ThresholdCli, ""),
-        xfail_system_exit()(ThresholdCli, "-h"),
-        xfail_system_exit()(WaifuCli, ""),
-        xfail_system_exit()(WaifuCli, "-h"),
-        xfail_system_exit()(XbrzCli, ""),
-        xfail_system_exit()(XbrzCli, "-h"),
-        xfail_system_exit()(ImageProcessorsCli, ""),
-        xfail_system_exit()(ImageProcessorsCli, "-h"),
-        xfail_system_exit()(ImageProcessorsCli, "crop"),
-        xfail_system_exit()(ImageProcessorsCli, "crop -h"),
-        xfail_system_exit()(ImageProcessorsCli, "esrgan"),
-        xfail_system_exit()(ImageProcessorsCli, "esrgan -h"),
-        xfail_system_exit()(ImageProcessorsCli, "expand"),
-        xfail_system_exit()(ImageProcessorsCli, "expand -h"),
-        xfail_system_exit()(ImageProcessorsCli, "heighttonormal"),
-        xfail_system_exit()(ImageProcessorsCli, "heighttonormal -h"),
-        xfail_system_exit()(ImageProcessorsCli, "mode"),
-        xfail_system_exit()(ImageProcessorsCli, "mode -h"),
-        xfail_system_exit()(ImageProcessorsCli, "resize"),
-        xfail_system_exit()(ImageProcessorsCli, "resize -h"),
-        xfail_system_exit()(ImageProcessorsCli, "sharpen"),
-        xfail_system_exit()(ImageProcessorsCli, "sharpen -h"),
-        xfail_system_exit()(ImageProcessorsCli, "solidcolor"),
-        xfail_system_exit()(ImageProcessorsCli, "solidcolor -h"),
-        xfail_system_exit()(ImageProcessorsCli, "threshold"),
-        xfail_system_exit()(ImageProcessorsCli, "threshold -h"),
-        xfail_system_exit()(ImageProcessorsCli, "waifu"),
-        xfail_system_exit()(ImageProcessorsCli, "waifu -h"),
-        xfail_system_exit()(ImageProcessorsCli, "xbrz"),
-        xfail_system_exit()(ImageProcessorsCli, "xbrz -h"),
+        ((CropCli,)),
+        ((EsrganCli,)),
+        ((ExpandCli,)),
+        ((HeightToNormalCli,)),
+        ((ModeCli,)),
+        ((ResizeCli,)),
+        ((SharpenCli,)),
+        ((SolidColorCli,)),
+        ((ThresholdCli,)),
+        ((WaifuCli,)),
+        ((XbrzCli,)),
+        ((ImageProcessorsCli,)),
+        ((ImageProcessorsCli, CropCli)),
+        ((ImageProcessorsCli, EsrganCli)),
+        ((ImageProcessorsCli, ExpandCli)),
+        ((ImageProcessorsCli, HeightToNormalCli)),
+        ((ImageProcessorsCli, ModeCli)),
+        ((ImageProcessorsCli, ResizeCli)),
+        ((ImageProcessorsCli, SharpenCli)),
+        ((ImageProcessorsCli, SolidColorCli)),
+        ((ImageProcessorsCli, ThresholdCli)),
+        ((ImageProcessorsCli, WaifuCli)),
+        ((ImageProcessorsCli, XbrzCli)),
     ],
 )
-def test_help(cli: Type[CommandLineInterface], args: str):
-    run_cli_with_args(cli, f"{args}")
+def test_help(commands: tuple[Type[CommandLineInterface], ...]) -> None:
+    subcommands = " ".join(f"{command.name()}" for command in commands[1:])
+
+    stdout = StringIO()
+    stderr = StringIO()
+    try:
+        with redirect_stdout(stdout):
+            with redirect_stderr(stderr):
+                run_cli_with_args(commands[0], f"{subcommands} -h")
+    except SystemExit as error:
+        assert error.code == 0
+        assert stdout.getvalue().startswith(
+            f"usage: {Path(getfile(commands[0])).name} {subcommands}"
+        )
+        assert stderr.getvalue() == ""
+
+
+@pytest.mark.parametrize(
+    ("commands"),
+    [
+        ((CropCli,)),
+        ((EsrganCli,)),
+        ((ExpandCli,)),
+        ((HeightToNormalCli,)),
+        ((ModeCli,)),
+        ((ResizeCli,)),
+        ((SharpenCli,)),
+        ((SolidColorCli,)),
+        ((ThresholdCli,)),
+        ((WaifuCli,)),
+        ((XbrzCli,)),
+        ((ImageProcessorsCli,)),
+        ((ImageProcessorsCli, CropCli)),
+        ((ImageProcessorsCli, EsrganCli)),
+        ((ImageProcessorsCli, ExpandCli)),
+        ((ImageProcessorsCli, HeightToNormalCli)),
+        ((ImageProcessorsCli, ModeCli)),
+        ((ImageProcessorsCli, ResizeCli)),
+        ((ImageProcessorsCli, SharpenCli)),
+        ((ImageProcessorsCli, SolidColorCli)),
+        ((ImageProcessorsCli, ThresholdCli)),
+        ((ImageProcessorsCli, WaifuCli)),
+        ((ImageProcessorsCli, XbrzCli)),
+    ],
+)
+def test_usage(commands: tuple[Type[CommandLineInterface], ...]):
+    subcommands = " ".join(f"{command.name()}" for command in commands[1:])
+
+    stdout = StringIO()
+    stderr = StringIO()
+    try:
+        with redirect_stdout(stdout):
+            with redirect_stderr(stderr):
+                run_cli_with_args(commands[0], subcommands)
+    except SystemExit as error:
+        assert error.code == 2
+        assert stdout.getvalue() == ""
+        assert stderr.getvalue().startswith(
+            f"usage: {Path(getfile(commands[0])).name} {subcommands}"
+        )
