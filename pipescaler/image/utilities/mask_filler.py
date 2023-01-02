@@ -28,6 +28,7 @@ class MaskFiller(Utility):
         Arguments:
             image: Image; mode must be RGB
             mask: Mask; mode must be 1; white (True) pixels are masked
+            mask_fill_mode: Mask fill mode
         Returns:
             Image with masked pixels replaced
         """
