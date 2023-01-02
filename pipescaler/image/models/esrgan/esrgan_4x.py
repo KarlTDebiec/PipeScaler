@@ -1,11 +1,11 @@
 #!/usr/bin/env python
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """ESRGAN 4X module."""
 from __future__ import annotations
 
-from typing import Any, Mapping, NamedTuple
+from typing import Any, Mapping
 
 from torch import Tensor
 from torch.nn import Conv2d
@@ -38,12 +38,14 @@ class Esrgan4x(Esrgan):
 
         out = self.conv_last(self.leaky_relu(self.HRconv(fea)))
 
-        return out
+        return out  # type: ignore
 
     def load_state_dict(
         self, state_dict: Mapping[str, Any], strict: bool = True
-    ) -> NamedTuple:
+    ) -> Any:
         """Copy parameters and buffers from state_dict.
+
+        Actual return type is torch.nn.modules.module._IncompatibleKeys.
 
         Arguments:
             state_dict: Parameters and persistent buffers

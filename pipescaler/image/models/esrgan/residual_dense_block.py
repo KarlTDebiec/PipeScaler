@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """ESRGAN residual dense block module."""
@@ -41,4 +41,4 @@ class ResidualDenseBlock(Module):
         x3 = self.leaky_relu(self.conv3(cat((tensor, x1, x2), 1)))
         x4 = self.leaky_relu(self.conv4(cat((tensor, x1, x2, x3), 1)))
         x5 = self.conv5(cat((tensor, x1, x2, x3, x4), 1))
-        return x5 * 0.2 + tensor
+        return x5 * 0.2 + tensor  # type: ignore

@@ -27,7 +27,7 @@ class Esrgan1x(Esrgan):
 
         out = self.conv_last(self.leaky_relu(self.HRconv(fea)))
 
-        return out
+        return out  # type: ignore
 
     @classmethod
     def scale(cls) -> int:
