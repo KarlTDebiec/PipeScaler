@@ -70,16 +70,15 @@ class PaletteMatcher(Utility):
         # Prepare set of cells to check
         cell = (color[0] // 16, color[1] // 16, color[2] // 16)
         cell_range = 0
-        cells_to_check = set()
+        cells_to_check: set[tuple[int, int, int]] = set()
         while len(cells_to_check) == 0:
             cell_range += 1
             cell_ranges = [
                 range(max(0, cell[i] - cell_range), min(15, cell[i] + cell_range) + 1)
                 for i in range(3)
             ]
-            cells_to_check = set(product(*cell_ranges)).intersection(
-                ref_palette_by_cell
-            )
+            cells_to_check = set(product(*cell_ranges))  # type: ignore
+            cells_to_check = cells_to_check.intersection(ref_palette_by_cell)
 
         # Search cells for best match color
         best_dist = None
@@ -204,18 +203,19 @@ class PaletteMatcher(Utility):
             and blue dimensions, and whose values are an rgb_array of palette colors
             each chell
         """
-        palette_by_cell: dict[tuple[int, int, int], list[int, int, int]] = {}
+        palette_by_cell_list: dict[tuple[int, int, int], list[int]] = {}
 
         for color in palette:
             cell = (color[0] // 16, color[1] // 16, color[2] // 16)
-            if cell not in palette_by_cell:
-                palette_by_cell[cell] = []
-            palette_by_cell[cell].append(color)
+            if cell not in palette_by_cell_list:
+                palette_by_cell_list[cell] = []
+            palette_by_cell_list[cell].append(color)
 
-        for cell in palette_by_cell.copy():
-            palette_by_cell[cell] = np.array(palette_by_cell[cell])
+        palette_by_cell_array: dict[tuple[int, int, int], np.ndarray] = {}
+        for cell in palette_by_cell_list:
+            palette_by_cell_array[cell] = np.array(palette_by_cell_list[cell])
 
-        return palette_by_cell
+        return palette_by_cell_array
 
     @staticmethod
     def get_rgb_array_from_indexed_array(
