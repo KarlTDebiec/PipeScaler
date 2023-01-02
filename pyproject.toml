@@ -70,7 +70,7 @@ Pillow = "^9.3.0"
 scikit-image = "^0.19.3"
 scipy = "^1.9.3"
 svglib = "^1.4.1"
-torch = "~1.12"
+torch = "^1.13.0"
 "xbrz.py" = "^1.0.2"
 
 [tool.poetry.dev-dependencies]
