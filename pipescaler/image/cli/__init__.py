@@ -4,10 +4,12 @@
 """PipeScaler image command-line interfaces package."""
 from __future__ import annotations
 
+from pipescaler.image.cli.image_cli import ImageCli
 from pipescaler.image.cli.image_processors_cli import ImageProcessorsCli
 from pipescaler.image.cli.image_utilities_cli import ImageUtilitiesCli
 
 __all__ = [
+    "ImageCli",
     "ImageProcessorsCli",
     "ImageUtilitiesCli",
 ]

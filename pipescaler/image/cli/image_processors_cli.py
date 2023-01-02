@@ -2,7 +2,7 @@
 #  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Command-line interface for PipeScaler Processors."""
+"""Command-line interface for PipeScaler ImageProcessors."""
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -56,6 +56,10 @@ class ImageProcessorsCli(CommandLineInterface):
         kwargs = vars(parser.parse_args())
         set_logging_verbosity(kwargs.pop("verbosity", 1))
 
+        cls.main_internal(**kwargs)
+
+    @classmethod
+    def main_internal(cls, **kwargs: Any) -> None:
         processor_name = kwargs.pop("processor")
         processor_cli_cls = cls.processors()[processor_name]
         processor_cli_cls.main_internal(**kwargs)

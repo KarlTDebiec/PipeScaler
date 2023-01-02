@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from typing import Type
 
-from pytest import mark
+import pytest
 
 from pipescaler.common import CommandLineInterface, get_temp_file_path
 from pipescaler.image.cli import ImageProcessorsCli
@@ -33,7 +33,7 @@ from pipescaler.testing import (
 )
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     ("cli", "args", "infile"),
     [
         (CropCli, "--pixels 4 4 4 4", "RGB"),
@@ -64,7 +64,7 @@ def test(cli: Type[CommandLineInterface], args: str, infile: str) -> None:
         run_cli_with_args(cli, f"{args} {input_path} {output_path}")
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     ("cli", "args"),
     [
         xfail_system_exit()(CropCli, "-h"),
