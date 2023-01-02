@@ -39,6 +39,9 @@ class CheckpointedSegment(Segment, ABC):
                 f"{self.__class__.__name__} requires at least one checkpoint."
             )
 
+        if not hasattr(segment, "__call__"):
+            raise TypeError(f"{segment} is not callable.")
+
         self.segment = segment
         """Segment to apply"""
         self.cp_manager = cp_manager

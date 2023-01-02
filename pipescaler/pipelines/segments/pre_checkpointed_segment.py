@@ -42,4 +42,6 @@ class PreCheckpointedSegment(CheckpointedSegment):
                 info(f"{self}: '{i.location_name}' checkpoint '{p}' saved")
             self.cp_manager.observe(i.location_name, c)
 
+        if not hasattr(self.segment, "__call__"):
+            raise TypeError(f"{self.segment} is not callable.")
         return self.segment(*inputs)
