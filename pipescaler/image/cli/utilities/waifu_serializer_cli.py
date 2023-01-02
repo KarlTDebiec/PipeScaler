@@ -8,6 +8,12 @@ from __future__ import annotations
 from argparse import ArgumentParser
 from typing import Type
 
+from pipescaler.common import (
+    get_arg_groups_by_name,
+    input_file_arg,
+    output_file_arg,
+    str_arg,
+)
 from pipescaler.core import Utility
 from pipescaler.core.cli import UtilityCli
 from pipescaler.image.utilities import WaifuSerializer
@@ -25,26 +31,27 @@ class WaifuSerializerCli(UtilityCli):
         """
         super().add_arguments_to_argparser(parser)
 
-        required = cls.get_required_arguments_group(parser)
-        required.add_argument(
-            "architecture",
-            type=cls.str_arg(options=WaifuSerializer.architectures.keys()),
-            help=f"model architecture {WaifuSerializer.architectures.keys()}",
-        )
-        required.add_argument(
-            "infile", type=cls.input_file_arg(), help="input json file"
-        )
-        required.add_argument(
-            "outfile", type=cls.output_file_arg(), help="output pth file"
+        arg_groups = get_arg_groups_by_name(
+            parser,
+            "required arguments",
+            optional_arguments_name="additional arguments",
         )
 
-    @classmethod
-    def main(cls) -> None:
-        """Execute from command line."""
-        parser = cls.argparser()
-        kwargs = vars(parser.parse_args())
-        kwargs.pop("verbosity")
-        WaifuSerializer()(**kwargs)
+        arg_groups["required arguments"].add_argument(
+            "architecture",
+            type=str_arg(options=WaifuSerializer.architectures.keys()),
+            help=f"model architecture {WaifuSerializer.architectures.keys()}",
+        )
+        arg_groups["required arguments"].add_argument(
+            "infile",
+            type=input_file_arg(),
+            help="input json file",
+        )
+        arg_groups["required arguments"].add_argument(
+            "outfile",
+            type=output_file_arg(),
+            help="output pth file",
+        )
 
     @classmethod
     def utility(cls) -> Type[Utility]:

@@ -10,7 +10,7 @@ from typing import Type
 
 from pipescaler.core import Utility
 from pipescaler.core.cli import UtilityCli
-from pipescaler.video.utilities.apng_creator import ApngCreator
+from pipescaler.video.runners.apngasm_runner import ApngasmRunner
 
 
 class ApngCreatorCli(UtilityCli):
@@ -65,7 +65,7 @@ class ApngCreatorCli(UtilityCli):
     @classmethod
     def utility(cls) -> Type[Utility]:
         """Type of utility wrapped by command-line interface."""
-        return ApngCreator
+        return ApngasmRunner
 
 
 if __name__ == "__main__":

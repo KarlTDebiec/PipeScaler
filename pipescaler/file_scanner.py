@@ -18,10 +18,9 @@ from PIL import Image
 
 from pipescaler.common import PathLike
 from pipescaler.common.validation import validate_input_directories
-from pipescaler.core import Utility
 
 
-class FileScanner(Utility):
+class FileScanner:
     """Scans directories for new files."""
 
     exclusions = {".DS_Store", "desktop"}

@@ -1,15 +1,16 @@
 #!/usr/bin/env python
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Matches the palette of one image to another, restricted to nearby colors."""
+from __future__ import annotations
+
 from typing import no_type_check
 
 import numpy as np
 from numba import njit
 from PIL import Image
 
-from pipescaler.common import validate_int
 from pipescaler.core import Utility
 from pipescaler.image.core import get_perceptually_weighted_distance
 from pipescaler.image.core.exceptions import UnsupportedImageModeError
@@ -18,23 +19,16 @@ from pipescaler.image.core.exceptions import UnsupportedImageModeError
 class LocalPaletteMatcher(Utility):
     """Matches the palette of one image to another, restricted to nearby colors."""
 
-    def __init__(self, local_range: int = 1):
-        """Validate and store configuration and initialize.
-
-        Arguments:
-            local_range: Range of adjacent pixels from which to draw best-fit color;
-              1 checks a 3x3 window, 2 checks a 5x5 window, etc.
-        """
-        self.local_range = validate_int(local_range, min_value=1)
-
-    def match_palette(
-        self, ref_image: Image.Image, fit_image: Image.Image
+    @classmethod
+    def run(
+        cls, ref_image: Image.Image, fit_image: Image.Image, local_range: int = 1
     ) -> Image.Image:
         """Match the palette of an image to a reference.
 
         Arguments:
             ref_image: Image whose palette to use as reference
             fit_image: Image whose palette to fit to reference
+            local_range: Range of adjacent pixels from which to draw best-fit color
         Returns:
             Image with palette fit to reference
         """
@@ -47,13 +41,9 @@ class LocalPaletteMatcher(Utility):
         fit_array = np.array(fit_image)
 
         if fit_image.mode == "L":
-            matched_array = self.get_local_match_l(
-                fit_array, ref_array, self.local_range
-            )
+            matched_array = cls.get_local_match_l(fit_array, ref_array, local_range)
         else:
-            matched_array = self.get_local_match_rgb(
-                fit_array, ref_array, self.local_range
-            )
+            matched_array = cls.get_local_match_rgb(fit_array, ref_array, local_range)
 
         matched_image = Image.fromarray(matched_array)
         return matched_image

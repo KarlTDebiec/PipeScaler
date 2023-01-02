@@ -9,7 +9,7 @@ from abc import ABC, abstractmethod
 from argparse import ArgumentParser
 from inspect import cleandoc
 from logging import info
-from typing import Any, Type
+from typing import Type
 
 from PIL import Image
 
@@ -34,8 +34,16 @@ class ImageProcessorCli(CommandLineInterface, ABC):
         """
         super().add_arguments_to_argparser(parser)
 
-        parser.add_argument("infile", type=input_file_arg(), help="input file")
-        parser.add_argument("outfile", type=output_file_arg(), help="output file")
+        parser.add_argument(
+            "infile",
+            type=input_file_arg(),
+            help="input file",
+        )
+        parser.add_argument(
+            "outfile",
+            type=output_file_arg(),
+            help="output file",
+        )
 
     @classmethod
     def description(cls) -> str:
@@ -48,7 +56,15 @@ class ImageProcessorCli(CommandLineInterface, ABC):
         parser = cls.argparser()
         kwargs = vars(parser.parse_args())
         set_logging_verbosity(kwargs.pop("verbosity", 1))
-        cls.run(**kwargs)
+
+        infile = kwargs.pop("infile")
+        outfile = kwargs.pop("outfile")
+        processor_cls = cls.processor()
+        processor = processor_cls(**kwargs)
+        with Image.open(infile) as input_image:
+            output_image = processor(input_image)
+            output_image.save(outfile)
+            info(f"{cls}: '{outfile}' saved")
 
     @classmethod
     def name(cls) -> str:
@@ -60,19 +76,3 @@ class ImageProcessorCli(CommandLineInterface, ABC):
     def processor(cls) -> Type[ImageProcessor]:
         """Type of processor wrapped by command-line interface."""
         raise NotImplementedError()
-
-    @classmethod
-    def run(cls, **kwargs: Any) -> None:
-        """Execute with provided keyword arguments.
-
-        Arguments:
-            **kwargs: Command-line arguments
-        """
-        infile = kwargs.pop("infile")
-        outfile = kwargs.pop("outfile")
-        processor_cls = cls.processor()
-        processor = processor_cls(**kwargs)
-        with Image.open(infile) as input_image:
-            output_image = processor(input_image)
-            output_image.save(outfile)
-            info(f"{cls}: '{outfile}' saved")

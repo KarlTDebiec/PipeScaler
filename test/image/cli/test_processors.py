@@ -34,27 +34,6 @@ from pipescaler.testing import (
 
 
 @mark.parametrize(
-    ("args"),
-    [
-        xfail_system_exit()("-h"),
-        xfail_system_exit()("crop -h"),
-        xfail_system_exit()("esrgan -h"),
-        xfail_system_exit()("expand -h"),
-        xfail_system_exit()("heighttonormal -h"),
-        xfail_system_exit()("mode -h"),
-        xfail_system_exit()("resize -h"),
-        xfail_system_exit()("sharpen -h"),
-        xfail_system_exit()("solidcolor -h"),
-        xfail_system_exit()("threshold -h"),
-        xfail_system_exit()("waifu -h"),
-        xfail_system_exit()("xbrz -h"),
-    ],
-)
-def test_collected(args: str):
-    run_cli_with_args(ImageProcessorsCli, f"{args}")
-
-
-@mark.parametrize(
     ("cli", "args", "infile"),
     [
         (CropCli, "--pixels 4 4 4 4", "RGB"),
@@ -78,8 +57,40 @@ def test_collected(args: str):
         (XbrzCli, "--scale 2", "RGB"),
     ],
 )
-def test_individual(cli: Type[CommandLineInterface], args: str, infile: str) -> None:
+def test(cli: Type[CommandLineInterface], args: str, infile: str) -> None:
     input_path = get_test_infile_path(infile)
 
     with get_temp_file_path(".png") as output_path:
         run_cli_with_args(cli, f"{args} {input_path} {output_path}")
+
+
+@mark.parametrize(
+    ("cli", "args"),
+    [
+        xfail_system_exit()(CropCli, "-h"),
+        xfail_system_exit()(EsrganCli, "-h"),
+        xfail_system_exit()(ExpandCli, "-h"),
+        xfail_system_exit()(HeightToNormalCli, "-h"),
+        xfail_system_exit()(ModeCli, "-h"),
+        xfail_system_exit()(ResizeCli, "-h"),
+        xfail_system_exit()(SharpenCli, "-h"),
+        xfail_system_exit()(SolidColorCli, "-h"),
+        xfail_system_exit()(ThresholdCli, "-h"),
+        xfail_system_exit()(WaifuCli, "-h"),
+        xfail_system_exit()(XbrzCli, "-h"),
+        xfail_system_exit()(ImageProcessorsCli, "-h"),
+        xfail_system_exit()(ImageProcessorsCli, "crop -h"),
+        xfail_system_exit()(ImageProcessorsCli, "esrgan -h"),
+        xfail_system_exit()(ImageProcessorsCli, "expand -h"),
+        xfail_system_exit()(ImageProcessorsCli, "heighttonormal -h"),
+        xfail_system_exit()(ImageProcessorsCli, "mode -h"),
+        xfail_system_exit()(ImageProcessorsCli, "resize -h"),
+        xfail_system_exit()(ImageProcessorsCli, "sharpen -h"),
+        xfail_system_exit()(ImageProcessorsCli, "solidcolor -h"),
+        xfail_system_exit()(ImageProcessorsCli, "threshold -h"),
+        xfail_system_exit()(ImageProcessorsCli, "waifu -h"),
+        xfail_system_exit()(ImageProcessorsCli, "xbrz -h"),
+    ],
+)
+def test_help(cli: Type[CommandLineInterface], args: str):
+    run_cli_with_args(ImageProcessorsCli, f"{args}")

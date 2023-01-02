@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Matches an image's color palette to that of a reference image."""
@@ -9,7 +9,7 @@ from typing import Any, Union
 
 from PIL import Image
 
-from pipescaler.common import validate_enum
+from pipescaler.common import validate_enum, validate_int
 from pipescaler.image.core import (
     PaletteMatchMode,
     UnsupportedImageModeError,
@@ -38,6 +38,7 @@ class PaletteMatchMerger(ImageMerger):
         super().__init__(**kwargs)
 
         self.palette_match_mode = validate_enum(palette_match_mode, PaletteMatchMode)
+        self.local_range = validate_int(local_range, min_value=1)
         if self.palette_match_mode == PaletteMatchMode.BASIC:
             self.palette_matcher: Union[
                 PaletteMatcher, LocalPaletteMatcher
@@ -61,8 +62,12 @@ class PaletteMatchMerger(ImageMerger):
                 f"'{fit_image.mode}' of fit image"
             )
 
-        output_image = self.palette_matcher.match_palette(ref_image, fit_image)
-
+        if self.palette_match_mode == PaletteMatchMode.BASIC:
+            output_image = PaletteMatcher.run(ref_image, fit_image)
+        else:
+            output_image = LocalPaletteMatcher.run(
+                ref_image, fit_image, self.local_range
+            )
         return output_image
 
     def __repr__(self) -> str:
@@ -70,7 +75,7 @@ class PaletteMatchMerger(ImageMerger):
         return (
             f"{self.__class__.__name__}("
             f"palette_match_mode={self.palette_match_mode!r}, "
-            f"local_range={self.palette_matcher.local_range!r})"
+            f"local_range={self.local_range!r})"
         )
 
     @classmethod

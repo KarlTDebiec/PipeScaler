@@ -4,8 +4,10 @@
 """PipeScaler video external tool runners package."""
 from __future__ import annotations
 
+from pipescaler.video.runners.apngasm_runner import ApngasmRunner
 from pipescaler.video.runners.topaz_video_ai_runner import TopazVideoAiRunner
 
 __all__ = [
+    "ApngasmRunner",
     "TopazVideoAiRunner",
 ]
