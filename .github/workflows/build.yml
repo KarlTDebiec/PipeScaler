@@ -87,6 +87,7 @@ jobs:
           python-version: "3.9"
       - name: Install External Dependencies
         run: |
+          brew install apngasm
           brew install pngquant
           brew install potrace
       - name: Install Poetry

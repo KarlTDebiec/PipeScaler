@@ -20,7 +20,7 @@ from pipescaler.common import (
 
 
 class ApngasmRunner:
-    """Runs apngasm."""
+    """Runs apngasm tool for creating animated pngs."""
 
     def __init__(
         self,
