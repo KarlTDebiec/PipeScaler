@@ -212,8 +212,8 @@ class PaletteMatcher(Utility):
             palette_by_cell_list[cell].append(color)
 
         palette_by_cell_array: dict[tuple[int, int, int], np.ndarray] = {}
-        for cell, palette in palette_by_cell_list.items():
-            palette_by_cell_array[cell] = np.array(palette)
+        for cell, cell_palette in palette_by_cell_list.items():
+            palette_by_cell_array[cell] = np.array(cell_palette)
 
         return palette_by_cell_array
 
