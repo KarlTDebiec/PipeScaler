@@ -56,11 +56,11 @@ class EsrganSerializer(Utility):
         if "model.0.weight" in state_dict:
             scale = cls.get_old_scale_index(state_dict)
             keymap = cls.build_old_keymap(scale)
-            state_dict = {keymap[k]: v for k, v in state_dict.items()}
+            state_dict = OrderedDict({keymap[k]: v for k, v in state_dict.items()})
         else:
             scale = cls.get_scale_index(state_dict)
 
-        return OrderedDict(state_dict), scale
+        return state_dict, scale
 
     @classmethod
     def run(cls, infile: PathLike, outfile: PathLike) -> None:
