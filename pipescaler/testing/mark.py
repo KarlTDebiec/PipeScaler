@@ -9,7 +9,7 @@ from abc import ABCMeta
 from functools import partial
 from os import getenv
 from platform import system
-from typing import Type
+from typing import Optional, Type
 
 from pytest import mark, param
 
@@ -39,7 +39,7 @@ def parametrize_with_readable_ids(*args, **kwargs) -> partial:
     return partial(mark.parametrize(ids=get_names, *args, **kwargs))
 
 
-def skip_if_ci(inner: partial = None) -> partial:
+def skip_if_ci(inner: Optional[partial] = None) -> partial:
     """Mark test to skip if running within continuous integration pipeline.
 
     Arguments:
@@ -53,7 +53,7 @@ def skip_if_ci(inner: partial = None) -> partial:
     return partial(param, marks=marks)
 
 
-def xfail_file_not_found(inner: partial = None) -> partial:
+def xfail_file_not_found(inner: Optional[partial] = None) -> partial:
     """Mark test to be expected to fail due to a file that cannot be found.
 
     Arguments:
@@ -68,9 +68,9 @@ def xfail_file_not_found(inner: partial = None) -> partial:
 
 
 def xfail_if_platform(
-    unsupported_platforms: set[str] = None,
+    unsupported_platforms: Optional[set[str]] = None,
     raises: Type[Exception] = UnsupportedPlatformError,
-    inner: partial = None,
+    inner: Optional[partial] = None,
 ) -> partial:
     """Mark test to be expected to fail on selected platforms.
 
@@ -81,7 +81,7 @@ def xfail_if_platform(
     Returns:
         Partial function of pytest.param with marks
     """
-    if unsupported_platforms is None:
+    if not unsupported_platforms:
         unsupported_platforms = set()
     marks = [
         mark.xfail(
@@ -96,7 +96,7 @@ def xfail_if_platform(
     return partial(param, marks=marks)
 
 
-def xfail_system_exit(inner: partial = None) -> partial:
+def xfail_system_exit(inner: Optional[partial] = None) -> partial:
     """Mark test to be expected to fail due to a system exit.
 
     Arguments:
@@ -110,7 +110,7 @@ def xfail_system_exit(inner: partial = None) -> partial:
     return partial(param, marks=marks)
 
 
-def xfail_value(inner: partial = None) -> partial:
+def xfail_value(inner: Optional[partial] = None) -> partial:
     """Mark test to be expected to fail due to a value error.
 
     Arguments:

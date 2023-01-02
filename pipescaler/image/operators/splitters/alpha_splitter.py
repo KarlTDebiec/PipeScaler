@@ -5,12 +5,12 @@
 """Splits image with transparency into separate alpha and color images."""
 from __future__ import annotations
 
-from typing import Optional, Union
+from typing import Optional
 
 import numpy as np
 from PIL import Image
 
-from pipescaler.common import ArgumentConflictError, validate_enum
+from pipescaler.common import ArgumentConflictError
 from pipescaler.image.core import AlphaMode, MaskFillMode, is_monochrome, validate_image
 from pipescaler.image.core.operators import ImageSplitter
 from pipescaler.image.utilities import MaskFiller
@@ -21,8 +21,8 @@ class AlphaSplitter(ImageSplitter):
 
     def __init__(
         self,
-        alpha_mode: Union[AlphaMode, str] = AlphaMode.GRAYSCALE,
-        mask_fill_mode: Optional[Union[MaskFillMode, str]] = None,
+        alpha_mode: AlphaMode = AlphaMode.GRAYSCALE,
+        mask_fill_mode: Optional[MaskFillMode] = None,
     ) -> None:
         """Validate configuration and initialize.
 
@@ -30,7 +30,9 @@ class AlphaSplitter(ImageSplitter):
             alpha_mode: Mode of alpha treatment to perform
             mask_fill_mode: Mode of mask filling to perform
         """
-        self.alpha_mode = validate_enum(alpha_mode, AlphaMode)
+        super().__init__()
+
+        self.alpha_mode = alpha_mode
         self.mask_fill_mode = None
         if mask_fill_mode:
             if self.alpha_mode == AlphaMode.GRAYSCALE:
@@ -38,7 +40,7 @@ class AlphaSplitter(ImageSplitter):
                     "Mask filling is only supported for "
                     "alpha_mode MONOCHROME_OR_GRAYSCALE"
                 )
-            self.mask_fill_mode = validate_enum(mask_fill_mode, MaskFillMode)
+            self.mask_fill_mode = mask_fill_mode
 
     def __call__(self, input_image: Image.Image) -> tuple[Image.Image, ...]:
         """Split an image.

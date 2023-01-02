@@ -42,7 +42,9 @@ class PipeScalerCli(CommandLineInterface):
     @classmethod
     def subcommands(cls) -> dict[str, Type[ImageCli]]:
         """Names and types of tools wrapped by command-line interface."""
-        return {tool.name(): tool for tool in [ImageCli]}
+        return {
+            ImageCli.name(): ImageCli,
+        }
 
 
 if __name__ == "__main__":

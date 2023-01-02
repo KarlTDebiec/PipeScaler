@@ -67,12 +67,11 @@ class PyTorchImageProcessor(ImageProcessor, ABC):
         """
         input_array = input_array * 1.0 / 255
         input_array = np.transpose(input_array[:, :, [2, 1, 0]], (2, 0, 1))
-        input_array = torch.from_numpy(input_array).float()
-        input_array = input_array.unsqueeze(0).to(self.device)
+        input_tensor = torch.from_numpy(input_array)
+        input_tensor = input_tensor.float().unsqueeze(0).to(self.device)
 
-        output_array = (
-            self.model(input_array).data.squeeze().float().cpu().clamp_(0, 1).numpy()
-        )
+        output_tensor = self.model(input_tensor).data.squeeze().float().cpu()
+        output_array: np.ndarray = output_tensor.clamp_(0, 1).numpy()
         output_array = np.transpose(output_array[[2, 1, 0], :, :], (1, 2, 0))
         output_array = np.array(output_array * 255, np.uint8)
 

@@ -5,11 +5,11 @@
 """Matches an image's color palette to that of a reference image."""
 from __future__ import annotations
 
-from typing import Any, Union
+from typing import Any
 
 from PIL import Image
 
-from pipescaler.common import validate_enum, validate_int
+from pipescaler.common import validate_int
 from pipescaler.image.core import (
     PaletteMatchMode,
     UnsupportedImageModeError,
@@ -24,7 +24,7 @@ class PaletteMatchMerger(ImageMerger):
 
     def __init__(
         self,
-        palette_match_mode: Union[PaletteMatchMode, str] = PaletteMatchMode.BASIC,
+        palette_match_mode: PaletteMatchMode = PaletteMatchMode.BASIC,
         local_range: int = 1,
         **kwargs: Any,
     ) -> None:
@@ -37,7 +37,7 @@ class PaletteMatchMerger(ImageMerger):
         """
         super().__init__(**kwargs)
 
-        self.palette_match_mode = validate_enum(palette_match_mode, PaletteMatchMode)
+        self.palette_match_mode = palette_match_mode
         self.local_range = validate_int(local_range, min_value=1)
 
     def __call__(self, *input_images: Image.Image) -> Image.Image:
