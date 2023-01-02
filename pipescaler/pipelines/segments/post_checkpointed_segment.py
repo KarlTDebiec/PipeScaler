@@ -36,6 +36,11 @@ class PostCheckpointedSegment(CheckpointedSegment):
                 for c in self.internal_cpts:
                     self.cp_manager.observe(i.location_name, c)
         else:
+            if not hasattr(self.segment, "__call__"):
+                raise ValueError(
+                    f"{self.__class__.__name__} requires a callable Segment; "
+                    f"{self.segment.__class__.__name__} is not callable."
+                )
             outputs = self.segment(*inputs)
             if len(outputs) != len(self.cpts):
                 raise ValueError(
