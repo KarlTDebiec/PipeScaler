@@ -14,26 +14,24 @@ conda install -y \
 
 pip install \
     black \
-    flask \
     imagehash \
     ipython \
     isort \
+    mypy \
     numba \
     numpy \
     pandas \
+    pandas-stubs \
     pillow \
     prospector \
     pytest \
     pytest-cov \
     pytest-xdist \
-    pyyaml \
-    requests \
     scikit-image \
     setuptools \
     svglib \
-    watchdog \
+    types-Pillow \
     xbrz.py
 
 conda install -y -c pytorch \
     pytorch
-

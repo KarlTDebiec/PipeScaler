@@ -1,20 +1,19 @@
 #!/usr/bin/env python
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Command line interface for PipeScaler."""
+"""Command-line interface for PipeScaler."""
 from __future__ import annotations
 
 from argparse import ArgumentParser
 from typing import Any, Type
 
-from pipescaler.cli.processors_cli import ProcessorsCli
-from pipescaler.cli.utilities_cli import UtilitiesCli
 from pipescaler.common import CommandLineInterface
+from pipescaler.image.cli import ImageCli
 
 
 class PipeScalerCli(CommandLineInterface):
-    """Command line interface for PipeScaler."""
+    """Command-line interface for PipeScaler."""
 
     @classmethod
     def add_arguments_to_argparser(cls, parser: ArgumentParser) -> None:
@@ -25,26 +24,25 @@ class PipeScalerCli(CommandLineInterface):
         """
         super().add_arguments_to_argparser(parser)
 
-        subparsers = parser.add_subparsers(dest="action", help="action", required=True)
-        ProcessorsCli.argparser(subparsers=subparsers)
-        UtilitiesCli.argparser(subparsers=subparsers)
+        subparsers = parser.add_subparsers(
+            dest="subcommand",
+            help="subcommand",
+            required=True,
+        )
+        for name in sorted(cls.subcommands()):
+            cls.subcommands()[name].argparser(subparsers=subparsers)
 
     @classmethod
-    def execute(cls, **kwargs: Any) -> None:
-        """Execute with provided keyword arguments.
-
-        Arguments:
-            **kwargs: Command-line arguments
-        """
-        sub_cli = cls.subcommands()[kwargs.pop("action")]
-        sub_cli.execute(**kwargs)
+    def main_internal(cls, **kwargs: Any) -> None:
+        """Execute with provided keyword arguments."""
+        subcommand_name = kwargs.pop("subcommand")
+        subcommand_cli_class = cls.subcommands()[subcommand_name]
+        subcommand_cli_class.main_internal(**kwargs)
 
     @classmethod
-    def subcommands(cls) -> dict[str, Type[CommandLineInterface]]:
-        """Names and types of tools wrapped by command line interface."""
-        return {
-            tool.name(): tool for tool in [ProcessorsCli, UtilitiesCli]  # type: ignore
-        }
+    def subcommands(cls) -> dict[str, Type[ImageCli]]:
+        """Names and types of tools wrapped by command-line interface."""
+        return {tool.name(): tool for tool in [ImageCli]}
 
 
 if __name__ == "__main__":

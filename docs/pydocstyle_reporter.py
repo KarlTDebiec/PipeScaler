@@ -1,8 +1,10 @@
 #!/usr/bin/env python
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Prints pydocstyle output formatted for consumption by GitHub."""
+from __future__ import annotations
+
 from argparse import ArgumentParser, FileType, RawDescriptionHelpFormatter
 from dataclasses import dataclass
 from inspect import cleandoc
@@ -54,7 +56,7 @@ class PydocstyleReporter:
     def argparser(cls) -> ArgumentParser:
         """Get argument parser."""
         parser = ArgumentParser(
-            description=str(cleandoc(cls.__doc__) if cls.__doc__ is not None else ""),
+            description=str(cleandoc(cls.__doc__) if cls.__doc__ else ""),
             formatter_class=RawDescriptionHelpFormatter,
         )
         parser.add_argument(
@@ -89,13 +91,9 @@ class PydocstyleReporter:
         """
         annotations = []
         for line, issue in zip_longest(*[infile] * 2):
-            file_path, line = line.split()[0].split(":")
-            file_path = (
-                package_root.joinpath(Path(file_path))
-                .resolve()
-                .relative_to(package_root)
-            )
-            line = int(line)
+            file_path = Path(line.split()[0].split(":")[0])
+            file_path = (package_root / file_path).resolve().relative_to(package_root)
+            line = int(line.split()[0].split(":")[1])
             kind, message = issue.strip().split(": ")
             annotations.append(
                 Annotation(

@@ -1,8 +1,10 @@
 #!/usr/bin/env python
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Prints prospector output formatted for consumption by GitHub."""
+from __future__ import annotations
+
 import json
 from argparse import ArgumentParser, FileType, RawDescriptionHelpFormatter
 from dataclasses import dataclass
@@ -54,7 +56,7 @@ class ProspectorReporter:
     def argparser(cls) -> ArgumentParser:
         """Get argument parser."""
         parser = ArgumentParser(
-            description=str(cleandoc(cls.__doc__) if cls.__doc__ is not None else ""),
+            description=str(cleandoc(cls.__doc__) if cls.__doc__ else ""),
             formatter_class=RawDescriptionHelpFormatter,
         )
         parser.add_argument(
@@ -91,11 +93,8 @@ class ProspectorReporter:
         report = json.load(infile)
 
         for match in report["messages"]:
-            file_path = (
-                package_root.joinpath(Path(match["location"]["path"]))
-                .resolve()
-                .relative_to(package_root)
-            )
+            file_path = Path(match["location"]["path"])
+            file_path = (package_root / file_path).resolve().relative_to(package_root)
             annotations.append(
                 Annotation(
                     source="prospector",

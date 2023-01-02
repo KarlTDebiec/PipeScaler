@@ -35,6 +35,10 @@ class Runner(ABC):
         """
         self.run(infile, outfile)
 
+    def __repr__(self) -> str:
+        """Representation."""
+        return f"{self.__class__.__name__}(timeout={self.timeout!r})"
+
     @property
     @abstractmethod
     def command_template(self) -> str:
@@ -55,13 +59,6 @@ class Runner(ABC):
             )
         return self._executable_path
 
-    @classmethod
-    def help_markdown(cls) -> str:
-        """Short description of this tool in markdown, with links."""
-        if cls.__doc__:
-            return cleandoc(cls.__doc__).split(". ", maxsplit=1)[0]
-        return ""
-
     def run(self, infile: Path, outfile: Path) -> None:
         """Run executable on infile, yielding outfile.
 
@@ -72,6 +69,13 @@ class Runner(ABC):
         command = self.command_template.format(infile=infile, outfile=outfile)
         debug(f"{self}: {command}")
         run_command(command, timeout=self.timeout)
+
+    @classmethod
+    def help_markdown(cls) -> str:
+        """Short description of this tool in markdown, with links."""
+        if cls.__doc__:
+            return cleandoc(cls.__doc__).split(". ", maxsplit=1)[0]
+        return ""
 
     @classmethod
     def supported_platforms(cls) -> set[str]:

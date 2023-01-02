@@ -1,27 +1,35 @@
 #!/usr/bin/env python
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
-"""Abstract base class for sources."""
+"""Abstract base class for pipeline sources."""
+from __future__ import annotations
+
 import re
 from abc import ABC, abstractmethod
 from inspect import cleandoc
 
+from pipescaler.core.pipelines.pipe_object import PipeObject
+
 
 class Source(ABC):
-    """Abstract base class for sources."""
+    """Abstract base class for pipeline sources."""
 
-    def __iter__(self):
-        """Iterator for images."""
+    def __iter__(self) -> Source:
+        """Iterator for objects."""
         return self
 
     @abstractmethod
-    def __next__(self):
-        """Return next image."""
+    def __next__(self) -> PipeObject:
+        """Return next object."""
         raise NotImplementedError()
 
-    def __repr__(self):
-        """Representation of source."""
+    def __repr__(self) -> str:
+        """Representation."""
+        return f"{self.__class__.__name__}()"
+
+    def __str__(self) -> str:
+        """String representation."""
         return f"<{self.__class__.__name__}>"
 
     @classmethod

@@ -1,8 +1,10 @@
 #!/usr/bin/env python
-#  Copyright 2020-2022 Karl T Debiec
+#  Copyright 2020-2023 Karl T Debiec
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Marks for testing."""
+from __future__ import annotations
+
 from abc import ABCMeta
 from functools import partial
 from os import getenv
@@ -12,7 +14,6 @@ from typing import Type
 from pytest import mark, param
 
 from pipescaler.common import UnsupportedPlatformError
-from pipescaler.core.exceptions import UnsupportedImageModeError
 
 
 def parametrize_with_readable_ids(*args, **kwargs) -> partial:
@@ -46,13 +47,8 @@ def skip_if_ci(inner: partial = None) -> partial:
     Returns:
         Partial function of pytest.param with marks
     """
-    marks = [
-        mark.skipif(
-            getenv("CI") is not None,
-            reason="Skip when running in CI",
-        )
-    ]
-    if inner is not None:
+    marks = [mark.skipif(getenv("CI") is not None, reason="Skip when running in CI")]
+    if inner:
         marks.extend(inner.keywords["marks"])
     return partial(param, marks=marks)
 
@@ -66,7 +62,7 @@ def xfail_file_not_found(inner: partial = None) -> partial:
         Partial function of pytest.param with marks
     """
     marks = [mark.xfail(raises=FileNotFoundError)]
-    if inner is not None:
+    if inner:
         marks.extend(inner.keywords["marks"])
     return partial(param, marks=marks)
 
@@ -95,7 +91,7 @@ def xfail_if_platform(
         )
     ]
 
-    if inner is not None:
+    if inner:
         marks.extend(inner.keywords["marks"])
     return partial(param, marks=marks)
 
@@ -109,21 +105,7 @@ def xfail_system_exit(inner: partial = None) -> partial:
         Partial function of pytest.param with marks
     """
     marks = [mark.xfail(raises=SystemExit)]
-    if inner is not None:
-        marks.extend(inner.keywords["marks"])
-    return partial(param, marks=marks)
-
-
-def xfail_unsupported_image_mode(inner: partial = None) -> partial:
-    """Mark test to be expected to fail due to an unsupported image mode.
-
-    Arguments:
-        inner: Nascent partial function of pytest.param with additional marks
-    Returns:
-        Partial function of pytest.param with marks
-    """
-    marks = [mark.xfail(raises=UnsupportedImageModeError)]
-    if inner is not None:
+    if inner:
         marks.extend(inner.keywords["marks"])
     return partial(param, marks=marks)
 
@@ -137,6 +119,6 @@ def xfail_value(inner: partial = None) -> partial:
         Partial function of pytest.param with marks
     """
     marks = [mark.xfail(raises=ValueError)]
-    if inner is not None:
+    if inner:
         marks.extend(inner.keywords["marks"])
     return partial(param, marks=marks)
