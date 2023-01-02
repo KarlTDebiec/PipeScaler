@@ -28,8 +28,8 @@ def runner(request) -> WaifuRunner:
         skip_if_ci()("RGB"),
     ],
 )
-def test(infile: str, runner: WaifuRunner) -> None:
-    input_path: Path = get_test_infile_path(infile)
+def test(infile_name: str, runner: WaifuRunner) -> None:
+    input_path = get_test_infile_path(infile_name)
 
     with get_temp_file_path(".png") as output_path:
         runner.run(input_path, output_path)

@@ -29,8 +29,8 @@ def runner(request) -> PotraceRunner:
         ("L"),
     ],
 )
-def test(infile: str, runner: PotraceRunner) -> None:
-    input_path: Path = get_test_infile_path(infile)
+def test(infile_name: str, runner: PotraceRunner) -> None:
+    input_path = get_test_infile_path(infile_name)
 
     with get_temp_file_path(".bmp") as bmp_path:
         Image.open(input_path).save(bmp_path)
