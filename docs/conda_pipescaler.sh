@@ -20,6 +20,7 @@ pip install \
     mypy \
     numba \
     numpy \
+    opencv-python \
     pandas \
     pandas-stubs \
     pillow \
