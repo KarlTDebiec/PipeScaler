@@ -10,7 +10,7 @@ from typing import Type
 
 from pipescaler.common import CommandLineInterface, set_logging_verbosity
 from pipescaler.core.cli import UtilityCli
-from pipescaler.image import utilities
+from pipescaler.image.cli import utilities
 
 
 class ImageUtilitiesCli(CommandLineInterface):

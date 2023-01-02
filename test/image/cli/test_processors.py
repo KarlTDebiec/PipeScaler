@@ -93,4 +93,4 @@ def test(cli: Type[CommandLineInterface], args: str, infile: str) -> None:
     ],
 )
 def test_help(cli: Type[CommandLineInterface], args: str):
-    run_cli_with_args(ImageProcessorsCli, f"{args}")
+    run_cli_with_args(cli, f"{args}")
