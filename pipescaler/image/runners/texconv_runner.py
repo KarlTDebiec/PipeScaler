@@ -6,10 +6,10 @@
 from __future__ import annotations
 
 from logging import debug
-from os import PathLike, rename
+from os import rename
 from pathlib import Path
 
-from pipescaler.common import run_command
+from pipescaler.common import PathLike, run_command
 from pipescaler.core import Runner
 
 
