@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from logging import debug
 from os import PathLike, rename
+from pathlib import Path
 
 from pipescaler.common import run_command
 from pipescaler.core import Runner
@@ -50,10 +51,11 @@ class TexconvRunner(Runner):
             infile: Input file path
             outfile: Output file path
         """
+
         command = self.command_template.format(infile=infile, outfile=outfile)
         debug(f"{self}: {command}")
         run_command(command, timeout=self.timeout)
-        rename(outfile.with_stem(infile.stem), outfile)
+        rename(Path(outfile).with_stem(Path(infile).stem), outfile)
 
     @classmethod
     def executable(cls) -> str:
