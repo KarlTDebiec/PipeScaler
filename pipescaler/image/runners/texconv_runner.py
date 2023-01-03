@@ -51,7 +51,6 @@ class TexconvRunner(Runner):
             infile: Input file path
             outfile: Output file path
         """
-
         command = self.command_template.format(infile=infile, outfile=outfile)
         debug(f"{self}: {command}")
         run_command(command, timeout=self.timeout)
