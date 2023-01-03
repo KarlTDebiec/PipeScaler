@@ -6,8 +6,7 @@
 from __future__ import annotations
 
 from logging import debug
-from os import rename
-from pathlib import Path
+from os import PathLike, rename
 
 from pipescaler.common import run_command
 from pipescaler.core import Runner
@@ -44,7 +43,7 @@ class TexconvRunner(Runner):
             ' -o "{outfile.parent}" "{infile}"'
         )
 
-    def run(self, infile: Path, outfile: Path) -> None:
+    def run(self, infile: PathLike, outfile: PathLike) -> None:
         """Run executable on infile, yielding outfile.
 
         Arguments:
