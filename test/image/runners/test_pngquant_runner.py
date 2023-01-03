@@ -3,8 +3,9 @@
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Tests for PngquantRunner."""
+from __future__ import annotations
+
 from os.path import getsize
-from pathlib import Path
 
 import pytest
 from PIL import Image
@@ -29,13 +30,13 @@ def runner(request) -> PngquantRunner:
 
 
 @pytest.mark.parametrize(
-    ("infile"),
+    ("infile_name"),
     [
         xfail_if_platform({"Windows"}, ExecutableNotFoundError)("RGB"),
     ],
 )
-def test(infile: str, runner: PngquantRunner) -> None:
-    input_path: Path = get_test_infile_path(infile)
+def test(infile_name: str, runner: PngquantRunner) -> None:
+    input_path = get_test_infile_path(infile_name)
 
     with get_temp_file_path(".png") as output_path:
         runner.run(input_path, output_path)

@@ -2,10 +2,12 @@
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Runs Topaz Video AI."""
+from __future__ import annotations
+
 from logging import debug
 from pathlib import Path
 
-from pipescaler.common import run_command_long, validate_input_directory
+from pipescaler.common import PathLike, run_command_long, validate_input_directory
 from pipescaler.core import Runner
 
 
@@ -88,7 +90,7 @@ class TopazVideoAiRunner(Runner):
         # TODO: Actually validate executable?
         return Path(self.executable())
 
-    def run(self, infile: Path, outfile: Path) -> None:
+    def run(self, infile: PathLike, outfile: PathLike) -> None:
         """Run executable on infile, yielding outfile.
 
         Arguments:

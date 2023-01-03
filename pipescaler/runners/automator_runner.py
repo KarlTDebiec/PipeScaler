@@ -10,7 +10,12 @@ from pathlib import Path
 from shutil import copyfile
 from typing import Any
 
-from pipescaler.common import DirectoryNotFoundError, package_root, run_command
+from pipescaler.common import (
+    DirectoryNotFoundError,
+    PathLike,
+    package_root,
+    run_command,
+)
 from pipescaler.core import Runner
 
 
@@ -45,7 +50,7 @@ class AutomatorRunner(Runner):
             raise DirectoryNotFoundError()
         self.workflow = workflow
 
-    def run(self, infile: Path, outfile: Path) -> None:
+    def run(self, infile: PathLike, outfile: PathLike) -> None:
         """Run executable on infile, yielding outfile.
 
         Arguments:

@@ -3,7 +3,7 @@
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Tests for WaifuRunner."""
-from pathlib import Path
+from __future__ import annotations
 
 import pytest
 
@@ -23,13 +23,13 @@ def runner(request) -> WaifuRunner:
 
 
 @pytest.mark.parametrize(
-    ("infile"),
+    ("infile_name"),
     [
         skip_if_ci()("RGB"),
     ],
 )
-def test(infile: str, runner: WaifuRunner) -> None:
-    input_path: Path = get_test_infile_path(infile)
+def test(infile_name: str, runner: WaifuRunner) -> None:
+    input_path = get_test_infile_path(infile_name)
 
     with get_temp_file_path(".png") as output_path:
         runner.run(input_path, output_path)

@@ -3,7 +3,7 @@
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Tests for PotraceRunner."""
-from pathlib import Path
+from __future__ import annotations
 
 import pytest
 from PIL import Image
@@ -24,13 +24,13 @@ def runner(request) -> PotraceRunner:
 
 
 @pytest.mark.parametrize(
-    ("infile"),
+    ("infile_name"),
     [
         ("L"),
     ],
 )
-def test(infile: str, runner: PotraceRunner) -> None:
-    input_path: Path = get_test_infile_path(infile)
+def test(infile_name: str, runner: PotraceRunner) -> None:
+    input_path = get_test_infile_path(infile_name)
 
     with get_temp_file_path(".bmp") as bmp_path:
         Image.open(input_path).save(bmp_path)

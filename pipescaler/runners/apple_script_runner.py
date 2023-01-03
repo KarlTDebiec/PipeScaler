@@ -10,7 +10,7 @@ from pathlib import Path
 from shutil import copyfile
 from typing import Any
 
-from pipescaler.common import package_root, run_command
+from pipescaler.common import PathLike, package_root, run_command
 from pipescaler.core import Runner
 
 
@@ -72,7 +72,7 @@ class AppleScriptRunner(Runner):
             "(https://www.pixelmator.com/support/guide/pixelmator-pro/1270/)."
         )
 
-    def run(self, infile: Path, outfile: Path) -> None:
+    def run(self, infile: PathLike, outfile: PathLike) -> None:
         """Run executable on infile, yielding outfile.
 
         Arguments:
