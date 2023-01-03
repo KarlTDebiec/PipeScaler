@@ -3,7 +3,6 @@
 #  All rights reserved. This software may be modified and distributed under
 #  the terms of the BSD license. See the LICENSE file for details.
 """Tests for TexconvRunner."""
-from pathlib import Path
 
 import pytest
 from PIL import Image
@@ -28,7 +27,7 @@ def runner(request) -> TexconvRunner:
 
 
 @pytest.mark.parametrize(
-    ("infile"),
+    ("infile_name"),
     [
         xfail_if_platform({"Darwin", "Linux"})("1"),
         xfail_if_platform({"Darwin", "Linux"})("L"),
