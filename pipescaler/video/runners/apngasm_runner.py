@@ -5,103 +5,50 @@
 """Runs apngasm."""
 from __future__ import annotations
 
-from os import remove
-from subprocess import Popen
-from tempfile import NamedTemporaryFile
-from typing import Any, Optional
+from typing import Any
 
-from PIL import Image, ImageDraw, ImageFont
-
-from pipescaler.common import (
-    validate_executable,
-    validate_input_files,
-    validate_output_file,
-)
+from pipescaler.core import Runner
 
 
-class ApngasmRunner:
-    """Runs apngasm tool for creating animated pngs."""
+class ApngasmRunner(Runner):
+    """Runs apngasm tool for creating animated pngs.
+
+    See [apnggasm](https://github.com/apngasm/apngasm).
+    """
 
     def __init__(
         self,
-        infiles: list[str],
-        outfile: str,
-        labels: Optional[list[str]] = None,
-        show_size: bool = False,
-        duration: Optional[int] = 500,
+        arguments: str = "",
         **kwargs: Any,
     ) -> None:
-        """Validate configuration and initialize.
+        """Initialize.
 
         Arguments:
-            infiles: Input files
-            outfile: Output animated png file
-            labels: Image labels
-            show_size: Show size
-            duration: Duration
+            arguments: Command-line arguments to pass to apngasm
             **kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
 
-        self.infiles = validate_input_files(infiles)
-        self.outfile = validate_output_file(outfile)
-        self.labels = labels
-        if self.labels and len(self.labels) != len(self.infiles):
-            raise ValueError
-        self.show_size = show_size
-        self.duration = duration
-        self.apngasm_executable = validate_executable("apngasm")
+        self.arguments = arguments
 
-    def __call__(self) -> None:
-        """Concatenate images into an animated PNG file."""
-        images = []
-        sizes = []
-        for infile in self.infiles:
-            image = Image.open(infile).convert("RGBA")
-            images.append(image)
-            sizes.append(image.size)
-        final_size = sizes[-1]
+    def __repr__(self) -> str:
+        """Representation."""
+        return f"{self.__class__.__name__}(arguments={self.arguments!r})"
 
-        tempfiles = []
-        label = ""
-        for i, image in enumerate(images):
-            if image.size != max(sizes):
-                image = image.resize(final_size, resample=Image.NEAREST)
-            draw = ImageDraw.Draw(image)
-            font = ImageFont.truetype("Arial", 32)
-            if self.labels:
-                label = f"{label} → {self.labels[i]}".strip(" → ")
-                draw.text(
-                    (15, final_size[1] - 45),
-                    label,
-                    font=font,
-                    stroke="white",
-                    stroke_fill="black",
-                    stroke_width=2,
-                )
-                # Annotate with label
-            if self.show_size:
-                print(sizes[i], final_size, image.mode)
-                draw.text(
-                    (15, 15),
-                    f"{sizes[i][0]} x {sizes[i][1]}",
-                    font=font,
-                    stroke="white",
-                    stroke_fill="black",
-                    stroke_width=2,
-                )
-                # Annotate with size
-            tempfiles.append(NamedTemporaryFile(delete=False, suffix=".png"))
-            tempfiles[-1].close()
-            image.save(tempfiles[-1].name)
-        command = (
-            f"{self.apngasm_executable} "
-            f"-o {self.outfile} "
-            f"{' '.join([t.name for t in tempfiles])} "
-            f"-d {self.duration} "
-            f"--force"
+    @property
+    def command_template(self) -> str:
+        """String template with which to generate command."""
+        return f'"{self.executable_path}"' " -o {outfile} {infile}" f" {self.arguments}"
+
+    @classmethod
+    def executable(cls) -> str:
+        """Name of executable."""
+        return "apngasm"
+
+    @classmethod
+    def help_markdown(cls) -> str:
+        """Short description of this tool in markdown, with links."""
+        return (
+            "Creates animated pngs using "
+            "[apnggasm](https://github.com/apngasm/apngasm)."
         )
-        print(command)
-        Popen(command, shell=True, close_fds=True).wait()
-        for tempfile in tempfiles:
-            remove(tempfile.name)

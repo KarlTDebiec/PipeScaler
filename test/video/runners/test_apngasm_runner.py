@@ -5,18 +5,11 @@
 """Tests for ApngasmRunner."""
 from __future__ import annotations
 
-from pathlib import Path
-
 import pytest
 from PIL import Image
 
-from pipescaler.common import ExecutableNotFoundError, get_temp_file_path
-from pipescaler.image.operators.processors import XbrzProcessor
-from pipescaler.testing import (
-    parametrized_fixture,
-    xfail_if_platform,
-    get_test_infile_path,
-)
+from pipescaler.common import get_temp_file_path
+from pipescaler.testing import get_test_infile_path, parametrized_fixture, skip_if_ci
 from pipescaler.video.runners import ApngasmRunner
 
 
@@ -30,37 +23,21 @@ def runner(request) -> ApngasmRunner:
     return ApngasmRunner(**request.param)
 
 
-@parametrized_fixture(
-    cls=XbrzProcessor,
-    params=[
-        {"scale": 2},
-    ],
-)
-def processor(request) -> XbrzProcessor:
-    return XbrzProcessor(**request.param)
-
-
 @pytest.mark.parametrize(
-    ("infile"),
+    ("infile_names"),
     [
-        xfail_if_platform({"Linux", "Windows"}, ExecutableNotFoundError)("RGB"),
+        skip_if_ci()(["1", "L", "RGB", "RGBA"]),
     ],
 )
-def test(infile_name: [str], runner: ApngasmRunner, processor: XbrzProcessor) -> None:
-    input_path = get_test_infile_path(infile_name)
+def test(infile_names: list[str], runner: ApngasmRunner) -> None:
+    input_paths = [get_test_infile_path(i) for i in infile_names]
 
-    with get_temp_file_path(".png") as two_x_path:
-        two_x_image = processor(input_path)
-        two_x_image.save(two_x_path)
+    with get_temp_file_path(".png") as output_path:
+        input_paths_str = '"' + '" "'.join([str(i) for i in input_paths]) + '"'
+        runner.run(input_paths_str, output_path)
 
-        with get_temp_file_path(".png") as four_x_path:
-            four_x_image = processor(two_x_path)
-            four_x_image.save(four_x_path)
-
-            with get_temp_file_path(".png") as output_path:
-                runner.run(input_path, output_path)
-
-                with Image.open(input_path) as input_image:
-                    with Image.open(output_path) as output_image:
-                        assert output_image.mode in (input_image.mode, "P")
-                        assert output_image.size == input_image.size
+        image = Image.open(output_path)
+        assert image.is_animated
+        assert image.n_frames == 4
+        assert image.info["loop"] == 0
+        assert image.info["duration"] == 100.0
