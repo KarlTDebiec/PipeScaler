@@ -880,7 +880,7 @@ python-versions = "*"
 
 [[package]]
 name = "svglib"
-version = "1.5.0"
+version = "1.5.1"
 description = "A pure-Python library for reading and converting SVG"
 category = "main"
 optional = false
@@ -1029,7 +1029,7 @@ wand = ["Wand (>=0.6.1,<1.0.0)"]
 [metadata]
 lock-version = "1.1"
 python-versions = "~3.9"
-content-hash = "c017d7f4e61f574abb279c5f16b2c6fc9f13b58c1cf970ce69c8e26c97e362e1"
+content-hash = "0841fe183a110a42f86f7d3bef1be1c54d131ff2d7cd195b5c15591fb1433b52"
 
 [metadata.files]
 astroid = [
@@ -1803,7 +1803,7 @@ snowballstemmer = [
     {file = "snowballstemmer-2.2.0.tar.gz", hash = "sha256:09b16deb8547d3412ad7b590689584cd0fe25ec8db3be37788be3810cbf19cb1"},
 ]
 svglib = [
-    {file = "svglib-1.5.0.tar.gz", hash = "sha256:bd76385a8ebad5ccc406e0e110d9db6ca256e84dba08c4169ca72d4a2df27d78"},
+    {file = "svglib-1.5.1.tar.gz", hash = "sha256:3ae765d3a9409ee60c0fb4d24c2deb6a80617aa927054f5bcd7fc98f0695e587"},
 ]
 tifffile = [
     {file = "tifffile-2022.10.10-py3-none-any.whl", hash = "sha256:87f3aee8a0d06b74655269a105de75c1958a24653e1930d523eb516100043503"},
