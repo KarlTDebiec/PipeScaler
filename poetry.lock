@@ -1784,14 +1784,14 @@ opt-einsum = ["opt-einsum (>=3.3)"]
 
 [[package]]
 name = "types-pillow"
-version = "9.4.0.0"
+version = "9.4.0.2"
 description = "Typing stubs for Pillow"
 category = "dev"
 optional = false
 python-versions = "*"
 files = [
-    {file = "types-Pillow-9.4.0.0.tar.gz", hash = "sha256:ef8a823638ceb765a144a98a2f816b8912da0337c5c2556d33774f1434f9918c"},
-    {file = "types_Pillow-9.4.0.0-py3-none-any.whl", hash = "sha256:246f0dc52d575ef64e01f06f41be37a492b542ee3180638a7b874a6dd4d48c01"},
+    {file = "types-Pillow-9.4.0.2.tar.gz", hash = "sha256:e30304da1247949e666adf3e976d823c9a09266813b8b88cd01ba7b2a273aee2"},
+    {file = "types_Pillow-9.4.0.2-py3-none-any.whl", hash = "sha256:16676d29746af176e58b18dfc7d807c54dec3c83f2bd9bf384eab7082b26ae3d"},
 ]
 
 [[package]]
