@@ -16,7 +16,7 @@ from typing import Iterable, Optional, Sequence, Union
 
 from PIL import Image
 
-from pipescaler.common import PathLike
+from pipescaler.common import DirectoryNotFoundError, PathLike
 from pipescaler.common.validation import validate_input_directories
 
 
@@ -79,7 +79,12 @@ class FileScanner:
         self.reviewed_directories = None
         """Directories of files that have been reviewed."""
         if reviewed_directories:
-            self.reviewed_directories = validate_input_directories(reviewed_directories)
+            try:
+                self.reviewed_directories = validate_input_directories(
+                    reviewed_directories
+                )
+            except DirectoryNotFoundError:
+                self.reviewed_directories = []
 
         # Prepare filename data structures
         self.reviewed_names: set[str] = set()

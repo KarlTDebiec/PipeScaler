@@ -10,6 +10,8 @@ through a series of sorters, processors, splitters, and mergers into a terminus.
 Checkpoints along the pipeline may be saved to allow processing to be tracked, stopped,
 and resumed.
 
+# Image Processing
+
 PipeScaler includes the following components for image processing:
 
 **Sources** yield images for downstream modification:
@@ -53,6 +55,8 @@ PipeScaler includes the following components for image processing:
 
 **Termini** collect processed images:
 * [ImageDirectoryTerminus](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/pipelines/termini/image_directory_terminus.py) - Copies images to an output directory.
+
+# Video Processing
 
 PipeScaler includes the following components for video processing:
 
