@@ -73,7 +73,7 @@ svglib = "^1.5.1"
 torch = "^2.0.0"
 "xbrz.py" = "^1.0.2"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 black = "^23.1.0"
 coverage = "^7.2.3"
 isort = "^5.12.0"
