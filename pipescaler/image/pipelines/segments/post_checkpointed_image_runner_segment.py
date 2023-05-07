@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from logging import info
-from typing import Optional, Sequence
+from typing import Sequence
 
 from pipescaler.common import get_temp_file_path
 from pipescaler.core.pipelines import CheckpointedSegment, CheckpointManagerBase
@@ -23,7 +23,7 @@ class PostCheckpointedImageRunnerSegment(CheckpointedSegment):
         segment: ImageRunnerSegment,
         cp_manager: CheckpointManagerBase,
         cpts: Sequence[str],
-        internal_cpts: Optional[Sequence[str]] = None,
+        internal_cpts: Sequence[str] | None = None,
     ) -> None:
         """Initialize.
 

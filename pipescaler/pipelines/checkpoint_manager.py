@@ -7,7 +7,7 @@ from itertools import cycle
 from logging import info
 from os import remove, rmdir
 from pathlib import Path
-from typing import Callable, Collection, Optional, Sequence
+from typing import Callable, Collection, Sequence
 
 from pipescaler.core.pipelines import CheckpointManagerBase, PipeObject, SegmentLike
 from pipescaler.pipelines.segments import (
@@ -24,8 +24,8 @@ class CheckpointManager(CheckpointManagerBase):
         inputs: tuple[PipeObject, ...],
         cpts: Sequence[str],
         *,
-        calls: Optional[Collection[SegmentLike | str]] = None,
-    ) -> Optional[tuple[PipeObject, ...]]:
+        calls: Collection[SegmentLike | str] | None = None,
+    ) -> tuple[PipeObject, ...] | None:
         """Load images from checkpoints, if available, otherwise return None.
 
         If the length of inputs is equal to the length of cpts, inputs and cpts are
@@ -71,7 +71,7 @@ class CheckpointManager(CheckpointManagerBase):
         return None
 
     def post_segment(
-        self, *cpts: str, calls: Optional[Collection[SegmentLike]] = None
+        self, *cpts: str, calls: Collection[SegmentLike] | None = None
     ) -> Callable[[SegmentLike], PostCheckpointedSegment]:
         """Get decorator to wrap Segment to Segment with post-execution checkpoint.
 
@@ -100,7 +100,7 @@ class CheckpointManager(CheckpointManagerBase):
         return decorator
 
     def pre_segment(
-        self, *cpts: str, calls: Optional[Collection[SegmentLike]] = None
+        self, *cpts: str, calls: Collection[SegmentLike] | None = None
     ) -> Callable[[SegmentLike], PreCheckpointedSegment]:
         """Get decorator to wrap Segment to Segment with pre-execution checkpoint.
 
@@ -128,7 +128,7 @@ class CheckpointManager(CheckpointManagerBase):
 
         return decorator
 
-    def purge_unrecognized_files(self, directory: Optional[Path] = None) -> None:
+    def purge_unrecognized_files(self, directory: Path | None = None) -> None:
         """Remove unrecognized files and subdirectories in checkpoint directory."""
         if directory is None:
             directory = self.directory

@@ -5,8 +5,6 @@
 """Converts height map image to a normal map image."""
 from __future__ import annotations
 
-from typing import Optional
-
 from PIL import Image
 
 from pipescaler.common import validate_float
@@ -21,7 +19,7 @@ from pipescaler.image.core.operators import ImageProcessor
 class HeightToNormalProcessor(ImageProcessor):
     """Converts height map image to a normal map image."""
 
-    def __init__(self, sigma: Optional[float] = None) -> None:
+    def __init__(self, sigma: float | None = None) -> None:
         """Validate and store configuration and initialize.
 
         Arguments:

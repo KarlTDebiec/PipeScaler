@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from logging import info
 from pathlib import Path
-from typing import Iterable, Optional
+from typing import Iterable
 
 from pipescaler.common import PathLike
 from pipescaler.core.pipelines import PipeObject
@@ -56,7 +56,7 @@ class ListSorter(Sorter):
                             continue
                         self.outlets_by_filename[name] = outlet
 
-    def __call__(self, pipe_object: PipeObject) -> Optional[str]:
+    def __call__(self, pipe_object: PipeObject) -> str | None:
         """Get the outlet to which an object should be sorted.
 
         Arguments:

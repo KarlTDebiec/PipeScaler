@@ -5,8 +5,6 @@
 """Tests for ListSorter."""
 from __future__ import annotations
 
-from typing import Optional
-
 import pytest
 
 from pipescaler.common import get_temp_directory_path, get_temp_file_path
@@ -42,7 +40,7 @@ def sorter(request) -> ListSorter:
         ("split/LA_alpha_L", None),
     ],
 )
-def test(infile_name: str, outlet: Optional[str], sorter: ListSorter) -> None:
+def test(infile_name: str, outlet: str | None, sorter: ListSorter) -> None:
     image = PipeImage(path=get_test_infile_path(infile_name))
     assert sorter(image) == outlet
 
@@ -62,7 +60,7 @@ def test(infile_name: str, outlet: Optional[str], sorter: ListSorter) -> None:
         ("split/LA_alpha_L", None),
     ],
 )
-def test_text_file(infile_name: str, outlet: Optional[str]) -> None:
+def test_text_file(infile_name: str, outlet: str | None) -> None:
     with get_temp_file_path() as basic_file_path:
         with open(basic_file_path, "w") as basic_file:
             basic_file.write("L\n")

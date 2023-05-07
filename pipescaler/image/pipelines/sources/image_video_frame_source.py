@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import cv2
 from PIL import Image
@@ -21,7 +21,7 @@ class ImageVideoFrameSource(ImageSource):
     def __init__(
         self,
         infile: PathLike,
-        location: Optional[Path] = None,
+        location: Path | None = None,
         **kwargs: Any,
     ) -> None:
         """Initialize.

@@ -12,7 +12,7 @@ from os import remove, rmdir
 from os.path import expandvars
 from pathlib import Path
 from shutil import copy, move
-from typing import Iterable, Optional, Sequence
+from typing import Iterable, Sequence
 
 from PIL import Image
 
@@ -29,11 +29,11 @@ class FileScanner:
         self,
         input_directories: PathLike | Iterable[PathLike],
         project_root: PathLike,
-        reviewed_directories: Optional[PathLike | list[PathLike]],
-        rules: Optional[list[tuple[str, str]]] = None,
+        reviewed_directories: PathLike | list[PathLike] | None,
+        rules: list[tuple[str, str]] | None = None,
         *,
-        remove_prefix: Optional[str] = None,
-        output_format: Optional[str] = None,
+        remove_prefix: str | None = None,
+        output_format: str | None = None,
     ) -> None:
         """Validate configuration and initialize.
 

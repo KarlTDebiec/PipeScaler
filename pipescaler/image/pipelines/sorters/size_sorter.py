@@ -6,7 +6,6 @@
 from __future__ import annotations
 
 from logging import info
-from typing import Optional
 
 from pipescaler.common import validate_int
 from pipescaler.core.pipelines.sorter import Sorter
@@ -25,7 +24,7 @@ class SizeSorter(Sorter):
         """
         self.cutoff = validate_int(cutoff, min_value=1)
 
-    def __call__(self, pipe_image: PipeImage) -> Optional[str]:
+    def __call__(self, pipe_image: PipeImage) -> str | None:
         """Get the outlet to which an image should be sorted.
 
         Arguments:

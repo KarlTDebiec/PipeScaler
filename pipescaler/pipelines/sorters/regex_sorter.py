@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import re
 from logging import info
-from typing import Optional
 
 from pipescaler.core.pipelines import PipeObject
 from pipescaler.core.pipelines.sorter import Sorter
@@ -24,7 +23,7 @@ class RegexSorter(Sorter):
         """
         self.regex = re.compile(regex)
 
-    def __call__(self, pipe_object: PipeObject) -> Optional[str]:
+    def __call__(self, pipe_object: PipeObject) -> str | None:
         """Get the outlet to which an image should be sorted.
 
         Arguments:

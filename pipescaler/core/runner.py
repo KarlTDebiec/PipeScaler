@@ -9,7 +9,6 @@ from abc import ABC, abstractmethod
 from inspect import cleandoc
 from logging import debug
 from pathlib import Path
-from typing import Optional
 
 from pipescaler.common import PathLike, run_command, validate_executable, validate_int
 
@@ -24,7 +23,7 @@ class Runner(ABC):
             timeout: Timeout for external tool invocation
         """
         self.timeout = validate_int(timeout, 0)
-        self._executable_path: Optional[Path] = None
+        self._executable_path: Path | None = None
 
     def __call__(self, infile: PathLike, outfile: PathLike) -> None:
         """Run executable on infile, yielding outfile.

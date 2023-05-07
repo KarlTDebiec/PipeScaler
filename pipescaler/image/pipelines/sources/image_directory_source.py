@@ -6,7 +6,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
 
 from pipescaler.core.pipelines import DirectorySource
 from pipescaler.image.core.pipelines import PipeImage
@@ -20,7 +19,7 @@ class ImageDirectorySource(DirectorySource):
         if self.index < len(self.file_paths):
             file_path = self.file_paths[self.index]
             self.index += 1
-            relative_path: Optional[Path] = file_path.parent.relative_to(self.directory)
+            relative_path: Path | None = file_path.parent.relative_to(self.directory)
             if relative_path == Path("../../sources/image"):
                 relative_path = None
             return PipeImage(path=file_path, location=relative_path)
