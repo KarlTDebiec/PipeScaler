@@ -5,7 +5,7 @@
 """Validation functions related to images."""
 from __future__ import annotations
 
-from typing import Collection, Optional, Union
+from typing import Collection, Optional
 
 from PIL import Image
 
@@ -14,7 +14,7 @@ from pipescaler.image.core.functions import remove_palette
 
 
 def validate_image(
-    image: Image.Image, valid_modes: Optional[Union[str, Collection[str]]] = None
+    image: Image.Image, valid_modes: Optional[str | Collection[str]] = None
 ) -> Image.Image:
     """Remove image palette, if necessary, and validate that mode is among valid modes.
 
@@ -39,7 +39,7 @@ def validate_image(
 
 def validate_image_and_convert_mode(
     image: Image.Image,
-    valid_modes: Optional[Union[str, Collection[str]]] = None,
+    valid_modes: Optional[str | Collection[str]] = None,
     convert_mode: Optional[str] = None,
 ) -> tuple[Image.Image, str]:
     """Validate image mode and convert to specified mode.

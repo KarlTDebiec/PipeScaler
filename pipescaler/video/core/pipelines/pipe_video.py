@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from logging import debug
 from pathlib import Path
-from typing import Any, Optional, Sequence, Union
+from typing import Any, Optional, Sequence
 
 import cv2
 
@@ -24,7 +24,7 @@ class PipeVideo(PipeObject):
         video: Optional[cv2.VideoCapture] = None,
         path: Optional[Path] = None,
         name: Optional[str] = None,
-        parents: Optional[Union[PipeVideo, Sequence[PipeVideo]]] = None,
+        parents: Optional[PipeVideo | Sequence[PipeVideo]] = None,
         **kwargs: Any,
     ) -> None:
         """Initialize.

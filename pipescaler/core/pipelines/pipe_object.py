@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Optional, Sequence, Union
+from typing import Optional, Sequence
 
 from pipescaler.common import PathLike, validate_input_file
 
@@ -20,7 +20,7 @@ class PipeObject(ABC):
         *,
         path: Optional[PathLike] = None,
         name: Optional[str] = None,
-        parents: Optional[Union[PipeObject, Sequence[PipeObject]]] = None,
+        parents: Optional[PipeObject | Sequence[PipeObject]] = None,
         location: Optional[Path] = None,
     ) -> None:
         """Initialize.

@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
-from typing import Any, Type, Union
+from typing import Any, Type
 
 from pipescaler.common import CommandLineInterface
 from pipescaler.image.cli.image_processors_cli import ImageProcessorsCli
@@ -57,7 +57,7 @@ class ImageCli(CommandLineInterface):
     @classmethod
     def subcommands(
         cls,
-    ) -> dict[str, Union[Type[ImageProcessorsCli], Type[ImageUtilitiesCli]]]:
+    ) -> dict[str, Type[ImageProcessorsCli] | Type[ImageUtilitiesCli]]:
         """Names and types of tools wrapped by command-line interface."""
         return {
             ImageProcessorsCli.name(): ImageProcessorsCli,

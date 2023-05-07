@@ -4,9 +4,9 @@
 """Type hints for video pipelines."""
 from __future__ import annotations
 
-from typing import Callable, Union
+from typing import Callable
 
 from pipescaler.video.core.pipelines.pipe_video import PipeVideo
 from pipescaler.video.core.pipelines.video_segment import VideoSegment
 
-VideoSegmentLike = Union[VideoSegment, Callable[[PipeVideo], tuple[PipeVideo, ...]]]
+VideoSegmentLike = VideoSegment | Callable[[PipeVideo], tuple[PipeVideo, ...]]

@@ -9,7 +9,7 @@ import re
 from itertools import chain
 from logging import info
 from shutil import move
-from typing import Iterable, Union
+from typing import Iterable
 
 import numpy as np
 import pandas as pd
@@ -40,7 +40,7 @@ class ScaledPairIdentifier:
 
     def __init__(
         self,
-        input_directories: Union[PathLike, Iterable[PathLike]],
+        input_directories: PathLike | Iterable[PathLike],
         project_root: PathLike,
         *,
         hash_file: PathLike = "hashes.csv",

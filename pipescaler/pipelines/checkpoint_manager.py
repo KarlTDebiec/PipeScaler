@@ -7,7 +7,7 @@ from itertools import cycle
 from logging import info
 from os import remove, rmdir
 from pathlib import Path
-from typing import Callable, Collection, Optional, Sequence, Union
+from typing import Callable, Collection, Optional, Sequence
 
 from pipescaler.core.pipelines import CheckpointManagerBase, PipeObject, SegmentLike
 from pipescaler.pipelines.segments import (
@@ -24,7 +24,7 @@ class CheckpointManager(CheckpointManagerBase):
         inputs: tuple[PipeObject, ...],
         cpts: Sequence[str],
         *,
-        calls: Optional[Collection[Union[SegmentLike, str]]] = None,
+        calls: Optional[Collection[SegmentLike | str]] = None,
     ) -> Optional[tuple[PipeObject, ...]]:
         """Load images from checkpoints, if available, otherwise return None.
 
@@ -204,7 +204,7 @@ class CheckpointManager(CheckpointManagerBase):
         return cpt_paths
 
     @staticmethod
-    def get_cpts_of_segments(*cpts_or_segments: Union[SegmentLike, str]) -> list[str]:
+    def get_cpts_of_segments(*cpts_or_segments: SegmentLike | str) -> list[str]:
         """Get checkpoints created by a collection of Segments.
 
         Arguments:

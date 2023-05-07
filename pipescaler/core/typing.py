@@ -5,8 +5,8 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Callable, Union
+from typing import Callable
 
 from pipescaler.core.runner import Runner
 
-RunnerLike = Union[Runner, Callable[[Path, Path], None]]
+RunnerLike = Runner | Callable[[Path, Path], None]

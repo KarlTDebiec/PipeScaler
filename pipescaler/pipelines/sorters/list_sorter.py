@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from logging import info
 from pathlib import Path
-from typing import Iterable, Optional, Union
+from typing import Iterable, Optional
 
 from pipescaler.common import PathLike
 from pipescaler.core.pipelines import PipeObject
@@ -20,7 +20,7 @@ class ListSorter(Sorter):
     exclusions = {".DS_Store", "Thumbs", "desktop"}
     """File stems to exclude"""
 
-    def __init__(self, **outlets: Union[PathLike, list[PathLike]]) -> None:
+    def __init__(self, **outlets: PathLike | list[PathLike]) -> None:
         """Validate configuration and initialize.
 
         Arguments:

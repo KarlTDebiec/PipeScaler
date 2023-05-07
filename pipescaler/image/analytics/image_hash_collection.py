@@ -8,7 +8,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 from logging import info
 from pathlib import Path
-from typing import Collection, Iterable, Union
+from typing import Collection, Iterable
 
 import numpy as np
 import pandas as pd
@@ -60,7 +60,7 @@ class ImageHashCollection(Sequence):
 
     def __getitem__(
         self,
-        index: Union[str, tuple[str, float], Iterable[Union[str, tuple[str, float]]]],
+        index: str | tuple[str, float] | Iterable[str | tuple[str, float]],
     ) -> HashDataFrame:
         """Get image hashes matching index.
 
