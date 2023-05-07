@@ -4,9 +4,11 @@
 """Type hints for video pipelines."""
 from __future__ import annotations
 
-from typing import Callable
+from typing import Callable, TypeAlias
 
 from pipescaler.video.core.pipelines.pipe_video import PipeVideo
 from pipescaler.video.core.pipelines.video_segment import VideoSegment
 
-VideoSegmentLike = VideoSegment | Callable[[PipeVideo], tuple[PipeVideo, ...]]
+VideoSegmentLike: TypeAlias = (
+    VideoSegment | Callable[[PipeVideo], tuple[PipeVideo, ...]]
+)
