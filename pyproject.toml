@@ -88,13 +88,13 @@ types-Pillow = "^9.5.0.2"
 [tool.pydocstyle]
 convention='google'
 
-[tool.pylint.master]
+[tool.pylint.main]
 fail-under=10.0
 ignore=['CVS']
 jobs=1
 limit-inference-results=100
 persistent=['yes']
-py-version=3.10
+py-version="3.10"
 suggestion-mode=['yes']
 unsafe-load-any-extension=['no']
 
