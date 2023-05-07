@@ -6,7 +6,7 @@ source /usr/local/Caskroom/miniconda/base/etc/profile.d/conda.sh
 
 conda deactivate
 conda remove -y --name pipescaler --all
-conda create -y --name pipescaler python=3.9
+conda create -y --name pipescaler python=3.10
 conda activate pipescaler
 
 conda install -y \
@@ -31,8 +31,10 @@ pip install \
     scikit-image \
     setuptools \
     svglib \
-    types-Pillow \
-    xbrz.py
+    types-Pillow
+
+pip install \
+    xbrz.py@git+https://github.com/ioistired/xbrz.py
 
 conda install -y -c pytorch \
     pytorch
