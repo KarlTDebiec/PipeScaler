@@ -59,7 +59,6 @@ packaging = ">=22.0"
 pathspec = ">=0.9.0"
 platformdirs = ">=2"
 tomli = {version = ">=1.1.0", markers = "python_version < \"3.11\""}
-typing-extensions = {version = ">=3.10.0.0", markers = "python_version < \"3.10\""}
 
 [package.extras]
 colorama = ["colorama (>=0.4.3)"]
@@ -1086,7 +1085,8 @@ files = [
 
 [package.dependencies]
 numpy = [
-    {version = ">=1.21.0", markers = "python_version <= \"3.9\" and platform_system == \"Darwin\" and platform_machine == \"arm64\""},
+    {version = ">=1.21.2", markers = "python_version >= \"3.10\""},
+    {version = ">=1.21.4", markers = "python_version >= \"3.10\" and platform_system == \"Darwin\""},
     {version = ">=1.19.3", markers = "python_version >= \"3.6\" and platform_system == \"Linux\" and platform_machine == \"aarch64\" or python_version >= \"3.9\""},
     {version = ">=1.17.0", markers = "python_version >= \"3.7\""},
     {version = ">=1.17.3", markers = "python_version >= \"3.8\""},
@@ -1140,7 +1140,7 @@ files = [
 ]
 
 [package.dependencies]
-numpy = {version = ">=1.20.3", markers = "python_version < \"3.10\""}
+numpy = {version = ">=1.21.0", markers = "python_version >= \"3.10\""}
 python-dateutil = ">=2.8.2"
 pytz = ">=2020.1"
 tzdata = ">=2022.1"
@@ -1457,7 +1457,6 @@ mccabe = ">=0.6,<0.8"
 platformdirs = ">=2.2.0"
 tomli = {version = ">=1.1.0", markers = "python_version < \"3.11\""}
 tomlkit = ">=0.10.1"
-typing-extensions = {version = ">=3.10.0", markers = "python_version < \"3.10\""}
 
 [package.extras]
 spelling = ["pyenchant (>=3.2,<4.0)"]
@@ -2292,60 +2291,26 @@ files = [
 ]
 
 [[package]]
-name = "xbrz-py"
+name = "xbrz.py"
 version = "1.0.2"
 description = "ctypes-based binding library for the xBRZ pixel-art image scaling algorithm"
 category = "main"
 optional = false
 python-versions = ">=3.6.0"
-files = [
-    {file = "xbrz.py-1.0.2-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:2b1fc93c5f4f5e6dcdd4461f5351ae186446ec8ca3c57f643a042ed56ad304b1"},
-    {file = "xbrz.py-1.0.2-cp36-cp36m-manylinux1_i686.whl", hash = "sha256:e8a32a128773d6759f9a686a7d8b10bfe1e45491bf4a37bba0d38454f91f9567"},
-    {file = "xbrz.py-1.0.2-cp36-cp36m-manylinux1_x86_64.whl", hash = "sha256:de3c8bdad9ad19e57388a58d59fb5b272d43a97b55d01758ad8621a7ce27469a"},
-    {file = "xbrz.py-1.0.2-cp36-cp36m-manylinux2010_i686.whl", hash = "sha256:685d4642c3a97c736d9cbcbbd7ed242d56431f7cbca68408aad263e36047c70e"},
-    {file = "xbrz.py-1.0.2-cp36-cp36m-manylinux2010_x86_64.whl", hash = "sha256:7b5fb334f235abb7b76cfb884a556af0d924f78fe6c5461fd06fb75753ded165"},
-    {file = "xbrz.py-1.0.2-cp36-cp36m-manylinux2014_aarch64.whl", hash = "sha256:a92e57bf1f61ccb272438504c5ea87fadbe298fc716eed745674b9e557bd817f"},
-    {file = "xbrz.py-1.0.2-cp36-cp36m-win32.whl", hash = "sha256:9c33beb209d5ffffd66c60568a74713470900045ee3ad4cc4766c8da8914a551"},
-    {file = "xbrz.py-1.0.2-cp36-cp36m-win_amd64.whl", hash = "sha256:95fbc248d3406ed6b75e3df5fc505a508e36c552ad4a2fa9a110291953b136d7"},
-    {file = "xbrz.py-1.0.2-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:a61a0b948984405dad4092d1a06ab69f8eab74fd11c5e323ce6489b8b50d2e63"},
-    {file = "xbrz.py-1.0.2-cp37-cp37m-manylinux1_i686.whl", hash = "sha256:f3b1fbca09c60b826aca4e25e55c8befd4dab3476d3ea0c2ff5dad21b1c8fd23"},
-    {file = "xbrz.py-1.0.2-cp37-cp37m-manylinux1_x86_64.whl", hash = "sha256:b039da4ce43df0c0cde61e0191ea6df4b6300d0e565cd6189c27c5e0dbac8282"},
-    {file = "xbrz.py-1.0.2-cp37-cp37m-manylinux2010_i686.whl", hash = "sha256:a54fcabf8a6ba4eb2f076bb14396b05cb6f8097479cc232a491e305e5f6fb106"},
-    {file = "xbrz.py-1.0.2-cp37-cp37m-manylinux2010_x86_64.whl", hash = "sha256:0706920f6e1c414a82b779744e98e39e9ce56170f2894b2d8252068b31a45eb2"},
-    {file = "xbrz.py-1.0.2-cp37-cp37m-manylinux2014_aarch64.whl", hash = "sha256:6ab0abdbbba618716647051b0e75821c7457e9a5617ca7f7a9b1075237647cd3"},
-    {file = "xbrz.py-1.0.2-cp37-cp37m-win32.whl", hash = "sha256:db1e672d203e5be6a055d40e38f1a3040be1f60c723a1d7123f0ff385a57d5d3"},
-    {file = "xbrz.py-1.0.2-cp37-cp37m-win_amd64.whl", hash = "sha256:f32870e382604e5243a3275d3eed70f14bb2eb0317863db6b2d1e925fa8142bc"},
-    {file = "xbrz.py-1.0.2-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:6dcb195fcf119c435e10b897e13270c97f0a063883c0b10db971657f0d2033fa"},
-    {file = "xbrz.py-1.0.2-cp38-cp38-manylinux1_i686.whl", hash = "sha256:4dcca6e98b11ebbeb6147614e217fd447f27fb140cd70f8a651c2b89cb37d367"},
-    {file = "xbrz.py-1.0.2-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:ff9c6b73c8e2450e0ef23332be032bc7b963aa3eeda6567ccc15b3f7bf3ac824"},
-    {file = "xbrz.py-1.0.2-cp38-cp38-manylinux2010_i686.whl", hash = "sha256:5f4a24aefd0119f8d3998283487363d5181383f454e37865df1bd5c25cf85666"},
-    {file = "xbrz.py-1.0.2-cp38-cp38-manylinux2010_x86_64.whl", hash = "sha256:683d3ab3da32ca5cb04a12a54350ee1606e5a707f30db974d4489d2ddbbcf2e2"},
-    {file = "xbrz.py-1.0.2-cp38-cp38-manylinux2014_aarch64.whl", hash = "sha256:23ad3a35f3fef53770e79f3d2c784e485b6a7c77b1e1048fe0846084b3c557be"},
-    {file = "xbrz.py-1.0.2-cp38-cp38-win32.whl", hash = "sha256:9882ed76c419ea91e19c9b9651d08801cfe45e8f9849c59874d7af3424fd1673"},
-    {file = "xbrz.py-1.0.2-cp38-cp38-win_amd64.whl", hash = "sha256:cc9e91041d689f9e8f0c25b14ba15dcc93c0a7e2738d58abfe4fc23d6e89c779"},
-    {file = "xbrz.py-1.0.2-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:a0408e3890100cba6112d7cd84ed5d1ada7519ee2e44ab39dc116949e6196039"},
-    {file = "xbrz.py-1.0.2-cp39-cp39-manylinux1_i686.whl", hash = "sha256:1ebaa8991fde5e7597efb083388e22bc7d59da5213c75eaa9d2ee004289a4196"},
-    {file = "xbrz.py-1.0.2-cp39-cp39-manylinux1_x86_64.whl", hash = "sha256:0b02b9ba412be6909e442cd391fa02d9569140c977bdbaf92d569b2d2ec16f2d"},
-    {file = "xbrz.py-1.0.2-cp39-cp39-manylinux2010_i686.whl", hash = "sha256:cd0affeadba312bcc367b21bbc85847f224f592d00ff812c1ab42872b5be5091"},
-    {file = "xbrz.py-1.0.2-cp39-cp39-manylinux2010_x86_64.whl", hash = "sha256:c070997d188140d3a215eb476839c75b43f97320c6c0858f43e0773325ec7eed"},
-    {file = "xbrz.py-1.0.2-cp39-cp39-manylinux2014_aarch64.whl", hash = "sha256:a220a3338bb9540304726fb359b93d2fa63112c1c55849817cfe13ea87503c03"},
-    {file = "xbrz.py-1.0.2-cp39-cp39-win32.whl", hash = "sha256:6b8718461780f1f97ad7faad973a0b5c5896de6226fee30dee5cf1e6db210bca"},
-    {file = "xbrz.py-1.0.2-cp39-cp39-win_amd64.whl", hash = "sha256:d3f8cd1ebc549435c2205181562ef18a721fab7fcb29ea77d58afef72d2c2eb2"},
-    {file = "xbrz.py-1.0.2-pp36-pypy36_pp73-macosx_10_9_x86_64.whl", hash = "sha256:bcd8884b726fbabbf8ffd01ac2b055e84a7c43e38599f372993617a7abfbf218"},
-    {file = "xbrz.py-1.0.2-pp36-pypy36_pp73-manylinux1_x86_64.whl", hash = "sha256:2911ce537c9917ba694fdf592c1d26165b912c7282f02c3f163a34894b30a730"},
-    {file = "xbrz.py-1.0.2-pp36-pypy36_pp73-manylinux2010_x86_64.whl", hash = "sha256:753cebf1c16b64ae522c21aecca929dc6ea4a884ff830f897bb0391fc7ddcb98"},
-    {file = "xbrz.py-1.0.2-pp37-pypy37_pp73-macosx_10_9_x86_64.whl", hash = "sha256:af543bc43362605c14e13ac79b7527d4a2436660b5fedb718ebfef34cd109b1f"},
-    {file = "xbrz.py-1.0.2-pp37-pypy37_pp73-manylinux1_x86_64.whl", hash = "sha256:5d3ceb6b1662601faffe8b74514b0a7bc3a1684dd2f18f27dc3e3027e1e6ada7"},
-    {file = "xbrz.py-1.0.2-pp37-pypy37_pp73-manylinux2010_x86_64.whl", hash = "sha256:9599f8b45a09d8c933a3332a37dd3cf8f2ea69128c520a3fc389d57601b1d7df"},
-    {file = "xbrz.py-1.0.2-pp37-pypy37_pp73-win32.whl", hash = "sha256:f63ebc7ca919822c0cd9032512064aa31c6cdbcce0c9eea85e15bd445bf2d160"},
-    {file = "xbrz.py-1.0.2.tar.gz", hash = "sha256:578b40122ee5a69ee4eb8a7b55317f6004173fe01f24e9ead39ec92a09072a15"},
-]
+files = []
+develop = false
 
 [package.extras]
 pillow = ["Pillow (>=7.1.2,<8.0.0)"]
 wand = ["Wand (>=0.6.1,<1.0.0)"]
 
+[package.source]
+type = "git"
+url = "https://github.com/ioistired/xbrz.py"
+reference = "HEAD"
+resolved_reference = "0352a872e6ef48997d758b20b8a180e6fb3114ae"
+
 [metadata]
 lock-version = "2.0"
-python-versions = "~3.9"
-content-hash = "8b64dcaeec18d899c7259cea21aa97bc13494205722ce54af4c2be5db8aa27e9"
+python-versions = "~3.10"
+content-hash = "1c97907592a9c35d3448db5b6b1c321b15fc6634c35b154f381d40af9e07e44a"
