@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from itertools import product
-from typing import Optional, no_type_check
+from typing import no_type_check
 
 import numpy as np
 from numba import njit
@@ -58,7 +58,7 @@ class PaletteMatcher(Utility):
         cls,
         color: np.ndarray,
         ref_palette_by_cell: dict[tuple[int, int, int], np.ndarray],
-    ) -> Optional[np.ndarray]:
+    ) -> np.ndarray | None:
         """Get best fit color drawn from a palette, searching within nearby cells.
 
         Arguments:

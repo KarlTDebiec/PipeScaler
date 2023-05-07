@@ -6,7 +6,6 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Optional
 
 from pipescaler.core.pipelines.sorter import Sorter
 from pipescaler.image.core.pipelines.pipe_image import PipeImage
@@ -16,7 +15,7 @@ class ImageSorter(Sorter, ABC):
     """Abstract base class for image sorters."""
 
     @abstractmethod
-    def __call__(self, pipe_image: PipeImage) -> Optional[str]:
+    def __call__(self, pipe_image: PipeImage) -> str | None:
         """Get the outlet to which an image should be sorted.
 
         Arguments:

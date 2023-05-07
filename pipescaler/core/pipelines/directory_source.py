@@ -8,7 +8,7 @@ from __future__ import annotations
 import re
 from abc import ABC
 from pathlib import Path
-from typing import Any, Callable, Optional, Union
+from typing import Any, Callable
 
 from pipescaler.common import PathLike, validate_input_directory
 from pipescaler.core.pipelines.source import Source
@@ -25,9 +25,9 @@ class DirectorySource(Source, ABC):
         self,
         directory: PathLike,
         *,
-        exclusions: Optional[set[Union[str, re.Pattern]]] = None,
-        inclusions: Optional[set[Union[str, re.Pattern]]] = None,
-        sort: Union[Callable[[str], int], Callable[[str], str]] = basic_sort,
+        exclusions: set[str | re.Pattern] | None = None,
+        inclusions: set[str | re.Pattern] | None = None,
+        sort: Callable[[str], int] | Callable[[str], str] = basic_sort,
         reverse: bool = False,
         **kwargs: Any,
     ) -> None:
@@ -102,7 +102,7 @@ class DirectorySource(Source, ABC):
 
     @classmethod
     def parse_exclusions(
-        cls, exclusions: Optional[set[Union[str, re.Pattern]]]
+        cls, exclusions: set[str | re.Pattern] | None
     ) -> set[re.Pattern]:
         """Parse exclusions.
 
@@ -126,8 +126,8 @@ class DirectorySource(Source, ABC):
 
     @classmethod
     def parse_inclusions(
-        cls, inclusions: Optional[set[Union[str, re.Pattern]]]
-    ) -> Optional[set[re.Pattern]]:
+        cls, inclusions: set[str | re.Pattern] | None
+    ) -> set[re.Pattern] | None:
         """Parse inclusions.
 
         Arguments:

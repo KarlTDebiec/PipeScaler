@@ -6,7 +6,6 @@
 from __future__ import annotations
 
 from logging import info
-from typing import Optional
 
 import numpy as np
 
@@ -26,7 +25,7 @@ class AlphaSorter(ImageSorter):
         """
         self.threshold = validate_int(threshold, 0, 255)
 
-    def __call__(self, pipe_image: PipeImage) -> Optional[str]:
+    def __call__(self, pipe_image: PipeImage) -> str | None:
         """Get the outlet to which an image should be sorted.
 
         Arguments:

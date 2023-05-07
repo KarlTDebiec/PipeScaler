@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Optional, Sequence, Union
+from typing import Sequence
 
 from pipescaler.common import PathLike, validate_input_file
 
@@ -18,10 +18,10 @@ class PipeObject(ABC):
     def __init__(
         self,
         *,
-        path: Optional[PathLike] = None,
-        name: Optional[str] = None,
-        parents: Optional[Union[PipeObject, Sequence[PipeObject]]] = None,
-        location: Optional[Path] = None,
+        path: PathLike | None = None,
+        name: str | None = None,
+        parents: PipeObject | Sequence[PipeObject] | None = None,
+        location: Path | None = None,
     ) -> None:
         """Initialize.
 
@@ -64,7 +64,7 @@ class PipeObject(ABC):
             )
 
         if location:
-            self._location: Optional[Path] = location
+            self._location: Path | None = location
         elif self.parents:
             self._location = self.parents[0].location
         else:
@@ -92,7 +92,7 @@ class PipeObject(ABC):
         return self.name
 
     @property
-    def location(self) -> Optional[Path]:
+    def location(self) -> Path | None:
         """Location relative to root directory."""
         return self._location
 
@@ -102,17 +102,17 @@ class PipeObject(ABC):
         return self._name
 
     @property
-    def parents(self) -> Optional[list[PipeObject]]:
+    def parents(self) -> list[PipeObject] | None:
         """Parent objects of this object."""
         return self._parents
 
     @property
-    def path(self) -> Optional[Path]:
+    def path(self) -> Path | None:
         """Path to this object, if applicable."""
         return self._path
 
     @path.setter
-    def path(self, value: Optional[PathLike]) -> None:
+    def path(self, value: PathLike | None) -> None:
         if value:
             self._path = validate_input_file(value)
         else:

@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Optional, Sequence
+from typing import Sequence
 
 from pipescaler.core.pipelines.checkpoint_manager_base import CheckpointManagerBase
 from pipescaler.core.pipelines.segment import Segment
@@ -23,7 +23,7 @@ class CheckpointedSegment(Segment, ABC):
         cp_manager: CheckpointManagerBase,
         cpts: Sequence[str],
         *,
-        internal_cpts: Optional[Sequence[str]] = None,
+        internal_cpts: Sequence[str] | None = None,
     ) -> None:
         """Initialize.
 

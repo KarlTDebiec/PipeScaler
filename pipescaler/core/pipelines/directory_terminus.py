@@ -9,7 +9,6 @@ from abc import ABC
 from logging import info
 from os import remove, rmdir
 from pathlib import Path
-from typing import Optional
 
 from pipescaler.common import PathLike, validate_output_directory
 from pipescaler.core.pipelines.terminus import Terminus
@@ -31,7 +30,7 @@ class DirectoryTerminus(Terminus, ABC):
         """Representation."""
         return f"{self.__class__.__name__}(directory={self.directory!r})"
 
-    def purge_unrecognized_files(self, directory: Optional[Path] = None) -> None:
+    def purge_unrecognized_files(self, directory: Path | None = None) -> None:
         """Remove unrecognized files and subdirectories in output directory."""
         if directory is None:
             directory = self.directory

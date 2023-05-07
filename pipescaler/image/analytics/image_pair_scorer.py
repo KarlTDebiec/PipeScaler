@@ -7,7 +7,6 @@ from __future__ import annotations
 
 from functools import partial
 from logging import info
-from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -74,7 +73,7 @@ class ImagePairScorer:
 
     def get_best_child_score_stats(
         self, parent: str, scale: float
-    ) -> Optional[ScoreStatsSeries]:
+    ) -> ScoreStatsSeries | None:
         """Get the best child of provided parent at scale.
 
         Arguments:
@@ -84,7 +83,7 @@ class ImagePairScorer:
             Score of the best candidate child of *parent* at *scale*
         """
         # Find the best candidate child
-        candidate_children: Optional[ScoreStatsDataFrame] = self.get_candidate_children(
+        candidate_children: ScoreStatsDataFrame | None = self.get_candidate_children(
             parent, scale
         )
         if candidate_children is None or len(candidate_children) == 0:
@@ -109,7 +108,7 @@ class ImagePairScorer:
             candidate_child: ScoreStatsSeries = candidate_children.loc[best_idx]
 
         # Find the best candidate parent of candidate child
-        candidate_parents: Optional[ScoreStatsDataFrame] = self.get_candidate_parents(
+        candidate_parents: ScoreStatsDataFrame | None = self.get_candidate_parents(
             candidate_child["scaled name"], scale
         )
         if candidate_parents is None or len(candidate_parents) == 0:
@@ -145,7 +144,7 @@ class ImagePairScorer:
 
     def get_candidate_children(
         self, parent: str, scale: float
-    ) -> Optional[ScoreStatsDataFrame]:
+    ) -> ScoreStatsDataFrame | None:
         """Get scores of all candidate children of provided parent at scale.
 
         Arguments:
@@ -190,7 +189,7 @@ class ImagePairScorer:
 
     def get_candidate_parents(
         self, child: str, scale: float
-    ) -> Optional[ScoreStatsDataFrame]:
+    ) -> ScoreStatsDataFrame | None:
         """Get scores of all candidate parents of provided child_hash at scale.
 
         Arguments:

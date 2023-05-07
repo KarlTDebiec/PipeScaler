@@ -6,7 +6,6 @@
 from __future__ import annotations
 
 from logging import info
-from typing import Optional
 
 import cv2
 import numpy as np
@@ -26,7 +25,7 @@ class VideoAspectRatioSorter(VideoSorter):
         """
         self._outlets = {k: str(v) for k, v in outlets.items()}
 
-    def __call__(self, pipe_object: PipeVideo) -> Optional[str]:
+    def __call__(self, pipe_object: PipeVideo) -> str | None:
         """Get the outlet to which a video should be sorted.
 
         Arguments:

@@ -4,9 +4,11 @@
 """Type hints for image pipelines."""
 from __future__ import annotations
 
-from typing import Callable, Union
+from typing import Callable, TypeAlias
 
 from pipescaler.image.core.pipelines.image_segment import ImageSegment
 from pipescaler.image.core.pipelines.pipe_image import PipeImage
 
-ImageSegmentLike = Union[ImageSegment, Callable[[PipeImage], tuple[PipeImage, ...]]]
+ImageSegmentLike: TypeAlias = (
+    ImageSegment | Callable[[PipeImage], tuple[PipeImage, ...]]
+)

@@ -4,7 +4,6 @@
 #  the terms of the BSD license. See the LICENSE file for details.
 """Image-related functions for testing."""
 from functools import partial
-from typing import Optional
 
 from PIL import Image
 from pytest import mark, param
@@ -26,7 +25,7 @@ def get_expected_output_mode(input_image: Image.Image) -> str:
     return input_image.mode
 
 
-def xfail_unsupported_image_mode(inner: Optional[partial] = None) -> partial:
+def xfail_unsupported_image_mode(inner: partial | None = None) -> partial:
     """Mark test to be expected to fail due to an unsupported image mode.
 
     Arguments:

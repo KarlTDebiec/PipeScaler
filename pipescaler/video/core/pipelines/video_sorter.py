@@ -6,7 +6,6 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Optional
 
 from pipescaler.core.pipelines.sorter import Sorter
 from pipescaler.video.core.pipelines.pipe_video import PipeVideo
@@ -16,7 +15,7 @@ class VideoSorter(Sorter, ABC):
     """Abstract base class for video sorters."""
 
     @abstractmethod
-    def __call__(self, pipe_video: PipeVideo) -> Optional[str]:
+    def __call__(self, pipe_video: PipeVideo) -> str | None:
         """Get the outlet to which a video should be sorted.
 
         Arguments:

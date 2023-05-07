@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from logging import debug
 from pathlib import Path
-from typing import Any, Optional, Sequence, Union
+from typing import Any, Sequence
 
 from PIL import Image
 
@@ -22,10 +22,10 @@ class PipeImage(PipeObject):
     def __init__(
         self,
         *,
-        image: Optional[Image.Image] = None,
-        path: Optional[Path] = None,
-        name: Optional[str] = None,
-        parents: Optional[Union[PipeImage, Sequence[PipeImage]]] = None,
+        image: Image.Image | None = None,
+        path: Path | None = None,
+        name: str | None = None,
+        parents: PipeImage | Sequence[PipeImage] | None = None,
         **kwargs: Any,
     ) -> None:
         """Initialize.

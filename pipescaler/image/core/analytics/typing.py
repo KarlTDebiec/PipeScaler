@@ -5,8 +5,9 @@
 """Core image analytics types."""
 from __future__ import annotations
 
+from typing import TypeAlias
+
 import pandas as pd
-from typing_extensions import TypeAlias
 
 HashDataFrame: TypeAlias = pd.DataFrame
 HashSeries: TypeAlias = pd.Series

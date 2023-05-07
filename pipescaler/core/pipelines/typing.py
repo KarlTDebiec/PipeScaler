@@ -4,9 +4,9 @@
 """Type hints for pipelines."""
 from __future__ import annotations
 
-from typing import Callable, Union
+from typing import Callable, TypeAlias
 
 from pipescaler.core.pipelines.pipe_object import PipeObject
 from pipescaler.core.pipelines.segment import Segment
 
-SegmentLike = Union[Segment, Callable[[PipeObject], tuple[PipeObject, ...]]]
+SegmentLike: TypeAlias = Segment | Callable[[PipeObject], tuple[PipeObject, ...]]

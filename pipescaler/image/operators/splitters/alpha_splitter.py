@@ -5,8 +5,6 @@
 """Splits image with transparency into separate alpha and color images."""
 from __future__ import annotations
 
-from typing import Optional
-
 import numpy as np
 from PIL import Image
 
@@ -22,7 +20,7 @@ class AlphaSplitter(ImageSplitter):
     def __init__(
         self,
         alpha_mode: AlphaMode = AlphaMode.GRAYSCALE,
-        mask_fill_mode: Optional[MaskFillMode] = None,
+        mask_fill_mode: MaskFillMode | None = None,
     ) -> None:
         """Validate configuration and initialize.
 

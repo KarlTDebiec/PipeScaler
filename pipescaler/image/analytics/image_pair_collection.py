@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from logging import info
-from typing import Iterable, Union
+from typing import Iterable
 
 import pandas as pd
 
@@ -31,7 +31,7 @@ class ImagePairCollection(Sequence):
         self._pairs = None
         self.load_cache()
 
-    def __getitem__(self, index: Union[str, Iterable[str]]) -> PairDataFrame:
+    def __getitem__(self, index: str | Iterable[str]) -> PairDataFrame:
         """Get image pairs matching index.
 
         Arguments:

@@ -12,7 +12,7 @@ from os import remove, rmdir
 from os.path import expandvars
 from pathlib import Path
 from shutil import copy, move
-from typing import Iterable, Optional, Sequence, Union
+from typing import Iterable, Sequence
 
 from PIL import Image
 
@@ -27,13 +27,13 @@ class FileScanner:
 
     def __init__(
         self,
-        input_directories: Union[PathLike, Iterable[PathLike]],
+        input_directories: PathLike | Iterable[PathLike],
         project_root: PathLike,
-        reviewed_directories: Optional[Union[PathLike, list[PathLike]]],
-        rules: Optional[list[tuple[str, str]]] = None,
+        reviewed_directories: PathLike | list[PathLike] | None,
+        rules: list[tuple[str, str]] | None = None,
         *,
-        remove_prefix: Optional[str] = None,
-        output_format: Optional[str] = None,
+        remove_prefix: str | None = None,
+        output_format: str | None = None,
     ) -> None:
         """Validate configuration and initialize.
 
@@ -47,7 +47,7 @@ class FileScanner:
         """
         super().__init__()
 
-        def get_names(directories: Union[Path, Sequence[Path]]) -> set[str]:
+        def get_names(directories: Path | Sequence[Path]) -> set[str]:
             """Get names of files in directories.
 
             Arguments:
