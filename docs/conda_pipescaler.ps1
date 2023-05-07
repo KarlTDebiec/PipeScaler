@@ -6,7 +6,7 @@ $ErrorActionPreference = "Stop"
 
 conda deactivate
 conda remove -y --name pipescaler --all
-conda create -y --name pipescaler python=3.10
+conda create -y --name pipescaler python=3.11
 conda activate pipescaler
 
 conda install -y `
@@ -31,9 +31,11 @@ pip install `
     scikit-image `
     setuptools `
     svglib `
-    types-Pillow `
-    xbrz.py
+    types-Pillow
+
+pip install `
+    xbrz.py@git+https://github.com/ioistired/xbrz.py
 
 conda install -y -c pytorch -c nvidia `
     pytorch `
-    pytorch-cuda=11.7
+    pytorch-cuda=11.8

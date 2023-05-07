@@ -1,4 +1,4 @@
-[![Python: =3.10](https://img.shields.io/badge/python-3.10-green.svg)](https://docs.python.org/3/whatsnew/3.10.html)
+[![Python: =3.11](https://img.shields.io/badge/python-3.11-green.svg)](https://docs.python.org/3/whatsnew/3.11.html)
 [![Build](https://github.com/KarlTDebiec/PipeScaler/actions/workflows/build.yml/badge.svg)](https://github.com/KarlTDebiec/PipeScaler/actions/workflows/build.yml)
 [![Coverage](https://img.shields.io/badge/coverage-83-green)](https://github.com/KarlTDebiec/PipeScaler)
 [![Code Style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
