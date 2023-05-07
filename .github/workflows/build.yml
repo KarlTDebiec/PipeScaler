@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout PipeScaler
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: true
       - name: Set up Python 3.9
@@ -78,13 +78,13 @@ jobs:
     if: github.event.pull_request.draft == false
     steps:
       - name: Checkout PipeScaler
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: true
-      - name: Set up Python 3.9
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
-          python-version: "3.9"
+          python-version: "3.10"
       - name: Install External Dependencies
         run: |
           brew install apngasm
@@ -119,13 +119,13 @@ jobs:
     if: github.event.pull_request.draft == false
     steps:
       - name: Checkout PipeScaler
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: true
-      - name: Set up Python 3.9
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
-          python-version: "3.9"
+          python-version: "3.10"
       - name: Install External Dependencies
         run: |
           Set-PSDebug -Trace 1
