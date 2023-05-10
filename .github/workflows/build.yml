@@ -47,7 +47,7 @@ jobs:
         uses: tj-actions/changed-files@v35
       - name: List changes
         run: |
-          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+          for file in ${{ steps.files.outputs.all_changed_files }}; do
             echo "$file"
             echo "$file" >> modified_files.txt
           done
