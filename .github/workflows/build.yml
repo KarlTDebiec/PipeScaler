@@ -48,6 +48,7 @@ jobs:
       - name: List changes
         run: |
           for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+            echo "$file"
             echo "$file" >> modified_files.txt
           done
       - name: prospector
