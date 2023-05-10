@@ -41,5 +41,6 @@ if(!$?) { Exit $LASTEXITCODE }
 
 conda install -y -c pytorch -c nvidia `
     pytorch `
-    pytorch-cuda=11.8
+    pytorch-cuda=11.8 `
+    torchvision
 if(!$?) { Exit $LASTEXITCODE }
