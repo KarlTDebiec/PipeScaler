@@ -44,28 +44,27 @@ jobs:
           poetry install --no-interaction
       - name: Identify changes
         id: files
-        uses: jitterbit/get-changed-files@v1
-        with:
-         format: json
+        uses: tj-actions/changed-files@v35
       - name: List changes
         run: |
-          cd ${GITHUB_WORKSPACE}
-          echo "${{ steps.files.outputs.added_modified  }}" > modified_files.json
+          for file in ${{ steps.files.outputs.all_changed_files }}; do
+            echo "$file" >> modified_files.txt
+          done
       - name: prospector
         run: |
           cd ${GITHUB_WORKSPACE}
           poetry run prospector -A -u flask -T -0 -o text -o json:prospector.json .
-          poetry run docs/prospector_reporter.py prospector.json modified_files.json
+          poetry run docs/prospector_reporter.py prospector.json modified_files.txt
       - name: pydocstyle # Run separately because prospector does not honor pyproject.toml
         run: |
           cd ${GITHUB_WORKSPACE}
           poetry run pydocstyle . | tee pydocstyle.txt || echo
-          poetry run docs/pydocstyle_reporter.py pydocstyle.txt modified_files.json
+          poetry run docs/pydocstyle_reporter.py pydocstyle.txt modified_files.txt
       - name: mypy
         run: |
           cd ${GITHUB_WORKSPACE}
           poetry run mypy . | tee mypy.txt || echo
-          poetry run docs/mypy_reporter.py mypy.txt modified_files.json
+          poetry run docs/mypy_reporter.py mypy.txt modified_files.txt
       - name: pytest
         run: |
           export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler

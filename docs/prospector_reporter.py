@@ -116,7 +116,7 @@ class ProspectorReporter:
             infile: Input file
         """
         text = infile.read()
-        return list(map(Path, text.strip("[]\n").split(",")))
+        return list(map(Path, text.splitlines()))
 
 
 if __name__ == "__main__":
