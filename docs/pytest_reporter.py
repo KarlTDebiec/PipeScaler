@@ -23,9 +23,9 @@ class Annotation:
     source: str
     level: str
     file_path: Path
-    line: int
     kind: str
     message: str
+    line: int | None = None
 
 
 @dataclass
@@ -42,11 +42,18 @@ class PytestReporter:
 
     header_regexes = {
         "start": re.compile(r"^=+ test session starts =+$", re.MULTILINE),
+        "errors": re.compile(r"^=+ ERRORS =+$", re.MULTILINE),
         "failures": re.compile(r"^=+ FAILURES =+$", re.MULTILINE),
         "warnings": re.compile(r"^=+ warnings summary =+$", re.MULTILINE),
         "coverage": re.compile(r"^-+ coverage.* -+$", re.MULTILINE),
         "summary": re.compile(r"^=+ short test summary info =+$", re.MULTILINE),
     }
+    error_regex = re.compile(
+        r"^_+ ERROR collecting (?P<file_path>.*) _+$\n"
+        r"(^[^E_]+.*$\n)+"
+        r"^E\s+(?P<kind>[^:\n]+):\s+(?P<message>[^\n]+)$\n",
+        re.MULTILINE,
+    )
     failure_regex = re.compile(
         r"^E\s+(?P<kind>[^:\n]+):\s+(?P<message>[^\n]+)$"
         r"\n^\s*$\n"
@@ -78,13 +85,21 @@ class PytestReporter:
     def __call__(self) -> None:
         """Print annotations formatted for consumption by GitHub."""
         for annotation in self.annotations:
-            print(
-                f"::{annotation.level} "
-                f"file={annotation.file_path},"
-                f"line={annotation.line}::"
-                f"{annotation.source}[{annotation.kind}] : "
-                f"{annotation.message}"
-            )
+            if annotation.line:
+                print(
+                    f"::{annotation.level} "
+                    f"file={annotation.file_path},"
+                    f"line={annotation.line}::"
+                    f"{annotation.source}[{annotation.kind}] : "
+                    f"{annotation.message}"
+                )
+            else:
+                print(
+                    f"::{annotation.level} "
+                    f"file={annotation.file_path}::"
+                    f"{annotation.source}[{annotation.kind}] : "
+                    f"{annotation.message}"
+                )
 
     def exit(self):
         """Exit, returning 1 if any tests failed and 0 otherwise."""
@@ -153,15 +168,45 @@ class PytestReporter:
         )
 
         # Parse sections
-        for section, location in bodies.items():
-            if section == "failures":
-                annotations.extend(
-                    cls.parse_failures_section(text[location.start : location.end])
+        if "errors" in bodies:
+            location = bodies["errors"]
+            annotations.extend(
+                cls.parse_errors_section(text[location.start : location.end])
+            )
+        if "failures" in bodies:
+            location = bodies["failures"]
+            annotations.extend(
+                cls.parse_failures_section(text[location.start : location.end])
+            )
+        if "warnings" in bodies:
+            location = bodies["warnings"]
+            annotations.extend(
+                cls.parse_warnings_section(text[location.start : location.end])
+            )
+
+        return annotations
+
+    @classmethod
+    def parse_errors_section(cls, body: str) -> list[Annotation]:
+        """Parse errors section of pytest output.
+
+        Arguments:
+            body: Body of errors section
+        Returns:
+            Annotations
+        """
+        annotations = []
+        for match in [m.groupdict() for m in cls.error_regex.finditer(body)]:
+            file_path = Path(match["file_path"]).resolve().relative_to(package_root)
+            annotations.append(
+                Annotation(
+                    source="pytest",
+                    level="error",
+                    file_path=file_path,
+                    kind=match["kind"].strip(),
+                    message=match["message"].strip(),
                 )
-            elif section == "warnings":
-                annotations.extend(
-                    cls.parse_warnings_section(text[location.start : location.end])
-                )
+            )
 
         return annotations
 
