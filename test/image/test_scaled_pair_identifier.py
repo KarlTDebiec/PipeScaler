@@ -1,7 +1,6 @@
 #!/usr/bin/env python
-#  Copyright 2020-2023 Karl T Debiec
-#  All rights reserved. This software may be modified and distributed under
-#  the terms of the BSD license. See the LICENSE file for details.
+#  Copyright 2020-2023 Karl T Debiec. All rights reserved. This software may be modified
+#  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Tests for ScaledPairIdentifier."""
 from platform import system
 from shutil import copy
@@ -23,7 +22,6 @@ def test_review() -> None:
         with get_temp_file_path("csv") as hash_file, get_temp_file_path(
             "csv"
         ) as pairs_file:
-
             # Copy basic infiles and prepare scaled pairs
             for mode in ["L", "LA", "RGB", "RGBA"]:
                 infile = get_test_infile_path(mode)
