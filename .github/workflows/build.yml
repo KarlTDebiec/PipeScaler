@@ -153,15 +153,17 @@ jobs:
           key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
       - name: Install dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        shell: bash
         run: |
           poetry install --no-interaction --no-root
       - name: Install library
+        shell: bash
         run: |
           poetry install --no-interaction
       - name: Test with pytest
+        shell: bash
         run: |
-          Set-PSDebug -Trace 1
-          $ErrorView = 'NormalView'
-          ${env:PACKAGE_ROOT}="${env:GITHUB_WORKSPACE}\pipescaler"
-          Set-Location ${env:GITHUB_WORKSPACE}\test
-          poetry run pytest -v --cov=pipescaler --cov-report term .
+          source $VENV
+          export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
+          cd ${GITHUB_WORKSPACE}/test
+          pytest -v --cov=pipescaler --cov-report term .
