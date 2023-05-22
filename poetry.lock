@@ -1482,18 +1482,23 @@ testutils = ["gitpython (>3)"]
 [[package]]
 name = "pylint-celery"
 version = "0.3"
-description = "pylint-celery is a Pylint plugin to aid Pylint in recognising and understandingerrors caused when using the Celery library"
+description = ""
 category = "dev"
 optional = false
 python-versions = "*"
-files = [
-    {file = "pylint-celery-0.3.tar.gz", hash = "sha256:41e32094e7408d15c044178ea828dd524beedbdbe6f83f712c5e35bde1de4beb"},
-]
+files = []
+develop = false
 
 [package.dependencies]
 astroid = ">=1.0"
 pylint = ">=1.0"
 pylint-plugin-utils = ">=0.2.1"
+
+[package.source]
+type = "git"
+url = "https://github.com/PyCQA/pylint-celery"
+reference = "HEAD"
+resolved_reference = "4edf639f291b677270e792f5c045c3cc2ac3a664"
 
 [[package]]
 name = "pylint-django"
@@ -2336,4 +2341,4 @@ resolved_reference = "0352a872e6ef48997d758b20b8a180e6fb3114ae"
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.10"
-content-hash = "1f716e81dddc115f9998d67c50e1db8325f6c9850d44257e5d872dbc19871ef6"
+content-hash = "e4d7d98580ba7ed42bad684be43729bdd7cd84580ac53851b5e31badfda08f41"
