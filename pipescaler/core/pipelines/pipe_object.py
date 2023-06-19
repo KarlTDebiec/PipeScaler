@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Sequence
+from typing import Self, Sequence
 
 from pipescaler.common import PathLike, validate_input_file
 
@@ -18,7 +18,7 @@ class PipeObject(ABC):
         *,
         path: PathLike | None = None,
         name: str | None = None,
-        parents: PipeObject | Sequence[PipeObject] | None = None,
+        parents: Self | Sequence[Self] | None = None,
         location: Path | None = None,
     ) -> None:
         """Initialize.
@@ -100,7 +100,7 @@ class PipeObject(ABC):
         return self._name
 
     @property
-    def parents(self) -> list[PipeObject] | None:
+    def parents(self) -> list[Self] | None:
         """Parent objects of this object."""
         return self._parents
 

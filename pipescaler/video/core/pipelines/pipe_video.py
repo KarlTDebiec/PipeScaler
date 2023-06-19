@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from logging import debug
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any, Self, Sequence
 
 import cv2
 
@@ -22,7 +22,7 @@ class PipeVideo(PipeObject):
         video: cv2.VideoCapture | None = None,
         path: Path | None = None,
         name: str | None = None,
-        parents: PipeVideo | Sequence[PipeVideo] | None = None,
+        parents: Self | Sequence[Self] | None = None,
         **kwargs: Any,
     ) -> None:
         """Initialize.
