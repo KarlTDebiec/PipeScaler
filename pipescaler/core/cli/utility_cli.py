@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from inspect import cleandoc
-from typing import Type
+from typing import Any, Type
 
 from pipescaler.common import CommandLineInterface
 from pipescaler.core.utility import Utility
@@ -23,6 +23,19 @@ class UtilityCli(CommandLineInterface, ABC):
     def name(cls) -> str:
         """Name of this tool used to define it when it is a subparser."""
         return cls.__name__.removesuffix("Cli").lower()
+
+    @classmethod
+    def main_internal(cls, **kwargs: Any) -> None:
+        """Execute with provided keyword arguments.
+
+        May be overridden to distribute keyword arguments between initialization of the
+        utility and the call to its run method.
+
+        Arguments:
+            **kwargs: Keyword arguments
+        """
+        utility_cls = cls.utility()
+        utility_cls.run(**kwargs)
 
     @classmethod
     @abstractmethod
