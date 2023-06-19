@@ -1,7 +1,6 @@
 #!/usr/bin/env python
-#  Copyright 2020-2023 Karl T Debiec
-#  All rights reserved. This software may be modified and distributed under
-#  the terms of the BSD license. See the LICENSE file for details.
+#  Copyright 2020-2023 Karl T Debiec. All rights reserved. This software may be modified
+#  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Prints prospector output formatted for consumption by GitHub."""
 from __future__ import annotations
 
@@ -116,7 +115,7 @@ class ProspectorReporter:
             infile: Input file
         """
         text = infile.read()
-        return list(map(Path, text.strip("[]\n").split(",")))
+        return list(map(Path, text.splitlines()))
 
 
 if __name__ == "__main__":

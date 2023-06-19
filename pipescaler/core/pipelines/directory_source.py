@@ -1,7 +1,5 @@
-#!/usr/bin/env python
-#  Copyright 2020-2023 Karl T Debiec
-#  All rights reserved. This software may be modified and distributed under
-#  the terms of the BSD license. See the LICENSE file for details.
+#  Copyright 2020-2023 Karl T Debiec. All rights reserved. This software may be modified
+#  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Abstract base class for sources that yield objects from a directory."""
 from __future__ import annotations
 
@@ -18,7 +16,7 @@ from pipescaler.core.sorting import basic_sort
 class DirectorySource(Source, ABC):
     """Abstract base class for sources that yield objects from a directory."""
 
-    cls_exclusions = {r".*\.DS_Store$", r".*Thumbs.db$", r".*desktop$"}
+    cls_exclusions = {r".*\.DS_Store$", r".*Thumbs.db$", r".*desktop.ini$"}
     """File paths to exclude"""
 
     def __init__(

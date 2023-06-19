@@ -32,6 +32,7 @@ pip install \
     setuptools \
     svglib \
     types-Pillow
+
 pip install \
     xbrz.py@git+https://github.com/ioistired/xbrz.py
 

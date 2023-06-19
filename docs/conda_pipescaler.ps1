@@ -11,6 +11,7 @@ conda activate pipescaler
 
 conda install -y `
     brotlipy
+if(!$?) { Exit $LASTEXITCODE }
 
 pip install `
     black `
@@ -32,10 +33,13 @@ pip install `
     setuptools `
     svglib `
     types-Pillow
+if(!$?) { Exit $LASTEXITCODE }
 
 pip install `
     xbrz.py@git+https://github.com/ioistired/xbrz.py
+if(!$?) { Exit $LASTEXITCODE }
 
 conda install -y -c pytorch -c nvidia `
     pytorch `
     pytorch-cuda=11.8
+if(!$?) { Exit $LASTEXITCODE }

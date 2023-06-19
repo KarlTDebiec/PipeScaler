@@ -1,7 +1,5 @@
-#!/usr/bin/env python
-#  Copyright 2020-2023 Karl T Debiec
-#  All rights reserved. This software may be modified and distributed under
-#  the terms of the BSD license. See the LICENSE file for details.
+#  Copyright 2020-2023 Karl T Debiec. All rights reserved. This software may be modified
+#  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Manages checkpoints."""
 from itertools import cycle
 from logging import info
@@ -42,12 +40,11 @@ class CheckpointManager(CheckpointManagerBase):
         """
         cls = inputs[0].__class__
 
-        if len(inputs) in (1, len(cpts)):
-            location_names = [i.location_name for i in inputs]
-        else:
+        location_names = list(dict.fromkeys([i.location_name for i in inputs]))
+        if len(location_names) not in (1, len(cpts)):
             raise ValueError(
-                "Number of inputs must equal either 1 or number of cpts;"
-                f"received {len(inputs)} and {len(cpts)}."
+                "Number of input locations must equal either 1 or number of cpts;"
+                f"received {len(location_names)} and {len(cpts)}."
             )
         for ln, c in zip(cycle(location_names), cpts):
             self.observe(ln, c)
