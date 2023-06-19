@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
-from typing import Any, Type
+from typing import Type
 
 from pipescaler.common import (
     get_arg_groups_by_name,
@@ -50,12 +50,6 @@ class WaifuSerializerCli(UtilityCli):
             type=output_file_arg(),
             help="output pth file",
         )
-
-    @classmethod
-    def main_internal(cls, **kwargs: Any) -> None:
-        """Execute with provided keyword arguments."""
-        utility_cls = cls.utility()
-        utility_cls.run(**kwargs)
 
     @classmethod
     def utility(cls) -> Type[WaifuSerializer]:
