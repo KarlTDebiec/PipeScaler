@@ -54,6 +54,21 @@ class TopazVideoAiRunner(Runner):
         ' "-map_metadata:s:v" "0:s:v" "-an" '
         ' "{outfile}"'
     )
+    chronos_60_prores = (
+        '"-hide_banner" "-nostdin" "-y" "-nostats" '
+        '"-framerate" "30" "-start_number" "1" '
+        '"-i" "{infile}" '
+        '"-sws_flags" "spline+accurate_rnd+full_chroma_int" '
+        '"-color_trc" "2" "-colorspace" "2" "-color_primaries" "2" '
+        '"-filter_complex" "veai_fi=model=chf-3:slowmo=1:fps=60:device=0:vram=0.9:'
+        'instances=1" '
+        '"-c:v" "prores_ks" "-profile:v" "1" "-vendor" "apl0" "-bits_per_mb" "8000" '
+        '"-pix_fmt" "yuv422p10le" "-map_metadata" "0" '
+        '"-movflags" '
+        '"frag_keyframe+empty_moov+delay_moov+use_metadata_tags+write_colr " '
+        '"-map_metadata:s:v" "0:s:v" "-an" '
+        ' "{outfile}"'
+    )
 
     def __init__(
         self,
