@@ -16,7 +16,7 @@ from pipescaler.core.sorting import basic_sort
 class DirectorySource(Source, ABC):
     """Abstract base class for sources that yield objects from a directory."""
 
-    cls_exclusions = {r".*\.DS_Store$", r".*Thumbs.db$", r".*desktop$"}
+    cls_exclusions = {r".*\.DS_Store$", r".*Thumbs.db$", r".*desktop.ini$"}
     """File paths to exclude"""
 
     def __init__(
