@@ -12,9 +12,9 @@ from typing import Type
 import pytest
 
 from pipescaler.cli import PipeScalerCli
-from pipescaler.common import CommandLineInterface
+from pipescaler.common import CommandLineInterface, run_cli_with_args
 from pipescaler.image.cli import ImageCli
-from pipescaler.testing import parametrize_with_readable_ids, run_cli_with_args
+from pipescaler.testing import parametrize_with_readable_ids
 
 
 @parametrize_with_readable_ids(
