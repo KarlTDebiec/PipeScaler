@@ -11,10 +11,14 @@ from typing import Type
 
 import pytest
 
-from pipescaler.common import CommandLineInterface, get_temp_file_path
+from pipescaler.common import (
+    CommandLineInterface,
+    get_temp_file_path,
+    run_cli_with_args,
+)
 from pipescaler.image.cli import ImageUtilitiesCli
 from pipescaler.image.cli.utilities import EsrganSerializerCli, WaifuSerializerCli
-from pipescaler.testing import get_test_model_infile_path, run_cli_with_args, skip_if_ci
+from pipescaler.testing import get_test_model_infile_path, skip_if_ci
 
 
 @pytest.mark.parametrize(

@@ -45,7 +45,7 @@ jobs:
           poetry install --no-interaction
       - name: Identify changes
         id: files
-        uses: tj-actions/changed-files@v35
+        uses: tj-actions/changed-files@v36
       - name: List changes
         run: |
           for file in ${{ steps.files.outputs.all_changed_files }}; do
@@ -73,6 +73,7 @@ jobs:
           poetry run pytest -v --cov=pipescaler --cov-report term . | tee pytest.txt
           cd ${GITHUB_WORKSPACE}
           poetry run docs/pytest_reporter.py test/pytest.txt
+
   macOS:
     runs-on: macos-latest
     if: github.event.pull_request.draft == false
@@ -110,11 +111,12 @@ jobs:
       - name: Install library
         run: |
           poetry install --no-interaction
-      - name: Test with pytest
+      - name: pytest
         run: |
           export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
           cd ${GITHUB_WORKSPACE}/test
           poetry run pytest -v --cov=pipescaler --cov-report term .
+
   Windows:
     runs-on: windows-latest
     if: github.event.pull_request.draft == false
@@ -160,7 +162,7 @@ jobs:
         shell: bash
         run: |
           poetry install --no-interaction
-      - name: Test with pytest
+      - name: pytest
         shell: bash
         run: |
           source $VENV

@@ -3,7 +3,6 @@
 """PipeScaler general testing package."""
 from __future__ import annotations
 
-from pipescaler.testing.cli import run_cli_with_args
 from pipescaler.testing.execution_counter import count_executions
 from pipescaler.testing.file import (
     get_test_infile_directory_path,
@@ -27,7 +26,6 @@ __all__ = [
     "get_test_model_infile_path",
     "parametrized_fixture",
     "parametrize_with_readable_ids",
-    "run_cli_with_args",
     "skip_if_ci",
     "xfail_file_not_found",
     "xfail_if_platform",
