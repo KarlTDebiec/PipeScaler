@@ -57,7 +57,7 @@ jobs:
           poetry run docs/prospector_reporter.py prospector.json .github/outputs/all_changed_and_modified_files.txt
 
       - name: Prospector annotations
-        uses: KarlTDebiec/LinterPrinter@initial-implementation
+        uses: KarlTDebiec/LinterPrinter@feature/initial-implementation
 
 #       - name: pydocstyle # Run separately because prospector does not honor pyproject.toml
 #         run: |
