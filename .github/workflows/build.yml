@@ -62,7 +62,7 @@ jobs:
       - name: Confirm new way of listing changing
         run: |
           ls .github/outputs
-          cat .github/outputs/changed_files.txt
+          cat .github/outputs/all_changed_and_modified_files.txt
 
 #       - name: prospector
 #         run: |
