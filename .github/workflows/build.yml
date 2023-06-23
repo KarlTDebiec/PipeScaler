@@ -43,23 +43,26 @@ jobs:
       - name: Install library
         run: |
           poetry install --no-interaction
+
       - name: Identify changes
         id: files
         uses: tj-actions/changed-files@v36
+        with:
+          write_output_files: true
 
-      - name: List changes
+      - name: List changes the old way
         run: |
           for file in ${{ steps.files.outputs.all_changed_files }}; do
             echo "$file" >> modified_files.txt
           done
-      - name: Get changed files and write the outputs to a json file
-        id: get_changed_files
-        uses: ./
-        with:
-          write_output_files: true
-      - name: Nay
+      - name: Confirm old way of listing changes
+        run: |
+            cat modified_files.txt
+
+      - name: Confirm new way of listing changing
         run: |
           ls .github/outputs
+          cat .github/outputs/changed_files.txt
 
 #       - name: prospector
 #         run: |
