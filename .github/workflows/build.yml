@@ -43,50 +43,34 @@ jobs:
       - name: Install library
         run: |
           poetry install --no-interaction
-
       - name: Identify changes
         id: files
         uses: tj-actions/changed-files@v36
         with:
           write_output_files: true
-
-      - name: List changes the old way
+      - name: prospector
         run: |
-          for file in ${{ steps.files.outputs.all_changed_files }}; do
-            echo "$file" >> modified_files.txt
-          done
-      - name: Confirm old way of listing changes
+          cd ${GITHUB_WORKSPACE}
+          poetry run prospector -A -u flask -T -0 -o text -o json:prospector.json .
+          poetry run docs/prospector_reporter.py prospector.json .github/outputs/all_changed_and_modified_files.txt
+      - name: pydocstyle # Run separately because prospector does not honor pyproject.toml
         run: |
-            cat modified_files.txt
-
-      - name: Confirm new way of listing changing
+          cd ${GITHUB_WORKSPACE}
+          poetry run pydocstyle . | tee pydocstyle.txt || echo
+          poetry run docs/pydocstyle_reporter.py pydocstyle.txt .github/outputs/all_changed_and_modified_files.txt
+      - name: mypy
         run: |
-          ls .github/outputs
-          cat .github/outputs/all_changed_and_modified_files.txt
+          cd ${GITHUB_WORKSPACE}
+          poetry run mypy . | tee mypy.txt || echo
+          poetry run docs/mypy_reporter.py mypy.txt .github/outputs/all_changed_and_modified_files.txt
+      - name: pytest
+        run: |
+          export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
+          cd ${GITHUB_WORKSPACE}/test
+          poetry run pytest -v --cov=pipescaler --cov-report term . | tee pytest.txt
+          cd ${GITHUB_WORKSPACE}
+          poetry run docs/pytest_reporter.py test/pytest.txt
 
-#       - name: prospector
-#         run: |
-#           cd ${GITHUB_WORKSPACE}
-#           poetry run prospector -A -u flask -T -0 -o text -o json:prospector.json .
-#           poetry run docs/prospector_reporter.py prospector.json modified_files.txt
-#       - name: pydocstyle # Run separately because prospector does not honor pyproject.toml
-#         run: |
-#           cd ${GITHUB_WORKSPACE}
-#           poetry run pydocstyle . | tee pydocstyle.txt || echo
-#           poetry run docs/pydocstyle_reporter.py pydocstyle.txt modified_files.txt
-#       - name: mypy
-#         run: |
-#           cd ${GITHUB_WORKSPACE}
-#           poetry run mypy . | tee mypy.txt || echo
-#           poetry run docs/mypy_reporter.py mypy.txt modified_files.txt
-#       - name: pytest
-#         run: |
-#           export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
-#           cd ${GITHUB_WORKSPACE}/test
-#           poetry run pytest -v --cov=pipescaler --cov-report term . | tee pytest.txt
-#           cd ${GITHUB_WORKSPACE}
-#           poetry run docs/pytest_reporter.py test/pytest.txt
-#
 #   macOS:
 #     runs-on: macos-latest
 #     if: github.event.pull_request.draft == false
