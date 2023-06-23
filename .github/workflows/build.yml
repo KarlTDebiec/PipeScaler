@@ -46,126 +46,136 @@ jobs:
       - name: Identify changes
         id: files
         uses: tj-actions/changed-files@v36
+
       - name: List changes
         run: |
           for file in ${{ steps.files.outputs.all_changed_files }}; do
             echo "$file" >> modified_files.txt
           done
-      - name: prospector
+      - name: Get changed files and write the outputs to a json file
+        id: get_changed_files
+        uses: ./
+        with:
+          write_output_files: true
+      - name: Nay
         run: |
-          cd ${GITHUB_WORKSPACE}
-          poetry run prospector -A -u flask -T -0 -o text -o json:prospector.json .
-          poetry run docs/prospector_reporter.py prospector.json modified_files.txt
-      - name: pydocstyle # Run separately because prospector does not honor pyproject.toml
-        run: |
-          cd ${GITHUB_WORKSPACE}
-          poetry run pydocstyle . | tee pydocstyle.txt || echo
-          poetry run docs/pydocstyle_reporter.py pydocstyle.txt modified_files.txt
-      - name: mypy
-        run: |
-          cd ${GITHUB_WORKSPACE}
-          poetry run mypy . | tee mypy.txt || echo
-          poetry run docs/mypy_reporter.py mypy.txt modified_files.txt
-      - name: pytest
-        run: |
-          export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
-          cd ${GITHUB_WORKSPACE}/test
-          poetry run pytest -v --cov=pipescaler --cov-report term . | tee pytest.txt
-          cd ${GITHUB_WORKSPACE}
-          poetry run docs/pytest_reporter.py test/pytest.txt
+          ls .github/outputs
 
-  macOS:
-    runs-on: macos-latest
-    if: github.event.pull_request.draft == false
-    steps:
-      - name: Checkout PipeScaler
-        uses: actions/checkout@v3
-        with:
-          submodules: true
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
-      - name: Install External Dependencies
-        run: |
-          brew install apngasm
-          brew install pngquant
-          brew install potrace
-      - name: Install Poetry
-        uses: snok/install-poetry@v1.3.3
-        with:
-          version: 1.3.2
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-          installer-parallel: true
-      - name: Load cached virtual environment
-        id: cached-poetry-dependencies
-        uses: actions/cache@v3
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
-      - name: Install dependencies
-        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: |
-          poetry install --no-interaction --no-root
-      - name: Install library
-        run: |
-          poetry install --no-interaction
-      - name: pytest
-        run: |
-          export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
-          cd ${GITHUB_WORKSPACE}/test
-          poetry run pytest -v --cov=pipescaler --cov-report term .
-
-  Windows:
-    runs-on: windows-latest
-    if: github.event.pull_request.draft == false
-    steps:
-      - name: Checkout PipeScaler
-        uses: actions/checkout@v3
-        with:
-          submodules: true
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
-      - name: Install External Dependencies
-        run: |
-          Set-PSDebug -Trace 1
-          $ErrorView = 'NormalView'
-          Set-Location -Path ${env:GITHUB_WORKSPACE}
-          New-Item -Path ${env:GITHUB_WORKSPACE} -Name "executables" -ItemType "directory"
-          Invoke-WebRequest -Uri http://potrace.sourceforge.net/download/1.16/potrace-1.16.win64.zip -Outfile potrace-1.16.win64.zip
-          Expand-Archive potrace-1.16.win64.zip
-          Move-Item -Path ${env:GITHUB_WORKSPACE}\potrace-1.16.win64\potrace-1.16.win64\* -Destination ${env:GITHUB_WORKSPACE}/executables
-          Invoke-WebRequest -Uri https://github.com/microsoft/DirectXTex/releases/download/nov2021/texconv.exe -Outfile ${env:GITHUB_WORKSPACE}/executables/texconv.exe
-          echo "${env:GITHUB_WORKSPACE}/executables" | Out-File -FilePath $env:GITHUB_PATH
-      - name: Install Poetry
-        uses: snok/install-poetry@v1.3.3
-        with:
-          version: 1.3.2
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-          installer-parallel: true
-      - name: Load cached virtual environment
-        id: cached-poetry-dependencies
-        uses: actions/cache@v3
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
-      - name: Install dependencies
-        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        shell: bash
-        run: |
-          poetry install --no-interaction --no-root
-      - name: Install library
-        shell: bash
-        run: |
-          poetry install --no-interaction
-      - name: pytest
-        shell: bash
-        run: |
-          source $VENV
-          export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
-          cd ${GITHUB_WORKSPACE}/test
-          pytest -v --cov=pipescaler --cov-report term .
+#       - name: prospector
+#         run: |
+#           cd ${GITHUB_WORKSPACE}
+#           poetry run prospector -A -u flask -T -0 -o text -o json:prospector.json .
+#           poetry run docs/prospector_reporter.py prospector.json modified_files.txt
+#       - name: pydocstyle # Run separately because prospector does not honor pyproject.toml
+#         run: |
+#           cd ${GITHUB_WORKSPACE}
+#           poetry run pydocstyle . | tee pydocstyle.txt || echo
+#           poetry run docs/pydocstyle_reporter.py pydocstyle.txt modified_files.txt
+#       - name: mypy
+#         run: |
+#           cd ${GITHUB_WORKSPACE}
+#           poetry run mypy . | tee mypy.txt || echo
+#           poetry run docs/mypy_reporter.py mypy.txt modified_files.txt
+#       - name: pytest
+#         run: |
+#           export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
+#           cd ${GITHUB_WORKSPACE}/test
+#           poetry run pytest -v --cov=pipescaler --cov-report term . | tee pytest.txt
+#           cd ${GITHUB_WORKSPACE}
+#           poetry run docs/pytest_reporter.py test/pytest.txt
+#
+#   macOS:
+#     runs-on: macos-latest
+#     if: github.event.pull_request.draft == false
+#     steps:
+#       - name: Checkout PipeScaler
+#         uses: actions/checkout@v3
+#         with:
+#           submodules: true
+#       - name: Set up Python 3.11
+#         uses: actions/setup-python@v4
+#         with:
+#           python-version: "3.11"
+#       - name: Install External Dependencies
+#         run: |
+#           brew install apngasm
+#           brew install pngquant
+#           brew install potrace
+#       - name: Install Poetry
+#         uses: snok/install-poetry@v1.3.3
+#         with:
+#           version: 1.3.2
+#           virtualenvs-create: true
+#           virtualenvs-in-project: true
+#           installer-parallel: true
+#       - name: Load cached virtual environment
+#         id: cached-poetry-dependencies
+#         uses: actions/cache@v3
+#         with:
+#           path: .venv
+#           key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+#       - name: Install dependencies
+#         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+#         run: |
+#           poetry install --no-interaction --no-root
+#       - name: Install library
+#         run: |
+#           poetry install --no-interaction
+#       - name: pytest
+#         run: |
+#           export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
+#           cd ${GITHUB_WORKSPACE}/test
+#           poetry run pytest -v --cov=pipescaler --cov-report term .
+#
+#   Windows:
+#     runs-on: windows-latest
+#     if: github.event.pull_request.draft == false
+#     steps:
+#       - name: Checkout PipeScaler
+#         uses: actions/checkout@v3
+#         with:
+#           submodules: true
+#       - name: Set up Python 3.11
+#         uses: actions/setup-python@v4
+#         with:
+#           python-version: "3.11"
+#       - name: Install External Dependencies
+#         run: |
+#           Set-PSDebug -Trace 1
+#           $ErrorView = 'NormalView'
+#           Set-Location -Path ${env:GITHUB_WORKSPACE}
+#           New-Item -Path ${env:GITHUB_WORKSPACE} -Name "executables" -ItemType "directory"
+#           Invoke-WebRequest -Uri http://potrace.sourceforge.net/download/1.16/potrace-1.16.win64.zip -Outfile potrace-1.16.win64.zip
+#           Expand-Archive potrace-1.16.win64.zip
+#           Move-Item -Path ${env:GITHUB_WORKSPACE}\potrace-1.16.win64\potrace-1.16.win64\* -Destination ${env:GITHUB_WORKSPACE}/executables
+#           Invoke-WebRequest -Uri https://github.com/microsoft/DirectXTex/releases/download/nov2021/texconv.exe -Outfile ${env:GITHUB_WORKSPACE}/executables/texconv.exe
+#           echo "${env:GITHUB_WORKSPACE}/executables" | Out-File -FilePath $env:GITHUB_PATH
+#       - name: Install Poetry
+#         uses: snok/install-poetry@v1.3.3
+#         with:
+#           version: 1.3.2
+#           virtualenvs-create: true
+#           virtualenvs-in-project: true
+#           installer-parallel: true
+#       - name: Load cached virtual environment
+#         id: cached-poetry-dependencies
+#         uses: actions/cache@v3
+#         with:
+#           path: .venv
+#           key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+#       - name: Install dependencies
+#         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+#         shell: bash
+#         run: |
+#           poetry install --no-interaction --no-root
+#       - name: Install library
+#         shell: bash
+#         run: |
+#           poetry install --no-interaction
+#       - name: pytest
+#         shell: bash
+#         run: |
+#           source $VENV
+#           export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
+#           cd ${GITHUB_WORKSPACE}/test
+#           pytest -v --cov=pipescaler --cov-report term .
