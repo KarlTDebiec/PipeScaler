@@ -49,6 +49,7 @@ jobs:
         uses: tj-actions/changed-files@v36
         with:
           write_output_files: true
+          separator: '\n'
 
       - name: Run prospector
         run: |
