@@ -22,4 +22,3 @@ FILENAME="${MODEL_ROOT}/1x_BC1-smooth2.pth"
 FILEID="1LHplsPRqhmjR28jGgRlEekeP_bvx3nUC"
 curl -c ./cookie -s -L "https://drive.google.com/uc?export=download&id=${FILEID}" > /dev/null
 curl -Lb ./cookie "https://drive.google.com/uc?export=download&confirm=$(awk '/download/ {print $NF}' ./cookie)&id=${FILEID}" -o "${FILENAME}"
-
