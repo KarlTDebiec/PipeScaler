@@ -54,7 +54,7 @@ jobs:
       - name: Run prospector
         run: |
           cd ${GITHUB_WORKSPACE}
-          poetry run prospector -A -u flask -T -0 -o text -o json:.github/outputs/prospector.json .
+          poetry run prospector -A -u flask -T -0 -o text -o json:${GITHUB_WORKSPACE}/.github/outputs/prospector.json .
       - name: Annotate with Prospector results
         uses: KarlTDebiec/LinterPrinter@feature/initial-implementation
         with:
@@ -65,7 +65,7 @@ jobs:
       - name: pydocstyle # Run separately because prospector does not honor pyproject.toml
         run: |
           cd ${GITHUB_WORKSPACE}
-          poetry run pydocstyle . | tee .github/outputs/pydocstyle.txt || echo
+          poetry run pydocstyle . | tee ${GITHUB_WORKSPACE}/.github/outputs/pydocstyle.txt || echo
       - name: Annotate with pydocstyle results
         uses: KarlTDebiec/LinterPrinter@feature/initial-implementation
         with:
@@ -76,7 +76,7 @@ jobs:
       - name: mypy
         run: |
           cd ${GITHUB_WORKSPACE}
-          poetry run mypy . | tee .github/outputs/mypy.txt || echo
+          poetry run mypy . | tee ${GITHUB_WORKSPACE}/.github/outputs/mypy.txt || echo
       - name: Annotate with mypy results
         uses: KarlTDebiec/LinterPrinter@feature/initial-implementation
         with:
@@ -88,8 +88,7 @@ jobs:
         run: |
           export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
           cd ${GITHUB_WORKSPACE}/test
-          poetry run pytest -v --cov=pipescaler --cov-report term . | tee .github/outputs/pytest.txt
-          cd ${GITHUB_WORKSPACE}
+          poetry run pytest -v --cov=pipescaler --cov-report term . | tee ${GITHUB_WORKSPACE}/.github/outputs/pytest.txt || echo
       - name: Annotate with pytest results
         uses: KarlTDebiec/LinterPrinter@feature/initial-implementation
         with:
