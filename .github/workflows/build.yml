@@ -61,7 +61,7 @@ jobs:
         with:
           tool: prospector
           tool_infile: .github/outputs/prospector.json
-          files_to_annotate_infile: .github/outputs/all_changed_and_modified_files.txt
+          files_to_annotate_infile: .github/outputs/all_changed_and_modified_files.json
 
 #       - name: pydocstyle # Run separately because prospector does not honor pyproject.toml
 #         run: |
