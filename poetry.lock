@@ -921,18 +921,16 @@ wheel = "*"
 
 [[package]]
 name = "nvidia-cudnn-cu11"
-version = "8.5.0.96"
+version = "8.9.2.26"
 description = "cuDNN runtime libraries"
 optional = false
 python-versions = ">=3"
 files = [
-    {file = "nvidia_cudnn_cu11-8.5.0.96-2-py3-none-manylinux1_x86_64.whl", hash = "sha256:402f40adfc6f418f9dae9ab402e773cfed9beae52333f6d86ae3107a1b9527e7"},
-    {file = "nvidia_cudnn_cu11-8.5.0.96-py3-none-manylinux1_x86_64.whl", hash = "sha256:71f8111eb830879ff2836db3cccf03bbd735df9b0d17cd93761732ac50a8a108"},
+    {file = "nvidia_cudnn_cu11-8.9.2.26-py3-none-manylinux1_x86_64.whl", hash = "sha256:e4452e683173adb305369c1b7b3b1e2949fbe9d96495d881e7113ae9ff61f538"},
 ]
 
 [package.dependencies]
-setuptools = "*"
-wheel = "*"
+nvidia-cublas-cu11 = "*"
 
 [[package]]
 name = "nvidia-cufft-cu11"
@@ -2171,4 +2169,4 @@ resolved_reference = "0352a872e6ef48997d758b20b8a180e6fb3114ae"
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.11"
-content-hash = "18c820390300f4b7f64bc0321805ecf6d684f6c20d7ccd7df1a85f86b631223d"
+content-hash = "20cb2db2cd4de0ff95d4280d6f705dc804ed39745b4a0693d99921ece3ba3dca"
