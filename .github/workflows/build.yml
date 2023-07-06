@@ -10,7 +10,7 @@ jobs:
   Linux:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout PipeScaler
+      - name: Checkout
         uses: actions/checkout@v3
         with:
           submodules: true
@@ -97,7 +97,7 @@ jobs:
     runs-on: macos-latest
     if: github.event.pull_request.draft == false
     steps:
-      - name: Checkout PipeScaler
+      - name: Checkout
         uses: actions/checkout@v3
         with:
           submodules: true
@@ -140,7 +140,7 @@ jobs:
     runs-on: windows-latest
     if: github.event.pull_request.draft == false
     steps:
-      - name: Checkout PipeScaler
+      - name: Checkout
         uses: actions/checkout@v3
         with:
           submodules: true
