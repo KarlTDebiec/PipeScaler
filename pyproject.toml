@@ -83,7 +83,7 @@ scikit-image = "^0.21.0"
 scipy = "^1.11.2"
 svglib = "^1.5.1"
 torch = "^2.0.1"
-triton = { version = "2.0.0.post1", platform = 'linux' }
+triton = { version = "2.1.0", platform = 'linux' }
 "xbrz.py" = {git = "https://github.com/ioistired/xbrz.py"}
 
 [tool.poetry.group.dev.dependencies]
