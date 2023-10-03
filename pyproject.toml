@@ -80,7 +80,7 @@ pandas = "^2.1.1"
 Pillow = "^10.0.1"
 rlpycairo = "^0.3.0"
 scikit-image = "^0.21.0"
-scipy = "^1.11.2"
+scipy = "^1.11.3"
 svglib = "^1.5.1"
 torch = "^2.0.1"
 triton = { version = "2.1.0", platform = 'linux' }
