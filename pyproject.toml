@@ -77,7 +77,7 @@ nvidia-nccl-cu11 = { version = "2.18.3", platform = 'linux' }
 nvidia-nvtx-cu11 = { version = "11.8.86", platform = 'linux' }
 opencv-python = "^4.8.1.78"
 pandas = "^2.1.1"
-Pillow = "^10.0.1"
+Pillow = "^10.1.0"
 rlpycairo = "^0.3.0"
 scikit-image = "^0.22.0"
 scipy = "^1.11.3"
