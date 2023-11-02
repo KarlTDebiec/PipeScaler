@@ -968,12 +968,12 @@ files = [
 
 [[package]]
 name = "nvidia-nccl-cu11"
-version = "2.18.3"
+version = "2.19.3"
 description = "NVIDIA Collective Communication Library (NCCL) Runtime"
 optional = false
 python-versions = ">=3"
 files = [
-    {file = "nvidia_nccl_cu11-2.18.3-py3-none-manylinux1_x86_64.whl", hash = "sha256:411646f31a4a6a221e4eb875df43f94aec41bbe8dd163187fb0f2a65df375cee"},
+    {file = "nvidia_nccl_cu11-2.19.3-py3-none-manylinux1_x86_64.whl", hash = "sha256:7c58afbeddf7f7c6b7dd7d84a7f4e85462610ee0c656287388b96d89dcf046d5"},
 ]
 
 [[package]]
@@ -2092,4 +2092,4 @@ resolved_reference = "0352a872e6ef48997d758b20b8a180e6fb3114ae"
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.11"
-content-hash = "d76b64bd86b0ed1ca24e7dd09854197d7ccc7fb2ac34fd34ed683d50754e0b73"
+content-hash = "537182afe9603eef0f13bcd2031ae4173390cc32744205d285ac08b5b8a2a583"
