@@ -907,13 +907,12 @@ files = [
 
 [[package]]
 name = "nvidia-cudnn-cu11"
-version = "8.9.4.25"
+version = "8.9.5.30"
 description = "cuDNN runtime libraries"
 optional = false
 python-versions = ">=3"
 files = [
-    {file = "nvidia_cudnn_cu11-8.9.4.25-py3-none-manylinux1_x86_64.whl", hash = "sha256:bfad1a2e90eeb6e7314afad39e9d731344cfc3220233ece6c04c35e321dedd4a"},
-    {file = "nvidia_cudnn_cu11-8.9.4.25-py3-none-win_amd64.whl", hash = "sha256:c39cf14efb0ae7b4bf7396fba19a13d1c7f035e913fec254b163c3edcfb65fc5"},
+    {file = "nvidia_cudnn_cu11-8.9.5.30-py3-none-manylinux1_x86_64.whl", hash = "sha256:df16c962ecc1c38ab6ca579c058e801c60a3e5e2c5349a2dcb88b29f0351fb6b"},
 ]
 
 [package.dependencies]
@@ -2093,4 +2092,4 @@ resolved_reference = "0352a872e6ef48997d758b20b8a180e6fb3114ae"
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.11"
-content-hash = "7c513334faa10608cf4cee6bf25335379d5a2d7ef0f268a9b65d8b86791d7a1c"
+content-hash = "d76b64bd86b0ed1ca24e7dd09854197d7ccc7fb2ac34fd34ed683d50754e0b73"
