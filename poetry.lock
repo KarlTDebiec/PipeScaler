@@ -1237,13 +1237,13 @@ xml = ["lxml (>=4.8.0)"]
 
 [[package]]
 name = "pandas-stubs"
-version = "2.1.1.230928"
+version = "2.1.4.231218"
 description = "Type annotations for pandas"
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "pandas_stubs-2.1.1.230928-py3-none-any.whl", hash = "sha256:992d97159e054ca3175ebe8321ac5616cf6502dd8218b03bb0eaf3c4f6939037"},
-    {file = "pandas_stubs-2.1.1.230928.tar.gz", hash = "sha256:ce1691c71c5d67b8f332da87763f7f54650f46895d99964d588c3a5d79e2cacc"},
+    {file = "pandas_stubs-2.1.4.231218-py3-none-any.whl", hash = "sha256:9c9a8db37b83ff4ff9f672644099abc624ed407aa46d9dcb5f305de9925b3d29"},
+    {file = "pandas_stubs-2.1.4.231218.tar.gz", hash = "sha256:f0dd07b3bb2935ddcff9c7b7ba9076cf3529b968a0dee96fab53f5f8747974f7"},
 ]
 
 [package.dependencies]
@@ -2259,4 +2259,4 @@ resolved_reference = "0352a872e6ef48997d758b20b8a180e6fb3114ae"
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.11"
-content-hash = "7e498b774bd5c565cb590de119f1dc248dd878a86a26e14f4a8f89d905ed52c9"
+content-hash = "ae98a9d780a913e3126d20665d9a01e3542c8c2b5cf9b5a9e57089fc8eb05c92"
