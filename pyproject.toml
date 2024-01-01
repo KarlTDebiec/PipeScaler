@@ -88,7 +88,7 @@ triton = { version = "2.1.0", platform = 'linux' }
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.12.1"
-coverage = "^7.3.3"
+coverage = "^7.4.0"
 isort = "^5.13.2"
 mypy = "^1.8.0"
 pandas-stubs = "^2.1.4.231227"
