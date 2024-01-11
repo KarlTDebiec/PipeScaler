@@ -1,4 +1,4 @@
-#  Copyright 2020-2023 Karl T Debiec. All rights reserved. This software may be modified
+#  Copyright 2020-2024 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Converts mode of image."""
 from __future__ import annotations
@@ -13,17 +13,24 @@ from pipescaler.image.core.operators import ImageProcessor
 class ModeProcessor(ImageProcessor):
     """Converts mode of image."""
 
-    def __init__(self, mode: str = "RGB", background_color: str = "#000000") -> None:
+    def __init__(
+        self,
+        mode: str = "RGB",
+        background_color: str = "#000000",
+        threshold: int = 128,
+    ) -> None:
         """Validate and store configuration and initialize.
 
         Arguments:
             mode: Output mode
             background_color: Background color
+            threshold: Threshold for binary conversion (only used for mode '1')
         """
         super().__init__()
 
         self.mode = validate_str(mode, self.outputs()["output"])
-        self.background_color = ImageColor.getrgb(background_color)  # TODO: Validate
+        self.background_color = ImageColor.getrgb(background_color)
+        self.threshold = threshold
 
     def __call__(self, input_image: Image.Image) -> Image.Image:
         """Process an image.
@@ -38,6 +45,11 @@ class ModeProcessor(ImageProcessor):
         if input_image.mode == self.mode:
             return input_image
 
+        if self.mode == "1":
+            if input_image.mode in ("LA", "RGB", "RGBA"):
+                input_image = input_image.convert("L")
+            return input_image.point(lambda x: 0 if x < self.threshold else 255, "1")
+
         output_image = Image.new("RGBA", input_image.size, self.background_color)
         output_image.paste(input_image)
         if self.mode != "RGBA":
@@ -48,9 +60,10 @@ class ModeProcessor(ImageProcessor):
     def __repr__(self) -> str:
         """Representation."""
         return (
-            f"{self.__class__.__name__}("
+            f"{self.__class__.__name__!r}("
             f"mode={self.mode!r}, "
-            f"background_color={self.background_color!r})"
+            f"background_color={self.background_color!r}), "
+            f"threshold={self.threshold!r})"
         )
 
     @classmethod
