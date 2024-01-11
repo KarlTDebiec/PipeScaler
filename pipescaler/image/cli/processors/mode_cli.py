@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright 2020-2023 Karl T Debiec. All rights reserved. This software may be modified
+#  Copyright 2020-2024 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Command-line interface for ModeProcessor."""
 from __future__ import annotations
@@ -43,6 +43,13 @@ class ModeCli(ImageProcessorCli):
             type=str,
             help="background color of output image; only relevant if input image is "
             "RGBA or LA (default: %(default)s)",
+        )
+        arg_groups["additional arguments"].add_argument(
+            "--threshold",
+            default=128,
+            type=int,
+            help="threshold for binary conversion; only relevant if mode=1) "
+            "(default: %(default)s)",
         )
 
     @classmethod
