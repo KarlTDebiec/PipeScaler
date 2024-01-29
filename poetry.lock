@@ -2122,13 +2122,13 @@ tutorials = ["matplotlib", "pandas", "tabulate"]
 
 [[package]]
 name = "types-pillow"
-version = "10.1.0.20240106"
+version = "10.2.0.20240125"
 description = "Typing stubs for Pillow"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "types-Pillow-10.1.0.20240106.tar.gz", hash = "sha256:d2c2ed7ece6b0becb4daf150e2374c8f4d977fe6efec625ef952e262576190e7"},
-    {file = "types_Pillow-10.1.0.20240106-py3-none-any.whl", hash = "sha256:c04c68ace4a92af2e48904754750f1fcf2b1bc2ac7a75510cff11c3d7123dc92"},
+    {file = "types-Pillow-10.2.0.20240125.tar.gz", hash = "sha256:c449b2c43b9fdbe0494a7b950e6b39a4e50516091213fec24ef3f33c1d017717"},
+    {file = "types_Pillow-10.2.0.20240125-py3-none-any.whl", hash = "sha256:322dbae32b4b7918da5e8a47c50ac0f24b0aa72a804a23857620f2722b03c858"},
 ]
 
 [[package]]
@@ -2281,4 +2281,4 @@ resolved_reference = "0352a872e6ef48997d758b20b8a180e6fb3114ae"
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.11"
-content-hash = "bb39e46f27df30e4f7861b619a983ba14a988c8af2e5a76782a4409f4b2a07bb"
+content-hash = "67c345b4f5fe663064e158e35a3685ab20f48f67649096462052c6a0b0924895"
