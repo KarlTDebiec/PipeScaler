@@ -63,7 +63,7 @@ include = ["pipescaler/data/**"]
 python = "~3.11"
 ImageHash = "^4.3.1"
 numba = "^0.59.0"
-numpy = "^1.26.3"
+numpy = "^1.26.4"
 nvidia-cublas-cu11 = { version = "11.11.3.6", platform = 'linux' }
 nvidia-cuda-cupti-cu11 = { version = "11.8.87", platform = 'linux' }
 nvidia-cuda-nvrtc-cu11 = { version = "11.8.89", platform = 'linux' }
