@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.black]
 line-length=88
-target-version=['py311']
+target-version=['py312']
 
 [tool.coverage.run]
 data_file='coverage.coverage'
@@ -15,7 +15,7 @@ parallel='True'
 profile='black'
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.12"
 warn_return_any = true
 warn_unused_configs = true
 
@@ -60,21 +60,10 @@ license = "BSD"
 include = ["pipescaler/data/**"]
 
 [tool.poetry.dependencies]
-python = "~3.11"
+python = "~3.12"
 ImageHash = "^4.3.1"
-numba = "^0.59.0"
+numba = "^0.59.1"
 numpy = "^1.26.4"
-nvidia-cublas-cu11 = { version = "11.11.3.6", platform = 'linux' }
-nvidia-cuda-cupti-cu11 = { version = "11.8.87", platform = 'linux' }
-nvidia-cuda-nvrtc-cu11 = { version = "11.8.89", platform = 'linux' }
-nvidia-cuda-runtime-cu11 = { version = "11.8.89", platform = 'linux' }
-nvidia-cudnn-cu11 = { version = "8.9.6.50", platform = 'linux' }
-nvidia-cufft-cu11 = { version = "10.9.0.58", platform = 'linux' }
-nvidia-curand-cu11 = { version = "10.3.0.86", platform = 'linux' }
-nvidia-cusolver-cu11 = { version = "11.4.1.48", platform = 'linux' }
-nvidia-cusparse-cu11 = { version = "11.7.5.86", platform = 'linux' }
-nvidia-nccl-cu11 = { version = "2.20.5", platform = 'linux' }
-nvidia-nvtx-cu11 = { version = "11.8.86", platform = 'linux' }
 opencv-python = "^4.9.0.80"
 pandas = "^2.2.1"
 Pillow = "^10.2.0"
@@ -82,13 +71,12 @@ rlpycairo = "^0.3.0"
 scikit-image = "^0.22.0"
 scipy = "^1.12.0"
 svglib = "^1.5.1"
-torch = "^2.1.2"
-triton = { version = "2.1.0", platform = 'linux' }
+torch = "^2.2.1"
 "xbrz.py" = {git = "https://github.com/ioistired/xbrz.py"}
 
 [tool.poetry.group.dev.dependencies]
-black = "^24.2.0"
-coverage = "^7.4.3"
+black = "^24.3.0"
+coverage = "^7.4.4"
 isort = "^5.13.2"
 mypy = "^1.9.0"
 pandas-stubs = "^2.2.1.240316"
@@ -107,7 +95,7 @@ ignore=['CVS']
 jobs=1
 limit-inference-results=100
 persistent=['yes']
-py-version="3.11"
+py-version="3.12"
 suggestion-mode=['yes']
 unsafe-load-any-extension=['no']
 

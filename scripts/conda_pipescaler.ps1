@@ -6,7 +6,7 @@ $ErrorActionPreference = "Stop"
 
 conda deactivate
 conda remove -y --name pipescaler --all
-conda create -y --name pipescaler python=3.11
+conda create -y --name pipescaler python=3.12
 conda activate pipescaler
 
 conda install -y `
@@ -30,7 +30,6 @@ pip install `
     pytest-cov `
     pytest-xdist `
     scikit-image `
-    setuptools `
     svglib `
     types-Pillow
 if(!$?) { Exit $LASTEXITCODE }
