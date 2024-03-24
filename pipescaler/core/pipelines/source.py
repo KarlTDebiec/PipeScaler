@@ -10,7 +10,7 @@ from inspect import cleandoc
 from pipescaler.core.pipelines.pipe_object import PipeObject
 
 
-class Source(ABC):
+class Source[T: PipeObject](ABC):
     """Abstract base class for pipeline sources."""
 
     def __iter__(self) -> Source:
@@ -18,7 +18,7 @@ class Source(ABC):
         return self
 
     @abstractmethod
-    def __next__(self) -> PipeObject:
+    def __next__(self) -> T:
         """Return next object."""
         raise NotImplementedError()
 

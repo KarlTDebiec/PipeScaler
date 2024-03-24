@@ -11,27 +11,27 @@ from pipescaler.core.pipelines import CheckpointedSegment, PipeObject
 class PostCheckpointedSegment(CheckpointedSegment):
     """Segment with post-execution checkpoints."""
 
-    def __call__(self, *inputs: PipeObject) -> tuple[PipeObject, ...]:
+    def __call__(self, *input_objs: PipeObject) -> tuple[PipeObject, ...]:
         """Return outputs of wrapped Segment, loaded from checkpoints if available.
 
         Arguments:
-            inputs: Input objects
+            input_objs: Input objects
         Returns:
             Output objects, loaded from checkpoint if available, within a tuple even if
             only one
         """
-        cls = inputs[0].__class__
+        cls = input_objs[0].__class__
         cpt_paths = [
             self.cp_manager.directory / i.location_name / c
-            for i in inputs
+            for i in input_objs
             for c in self.cpts
         ]
         if all(p.exists() for p in cpt_paths):
-            outputs = tuple(cls(path=p, parents=inputs) for p in cpt_paths)
+            outputs = tuple(cls(path=p, parents=input_objs) for p in cpt_paths)
             info(
-                f"{self}: '{inputs[0].location_name}' checkpoints '{self.cpts}' loaded"
+                f"{self}: '{input_objs[0].location_name}' checkpoints '{self.cpts}' loaded"
             )
-            for i in inputs:
+            for i in input_objs:
                 for c in self.internal_cpts:
                     self.cp_manager.observe(i.location_name, c)
         else:
@@ -40,7 +40,7 @@ class PostCheckpointedSegment(CheckpointedSegment):
                     f"{self.__class__.__name__} requires a callable Segment; "
                     f"{self.segment.__class__.__name__} is not callable."
                 )
-            outputs = self.segment(*inputs)
+            outputs = self.segment(*input_objs)
             if len(outputs) != len(self.cpts):
                 raise ValueError(
                     f"Expected {len(self.cpts)} outputs from {self.segment} "
@@ -51,7 +51,7 @@ class PostCheckpointedSegment(CheckpointedSegment):
             for o, c, p in zip(outputs, self.cpts, cpt_paths):
                 o.save(p)
                 info(f"{self}: '{o.location_name}' checkpoint '{c}' saved")
-        for i in inputs:
+        for i in input_objs:
             for c in self.cpts:
                 self.cp_manager.observe(i.location_name, c)
 

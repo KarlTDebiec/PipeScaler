@@ -3,16 +3,11 @@
 """Abstract base class for video sources."""
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABC
 
 from pipescaler.core.pipelines.source import Source
 from pipescaler.video.core.pipelines.pipe_video import PipeVideo
 
 
-class VideoSource(Source, ABC):
+class VideoSource(Source[PipeVideo], ABC):
     """Abstract base class for video sources."""
-
-    @abstractmethod
-    def __next__(self) -> PipeVideo:
-        """Return next video."""
-        raise NotImplementedError()

@@ -3,22 +3,11 @@
 """Abstract base class for video pipeline segments."""
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABC
 
 from pipescaler.core.pipelines.segment import Segment
 from pipescaler.video.core.pipelines.pipe_video import PipeVideo
 
 
-class VideoSegment(Segment, ABC):
+class VideoSegment(Segment[PipeVideo], ABC):
     """Abstract base class for video pipeline segments."""
-
-    @abstractmethod
-    def __call__(self, *inputs: PipeVideo) -> tuple[PipeVideo, ...]:
-        """Receive input videos and returns output videos.
-
-        Arguments:
-            inputs: Input videos
-        Returns:
-            Output videos, within a tuple even if only one
-        """
-        raise NotImplementedError()

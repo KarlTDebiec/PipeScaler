@@ -3,22 +3,11 @@
 """Abstract base class for segments within image pipelines."""
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABC
 
 from pipescaler.core.pipelines.segment import Segment
 from pipescaler.image.core.pipelines.pipe_image import PipeImage
 
 
-class ImageSegment(Segment, ABC):
+class ImageSegment(Segment[PipeImage], ABC):
     """Abstract base class for segments within image pipelines."""
-
-    @abstractmethod
-    def __call__(self, *inputs: PipeImage) -> tuple[PipeImage, ...]:
-        """Receive input images and returns output images.
-
-        Arguments:
-            inputs: Input images
-        Returns:
-            Output images, within a tuple even if only one
-        """
-        raise NotImplementedError()

@@ -18,7 +18,7 @@ from pipescaler.image.core.pipelines import ImageTerminus, PipeImage
 class ImageDirectoryTerminus(ImageTerminus, DirectoryTerminus):
     """Copies images to an output directory."""
 
-    def __call__(self, input_image: PipeImage) -> None:
+    def __call__(self, input_obj: PipeImage) -> None:
         """Save image to output directory.
 
         If image already exists within output directory, checks if it should be
@@ -26,7 +26,7 @@ class ImageDirectoryTerminus(ImageTerminus, DirectoryTerminus):
         are the same as the incoming image, does not overwrite.
 
         Arguments:
-            input_image: Image to save to output directory
+            input_obj: Image to save to output directory
         """
 
         def save_image():
@@ -37,24 +37,22 @@ class ImageDirectoryTerminus(ImageTerminus, DirectoryTerminus):
             if not outfile.parent.exists():
                 outfile.parent.mkdir(parents=True)
                 info(f"{self}: '{outfile.parent.relative_to(self.directory)}' created")
-            if input_image.path:
-                copyfile(input_image.path, outfile)
+            if input_obj.path:
+                copyfile(input_obj.path, outfile)
             else:
-                input_image.image.save(outfile)
+                input_obj.image.save(outfile)
 
-        suffix = input_image.path.suffix if input_image.path else ".png"
-        outfile = (self.directory / input_image.location_name).with_suffix(suffix)
+        suffix = input_obj.path.suffix if input_obj.path else ".png"
+        outfile = (self.directory / input_obj.location_name).with_suffix(suffix)
         self.observed_files.add(str(outfile.relative_to(self.directory)))
         if outfile.exists():
             if (
-                input_image.path
-                and outfile.stat().st_mtime > input_image.path.stat().st_mtime
+                input_obj.path
+                and outfile.stat().st_mtime > input_obj.path.stat().st_mtime
             ):
                 info(f"{self}: '{outfile}' is newer; not overwritten")
                 return
-            if np.array_equal(
-                np.array(input_image.image), np.array(Image.open(outfile))
-            ):
+            if np.array_equal(np.array(input_obj.image), np.array(Image.open(outfile))):
                 info(f"{self}: '{outfile}' unchanged; not overwritten")
                 epoch = datetime.now().timestamp()
                 utime(outfile, (epoch, epoch))
