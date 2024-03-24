@@ -22,23 +22,25 @@ class ImageSplitterSegment(ImageOperatorSegment):
         """
         super().__init__(operator)
 
-    def __call__(self, *inputs: PipeImage) -> tuple[PipeImage, ...]:
+    def __call__(self, *input_objs: PipeImage) -> tuple[PipeImage, ...]:
         """Split an image.
 
         Arguments:
-            inputs: Input image, within a tuple for consistency with other Segments
+            input_objs: Input image, within a tuple for consistency with other Segments
         Returns:
             Output images
         """
-        if len(inputs) != len(self.operator.inputs()):
+        if len(input_objs) != len(self.operator.inputs()):
             raise ValueError(
                 f"{self.operator} requires {len(self.operator.inputs())} inputs, "
-                f"but {len(inputs)} were provided."
+                f"but {len(input_objs)} were provided."
             )
 
-        input_image = inputs[0].image
+        input_image = input_objs[0].image
         output_images = self.operator(input_image)
-        outputs = tuple(PipeImage(image=o, parents=inputs[0]) for o in output_images)
-        info(f"{self.operator}: '{inputs[0].location_name}' split")
+        outputs = tuple(
+            PipeImage(image=o, parents=input_objs[0]) for o in output_images
+        )
+        info(f"{self.operator}: '{input_objs[0].location_name}' split")
 
         return outputs

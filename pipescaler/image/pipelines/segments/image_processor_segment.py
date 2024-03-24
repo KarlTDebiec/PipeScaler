@@ -22,23 +22,23 @@ class ImageProcessorSegment(ImageOperatorSegment):
         """
         super().__init__(operator)
 
-    def __call__(self, *inputs: PipeImage) -> tuple[PipeImage, ...]:
+    def __call__(self, *input_objs: PipeImage) -> tuple[PipeImage, ...]:
         """Process an image.
 
         Arguments:
-            inputs: Input image, within a tuple for consistency with other Segments
+            input_objs: Input image, within a tuple for consistency with other Segments
         Returns:
             Output image, within a tuple for consistency with other Segments
         """
-        if len(inputs) != len(self.operator.inputs()):
+        if len(input_objs) != len(self.operator.inputs()):
             raise ValueError(
                 f"{self.operator} requires {len(self.operator.inputs())} inputs, "
-                f"but {len(inputs)} were provided."
+                f"but {len(input_objs)} were provided."
             )
 
-        input_image = inputs[0].image
+        input_image = input_objs[0].image
         output_image = self.operator(input_image)
-        output = PipeImage(image=output_image, parents=inputs[0])
-        info(f"{self.operator}: '{inputs[0].location_name}' processed")
+        output = PipeImage(image=output_image, parents=input_objs[0])
+        info(f"{self.operator}: '{input_objs[0].location_name}' processed")
 
         return (output,)

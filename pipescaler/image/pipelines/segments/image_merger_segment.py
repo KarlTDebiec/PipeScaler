@@ -22,23 +22,23 @@ class ImageMergerSegment(ImageOperatorSegment):
         """
         super().__init__(operator)
 
-    def __call__(self, *inputs: PipeImage) -> tuple[PipeImage, ...]:
+    def __call__(self, *input_objs: PipeImage) -> tuple[PipeImage, ...]:
         """Merge images.
 
         Arguments:
-            inputs: Input images
+            input_objs: Input images
         Returns:
             Output image, within a tuple for consistency with other Segments
         """
-        if len(inputs) != len(self.operator.inputs()):
+        if len(input_objs) != len(self.operator.inputs()):
             raise ValueError(
                 f"{self.operator} requires {len(self.operator.inputs())} inputs, "
-                f"but {len(inputs)} were provided."
+                f"but {len(input_objs)} were provided."
             )
 
-        input_images = tuple(i.image for i in inputs)
+        input_images = tuple(i.image for i in input_objs)
         output_image = self.operator(*input_images)
-        output = PipeImage(image=output_image, parents=inputs)
+        output = PipeImage(image=output_image, parents=input_objs)
         info(f"{self.operator}: '{output.location_name}' merged")
 
         return (output,)

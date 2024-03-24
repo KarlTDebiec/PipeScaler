@@ -4,12 +4,25 @@
 from __future__ import annotations
 
 import re
-from abc import ABC
+from abc import ABC, abstractmethod
 from inspect import cleandoc
 
+from pipescaler.core.pipelines import PipeObject
 
-class Sorter(ABC):
+
+class Sorter[T: PipeObject](ABC):
     """Abstract base class for sorters."""
+
+    @abstractmethod
+    def __call__(self, obj: T) -> str | None:
+        """Get the outlet to which an object should be sorted.
+
+        Arguments:
+            obj: Object to sort
+        Returns:
+            Outlet to which object should be sorted
+        """
+        raise NotImplementedError()
 
     def __repr__(self) -> str:
         """Representation."""

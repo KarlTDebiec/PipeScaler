@@ -3,11 +3,24 @@
 """Abstract base class for pipeline segments."""
 from __future__ import annotations
 
-from abc import ABC
+from abc import ABC, abstractmethod
+
+from pipescaler.core.pipelines import PipeObject
 
 
-class Segment(ABC):
+class Segment[T: PipeObject](ABC):
     """Abstract base class for pipeline segments."""
+
+    @abstractmethod
+    def __call__(self, *input_objs: T) -> tuple[T, ...]:
+        """Receive input objects and returns output objects.
+
+        Arguments:
+            input_objs: Input objects
+        Returns:
+            Output objects, within a tuple even if only one
+        """
+        raise NotImplementedError()
 
     def __repr__(self) -> str:
         """Representation."""
