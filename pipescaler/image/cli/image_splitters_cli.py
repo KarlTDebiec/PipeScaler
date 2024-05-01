@@ -1,19 +1,19 @@
 #!/usr/bin/env python
 #  Copyright 2020-2024 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
-"""Command-line interface for PipeScaler ImageProcessors."""
+"""Command-line interface for PipeScaler ImageSplitters."""
 from __future__ import annotations
 
 from argparse import ArgumentParser
 from typing import Any, Type
 
 from pipescaler.common import CommandLineInterface
-from pipescaler.image.cli import processors
-from pipescaler.image.core.cli import ImageProcessorCli
+from pipescaler.image.cli import splitters
+from pipescaler.image.core.cli import ImageSplitterCli
 
 
-class ImageProcessorsCli(CommandLineInterface):
-    """Command-line interface for PipeScaler ImageProcessors."""
+class ImageSplittersCli(CommandLineInterface):
+    """Command-line interface for PipeScaler ImageSplitters."""
 
     @classmethod
     def add_arguments_to_argparser(cls, parser: ArgumentParser) -> None:
@@ -25,44 +25,44 @@ class ImageProcessorsCli(CommandLineInterface):
         super().add_arguments_to_argparser(parser)
 
         subparsers = parser.add_subparsers(
-            dest="processor",
-            help="processor",
+            dest="splitter",
+            help="splitter",
             required=True,
         )
-        for name in sorted(cls.processors()):
-            cls.processors()[name].argparser(subparsers=subparsers)
+        for name in sorted(cls.splitters()):
+            cls.splitters()[name].argparser(subparsers=subparsers)
 
     @classmethod
     def description(cls) -> str:
         """Long description of this tool displayed below usage."""
-        return "Processes images."
+        return "Merges images."
 
     @classmethod
     def help(cls) -> str:
         """Short description of this tool used when it is a subparser."""
-        return "process image"
+        return "merge image"
 
     @classmethod
     def main_internal(cls, **kwargs: Any) -> None:
         """Execute with provided keyword arguments."""
-        processor_name = kwargs.pop("processor")
-        processor_cli_cls = cls.processors()[processor_name]
-        processor_cli_cls.main_internal(**kwargs)
+        splitter_name = kwargs.pop("splitter")
+        splitter_cli_cls = cls.splitters()[splitter_name]
+        splitter_cli_cls.main_internal(**kwargs)
 
     @classmethod
     def name(cls) -> str:
         """Name of this tool used to define it when it is a subparser."""
-        return "process"
+        return "merge"
 
     @classmethod
-    def processors(cls) -> dict[str, Type[ImageProcessorCli]]:
-        """Names and types of processors wrapped by command-line interface."""
+    def splitters(cls) -> dict[str, Type[ImageSplitterCli]]:
+        """Names and types of splitters wrapped by command-line interface."""
         return {
-            processor.name(): processor
-            for processor in map(processors.__dict__.get, processors.__all__)
-            if isinstance(processor, type) and issubclass(processor, ImageProcessorCli)
+            splitter.name(): splitter
+            for splitter in map(splitters.__dict__.get, splitters.__all__)
+            if isinstance(splitter, type) and issubclass(splitter, ImageSplitterCli)
         }
 
 
 if __name__ == "__main__":
-    ImageProcessorsCli.main()
+    ImageSplittersCli.main()
