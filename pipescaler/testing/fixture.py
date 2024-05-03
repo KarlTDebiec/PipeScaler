@@ -1,4 +1,4 @@
-#  Copyright 2020-2023 Karl T Debiec. All rights reserved. This software may be modified
+#  Copyright 2020-2024 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Functions related to test fixtures."""
 from __future__ import annotations
@@ -19,7 +19,14 @@ def parametrized_fixture(cls: Type, params: list[dict[str, Any]]):
         Fixture with provided params and clear ids
     """
 
-    def get_name(args):
-        return f"{cls.__name__}({','.join(map(str, args.values()))})"
+    def get_name(arguments: dict[str, Any]) -> str:
+        """Get readable name for arguments.
+
+        Arguments:
+            arguments: arguments
+        Returns:
+            Readable name
+        """
+        return f"{cls.__name__}({','.join(map(str, arguments.values()))})"
 
     return partial(fixture(params=params, ids=get_name))

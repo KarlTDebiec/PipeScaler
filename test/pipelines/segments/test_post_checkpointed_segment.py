@@ -1,4 +1,4 @@
-#  Copyright 2020-2023 Karl T Debiec. All rights reserved. This software may be modified
+#  Copyright 2020-2024 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Tests for PostCheckpointedSegment."""
 from __future__ import annotations
@@ -24,6 +24,7 @@ def mock_pipe_object_save(path: PathLike) -> None:
 def mock_pipe_object_save_2(self, path: PathLike) -> None:
     """Save object to file and set path.
     Arguments:
+        self: not used; present for compatibility with PipeObject.save
         path: Path to which to save object
     """
     path = validate_output_file(path)

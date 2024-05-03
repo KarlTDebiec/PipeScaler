@@ -1,4 +1,4 @@
-#  Copyright 2020-2023 Karl T Debiec. All rights reserved. This software may be modified
+#  Copyright 2020-2024 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Traces image using potrace and re-rasterizes, optionally resizing."""
 from __future__ import annotations
@@ -58,12 +58,14 @@ class PotraceProcessor(ImageProcessor):
             with get_temp_file_path(".svg") as temp_svg_path:
                 self.potrace_runner.run(temp_bmp_path, temp_svg_path)
                 traced_drawing = svg2rlg(temp_svg_path)
+                if not traced_drawing:
+                    raise ValueError("No drawing found in SVG")
                 traced_drawing.scale(
                     (input_image.size[0] / traced_drawing.width) * self.scale,
                     (input_image.size[1] / traced_drawing.height) * self.scale,
                 )
-                traced_drawing.width = input_image.size[0] * self.scale
-                traced_drawing.height = input_image.size[1] * self.scale
+                traced_drawing.width = int(input_image.size[0] * self.scale)
+                traced_drawing.height = int(input_image.size[1] * self.scale)
 
                 with get_temp_file_path(".png") as temp_png_path:
                     drawToFile(traced_drawing, temp_png_path, fmt="png")

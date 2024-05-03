@@ -1,4 +1,4 @@
-#  Copyright 2020-2023 Karl T Debiec. All rights reserved. This software may be modified
+#  Copyright 2020-2024 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Tests for CheckpointManager."""
 from __future__ import annotations
@@ -11,10 +11,10 @@ from pipescaler.core.pipelines import PipeObject, Segment
 from pipescaler.pipelines import CheckpointManager
 
 if system() == "Windows":
-    from pathlib import WindowsPath
+    from pathlib import WindowsPath as PlatformPath
 
 else:
-    from pathlib import PosixPath
+    from pathlib import PosixPath as PlatformPath
 
 
 def mock_pipe_object_save(path: PathLike) -> None:
@@ -122,10 +122,7 @@ def test_post_segment():
 
 def test_print():
     with get_temp_directory_path() as cp_directory_path:
-        if system() == "Windows":
-            assert isinstance(cp_directory_path, WindowsPath)
-        else:
-            assert isinstance(cp_directory_path, PosixPath)
+        assert isinstance(cp_directory_path, PlatformPath)
 
         cp_manager = CheckpointManager(cp_directory_path)
         print(cp_manager)

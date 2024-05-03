@@ -1,4 +1,4 @@
-#  Copyright 2020-2023 Karl T Debiec. All rights reserved. This software may be modified
+#  Copyright 2020-2024 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Validation functions related to images."""
 from __future__ import annotations
@@ -51,5 +51,5 @@ def validate_image_and_convert_mode(
     """
     image = validate_image(image, valid_modes)
     if convert_mode and image.mode != convert_mode:
-        return (image.convert(convert_mode), image.mode)
-    return (image, image.mode)
+        return image.convert(convert_mode), image.mode
+    return image, image.mode

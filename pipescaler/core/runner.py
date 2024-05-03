@@ -1,4 +1,4 @@
-#  Copyright 2020-2023 Karl T Debiec. All rights reserved. This software may be modified
+#  Copyright 2020-2024 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Abstract base class for executable runners."""
 from __future__ import annotations
@@ -8,7 +8,9 @@ from inspect import cleandoc
 from logging import debug
 from pathlib import Path
 
-from pipescaler.common import PathLike, run_command, validate_executable, validate_int
+from pipescaler.common import PathLike
+from pipescaler.common.general import run_command
+from pipescaler.common.validation import validate_executable, validate_int
 
 
 class Runner(ABC):

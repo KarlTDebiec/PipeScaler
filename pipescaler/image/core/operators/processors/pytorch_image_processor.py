@@ -1,4 +1,4 @@
-#  Copyright 2020-2023 Karl T Debiec. All rights reserved. This software may be modified
+#  Copyright 2020-2024 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Abstract base class for image processors that use PyTorch."""
 from __future__ import annotations
@@ -9,7 +9,6 @@ from typing import Any
 import numpy as np
 import torch
 from PIL import Image
-from torch.nn import Module
 
 from pipescaler.common import validate_input_file
 from pipescaler.image.core.operators.image_processor import ImageProcessor
@@ -22,13 +21,17 @@ class PyTorchImageProcessor(ImageProcessor, ABC):
     def __init__(self, model_infile: str, **kwargs: Any) -> None:
         """Validate and store configuration and initialize.
 
-        Arguments:s
+        Arguments:
             model_infile: Path to model file
             kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
 
         self.model_infile = validate_input_file(model_infile)
+        self.model = torch.load(self.model_infile)
+        """Neural network model."""
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        """Name of device on which to run neural network model."""
 
     def __call__(self, input_image: Image.Image) -> Image.Image:
         """Process an image.
@@ -74,24 +77,6 @@ class PyTorchImageProcessor(ImageProcessor, ABC):
         output_array = np.array(output_array * 255, np.uint8)
 
         return output_array
-
-    @property
-    def device(self) -> str:
-        """Name of device on which to run neural network model."""
-        return self._device
-
-    @device.setter
-    def device(self, value: str) -> None:
-        self._device = value
-
-    @property
-    def model(self) -> Module:
-        """Neural network model."""
-        return self._model
-
-    @model.setter
-    def model(self, value: Module):
-        self._model = value
 
     @classmethod
     def inputs(cls) -> dict[str, tuple[str, ...]]:

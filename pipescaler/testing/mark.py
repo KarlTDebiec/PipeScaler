@@ -1,13 +1,12 @@
-#  Copyright 2020-2023 Karl T Debiec. All rights reserved. This software may be modified
+#  Copyright 2020-2024 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Marks for testing."""
 from __future__ import annotations
 
-from abc import ABCMeta
 from functools import partial
 from os import getenv
 from platform import system
-from typing import Type
+from typing import Any, Type
 
 from pytest import mark, param
 
@@ -24,15 +23,28 @@ def parametrize_with_readable_ids(*args, **kwargs) -> partial:
         mark.parametrize, with readable IDs
     """
 
-    def get_names(arg):
-        def get_name(arg):
-            if isinstance(arg, ABCMeta):
-                return arg.__name__
-            return str(arg)
+    def get_names(arguments: Any) -> str:
+        """Get readable names for arguments.
 
-        if isinstance(arg, tuple):
-            return f"{'-'.join(map(get_name, arg))}"
-        return get_name(arg)
+        Arguments:
+            arguments: arguments
+        Returns:
+            str: Readable names
+        """
+
+        def get_name(argument: Any) -> str:
+            """Get readable name for an argument.
+
+            Arguments:
+                argument: argument
+            Returns:
+                str: Readable name
+            """
+            return argument.__name__
+
+        if isinstance(arguments, tuple):
+            return f"{'-'.join(map(get_name, arguments))}"
+        return get_name(arguments)
 
     return partial(mark.parametrize(ids=get_names, *args, **kwargs))
 

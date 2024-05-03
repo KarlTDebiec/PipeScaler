@@ -1,4 +1,4 @@
-#  Copyright 2020-2023 Karl T Debiec. All rights reserved. This software may be modified
+#  Copyright 2020-2024 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Upscales and/or denoises image using ESRGAN."""
 from __future__ import annotations
@@ -6,8 +6,6 @@ from __future__ import annotations
 from collections import OrderedDict
 from logging import warning
 from typing import Any
-
-import torch
 
 from pipescaler.image.core.operators.processors import PyTorchImageProcessor
 from pipescaler.image.models.esrgan import Esrgan1x, Esrgan4x
@@ -26,31 +24,27 @@ class EsrganProcessor(PyTorchImageProcessor):
     (https://raw.githubusercontent.com/xinntao/ESRGAN/master/LICENSE)
     """
 
-    def __init__(self, device: str = "cuda", **kwargs: Any) -> None:
+    def __init__(self, **kwargs: Any) -> None:
         """Validate and store configuration and initialize.
 
         Arguments:
-            device: Device on which to compute
             **kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
 
-        model = torch.load(self.model_infile)
-
-        if isinstance(model, OrderedDict):
-            model = EsrganSerializer().get_model(model)
-
-        if isinstance(model, Esrgan1x):
+        if isinstance(self.model, OrderedDict):
+            self.model = EsrganSerializer().get_model(self.model)
+        if isinstance(self.model, Esrgan1x):
             self.scale = 1
-        elif isinstance(model, Esrgan4x):
+        elif isinstance(self.model, Esrgan4x):
             self.scale = 4
-        model.eval()
+        self.model.eval()
+
         try:
-            self.model = model.to(device)
-            self.device = device
+            self.model = self.model.to(self.device)
         except AssertionError as error:
             device = "cpu"
-            self.model = model.to(device)
+            self.model = self.model.to(device)
             self.device = device
             warning(
                 f"{self}: Torch raised '{error}' with device '{device}', "
