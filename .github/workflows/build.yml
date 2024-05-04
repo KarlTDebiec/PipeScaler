@@ -75,12 +75,12 @@ jobs:
         run: |
           cd ${GITHUB_WORKSPACE}
           poetry run pyright . | tee ${GITHUB_WORKSPACE}/.github/outputs/pyright.txt || echo
-#       - name: Annotate with pyright results
-#         uses: KarlTDebiec/LinterPrinter@feature/initial-implementation
-#         with:
-#           tool: pyright
-#           tool_infile: .github/outputs/pyright.txt
-#           files_to_annotate_infile: .github/outputs/all_changed_and_modified_files.json
+      - name: Annotate with pyright results
+        uses: KarlTDebiec/LinterPrinter@feature/initial-implementation
+        with:
+          tool: pyright
+          tool_infile: .github/outputs/pyright.txt
+          files_to_annotate_infile: .github/outputs/all_changed_and_modified_files.json
       - name: pytest
         run: |
           export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
