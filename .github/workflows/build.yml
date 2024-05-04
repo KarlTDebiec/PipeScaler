@@ -71,16 +71,16 @@ jobs:
           tool: pydocstyle
           tool_infile: .github/outputs/pydocstyle.txt
           files_to_annotate_infile: .github/outputs/all_changed_and_modified_files.json
-      - name: mypy
+      - name: pyright
         run: |
           cd ${GITHUB_WORKSPACE}
-          poetry run mypy . | tee ${GITHUB_WORKSPACE}/.github/outputs/mypy.txt || echo
-      - name: Annotate with mypy results
-        uses: KarlTDebiec/LinterPrinter@feature/initial-implementation
-        with:
-          tool: mypy
-          tool_infile: .github/outputs/mypy.txt
-          files_to_annotate_infile: .github/outputs/all_changed_and_modified_files.json
+          poetry run pyright . | tee ${GITHUB_WORKSPACE}/.github/outputs/pyright.txt || echo
+#       - name: Annotate with pyright results
+#         uses: KarlTDebiec/LinterPrinter@feature/initial-implementation
+#         with:
+#           tool: pyright
+#           tool_infile: .github/outputs/pyright.txt
+#           files_to_annotate_infile: .github/outputs/all_changed_and_modified_files.json
       - name: pytest
         run: |
           export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
