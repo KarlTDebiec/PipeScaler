@@ -1,4 +1,4 @@
-#  Copyright 2020-2023 Karl T Debiec. All rights reserved. This software may be modified
+#  Copyright 2020-2024 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Converts ESRGAN models to PyTorch's serialized pth format."""
 from __future__ import annotations
@@ -93,9 +93,9 @@ class EsrganSerializer(Utility):
         for i in range(23):
             for j in range(1, 4):
                 for k in range(1, 6):
-                    keymap[
-                        f"model.1.sub.{i}.RDB{j}.conv{k}.0"
-                    ] = f"RRDB_trunk.{i}.RDB{j}.conv{k}"
+                    keymap[f"model.1.sub.{i}.RDB{j}.conv{k}.0"] = (
+                        f"RRDB_trunk.{i}.RDB{j}.conv{k}"
+                    )
         keymap["model.1.sub.23"] = "trunk_conv"
         n = 0
         for i in range(1, scale + 1):
