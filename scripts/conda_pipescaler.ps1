@@ -18,7 +18,6 @@ pip install `
     imagehash `
     ipython `
     isort `
-    mypy `
     numba `
     numpy `
     opencv-python `
@@ -26,9 +25,11 @@ pip install `
     pandas-stubs `
     pillow `
     prospector `
+    pyright `
     pytest `
     pytest-cov `
     pytest-xdist `
+    rlpycairo `
     scikit-image `
     svglib `
     types-Pillow
