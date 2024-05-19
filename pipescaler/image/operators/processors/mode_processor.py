@@ -5,9 +5,9 @@ from __future__ import annotations
 
 from PIL import Image, ImageColor
 
-from pipescaler.common import validate_str
-from pipescaler.image.core import validate_image
+from pipescaler.common.validation import validate_str
 from pipescaler.image.core.operators import ImageProcessor
+from pipescaler.image.core.validation import validate_image
 
 
 class ModeProcessor(ImageProcessor):

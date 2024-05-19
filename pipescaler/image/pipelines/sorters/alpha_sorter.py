@@ -7,9 +7,9 @@ from logging import info
 
 import numpy as np
 
-from pipescaler.common import validate_int
-from pipescaler.image.core import validate_image_and_convert_mode
+from pipescaler.common.validation import validate_int
 from pipescaler.image.core.pipelines import ImageSorter, PipeImage
+from pipescaler.image.core.validation import validate_image_and_convert_mode
 
 
 class AlphaSorter(ImageSorter):

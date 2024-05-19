@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from logging import warning
 
-from pipescaler.common import get_temp_file_path
+from pipescaler.common.file import get_temp_file_path
 from pipescaler.core.typing import RunnerLike
 from pipescaler.image.core.pipelines import ImageSegment, PipeImage
 

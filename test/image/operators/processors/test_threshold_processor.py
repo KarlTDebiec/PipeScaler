@@ -5,9 +5,10 @@ import numpy as np
 import pytest
 from PIL import Image
 
-from pipescaler.image import xfail_unsupported_image_mode
 from pipescaler.image.operators.processors import ThresholdProcessor
-from pipescaler.testing import get_test_infile_path, parametrized_fixture
+from pipescaler.image.testing import xfail_unsupported_image_mode
+from pipescaler.testing.file import get_test_infile_path
+from pipescaler.testing.fixture import parametrized_fixture
 
 
 @parametrized_fixture(
@@ -22,14 +23,14 @@ def processor(request) -> ThresholdProcessor:
 
 
 @pytest.mark.parametrize(
-    ("infile"),
+    "infile",
     [
-        ("1"),
-        ("L"),
+        "1",
+        "L",
         xfail_unsupported_image_mode()("LA"),
         xfail_unsupported_image_mode()("RGB"),
         xfail_unsupported_image_mode()("RGBA"),
-        ("PL"),
+        "PL",
         xfail_unsupported_image_mode()("PLA"),
         xfail_unsupported_image_mode()("PRGB"),
         xfail_unsupported_image_mode()("PRGBA"),

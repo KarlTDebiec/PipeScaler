@@ -5,9 +5,10 @@ from __future__ import annotations
 
 from pytest import fixture, mark
 
-from pipescaler.common import get_temp_file_path
-from pipescaler.image.utilities.esrgan_serializer import EsrganSerializer
-from pipescaler.testing import get_test_model_infile_path, skip_if_ci
+from pipescaler.common.file import get_temp_file_path
+from pipescaler.image.utilities import EsrganSerializer
+from pipescaler.testing.file import get_test_model_infile_path
+from pipescaler.testing.mark import skip_if_ci
 
 
 @fixture
@@ -16,7 +17,7 @@ def utility(request) -> EsrganSerializer:
 
 
 @mark.parametrize(
-    ("infile"),
+    "infile",
     [
         skip_if_ci()("ESRGAN/1x_BC1-smooth2"),
         skip_if_ci()("ESRGAN/RRDB_ESRGAN_x4"),

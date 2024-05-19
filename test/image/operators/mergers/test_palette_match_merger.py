@@ -4,11 +4,15 @@
 import pytest
 from PIL import Image
 
-from pipescaler.image import get_expected_output_mode, xfail_unsupported_image_mode
-from pipescaler.image.core import get_palette, remove_palette
-from pipescaler.image.core.enums import PaletteMatchMode
+from pipescaler.image.core import PaletteMatchMode
+from pipescaler.image.core.functions import get_palette, remove_palette
 from pipescaler.image.operators.mergers import PaletteMatchMerger
-from pipescaler.testing import get_test_infile_path, parametrized_fixture
+from pipescaler.image.testing import (
+    get_expected_output_mode,
+    xfail_unsupported_image_mode,
+)
+from pipescaler.testing.file import get_test_infile_path
+from pipescaler.testing.fixture import parametrized_fixture
 
 
 @parametrized_fixture(

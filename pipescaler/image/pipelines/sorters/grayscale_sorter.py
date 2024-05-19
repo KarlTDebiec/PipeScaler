@@ -8,9 +8,9 @@ from logging import info
 import numpy as np
 from PIL import Image
 
-from pipescaler.common import validate_float
-from pipescaler.image.core import validate_image
+from pipescaler.common.validation import validate_float
 from pipescaler.image.core.pipelines import ImageSorter, PipeImage
+from pipescaler.image.core.validation import validate_image
 
 
 class GrayscaleSorter(ImageSorter):

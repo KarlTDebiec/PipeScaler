@@ -11,14 +11,13 @@ from typing import Type
 
 import pytest
 
-from pipescaler.common import (
-    CommandLineInterface,
-    get_temp_file_path,
-    run_cli_with_args,
-)
+from pipescaler.common import CommandLineInterface
+from pipescaler.common.file import get_temp_file_path
+from pipescaler.common.testing import run_cli_with_args
 from pipescaler.image.cli import ImageUtilitiesCli
 from pipescaler.image.cli.utilities import EsrganSerializerCli, WaifuSerializerCli
-from pipescaler.testing import get_test_model_infile_path, skip_if_ci
+from pipescaler.testing.file import get_test_model_infile_path
+from pipescaler.testing.mark import skip_if_ci
 
 
 @pytest.mark.parametrize(
@@ -44,13 +43,13 @@ def test(cli: Type[CommandLineInterface], args: str, infile: str) -> None:
 
 
 @pytest.mark.parametrize(
-    ("commands"),
+    "commands",
     [
-        ((EsrganSerializerCli,)),
-        ((WaifuSerializerCli,)),
-        ((ImageUtilitiesCli,)),
-        ((ImageUtilitiesCli, EsrganSerializerCli)),
-        ((ImageUtilitiesCli, WaifuSerializerCli)),
+        (EsrganSerializerCli,),
+        (WaifuSerializerCli,),
+        (ImageUtilitiesCli,),
+        (ImageUtilitiesCli, EsrganSerializerCli),
+        (ImageUtilitiesCli, WaifuSerializerCli),
     ],
 )
 def test_help(commands: tuple[Type[CommandLineInterface], ...]) -> None:
@@ -71,13 +70,13 @@ def test_help(commands: tuple[Type[CommandLineInterface], ...]) -> None:
 
 
 @pytest.mark.parametrize(
-    ("commands"),
+    "commands",
     [
-        ((EsrganSerializerCli,)),
-        ((WaifuSerializerCli,)),
-        ((ImageUtilitiesCli,)),
-        ((ImageUtilitiesCli, EsrganSerializerCli)),
-        ((ImageUtilitiesCli, WaifuSerializerCli)),
+        (EsrganSerializerCli,),
+        (WaifuSerializerCli,),
+        (ImageUtilitiesCli,),
+        (ImageUtilitiesCli, EsrganSerializerCli),
+        (ImageUtilitiesCli, WaifuSerializerCli),
     ],
 )
 def test_usage(commands: tuple[Type[CommandLineInterface], ...]):

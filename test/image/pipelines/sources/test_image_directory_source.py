@@ -5,11 +5,11 @@ from pytest import mark
 
 from pipescaler.core.pipelines import Source
 from pipescaler.image.pipelines.sources import ImageDirectorySource
-from pipescaler.testing import get_test_infile_directory_path
+from pipescaler.testing.file import get_test_infile_directory_path
 
 
 @mark.parametrize(
-    ("source"),
+    "source",
     [
         (ImageDirectorySource(get_test_infile_directory_path("basic"))),
     ],

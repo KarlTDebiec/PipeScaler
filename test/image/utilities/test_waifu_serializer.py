@@ -5,9 +5,10 @@ from __future__ import annotations
 
 from pytest import fixture, mark
 
-from pipescaler.common import get_temp_file_path
+from pipescaler.common.file import get_temp_file_path
 from pipescaler.image.utilities import WaifuSerializer
-from pipescaler.testing import get_test_model_infile_path, skip_if_ci
+from pipescaler.testing.file import get_test_model_infile_path
+from pipescaler.testing.mark import skip_if_ci
 
 
 @fixture

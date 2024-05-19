@@ -7,7 +7,8 @@ import pytest
 
 from pipescaler.image.core.pipelines import PipeImage
 from pipescaler.pipelines.sorters import RegexSorter
-from pipescaler.testing import get_test_infile_path, parametrized_fixture
+from pipescaler.testing.file import get_test_infile_path
+from pipescaler.testing.fixture import parametrized_fixture
 
 
 @parametrized_fixture(

@@ -4,10 +4,14 @@
 import pytest
 from PIL import Image
 
-from pipescaler.image import get_expected_output_mode, xfail_unsupported_image_mode
-from pipescaler.image.core.enums import AlphaMode, MaskFillMode
+from pipescaler.image.core import AlphaMode, MaskFillMode
 from pipescaler.image.operators.splitters import AlphaSplitter
-from pipescaler.testing import get_test_infile_path, parametrized_fixture
+from pipescaler.image.testing import (
+    get_expected_output_mode,
+    xfail_unsupported_image_mode,
+)
+from pipescaler.testing.file import get_test_infile_path
+from pipescaler.testing.fixture import parametrized_fixture
 
 
 @parametrized_fixture(
@@ -36,16 +40,16 @@ def splitter(request) -> AlphaSplitter:
 
 
 @pytest.mark.parametrize(
-    ("infile"),
+    "infile",
     [
         xfail_unsupported_image_mode()("1"),
         xfail_unsupported_image_mode()("L"),
-        ("LA"),
+        "LA",
         xfail_unsupported_image_mode()("RGB"),
-        ("RGBA"),
-        ("PLA"),
-        ("PRGBA"),
-        ("novel/RGBA_monochrome"),
+        "RGBA",
+        "PLA",
+        "PRGBA",
+        "novel/RGBA_monochrome",
     ],
 )
 def test(infile: str, splitter: AlphaSplitter) -> None:

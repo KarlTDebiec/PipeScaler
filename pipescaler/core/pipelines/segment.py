@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from pipescaler.core.pipelines import PipeObject
+from pipescaler.core.pipelines.pipe_object import PipeObject
 
 
 class Segment[T: PipeObject](ABC):

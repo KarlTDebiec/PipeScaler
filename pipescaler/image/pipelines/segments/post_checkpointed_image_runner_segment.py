@@ -6,7 +6,7 @@ from __future__ import annotations
 from logging import info
 from typing import Sequence
 
-from pipescaler.common import get_temp_file_path
+from pipescaler.common.file import get_temp_file_path
 from pipescaler.core.pipelines import CheckpointManagerBase, CheckpointedSegment
 from pipescaler.image.core.pipelines import PipeImage
 from pipescaler.image.pipelines.segments.image_runner_segment import ImageRunnerSegment

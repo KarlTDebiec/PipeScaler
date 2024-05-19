@@ -10,8 +10,8 @@ import numpy as np
 import torch
 from PIL import Image
 
-from pipescaler.common import validate_input_file
-from pipescaler.image.core.operators.image_processor import ImageProcessor
+from pipescaler.common.validation import validate_input_file
+from pipescaler.image.core.operators import ImageProcessor
 from pipescaler.image.core.validation import validate_image_and_convert_mode
 
 

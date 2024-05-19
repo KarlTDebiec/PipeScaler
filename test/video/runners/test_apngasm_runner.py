@@ -6,8 +6,10 @@ from __future__ import annotations
 import pytest
 from PIL import Image
 
-from pipescaler.common import get_temp_file_path
-from pipescaler.testing import get_test_infile_path, parametrized_fixture, skip_if_ci
+from pipescaler.common.file import get_temp_file_path
+from pipescaler.testing.file import get_test_infile_path
+from pipescaler.testing.fixture import parametrized_fixture
+from pipescaler.testing.mark import skip_if_ci
 from pipescaler.video.runners import ApngasmRunner
 
 
@@ -22,7 +24,7 @@ def runner(request) -> ApngasmRunner:
 
 
 @pytest.mark.parametrize(
-    ("infile_names"),
+    "infile_names",
     [
         skip_if_ci()(["1", "L", "RGB", "RGBA"]),
     ],

@@ -5,14 +5,11 @@ from __future__ import annotations
 
 import pytest
 
-from pipescaler.common import get_temp_directory_path, get_temp_file_path
+from pipescaler.common.file import get_temp_directory_path, get_temp_file_path
 from pipescaler.image.core.pipelines import PipeImage
 from pipescaler.pipelines.sorters import ListSorter
-from pipescaler.testing import (
-    get_test_infile_directory_path,
-    get_test_infile_path,
-    parametrized_fixture,
-)
+from pipescaler.testing.file import get_test_infile_directory_path, get_test_infile_path
+from pipescaler.testing.fixture import parametrized_fixture
 
 
 @parametrized_fixture(

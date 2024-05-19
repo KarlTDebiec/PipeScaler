@@ -4,13 +4,13 @@
 import pytest
 from PIL import Image
 
-from pipescaler.image import get_expected_output_mode, xfail_unsupported_image_mode
 from pipescaler.image.operators.processors import EsrganProcessor
-from pipescaler.testing import (
-    get_test_infile_path,
-    get_test_model_infile_path,
-    skip_if_ci,
+from pipescaler.image.testing import (
+    get_expected_output_mode,
+    xfail_unsupported_image_mode,
 )
+from pipescaler.testing.file import get_test_infile_path, get_test_model_infile_path
+from pipescaler.testing.mark import skip_if_ci
 
 
 @pytest.mark.serial

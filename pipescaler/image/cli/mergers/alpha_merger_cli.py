@@ -10,7 +10,7 @@ from typing import Any, Type
 
 from PIL import Image
 
-from pipescaler.common import input_file_arg, output_file_arg
+from pipescaler.common.argument_parsing import input_file_arg, output_file_arg
 from pipescaler.image.core.cli import ImageMergerCli
 from pipescaler.image.operators.mergers import AlphaMerger
 

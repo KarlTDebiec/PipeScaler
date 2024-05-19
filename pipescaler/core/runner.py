@@ -8,8 +8,8 @@ from inspect import cleandoc
 from logging import debug
 from pathlib import Path
 
-from pipescaler.common import PathLike
 from pipescaler.common.general import run_command
+from pipescaler.common.typing import PathLike
 from pipescaler.common.validation import validate_executable, validate_int
 
 

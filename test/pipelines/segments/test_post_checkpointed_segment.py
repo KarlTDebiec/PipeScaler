@@ -5,7 +5,9 @@ from __future__ import annotations
 
 from unittest.mock import Mock, patch
 
-from pipescaler.common import PathLike, get_temp_directory_path, validate_output_file
+from pipescaler.common.file import get_temp_directory_path
+from pipescaler.common.typing import PathLike
+from pipescaler.common.validation import validate_output_file
 from pipescaler.core.pipelines import PipeObject, Segment
 from pipescaler.pipelines import CheckpointManager
 from pipescaler.pipelines.segments import PostCheckpointedSegment

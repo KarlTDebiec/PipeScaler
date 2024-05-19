@@ -8,13 +8,12 @@ from os.path import getsize
 import pytest
 from PIL import Image
 
-from pipescaler.common import ExecutableNotFoundError, get_temp_file_path
+from pipescaler.common import ExecutableNotFoundError
+from pipescaler.common.file import get_temp_file_path
 from pipescaler.image.runners import PngquantRunner
-from pipescaler.testing import (
-    get_test_infile_path,
-    parametrized_fixture,
-    xfail_if_platform,
-)
+from pipescaler.testing.file import get_test_infile_path
+from pipescaler.testing.fixture import parametrized_fixture
+from pipescaler.testing.mark import xfail_if_platform
 
 
 @parametrized_fixture(
@@ -28,7 +27,7 @@ def runner(request) -> PngquantRunner:
 
 
 @pytest.mark.parametrize(
-    ("infile_name"),
+    "infile_name",
     [
         xfail_if_platform({"Windows"}, ExecutableNotFoundError)("RGB"),
     ],

@@ -11,11 +11,9 @@ from typing import Type
 
 import pytest
 
-from pipescaler.common import (
-    CommandLineInterface,
-    get_temp_file_path,
-    run_cli_with_args,
-)
+from pipescaler.common import CommandLineInterface
+from pipescaler.common.file import get_temp_file_path
+from pipescaler.common.testing import run_cli_with_args
 from pipescaler.image.cli import ImageProcessorsCli
 from pipescaler.image.cli.processors import (
     CropCli,
@@ -30,11 +28,8 @@ from pipescaler.image.cli.processors import (
     WaifuCli,
     XbrzCli,
 )
-from pipescaler.testing import (
-    get_test_infile_path,
-    get_test_model_infile_path,
-    skip_if_ci,
-)
+from pipescaler.testing.file import get_test_infile_path, get_test_model_infile_path
+from pipescaler.testing.mark import skip_if_ci
 
 
 @pytest.mark.parametrize(

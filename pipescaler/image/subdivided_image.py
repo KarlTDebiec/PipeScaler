@@ -7,7 +7,7 @@ import numpy as np
 from PIL import Image
 from scipy.special import erf
 
-from pipescaler.common import validate_int
+from pipescaler.common.validation import validate_int
 
 
 class SubdividedImage:

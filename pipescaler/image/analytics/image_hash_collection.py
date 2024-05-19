@@ -12,15 +12,16 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 
-from pipescaler.common import PathLike, validate_output_file
-from pipescaler.image.core.analytics import (
-    HashDataFrame,
+from pipescaler.common.typing import PathLike
+from pipescaler.common.validation import validate_output_file
+from pipescaler.image.core.analytics.hashing import (
     multichannel_average_hash,
     multichannel_color_hash,
     multichannel_difference_hash,
     multichannel_perceptual_hash,
     multichannel_wavelet_hash,
 )
+from pipescaler.image.core.analytics.typing import HashDataFrame
 from pipescaler.image.core.pipelines import PipeImage
 from pipescaler.image.pipelines.sorters import AlphaSorter, GrayscaleSorter
 

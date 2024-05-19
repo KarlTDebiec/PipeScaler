@@ -9,7 +9,8 @@ from argparse import ArgumentParser
 from inspect import cleandoc
 from typing import Type
 
-from pipescaler.common import CommandLineInterface, input_file_arg
+from pipescaler.common import CommandLineInterface
+from pipescaler.common.argument_parsing import input_file_arg
 from pipescaler.image.core.operators import ImageSplitter
 
 

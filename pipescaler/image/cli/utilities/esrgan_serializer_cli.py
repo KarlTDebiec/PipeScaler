@@ -7,7 +7,11 @@ from __future__ import annotations
 from argparse import ArgumentParser
 from typing import Type
 
-from pipescaler.common import get_arg_groups_by_name, input_file_arg, output_file_arg
+from pipescaler.common.argument_parsing import (
+    get_arg_groups_by_name,
+    input_file_arg,
+    output_file_arg,
+)
 from pipescaler.core.cli import UtilityCli
 from pipescaler.image.utilities.esrgan_serializer import EsrganSerializer
 

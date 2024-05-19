@@ -5,9 +5,10 @@ from __future__ import annotations
 
 from logging import info
 
-from pipescaler.common import validate_float
-from pipescaler.image.core import is_monochrome, validate_image
+from pipescaler.common.validation import validate_float
+from pipescaler.image.core.functions import is_monochrome
 from pipescaler.image.core.pipelines import ImageSorter, PipeImage
+from pipescaler.image.core.validation import validate_image
 
 
 class MonochromeSorter(ImageSorter):

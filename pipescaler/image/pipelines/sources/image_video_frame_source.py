@@ -9,7 +9,8 @@ from typing import Any
 import cv2
 from PIL import Image
 
-from pipescaler.common import PathLike, validate_input_file
+from pipescaler.common.typing import PathLike
+from pipescaler.common.validation import validate_input_file
 from pipescaler.image.core.pipelines import ImageSource, PipeImage
 
 

@@ -11,7 +11,14 @@ import pandas as pd
 from scipy.stats import zscore
 
 from pipescaler.image.analytics.image_hash_collection import ImageHashCollection
-from pipescaler.image.core.analytics import (
+from pipescaler.image.core.analytics.hashing import (
+    multichannel_average_hamming,
+    multichannel_color_hamming,
+    multichannel_difference_hamming,
+    multichannel_perceptual_hamming,
+    multichannel_wavelet_hamming,
+)
+from pipescaler.image.core.analytics.typing import (
     HashDataFrame,
     HashSeries,
     PairDataFrame,
@@ -19,11 +26,6 @@ from pipescaler.image.core.analytics import (
     ScoreDataFrame,
     ScoreStatsDataFrame,
     ScoreStatsSeries,
-    multichannel_average_hamming,
-    multichannel_color_hamming,
-    multichannel_difference_hamming,
-    multichannel_perceptual_hamming,
-    multichannel_wavelet_hamming,
 )
 
 

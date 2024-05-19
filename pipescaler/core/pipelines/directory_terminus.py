@@ -8,7 +8,7 @@ from logging import info
 from os import remove, rmdir
 from pathlib import Path
 
-from pipescaler.common import PathLike
+from pipescaler.common.typing import PathLike
 from pipescaler.common.validation import validate_output_directory
 from pipescaler.core.pipelines.terminus import Terminus
 

@@ -13,7 +13,6 @@ from pipescaler.video.core.pipelines.video_terminus import VideoTerminus
 __all__ = [
     "PipeVideo",
     "VideoSegment",
-    "VideoSegmentLike",
     "VideoSorter",
     "VideoSource",
     "VideoTerminus",

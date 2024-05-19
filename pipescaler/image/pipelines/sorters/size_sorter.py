@@ -5,8 +5,8 @@ from __future__ import annotations
 
 from logging import info
 
-from pipescaler.common import validate_int
-from pipescaler.core.pipelines.sorter import Sorter
+from pipescaler.common.validation import validate_int
+from pipescaler.core.pipelines import Sorter
 from pipescaler.image.core.pipelines import PipeImage
 
 

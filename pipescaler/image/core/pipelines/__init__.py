@@ -14,7 +14,6 @@ from pipescaler.image.core.pipelines.typing import ImageSegmentLike
 __all__ = [
     "ImageOperatorSegment",
     "ImageSegment",
-    "ImageSegmentLike",
     "ImageSorter",
     "ImageSource",
     "ImageTerminus",

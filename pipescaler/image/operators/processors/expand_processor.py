@@ -5,9 +5,10 @@ from __future__ import annotations
 
 from PIL import Image
 
-from pipescaler.common import validate_ints
-from pipescaler.image.core import expand_image, validate_image
+from pipescaler.common.validation import validate_ints
+from pipescaler.image.core.functions import expand_image
 from pipescaler.image.core.operators import ImageProcessor
+from pipescaler.image.core.validation import validate_image
 
 
 class ExpandProcessor(ImageProcessor):

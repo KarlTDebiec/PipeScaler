@@ -6,12 +6,12 @@ from __future__ import annotations
 from typing import no_type_check
 
 import numpy as np
-from numba import njit
 from PIL import Image
+from numba import njit
 
 from pipescaler.core import Utility
-from pipescaler.image.core import get_perceptually_weighted_distance
 from pipescaler.image.core.exceptions import UnsupportedImageModeError
+from pipescaler.image.core.numba import get_perceptually_weighted_distance
 
 
 class LocalPaletteMatcher(Utility):

@@ -12,7 +12,8 @@ from typing import Any, Type
 
 from PIL import Image
 
-from pipescaler.common import CommandLineInterface, input_file_arg, output_file_arg
+from pipescaler.common import CommandLineInterface
+from pipescaler.common.argument_parsing import input_file_arg, output_file_arg
 from pipescaler.image.core.operators import ImageProcessor
 
 

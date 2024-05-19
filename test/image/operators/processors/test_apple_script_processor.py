@@ -5,12 +5,9 @@ import pytest
 from PIL import Image
 
 from pipescaler.image.operators.processors import AppleScriptProcessor
-from pipescaler.testing import (
-    get_test_infile_path,
-    parametrized_fixture,
-    skip_if_ci,
-    xfail_if_platform,
-)
+from pipescaler.testing.file import get_test_infile_path
+from pipescaler.testing.fixture import parametrized_fixture
+from pipescaler.testing.mark import skip_if_ci, xfail_if_platform
 
 
 @parametrized_fixture(
@@ -25,7 +22,7 @@ def processor(request) -> AppleScriptProcessor:
 
 @pytest.mark.serial
 @pytest.mark.parametrize(
-    ("infile"),
+    "infile",
     [
         skip_if_ci(xfail_if_platform({"Linux", "Windows"}))("RGB"),
     ],

@@ -6,7 +6,7 @@ from __future__ import annotations
 import numpy as np
 from PIL import Image
 
-from pipescaler.common import validate_float, validate_str
+from pipescaler.common.validation import validate_float, validate_str
 from pipescaler.image.core.operators import ImageProcessor
 
 

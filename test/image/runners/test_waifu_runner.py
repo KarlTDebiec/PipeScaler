@@ -5,9 +5,11 @@ from __future__ import annotations
 
 import pytest
 
-from pipescaler.common import get_temp_file_path
+from pipescaler.common.file import get_temp_file_path
 from pipescaler.image.runners import WaifuRunner
-from pipescaler.testing import get_test_infile_path, parametrized_fixture, skip_if_ci
+from pipescaler.testing.file import get_test_infile_path
+from pipescaler.testing.fixture import parametrized_fixture
+from pipescaler.testing.mark import skip_if_ci
 
 
 @parametrized_fixture(
@@ -21,7 +23,7 @@ def runner(request) -> WaifuRunner:
 
 
 @pytest.mark.parametrize(
-    ("infile_name"),
+    "infile_name",
     [
         skip_if_ci()("RGB"),
     ],

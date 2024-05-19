@@ -5,7 +5,7 @@ from tempfile import TemporaryDirectory
 
 from pipescaler.image.core.pipelines import PipeImage
 from pipescaler.image.pipelines.termini import ImageDirectoryTerminus
-from pipescaler.testing import get_test_infile_directory_path
+from pipescaler.testing.file import get_test_infile_directory_path
 
 
 def test() -> None:

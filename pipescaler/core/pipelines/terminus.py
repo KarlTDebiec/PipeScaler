@@ -7,7 +7,7 @@ import re
 from abc import ABC, abstractmethod
 from inspect import cleandoc
 
-from pipescaler.core.pipelines import PipeObject
+from pipescaler.core.pipelines.pipe_object import PipeObject
 
 
 class Terminus[T: PipeObject](ABC):

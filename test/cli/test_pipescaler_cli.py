@@ -12,16 +12,17 @@ from typing import Type
 import pytest
 
 from pipescaler.cli import PipeScalerCli
-from pipescaler.common import CommandLineInterface, run_cli_with_args
+from pipescaler.common import CommandLineInterface
+from pipescaler.common.testing import run_cli_with_args
 from pipescaler.image.cli import ImageCli
-from pipescaler.testing import parametrize_with_readable_ids
+from pipescaler.testing.mark import parametrize_with_readable_ids
 
 
 @parametrize_with_readable_ids(
-    ("commands"),
+    "commands",
     [
-        ((PipeScalerCli,)),
-        ((PipeScalerCli, ImageCli)),
+        (PipeScalerCli,),
+        (PipeScalerCli, ImageCli),
     ],
 )
 def test_help(commands: tuple[Type[CommandLineInterface], ...]) -> None:
@@ -42,10 +43,10 @@ def test_help(commands: tuple[Type[CommandLineInterface], ...]) -> None:
 
 
 @pytest.mark.parametrize(
-    ("commands"),
+    "commands",
     [
-        ((PipeScalerCli,)),
-        ((PipeScalerCli, ImageCli)),
+        (PipeScalerCli,),
+        (PipeScalerCli, ImageCli),
     ],
 )
 def test_usage(commands: tuple[Type[CommandLineInterface], ...]):

@@ -5,8 +5,8 @@ from __future__ import annotations
 
 from logging import info
 
-from pipescaler.image.core import validate_image
 from pipescaler.image.core.pipelines import ImageSorter, PipeImage
+from pipescaler.image.core.validation import validate_image
 
 
 class ModeSorter(ImageSorter):
