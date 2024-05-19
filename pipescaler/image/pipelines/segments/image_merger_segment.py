@@ -9,18 +9,8 @@ from pipescaler.image.core.operators import ImageMerger
 from pipescaler.image.core.pipelines import ImageOperatorSegment, PipeImage
 
 
-class ImageMergerSegment(ImageOperatorSegment):
+class ImageMergerSegment(ImageOperatorSegment[ImageMerger]):
     """Segment that applies an ImageMerger."""
-
-    operator: ImageMerger
-
-    def __init__(self, operator: ImageMerger) -> None:
-        """Initialize.
-
-        Arguments:
-            operator: ImageMerger to apply
-        """
-        super().__init__(operator)
 
     def __call__(self, *input_objs: PipeImage) -> tuple[PipeImage, ...]:
         """Merge images.

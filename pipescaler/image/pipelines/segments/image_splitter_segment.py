@@ -9,18 +9,8 @@ from pipescaler.image.core.operators import ImageSplitter
 from pipescaler.image.core.pipelines import ImageOperatorSegment, PipeImage
 
 
-class ImageSplitterSegment(ImageOperatorSegment):
+class ImageSplitterSegment(ImageOperatorSegment[ImageSplitter]):
     """Segment that applies a ImageSplitter."""
-
-    operator: ImageSplitter
-
-    def __init__(self, operator: ImageSplitter) -> None:
-        """Initialize.
-
-        Arguments:
-            operator: ImageSplitter to apply
-        """
-        super().__init__(operator)
 
     def __call__(self, *input_objs: PipeImage) -> tuple[PipeImage, ...]:
         """Split an image.

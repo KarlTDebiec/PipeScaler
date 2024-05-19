@@ -10,12 +10,12 @@ from pipescaler.image.core.pipelines.image_segment import ImageSegment
 from pipescaler.image.core.pipelines.pipe_image import PipeImage
 
 
-class ImageOperatorSegment(ImageSegment, ABC):
+class ImageOperatorSegment[T: ImageOperator](ImageSegment, ABC):
     """Abstract base class for segments that apply ImageOperators."""
 
-    operator: ImageOperator
+    operator: T
 
-    def __init__(self, operator: ImageOperator) -> None:
+    def __init__(self, operator: T) -> None:
         """Initialize.
 
         Arguments:

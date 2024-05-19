@@ -9,18 +9,8 @@ from pipescaler.image.core.operators import ImageProcessor
 from pipescaler.image.core.pipelines import ImageOperatorSegment, PipeImage
 
 
-class ImageProcessorSegment(ImageOperatorSegment):
+class ImageProcessorSegment(ImageOperatorSegment[ImageProcessor]):
     """Segment that applies an ImageProcessor."""
-
-    operator: ImageProcessor
-
-    def __init__(self, operator: ImageProcessor) -> None:
-        """Initialize.
-
-        Arguments:
-            operator: ImageProcessor to apply
-        """
-        super().__init__(operator)
 
     def __call__(self, *input_objs: PipeImage) -> tuple[PipeImage, ...]:
         """Process an image.
