@@ -11,29 +11,29 @@ from pipescaler.core.pipelines import CheckpointedSegment, PipeObject
 class PreCheckpointedSegment(CheckpointedSegment):
     """Segment with pre-execution checkpoints."""
 
-    def __call__(self, *inputs: PipeObject) -> tuple[PipeObject, ...]:
+    def __call__(self, *input_objs: PipeObject) -> tuple[PipeObject, ...]:
         """Checkpoint inputs and return outputs of wrapped Segment.
 
         Inputs' paths are set to checkpoint paths before passing on to wrapped
         Segment.
 
         Arguments:
-            inputs: Input objects, saved to checkpoints if not already present
+            input_objs: Input objects, saved to checkpoints if not already present
         Returns:
             Output objects, within a tuple even if only one
         """
-        if len(inputs) != len(self.cpts):
+        if len(input_objs) != len(self.cpts):
             raise ValueError(
                 f"Expected {len(self.cpts)} inputs to {self.segment} "
-                f"but received {len(inputs)}."
+                f"but received {len(input_objs)}."
             )
 
         cpt_paths = [
             self.cp_manager.directory / i.location_name / c
-            for i in inputs
+            for i in input_objs
             for c in self.cpts
         ]
-        for i, c, p in zip(inputs, self.cpts, cpt_paths):
+        for i, c, p in zip(input_objs, self.cpts, cpt_paths):
             if p.exists():
                 i.path = p
             else:
@@ -46,4 +46,4 @@ class PreCheckpointedSegment(CheckpointedSegment):
                 f"{self.__class__.__name__} requires a callable Segment; "
                 f"{self.segment.__class__.__name__} is not callable."
             )
-        return self.segment(*inputs)
+        return self.segment(*input_objs)

@@ -7,13 +7,10 @@ from typing import Any
 
 from PIL import Image
 
-from pipescaler.common import validate_int
-from pipescaler.image.core import (
-    PaletteMatchMode,
-    UnsupportedImageModeError,
-    validate_image,
-)
+from pipescaler.common.validation import validate_int
+from pipescaler.image.core import PaletteMatchMode, UnsupportedImageModeError
 from pipescaler.image.core.operators import ImageMerger
+from pipescaler.image.core.validation import validate_image
 from pipescaler.image.utilities import LocalPaletteMatcher, PaletteMatcher
 
 

@@ -9,8 +9,9 @@ from typing import Any, Self, Sequence
 
 from PIL import Image
 
-from pipescaler.common import PathLike, validate_output_file
-from pipescaler.core.pipelines.pipe_object import PipeObject
+from pipescaler.common.typing import PathLike
+from pipescaler.common.validation import validate_output_file
+from pipescaler.core.pipelines import PipeObject
 from pipescaler.image.core.functions import remove_palette
 
 

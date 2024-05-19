@@ -43,4 +43,4 @@ class RegexSorter(Sorter):
     @property
     def outlets(self) -> tuple[str, ...]:
         """Outlets to which images may be sorted."""
-        return ("matched", "unmatched")
+        return "matched", "unmatched"

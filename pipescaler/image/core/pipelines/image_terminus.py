@@ -3,16 +3,11 @@
 """Abstract base class for image termini."""
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABC
 
 from pipescaler.core.pipelines.terminus import Terminus
 from pipescaler.image.core.pipelines.pipe_image import PipeImage
 
 
-class ImageTerminus(Terminus, ABC):
+class ImageTerminus(Terminus[PipeImage], ABC):
     """Abstract base class for image termini."""
-
-    @abstractmethod
-    def __call__(self, input_image: PipeImage) -> None:
-        """Terminates image."""
-        raise NotImplementedError

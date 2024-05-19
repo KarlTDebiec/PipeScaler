@@ -21,6 +21,7 @@ class VideoDirectoryTerminus(VideoTerminus, DirectoryTerminus):
         """
 
         def save_video():
+            """Save video to output directory."""
             if not self.directory.exists():
                 self.directory.mkdir(parents=True)
                 info(f"{self}: '{self.directory}' created")

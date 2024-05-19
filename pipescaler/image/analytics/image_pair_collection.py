@@ -9,8 +9,9 @@ from typing import Iterable
 
 import pandas as pd
 
-from pipescaler.common import PathLike, validate_output_file
-from pipescaler.image.core.analytics import PairDataFrame
+from pipescaler.common.typing import PathLike
+from pipescaler.common.validation import validate_output_file
+from pipescaler.image.core.analytics.typing import PairDataFrame
 
 
 class ImagePairCollection(Sequence):

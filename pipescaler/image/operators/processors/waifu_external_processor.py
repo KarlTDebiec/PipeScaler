@@ -5,9 +5,9 @@ from __future__ import annotations
 
 from PIL import Image
 
-from pipescaler.common import get_temp_file_path
-from pipescaler.image.core import validate_image_and_convert_mode
+from pipescaler.common.file import get_temp_file_path
 from pipescaler.image.core.operators import ImageProcessor
+from pipescaler.image.core.validation import validate_image_and_convert_mode
 from pipescaler.image.runners import WaifuRunner
 
 

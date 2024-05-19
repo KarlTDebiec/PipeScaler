@@ -6,7 +6,7 @@ from __future__ import annotations
 import re
 from itertools import chain
 from logging import debug, info
-from os import remove, rmdir
+from os import PathLike, remove, rmdir
 from os.path import expandvars
 from pathlib import Path
 from shutil import copy, move
@@ -14,7 +14,7 @@ from typing import Iterable, Sequence
 
 from PIL import Image
 
-from pipescaler.common import DirectoryNotFoundError, PathLike
+from pipescaler.common import DirectoryNotFoundError
 from pipescaler.common.validation import validate_input_directories
 
 

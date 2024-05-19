@@ -7,9 +7,9 @@ import numpy as np
 import xbrz
 from PIL import Image
 
-from pipescaler.common import validate_int
-from pipescaler.image.core import validate_image_and_convert_mode
+from pipescaler.common.validation import validate_int
 from pipescaler.image.core.operators import ImageProcessor
+from pipescaler.image.core.validation import validate_image_and_convert_mode
 
 
 class XbrzProcessor(ImageProcessor):

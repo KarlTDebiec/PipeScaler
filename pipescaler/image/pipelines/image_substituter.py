@@ -7,7 +7,8 @@ from logging import info
 
 from PIL import Image
 
-from pipescaler.common import PathLike, validate_input_directory
+from pipescaler.common.typing import PathLike
+from pipescaler.common.validation import validate_input_directory
 from pipescaler.image.core.pipelines import PipeImage
 
 

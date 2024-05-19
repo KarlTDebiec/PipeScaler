@@ -9,3 +9,4 @@ from typing import Callable
 from pipescaler.core.runner import Runner
 
 RunnerLike = Runner | Callable[[Path, Path], None]
+"""Type alias for a Runner or a callable with the same call signature."""

@@ -7,7 +7,7 @@ from logging import info
 from pathlib import Path
 from typing import Iterable
 
-from pipescaler.common import PathLike
+from pipescaler.common.typing import PathLike
 from pipescaler.core.pipelines import PipeObject
 from pipescaler.core.pipelines.sorter import Sorter
 

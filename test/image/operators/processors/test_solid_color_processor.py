@@ -4,9 +4,10 @@
 import pytest
 from PIL import Image
 
-from pipescaler.image import get_expected_output_mode
 from pipescaler.image.operators.processors import SolidColorProcessor
-from pipescaler.testing import get_test_infile_path, parametrized_fixture
+from pipescaler.image.testing import get_expected_output_mode
+from pipescaler.testing.file import get_test_infile_path
+from pipescaler.testing.fixture import parametrized_fixture
 
 
 @parametrized_fixture(
@@ -20,17 +21,17 @@ def processor(request) -> SolidColorProcessor:
 
 
 @pytest.mark.parametrize(
-    ("infile"),
+    "infile",
     [
-        ("1"),
-        ("L"),
-        ("LA"),
-        ("RGB"),
-        ("RGBA"),
-        ("PL"),
-        ("PLA"),
-        ("PRGB"),
-        ("PRGBA"),
+        "1",
+        "L",
+        "LA",
+        "RGB",
+        "RGBA",
+        "PL",
+        "PLA",
+        "PRGB",
+        "PRGBA",
     ],
 )
 def test(infile: str, processor: SolidColorProcessor) -> None:

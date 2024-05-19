@@ -8,7 +8,9 @@ from pathlib import Path
 from shutil import copyfile
 from typing import Any
 
-from pipescaler.common import PathLike, package_root, run_command
+from pipescaler.common import package_root
+from pipescaler.common.general import run_command
+from pipescaler.common.typing import PathLike
 from pipescaler.core import Runner
 
 

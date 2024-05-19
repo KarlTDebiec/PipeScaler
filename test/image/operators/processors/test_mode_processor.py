@@ -5,7 +5,8 @@ import pytest
 from PIL import Image
 
 from pipescaler.image.operators.processors import ModeProcessor
-from pipescaler.testing import get_test_infile_path, parametrized_fixture
+from pipescaler.testing.file import get_test_infile_path
+from pipescaler.testing.fixture import parametrized_fixture
 
 
 @parametrized_fixture(
@@ -23,17 +24,17 @@ def processor(request) -> ModeProcessor:
 
 
 @pytest.mark.parametrize(
-    ("infile"),
+    "infile",
     [
-        ("1"),
-        ("L"),
-        ("LA"),
-        ("RGB"),
-        ("RGBA"),
-        ("PL"),
-        ("PLA"),
-        ("PRGB"),
-        ("PRGBA"),
+        "1",
+        "L",
+        "LA",
+        "RGB",
+        "RGBA",
+        "PL",
+        "PLA",
+        "PRGB",
+        "PRGBA",
     ],
 )
 def test(infile: str, processor: ModeProcessor) -> None:

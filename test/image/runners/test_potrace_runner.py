@@ -6,9 +6,10 @@ from __future__ import annotations
 import pytest
 from PIL import Image
 
-from pipescaler.common import get_temp_file_path
+from pipescaler.common.file import get_temp_file_path
 from pipescaler.image.runners import PotraceRunner
-from pipescaler.testing import get_test_infile_path, parametrized_fixture
+from pipescaler.testing.file import get_test_infile_path
+from pipescaler.testing.fixture import parametrized_fixture
 
 
 @parametrized_fixture(
@@ -22,9 +23,9 @@ def runner(request) -> PotraceRunner:
 
 
 @pytest.mark.parametrize(
-    ("infile_name"),
+    "infile_name",
     [
-        ("L"),
+        "L",
     ],
 )
 def test(infile_name: str, runner: PotraceRunner) -> None:

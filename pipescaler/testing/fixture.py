@@ -19,7 +19,14 @@ def parametrized_fixture(cls: Type, params: list[dict[str, Any]]):
         Fixture with provided params and clear ids
     """
 
-    def get_name(args):
-        return f"{cls.__name__}({','.join(map(str, args.values()))})"
+    def get_name(arguments: dict[str, Any]) -> str:
+        """Get readable name for arguments.
+
+        Arguments:
+            arguments: arguments
+        Returns:
+            Readable name
+        """
+        return f"{cls.__name__}({','.join(map(str, arguments.values()))})"
 
     return partial(fixture(params=params, ids=get_name))

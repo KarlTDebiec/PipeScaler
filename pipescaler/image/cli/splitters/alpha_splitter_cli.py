@@ -10,7 +10,7 @@ from typing import Any, Type
 
 from PIL import Image
 
-from pipescaler.common import output_file_arg
+from pipescaler.common.argument_parsing import output_file_arg
 from pipescaler.image.core.cli import ImageSplitterCli
 from pipescaler.image.core.operators import ImageSplitter
 from pipescaler.image.operators.splitters import AlphaSplitter

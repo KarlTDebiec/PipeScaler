@@ -5,8 +5,8 @@ from __future__ import annotations
 
 from logging import info
 
-from pipescaler.common import validate_int
-from pipescaler.core.pipelines.sorter import Sorter
+from pipescaler.common.validation import validate_int
+from pipescaler.core.pipelines import Sorter
 from pipescaler.image.core.pipelines import PipeImage
 
 
@@ -22,22 +22,22 @@ class SizeSorter(Sorter):
         """
         self.cutoff = validate_int(cutoff, min_value=1)
 
-    def __call__(self, pipe_image: PipeImage) -> str | None:
+    def __call__(self, obj: PipeImage) -> str | None:
         """Get the outlet to which an image should be sorted.
 
         Arguments:
-            pipe_image: Image to sort
+            obj: Image to sort
         Returns:
             Outlet to which image should be sorted
         """
-        image = pipe_image.image
+        image = obj.image
 
         if image.size[0] < self.cutoff or image.size[1] < self.cutoff:
             outlet = "less_than"
         else:
             outlet = "greater_than_or_equal_to"
 
-        info(f"{self}: '{pipe_image.location_name}' matches '{outlet}'")
+        info(f"{self}: '{obj.location_name}' matches '{outlet}'")
         return outlet
 
     def __repr__(self) -> str:
@@ -47,4 +47,4 @@ class SizeSorter(Sorter):
     @property
     def outlets(self) -> tuple[str, ...]:
         """Outlets to which images may be sorted."""
-        return ("less_than", "greater_than_or_equal_to")
+        return "less_than", "greater_than_or_equal_to"

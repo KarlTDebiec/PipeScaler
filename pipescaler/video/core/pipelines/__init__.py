@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 from pipescaler.video.core.pipelines.pipe_video import PipeVideo
-from pipescaler.video.core.pipelines.typing import VideoSegmentLike
 from pipescaler.video.core.pipelines.video_segment import VideoSegment
 from pipescaler.video.core.pipelines.video_sorter import VideoSorter
 from pipescaler.video.core.pipelines.video_source import VideoSource
@@ -13,7 +12,6 @@ from pipescaler.video.core.pipelines.video_terminus import VideoTerminus
 __all__ = [
     "PipeVideo",
     "VideoSegment",
-    "VideoSegmentLike",
     "VideoSorter",
     "VideoSource",
     "VideoTerminus",

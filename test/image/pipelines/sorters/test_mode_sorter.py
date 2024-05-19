@@ -1,11 +1,12 @@
 #  Copyright 2020-2024 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
-"""Tests for ModeSorter"""
+"""Tests for ModeSorter."""
 import pytest
 
 from pipescaler.image.core.pipelines import PipeImage
 from pipescaler.image.pipelines.sorters import ModeSorter
-from pipescaler.testing import get_test_infile_path, parametrized_fixture
+from pipescaler.testing.file import get_test_infile_path
+from pipescaler.testing.fixture import parametrized_fixture
 
 
 @parametrized_fixture(

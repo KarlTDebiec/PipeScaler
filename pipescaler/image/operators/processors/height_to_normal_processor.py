@@ -5,13 +5,13 @@ from __future__ import annotations
 
 from PIL import Image
 
-from pipescaler.common import validate_float
-from pipescaler.image.core import (
+from pipescaler.common.validation import validate_float
+from pipescaler.image.core.functions import (
     generate_normal_map_from_height_map_image,
     smooth_image,
-    validate_image,
 )
 from pipescaler.image.core.operators import ImageProcessor
+from pipescaler.image.core.validation import validate_image
 
 
 class HeightToNormalProcessor(ImageProcessor):

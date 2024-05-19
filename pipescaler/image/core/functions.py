@@ -7,7 +7,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from scipy.ndimage import convolve
 
-from pipescaler.common import validate_float
+from pipescaler.common.validation import validate_float
 from pipescaler.image.core.exceptions import UnsupportedImageModeError
 
 

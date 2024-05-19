@@ -4,9 +4,10 @@
 import pytest
 from PIL import Image
 
-from pipescaler.image import xfail_unsupported_image_mode
 from pipescaler.image.operators.splitters import NormalSplitter
-from pipescaler.testing import get_test_infile_path, parametrized_fixture
+from pipescaler.image.testing import xfail_unsupported_image_mode
+from pipescaler.testing.file import get_test_infile_path
+from pipescaler.testing.fixture import parametrized_fixture
 
 
 @parametrized_fixture(
@@ -20,15 +21,15 @@ def splitter(request) -> NormalSplitter:
 
 
 @pytest.mark.parametrize(
-    ("infile"),
+    "infile",
     [
         xfail_unsupported_image_mode()("1"),
         xfail_unsupported_image_mode()("L"),
         xfail_unsupported_image_mode()("LA"),
-        ("RGB"),
+        "RGB",
         xfail_unsupported_image_mode()("RGBA"),
-        ("PRGB"),
-        ("novel/RGB_normal"),
+        "PRGB",
+        "novel/RGB_normal",
     ],
 )
 def test(infile: str, splitter: NormalSplitter) -> None:

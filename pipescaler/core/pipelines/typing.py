@@ -9,3 +9,4 @@ from pipescaler.core.pipelines.pipe_object import PipeObject
 from pipescaler.core.pipelines.segment import Segment
 
 SegmentLike: TypeAlias = Segment | Callable[[PipeObject], tuple[PipeObject, ...]]
+"""Type alias for a Segment or callable with the same call signature."""

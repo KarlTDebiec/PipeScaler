@@ -8,8 +8,8 @@ from logging import info
 
 import torch
 
-from pipescaler.common import (
-    PathLike,
+from pipescaler.common.typing import PathLike
+from pipescaler.common.validation import (
     validate_input_file,
     validate_output_file,
     validate_str,

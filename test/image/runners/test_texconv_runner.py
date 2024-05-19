@@ -6,13 +6,11 @@ from __future__ import annotations
 import pytest
 from PIL import Image
 
-from pipescaler.common import get_temp_file_path
+from pipescaler.common.file import get_temp_file_path
 from pipescaler.image.runners import TexconvRunner
-from pipescaler.testing import (
-    get_test_infile_path,
-    parametrized_fixture,
-    xfail_if_platform,
-)
+from pipescaler.testing.file import get_test_infile_path
+from pipescaler.testing.fixture import parametrized_fixture
+from pipescaler.testing.mark import xfail_if_platform
 
 
 @parametrized_fixture(
@@ -26,7 +24,7 @@ def runner(request) -> TexconvRunner:
 
 
 @pytest.mark.parametrize(
-    ("infile_name"),
+    "infile_name",
     [
         xfail_if_platform({"Darwin", "Linux"})("1"),
         xfail_if_platform({"Darwin", "Linux"})("L"),

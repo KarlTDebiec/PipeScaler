@@ -6,12 +6,12 @@ from __future__ import annotations
 from typing import no_type_check
 
 import numpy as np
-from numba import njit
 from PIL import Image
+from numba import njit
 
-from pipescaler.common import validate_int
-from pipescaler.image.core import validate_image_and_convert_mode
+from pipescaler.common.validation import validate_int
 from pipescaler.image.core.operators import ImageProcessor
+from pipescaler.image.core.validation import validate_image_and_convert_mode
 
 
 class ThresholdProcessor(ImageProcessor):

@@ -7,7 +7,11 @@ from __future__ import annotations
 from argparse import ArgumentParser
 from typing import Type
 
-from pipescaler.common import float_arg, get_arg_groups_by_name, str_arg
+from pipescaler.common.argument_parsing import (
+    float_arg,
+    get_arg_groups_by_name,
+    str_arg,
+)
 from pipescaler.image.core.cli import ImageProcessorCli
 from pipescaler.image.operators.processors import ResizeProcessor
 

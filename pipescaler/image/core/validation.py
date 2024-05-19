@@ -51,5 +51,5 @@ def validate_image_and_convert_mode(
     """
     image = validate_image(image, valid_modes)
     if convert_mode and image.mode != convert_mode:
-        return (image.convert(convert_mode), image.mode)
-    return (image, image.mode)
+        return image.convert(convert_mode), image.mode
+    return image, image.mode

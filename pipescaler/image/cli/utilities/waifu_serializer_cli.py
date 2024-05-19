@@ -7,7 +7,7 @@ from __future__ import annotations
 from argparse import ArgumentParser
 from typing import Type
 
-from pipescaler.common import (
+from pipescaler.common.argument_parsing import (
     get_arg_groups_by_name,
     input_file_arg,
     output_file_arg,

@@ -9,7 +9,8 @@ from typing import Any, Self, Sequence
 
 import cv2
 
-from pipescaler.common import PathLike, validate_output_file
+from pipescaler.common.typing import PathLike
+from pipescaler.common.validation import validate_output_file
 from pipescaler.core.pipelines.pipe_object import PipeObject
 
 

@@ -7,15 +7,13 @@ from itertools import product
 from typing import no_type_check
 
 import numpy as np
-from numba import njit
 from PIL import Image
+from numba import njit
 
 from pipescaler.core import Utility
-from pipescaler.image.core import (
-    UnsupportedImageModeError,
-    get_palette,
-    get_perceptually_weighted_distance,
-)
+from pipescaler.image.core import UnsupportedImageModeError
+from pipescaler.image.core.functions import get_palette
+from pipescaler.image.core.numba import get_perceptually_weighted_distance
 
 
 class PaletteMatcher(Utility):

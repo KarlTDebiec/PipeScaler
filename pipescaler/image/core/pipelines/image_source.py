@@ -3,16 +3,11 @@
 """Abstract base class for image sources."""
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABC
 
 from pipescaler.core.pipelines.source import Source
 from pipescaler.image.core.pipelines.pipe_image import PipeImage
 
 
-class ImageSource(Source, ABC):
+class ImageSource(Source[PipeImage], ABC):
     """Abstract base class for image sources."""
-
-    @abstractmethod
-    def __next__(self) -> PipeImage:
-        """Return next image."""
-        raise NotImplementedError()

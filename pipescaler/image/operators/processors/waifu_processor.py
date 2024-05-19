@@ -6,8 +6,6 @@ from __future__ import annotations
 from logging import warning
 from typing import Any
 
-import torch
-
 from pipescaler.image.core.operators.processors import PyTorchImageProcessor
 
 
@@ -17,23 +15,21 @@ class WaifuProcessor(PyTorchImageProcessor):
     See [waifu2x](https://github.com/nagadomi/waifu2x).
     """
 
-    def __init__(self, device: str = "cuda", **kwargs: Any) -> None:
+    def __init__(self, **kwargs: Any) -> None:
         """Validate and store configuration and initialize.
 
         Arguments:
-            device: Device on which to compute
             **kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
 
-        model = torch.load(self.model_infile)
-        model.eval()
+        self.model.eval()
+
         try:
-            self.model = model.to(device)
-            self.device = device
+            self.model = self.model.to(self.device)
         except AssertionError as error:
             device = "cpu"
-            self.model = model.to(device)
+            self.model = self.model.to(device)
             self.device = device
             warning(
                 f"{self}: Torch raised '{error}' with device '{device}', "

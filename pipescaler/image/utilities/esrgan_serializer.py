@@ -9,7 +9,8 @@ from logging import info
 import torch
 from torch import Tensor
 
-from pipescaler.common import PathLike, validate_input_file, validate_output_file
+from pipescaler.common.typing import PathLike
+from pipescaler.common.validation import validate_input_file, validate_output_file
 from pipescaler.core import Utility
 from pipescaler.image.models.esrgan import Esrgan, Esrgan1x, Esrgan4x
 

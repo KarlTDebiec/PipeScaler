@@ -4,7 +4,7 @@
 import pytest
 from PIL import Image
 
-from pipescaler.image import SubdividedImage, xfail_unsupported_image_mode
+from pipescaler.image import SubdividedImage
 from pipescaler.image.core.operators import ImageProcessor
 from pipescaler.image.operators.processors import (
     EsrganProcessor,
@@ -12,11 +12,9 @@ from pipescaler.image.operators.processors import (
     WaifuProcessor,
     XbrzProcessor,
 )
-from pipescaler.testing import (
-    get_test_infile_path,
-    get_test_model_infile_path,
-    skip_if_ci,
-)
+from pipescaler.image.testing import xfail_unsupported_image_mode
+from pipescaler.testing.file import get_test_infile_path, get_test_model_infile_path
+from pipescaler.testing.mark import skip_if_ci
 
 
 @pytest.fixture

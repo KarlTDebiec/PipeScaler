@@ -7,7 +7,13 @@ from logging import error
 
 
 def basic_sort(filename: str) -> str:
-    """Sort filenames."""
+    """Get filename in sortable format.
+
+    Arguments:
+        filename: filename
+    Returns:
+        filename in sortable format
+    """
     try:
         return "".join([f"{ord(c):03d}" for c in filename.lower()])
     except ValueError as e:

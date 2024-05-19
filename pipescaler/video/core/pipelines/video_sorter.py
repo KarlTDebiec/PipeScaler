@@ -3,22 +3,11 @@
 """Abstract base class for video sorters."""
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABC
 
 from pipescaler.core.pipelines.sorter import Sorter
 from pipescaler.video.core.pipelines.pipe_video import PipeVideo
 
 
-class VideoSorter(Sorter, ABC):
+class VideoSorter(Sorter[PipeVideo], ABC):
     """Abstract base class for video sorters."""
-
-    @abstractmethod
-    def __call__(self, pipe_video: PipeVideo) -> str | None:
-        """Get the outlet to which a video should be sorted.
-
-        Arguments:
-            pipe_video: Video to sort
-        Returns:
-            Outlet to which video should be sorted
-        """
-        raise NotImplementedError()

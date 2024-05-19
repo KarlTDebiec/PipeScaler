@@ -7,9 +7,10 @@ from PIL import Image, ImageOps
 from reportlab.graphics.renderPM import drawToFile
 from svglib.svglib import svg2rlg
 
-from pipescaler.common import get_temp_file_path, validate_float
-from pipescaler.image.core import validate_image_and_convert_mode
+from pipescaler.common.file import get_temp_file_path
+from pipescaler.common.validation import validate_float
 from pipescaler.image.core.operators import ImageProcessor
+from pipescaler.image.core.validation import validate_image_and_convert_mode
 from pipescaler.image.runners import PotraceRunner
 
 
@@ -58,12 +59,14 @@ class PotraceProcessor(ImageProcessor):
             with get_temp_file_path(".svg") as temp_svg_path:
                 self.potrace_runner.run(temp_bmp_path, temp_svg_path)
                 traced_drawing = svg2rlg(temp_svg_path)
+                if not traced_drawing:
+                    raise ValueError("No drawing found in SVG")
                 traced_drawing.scale(
                     (input_image.size[0] / traced_drawing.width) * self.scale,
                     (input_image.size[1] / traced_drawing.height) * self.scale,
                 )
-                traced_drawing.width = input_image.size[0] * self.scale
-                traced_drawing.height = input_image.size[1] * self.scale
+                traced_drawing.width = int(input_image.size[0] * self.scale)
+                traced_drawing.height = int(input_image.size[1] * self.scale)
 
                 with get_temp_file_path(".png") as temp_png_path:
                     drawToFile(traced_drawing, temp_png_path, fmt="png")

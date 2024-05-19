@@ -7,9 +7,9 @@ from logging import info
 
 import numpy as np
 
-from pipescaler.common import validate_int
-from pipescaler.image.core import validate_image_and_convert_mode
+from pipescaler.common.validation import validate_int
 from pipescaler.image.core.pipelines import ImageSorter, PipeImage
+from pipescaler.image.core.validation import validate_image_and_convert_mode
 
 
 class AlphaSorter(ImageSorter):
@@ -23,16 +23,16 @@ class AlphaSorter(ImageSorter):
         """
         self.threshold = validate_int(threshold, 0, 255)
 
-    def __call__(self, pipe_image: PipeImage) -> str | None:
+    def __call__(self, obj: PipeImage) -> str | None:
         """Get the outlet to which an image should be sorted.
 
         Arguments:
-            pipe_image: Image to sort
+            obj: Image to sort
         Returns:
             Outlet to which image should be sorted
         """
         image, mode = validate_image_and_convert_mode(
-            pipe_image.image, ("1", "L", "LA", "RGB", "RGBA")
+            obj.image, ("1", "L", "LA", "RGB", "RGBA")
         )
 
         if mode in ("LA", "RGBA"):
@@ -44,7 +44,7 @@ class AlphaSorter(ImageSorter):
         else:
             outlet = "no_alpha"
 
-        info(f"{self}: '{pipe_image.location_name}' matches '{outlet}'")
+        info(f"{self}: '{obj.location_name}' matches '{outlet}'")
         return outlet
 
     def __repr__(self) -> str:
@@ -54,4 +54,4 @@ class AlphaSorter(ImageSorter):
     @property
     def outlets(self) -> tuple[str, ...]:
         """Outlets to which images may be sorted."""
-        return ("drop_alpha", "keep_alpha", "no_alpha")
+        return "drop_alpha", "keep_alpha", "no_alpha"

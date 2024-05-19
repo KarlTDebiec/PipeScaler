@@ -6,8 +6,8 @@ from __future__ import annotations
 import numpy as np
 from PIL import Image
 
-from pipescaler.image.core import validate_image
 from pipescaler.image.core.operators import ImageMerger
+from pipescaler.image.core.validation import validate_image
 
 
 class AlphaMerger(ImageMerger):

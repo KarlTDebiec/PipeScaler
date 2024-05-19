@@ -7,7 +7,8 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Self, Sequence
 
-from pipescaler.common import PathLike, validate_input_file
+from pipescaler.common.typing import PathLike
+from pipescaler.common.validation import validate_input_file
 
 
 class PipeObject(ABC):

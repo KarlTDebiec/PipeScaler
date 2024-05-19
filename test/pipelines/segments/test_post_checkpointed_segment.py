@@ -5,7 +5,9 @@ from __future__ import annotations
 
 from unittest.mock import Mock, patch
 
-from pipescaler.common import PathLike, get_temp_directory_path, validate_output_file
+from pipescaler.common.file import get_temp_directory_path
+from pipescaler.common.typing import PathLike
+from pipescaler.common.validation import validate_output_file
 from pipescaler.core.pipelines import PipeObject, Segment
 from pipescaler.pipelines import CheckpointManager
 from pipescaler.pipelines.segments import PostCheckpointedSegment
@@ -24,6 +26,7 @@ def mock_pipe_object_save(path: PathLike) -> None:
 def mock_pipe_object_save_2(self, path: PathLike) -> None:
     """Save object to file and set path.
     Arguments:
+        self: not used; present for compatibility with PipeObject.save
         path: Path to which to save object
     """
     path = validate_output_file(path)

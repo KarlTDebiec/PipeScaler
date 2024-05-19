@@ -5,9 +5,10 @@ from __future__ import annotations
 
 from logging import info
 
-from pipescaler.common import validate_float
-from pipescaler.image.core import is_monochrome, validate_image
+from pipescaler.common.validation import validate_float
+from pipescaler.image.core.functions import is_monochrome
 from pipescaler.image.core.pipelines import ImageSorter, PipeImage
+from pipescaler.image.core.validation import validate_image
 
 
 class MonochromeSorter(ImageSorter):
@@ -25,15 +26,15 @@ class MonochromeSorter(ImageSorter):
         self.mean_threshold = validate_float(mean_threshold, 0, 255)
         self.max_threshold = validate_float(max_threshold, 0, 255)
 
-    def __call__(self, pipe_image: PipeImage) -> str | None:
+    def __call__(self, obj: PipeImage) -> str | None:
         """Get the outlet to which an image should be sorted.
 
         Arguments:
-            pipe_image: Image to sort
+            obj: Image to sort
         Returns:
             Outlet to which image should be sorted
         """
-        image = validate_image(pipe_image.image, ("1", "L"))
+        image = validate_image(obj.image, ("1", "L"))
 
         if image.mode == "L":
             if is_monochrome(image):
@@ -43,7 +44,7 @@ class MonochromeSorter(ImageSorter):
         else:
             outlet = "no_gray"
 
-        info(f"{self}: '{pipe_image.location_name}' matches {outlet}")
+        info(f"{self}: '{obj.location_name}' matches {outlet}")
         return outlet
 
     def __repr__(self) -> str:
@@ -57,4 +58,4 @@ class MonochromeSorter(ImageSorter):
     @property
     def outlets(self) -> tuple[str, ...]:
         """Outlets to which images may be sorted."""
-        return ("drop_gray", "keep_gray", "no_gray")
+        return "drop_gray", "keep_gray", "no_gray"

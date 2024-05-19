@@ -9,12 +9,10 @@ from pipescaler.image.core.pipelines.image_sorter import ImageSorter
 from pipescaler.image.core.pipelines.image_source import ImageSource
 from pipescaler.image.core.pipelines.image_terminus import ImageTerminus
 from pipescaler.image.core.pipelines.pipe_image import PipeImage
-from pipescaler.image.core.pipelines.typing import ImageSegmentLike
 
 __all__ = [
     "ImageOperatorSegment",
     "ImageSegment",
-    "ImageSegmentLike",
     "ImageSorter",
     "ImageSource",
     "ImageTerminus",

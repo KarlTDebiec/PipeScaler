@@ -6,15 +6,17 @@ from __future__ import annotations
 from platform import system
 from unittest.mock import Mock, patch
 
-from pipescaler.common import PathLike, get_temp_directory_path, validate_output_file
+from pipescaler.common.file import get_temp_directory_path
+from pipescaler.common.typing import PathLike
+from pipescaler.common.validation import validate_output_file
 from pipescaler.core.pipelines import PipeObject, Segment
 from pipescaler.pipelines import CheckpointManager
 
 if system() == "Windows":
-    from pathlib import WindowsPath
+    from pathlib import WindowsPath as PlatformPath
 
 else:
-    from pathlib import PosixPath
+    from pathlib import PosixPath as PlatformPath
 
 
 def mock_pipe_object_save(path: PathLike) -> None:
@@ -27,9 +29,10 @@ def mock_pipe_object_save(path: PathLike) -> None:
     path.touch()
 
 
-def mock_pipe_object_save_2(self, path: PathLike) -> None:
+def mock_pipe_object_save_2(self: PipeObject, path: PathLike) -> None:
     """Save object to file and set path.
     Arguments:
+        self: PipeObject to which this mock method is attached
         path: Path to which to save object
     """
     path = validate_output_file(path)
@@ -49,17 +52,17 @@ def test_load_save():
 
         # Attempt to load single unavailable checkpoint
         outputs = cp_manager.load((mock_pipe_object_input,), ("cpt.txt",))
-        assert outputs == None
+        assert outputs is None
 
         # Attempt to load multiple unavailable checkpoints
         outputs = cp_manager.load((mock_pipe_object_input,), ("cpt.txt", "cpt2.txt"))
-        assert outputs == None
+        assert outputs is None
 
         # Attempt to load invalid number of checkpoints
         mock_pipe_object_input_2 = Mock(spec=PipeObject)
         mock_pipe_object_input_2.location_name = "test2"
         try:
-            outputs = cp_manager.load(
+            cp_manager.load(
                 (mock_pipe_object_input, mock_pipe_object_input_2), ("cpt.txt",)
             )
         except ValueError:
@@ -67,14 +70,12 @@ def test_load_save():
 
         # Attempt to save invalid number of checkpoints
         try:
-            outputs = cp_manager.save(
-                (mock_pipe_object_input,), ("cpt.txt", "cpt2.txt")
-            )
+            cp_manager.save((mock_pipe_object_input,), ("cpt.txt", "cpt2.txt"))
         except ValueError:
             pass
 
         # Save checkpoint
-        outputs = cp_manager.save((mock_pipe_object_input,), ("cpt.txt",))
+        cp_manager.save((mock_pipe_object_input,), ("cpt.txt",))
         assert (cp_directory_path / "test" / "cpt.txt").exists()
 
         # Try to save again, without overwriting
@@ -107,25 +108,18 @@ def test_load_save():
 def test_pre_segment():
     with get_temp_directory_path() as cp_directory_path:
         cp_manager = CheckpointManager(cp_directory_path)
-
-        pre_checkpointed_segment = cp_manager.pre_segment("cpt.txt")(Mock(spec=Segment))
+        cp_manager.pre_segment("cpt.txt")(Mock(spec=Segment))
 
 
 def test_post_segment():
     with get_temp_directory_path() as cp_directory_path:
         cp_manager = CheckpointManager(cp_directory_path)
-
-        post_checkpointed_segment = cp_manager.post_segment("cpt.txt")(
-            Mock(spec=Segment)
-        )
+        cp_manager.post_segment("cpt.txt")(Mock(spec=Segment))
 
 
 def test_print():
     with get_temp_directory_path() as cp_directory_path:
-        if system() == "Windows":
-            assert isinstance(cp_directory_path, WindowsPath)
-        else:
-            assert isinstance(cp_directory_path, PosixPath)
+        assert isinstance(cp_directory_path, PlatformPath)
 
         cp_manager = CheckpointManager(cp_directory_path)
         print(cp_manager)

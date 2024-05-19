@@ -8,19 +8,23 @@ import numpy as np
 import pytest
 from PIL import Image
 
-from pipescaler.common import get_temp_directory_path, get_temp_file_path
+from pipescaler.common.file import get_temp_directory_path, get_temp_file_path
 from pipescaler.image import ScaledPairIdentifier
-from pipescaler.testing import get_test_infile_path
+from pipescaler.testing.file import get_test_infile_path
 
 
 @pytest.mark.xfail(
     system() in {"Linux"}, raises=OSError, reason=f"Not supported on {system()}"
 )
 def test_review() -> None:
-    with get_temp_directory_path() as input_directory, get_temp_directory_path() as project_root:
-        with get_temp_file_path("csv") as hash_file, get_temp_file_path(
-            "csv"
-        ) as pairs_file:
+    with (
+        get_temp_directory_path() as input_directory,
+        get_temp_directory_path() as project_root,
+    ):
+        with (
+            get_temp_file_path("csv") as hash_file,
+            get_temp_file_path("csv") as pairs_file,
+        ):
             # Copy basic infiles and prepare scaled pairs
             for mode in ["L", "LA", "RGB", "RGBA"]:
                 infile = get_test_infile_path(mode)

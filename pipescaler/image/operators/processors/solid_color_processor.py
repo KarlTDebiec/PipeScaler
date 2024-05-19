@@ -6,9 +6,9 @@ from __future__ import annotations
 import numpy as np
 from PIL import Image
 
-from pipescaler.common import validate_float
-from pipescaler.image.core import validate_image_and_convert_mode
+from pipescaler.common.validation import validate_float
 from pipescaler.image.core.operators import ImageProcessor
+from pipescaler.image.core.validation import validate_image_and_convert_mode
 
 
 class SolidColorProcessor(ImageProcessor):
