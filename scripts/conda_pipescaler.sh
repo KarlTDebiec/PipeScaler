@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash -ex
 # Script for creating a working conda environment on macOS,
 # with the latest version of required packages
 
@@ -9,8 +9,8 @@ conda remove -y --name pipescaler --all
 conda create -y --name pipescaler python=3.12
 conda activate pipescaler
 
-conda install -y \
-    brotlipy
+#conda install -y \
+#    brotlipy
 
 pip install \
     black \
@@ -30,7 +30,6 @@ pip install \
     pytest-xdist \
     rlpycairo \
     scikit-image \
-    setuptools \
     svglib \
     types-Pillow
 
