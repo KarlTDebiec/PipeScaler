@@ -1542,13 +1542,13 @@ pylint = ">=1.7"
 
 [[package]]
 name = "pyright"
-version = "1.1.368"
+version = "1.1.372"
 description = "Command line wrapper for pyright"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pyright-1.1.368-py3-none-any.whl", hash = "sha256:4a86e34b61c755b43b367af7fbf927fc6466fff6b81a9dcea07d42416c640af3"},
-    {file = "pyright-1.1.368.tar.gz", hash = "sha256:9b2aa48142d9d9fc9a6aedff743c76873cc4e615f3297cdbf893d5793f75b306"},
+    {file = "pyright-1.1.372-py3-none-any.whl", hash = "sha256:25b15fb8967740f0949fd35b963777187f0a0404c0bd753cc966ec139f3eaa0b"},
+    {file = "pyright-1.1.372.tar.gz", hash = "sha256:a9f5e0daa955daaa17e3d1ef76d3623e75f8afd5e37b437d3ff84d5b38c15420"},
 ]
 
 [package.dependencies]
@@ -2269,4 +2269,4 @@ resolved_reference = "0352a872e6ef48997d758b20b8a180e6fb3114ae"
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.12"
-content-hash = "3ce0d5acc6e8fe79c564478788c49d643cf9833a892234ccfb210ab613d82cf8"
+content-hash = "8efb00ad75a9308c3d35b510f417be25cce66f80219c1e05422f7fc3c24da3cd"
