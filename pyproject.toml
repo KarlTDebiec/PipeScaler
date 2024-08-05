@@ -38,7 +38,7 @@ torch = "^2.4.0"
 "xbrz.py" = {git = "https://github.com/ioistired/xbrz.py"}
 
 [tool.poetry.group.dev.dependencies]
-black = "^24.4.2"
+black = "^24.8.0"
 coverage = "^7.6.0"
 isort = "^5.13.2"
 pandas-stubs = "^2.2.2.240603"
