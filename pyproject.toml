@@ -39,7 +39,7 @@ torch = "^2.4.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.8.0"
-coverage = "^7.6.0"
+coverage = "^7.6.1"
 isort = "^5.13.2"
 pandas-stubs = "^2.2.2.240807"
 prospector = "^1.10.3"
