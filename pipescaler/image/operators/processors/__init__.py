@@ -1,12 +1,8 @@
-#  Copyright 2020-2024 Karl T Debiec. All rights reserved. This software may be modified
+#  Copyright 2020-2025 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """PipeScaler image processor operators package."""
 from __future__ import annotations
 
-from pipescaler.image.operators.processors.apple_script_processor import (
-    AppleScriptProcessor,
-)
-from pipescaler.image.operators.processors.automator_processor import AutomatorProcessor
 from pipescaler.image.operators.processors.crop_processor import CropProcessor
 from pipescaler.image.operators.processors.esrgan_processor import EsrganProcessor
 from pipescaler.image.operators.processors.expand_processor import ExpandProcessor
@@ -21,15 +17,10 @@ from pipescaler.image.operators.processors.solid_color_processor import (
     SolidColorProcessor,
 )
 from pipescaler.image.operators.processors.threshold_processor import ThresholdProcessor
-from pipescaler.image.operators.processors.waifu_external_processor import (
-    WaifuExternalProcessor,
-)
 from pipescaler.image.operators.processors.waifu_processor import WaifuProcessor
 from pipescaler.image.operators.processors.xbrz_processor import XbrzProcessor
 
 __all__ = [
-    "AppleScriptProcessor",
-    "AutomatorProcessor",
     "CropProcessor",
     "EsrganProcessor",
     "ExpandProcessor",
@@ -40,7 +31,6 @@ __all__ = [
     "SharpenProcessor",
     "SolidColorProcessor",
     "ThresholdProcessor",
-    "WaifuExternalProcessor",
     "WaifuProcessor",
     "XbrzProcessor",
 ]
