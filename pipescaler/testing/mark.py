@@ -6,7 +6,7 @@ from __future__ import annotations
 from functools import partial
 from os import getenv
 from platform import system
-from typing import Any, Type
+from typing import Any
 
 from pytest import mark, param
 
@@ -98,7 +98,7 @@ def xfail_file_not_found(inner: partial | None = None) -> partial:
 
 def xfail_if_platform(
     unsupported_platforms: set[str] | None = None,
-    raises: Type[Exception] = UnsupportedPlatformError,
+    raises: type[Exception] = UnsupportedPlatformError,
     inner: partial | None = None,
 ) -> partial:
     """Mark test to be expected to fail on selected platforms.

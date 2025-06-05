@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
-from typing import Any, Type
+from typing import Any
 
 from pipescaler.common import CommandLineInterface
 from pipescaler.image.cli import splitters
@@ -55,7 +55,7 @@ class ImageSplittersCli(CommandLineInterface):
         return "merge"
 
     @classmethod
-    def splitters(cls) -> dict[str, Type[ImageSplitterCli]]:
+    def splitters(cls) -> dict[str, type[ImageSplitterCli]]:
         """Names and types of splitters wrapped by command-line interface."""
         return {
             splitter.name(): splitter

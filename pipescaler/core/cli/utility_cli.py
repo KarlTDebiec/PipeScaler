@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from inspect import cleandoc
-from typing import Any, Type
+from typing import Any
 
 from pipescaler.common import CommandLineInterface
 from pipescaler.core.utility import Utility
@@ -39,6 +39,6 @@ class UtilityCli(CommandLineInterface, ABC):
 
     @classmethod
     @abstractmethod
-    def utility(cls) -> Type[Utility]:
+    def utility(cls) -> type[Utility]:
         """Type of utility wrapped by command-line interface."""
         raise NotImplementedError()

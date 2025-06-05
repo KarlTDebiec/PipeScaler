@@ -6,7 +6,6 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from inspect import cleandoc
-from typing import Type
 
 from pipescaler.common import CommandLineInterface
 from pipescaler.image.core.operators import ImageMerger
@@ -27,6 +26,6 @@ class ImageMergerCli(CommandLineInterface, ABC):
 
     @classmethod
     @abstractmethod
-    def merger(cls) -> Type[ImageMerger]:
+    def merger(cls) -> type[ImageMerger]:
         """Type of merger wrapped by command-line interface."""
         raise NotImplementedError()

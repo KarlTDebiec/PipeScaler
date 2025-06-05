@@ -5,7 +5,6 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
-from typing import Type
 
 from pipescaler.common.argument_parsing import (
     get_arg_groups_by_name,
@@ -50,7 +49,7 @@ class WaifuCli(ImageProcessorCli):
         )
 
     @classmethod
-    def processor(cls) -> Type[WaifuProcessor]:
+    def processor(cls) -> type[WaifuProcessor]:
         """Type of processor wrapped by command-line interface."""
         return WaifuProcessor
 

@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
-from typing import Any, Type
+from typing import Any
 
 from pipescaler.common import CommandLineInterface
 from pipescaler.core.cli import UtilityCli
@@ -55,7 +55,7 @@ class ImageUtilitiesCli(CommandLineInterface):
         return "utility"
 
     @classmethod
-    def utilities(cls) -> dict[str, Type[UtilityCli]]:
+    def utilities(cls) -> dict[str, type[UtilityCli]]:
         """Names and types of utilities wrapped by command-line interface."""
         return {
             utility.name(): utility

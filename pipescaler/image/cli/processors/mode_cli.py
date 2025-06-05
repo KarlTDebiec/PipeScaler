@@ -5,7 +5,6 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
-from typing import Type
 
 from pipescaler.common.argument_parsing import get_arg_groups_by_name, str_arg
 from pipescaler.image.core.cli import ImageProcessorCli
@@ -53,7 +52,7 @@ class ModeCli(ImageProcessorCli):
         )
 
     @classmethod
-    def processor(cls) -> Type[ModeProcessor]:
+    def processor(cls) -> type[ModeProcessor]:
         """Type of processor wrapped by command-line interface."""
         return ModeProcessor
 
