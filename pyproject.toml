@@ -2,11 +2,12 @@
 name = "pipescaler"
 version = "0.1.0"
 description = ""
-authors = ["Karl T Debiec <karl.t.debiec@gmail.com>"]
+authors = [
+    { name = "Karl Debiec", email = "karl.t.debiec@gmail.com" }
+]
 license = { text = "BSD 3-Clause" }
 readme = "README.md"
 requires-python = ">=3.12"
-
 dependencies = [
     "ImageHash>=4.3.1",
     "numba>=0.60.0",
