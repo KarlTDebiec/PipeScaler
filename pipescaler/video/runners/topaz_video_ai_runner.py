@@ -1,4 +1,4 @@
-#  Copyright 2020-2024 Karl T Debiec. All rights reserved. This software may be modified
+#  Copyright 2020-2025 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Runs Topaz Video AI."""
 from __future__ import annotations
@@ -6,7 +6,7 @@ from __future__ import annotations
 from logging import debug
 from pathlib import Path
 
-from pipescaler.common.general import run_command_long
+from pipescaler.common.general import run_command
 from pipescaler.common.typing import PathLike
 from pipescaler.common.validation import validate_input_directory
 from pipescaler.core import Runner
@@ -116,7 +116,7 @@ class TopazVideoAiRunner(Runner):
         command = self.command_template.format(infile=infile, outfile=outfile)
         debug(f"{self}: {command}")
         # TODO: Improve this
-        run_command_long(command)
+        run_command(command)
 
     @classmethod
     def executable(cls) -> str:

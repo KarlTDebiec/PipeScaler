@@ -1,4 +1,4 @@
-#  Copyright 2020-2024 Karl T Debiec. All rights reserved. This software may be modified
+#  Copyright 2020-2025 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Command-line interface for PipeScaler image operations."""
 from __future__ import annotations
@@ -42,11 +42,11 @@ class ImageCli(CommandLineInterface):
         return "image operations"
 
     @classmethod
-    def main_internal(cls, **kwargs: Any) -> None:
+    def _main(cls, **kwargs: Any) -> None:
         """Execute with provided keyword arguments."""
         subcommand_name = kwargs.pop("subcommand")
         subcommand_cli_class = cls.subcommands()[subcommand_name]
-        subcommand_cli_class.main_internal(**kwargs)
+        subcommand_cli_class._main(**kwargs)
 
     @classmethod
     def name(cls) -> str:

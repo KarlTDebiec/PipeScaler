@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright 2020-2024 Karl T Debiec. All rights reserved. This software may be modified
+#  Copyright 2020-2025 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Command-line interface for PipeScaler image utilities."""
 from __future__ import annotations
@@ -43,11 +43,11 @@ class ImageUtilitiesCli(CommandLineInterface):
         return "run image utility"
 
     @classmethod
-    def main_internal(cls, **kwargs: Any) -> None:
+    def _main(cls, **kwargs: Any) -> None:
         """Execute with provided keyword arguments."""
         utility_name = kwargs.pop("utility")
         utility_cli_cls = cls.utilities()[utility_name]
-        utility_cli_cls.main_internal(**kwargs)
+        utility_cli_cls._main(**kwargs)
 
     @classmethod
     def name(cls) -> str:

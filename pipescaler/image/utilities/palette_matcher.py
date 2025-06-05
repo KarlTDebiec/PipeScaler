@@ -1,4 +1,4 @@
-#  Copyright 2020-2024 Karl T Debiec. All rights reserved. This software may be modified
+#  Copyright 2020-2025 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Matches the palette of one image to another."""
 from __future__ import annotations
@@ -64,7 +64,7 @@ class PaletteMatcher(Utility):
             Color in palette most similar to provided color
         """
         # Prepare set of cells to check
-        cell = (color[0] // 16, color[1] // 16, color[2] // 16)
+        cell = tuple(int(c) // 16 for c in color)
         cell_range = 0
         cells_to_check: set[tuple[int, int, int]] = set()
         while len(cells_to_check) == 0:
