@@ -1,4 +1,4 @@
-#  Copyright 2020-2024 Karl T Debiec. All rights reserved. This software may be modified
+#  Copyright 2020-2025 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Tests for processor command-line interfaces."""
 from __future__ import annotations
@@ -38,7 +38,7 @@ from pipescaler.testing.mark import skip_if_ci, skip_if_codex
         (CropCli, "--pixels 4 4 4 4", "RGB"),
         skip_if_codex(skip_if_ci())(
             EsrganCli,
-            "--model ESRGAN/1x_BC1-smooth2",
+            f"--model {get_test_model_infile_path('ESRGAN/1x_BC1-smooth2')}",
             "RGB",
         ),
         (ExpandCli, "--pixels 8 8 8 8", "RGB"),
@@ -50,7 +50,7 @@ from pipescaler.testing.mark import skip_if_ci, skip_if_codex
         (ThresholdCli, "--threshold 64 --denoise", "L"),
         skip_if_codex(skip_if_ci())(
             WaifuCli,
-            "--model WaifuUpConv7/a-2-3",
+            f"--model {get_test_model_infile_path('WaifuUpConv7/a-2-3')}",
             "RGB",
         ),
         (XbrzCli, "--scale 2", "RGB"),
@@ -58,12 +58,6 @@ from pipescaler.testing.mark import skip_if_ci, skip_if_codex
 )
 def test(cli: Type[CommandLineInterface], args: str, infile: str) -> None:
     input_path = get_test_infile_path(infile)
-    if "ESRGAN/1x_BC1-smooth2" in args:
-        model_path = get_test_model_infile_path("ESRGAN/1x_BC1-smooth2")
-        args = args.replace("ESRGAN/1x_BC1-smooth2", str(model_path))
-    if "WaifuUpConv7/a-2-3" in args:
-        model_path = get_test_model_infile_path("WaifuUpConv7/a-2-3")
-        args = args.replace("WaifuUpConv7/a-2-3", str(model_path))
 
     with get_temp_file_path(".png") as output_path:
         run_cli_with_args(cli, f"{args} {input_path} {output_path}")
