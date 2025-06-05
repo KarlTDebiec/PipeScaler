@@ -29,16 +29,16 @@ from pipescaler.image.cli.processors import (
     XbrzCli,
 )
 from pipescaler.testing.file import get_test_infile_path, get_test_model_infile_path
-from pipescaler.testing.mark import skip_if_ci
+from pipescaler.testing.mark import skip_if_ci, skip_if_codex
 
 
 @pytest.mark.parametrize(
     ("cli", "args", "infile"),
     [
         (CropCli, "--pixels 4 4 4 4", "RGB"),
-        skip_if_ci()(
+        skip_if_codex(skip_if_ci())(
             EsrganCli,
-            f"--model {get_test_model_infile_path('ESRGAN/1x_BC1-smooth2')}",
+            "--model ESRGAN/1x_BC1-smooth2",
             "RGB",
         ),
         (ExpandCli, "--pixels 8 8 8 8", "RGB"),
@@ -48,9 +48,9 @@ from pipescaler.testing.mark import skip_if_ci
         (SharpenCli, "", "RGB"),
         (SolidColorCli, "--scale 2", "RGB"),
         (ThresholdCli, "--threshold 64 --denoise", "L"),
-        skip_if_ci()(
+        skip_if_codex(skip_if_ci())(
             WaifuCli,
-            f"--model {get_test_model_infile_path('WaifuUpConv7/a-2-3')}",
+            "--model WaifuUpConv7/a-2-3",
             "RGB",
         ),
         (XbrzCli, "--scale 2", "RGB"),
@@ -58,6 +58,12 @@ from pipescaler.testing.mark import skip_if_ci
 )
 def test(cli: Type[CommandLineInterface], args: str, infile: str) -> None:
     input_path = get_test_infile_path(infile)
+    if "ESRGAN/1x_BC1-smooth2" in args:
+        model_path = get_test_model_infile_path("ESRGAN/1x_BC1-smooth2")
+        args = args.replace("ESRGAN/1x_BC1-smooth2", str(model_path))
+    if "WaifuUpConv7/a-2-3" in args:
+        model_path = get_test_model_infile_path("WaifuUpConv7/a-2-3")
+        args = args.replace("WaifuUpConv7/a-2-3", str(model_path))
 
     with get_temp_file_path(".png") as output_path:
         run_cli_with_args(cli, f"{args} {input_path} {output_path}")
