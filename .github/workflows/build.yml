@@ -81,3 +81,97 @@ jobs:
         with:
           tool: pytest
           tool_infile: .github/outputs/pytest.txt
+
+  macOS:
+    runs-on: macos-latest
+    if: github.event.pull_request.draft == false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: pyproject.toml
+
+      - name: Install system dependencies
+        run: |
+          brew install cairo pngquant potrace
+
+      - name: Set up uv with cache
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
+      - name: Install package dependencies
+        run: uv sync --all-extras --dev
+
+      - name: Install package
+        run: uv pip install -e .
+
+      - name: Run tests
+        run: |
+          mkdir -p ${GITHUB_WORKSPACE}/.github/outputs
+          export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
+          cd ${GITHUB_WORKSPACE}/test
+          uv run pytest -v --cov=pipescaler --cov-report term . | tee ${GITHUB_WORKSPACE}/.github/outputs/pytest.txt || echo
+
+      - name: Annotate with pytest results
+        uses: KarlTDebiec/LinterPrinter@main
+        with:
+          tool: pytest
+          tool_infile: .github/outputs/pytest.txt
+
+  Windows:
+    runs-on: windows-latest
+    if: github.event.pull_request.draft == false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: pyproject.toml
+
+      - name: Set up uv with cache
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
+      - name: Install system dependencies
+        shell: powershell
+        run: |
+          iwr -Uri http://potrace.sourceforge.net/download/1.16/potrace-1.16.win64.zip -OutFile potrace.zip
+          Expand-Archive -Path potrace.zip -DestinationPath potrace
+          $exePath = "$(Get-Location)\potrace\potrace-1.16.win64"
+          echo "$exePath" | Out-File -FilePath $env:GITHUB_PATH -Append
+          iwr -Uri https://github.com/microsoft/DirectXTex/releases/download/nov2021/texconv.exe -OutFile texconv.exe
+          Move-Item texconv.exe .\potrace\
+          echo "$(Get-Location)\potrace" | Out-File -FilePath $env:GITHUB_PATH -Append
+
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+
+      - name: Install package
+        run: uv pip install -e .
+
+      - name: Run tests
+        shell: bash
+        run: |
+          mkdir -p ${GITHUB_WORKSPACE}/.github/outputs
+          export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
+          cd ${GITHUB_WORKSPACE}/test
+          uv run pytest -v --cov=pipescaler --cov-report term . | tee ${GITHUB_WORKSPACE}/.github/outputs/pytest.txt || echo
+
+      - name: Annotate with pytest results
+        uses: KarlTDebiec/LinterPrinter@main
+        with:
+          tool: pytest
+          tool_infile: .github/outputs/pytest.txt
