@@ -11,7 +11,7 @@ from pipescaler.image.testing import (
 )
 from pipescaler.testing.file import get_test_infile_path
 from pipescaler.testing.fixture import parametrized_fixture
-from pipescaler.testing.mark import skip_if_ci
+from pipescaler.testing.mark import skip_if_ci, skip_if_codex
 
 
 @parametrized_fixture(
@@ -29,14 +29,14 @@ def processor(request) -> WaifuExternalProcessor:
 @pytest.mark.parametrize(
     "infile",
     [
-        skip_if_ci()("L"),
-        skip_if_ci(xfail_unsupported_image_mode())("LA"),
-        skip_if_ci()("RGB"),
-        skip_if_ci(xfail_unsupported_image_mode())("RGBA"),
-        skip_if_ci()("PL"),
-        skip_if_ci(xfail_unsupported_image_mode())("PLA"),
-        skip_if_ci()("PRGB"),
-        skip_if_ci(xfail_unsupported_image_mode())("PRGBA"),
+        skip_if_codex(skip_if_ci())("L"),
+        skip_if_codex(skip_if_ci(xfail_unsupported_image_mode()))("LA"),
+        skip_if_codex(skip_if_ci())("RGB"),
+        skip_if_codex(skip_if_ci(xfail_unsupported_image_mode()))("RGBA"),
+        skip_if_codex(skip_if_ci())("PL"),
+        skip_if_codex(skip_if_ci(xfail_unsupported_image_mode()))("PLA"),
+        skip_if_codex(skip_if_ci())("PRGB"),
+        skip_if_codex(skip_if_ci(xfail_unsupported_image_mode()))("PRGBA"),
     ],
 )
 def test(infile: str, processor: WaifuExternalProcessor) -> None:

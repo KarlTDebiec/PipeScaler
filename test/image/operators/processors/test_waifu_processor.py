@@ -10,19 +10,25 @@ from pipescaler.image.testing import (
     xfail_unsupported_image_mode,
 )
 from pipescaler.testing.file import get_test_infile_path, get_test_model_infile_path
-from pipescaler.testing.mark import skip_if_ci
+from pipescaler.testing.mark import skip_if_ci, skip_if_codex
 
 
 @pytest.mark.serial
 @pytest.mark.parametrize(
     ("infile", "model"),
     [
-        skip_if_ci(xfail_unsupported_image_mode())("1", "WaifuUpConv7/a-2-3"),
-        skip_if_ci()("L", "WaifuUpConv7/a-2-3"),
-        skip_if_ci(xfail_unsupported_image_mode())("LA", "WaifuUpConv7/a-2-3"),
-        skip_if_ci()("RGB", "WaifuUpConv7/a-2-3"),
-        skip_if_ci()("RGB", "WaifuVgg7/a-1-3"),
-        skip_if_ci(xfail_unsupported_image_mode())("RGBA", "WaifuUpConv7/a-2-3"),
+        skip_if_codex(skip_if_ci(xfail_unsupported_image_mode()))(
+            "1", "WaifuUpConv7/a-2-3"
+        ),
+        skip_if_codex(skip_if_ci())("L", "WaifuUpConv7/a-2-3"),
+        skip_if_codex(skip_if_ci(xfail_unsupported_image_mode()))(
+            "LA", "WaifuUpConv7/a-2-3"
+        ),
+        skip_if_codex(skip_if_ci())("RGB", "WaifuUpConv7/a-2-3"),
+        skip_if_codex(skip_if_ci())("RGB", "WaifuVgg7/a-1-3"),
+        skip_if_codex(skip_if_ci(xfail_unsupported_image_mode()))(
+            "RGBA", "WaifuUpConv7/a-2-3"
+        ),
     ],
 )
 def test(infile: str, model: str) -> None:

@@ -9,7 +9,7 @@ from PIL import Image
 from pipescaler.common.file import get_temp_file_path
 from pipescaler.testing.file import get_test_infile_path
 from pipescaler.testing.fixture import parametrized_fixture
-from pipescaler.testing.mark import skip_if_ci
+from pipescaler.testing.mark import skip_if_ci, skip_if_codex
 from pipescaler.video.runners import ApngasmRunner
 
 
@@ -26,7 +26,7 @@ def runner(request) -> ApngasmRunner:
 @pytest.mark.parametrize(
     "infile_names",
     [
-        skip_if_ci()(["1", "L", "RGB", "RGBA"]),
+        skip_if_codex(skip_if_ci())(["1", "L", "RGB", "RGBA"]),
     ],
 )
 def test(infile_names: list[str], runner: ApngasmRunner) -> None:

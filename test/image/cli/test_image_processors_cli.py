@@ -1,4 +1,4 @@
-#  Copyright 2020-2024 Karl T Debiec. All rights reserved. This software may be modified
+#  Copyright 2020-2025 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Tests for processor command-line interfaces."""
 from __future__ import annotations
@@ -29,14 +29,14 @@ from pipescaler.image.cli.processors import (
     XbrzCli,
 )
 from pipescaler.testing.file import get_test_infile_path, get_test_model_infile_path
-from pipescaler.testing.mark import skip_if_ci
+from pipescaler.testing.mark import skip_if_ci, skip_if_codex
 
 
 @pytest.mark.parametrize(
     ("cli", "args", "infile"),
     [
         (CropCli, "--pixels 4 4 4 4", "RGB"),
-        skip_if_ci()(
+        skip_if_codex(skip_if_ci())(
             EsrganCli,
             f"--model {get_test_model_infile_path('ESRGAN/1x_BC1-smooth2')}",
             "RGB",
@@ -48,7 +48,7 @@ from pipescaler.testing.mark import skip_if_ci
         (SharpenCli, "", "RGB"),
         (SolidColorCli, "--scale 2", "RGB"),
         (ThresholdCli, "--threshold 64 --denoise", "L"),
-        skip_if_ci()(
+        skip_if_codex(skip_if_ci())(
             WaifuCli,
             f"--model {get_test_model_infile_path('WaifuUpConv7/a-2-3')}",
             "RGB",
