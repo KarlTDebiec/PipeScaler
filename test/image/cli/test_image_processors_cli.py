@@ -6,9 +6,9 @@ from __future__ import annotations
 from contextlib import redirect_stderr, redirect_stdout
 from inspect import getfile
 from io import StringIO
+from os import getenv
 from pathlib import Path
 from typing import Type
-from os import getenv
 
 import pytest
 
@@ -31,7 +31,6 @@ from pipescaler.image.cli.processors import (
 )
 from pipescaler.testing.file import get_test_infile_path, get_test_model_infile_path
 from pipescaler.testing.mark import skip_if_ci, skip_if_codex
-
 
 if getenv("CODEX_ENV_PYTHON_VERSION") is None:
     esrgan_path = get_test_model_infile_path("ESRGAN/1x_BC1-smooth2")
