@@ -1,16 +1,14 @@
-#!/bin/bash -ex
+#!/usr/bin/env bash
 # Script for creating a working conda environment on macOS,
 # with the latest version of required packages
 
-source /usr/local/Caskroom/miniconda/base/etc/profile.d/conda.sh
+set -euo pipefail
 
-conda deactivate
-conda remove -y --name pipescaler --all
+conda deactivate || true
+conda remove -y --name pipescaler --all || true
 conda create -y --name pipescaler python=3.12
+source "$(conda info --base)/etc/profile.d/conda.sh"
 conda activate pipescaler
-
-#conda install -y \
-#    brotlipy
 
 pip install \
     black \
@@ -23,15 +21,14 @@ pip install \
     pandas \
     pandas-stubs \
     pillow \
-    prospector \
     pyright \
     pytest \
     pytest-cov \
     pytest-xdist \
-    rlpycairo \
+    ruff \
     scikit-image \
-    svglib \
-    types-Pillow
+    types-Pillow \
+    uv
 
 pip install \
     xbrz.py@git+https://github.com/ioistired/xbrz.py
