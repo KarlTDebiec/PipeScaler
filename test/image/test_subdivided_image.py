@@ -14,7 +14,7 @@ from pipescaler.image.operators.processors import (
 )
 from pipescaler.image.testing import xfail_unsupported_image_mode
 from pipescaler.testing.file import get_test_infile_path, get_test_model_infile_path
-from pipescaler.testing.mark import skip_if_ci
+from pipescaler.testing.mark import skip_if_ci, skip_if_codex
 
 
 @pytest.fixture
@@ -49,12 +49,14 @@ def potrace_processor() -> PotraceProcessor:
 @pytest.mark.parametrize(
     ("processor_name", "infile", "scale"),
     [
-        skip_if_ci()("esrgan_bc1s2_processor", "L", 1),
-        skip_if_ci()("esrgan_bc1s2_processor", "RGB", 1),
-        skip_if_ci(xfail_unsupported_image_mode())("esrgan_bc1s2_processor", "RGBA", 1),
-        skip_if_ci()("esrgan_rrdb_processor", "RGB", 4),
+        skip_if_codex(skip_if_ci())("esrgan_bc1s2_processor", "L", 1),
+        skip_if_codex(skip_if_ci())("esrgan_bc1s2_processor", "RGB", 1),
+        skip_if_codex(skip_if_ci(xfail_unsupported_image_mode()))(
+            "esrgan_bc1s2_processor", "RGBA", 1
+        ),
+        skip_if_codex(skip_if_ci())("esrgan_rrdb_processor", "RGB", 4),
         ("potrace_processor", "L", 10),
-        skip_if_ci()("waifu_processor", "RGB", 2),
+        skip_if_codex(skip_if_ci())("waifu_processor", "RGB", 2),
         ("xbrz_processor", "RGB", 6),
     ],
 )

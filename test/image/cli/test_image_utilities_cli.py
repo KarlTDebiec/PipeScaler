@@ -17,18 +17,18 @@ from pipescaler.common.testing import run_cli_with_args
 from pipescaler.image.cli import ImageUtilitiesCli
 from pipescaler.image.cli.utilities import EsrganSerializerCli, WaifuSerializerCli
 from pipescaler.testing.file import get_test_model_infile_path
-from pipescaler.testing.mark import skip_if_ci
+from pipescaler.testing.mark import skip_if_ci, skip_if_codex
 
 
 @pytest.mark.parametrize(
     ("cli", "args", "infile"),
     [
-        skip_if_ci()(
+        skip_if_codex(skip_if_ci())(
             EsrganSerializerCli,
             "",
             "ESRGAN/1x_BC1-smooth2",
         ),
-        skip_if_ci()(
+        skip_if_codex(skip_if_ci())(
             WaifuSerializerCli,
             "upconv7",
             "WaifuUpConv7/a-2-1.json",

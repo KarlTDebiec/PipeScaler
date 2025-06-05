@@ -8,7 +8,7 @@ from pytest import fixture, mark
 from pipescaler.common.file import get_temp_file_path
 from pipescaler.image.utilities import WaifuSerializer
 from pipescaler.testing.file import get_test_model_infile_path
-from pipescaler.testing.mark import skip_if_ci
+from pipescaler.testing.mark import skip_if_ci, skip_if_codex
 
 
 @fixture
@@ -19,8 +19,8 @@ def utility(request) -> WaifuSerializer:
 @mark.parametrize(
     ("architecture", "infile"),
     [
-        skip_if_ci()("upconv7", "WaifuUpConv7/a-2-1.json"),
-        skip_if_ci()("vgg7", "WaifuVgg7/a-2-0.json"),
+        skip_if_codex(skip_if_ci())("upconv7", "WaifuUpConv7/a-2-1.json"),
+        skip_if_codex(skip_if_ci())("vgg7", "WaifuVgg7/a-2-0.json"),
     ],
 )
 def test(architecture: str, infile: str, utility: WaifuSerializer) -> None:

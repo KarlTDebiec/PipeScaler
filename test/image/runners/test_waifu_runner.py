@@ -9,7 +9,7 @@ from pipescaler.common.file import get_temp_file_path
 from pipescaler.image.runners import WaifuRunner
 from pipescaler.testing.file import get_test_infile_path
 from pipescaler.testing.fixture import parametrized_fixture
-from pipescaler.testing.mark import skip_if_ci
+from pipescaler.testing.mark import skip_if_ci, skip_if_codex
 
 
 @parametrized_fixture(
@@ -25,7 +25,7 @@ def runner(request) -> WaifuRunner:
 @pytest.mark.parametrize(
     "infile_name",
     [
-        skip_if_ci()("RGB"),
+        skip_if_codex(skip_if_ci())("RGB"),
     ],
 )
 def test(infile_name: str, runner: WaifuRunner) -> None:
