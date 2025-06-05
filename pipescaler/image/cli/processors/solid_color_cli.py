@@ -5,7 +5,6 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
-from typing import Type
 
 from pipescaler.common.argument_parsing import float_arg, get_arg_groups_by_name
 from pipescaler.image.core.cli import ImageProcessorCli
@@ -38,7 +37,7 @@ class SolidColorCli(ImageProcessorCli):
         )
 
     @classmethod
-    def processor(cls) -> Type[SolidColorProcessor]:
+    def processor(cls) -> type[SolidColorProcessor]:
         """Type of processor wrapped by command-line interface."""
         return SolidColorProcessor
 

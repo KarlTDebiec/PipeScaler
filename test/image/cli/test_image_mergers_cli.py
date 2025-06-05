@@ -7,7 +7,6 @@ from contextlib import redirect_stderr, redirect_stdout
 from inspect import getfile
 from io import StringIO
 from pathlib import Path
-from typing import Type
 
 import pytest
 
@@ -28,7 +27,7 @@ from pipescaler.testing.file import get_test_infile_path
         (PaletteMatchMergerCli, "--local --local_range 2", ("RGB", "alt/RGB")),
     ],
 )
-def test(cli: Type[CommandLineInterface], args: str, infiles: tuple[str]) -> None:
+def test(cli: type[CommandLineInterface], args: str, infiles: tuple[str]) -> None:
     input_paths = [str(get_test_infile_path(infile)) for infile in infiles]
 
     with get_temp_file_path(".png") as output_path:
@@ -45,7 +44,7 @@ def test(cli: Type[CommandLineInterface], args: str, infiles: tuple[str]) -> Non
         (ImageMergersCli, PaletteMatchMergerCli),
     ],
 )
-def test_help(commands: tuple[Type[CommandLineInterface], ...]) -> None:
+def test_help(commands: tuple[type[CommandLineInterface], ...]) -> None:
     subcommands = " ".join(f"{command.name()}" for command in commands[1:])
 
     stdout = StringIO()
@@ -72,7 +71,7 @@ def test_help(commands: tuple[Type[CommandLineInterface], ...]) -> None:
         (ImageMergersCli, PaletteMatchMergerCli),
     ],
 )
-def test_usage(commands: tuple[Type[CommandLineInterface], ...]):
+def test_usage(commands: tuple[type[CommandLineInterface], ...]):
     subcommands = " ".join(f"{command.name()}" for command in commands[1:])
 
     stdout = StringIO()

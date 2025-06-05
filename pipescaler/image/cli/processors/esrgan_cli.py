@@ -5,7 +5,6 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
-from typing import Type
 
 from pipescaler.common.argument_parsing import (
     get_arg_groups_by_name,
@@ -50,7 +49,7 @@ class EsrganCli(ImageProcessorCli):
         )
 
     @classmethod
-    def processor(cls) -> Type[EsrganProcessor]:
+    def processor(cls) -> type[EsrganProcessor]:
         """Type of processor wrapped by command-line interface."""
         return EsrganProcessor
 

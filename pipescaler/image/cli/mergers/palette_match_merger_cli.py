@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from argparse import ArgumentParser
 from logging import info
-from typing import Any, Type
+from typing import Any
 
 from PIL import Image
 
@@ -83,7 +83,7 @@ class PaletteMatchMergerCli(ImageMergerCli):
             info(f"{cls}: '{outfile}' saved")
 
     @classmethod
-    def merger(cls) -> Type[PaletteMatchMerger]:
+    def merger(cls) -> type[PaletteMatchMerger]:
         """Type of merger wrapped by command-line interface."""
         return PaletteMatchMerger
 

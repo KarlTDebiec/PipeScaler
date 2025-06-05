@@ -5,7 +5,6 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
-from typing import Type
 
 from pipescaler.common.argument_parsing import get_arg_groups_by_name, int_arg
 from pipescaler.image.core.cli import ImageProcessorCli
@@ -38,7 +37,7 @@ class XbrzCli(ImageProcessorCli):
         )
 
     @classmethod
-    def processor(cls) -> Type[XbrzProcessor]:
+    def processor(cls) -> type[XbrzProcessor]:
         """Type of processor wrapped by command-line interface."""
         return XbrzProcessor
 

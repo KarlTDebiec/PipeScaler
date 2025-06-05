@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
-from typing import Any, Type
+from typing import Any
 
 from pipescaler.common import CommandLineInterface
 from pipescaler.image.cli import ImageCli
@@ -39,7 +39,7 @@ class PipeScalerCli(CommandLineInterface):
         subcommand_cli_class._main(**kwargs)
 
     @classmethod
-    def subcommands(cls) -> dict[str, Type[ImageCli]]:
+    def subcommands(cls) -> dict[str, type[ImageCli]]:
         """Names and types of tools wrapped by command-line interface."""
         return {
             ImageCli.name(): ImageCli,

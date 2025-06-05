@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
-from typing import Any, Type
+from typing import Any
 
 from pipescaler.common import CommandLineInterface
 from pipescaler.image.cli import processors
@@ -55,7 +55,7 @@ class ImageProcessorsCli(CommandLineInterface):
         return "process"
 
     @classmethod
-    def processors(cls) -> dict[str, Type[ImageProcessorCli]]:
+    def processors(cls) -> dict[str, type[ImageProcessorCli]]:
         """Names and types of processors wrapped by command-line interface."""
         return {
             processor.name(): processor
