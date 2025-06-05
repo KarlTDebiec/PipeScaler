@@ -10,28 +10,28 @@ from pipescaler.image.testing import (
     xfail_unsupported_image_mode,
 )
 from pipescaler.testing.file import get_test_infile_path, get_test_model_infile_path
-from pipescaler.testing.mark import skip_if_ci
+from pipescaler.testing.mark import skip_if_ci, skip_if_codex
 
 
 @pytest.mark.serial
 @pytest.mark.parametrize(
     ("infile", "model"),
     [
-        skip_if_ci()("1", "ESRGAN/1x_BC1-smooth2"),
-        skip_if_ci()("L", "ESRGAN/1x_BC1-smooth2"),
-        skip_if_ci(xfail_unsupported_image_mode())("LA", "ESRGAN/1x_BC1-smooth2"),
-        skip_if_ci(xfail_unsupported_image_mode())("RGBA", "ESRGAN/1x_BC1-smooth2"),
-        skip_if_ci()("RGB", "ESRGAN/1x_BC1-smooth2"),
-        skip_if_ci()("RGB", "ESRGAN/1x_BC1-smooth2_out"),
-        skip_if_ci()("RGB", "ESRGAN/RRDB_ESRGAN_x4"),
-        skip_if_ci()("RGB", "ESRGAN/RRDB_ESRGAN_x4_out"),
-        skip_if_ci()("RGB", "ESRGAN/1x_BC1-smooth2_out"),
-        skip_if_ci()("RGB", "ESRGAN/RRDB_ESRGAN_x4_old_arch"),
-        skip_if_ci()("RGB", "ESRGAN/RRDB_ESRGAN_x4_old_arch_out"),
-        skip_if_ci()("PL", "ESRGAN/1x_BC1-smooth2"),
-        skip_if_ci(xfail_unsupported_image_mode())("PLA", "ESRGAN/1x_BC1-smooth2"),
-        skip_if_ci()("PRGB", "ESRGAN/1x_BC1-smooth2"),
-        skip_if_ci(xfail_unsupported_image_mode())("PRGBA", "ESRGAN/1x_BC1-smooth2"),
+        skip_if_codex(skip_if_ci())("1", "ESRGAN/1x_BC1-smooth2"),
+        skip_if_codex(skip_if_ci())("L", "ESRGAN/1x_BC1-smooth2"),
+        skip_if_codex(skip_if_ci(xfail_unsupported_image_mode()))("LA", "ESRGAN/1x_BC1-smooth2"),
+        skip_if_codex(skip_if_ci(xfail_unsupported_image_mode()))("RGBA", "ESRGAN/1x_BC1-smooth2"),
+        skip_if_codex(skip_if_ci())("RGB", "ESRGAN/1x_BC1-smooth2"),
+        skip_if_codex(skip_if_ci())("RGB", "ESRGAN/1x_BC1-smooth2_out"),
+        skip_if_codex(skip_if_ci())("RGB", "ESRGAN/RRDB_ESRGAN_x4"),
+        skip_if_codex(skip_if_ci())("RGB", "ESRGAN/RRDB_ESRGAN_x4_out"),
+        skip_if_codex(skip_if_ci())("RGB", "ESRGAN/1x_BC1-smooth2_out"),
+        skip_if_codex(skip_if_ci())("RGB", "ESRGAN/RRDB_ESRGAN_x4_old_arch"),
+        skip_if_codex(skip_if_ci())("RGB", "ESRGAN/RRDB_ESRGAN_x4_old_arch_out"),
+        skip_if_codex(skip_if_ci())("PL", "ESRGAN/1x_BC1-smooth2"),
+        skip_if_codex(skip_if_ci(xfail_unsupported_image_mode()))("PLA", "ESRGAN/1x_BC1-smooth2"),
+        skip_if_codex(skip_if_ci())("PRGB", "ESRGAN/1x_BC1-smooth2"),
+        skip_if_codex(skip_if_ci(xfail_unsupported_image_mode()))("PRGBA", "ESRGAN/1x_BC1-smooth2"),
     ],
 )
 def test(infile: str, model: str) -> None:
