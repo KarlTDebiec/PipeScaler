@@ -7,7 +7,6 @@ from contextlib import redirect_stderr, redirect_stdout
 from inspect import getfile
 from io import StringIO
 from pathlib import Path
-from typing import Type
 
 import pytest
 
@@ -25,7 +24,7 @@ from pipescaler.testing.file import get_test_infile_path
         (AlphaSplitterCli, "", "RGBA"),
     ],
 )
-def test(cli: Type[CommandLineInterface], args: str, infile: str) -> None:
+def test(cli: type[CommandLineInterface], args: str, infile: str) -> None:
     input_path = get_test_infile_path(infile)
 
     with get_temp_file_path(".png") as output_path_1:
@@ -43,7 +42,7 @@ def test(cli: Type[CommandLineInterface], args: str, infile: str) -> None:
         (ImageSplittersCli, AlphaSplitterCli),
     ],
 )
-def test_help(commands: tuple[Type[CommandLineInterface], ...]) -> None:
+def test_help(commands: tuple[type[CommandLineInterface], ...]) -> None:
     subcommands = " ".join(f"{command.name()}" for command in commands[1:])
 
     stdout = StringIO()
@@ -68,7 +67,7 @@ def test_help(commands: tuple[Type[CommandLineInterface], ...]) -> None:
         (ImageSplittersCli, AlphaSplitterCli),
     ],
 )
-def test_usage(commands: tuple[Type[CommandLineInterface], ...]):
+def test_usage(commands: tuple[type[CommandLineInterface], ...]):
     subcommands = " ".join(f"{command.name()}" for command in commands[1:])
 
     stdout = StringIO()

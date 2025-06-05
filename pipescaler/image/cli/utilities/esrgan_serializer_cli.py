@@ -5,7 +5,6 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
-from typing import Type
 
 from pipescaler.common.argument_parsing import (
     get_arg_groups_by_name,
@@ -46,7 +45,7 @@ class EsrganSerializerCli(UtilityCli):
         )
 
     @classmethod
-    def utility(cls) -> Type[EsrganSerializer]:
+    def utility(cls) -> type[EsrganSerializer]:
         """Type of utility wrapped by command-line interface."""
         return EsrganSerializer
 

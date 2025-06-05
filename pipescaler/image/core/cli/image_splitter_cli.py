@@ -7,7 +7,6 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from argparse import ArgumentParser
 from inspect import cleandoc
-from typing import Type
 
 from pipescaler.common import CommandLineInterface
 from pipescaler.common.argument_parsing import input_file_arg
@@ -44,6 +43,6 @@ class ImageSplitterCli(CommandLineInterface, ABC):
 
     @classmethod
     @abstractmethod
-    def splitter(cls) -> Type[ImageSplitter]:
+    def splitter(cls) -> type[ImageSplitter]:
         """Type of splitter wrapped by command-line interface."""
         raise NotImplementedError()

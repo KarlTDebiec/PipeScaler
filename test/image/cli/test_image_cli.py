@@ -7,7 +7,6 @@ from contextlib import redirect_stderr, redirect_stdout
 from inspect import getfile
 from io import StringIO
 from pathlib import Path
-from typing import Type
 
 import pytest
 
@@ -24,7 +23,7 @@ from pipescaler.image.cli import ImageCli, ImageProcessorsCli, ImageUtilitiesCli
         (ImageCli, ImageUtilitiesCli),
     ],
 )
-def test_help(commands: tuple[Type[CommandLineInterface], ...]) -> None:
+def test_help(commands: tuple[type[CommandLineInterface], ...]) -> None:
     subcommands = " ".join(f"{command.name()}" for command in commands[1:])
 
     stdout = StringIO()
@@ -49,7 +48,7 @@ def test_help(commands: tuple[Type[CommandLineInterface], ...]) -> None:
         (ImageCli, ImageUtilitiesCli),
     ],
 )
-def test_usage(commands: tuple[Type[CommandLineInterface], ...]):
+def test_usage(commands: tuple[type[CommandLineInterface], ...]):
     subcommands = " ".join(f"{command.name()}" for command in commands[1:])
 
     stdout = StringIO()

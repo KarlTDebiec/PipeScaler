@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from argparse import ArgumentParser
 from logging import info
-from typing import Any, Type
+from typing import Any
 
 from PIL import Image
 
@@ -60,7 +60,7 @@ class AlphaMergerCli(ImageMergerCli):
             info(f"{cls}: '{outfile}' saved")
 
     @classmethod
-    def merger(cls) -> Type[AlphaMerger]:
+    def merger(cls) -> type[AlphaMerger]:
         """Type of merger wrapped by command-line interface."""
         return AlphaMerger
 

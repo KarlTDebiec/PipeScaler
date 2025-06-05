@@ -5,7 +5,6 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
-from typing import Type
 
 from pipescaler.common.argument_parsing import (
     float_arg,
@@ -49,7 +48,7 @@ class ResizeCli(ImageProcessorCli):
         )
 
     @classmethod
-    def processor(cls) -> Type[ResizeProcessor]:
+    def processor(cls) -> type[ResizeProcessor]:
         """Type of processor wrapped by command-line interface."""
         return ResizeProcessor
 
