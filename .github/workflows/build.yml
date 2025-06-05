@@ -33,9 +33,10 @@ jobs:
         with:
           python-version-file: pyproject.toml
 
-#       - name: Install system dependencies
-#         run: |
-#           sudo apt-get update
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pngquant potrace
 
       - name: Install package dependencies
         run: uv sync --all-extras --dev
