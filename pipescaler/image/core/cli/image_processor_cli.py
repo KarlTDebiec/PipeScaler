@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright 2020-2024 Karl T Debiec. All rights reserved. This software may be modified
+#  Copyright 2020-2025 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Abstract base class for ImageProcessor command-line interfaces."""
 from __future__ import annotations
@@ -46,7 +46,7 @@ class ImageProcessorCli(CommandLineInterface, ABC):
         return cleandoc(str(cls.processor().__doc__)) if cls.processor().__doc__ else ""
 
     @classmethod
-    def main_internal(cls, **kwargs: Any) -> None:
+    def _main(cls, **kwargs: Any) -> None:
         """Execute with provided keyword arguments."""
         infile = kwargs.pop("infile")
         outfile = kwargs.pop("outfile")

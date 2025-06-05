@@ -1,4 +1,4 @@
-#  Copyright 2020-2024 Karl T Debiec. All rights reserved. This software may be modified
+#  Copyright 2020-2025 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Abstract base class for Utility command-line interfaces."""
 from __future__ import annotations
@@ -25,7 +25,7 @@ class UtilityCli(CommandLineInterface, ABC):
         return cls.__name__.removesuffix("Cli").lower()
 
     @classmethod
-    def main_internal(cls, **kwargs: Any) -> None:
+    def _main(cls, **kwargs: Any) -> None:
         """Execute with provided keyword arguments.
 
         May be overridden to distribute keyword arguments between initialization of the
