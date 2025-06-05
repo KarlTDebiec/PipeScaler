@@ -6,7 +6,7 @@ $ErrorActionPreference = "Stop"
 
 conda deactivate
 conda remove -y --name pipescaler --all
-conda create -y --name pipescaler python=3.12
+conda create -y --name pipescaler python=3.13
 conda activate pipescaler
 
 conda install -y `

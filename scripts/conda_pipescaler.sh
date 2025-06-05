@@ -6,7 +6,7 @@ set -euo pipefail
 
 conda deactivate || true
 conda remove -y --name pipescaler --all || true
-conda create -y --name pipescaler python=3.12
+conda create -y --name pipescaler python=3.13
 source "$(conda info --base)/etc/profile.d/conda.sh"
 conda activate pipescaler
 
