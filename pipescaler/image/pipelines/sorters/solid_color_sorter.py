@@ -47,11 +47,10 @@ class SolidColorSorter(ImageSorter):
                 outlet = "solid"
             else:
                 outlet = "not_solid"
+        elif np.all(np.abs(array - array.mean()) == 0):
+            outlet = "solid"
         else:
-            if np.all(np.abs(array - array.mean()) == 0):
-                outlet = "solid"
-            else:
-                outlet = "not_solid"
+            outlet = "not_solid"
 
         info(f"{self}: '{obj.location_name}' matches '{outlet}'")
         return outlet

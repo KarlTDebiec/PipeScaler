@@ -3,15 +3,13 @@
 """Core image analytics types."""
 from __future__ import annotations
 
-from typing import TypeAlias
-
 import pandas as pd
 
-HashDataFrame: TypeAlias = pd.DataFrame
-HashSeries: TypeAlias = pd.Series
-PairDataFrame: TypeAlias = pd.DataFrame
-PairSeries: TypeAlias = pd.Series
-ScoreDataFrame: TypeAlias = pd.DataFrame
-ScoreSeries: TypeAlias = pd.Series
-ScoreStatsDataFrame: TypeAlias = pd.DataFrame
-ScoreStatsSeries: TypeAlias = pd.Series
+type HashDataFrame = pd.DataFrame
+type HashSeries = pd.Series
+type PairDataFrame = pd.DataFrame
+type PairSeries = pd.Series
+type ScoreDataFrame = pd.DataFrame
+type ScoreSeries = pd.Series
+type ScoreStatsDataFrame = pd.DataFrame
+type ScoreStatsSeries = pd.Series

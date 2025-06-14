@@ -4,8 +4,9 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Self, Sequence
+from typing import Self
 
 from pipescaler.common.typing import PathLike
 from pipescaler.common.validation import validate_input_file

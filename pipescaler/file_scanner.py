@@ -4,13 +4,13 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Iterable, Sequence
 from itertools import chain
 from logging import debug, info
 from os import PathLike, remove, rmdir
 from os.path import expandvars
 from pathlib import Path
 from shutil import copy, move
-from typing import Iterable, Sequence
 
 from PIL import Image
 

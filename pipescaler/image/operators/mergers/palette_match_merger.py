@@ -29,6 +29,7 @@ class PaletteMatchMerger(ImageMerger):
             palette_match_mode: Mode of palette matching to perform
             local_range: Range of adjacent pixels from which to draw best-fit color;
               1 checks a 3x3 window, 2 checks a 5x5 window, etc.
+            **kwargs: Additional keyword arguments passed to :class:`ImageMerger`
         """
         super().__init__(**kwargs)
 

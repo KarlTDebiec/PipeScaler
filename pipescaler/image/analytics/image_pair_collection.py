@@ -3,9 +3,8 @@
 """Collection of image pairs."""
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 from logging import info
-from typing import Iterable
 
 import pandas as pd
 
