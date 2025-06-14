@@ -4,7 +4,6 @@
 """Command-line interface for SharpenProcessor."""
 from __future__ import annotations
 
-
 from pipescaler.image.core.cli import ImageProcessorCli
 from pipescaler.image.operators.processors import SharpenProcessor
 
