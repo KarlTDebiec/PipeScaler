@@ -5,7 +5,6 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
-from typing import Type
 
 from pipescaler.common.argument_parsing import (
     get_arg_groups_by_name,
@@ -52,7 +51,7 @@ class WaifuSerializerCli(UtilityCli):
         )
 
     @classmethod
-    def utility(cls) -> Type[WaifuSerializer]:
+    def utility(cls) -> type[WaifuSerializer]:
         """Type of utility wrapped by command-line interface."""
         return WaifuSerializer
 

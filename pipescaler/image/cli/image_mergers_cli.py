@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
-from typing import Any, Type
+from typing import Any
 
 from pipescaler.common import CommandLineInterface
 from pipescaler.image.cli import mergers
@@ -55,7 +55,7 @@ class ImageMergersCli(CommandLineInterface):
         return "merge"
 
     @classmethod
-    def mergers(cls) -> dict[str, Type[ImageMergerCli]]:
+    def mergers(cls) -> dict[str, type[ImageMergerCli]]:
         """Names and types of mergers wrapped by command-line interface."""
         return {
             merger.name(): merger

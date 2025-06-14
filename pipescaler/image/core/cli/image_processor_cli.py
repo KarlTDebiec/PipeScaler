@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 from argparse import ArgumentParser
 from inspect import cleandoc
 from logging import info
-from typing import Any, Type
+from typing import Any
 
 from PIL import Image
 
@@ -64,6 +64,6 @@ class ImageProcessorCli(CommandLineInterface, ABC):
 
     @classmethod
     @abstractmethod
-    def processor(cls) -> Type[ImageProcessor]:
+    def processor(cls) -> type[ImageProcessor]:
         """Type of processor wrapped by command-line interface."""
         raise NotImplementedError()

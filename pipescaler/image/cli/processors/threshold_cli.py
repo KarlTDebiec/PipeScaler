@@ -5,7 +5,6 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
-from typing import Type
 
 from pipescaler.common.argument_parsing import get_arg_groups_by_name, int_arg
 from pipescaler.image.core.cli import ImageProcessorCli
@@ -45,7 +44,7 @@ class ThresholdCli(ImageProcessorCli):
         )
 
     @classmethod
-    def processor(cls) -> Type[ThresholdProcessor]:
+    def processor(cls) -> type[ThresholdProcessor]:
         """Type of processor wrapped by command-line interface."""
         return ThresholdProcessor
 

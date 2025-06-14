@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from argparse import ArgumentParser
 from logging import info
-from typing import Any, Type
+from typing import Any
 
 from PIL import Image
 
@@ -55,7 +55,7 @@ class AlphaSplitterCli(ImageSplitterCli):
             info(f"{cls}: '{alpha_outfile}' saved")
 
     @classmethod
-    def splitter(cls) -> Type[ImageSplitter]:
+    def splitter(cls) -> type[ImageSplitter]:
         """Type of splitter wrapped by command-line interface."""
         return AlphaSplitter
 

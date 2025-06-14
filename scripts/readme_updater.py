@@ -8,7 +8,6 @@ import re
 from inspect import getfile
 from pathlib import Path, PurePosixPath
 from types import ModuleType
-from typing import Type
 
 import pipescaler.image.operators.mergers as image_mergers
 import pipescaler.image.operators.processors as image_processors
@@ -25,7 +24,7 @@ from pipescaler.core.pipelines.sorter import Sorter
 from pipescaler.image.core import ImageOperator
 
 
-def get_github_link(cls: Type[ImageOperator]) -> str:
+def get_github_link(cls: type[ImageOperator]) -> str:
     """Get the GitHub master branch link to the file containing a class.
 
     Arguments:
@@ -62,7 +61,7 @@ def get_module_regexes(modules: list[ModuleType]) -> dict[ModuleType, re.Pattern
     return module_regexes
 
 
-def get_stage_description(stage: Type[ImageOperator]) -> str:
+def get_stage_description(stage: type[ImageOperator]) -> str:
     """Get the formatted description of a stage, including GitHub link.
 
     Uses the first block of lines in the Stage's docstring.
