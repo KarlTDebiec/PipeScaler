@@ -3,9 +3,9 @@
 """Sorts objects based on location/name using a set of configured lists."""
 from __future__ import annotations
 
-from collections.abc import Iterable
 from logging import info
 from pathlib import Path
+from typing import Iterable
 
 from pipescaler.common.typing import PathLike
 from pipescaler.core.pipelines import PipeObject
@@ -28,28 +28,27 @@ class ListSorter(Sorter):
               be sorted to that outlet; if path is to a text file, images with names
               matching a line in the file will be sorted to that outlet
         """
-        self._outlets = tuple(sorted(outlets.keys()))
+        self._outlets = tuple(sorted((outlets.keys())))
         self.outlets_by_filename = {}
 
         for outlet, paths in outlets.items():
-            path_seq = paths if isinstance(paths, list) else [paths]
-            for outlet_path in path_seq:
-                if isinstance(outlet_path, Path):
-                    path_obj = outlet_path
-                else:
-                    path_obj = Path(outlet_path)
-                path_obj = path_obj.absolute().resolve()
-                if path_obj.exists():
+            if not isinstance(paths, list):
+                paths = [paths]
+            for path in paths:
+                if not isinstance(path, Path):
+                    path = Path(path)
+                path = path.absolute().resolve()
+                if path.exists():
                     names: Iterable[str] = []
-                    if path_obj.is_file():
-                        with open(path_obj, encoding="utf8") as infile:
+                    if path.is_file():
+                        with open(path, "r", encoding="utf8") as infile:
                             names = (
                                 line.strip()
                                 for line in infile.readlines()
                                 if not line.startswith("#")
                             )
-                    elif path_obj.is_dir():
-                        names = (f.stem for f in path_obj.iterdir() if f.is_file())
+                    elif path.is_dir():
+                        names = (f.stem for f in path.iterdir() if f.is_file())
                     for name in names:
                         if name in self.exclusions:
                             continue

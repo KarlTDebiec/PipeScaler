@@ -4,5 +4,5 @@
 from __future__ import annotations
 
 
-class TerminusReachedError(Exception):
+class TerminusReached(Exception):
     """Pipeline terminus has been reached."""

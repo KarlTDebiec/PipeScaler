@@ -1,4 +1,4 @@
-#  Copyright 2020-2024 Karl T Debiec. All rights reserved. This software may be modified
+#  Copyright 2020-2025 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Image pair scorer."""
 from __future__ import annotations
@@ -71,7 +71,7 @@ class ImagePairScorer:
         """
         self.hash_collection = hash_collection
 
-    def get_best_child_score_stats(  # noqa: PLR0911
+    def get_best_child_score_stats(
         self, parent: str, scale: float
     ) -> ScoreStatsSeries | None:
         """Get the best child of provided parent at scale.

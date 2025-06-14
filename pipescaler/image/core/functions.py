@@ -1,4 +1,4 @@
-#  Copyright 2020-2024 Karl T Debiec. All rights reserved. This software may be modified
+#  Copyright 2020-2025 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Image functions."""
 from __future__ import annotations
@@ -46,7 +46,7 @@ def crop_image(
     return cropped
 
 
-def expand_image(  # noqa: PLR0913
+def expand_image(
     image: Image.Image,
     left: int = 0,
     top: int = 0,
