@@ -1,16 +1,16 @@
-#  Copyright 2020-2024 Karl T Debiec. All rights reserved. This software may be modified
+#  Copyright 2020-2025 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Scans directories for new files."""
 from __future__ import annotations
 
 import re
+from collections.abc import Iterable, Sequence
 from itertools import chain
 from logging import debug, info
 from os import PathLike, remove, rmdir
 from os.path import expandvars
 from pathlib import Path
 from shutil import copy, move
-from typing import Iterable, Sequence
 
 from PIL import Image
 

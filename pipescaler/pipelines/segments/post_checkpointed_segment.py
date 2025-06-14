@@ -28,9 +28,8 @@ class PostCheckpointedSegment(CheckpointedSegment):
         ]
         if all(p.exists() for p in cpt_paths):
             outputs = tuple(cls(path=p, parents=input_objs) for p in cpt_paths)
-            info(
-                f"{self}: '{input_objs[0].location_name}' checkpoints '{self.cpts}' loaded"
-            )
+            location_name = input_objs[0].location_name
+            info(f"{self}: '{location_name}' checkpoints '{self.cpts}' loaded")
             for i in input_objs:
                 for c in self.internal_cpts:
                     self.cp_manager.observe(i.location_name, c)

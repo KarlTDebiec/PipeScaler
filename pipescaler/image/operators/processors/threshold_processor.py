@@ -6,8 +6,8 @@ from __future__ import annotations
 from typing import no_type_check
 
 import numpy as np
-from PIL import Image
 from numba import njit
+from PIL import Image
 
 from pipescaler.common.validation import validate_int
 from pipescaler.image.core.operators import ImageProcessor
@@ -90,6 +90,5 @@ class ThresholdProcessor(ImageProcessor):
                 if data[y, x] == 0:
                     if (slc == 0).sum() < 4:
                         data[y, x] = 255
-                else:
-                    if (slc == 255).sum() < 4:
-                        data[y, x] = 0
+                elif (slc == 255).sum() < 4:
+                    data[y, x] = 0

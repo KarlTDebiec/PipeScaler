@@ -3,9 +3,10 @@
 """Video within a pipeline."""
 from __future__ import annotations
 
+from collections.abc import Sequence
 from logging import debug
 from pathlib import Path
-from typing import Any, Self, Sequence
+from typing import Any, Self
 
 import cv2
 

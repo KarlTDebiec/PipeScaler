@@ -5,8 +5,9 @@ from __future__ import annotations
 
 import re
 from abc import ABC
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from pipescaler.common.typing import PathLike
 from pipescaler.common.validation import validate_input_directory
@@ -114,12 +115,14 @@ class DirectorySource(Source, ABC):
 
         for exclusion in cls.cls_exclusions.union(exclusions if exclusions else set()):
             if isinstance(exclusion, str):
-                exclusion = re.compile(exclusion)
-            elif not isinstance(exclusion, re.Pattern):
+                pattern = re.compile(exclusion)
+            elif isinstance(exclusion, re.Pattern):
+                pattern = exclusion
+            else:
                 raise TypeError(
                     f"Exclusion must be str or re.Pattern, not {type(exclusion)}"
                 )
-            parsed_exclusions.add(exclusion)
+            parsed_exclusions.add(pattern)
 
         return parsed_exclusions
 
@@ -140,11 +143,13 @@ class DirectorySource(Source, ABC):
         parsed_inclusions = set()
         for inclusion in inclusions:
             if isinstance(inclusion, str):
-                inclusion = re.compile(inclusion)
-            elif not isinstance(inclusion, re.Pattern):
+                pattern = re.compile(inclusion)
+            elif isinstance(inclusion, re.Pattern):
+                pattern = inclusion
+            else:
                 raise TypeError(
                     f"Inclusion must be str or re.Pattern, not {type(inclusion)}"
                 )
-            parsed_inclusions.add(inclusion)
+            parsed_inclusions.add(pattern)
 
         return parsed_inclusions

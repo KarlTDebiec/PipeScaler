@@ -3,11 +3,11 @@
 """Segment that applies a Runner with a post-execution checkpoint."""
 from __future__ import annotations
 
+from collections.abc import Sequence
 from logging import info
-from typing import Sequence
 
 from pipescaler.common.file import get_temp_file_path
-from pipescaler.core.pipelines import CheckpointManagerBase, CheckpointedSegment
+from pipescaler.core.pipelines import CheckpointedSegment, CheckpointManagerBase
 from pipescaler.image.core.pipelines import PipeImage
 from pipescaler.image.pipelines.segments.image_runner_segment import ImageRunnerSegment
 
@@ -59,7 +59,8 @@ class PostCheckpointedImageRunnerSegment(CheckpointedSegment):
         if cpt_path.exists():
             output = PipeImage(path=cpt_path, parents=input_objs)
             info(
-                f"{self}: '{input_objs[0].location_name}' checkpoints '{self.cpts}' loaded"
+                f"{self}: '{input_objs[0].location_name}' checkpoints "
+                f"'{self.cpts}' loaded"
             )
         else:
             if not cpt_path.parent.exists():

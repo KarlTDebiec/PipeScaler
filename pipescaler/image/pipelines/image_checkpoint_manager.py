@@ -1,8 +1,8 @@
 #  Copyright 2020-2024 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Manages checkpoints."""
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable
 
 from pipescaler.core import RunnerLike
 from pipescaler.image.pipelines.segments import (

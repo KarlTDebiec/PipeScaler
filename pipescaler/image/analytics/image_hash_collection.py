@@ -3,10 +3,9 @@
 """Collection of image hashes."""
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Collection, Iterable, Sequence
 from logging import info
 from pathlib import Path
-from typing import Collection, Iterable
 
 import numpy as np
 import pandas as pd

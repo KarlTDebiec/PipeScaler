@@ -1,11 +1,11 @@
 #  Copyright 2020-2024 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Manages checkpoints."""
+from collections.abc import Callable, Collection, Sequence
 from itertools import cycle
 from logging import info
 from os import remove, rmdir
 from pathlib import Path
-from typing import Callable, Collection, Sequence
 
 from pipescaler.core.pipelines import CheckpointManagerBase, PipeObject, SegmentLike
 from pipescaler.pipelines.segments import (

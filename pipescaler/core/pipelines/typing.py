@@ -3,10 +3,10 @@
 """Type hints for pipelines."""
 from __future__ import annotations
 
-from typing import Callable, TypeAlias
+from collections.abc import Callable
 
 from pipescaler.core.pipelines.pipe_object import PipeObject
 from pipescaler.core.pipelines.segment import Segment
 
-SegmentLike: TypeAlias = Segment | Callable[[PipeObject], tuple[PipeObject, ...]]
+type SegmentLike = Segment | Callable[[PipeObject], tuple[PipeObject, ...]]
 """Type alias for a Segment or callable with the same call signature."""

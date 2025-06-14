@@ -3,7 +3,8 @@
 """Decorator to count the number of times a function is executed."""
 from __future__ import annotations
 
-from typing import Callable, Generic, ParamSpec, TypeVar
+from collections.abc import Callable
+from typing import Generic, ParamSpec, TypeVar
 
 P = ParamSpec("P")
 R = TypeVar("R")
