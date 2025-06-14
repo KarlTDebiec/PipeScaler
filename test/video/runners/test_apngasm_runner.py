@@ -1,4 +1,4 @@
-#  Copyright 2020-2024 Karl T Debiec. All rights reserved. This software may be modified
+#  Copyright 2020-2025 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Tests for ApngasmRunner."""
 from __future__ import annotations
@@ -6,10 +6,11 @@ from __future__ import annotations
 import pytest
 from PIL import Image
 
+from pipescaler.common import ExecutableNotFoundError
 from pipescaler.common.file import get_temp_file_path
 from pipescaler.testing.file import get_test_infile_path
 from pipescaler.testing.fixture import parametrized_fixture
-from pipescaler.testing.mark import skip_if_ci, skip_if_codex
+from pipescaler.testing.mark import skip_if_ci, skip_if_codex, xfail_if_platform
 from pipescaler.video.runners import ApngasmRunner
 
 
@@ -26,7 +27,9 @@ def runner(request) -> ApngasmRunner:
 @pytest.mark.parametrize(
     "infile_names",
     [
-        skip_if_codex(skip_if_ci())(["1", "L", "RGB", "RGBA"]),
+        skip_if_codex(
+            skip_if_ci(xfail_if_platform({"Windows"}, ExecutableNotFoundError))
+        )(["1", "L", "RGB", "RGBA"]),
     ],
 )
 def test(infile_names: list[str], runner: ApngasmRunner) -> None:

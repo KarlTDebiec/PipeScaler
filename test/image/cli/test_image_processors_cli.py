@@ -6,6 +6,7 @@ from __future__ import annotations
 from contextlib import redirect_stderr, redirect_stdout
 from inspect import getfile
 from io import StringIO
+from os import getenv
 from pathlib import Path
 
 import pytest
@@ -30,6 +31,13 @@ from pipescaler.image.cli.processors import (
 from pipescaler.testing.file import get_test_infile_path, get_test_model_infile_path
 from pipescaler.testing.mark import skip_if_ci, skip_if_codex
 
+if getenv("CODEX_ENV_PYTHON_VERSION") is None:
+    esrgan_path = get_test_model_infile_path("ESRGAN/1x_BC1-smooth2")
+    waifu_path = get_test_model_infile_path("WaifuUpConv7/a-2-3")
+else:
+    esrgan_path = None
+    waifu_path = None
+
 
 @pytest.mark.parametrize(
     ("cli", "args", "infile"),
@@ -37,7 +45,7 @@ from pipescaler.testing.mark import skip_if_ci, skip_if_codex
         (CropCli, "--pixels 4 4 4 4", "RGB"),
         skip_if_codex(skip_if_ci())(
             EsrganCli,
-            f"--model {get_test_model_infile_path('ESRGAN/1x_BC1-smooth2')}",
+            f"--model {esrgan_path}",
             "RGB",
         ),
         (ExpandCli, "--pixels 8 8 8 8", "RGB"),
@@ -49,7 +57,7 @@ from pipescaler.testing.mark import skip_if_ci, skip_if_codex
         (ThresholdCli, "--threshold 64 --denoise", "L"),
         skip_if_codex(skip_if_ci())(
             WaifuCli,
-            f"--model {get_test_model_infile_path('WaifuUpConv7/a-2-3')}",
+            f"--model {waifu_path}",
             "RGB",
         ),
         (XbrzCli, "--scale 2", "RGB"),

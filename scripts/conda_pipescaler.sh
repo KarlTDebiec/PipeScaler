@@ -25,8 +25,10 @@ pip install \
     pytest \
     pytest-cov \
     pytest-xdist \
+    rlpycairo \
     ruff \
     scikit-image \
+    svglib \
     types-Pillow \
     uv
 
