@@ -23,7 +23,7 @@ class FileScanner:
 
     exclusions = {".DS_Store", "desktop"}
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         input_directories: PathLike | Iterable[PathLike],
         project_root: PathLike,

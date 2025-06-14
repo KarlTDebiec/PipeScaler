@@ -4,10 +4,10 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Iterable
 from itertools import chain
 from logging import info
 from shutil import move
-from typing import Iterable
 
 import numpy as np
 import pandas as pd
@@ -145,10 +145,9 @@ class ScaledPairIdentifier:
                         break
                 else:
                     pass
-            else:
-                if len(known_pairs) > 0:
-                    print("Known pairs:")
-                    print(known_pairs)
+            elif len(known_pairs) > 0:
+                print("Known pairs:")
+                print(known_pairs)
 
     def sync_comparison_directory(self) -> None:
         """Ensure comparison images are in sync with known pairs."""

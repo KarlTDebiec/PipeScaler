@@ -71,7 +71,7 @@ class ImagePairScorer:
         """
         self.hash_collection = hash_collection
 
-    def get_best_child_score_stats(
+    def get_best_child_score_stats(  # noqa: PLR0911
         self, parent: str, scale: float
     ) -> ScoreStatsSeries | None:
         """Get the best child of provided parent at scale.

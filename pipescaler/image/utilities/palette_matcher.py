@@ -7,8 +7,8 @@ from itertools import product
 from typing import no_type_check
 
 import numpy as np
-from PIL import Image
 from numba import njit
+from PIL import Image
 
 from pipescaler.core import Utility
 from pipescaler.image.core import UnsupportedImageModeError

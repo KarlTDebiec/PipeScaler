@@ -36,7 +36,7 @@ class Esrgan(Module, ABC):
         """
         super().__init__()
 
-        RRDB_block_f = partial(
+        rrdb_block_f = partial(
             ResidualInResidualDenseBlock,
             n_features=n_features,
             growth_channels=growth_channels,
@@ -45,7 +45,7 @@ class Esrgan(Module, ABC):
         self.n_features = n_features
 
         self.conv_first = Conv2d(in_channels, n_features, 3, 1, 1, bias=True)
-        self.RRDB_trunk = self.make_layer(RRDB_block_f, n_blocks)
+        self.RRDB_trunk = self.make_layer(rrdb_block_f, n_blocks)
         self.trunk_conv = Conv2d(n_features, n_features, 3, 1, 1, bias=True)
 
         self.HRconv = Conv2d(n_features, n_features, 3, 1, 1, bias=True)

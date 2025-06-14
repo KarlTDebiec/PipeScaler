@@ -46,7 +46,7 @@ def crop_image(
     return cropped
 
 
-def expand_image(
+def expand_image(  # noqa: PLR0913
     image: Image.Image,
     left: int = 0,
     top: int = 0,
