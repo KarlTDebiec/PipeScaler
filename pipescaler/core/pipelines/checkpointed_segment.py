@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Sequence
+from collections.abc import Sequence
 
 from pipescaler.core.pipelines.checkpoint_manager_base import CheckpointManagerBase
 from pipescaler.core.pipelines.segment import Segment
