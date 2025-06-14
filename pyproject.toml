@@ -7,7 +7,7 @@ authors = [
 ]
 license = "BSD-3-Clause"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.13"
 dependencies = [
     "ImageHash>=4.3.1",
     "numba>=0.60.0",
@@ -39,7 +39,7 @@ dev = [
 
 [tool.black]
 line-length=88
-target-version=['py312']
+target-version=['py313']
 
 [tool.coverage.run]
 data_file='coverage.coverage'
