@@ -60,9 +60,9 @@ class ModeProcessor(ImageProcessor):
     def __repr__(self) -> str:
         """Representation."""
         return (
-            f"{self.__class__.__name__!r}("
+            f"{self.__class__.__name__}("
             f"mode={self.mode!r}, "
-            f"background_color={self.background_color!r}), "
+            f"background_color={self.background_color!r}, "
             f"threshold={self.threshold!r})"
         )
 
