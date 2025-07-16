@@ -197,7 +197,7 @@ class PaletteMatcher(Utility):
         Returns:
             dict whose keys are a tuple of cell_to_check coordinates in the red, green
             and blue dimensions, and whose values are an rgb_array of palette colors
-            each chell
+            each cell contains
         """
         palette_by_cell_list: dict[tuple[int, int, int], list[int]] = {}
 
