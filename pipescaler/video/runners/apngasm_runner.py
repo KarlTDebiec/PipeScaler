@@ -11,7 +11,7 @@ from pipescaler.core import Runner
 class ApngasmRunner(Runner):
     """Runs apngasm tool for creating animated pngs.
 
-    See [apnggasm](https://github.com/apngasm/apngasm).
+    See [apngasm](https://github.com/apngasm/apngasm).
     """
 
     def __init__(
@@ -48,5 +48,5 @@ class ApngasmRunner(Runner):
         """Short description of this tool in markdown, with links."""
         return (
             "Creates animated pngs using "
-            "[apnggasm](https://github.com/apngasm/apngasm)."
+            "[apngasm](https://github.com/apngasm/apngasm)."
         )
