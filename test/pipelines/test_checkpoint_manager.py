@@ -14,9 +14,11 @@ from pipescaler.core.pipelines import PipeObject, Segment
 from pipescaler.pipelines import CheckpointManager
 
 if system() == "Windows":
+    from pathlib import WindowsPath # noqa: F401
     from pathlib import WindowsPath as PlatformPath
 
 else:
+    from pathlib import PosixPath # noqa: F401
     from pathlib import PosixPath as PlatformPath
 
 
