@@ -1,6 +1,7 @@
-#  Copyright 2020-2024 Karl T Debiec. All rights reserved. This software may be modified
+#  Copyright 2020-2025 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Tests for CheckpointManager."""
+
 from __future__ import annotations
 
 from platform import system
@@ -13,11 +14,11 @@ from pipescaler.core.pipelines import PipeObject, Segment
 from pipescaler.pipelines import CheckpointManager
 
 if system() == "Windows":
-    from pathlib import WindowsPath
+    from pathlib import WindowsPath # noqa: F401
     from pathlib import WindowsPath as PlatformPath
 
 else:
-    from pathlib import PosixPath
+    from pathlib import PosixPath # noqa: F401
     from pathlib import PosixPath as PlatformPath
 
 

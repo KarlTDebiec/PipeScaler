@@ -1,7 +1,8 @@
 #!/usr/bin/env python
-#  Copyright 2020-2024 Karl T Debiec. All rights reserved. This software may be modified
+#  Copyright 2020-2025 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Updates README."""
+
 from __future__ import annotations
 
 import re
