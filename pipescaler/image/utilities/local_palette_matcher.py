@@ -61,7 +61,7 @@ class LocalPaletteMatcher(Utility):
               1 checks a 3x3 window, 2 checks a 5x5 window, etc.
 
         Returns:
-            Matched imaged array
+            Matched image array
         """
         scale = fit_array.shape[0] // ref_array.shape[0]
         matched_array = np.zeros_like(fit_array)
@@ -107,7 +107,7 @@ class LocalPaletteMatcher(Utility):
               1 checks a 3x3 window, 2 checks a 5x5 window, etc.
 
         Returns:
-            Matched imaged array
+            Matched image array
         """
         scale = fit_array.shape[0] // ref_array.shape[0]
         matched_array = np.zeros_like(fit_array)
