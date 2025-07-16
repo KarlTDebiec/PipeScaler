@@ -29,7 +29,7 @@ class VideoAspectRatioSorter(VideoSorter):
         Arguments:
             pipe_object: Video to sort
         Returns:
-            Outlet to which image should be sorted
+            Outlet to which video should be sorted.
         """
         outlet = None
         width = pipe_object.video.get(cv2.CAP_PROP_FRAME_WIDTH)
@@ -52,4 +52,4 @@ class VideoAspectRatioSorter(VideoSorter):
     @property
     def outlets(self) -> tuple[str, ...]:
         """Outlets to which videos may be sorted."""
-        return tuple(self._outlets.values())
+        return tuple(self._outlets.keys())
