@@ -1,8 +1,9 @@
-#  Copyright 2020-2024 Karl T Debiec. All rights reserved. This software may be modified
+#  Copyright 2020-2025 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Manages checkpoints."""
 
 from __future__ import annotations
+
 from collections.abc import Callable, Collection, Sequence
 from itertools import cycle
 from logging import info
@@ -56,8 +57,8 @@ class CheckpointManager(CheckpointManagerBase):
             outputs = tuple(cls(path=p, parents=inputs) for p in cpt_paths)
             info(
                 f"{self}: "
-                f"'{location_names[0] if len(location_names)==1 else location_names}' "
-                f"checkpoints '{cpts[0] if len(cpts) ==1 else cpts}' loaded"
+                f"'{location_names[0] if len(location_names) == 1 else location_names}' "
+                f"checkpoints '{cpts[0] if len(cpts) == 1 else cpts}' loaded"
             )
 
             internal_cpts = self.get_cpts_of_segments(*calls) if calls else []
