@@ -1,12 +1,12 @@
-#  Copyright 2020-2024 Karl T Debiec. All rights reserved. This software may be modified
+#  Copyright 2020-2025 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Sorts objects based on location/name using a set of configured lists."""
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from logging import info
 from pathlib import Path
-from typing import Iterable
 
 from pipescaler.common.typing import PathLike
 from pipescaler.core.pipelines import PipeObject
@@ -29,7 +29,7 @@ class ListSorter(Sorter):
               be sorted to that outlet; if path is to a text file, images with names
               matching a line in the file will be sorted to that outlet
         """
-        self._outlets = tuple(sorted((outlets.keys())))
+        self._outlets = tuple(sorted(outlets.keys()))
         self.outlets_by_filename = {}
 
         for outlet, paths in outlets.items():
@@ -42,7 +42,7 @@ class ListSorter(Sorter):
                 if path.exists():
                     names: Iterable[str] = []
                     if path.is_file():
-                        with open(path, "r", encoding="utf8") as infile:
+                        with open(path, encoding="utf8") as infile:
                             names = (
                                 line.strip()
                                 for line in infile.readlines()
