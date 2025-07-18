@@ -25,7 +25,7 @@ def utility(request) -> EsrganSerializer:
         skip_if_codex(skip_if_ci())("ESRGAN/RRDB_ESRGAN_x4_old_arch"),
     ],
 )
-def test(input_filename, utility: EsrganSerializer) -> None:
+def test(input_filename: str, utility: EsrganSerializer) -> None:
     input_path = get_test_model_path(input_filename)
     with get_temp_file_path(".pth") as output_path:
         utility.run(input_path, output_path)

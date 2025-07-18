@@ -29,7 +29,7 @@ def runner(request) -> PotraceRunner:
         "L",
     ],
 )
-def test(input_filename, runner: PotraceRunner) -> None:
+def test(input_filename: str, runner: PotraceRunner) -> None:
     input_path = get_test_input_path(input_filename)
 
     with get_temp_file_path(".bmp") as bmp_path:

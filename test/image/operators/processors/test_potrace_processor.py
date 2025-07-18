@@ -36,7 +36,7 @@ def processor(request) -> PotraceProcessor:
         xfail_unsupported_image_mode()("PRGBA"),
     ],
 )
-def test(input_filename, processor: PotraceProcessor) -> None:
+def test(input_filename: str, processor: PotraceProcessor) -> None:
     input_path = get_test_input_path(input_filename)
     input_img = Image.open(input_path)
     output_img = processor(input_img)

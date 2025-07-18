@@ -53,7 +53,7 @@ def splitter(request) -> AlphaSplitter:
         "novel/RGBA_monochrome",
     ],
 )
-def test(input_filename, splitter: AlphaSplitter) -> None:
+def test(input_filename: str, splitter: AlphaSplitter) -> None:
     input_path = get_test_input_path(input_filename)
     input_img = Image.open(input_path)
     color_img, alpha_img = splitter(input_img)

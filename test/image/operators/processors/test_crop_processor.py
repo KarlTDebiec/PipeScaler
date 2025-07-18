@@ -35,7 +35,7 @@ def processor(request) -> CropProcessor:
         "PRGBA",
     ],
 )
-def test(input_filename, processor: CropProcessor) -> None:
+def test(input_filename: str, processor: CropProcessor) -> None:
     input_path = get_test_input_path(input_filename)
     input_img = Image.open(input_path)
     output_img = processor(input_img)

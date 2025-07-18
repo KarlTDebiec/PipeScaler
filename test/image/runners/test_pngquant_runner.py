@@ -33,7 +33,7 @@ def runner(request) -> PngquantRunner:
         xfail_if_platform({"Windows"}, ExecutableNotFoundError)("RGB"),
     ],
 )
-def test(input_filename, runner: PngquantRunner) -> None:
+def test(input_filename: str, runner: PngquantRunner) -> None:
     input_path = get_test_input_path(input_filename)
 
     with get_temp_file_path(".png") as output_path:

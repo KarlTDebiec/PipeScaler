@@ -38,7 +38,7 @@ def processor(request) -> SharpenProcessor:
         xfail_unsupported_image_mode()("PRGBA"),
     ],
 )
-def test(input_filename, processor: SharpenProcessor) -> None:
+def test(input_filename: str, processor: SharpenProcessor) -> None:
     input_path = get_test_input_path(input_filename)
     input_img = Image.open(input_path)
     output_img = processor(input_img)
