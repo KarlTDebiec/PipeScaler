@@ -8,7 +8,7 @@ import pytest
 
 from pipescaler.image.core.pipelines import PipeImage
 from pipescaler.pipelines.sorters import RegexSorter
-from pipescaler.testing.file import get_test_infile_path
+from pipescaler.testing.file import get_test_input_path
 from pipescaler.testing.fixture import parametrized_fixture
 
 
@@ -25,7 +25,7 @@ def sorter(request) -> RegexSorter:
 
 
 @pytest.mark.parametrize(
-    ("infile_name", "outlet"),
+    ("input_filename", "outlet"),
     [
         ("1", "unmatched"),
         ("L", "matched"),
@@ -34,8 +34,8 @@ def sorter(request) -> RegexSorter:
         ("RGBA", "unmatched"),
     ],
 )
-def test(infile_name: str, outlet: str, sorter: RegexSorter) -> None:
-    image = PipeImage(path=get_test_infile_path(infile_name))
+def test(input_filename: str, outlet: str, sorter: RegexSorter) -> None:
+    image = PipeImage(path=get_test_input_path(input_filename))
     assert sorter(image) == outlet
 
     # Test miscellaneous methods

@@ -6,10 +6,10 @@ from __future__ import annotations
 
 import json
 from logging import info
+from pathlib import Path
 
 import torch
 
-from pipescaler.common.typing import PathLike
 from pipescaler.common.validation import (
     validate_input_file,
     validate_output_file,
@@ -32,22 +32,24 @@ class WaifuSerializer(Utility):
     }
 
     @classmethod
-    def run(cls, architecture: str, infile: PathLike, outfile: PathLike) -> None:
-        """Converts infile to outfile.
+    def run(
+        cls, architecture: str, input_path: Path | str, output_path: Path | str
+    ) -> None:
+        """Convert input file to output file.
 
         Arguments:
             architecture: Model architecture
-            infile: Input file
-            outfile: Output file
+            input_path: Input file
+            output_path: Output file
         """
         architecture = validate_str(architecture, cls.architectures.keys())
-        infile = validate_input_file(infile)
-        outfile = validate_output_file(outfile)
+        input_path = validate_input_file(input_path)
+        output_path = validate_output_file(output_path)
 
         model = cls.architectures[architecture]()
         info(f"{cls}: Waifu {architecture} model built")
 
-        with open(infile, encoding="utf-8") as input_file:
+        with open(input_path, encoding="utf-8") as input_file:
             weights = json.load(input_file)
         box = []
         for weight in weights:
@@ -56,7 +58,7 @@ class WaifuSerializer(Utility):
         state_dict = model.state_dict()
         for index, (name, _) in enumerate(state_dict.items()):
             state_dict[name].copy_(torch.FloatTensor(box[index]))
-        info(f"{cls}: Model parameters loaded from '{infile}'")
+        info(f"{cls}: Model parameters loaded from '{input_path}'")
 
-        torch.save(model, outfile)
-        info(f"{cls}: Complete serialized model saved to '{outfile}'")
+        torch.save(model, output_path)
+        info(f"{cls}: Complete serialized model saved to '{output_path}'")

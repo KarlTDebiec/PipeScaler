@@ -1,12 +1,13 @@
 #  Copyright 2020-2025 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Tests for XbrzProcessor."""
+
 import pytest
 from PIL import Image
 
 from pipescaler.image.operators.processors import XbrzProcessor
 from pipescaler.image.testing import get_expected_output_mode
-from pipescaler.testing.file import get_test_infile_path
+from pipescaler.testing.file import get_test_input_path
 from pipescaler.testing.fixture import parametrized_fixture
 
 
@@ -21,7 +22,7 @@ def processor(request) -> XbrzProcessor:
 
 
 @pytest.mark.parametrize(
-    "infile",
+    "input_filename",
     [
         "L",
         "LA",
@@ -33,14 +34,14 @@ def processor(request) -> XbrzProcessor:
         "PRGBA",
     ],
 )
-def test(infile: str, processor: XbrzProcessor) -> None:
-    input_path = get_test_infile_path(infile)
-    input_image = Image.open(input_path)
-    output_image = processor(input_image)
+def test(input_filename: str, processor: XbrzProcessor) -> None:
+    input_path = get_test_input_path(input_filename)
+    input_img = Image.open(input_path)
+    output_img = processor(input_img)
 
-    assert output_image.mode in processor.outputs()["output"]
-    assert output_image.mode == get_expected_output_mode(input_image)
-    assert output_image.size == (
-        input_image.size[0] * processor.scale,
-        input_image.size[1] * processor.scale,
+    assert output_img.mode in processor.outputs()["output"]
+    assert output_img.mode == get_expected_output_mode(input_img)
+    assert output_img.size == (
+        input_img.size[0] * processor.scale,
+        input_img.size[1] * processor.scale,
     )

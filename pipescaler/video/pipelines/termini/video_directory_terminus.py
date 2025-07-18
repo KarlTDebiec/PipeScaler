@@ -26,28 +26,30 @@ class VideoDirectoryTerminus(VideoTerminus, DirectoryTerminus):
             if not self.directory.exists():
                 self.directory.mkdir(parents=True)
                 info(f"{self}: '{self.directory}' created")
-            if not outfile.parent.exists():
-                outfile.parent.mkdir(parents=True)
-                info(f"{self}: '{outfile.parent.relative_to(self.directory)}' created")
+            if not output_path.parent.exists():
+                output_path.parent.mkdir(parents=True)
+                info(
+                    f"{self}: '{output_path.parent.relative_to(self.directory)}' created"
+                )
             if input_video.path:
-                copyfile(input_video.path, outfile)
+                copyfile(input_video.path, output_path)
             else:
                 raise NotImplementedError("Saving video from memory not implemented")
 
         suffix = input_video.path.suffix if input_video.path else ".mp4"
-        outfile = (self.directory / input_video.location_name).with_suffix(suffix)
-        self.observed_files.add(str(outfile.relative_to(self.directory)))
-        if outfile.exists():
+        output_path = (self.directory / input_video.location_name).with_suffix(suffix)
+        self.observed_files.add(str(output_path.relative_to(self.directory)))
+        if output_path.exists():
             if (
                 input_video.path
-                and outfile.stat().st_mtime > input_video.path.stat().st_mtime
+                and output_path.stat().st_mtime > input_video.path.stat().st_mtime
             ):
-                info(f"{self}: '{outfile}' is newer; not overwritten")
+                info(f"{self}: '{output_path}' is newer; not overwritten")
                 return
             warning(
-                f"{self}: '{outfile}' already exists; not overwritten; comparing video "
+                f"{self}: '{output_path}' already exists; not overwritten; comparing video "
                 f"contents not implemented"
             )
             return
         save_video()
-        info(f"{self}: '{outfile}' saved")
+        info(f"{self}: '{output_path}' saved")

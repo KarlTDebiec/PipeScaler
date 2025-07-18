@@ -34,7 +34,7 @@ class PotraceRunner(Runner):
     def command_template(self) -> str:
         """String template with which to generate command."""
         return (
-            f"{self.executable_path}" " {infile}" f" {self.arguments}" " -o {outfile}"
+            f"{self.executable_path} {{input_path}} {self.arguments} -o {{output_path}}"
         )
 
     @classmethod

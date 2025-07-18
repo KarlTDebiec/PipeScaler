@@ -9,7 +9,6 @@ from logging import info
 
 import pandas as pd
 
-from pipescaler.common.typing import PathLike
 from pipescaler.common.validation import validate_output_file
 from pipescaler.image.core.analytics.typing import PairDataFrame
 
@@ -17,7 +16,7 @@ from pipescaler.image.core.analytics.typing import PairDataFrame
 class ImagePairCollection(Sequence):
     """Collection of image pairs."""
 
-    def __init__(self, cache: PathLike = "pairs.csv") -> None:
+    def __init__(self, cache: Path | str = "pairs.csv") -> None:
         """Validate configuration and initialize.
 
         Arguments:

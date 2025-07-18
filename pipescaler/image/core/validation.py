@@ -37,20 +37,20 @@ def validate_image(
 
 
 def validate_image_and_convert_mode(
-    image: Image.Image,
+    img: Image.Image,
     valid_modes: str | Collection[str] | None = None,
     convert_mode: str | None = None,
 ) -> tuple[Image.Image, str]:
     """Validate image mode and convert to specified mode.
 
     Arguments:
-        image: Image to validate
+        img: Image to validate
         valid_modes: Valid modes
         convert_mode: Mode to convert to
     Returns:
         Validated image and original mode
     """
-    image = validate_image(image, valid_modes)
-    if convert_mode and image.mode != convert_mode:
-        return image.convert(convert_mode), image.mode
-    return image, image.mode
+    img = validate_image(img, valid_modes)
+    if convert_mode and img.mode != convert_mode:
+        return img.convert(convert_mode), img.mode
+    return img, img.mode

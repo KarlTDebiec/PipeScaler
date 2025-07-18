@@ -13,27 +13,27 @@ else:
     from pipescaler.common import package_root
 
 
-def get_test_infile_path(name: str) -> Path:
-    """Get full path of infile within test data directory.
+def get_test_input_path(name: str) -> Path:
+    """Get full path of input file within test data directory.
 
     Arguments:
-        name: Name of infile
+        name: Name of input file
     Returns:
-        Full path to infile
+        Full path to input file
     """
     path = Path(name)
     if str(path.parent) == ".":
         path = Path("basic") / path
     if path.suffix == "":
         path = path.with_suffix(".png")
-    path = package_root.parent / "test" / "data" / "infiles" / path
+    path = package_root.parent / "test" / "data" / "images" / path
     if not path.exists():
         raise FileNotFoundError()
 
     return path
 
 
-def get_test_model_infile_path(name: str) -> Path:
+def get_test_model_path(name: str) -> Path:
     """Get full path of model within test data directory.
 
     Arguments:
@@ -53,7 +53,7 @@ def get_test_model_infile_path(name: str) -> Path:
     return path
 
 
-def get_test_infile_directory_path(name: str = "basic") -> Path:
+def get_test_input_dir_path(name: str = "basic") -> Path:
     """Get path of subdirectory within test data directory.
 
     Arguments:
@@ -61,7 +61,7 @@ def get_test_infile_directory_path(name: str = "basic") -> Path:
     Returns:
         Path to subdirectory
     """
-    path = package_root.parent / "test" / "data" / "infiles" / name
+    path = package_root.parent / "test" / "data" / "images" / name
     if not path.exists():
         raise FileNotFoundError()
 

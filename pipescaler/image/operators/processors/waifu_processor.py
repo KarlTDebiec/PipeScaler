@@ -42,7 +42,7 @@ class WaifuProcessor(PyTorchImageProcessor):
         return (
             f"{self.__class__.__name__}("
             f"device={self.device!r}, "
-            f"model_infile={self.model_infile!r})"
+            f"model_input_path={self.model_input_path!r})"
         )
 
     @classmethod

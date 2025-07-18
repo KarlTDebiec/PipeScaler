@@ -10,7 +10,6 @@ from typing import Any
 import cv2
 from PIL import Image
 
-from pipescaler.common.typing import PathLike
 from pipescaler.common.validation import validate_input_file
 from pipescaler.image.core.pipelines import ImageSource, PipeImage
 
@@ -20,24 +19,24 @@ class ImageVideoFrameSource(ImageSource):
 
     def __init__(
         self,
-        infile: PathLike,
+        input_path: Path | str,
         location: Path | None = None,
         **kwargs: Any,
     ) -> None:
         """Initialize.
 
         Arguments:
-            infile: Video file from which to yield images
+            input_path: Video file from which to yield images
             location: Path relative to parent directory
             **kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
 
-        self.infile = validate_input_file(infile)
+        self.input_path = validate_input_file(input_path)
         """Path to video file"""
         self.location = location
         """Path relative to parent directory"""
-        self.cap = cv2.VideoCapture(str(self.infile))
+        self.cap = cv2.VideoCapture(str(self.input_path))
         """Video capture"""
         self.length = int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))
         """Number of frames in video"""
@@ -50,12 +49,14 @@ class ImageVideoFrameSource(ImageSource):
             self.cap.set(cv2.CAP_PROP_POS_FRAMES, self.index)
             _, frame = self.cap.read()
             self.index += 1
-            image = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-            location = Path(f"{self.infile.stem}_{self.infile.suffix.lstrip('.')}")
+            img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+            location = Path(
+                f"{self.input_path.stem}_{self.input_path.suffix.lstrip('.')}"
+            )
             if self.location:
                 location = self.location / location
             return PipeImage(
-                image=image,
+                image=img,
                 name=f"{self.index:06d}",
                 location=location,
             )

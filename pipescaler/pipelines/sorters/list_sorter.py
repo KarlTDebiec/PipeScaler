@@ -8,7 +8,6 @@ from collections.abc import Iterable
 from logging import info
 from pathlib import Path
 
-from pipescaler.common.typing import PathLike
 from pipescaler.core.pipelines import PipeObject
 from pipescaler.core.pipelines.sorter import Sorter
 
@@ -19,7 +18,7 @@ class ListSorter(Sorter):
     exclusions = {".DS_Store", "Thumbs", "desktop"}
     """File stems to exclude"""
 
-    def __init__(self, **outlets: PathLike | list[PathLike]) -> None:
+    def __init__(self, **outlets: Path | str | list[Path | str]) -> None:
         """Validate configuration and initialize.
 
         Arguments:
@@ -42,10 +41,10 @@ class ListSorter(Sorter):
                 if path.exists():
                     names: Iterable[str] = []
                     if path.is_file():
-                        with open(path, encoding="utf8") as infile:
+                        with open(path, encoding="utf8") as input_file:
                             names = (
                                 line.strip()
-                                for line in infile.readlines()
+                                for line in input_file.readlines()
                                 if not line.startswith("#")
                             )
                     elif path.is_dir():
