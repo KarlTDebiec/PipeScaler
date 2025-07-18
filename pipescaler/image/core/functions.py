@@ -151,34 +151,32 @@ def generate_normal_map_from_height_map_image(image: Image.Image) -> Image.Image
     Returns:
         Normal map image
     """
-    input_array = np.array(image)
+    input_arr = np.array(image)
 
     # Prepare normal map
     kernel = np.array([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]])
-    gradient_x = convolve(input_array.astype(float), kernel)
-    gradient_y = convolve(input_array.astype(float), kernel.T)
-    output_array = np.zeros((input_array.shape[0], input_array.shape[1], 3))
+    gradient_x = convolve(input_arr.astype(float), kernel)
+    gradient_y = convolve(input_arr.astype(float), kernel.T)
+    output_arr = np.zeros((input_arr.shape[0], input_arr.shape[1], 3))
     max_dimension = max(gradient_x.max(), gradient_y.max())
-    output_array[..., 0] = gradient_x / max_dimension
-    output_array[..., 1] = gradient_y / max_dimension
-    output_array[..., 2] = 1
+    output_arr[..., 0] = gradient_x / max_dimension
+    output_arr[..., 1] = gradient_y / max_dimension
+    output_arr[..., 2] = 1
 
     # Normalize
     magnitude = np.sqrt(
-        output_array[..., 0] ** 2
-        + output_array[..., 1] ** 2
-        + output_array[..., 2] ** 2
+        output_arr[..., 0] ** 2 + output_arr[..., 1] ** 2 + output_arr[..., 2] ** 2
     )
-    output_array[..., 0] /= magnitude
-    output_array[..., 1] /= magnitude
-    output_array[..., 2] /= magnitude
+    output_arr[..., 0] /= magnitude
+    output_arr[..., 1] /= magnitude
+    output_arr[..., 2] /= magnitude
 
     # Convert to image
-    output_array = ((output_array * 0.5) + 0.5) * 255
-    output_array = np.clip(output_array, 0, 255).astype(np.uint8)
-    output_image = Image.fromarray(output_array)
+    output_arr = ((output_arr * 0.5) + 0.5) * 255
+    output_arr = np.clip(output_arr, 0, 255).astype(np.uint8)
+    output_img = Image.fromarray(output_arr)
 
-    return output_image
+    return output_img
 
 
 def get_palette(image: Image.Image) -> np.ndarray:
@@ -274,9 +272,9 @@ def is_monochrome(
     mean_threshold = validate_float(mean_threshold, 0, 255)
     proportion_threshold = validate_float(proportion_threshold, 0, 1)
 
-    l_array = np.array(image)
-    one_array = np.array(image.convert("1").convert("L"))
-    diff = np.abs(l_array - one_array)
+    l_arr = np.array(image)
+    one_arr = np.array(image.convert("1").convert("L"))
+    diff = np.abs(l_arr - one_arr)
     mean_diff = diff.mean()
     proportion_diff = (diff != 0).sum() / diff.size
 
@@ -375,13 +373,13 @@ def smooth_image(image: Image.Image, sigma: float) -> Image.Image:
         (-1 * (np.arange(-3 * sigma, 3 * sigma + 1).astype(float) ** 2))
         / (2 * (sigma**2))
     )
-    smoothed_array = np.array(image).astype(float)
-    smoothed_array = convolve(smoothed_array, kernel[np.newaxis])
-    smoothed_array = convolve(smoothed_array, kernel[np.newaxis].T)
-    smoothed_array = np.clip(smoothed_array, 0, 255).astype(np.uint8)
-    smoothed = Image.fromarray(smoothed_array)
+    smoothed_arr = np.array(image).astype(float)
+    smoothed_arr = convolve(smoothed_arr, kernel[np.newaxis])
+    smoothed_arr = convolve(smoothed_arr, kernel[np.newaxis].T)
+    smoothed_arr = np.clip(smoothed_arr, 0, 255).astype(np.uint8)
+    smoothed_img = Image.fromarray(smoothed_arr)
 
-    return smoothed
+    return smoothed_img
 
 
 def vstack_images(*images: Image.Image) -> Image.Image:
@@ -393,10 +391,12 @@ def vstack_images(*images: Image.Image) -> Image.Image:
         Vertically stacked images
     """
     size = images[0].size
-    stacked = Image.new("RGBA", (size[0], size[1] * len(images)))
+    stacked_img = Image.new("RGBA", (size[0], size[1] * len(images)))
     for i, image in enumerate(images):
         if image.size == size:
-            stacked.paste(image, (0, size[1] * i))
+            stacked_img.paste(image, (0, size[1] * i))
         else:
-            stacked.paste(image.resize(size, resample=Image.NEAREST), (0, size[1] * i))
-    return stacked
+            stacked_img.paste(
+                image.resize(size, resample=Image.NEAREST), (0, size[1] * i)
+            )
+    return stacked_img

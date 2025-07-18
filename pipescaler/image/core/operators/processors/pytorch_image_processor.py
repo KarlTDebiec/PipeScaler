@@ -47,9 +47,9 @@ class PyTorchImageProcessor(ImageProcessor, ABC):
             input_img, self.inputs()["input"], "RGB"
         )
 
-        input_array = np.array(input_img)
+        input_arr = np.array(input_img)
 
-        output_arr = self.upscale(input_array)
+        output_arr = self.upscale(input_arr)
         output_img = Image.fromarray(output_arr)
         if output_img.mode != output_mode:
             output_img = output_img.convert(output_mode)

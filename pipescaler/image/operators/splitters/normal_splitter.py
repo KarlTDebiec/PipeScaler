@@ -14,26 +14,26 @@ from pipescaler.image.core.validation import validate_image
 class NormalSplitter(ImageSplitter):
     """Splits a normal map image into separate x, y, and z images."""
 
-    def __call__(self, input_image: Image.Image) -> tuple[Image.Image, ...]:
+    def __call__(self, input_img: Image.Image) -> tuple[Image.Image, ...]:
         """Split an image.
 
         Arguments:
-            input_image: Input image
+            input_img: Input image
         Returns:
             Split output images
         """
-        input_image = validate_image(input_image, self.inputs()["input"])
-        input_array = np.array(input_image)
-        x_array = input_array[:, :, 0]
-        y_array = input_array[:, :, 1]
-        z_array = (input_array[:, :, 2].astype(float) - 128) * 2
-        z_array = np.clip(z_array, 0, 255).astype(np.uint8)
+        input_img = validate_image(input_img, self.inputs()["input"])
+        input_arr = np.array(input_img)
+        x_arr = input_arr[:, :, 0]
+        y_arr = input_arr[:, :, 1]
+        z_arr = (input_arr[:, :, 2].astype(float) - 128) * 2
+        z_arr = np.clip(z_arr, 0, 255).astype(np.uint8)
 
-        x_image = Image.fromarray(x_array)
-        y_image = Image.fromarray(y_array)
-        z_image = Image.fromarray(z_array)
+        x_img = Image.fromarray(x_arr)
+        y_img = Image.fromarray(y_arr)
+        z_img = Image.fromarray(z_arr)
 
-        return x_image, y_image, z_image
+        return x_img, y_img, z_img
 
     @classmethod
     def inputs(cls) -> dict[str, tuple[str, ...]]:
