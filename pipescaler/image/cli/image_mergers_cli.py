@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
+from importlib.metadata import entry_points
 from typing import Any
 
 from pipescaler.common import CommandLineInterface
@@ -58,11 +59,19 @@ class ImageMergersCli(CommandLineInterface):
     @classmethod
     def mergers(cls) -> dict[str, type[ImageMergerCli]]:
         """Names and types of mergers wrapped by command-line interface."""
-        return {
+        builtins = {
             merger.name(): merger
             for merger in map(mergers.__dict__.get, mergers.__all__)
             if isinstance(merger, type) and issubclass(merger, ImageMergerCli)
         }
+
+        extras = {}
+        for entry_point in entry_points(group="pipescaler.image.mergers"):
+            merger = entry_point.load()
+            if isinstance(merger, type) and issubclass(merger, ImageMergerCli):
+                extras[merger.name()] = merger
+
+        return builtins | extras
 
 
 if __name__ == "__main__":

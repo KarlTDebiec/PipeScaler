@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
+from importlib.metadata import entry_points
 from typing import Any
 
 from pipescaler.common import CommandLineInterface
@@ -58,11 +59,19 @@ class ImageSplittersCli(CommandLineInterface):
     @classmethod
     def splitters(cls) -> dict[str, type[ImageSplitterCli]]:
         """Names and types of splitters wrapped by command-line interface."""
-        return {
+        builtins = {
             splitter.name(): splitter
             for splitter in map(splitters.__dict__.get, splitters.__all__)
             if isinstance(splitter, type) and issubclass(splitter, ImageSplitterCli)
         }
+
+        extras = {}
+        for entry_point in entry_points(group="pipescaler.image.splitters"):
+            splitter = entry_point.load()
+            if isinstance(splitter, type) and issubclass(splitter, ImageSplitterCli):
+                extras[splitter.name()] = splitter
+
+        return builtins | extras
 
 
 if __name__ == "__main__":
