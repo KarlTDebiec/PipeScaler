@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
+from importlib.metadata import entry_points
 from typing import Any
 
 from pipescaler.common import CommandLineInterface
@@ -58,11 +59,19 @@ class ImageUtilitiesCli(CommandLineInterface):
     @classmethod
     def utilities(cls) -> dict[str, type[UtilityCli]]:
         """Names and types of utilities wrapped by command-line interface."""
-        return {
+        builtins = {
             utility.name(): utility
             for utility in map(utilities.__dict__.get, utilities.__all__)
             if isinstance(utility, type) and issubclass(utility, UtilityCli)
         }
+
+        extras = {}
+        for entry_point in entry_points(group="pipescaler.image.utilities"):
+            utility = entry_point.load()
+            if isinstance(utility, type) and issubclass(utility, UtilityCli):
+                extras[utility.name()] = utility
+
+        return builtins | extras
 
 
 if __name__ == "__main__":

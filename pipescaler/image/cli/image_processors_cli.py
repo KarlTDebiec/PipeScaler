@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
+from importlib.metadata import entry_points
 from typing import Any
 
 from pipescaler.common import CommandLineInterface
@@ -58,11 +59,19 @@ class ImageProcessorsCli(CommandLineInterface):
     @classmethod
     def processors(cls) -> dict[str, type[ImageProcessorCli]]:
         """Names and types of processors wrapped by command-line interface."""
-        return {
+        builtins = {
             processor.name(): processor
             for processor in map(processors.__dict__.get, processors.__all__)
             if isinstance(processor, type) and issubclass(processor, ImageProcessorCli)
         }
+
+        extras = {}
+        for entry_point in entry_points(group="pipescaler.image.processors"):
+            processor = entry_point.load()
+            if isinstance(processor, type) and issubclass(processor, ImageProcessorCli):
+                extras[processor.name()] = processor
+
+        return builtins | extras
 
 
 if __name__ == "__main__":

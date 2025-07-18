@@ -79,3 +79,27 @@ convention = 'google'
 
 [tool.setuptools]
 packages = { find = { include = ["pipescaler*"] } }
+
+[project.entry-points."pipescaler.image.processors"]
+crop = "pipescaler.image.cli.processors.crop_cli:CropCli"
+esrgan = "pipescaler.image.cli.processors.esrgan_cli:EsrganCli"
+expand = "pipescaler.image.cli.processors.expand_cli:ExpandCli"
+heighttonormal = "pipescaler.image.cli.processors.height_to_normal_cli:HeightToNormalCli"
+mode = "pipescaler.image.cli.processors.mode_cli:ModeCli"
+resize = "pipescaler.image.cli.processors.resize_cli:ResizeCli"
+sharpen = "pipescaler.image.cli.processors.sharpen_cli:SharpenCli"
+solidcolor = "pipescaler.image.cli.processors.solid_color_cli:SolidColorCli"
+threshold = "pipescaler.image.cli.processors.threshold_cli:ThresholdCli"
+waifu = "pipescaler.image.cli.processors.waifu_cli:WaifuCli"
+xbrz = "pipescaler.image.cli.processors.xbrz_cli:XbrzCli"
+
+[project.entry-points."pipescaler.image.mergers"]
+alphamerger = "pipescaler.image.cli.mergers.alpha_merger_cli:AlphaMergerCli"
+palettematch = "pipescaler.image.cli.mergers.palette_match_merger_cli:PaletteMatchMergerCli"
+
+[project.entry-points."pipescaler.image.splitters"]
+alphasplitter = "pipescaler.image.cli.splitters.alpha_splitter_cli:AlphaSplitterCli"
+
+[project.entry-points."pipescaler.image.utilities"]
+esrganserializer = "pipescaler.image.cli.utilities.esrgan_serializer_cli:EsrganSerializerCli"
+waifuserializer = "pipescaler.image.cli.utilities.waifu_serializer_cli:WaifuSerializerCli"
