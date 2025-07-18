@@ -10,7 +10,11 @@ from logging import info
 from os import remove, rmdir
 from pathlib import Path
 
-from pipescaler.core.pipelines import CheckpointManagerBase, PipeObject, SegmentLike
+from pipescaler.core.pipelines import (
+    CheckpointManagerBase,
+    PipeObject,
+    SegmentProtocol,
+)
 from pipescaler.pipelines.segments import (
     PostCheckpointedSegment,
     PreCheckpointedSegment,
@@ -25,7 +29,7 @@ class CheckpointManager(CheckpointManagerBase):
         inputs: tuple[PipeObject, ...],
         cpts: Sequence[str],
         *,
-        calls: Collection[SegmentLike | str] | None = None,
+        calls: Collection[SegmentProtocol | str] | None = None,
     ) -> tuple[PipeObject, ...] | None:
         """Load images from checkpoints, if available, otherwise return None.
 
@@ -57,8 +61,9 @@ class CheckpointManager(CheckpointManagerBase):
             outputs = tuple(cls(path=p, parents=inputs) for p in cpt_paths)
             info(
                 f"{self}: "
-                f"'{location_names[0] if len(location_names) == 1 else location_names}' "
-                f"checkpoints '{cpts[0] if len(cpts) == 1 else cpts}' loaded"
+                f"'{location_names[0] if len(location_names) == 1 else location_names}'"
+                f" checkpoints "
+                f"'{cpts[0] if len(cpts) == 1 else cpts}' loaded"
             )
 
             internal_cpts = self.get_cpts_of_segments(*calls) if calls else []
@@ -71,8 +76,8 @@ class CheckpointManager(CheckpointManagerBase):
         return None
 
     def post_segment(
-        self, *cpts: str, calls: Collection[SegmentLike] | None = None
-    ) -> Callable[[SegmentLike], PostCheckpointedSegment]:
+        self, *cpts: str, calls: Collection[SegmentProtocol] | None = None
+    ) -> Callable[[SegmentProtocol], PostCheckpointedSegment]:
         """Get decorator to wrap Segment to Segment with post-execution checkpoint.
 
         Arguments:
@@ -83,7 +88,7 @@ class CheckpointManager(CheckpointManagerBase):
         """
         internal_cpts = self.get_cpts_of_segments(*calls) if calls else []
 
-        def decorator(segment: SegmentLike) -> PostCheckpointedSegment:
+        def decorator(segment: SegmentProtocol) -> PostCheckpointedSegment:
             """Wrap Segment to Segment with post-execution checkpoint.
 
             Arguments:
@@ -100,8 +105,8 @@ class CheckpointManager(CheckpointManagerBase):
         return decorator
 
     def pre_segment(
-        self, *cpts: str, calls: Collection[SegmentLike] | None = None
-    ) -> Callable[[SegmentLike], PreCheckpointedSegment]:
+        self, *cpts: str, calls: Collection[SegmentProtocol] | None = None
+    ) -> Callable[[SegmentProtocol], PreCheckpointedSegment]:
         """Get decorator to wrap Segment to Segment with pre-execution checkpoint.
 
         Arguments:
@@ -112,7 +117,7 @@ class CheckpointManager(CheckpointManagerBase):
         """
         internal_cpts = self.get_cpts_of_segments(*calls) if calls else []
 
-        def decorator(segment: SegmentLike) -> PreCheckpointedSegment:
+        def decorator(segment: SegmentProtocol) -> PreCheckpointedSegment:
             """Wrap Segment to Segment with pre-execution checkpoint.
 
             Arguments:
@@ -204,7 +209,7 @@ class CheckpointManager(CheckpointManagerBase):
         return cpt_paths
 
     @staticmethod
-    def get_cpts_of_segments(*cpts_or_segments: SegmentLike | str) -> list[str]:
+    def get_cpts_of_segments(*cpts_or_segments: SegmentProtocol | str) -> list[str]:
         """Get checkpoints created by a collection of Segments.
 
         Arguments:

@@ -10,11 +10,17 @@ from pipescaler.core.pipelines.directory_source import DirectorySource
 from pipescaler.core.pipelines.directory_terminus import DirectoryTerminus
 from pipescaler.core.pipelines.exceptions import TerminusReached
 from pipescaler.core.pipelines.pipe_object import PipeObject
+from pipescaler.core.pipelines.protocols import (
+    PipeObjectProtocol,
+    SegmentProtocol,
+    SorterProtocol,
+    SourceProtocol,
+    TerminusProtocol,
+)
 from pipescaler.core.pipelines.segment import Segment
 from pipescaler.core.pipelines.sorter import Sorter
 from pipescaler.core.pipelines.source import Source
 from pipescaler.core.pipelines.terminus import Terminus
-from pipescaler.core.pipelines.typing import SegmentLike
 
 __all__ = [
     "CheckpointManagerBase",
@@ -23,7 +29,11 @@ __all__ = [
     "DirectoryTerminus",
     "PipeObject",
     "Segment",
-    "SegmentLike",
+    "PipeObjectProtocol",
+    "SegmentProtocol",
+    "SourceProtocol",
+    "SorterProtocol",
+    "TerminusProtocol",
     "Sorter",
     "Source",
     "Terminus",
