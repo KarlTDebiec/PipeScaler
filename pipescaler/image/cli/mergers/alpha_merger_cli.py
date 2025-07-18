@@ -29,20 +29,17 @@ class AlphaMergerCli(ImageMergerCli):
         super().add_arguments_to_argparser(parser)
 
         parser.add_argument(
-            "color-input-file",
-            dest="color_input_path",
+            "color_input_file",
             type=input_file_arg(),
             help="color input file",
         )
         parser.add_argument(
-            "alpha-input-file",
-            dest="alpha_input_path",
+            "alpha_input_file",
             type=input_file_arg(),
             help="alpha input file",
         )
         parser.add_argument(
-            "output-file",
-            dest="output_path",
+            "output_file",
             type=output_file_arg(),
             help="output file",
         )
@@ -50,9 +47,9 @@ class AlphaMergerCli(ImageMergerCli):
     @classmethod
     def _main(cls, **kwargs: Any) -> None:
         """Execute with provided keyword arguments."""
-        color_input_path = kwargs.pop("color_input_path")
-        alpha_input_path = kwargs.pop("alpha_input_path")
-        output_path = kwargs.pop("output_path")
+        color_input_path = kwargs.pop("color_input_file")
+        alpha_input_path = kwargs.pop("alpha_input_file")
+        output_path = kwargs.pop("output_file")
         merger_cls = cls.merger()
         merger = merger_cls(**kwargs)
         with (

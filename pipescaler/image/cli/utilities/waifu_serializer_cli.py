@@ -41,12 +41,12 @@ class WaifuSerializerCli(UtilityCli):
             help=f"model architecture {WaifuSerializer.architectures.keys()}",
         )
         arg_groups["required arguments"].add_argument(
-            "input-file",
+            "input_file",
             type=input_file_arg(),
             help="input json file",
         )
         arg_groups["required arguments"].add_argument(
-            "output-file",
+            "output_file",
             type=output_file_arg(),
             help="output pth file",
         )

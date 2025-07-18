@@ -30,20 +30,17 @@ class PaletteMatchMergerCli(ImageMergerCli):
         super().add_arguments_to_argparser(parser)
 
         parser.add_argument(
-            "reference-input-file",
-            dest="reference_input_path",
+            "reference_input_file",
             type=input_file_arg(),
             help="reference input file",
         )
         parser.add_argument(
-            "fit_input-file",
-            dest="fit_input_path",
+            "fit_input_file",
             type=input_file_arg(),
             help="fit input file",
         )
         parser.add_argument(
-            "output-file",
-            dest="output_path",
+            "output_file",
             type=output_file_arg(),
             help="output file",
         )
@@ -66,9 +63,9 @@ class PaletteMatchMergerCli(ImageMergerCli):
     @classmethod
     def _main(cls, **kwargs: Any) -> None:
         """Execute with provided keyword arguments."""
-        reference_input_path = kwargs.pop("reference_input_path")
-        fit_input_path = kwargs.pop("fit_input_path")
-        output_path = kwargs.pop("output_path")
+        reference_input_path = kwargs.pop("reference_input_file")
+        fit_input_path = kwargs.pop("fit_input_file")
+        output_path = kwargs.pop("output_file")
         palette_match_mode = kwargs.pop("palette_match_mode")
         local_range = kwargs.pop("local_range")
 
