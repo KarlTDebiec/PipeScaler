@@ -49,8 +49,8 @@ class WaifuSerializer(Utility):
         model = cls.architectures[architecture]()
         info(f"{cls}: Waifu {architecture} model built")
 
-        with open(input_path, encoding="utf-8") as input_path:
-            weights = json.load(input_path)
+        with open(input_path, encoding="utf-8") as input_file:
+            weights = json.load(input_file)
         box = []
         for weight in weights:
             box.append(weight["weight"])
