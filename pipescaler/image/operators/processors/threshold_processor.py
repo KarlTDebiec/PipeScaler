@@ -31,28 +31,28 @@ class ThresholdProcessor(ImageProcessor):
         self.threshold = validate_int(threshold, 1, 244)
         self.denoise = denoise
 
-    def __call__(self, input_image: Image.Image) -> Image.Image:
+    def __call__(self, input_img: Image.Image) -> Image.Image:
         """Process an image.
 
         Arguments:
-            input_image: Input image
+            input_img: Input image
         Returns:
             Processed output image
         """
-        input_image, input_mode = validate_image_and_convert_mode(
-            input_image, self.inputs()["input"]
+        input_img, input_mode = validate_image_and_convert_mode(
+            input_img, self.inputs()["input"]
         )
 
         if input_mode == "L":
-            output_image = input_image.point(lambda p: p > self.threshold and 255)
+            output_img = input_img.point(lambda p: p > self.threshold and 255)
         else:
-            output_image = input_image
+            output_img = input_img
         if self.denoise:
-            output_data = np.array(output_image)
-            self.denoise_array(output_data)
-            output_image = Image.fromarray(output_data)
+            output_arr = np.array(output_img)
+            self.denoise_array(output_arr)
+            output_img = Image.fromarray(output_arr)
 
-        return output_image
+        return output_img
 
     def __repr__(self) -> str:
         """Representation."""

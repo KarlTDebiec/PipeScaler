@@ -36,7 +36,7 @@ class WaifuCli(ImageProcessorCli):
 
         arg_groups["required arguments"].add_argument(
             "--model",
-            dest="model_infile",
+            dest="model_input_path",
             required=True,
             type=input_file_arg(),
             help="model input file",

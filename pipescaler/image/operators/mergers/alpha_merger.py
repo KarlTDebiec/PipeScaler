@@ -22,24 +22,24 @@ class AlphaMerger(ImageMerger):
         Returns:
             Merged output image
         """
-        color_image = validate_image(input_images[0], self.inputs()["color"])
-        alpha_image = validate_image(input_images[1], self.inputs()["alpha"])
+        color_img = validate_image(input_images[0], self.inputs()["color"])
+        alpha_img = validate_image(input_images[1], self.inputs()["alpha"])
 
-        color_array = np.array(color_image)
-        if alpha_image.mode == "L":
-            alpha_array = np.array(alpha_image)
+        color_arr = np.array(color_img)
+        if alpha_img.mode == "L":
+            alpha_arr = np.array(alpha_img)
         else:
-            alpha_array = np.array(alpha_image.convert("L"))
-        if color_image.mode == "L":
-            output_array = np.zeros((*color_array.shape, 2), np.uint8)
-            output_array[:, :, 0] = color_array
+            alpha_arr = np.array(alpha_img.convert("L"))
+        if color_img.mode == "L":
+            output_arr = np.zeros((*color_arr.shape, 2), np.uint8)
+            output_arr[:, :, 0] = color_arr
         else:
-            output_array = np.zeros((*color_array.shape[:-1], 4), np.uint8)
-            output_array[:, :, :-1] = color_array
-        output_array[:, :, -1] = alpha_array
-        output_image = Image.fromarray(output_array)
+            output_arr = np.zeros((*color_arr.shape[:-1], 4), np.uint8)
+            output_arr[:, :, :-1] = color_arr
+        output_arr[:, :, -1] = alpha_arr
+        output_img = Image.fromarray(output_arr)
 
-        return output_image
+        return output_img
 
     @classmethod
     def inputs(cls) -> dict[str, tuple[str, ...]]:

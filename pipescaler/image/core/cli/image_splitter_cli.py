@@ -27,7 +27,7 @@ class ImageSplitterCli(CommandLineInterface, ABC):
         super().add_arguments_to_argparser(parser)
 
         parser.add_argument(
-            "infile",
+            "input_file",
             type=input_file_arg(),
             help="input file",
         )

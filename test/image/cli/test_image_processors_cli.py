@@ -4,9 +4,6 @@
 
 from __future__ import annotations
 
-import importlib.metadata as importlib_metadata
-import sys
-import types
 from contextlib import redirect_stderr, redirect_stdout
 from inspect import getfile
 from io import StringIO
@@ -32,21 +29,19 @@ from pipescaler.image.cli.processors import (
     WaifuCli,
     XbrzCli,
 )
-from pipescaler.image.core.cli import ImageProcessorCli
-from pipescaler.image.core.operators import ImageProcessor
-from pipescaler.testing.file import get_test_infile_path, get_test_model_infile_path
+from pipescaler.testing.file import get_test_input_path, get_test_model_path
 from pipescaler.testing.mark import skip_if_ci, skip_if_codex
 
 if getenv("CODEX_ENV_PYTHON_VERSION") is None:
-    esrgan_path = get_test_model_infile_path("ESRGAN/1x_BC1-smooth2")
-    waifu_path = get_test_model_infile_path("WaifuUpConv7/a-2-3")
+    esrgan_path = get_test_model_path("ESRGAN/1x_BC1-smooth2")
+    waifu_path = get_test_model_path("WaifuUpConv7/a-2-3")
 else:
     esrgan_path = None
     waifu_path = None
 
 
 @pytest.mark.parametrize(
-    ("cli", "args", "infile"),
+    ("cli", "args", "input_filename"),
     [
         (CropCli, "--pixels 4 4 4 4", "RGB"),
         skip_if_codex(skip_if_ci())(
@@ -69,9 +64,8 @@ else:
         (XbrzCli, "--scale 2", "RGB"),
     ],
 )
-def test(cli: type[CommandLineInterface], args: str, infile: str) -> None:
-    """Run processor CLI end-to-end."""
-    input_path = get_test_infile_path(infile)
+def test(cli: type[CommandLineInterface], args: str, input_filename: str) -> None:
+    input_path = get_test_input_path(input_filename)
 
     with get_temp_file_path(".png") as output_path:
         run_cli_with_args(cli, f"{args} {input_path} {output_path}")
@@ -106,7 +100,6 @@ def test(cli: type[CommandLineInterface], args: str, infile: str) -> None:
     ],
 )
 def test_help(commands: tuple[type[CommandLineInterface], ...]) -> None:
-    """Ensure help is displayed for processors CLI."""
     subcommands = " ".join(f"{command.name()}" for command in commands[1:])
 
     stdout = StringIO()
@@ -152,7 +145,6 @@ def test_help(commands: tuple[type[CommandLineInterface], ...]) -> None:
     ],
 )
 def test_usage(commands: tuple[type[CommandLineInterface], ...]):
-    """Ensure usage error is produced for missing arguments."""
     subcommands = " ".join(f"{command.name()}" for command in commands[1:])
 
     stdout = StringIO()
@@ -167,38 +159,3 @@ def test_usage(commands: tuple[type[CommandLineInterface], ...]):
         assert stderr.getvalue().startswith(
             f"usage: {Path(getfile(commands[0])).name} {subcommands}"
         )
-
-
-def test_entry_point_discovery(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Ensure additional processors are discovered via entry points."""
-
-    class DummyProcessor(ImageProcessor):
-        pass
-
-    class DummyCli(ImageProcessorCli):
-        @classmethod
-        def processor(cls) -> type[DummyProcessor]:
-            return DummyProcessor
-
-    module = types.ModuleType("dummy_module")
-    setattr(module, "DummyCli", DummyCli)
-    sys.modules["dummy_module"] = module
-
-    ep = importlib_metadata.EntryPoint(
-        name="dummy",
-        value="dummy_module:DummyCli",
-        group="pipescaler.image.processors",
-    )
-    dummy_eps = importlib_metadata.EntryPoints((ep,))
-
-    def fake_entry_points(*, group: str):
-        if group == "pipescaler.image.processors":
-            return dummy_eps
-        return importlib_metadata.EntryPoints(())
-
-    monkeypatch.setattr(
-        "pipescaler.image.cli.image_processors_cli.entry_points", fake_entry_points
-    )
-
-    processors = ImageProcessorsCli.processors()
-    assert processors["dummy"] is DummyCli

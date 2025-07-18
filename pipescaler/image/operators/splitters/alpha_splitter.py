@@ -41,34 +41,34 @@ class AlphaSplitter(ImageSplitter):
                 )
             self.mask_fill_mode = mask_fill_mode
 
-    def __call__(self, input_image: Image.Image) -> tuple[Image.Image, ...]:
+    def __call__(self, input_img: Image.Image) -> tuple[Image.Image, ...]:
         """Split an image.
 
         Arguments:
-            input_image: Input image
+            input_img: Input image
         Returns:
             Split output images
         """
-        input_image = validate_image(input_image, self.inputs()["input"])
+        input_img = validate_image(input_img, self.inputs()["input"])
 
-        input_array = np.array(input_image)
+        input_arr = np.array(input_img)
 
-        color_array = np.squeeze(input_array[:, :, :-1])
-        alpha_array = input_array[:, :, -1]
-        color_image = Image.fromarray(color_array)
-        alpha_image = Image.fromarray(alpha_array)
+        color_arr = np.squeeze(input_arr[:, :, :-1])
+        alpha_arr = input_arr[:, :, -1]
+        color_img = Image.fromarray(color_arr)
+        alpha_img = Image.fromarray(alpha_arr)
 
         if self.alpha_mode == AlphaMode.MONOCHROME_OR_GRAYSCALE:
-            if is_monochrome(alpha_image):
-                alpha_image = alpha_image.convert("1")
-        if self.mask_fill_mode and alpha_image.mode == "1":
-            color_image = MaskFiller.run(
-                color_image,
-                Image.fromarray(~np.array(alpha_image)),
+            if is_monochrome(alpha_img):
+                alpha_img = alpha_img.convert("1")
+        if self.mask_fill_mode and alpha_img.mode == "1":
+            color_img = MaskFiller.run(
+                color_img,
+                Image.fromarray(~np.array(alpha_img)),
                 self.mask_fill_mode,
             )
 
-        return color_image, alpha_image
+        return color_img, alpha_img
 
     def __repr__(self) -> str:
         """Representation."""

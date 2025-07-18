@@ -31,12 +31,12 @@ class ImageProcessorCli(CommandLineInterface, ABC):
         super().add_arguments_to_argparser(parser)
 
         parser.add_argument(
-            "infile",
+            "input_file",
             type=input_file_arg(),
             help="input file",
         )
         parser.add_argument(
-            "outfile",
+            "output_file",
             type=output_file_arg(),
             help="output file",
         )
@@ -49,14 +49,14 @@ class ImageProcessorCli(CommandLineInterface, ABC):
     @classmethod
     def _main(cls, **kwargs: Any) -> None:
         """Execute with provided keyword arguments."""
-        infile = kwargs.pop("infile")
-        outfile = kwargs.pop("outfile")
+        input_path = kwargs.pop("input_file")
+        output_path = kwargs.pop("output_file")
         processor_cls = cls.processor()
         processor = processor_cls(**kwargs)
-        with Image.open(infile) as input_image:
-            output_image = processor(input_image)
-            output_image.save(outfile)
-            info(f"{cls}: '{outfile}' saved")
+        with Image.open(input_path) as input_img:
+            output_img = processor(input_img)
+            output_img.save(output_path)
+            info(f"{cls}: '{output_path}' saved")
 
     @classmethod
     def name(cls) -> str:

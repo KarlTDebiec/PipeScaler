@@ -17,7 +17,7 @@ class MaskFiller(Utility):
 
     @classmethod
     def run(
-        cls, image: Image.Image, mask: Image.Image, mask_fill_mode: MaskFillMode
+        cls, img: Image.Image, mask: Image.Image, mask_fill_mode: MaskFillMode
     ) -> Image.Image:
         """Erases masked pixels within an image.
 
@@ -25,20 +25,20 @@ class MaskFiller(Utility):
         pixels, iteratively.
 
         Arguments:
-            image: Image; mode must be RGB
+            img: Image; mode must be RGB
             mask: Mask; mode must be 1; white (True) pixels are masked
             mask_fill_mode: Mask fill mode
         Returns:
             Image with masked pixels replaced
         """
-        image_array = np.array(image)
-        mask_array = np.array(mask)
+        image_arr = np.array(img)
+        mask_arr = np.array(mask)
 
         # Get all pixels to be filled
         pixels_to_fill = set()
-        for x in range(mask_array.shape[0]):
-            for y in range(mask_array.shape[1]):
-                if mask_array[x, y]:
+        for x in range(mask_arr.shape[0]):
+            for y in range(mask_arr.shape[1]):
+                if mask_arr[x, y]:
                     pixels_to_fill.add((x, y))
 
         # Iterate until no pixels remain to be filled
@@ -46,23 +46,23 @@ class MaskFiller(Utility):
         pixels_to_recount = pixels_to_fill.copy()
         while len(pixels_to_fill) > 0:
             (
-                image_array,
+                image_arr,
                 pixels_to_fill,
                 opaque_neighbor_counts,
                 pixels_to_recount,
             ) = cls.run_iteration(
-                image_array, pixels_to_fill, opaque_neighbor_counts, pixels_to_recount
+                image_arr, pixels_to_fill, opaque_neighbor_counts, pixels_to_recount
             )
 
         # Return image
-        filled_image = Image.fromarray(image_array)
+        filled_img = Image.fromarray(image_arr)
         if mask_fill_mode == MaskFillMode.MATCH_PALETTE:
-            filled_image = PaletteMatcher.run(image, filled_image)
-        return filled_image
+            filled_img = PaletteMatcher.run(img, filled_img)
+        return filled_img
 
     @staticmethod
     def run_iteration(
-        image_array: np.ndarray,
+        image_arr: np.ndarray,
         pixels_to_fill: set[tuple[int, int]],
         opaque_neighbor_counts: dict[tuple[int, int], int],
         pixels_to_recount: set[tuple[int, int]],
@@ -75,7 +75,7 @@ class MaskFiller(Utility):
         """Fills pixels whose number of opaque neighbors is equal to the max.
 
         Arguments:
-            image_array: Image array
+            image_arr: Image array
             pixels_to_fill: Pixels that remain to be filled
             opaque_neighbor_counts: Number of opaque neighbors of each pixel to fill
             pixels_to_recount: Pixels whose opaque neighbor counts need to be updated
@@ -83,8 +83,8 @@ class MaskFiller(Utility):
             Updated image array, pixels to fill, opaque neighbor counts, and pixels to
             recount
         """
-        width = image_array.shape[0]
-        height = image_array.shape[1]
+        width = image_arr.shape[0]
+        height = image_arr.shape[1]
 
         # Count number of opaque pixels adjacent to each pixel to be filled
         for pixel in pixels_to_recount:
@@ -107,19 +107,19 @@ class MaskFiller(Utility):
                         if pixel_p == pixel:
                             continue
                         if pixel_p not in pixels_to_fill:
-                            color += image_array[x_p, y_p]
+                            color += image_arr[x_p, y_p]
                         elif (
                             pixel_p in opaque_neighbor_counts
                             and opaque_neighbor_counts[pixel_p] != count
                         ):
                             pixels_to_recount_next_iter.add(pixel_p)
-                image_array[pixel[0], pixel[1]] = color // count
+                image_arr[pixel[0], pixel[1]] = color // count
                 opaque_neighbor_counts.pop(pixel)
             else:
                 pixels_to_fill_next_iter.add(pixel)
 
         return (
-            image_array,
+            image_arr,
             pixels_to_fill_next_iter,
             opaque_neighbor_counts,
             pixels_to_recount_next_iter,

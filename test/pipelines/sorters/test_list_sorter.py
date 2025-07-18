@@ -9,7 +9,7 @@ import pytest
 from pipescaler.common.file import get_temp_directory_path, get_temp_file_path
 from pipescaler.image.core.pipelines import PipeImage
 from pipescaler.pipelines.sorters import ListSorter
-from pipescaler.testing.file import get_test_infile_directory_path, get_test_infile_path
+from pipescaler.testing.file import get_test_input_dir_path, get_test_input_path
 from pipescaler.testing.fixture import parametrized_fixture
 
 
@@ -17,9 +17,9 @@ from pipescaler.testing.fixture import parametrized_fixture
     cls=ListSorter,
     params=[
         dict(
-            basic=get_test_infile_directory_path("basic"),
-            extra=get_test_infile_directory_path("extra"),
-            novel=get_test_infile_directory_path("novel"),
+            basic=get_test_input_dir_path("basic"),
+            extra=get_test_input_dir_path("extra"),
+            novel=get_test_input_dir_path("novel"),
         ),
     ],
 )
@@ -28,7 +28,7 @@ def sorter(request) -> ListSorter:
 
 
 @pytest.mark.parametrize(
-    ("infile_name", "outlet"),
+    ("input_filename", "outlet"),
     [
         ("basic/L", "basic"),
         ("extra/1_L", "extra"),
@@ -36,8 +36,8 @@ def sorter(request) -> ListSorter:
         ("split/LA_alpha_L", None),
     ],
 )
-def test(infile_name: str, outlet: str | None, sorter: ListSorter) -> None:
-    image = PipeImage(path=get_test_infile_path(infile_name))
+def test(input_filename: str, outlet: str | None, sorter: ListSorter) -> None:
+    image = PipeImage(path=get_test_input_path(input_filename))
     assert sorter(image) == outlet
 
     # Test miscellaneous methods
@@ -48,7 +48,7 @@ def test(infile_name: str, outlet: str | None, sorter: ListSorter) -> None:
 
 
 @pytest.mark.parametrize(
-    ("infile_name", "outlet"),
+    ("input_filename", "outlet"),
     [
         ("basic/L", "basic"),
         ("extra/1_L", "extra"),
@@ -56,7 +56,7 @@ def test(infile_name: str, outlet: str | None, sorter: ListSorter) -> None:
         ("split/LA_alpha_L", None),
     ],
 )
-def test_text_file(infile_name: str, outlet: str | None) -> None:
+def test_text_file(input_filename: str, outlet: str | None) -> None:
     with get_temp_file_path() as basic_file_path:
         with open(basic_file_path, "w") as basic_file:
             basic_file.write("L\n")
@@ -72,7 +72,7 @@ def test_text_file(infile_name: str, outlet: str | None) -> None:
                     novel=str(novel_file_path),
                 )
 
-    image = PipeImage(path=get_test_infile_path(infile_name))
+    image = PipeImage(path=get_test_input_path(input_filename))
     assert sorter(image) == outlet
 
 

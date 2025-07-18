@@ -8,13 +8,13 @@ import re
 from collections.abc import Iterable
 from itertools import chain
 from logging import info
+from pathlib import Path
 from shutil import move
 
 import numpy as np
 import pandas as pd
 from PIL import Image
 
-from pipescaler.common.typing import PathLike
 from pipescaler.common.validation import (
     validate_input_directories,
     validate_input_directory,
@@ -40,11 +40,11 @@ class ScaledPairIdentifier:
 
     def __init__(
         self,
-        input_directories: PathLike | Iterable[PathLike],
-        project_root: PathLike,
+        input_directories: Path | str | Iterable[Path | str],
+        project_root: Path | str,
         *,
-        hash_file: PathLike = "hashes.csv",
-        pairs_file: PathLike = "pairs.csv",
+        hash_file: Path | str = "hashes.csv",
+        pairs_file: Path | str = "pairs.csv",
         interactive: bool = True,
     ):
         """Validate configuration and initialize.
@@ -160,9 +160,9 @@ class ScaledPairIdentifier:
                 to_save = self.get_stacked_image(
                     [parent, *list(known_pairs["scaled name"])]
                 )
-                outfile = self.comparison_directory / f"{parent}.png"
-                to_save.save(outfile)
-                info(f"Saved {outfile}")
+                output_path = self.comparison_directory / f"{parent}.png"
+                to_save.save(output_path)
+                info(f"Saved {output_path}")
 
     def sync_scaled_directory(self) -> None:
         """Ensure child images are in scaled directory, and parent images are not."""
@@ -192,12 +192,7 @@ class ScaledPairIdentifier:
             known_scores: Scores of known pairs
             new_scores: Scores of new pairs
         """
-        print(
-            f"To known pairs:\n"
-            f"{known_scores}\n"
-            f"may be added new pairs:\n"
-            f"{new_scores}"
-        )
+        print(f"To known pairs:\n{known_scores}\nmay be added new pairs:\n{new_scores}")
         all_pairs = pd.concat((known_scores, new_scores)).sort_values(
             "scale", ascending=False
         )
@@ -238,15 +233,13 @@ class ScaledPairIdentifier:
             Stacked images, rescaled to match first image, if necessary
         """
         if self.alpha_sorter(PipeImage(path=self.file_paths[names[0]])) == "keep_alpha":
-            color_images = []
-            alpha_images = []
+            color_imgs = []
+            alpha_imgs = []
             for name in names:
-                array = np.array(Image.open(self.file_paths[name]))
-                color_images.append(Image.fromarray(np.squeeze(array[:, :, :-1])))
-                alpha_images.append(Image.fromarray(array[:, :, -1]))
-            return vstack_images(
-                hstack_images(*color_images), hstack_images(*alpha_images)
-            )
+                arr = np.array(Image.open(self.file_paths[name]))
+                color_imgs.append(Image.fromarray(np.squeeze(arr[:, :, :-1])))
+                alpha_imgs.append(Image.fromarray(arr[:, :, -1]))
+            return vstack_images(hstack_images(*color_imgs), hstack_images(*alpha_imgs))
 
         return hstack_images(
             *[Image.open(self.file_paths[filename]) for filename in names]

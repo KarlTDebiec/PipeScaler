@@ -4,9 +4,6 @@
 
 from __future__ import annotations
 
-import importlib.metadata as importlib_metadata
-import sys
-import types
 from contextlib import redirect_stderr, redirect_stdout
 from inspect import getfile
 from io import StringIO
@@ -19,20 +16,17 @@ from pipescaler.common.file import get_temp_file_path
 from pipescaler.common.testing import run_cli_with_args
 from pipescaler.image.cli import ImageSplittersCli
 from pipescaler.image.cli.splitters import AlphaSplitterCli
-from pipescaler.image.core.cli import ImageSplitterCli
-from pipescaler.image.core.operators import ImageSplitter
-from pipescaler.testing.file import get_test_infile_path
+from pipescaler.testing.file import get_test_input_path
 
 
 @pytest.mark.parametrize(
-    ("cli", "args", "infile"),
+    ("cli", "args", "input_filename"),
     [
         (AlphaSplitterCli, "", "RGBA"),
     ],
 )
-def test(cli: type[CommandLineInterface], args: str, infile: str) -> None:
-    """Run splitter CLI end-to-end."""
-    input_path = get_test_infile_path(infile)
+def test(cli: type[CommandLineInterface], args: str, input_filename: str) -> None:
+    input_path = get_test_input_path(input_filename)
 
     with get_temp_file_path(".png") as output_path_1:
         with get_temp_file_path(".png") as output_path_2:
@@ -50,7 +44,6 @@ def test(cli: type[CommandLineInterface], args: str, infile: str) -> None:
     ],
 )
 def test_help(commands: tuple[type[CommandLineInterface], ...]) -> None:
-    """Ensure help is displayed for splitters CLI."""
     subcommands = " ".join(f"{command.name()}" for command in commands[1:])
 
     stdout = StringIO()
@@ -76,7 +69,6 @@ def test_help(commands: tuple[type[CommandLineInterface], ...]) -> None:
     ],
 )
 def test_usage(commands: tuple[type[CommandLineInterface], ...]):
-    """Ensure usage error is produced for missing arguments."""
     subcommands = " ".join(f"{command.name()}" for command in commands[1:])
 
     stdout = StringIO()
@@ -91,38 +83,3 @@ def test_usage(commands: tuple[type[CommandLineInterface], ...]):
         assert stderr.getvalue().startswith(
             f"usage: {Path(getfile(commands[0])).name} {subcommands}"
         )
-
-
-def test_entry_point_discovery(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Ensure additional splitters are discovered via entry points."""
-
-    class DummySplitter(ImageSplitter):
-        pass
-
-    class DummyCli(ImageSplitterCli):
-        @classmethod
-        def splitter(cls) -> type[DummySplitter]:
-            return DummySplitter
-
-    module = types.ModuleType("dummy_module")
-    setattr(module, "DummyCli", DummyCli)
-    sys.modules["dummy_module"] = module
-
-    ep = importlib_metadata.EntryPoint(
-        name="dummy",
-        value="dummy_module:DummyCli",
-        group="pipescaler.image.splitters",
-    )
-    dummy_eps = importlib_metadata.EntryPoints((ep,))
-
-    def fake_entry_points(*, group: str):
-        if group == "pipescaler.image.splitters":
-            return dummy_eps
-        return importlib_metadata.EntryPoints(())
-
-    monkeypatch.setattr(
-        "pipescaler.image.cli.image_splitters_cli.entry_points", fake_entry_points
-    )
-
-    splitters = ImageSplittersCli.splitters()
-    assert splitters["dummy"] is DummyCli

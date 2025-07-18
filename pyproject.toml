@@ -24,6 +24,9 @@ dependencies = [
     "xbrz.py @ git+https://github.com/ioistired/xbrz.py",
 ]
 
+[project.scripts]
+pipescaler = "pipescaler.cli.pipescaler_cli:PipeScalerCli.main"
+
 [dependency-groups]
 dev = [
     "pandas-stubs>=2.2.3.241009",
@@ -103,3 +106,7 @@ alphasplitter = "pipescaler.image.cli.splitters.alpha_splitter_cli:AlphaSplitter
 [project.entry-points."pipescaler.image.utilities"]
 esrganserializer = "pipescaler.image.cli.utilities.esrgan_serializer_cli:EsrganSerializerCli"
 waifuserializer = "pipescaler.image.cli.utilities.waifu_serializer_cli:WaifuSerializerCli"
+
+
+[tool.uv]
+package = true

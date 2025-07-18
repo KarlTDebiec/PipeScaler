@@ -1,12 +1,13 @@
 #  Copyright 2020-2025 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Tests for NormalMerger"""
+
 import pytest
 from PIL import Image
 
 from pipescaler.image.operators.mergers import NormalMerger
 from pipescaler.image.testing import xfail_unsupported_image_mode
-from pipescaler.testing.file import get_test_infile_path
+from pipescaler.testing.file import get_test_input_path
 from pipescaler.testing.fixture import parametrized_fixture
 
 
@@ -31,14 +32,14 @@ def merger(request) -> NormalMerger:
     ],
 )
 def test(x: str, y: str, z: str, merger: NormalMerger) -> None:
-    x_infile = get_test_infile_path(x)
-    x_image = Image.open(x_infile)
-    y_infile = get_test_infile_path(y)
-    y_image = Image.open(y_infile)
-    z_infile = get_test_infile_path(z)
-    z_image = Image.open(z_infile)
+    x_input_path = get_test_input_path(x)
+    x_img = Image.open(x_input_path)
+    y_input_path = get_test_input_path(y)
+    y_img = Image.open(y_input_path)
+    z_input_path = get_test_input_path(z)
+    z_img = Image.open(z_input_path)
 
-    output_image = merger(x_image, y_image, z_image)
+    output_img = merger(x_img, y_img, z_img)
 
-    assert output_image.mode == "RGB"
-    assert output_image.size == x_image.size == y_image.size == z_image.size
+    assert output_img.mode == "RGB"
+    assert output_img.size == x_img.size == y_img.size == z_img.size

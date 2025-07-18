@@ -6,15 +6,15 @@ from __future__ import annotations
 
 from abc import ABC
 from logging import warning
+from pathlib import Path
 
-from pipescaler.common.typing import PathLike
 from pipescaler.common.validation import validate_output_directory
 
 
 class CheckpointManagerBase(ABC):
     """Abstract base class for checkpoint managers."""
 
-    def __init__(self, directory: PathLike) -> None:
+    def __init__(self, directory: Path | str) -> None:
         """Initialize.
 
         Arguments:

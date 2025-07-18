@@ -17,31 +17,31 @@ class SharpenProcessor(ImageProcessor):
 
     kernel = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]], float)
 
-    def __call__(self, input_image: Image.Image) -> Image.Image:
+    def __call__(self, input_img: Image.Image) -> Image.Image:
         """Process an image.
 
         Arguments:
-            input_image: Input image
+            input_img: Input image
         Returns:
             Processed output image
         """
-        input_image = validate_image(input_image, self.inputs()["input"])
+        input_img = validate_image(input_img, self.inputs()["input"])
 
-        if input_image.mode == "L":
-            input_array = np.array(input_image).astype(float)
-            output_array = convolve2d(input_array, self.kernel, "same")
-            output_array = np.clip(output_array, 0, 255).astype(np.uint8)
-            output_image = Image.fromarray(output_array)
+        if input_img.mode == "L":
+            input_arr = np.array(input_img).astype(float)
+            output_arr = convolve2d(input_arr, self.kernel, "same")
+            output_arr = np.clip(output_arr, 0, 255).astype(np.uint8)
+            output_img = Image.fromarray(output_arr)
         else:
-            hsv_image = input_image.convert("HSV")
+            hsv_img = input_img.convert("HSV")
 
-            hsv_array = np.array(hsv_image)
-            v_array = hsv_array[:, :, 2].astype(float)
-            v_array = convolve2d(v_array, self.kernel, "same")
-            hsv_array[:, :, 2] = np.clip(v_array, 0, 255).astype(np.uint8)
-            output_image = Image.fromarray(hsv_array, mode="HSV").convert("RGB")
+            hsv_arr = np.array(hsv_img)
+            v_arr = hsv_arr[:, :, 2].astype(float)
+            v_arr = convolve2d(v_arr, self.kernel, "same")
+            hsv_arr[:, :, 2] = np.clip(v_arr, 0, 255).astype(np.uint8)
+            output_img = Image.fromarray(hsv_arr, mode="HSV").convert("RGB")
 
-        return output_image
+        return output_img
 
     @classmethod
     def inputs(cls) -> dict[str, tuple[str, ...]]:

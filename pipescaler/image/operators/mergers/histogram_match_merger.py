@@ -24,24 +24,24 @@ class HistogramMatchMerger(ImageMerger):
         Returns:
             Merged output image
         """
-        ref_image = validate_image(input_images[0], self.inputs()["ref"])
-        fit_image = validate_image(input_images[1], self.inputs()["fit"])
-        if ref_image.mode != fit_image.mode:
+        ref_img = validate_image(input_images[0], self.inputs()["ref"])
+        fit_img = validate_image(input_images[1], self.inputs()["fit"])
+        if ref_img.mode != fit_img.mode:
             raise UnsupportedImageModeError(
-                f"Image mode '{ref_image.mode}' of reference image"
-                f" does not match mode '{fit_image.mode}' of fit image"
+                f"Image mode '{ref_img.mode}' of reference image"
+                f" does not match mode '{fit_img.mode}' of fit image"
             )
 
-        ref_array = np.array(ref_image)
-        fit_array = np.array(fit_image)
-        if ref_image.mode == "L":
-            output_array = match_histograms(fit_array, ref_array)
+        ref_arr = np.array(ref_img)
+        fit_arr = np.array(fit_img)
+        if ref_img.mode == "L":
+            output_arr = match_histograms(fit_arr, ref_arr)
         else:
-            output_array = match_histograms(fit_array, ref_array, channel_axis=0)
-        output_array = np.clip(output_array, 0, 255).astype(np.uint8)
-        output_image = Image.fromarray(output_array)
+            output_arr = match_histograms(fit_arr, ref_arr, channel_axis=0)
+        output_arr = np.clip(output_arr, 0, 255).astype(np.uint8)
+        output_img = Image.fromarray(output_arr)
 
-        return output_image
+        return output_img
 
     @classmethod
     def inputs(cls) -> dict[str, tuple[str, ...]]:

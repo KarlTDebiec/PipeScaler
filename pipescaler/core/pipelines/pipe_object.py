@@ -9,7 +9,6 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Self
 
-from pipescaler.common.typing import PathLike
 from pipescaler.common.validation import validate_input_file
 
 
@@ -19,7 +18,7 @@ class PipeObject(ABC):
     def __init__(
         self,
         *,
-        path: PathLike | None = None,
+        path: Path | str | None = None,
         name: str | None = None,
         parents: Self | Sequence[Self] | None = None,
         location: Path | None = None,
@@ -113,14 +112,14 @@ class PipeObject(ABC):
         return self._path
 
     @path.setter
-    def path(self, value: PathLike | None) -> None:
+    def path(self, value: Path | str | None) -> None:
         if value:
             self._path = validate_input_file(value)
         else:
             self._path = None
 
     @abstractmethod
-    def save(self, path: PathLike) -> None:
+    def save(self, path: Path | str) -> None:
         """Save object to file and set path.
 
         Arguments:
