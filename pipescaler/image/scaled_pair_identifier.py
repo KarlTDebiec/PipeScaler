@@ -160,9 +160,9 @@ class ScaledPairIdentifier:
                 to_save = self.get_stacked_image(
                     [parent, *list(known_pairs["scaled name"])]
                 )
-                outfile = self.comparison_directory / f"{parent}.png"
-                to_save.save(outfile)
-                info(f"Saved {outfile}")
+                output_path = self.comparison_directory / f"{parent}.png"
+                to_save.save(output_path)
+                info(f"Saved {output_path}")
 
     def sync_scaled_directory(self) -> None:
         """Ensure child images are in scaled directory, and parent images are not."""
@@ -233,15 +233,13 @@ class ScaledPairIdentifier:
             Stacked images, rescaled to match first image, if necessary
         """
         if self.alpha_sorter(PipeImage(path=self.file_paths[names[0]])) == "keep_alpha":
-            color_images = []
-            alpha_images = []
+            color_imgs = []
+            alpha_imgs = []
             for name in names:
-                array = np.array(Image.open(self.file_paths[name]))
-                color_images.append(Image.fromarray(np.squeeze(array[:, :, :-1])))
-                alpha_images.append(Image.fromarray(array[:, :, -1]))
-            return vstack_images(
-                hstack_images(*color_images), hstack_images(*alpha_images)
-            )
+                arr = np.array(Image.open(self.file_paths[name]))
+                color_imgs.append(Image.fromarray(np.squeeze(arr[:, :, :-1])))
+                alpha_imgs.append(Image.fromarray(arr[:, :, -1]))
+            return vstack_images(hstack_images(*color_imgs), hstack_images(*alpha_imgs))
 
         return hstack_images(
             *[Image.open(self.file_paths[filename]) for filename in names]

@@ -18,7 +18,7 @@ class TopazVideoAiRunner(Runner):
     proteus_4_3 = (
         '"-hide_banner" "-nostdin" "-y" "-nostats" '
         '"-framerate" "30" "-start_number" "1" '
-        '"-i" "{infile}" '
+        '"-i" "{input_path}" '
         '"-sws_flags" "spline+accurate_rnd+full_chroma_int" '
         '"-color_trc" "2" "-colorspace" "2" "-color_primaries" "2" '
         '"-filter_complex" "veai_up=model=prob-3:scale=0:w=2880:h=2160:preblur=0:'
@@ -26,12 +26,12 @@ class TopazVideoAiRunner(Runner):
         'vram=0.9:instances=1,scale=w=2880:h=2160:flags=lanczos:threads=0" '
         '"-c:v" "png" "-pix_fmt" "rgb24" '
         '"-start_number" "1" '
-        '"{outfile}"'
+        '"{output_path}"'
     )
     proteus_16_9 = (
         '"-hide_banner" "-nostdin" "-y" "-nostats" '
         '"-framerate" "30" "-start_number" "1" '
-        '"-i" "{infile}" '
+        '"-i" "{input_path}" '
         '"-sws_flags" "spline+accurate_rnd+full_chroma_int" '
         '"-color_trc" "2" "-colorspace" "2" "-color_primaries" "2" '
         '"-filter_complex" "veai_up=model=prob-3:scale=0:w=3840:h=2160:preblur=0:'
@@ -39,12 +39,12 @@ class TopazVideoAiRunner(Runner):
         'vram=0.9:instances=1,scale=w=3840:h=2160:flags=lanczos:threads=0" '
         '"-c:v" "png" "-pix_fmt" "rgb24" '
         '"-start_number" "1" '
-        '"{outfile}"'
+        '"{output_path}"'
     )
     chronos_60 = (
         '"-hide_banner" "-nostdin" "-y" "-nostats" '
         '"-framerate" "30" "-start_number" "1" '
-        '"-i" "{infile}" '
+        '"-i" "{input_path}" '
         '"-sws_flags" "spline+accurate_rnd+full_chroma_int" '
         '"-color_trc" "2" "-colorspace" "2" "-color_primaries" "2" '
         '"-filter_complex" "veai_fi=model=chf-3:slowmo=1:fps=60:device=0:vram=0.9:'
@@ -54,12 +54,12 @@ class TopazVideoAiRunner(Runner):
         '"-movflags" '
         '"frag_keyframe+empty_moov+delay_moov+use_metadata_tags+write_colr "'
         ' "-map_metadata:s:v" "0:s:v" "-an" '
-        ' "{outfile}"'
+        ' "{output_path}"'
     )
     chronos_60_prores = (
         '"-hide_banner" "-nostdin" "-y" "-nostats" '
         '"-framerate" "30" "-start_number" "1" '
-        '"-i" "{infile}" '
+        '"-i" "{input_path}" '
         '"-sws_flags" "spline+accurate_rnd+full_chroma_int" '
         '"-color_trc" "2" "-colorspace" "2" "-color_primaries" "2" '
         '"-filter_complex" "veai_fi=model=chf-3:slowmo=1:fps=60:device=0:vram=0.9:'
@@ -69,7 +69,7 @@ class TopazVideoAiRunner(Runner):
         '"-movflags" '
         '"frag_keyframe+empty_moov+delay_moov+use_metadata_tags+write_colr " '
         '"-map_metadata:s:v" "0:s:v" "-an" '
-        ' "{outfile}"'
+        ' "{output_path}"'
     )
 
     def __init__(
@@ -106,14 +106,16 @@ class TopazVideoAiRunner(Runner):
         # TODO: Actually validate executable?
         return Path(self.executable())
 
-    def run(self, infile: Path | str, outfile: Path | str) -> None:
-        """Run executable on infile, yielding outfile.
+    def run(self, input_path: Path | str, output_path: Path | str) -> None:
+        """Run executable on input file, yielding output file.
 
         Arguments:
-            infile: Input file path
-            outfile: Output file path
+            input_path: Input file path
+            output_path: Output file path
         """
-        command = self.command_template.format(infile=infile, outfile=outfile)
+        command = self.command_template.format(
+            input_path=input_path, output_path=output_path
+        )
         debug(f"{self}: {command}")
         # TODO: Improve this
         run_command(command)

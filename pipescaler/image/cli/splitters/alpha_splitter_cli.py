@@ -30,12 +30,14 @@ class AlphaSplitterCli(ImageSplitterCli):
         super().add_arguments_to_argparser(parser)
 
         parser.add_argument(
-            "color_outfile",
+            "color-output-file",
+            dest="color_output_path",
             type=output_file_arg(),
             help="color output file",
         )
         parser.add_argument(
-            "alpha_outfile",
+            "alpha_output-file",
+            dest="alpha_output_path",
             type=output_file_arg(),
             help="alpha output file",
         )
@@ -43,17 +45,17 @@ class AlphaSplitterCli(ImageSplitterCli):
     @classmethod
     def _main(cls, **kwargs: Any) -> None:
         """Execute with provided keyword arguments."""
-        infile = kwargs.pop("infile")
-        color_outfile = kwargs.pop("color_outfile")
-        alpha_outfile = kwargs.pop("alpha_outfile")
+        input_path = kwargs.pop("input_path")
+        color_output_path = kwargs.pop("color_output_path")
+        alpha_output_path = kwargs.pop("alpha_output_path")
         splitter_cls = cls.splitter()
         splitter = splitter_cls(**kwargs)
-        with Image.open(infile) as input_image:
-            color_image, alpha_image = splitter(input_image)
-            color_image.save(color_outfile)
-            info(f"{cls}: '{color_outfile}' saved")
-            alpha_image.save(alpha_outfile)
-            info(f"{cls}: '{alpha_outfile}' saved")
+        with Image.open(input_path) as input_img:
+            color_img, alpha_img = splitter(input_img)
+            color_img.save(color_output_path)
+            info(f"{cls}: '{color_output_path}' saved")
+            alpha_img.save(alpha_output_path)
+            info(f"{cls}: '{alpha_output_path}' saved")
 
     @classmethod
     def splitter(cls) -> type[ImageSplitter]:

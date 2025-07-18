@@ -25,14 +25,14 @@ class Runner(ABC):
         self.timeout = validate_int(timeout, 0)
         self._executable_path: Path | None = None
 
-    def __call__(self, infile: Path | str, outfile: Path | str) -> None:
-        """Run executable on infile, yielding outfile.
+    def __call__(self, input_path: Path | str, output_path: Path | str) -> None:
+        """Run executable on input file, yielding output file.
 
         Arguments:
-            infile: Input file path
-            outfile: Output file path
+            input_path: Input file path
+            output_path: Output file path
         """
-        self.run(infile, outfile)
+        self.run(input_path, output_path)
 
     def __repr__(self) -> str:
         """Representation."""
@@ -58,14 +58,16 @@ class Runner(ABC):
             )
         return self._executable_path
 
-    def run(self, infile: Path | str, outfile: Path | str) -> None:
-        """Run executable on infile, yielding outfile.
+    def run(self, input_path: Path | str, output_path: Path | str) -> None:
+        """Run executable on input file, yielding output file.
 
         Arguments:
-            infile: Input file path
-            outfile: Output file path
+            input_path: Input file path
+            output_path: Output file path
         """
-        command = self.command_template.format(infile=infile, outfile=outfile)
+        command = self.command_template.format(
+            input_path=input_path, output_path=output_path
+        )
         debug(f"{self}: {command}")
         run_command(command, timeout=self.timeout)
 

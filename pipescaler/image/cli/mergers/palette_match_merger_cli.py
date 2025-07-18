@@ -30,17 +30,20 @@ class PaletteMatchMergerCli(ImageMergerCli):
         super().add_arguments_to_argparser(parser)
 
         parser.add_argument(
-            "reference_infile",
+            "reference-input-file",
+            dest="reference_input_path",
             type=input_file_arg(),
             help="reference input file",
         )
         parser.add_argument(
-            "fit_infile",
+            "fit_input-file",
+            dest="fit_input_path",
             type=input_file_arg(),
             help="fit input file",
         )
         parser.add_argument(
-            "outfile",
+            "output-file",
+            dest="output_path",
             type=output_file_arg(),
             help="output file",
         )
@@ -63,9 +66,9 @@ class PaletteMatchMergerCli(ImageMergerCli):
     @classmethod
     def _main(cls, **kwargs: Any) -> None:
         """Execute with provided keyword arguments."""
-        reference_infile = kwargs.pop("reference_infile")
-        fit_infile = kwargs.pop("fit_infile")
-        outfile = kwargs.pop("outfile")
+        reference_input_path = kwargs.pop("reference_input_path")
+        fit_input_path = kwargs.pop("fit_input_path")
+        output_path = kwargs.pop("output_path")
         palette_match_mode = kwargs.pop("palette_match_mode")
         local_range = kwargs.pop("local_range")
 
@@ -76,12 +79,12 @@ class PaletteMatchMergerCli(ImageMergerCli):
             **kwargs,
         )
         with (
-            Image.open(reference_infile) as reference_image,
-            Image.open(fit_infile) as fit_image,
+            Image.open(reference_input_path) as reference_img,
+            Image.open(fit_input_path) as fit_img,
         ):
-            output_image = merger(reference_image, fit_image)
-            output_image.save(outfile)
-            info(f"{cls}: '{outfile}' saved")
+            output_img = merger(reference_img, fit_img)
+            output_img.save(output_path)
+            info(f"{cls}: '{output_path}' saved")
 
     @classmethod
     def merger(cls) -> type[PaletteMatchMerger]:

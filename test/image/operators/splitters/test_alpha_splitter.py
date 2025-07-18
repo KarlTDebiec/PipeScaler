@@ -1,6 +1,7 @@
 #  Copyright 2020-2025 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Tests for AlphaSplitter."""
+
 import pytest
 from PIL import Image
 
@@ -10,7 +11,7 @@ from pipescaler.image.testing import (
     get_expected_output_mode,
     xfail_unsupported_image_mode,
 )
-from pipescaler.testing.file import get_test_infile_path
+from pipescaler.testing.file import get_test_input_path
 from pipescaler.testing.fixture import parametrized_fixture
 
 
@@ -40,7 +41,7 @@ def splitter(request) -> AlphaSplitter:
 
 
 @pytest.mark.parametrize(
-    "infile",
+    "input_filename",
     [
         xfail_unsupported_image_mode()("1"),
         xfail_unsupported_image_mode()("L"),
@@ -52,13 +53,13 @@ def splitter(request) -> AlphaSplitter:
         "novel/RGBA_monochrome",
     ],
 )
-def test(infile: str, splitter: AlphaSplitter) -> None:
-    input_path = get_test_infile_path(infile)
-    input_image = Image.open(input_path)
-    color_image, alpha_image = splitter(input_image)
+def test(input_filename, splitter: AlphaSplitter) -> None:
+    input_path = get_test_input_path(input_filename)
+    input_img = Image.open(input_path)
+    color_img, alpha_img = splitter(input_img)
 
-    assert color_image.mode in splitter.outputs()["color"]
-    assert color_image.mode == get_expected_output_mode(input_image).rstrip("A")
-    assert color_image.size == input_image.size
-    assert alpha_image.mode in splitter.outputs()["alpha"]
-    assert alpha_image.size == input_image.size
+    assert color_img.mode in splitter.outputs()["color"]
+    assert color_img.mode == get_expected_output_mode(input_img).rstrip("A")
+    assert color_img.size == input_img.size
+    assert alpha_img.mode in splitter.outputs()["alpha"]
+    assert alpha_img.size == input_img.size

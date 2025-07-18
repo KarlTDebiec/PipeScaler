@@ -1,6 +1,7 @@
 #  Copyright 2020-2025 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Tests for EsrganProcessor."""
+
 import pytest
 from PIL import Image
 
@@ -9,13 +10,13 @@ from pipescaler.image.testing import (
     get_expected_output_mode,
     xfail_unsupported_image_mode,
 )
-from pipescaler.testing.file import get_test_infile_path, get_test_model_infile_path
+from pipescaler.testing.file import get_test_input_path, get_test_model_path
 from pipescaler.testing.mark import skip_if_ci, skip_if_codex
 
 
 @pytest.mark.serial
 @pytest.mark.parametrize(
-    ("infile", "model"),
+    ("input_filename", "model"),
     [
         skip_if_codex(skip_if_ci())("1", "ESRGAN/1x_BC1-smooth2"),
         skip_if_codex(skip_if_ci())("L", "ESRGAN/1x_BC1-smooth2"),
@@ -42,11 +43,11 @@ from pipescaler.testing.mark import skip_if_ci, skip_if_codex
         ),
     ],
 )
-def test(infile: str, model: str) -> None:
-    processor = EsrganProcessor(model_infile=get_test_model_infile_path(model))
+def test(input_filename: str, model: str) -> None:
+    processor = EsrganProcessor(model_input_path=get_test_model_path(model))
 
-    input_path = get_test_infile_path(infile)
-    input_image = Image.open(input_path)
-    output_image = processor(input_image)
+    input_path = get_test_input_path(input_filename)
+    input_img = Image.open(input_path)
+    output_img = processor(input_img)
 
-    assert output_image.mode == get_expected_output_mode(input_image)
+    assert output_img.mode == get_expected_output_mode(input_img)

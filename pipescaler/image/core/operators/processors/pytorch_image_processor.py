@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from abc import ABC
+from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -19,65 +20,65 @@ from pipescaler.image.core.validation import validate_image_and_convert_mode
 class PyTorchImageProcessor(ImageProcessor, ABC):
     """Abstract base class for image processors that use PyTorch."""
 
-    def __init__(self, model_infile: str, **kwargs: Any) -> None:
+    def __init__(self, model_input_path: Path | str, **kwargs: Any) -> None:
         """Validate and store configuration and initialize.
 
         Arguments:
-            model_infile: Path to model file
+            model_input_path: Path to model file
             kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
 
-        self.model_infile = validate_input_file(model_infile)
-        self.model = torch.load(self.model_infile)
+        self.model_input_path = validate_input_file(model_input_path)
+        self.model = torch.load(self.model_input_path)
         """Neural network model."""
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         """Name of device on which to run neural network model."""
 
-    def __call__(self, input_image: Image.Image) -> Image.Image:
+    def __call__(self, input_img: Image.Image) -> Image.Image:
         """Process an image.
 
         Arguments:
-            input_image: Input image
+            input_img: Input image
         Returns:
             Processed output image
         """
-        input_image, output_mode = validate_image_and_convert_mode(
-            input_image, self.inputs()["input"], "RGB"
+        input_img, output_mode = validate_image_and_convert_mode(
+            input_img, self.inputs()["input"], "RGB"
         )
 
-        input_array = np.array(input_image)
+        input_array = np.array(input_img)
 
-        output_array = self.upscale(input_array)
-        output_image = Image.fromarray(output_array)
-        if output_image.mode != output_mode:
-            output_image = output_image.convert(output_mode)
+        output_arr = self.upscale(input_array)
+        output_img = Image.fromarray(output_arr)
+        if output_img.mode != output_mode:
+            output_img = output_img.convert(output_mode)
 
-        return output_image
+        return output_img
 
     def __repr__(self) -> str:
         """Representation."""
-        return f"{self.__class__.__name__}(model_infile={self.model_infile!r})"
+        return f"{self.__class__.__name__}(model_input_path={self.model_input_path!r})"
 
-    def upscale(self, input_array: np.ndarray) -> np.ndarray:
+    def upscale(self, input_arr: np.ndarray) -> np.ndarray:
         """Upscale an image array.
 
         Arguments:
-            input_array: Array to upscale
+            input_arr: Array to upscale
         Returns:
             Upscaled array
         """
-        input_array = input_array * 1.0 / 255
-        input_array = np.transpose(input_array[:, :, [2, 1, 0]], (2, 0, 1))
-        input_tensor = torch.from_numpy(input_array)
+        input_arr = input_arr * 1.0 / 255
+        input_arr = np.transpose(input_arr[:, :, [2, 1, 0]], (2, 0, 1))
+        input_tensor = torch.from_numpy(input_arr)
         input_tensor = input_tensor.float().unsqueeze(0).to(self.device)
 
         output_tensor = self.model(input_tensor).data.squeeze().float().cpu()
-        output_array: np.ndarray = output_tensor.clamp_(0, 1).numpy()
-        output_array = np.transpose(output_array[[2, 1, 0], :, :], (1, 2, 0))
-        output_array = np.array(output_array * 255, np.uint8)
+        output_arr: np.ndarray = output_tensor.clamp_(0, 1).numpy()
+        output_arr = np.transpose(output_arr[[2, 1, 0], :, :], (1, 2, 0))
+        output_arr = np.array(output_arr * 255, np.uint8)
 
-        return output_array
+        return output_arr
 
     @classmethod
     def inputs(cls) -> dict[str, tuple[str, ...]]:

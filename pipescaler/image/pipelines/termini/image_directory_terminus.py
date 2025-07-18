@@ -35,32 +35,36 @@ class ImageDirectoryTerminus(ImageTerminus, DirectoryTerminus):
             if not self.directory.exists():
                 self.directory.mkdir(parents=True)
                 info(f"{self}: '{self.directory}' created")
-            if not outfile.parent.exists():
-                outfile.parent.mkdir(parents=True)
-                info(f"{self}: '{outfile.parent.relative_to(self.directory)}' created")
+            if not output_path.parent.exists():
+                output_path.parent.mkdir(parents=True)
+                info(
+                    f"{self}: '{output_path.parent.relative_to(self.directory)}' created"
+                )
             if input_obj.path:
-                copyfile(input_obj.path, outfile)
+                copyfile(input_obj.path, output_path)
             else:
-                input_obj.image.save(outfile)
+                input_obj.image.save(output_path)
 
         suffix = input_obj.path.suffix if input_obj.path else ".png"
-        outfile = (self.directory / input_obj.location_name).with_suffix(suffix)
-        self.observed_files.add(str(outfile.relative_to(self.directory)))
-        if outfile.exists():
+        output_path = (self.directory / input_obj.location_name).with_suffix(suffix)
+        self.observed_files.add(str(output_path.relative_to(self.directory)))
+        if output_path.exists():
             if (
                 input_obj.path
-                and outfile.stat().st_mtime > input_obj.path.stat().st_mtime
+                and output_path.stat().st_mtime > input_obj.path.stat().st_mtime
             ):
-                info(f"{self}: '{outfile}' is newer; not overwritten")
+                info(f"{self}: '{output_path}' is newer; not overwritten")
                 return
-            if np.array_equal(np.array(input_obj.image), np.array(Image.open(outfile))):
-                info(f"{self}: '{outfile}' unchanged; not overwritten")
+            if np.array_equal(
+                np.array(input_obj.image), np.array(Image.open(output_path))
+            ):
+                info(f"{self}: '{output_path}' unchanged; not overwritten")
                 epoch = datetime.now().timestamp()
-                utime(outfile, (epoch, epoch))
-                info(f"{self}: '{outfile}' timestamp updated")
+                utime(output_path, (epoch, epoch))
+                info(f"{self}: '{output_path}' timestamp updated")
                 return
             save_image()
-            info(f"{self}: '{outfile}' changed; overwritten")
+            info(f"{self}: '{output_path}' changed; overwritten")
             return
         save_image()
-        info(f"{self}: '{outfile}' saved")
+        info(f"{self}: '{output_path}' saved")

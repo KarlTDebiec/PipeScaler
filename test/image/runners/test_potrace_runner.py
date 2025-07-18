@@ -9,7 +9,7 @@ from PIL import Image
 
 from pipescaler.common.file import get_temp_file_path
 from pipescaler.image.runners import PotraceRunner
-from pipescaler.testing.file import get_test_infile_path
+from pipescaler.testing.file import get_test_input_path
 from pipescaler.testing.fixture import parametrized_fixture
 
 
@@ -24,13 +24,13 @@ def runner(request) -> PotraceRunner:
 
 
 @pytest.mark.parametrize(
-    "infile_name",
+    "input_filename",
     [
         "L",
     ],
 )
-def test(infile_name: str, runner: PotraceRunner) -> None:
-    input_path = get_test_infile_path(infile_name)
+def test(input_filename, runner: PotraceRunner) -> None:
+    input_path = get_test_input_path(input_filename)
 
     with get_temp_file_path(".bmp") as bmp_path:
         Image.open(input_path).save(bmp_path)

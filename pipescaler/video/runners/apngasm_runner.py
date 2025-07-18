@@ -37,7 +37,7 @@ class ApngasmRunner(Runner):
     @property
     def command_template(self) -> str:
         """String template with which to generate command."""
-        return f'"{self.executable_path}"' " -o {outfile} {infile}" f" {self.arguments}"
+        return f'"{self.executable_path}" -o {{output_path}} {{input_path}} {self.arguments}'
 
     @classmethod
     def executable(cls) -> str:
@@ -48,6 +48,5 @@ class ApngasmRunner(Runner):
     def help_markdown(cls) -> str:
         """Short description of this tool in markdown, with links."""
         return (
-            "Creates animated pngs using "
-            "[apngasm](https://github.com/apngasm/apngasm)."
+            "Creates animated pngs using [apngasm](https://github.com/apngasm/apngasm)."
         )

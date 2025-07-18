@@ -9,7 +9,7 @@ from PIL import Image
 
 from pipescaler.common import ExecutableNotFoundError
 from pipescaler.common.file import get_temp_file_path
-from pipescaler.testing.file import get_test_infile_path
+from pipescaler.testing.file import get_test_input_path
 from pipescaler.testing.fixture import parametrized_fixture
 from pipescaler.testing.mark import skip_if_ci, skip_if_codex, xfail_if_platform
 from pipescaler.video.runners import ApngasmRunner
@@ -26,15 +26,15 @@ def runner(request) -> ApngasmRunner:
 
 
 @pytest.mark.parametrize(
-    "infile_names",
+    "input_filenames",
     [
         skip_if_codex(
             skip_if_ci(xfail_if_platform({"Windows"}, ExecutableNotFoundError))
         )(["1", "L", "RGB", "RGBA"]),
     ],
 )
-def test(infile_names: list[str], runner: ApngasmRunner) -> None:
-    input_paths = [get_test_infile_path(i) for i in infile_names]
+def test(input_filenames, runner: ApngasmRunner) -> None:
+    input_paths = [get_test_input_path(i) for i in input_filenames]
 
     with get_temp_file_path(".png") as output_path:
         input_paths_str = '"' + '" "'.join([str(i) for i in input_paths]) + '"'

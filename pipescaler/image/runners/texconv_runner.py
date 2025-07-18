@@ -40,20 +40,22 @@ class TexconvRunner(Runner):
         """String template with which to generate command."""
         return (
             f"{self.executable_path} {self.arguments}"
-            ' -o "{outfile.parent}" "{infile}"'
+            ' -o "{output_path.parent}" "{input_path}"'
         )
 
-    def run(self, infile: Path | str, outfile: Path | str) -> None:
-        """Run executable on infile, yielding outfile.
+    def run(self, input_path: Path | str, output_path: Path | str) -> None:
+        """Run executable on input file, yielding output file.
 
         Arguments:
-            infile: Input file path
-            outfile: Output file path
+            input_path: Input file path
+            output_path: Output file path
         """
-        command = self.command_template.format(infile=infile, outfile=outfile)
+        command = self.command_template.format(
+            input_path=input_path, output_path=output_path
+        )
         debug(f"{self}: {command}")
         run_command(command, timeout=self.timeout)
-        rename(Path(outfile).with_stem(Path(infile).stem), outfile)
+        rename(Path(output_path).with_stem(Path(input_path).stem), output_path)
 
     @classmethod
     def executable(cls) -> str:

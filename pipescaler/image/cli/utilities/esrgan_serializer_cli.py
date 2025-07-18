@@ -35,12 +35,12 @@ class EsrganSerializerCli(UtilityCli):
         )
 
         arg_groups["required arguments"].add_argument(
-            "infile",
+            "input-file",
             type=input_file_arg(),
             help="input pth file",
         )
         arg_groups["required arguments"].add_argument(
-            "outfile",
+            "output-file",
             type=output_file_arg(),
             help="output pth file",
         )

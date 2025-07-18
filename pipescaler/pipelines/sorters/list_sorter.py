@@ -41,10 +41,10 @@ class ListSorter(Sorter):
                 if path.exists():
                     names: Iterable[str] = []
                     if path.is_file():
-                        with open(path, encoding="utf8") as infile:
+                        with open(path, encoding="utf8") as input_file:
                             names = (
                                 line.strip()
-                                for line in infile.readlines()
+                                for line in input_file.readlines()
                                 if not line.startswith("#")
                             )
                     elif path.is_dir():
