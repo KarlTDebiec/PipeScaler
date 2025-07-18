@@ -16,17 +16,17 @@ from pipescaler.common.file import get_temp_file_path
 from pipescaler.common.testing import run_cli_with_args
 from pipescaler.image.cli import ImageSplittersCli
 from pipescaler.image.cli.splitters import AlphaSplitterCli
-from pipescaler.testing.file import get_test_infile_path
+from pipescaler.testing.file import get_test_input_path
 
 
 @pytest.mark.parametrize(
-    ("cli", "args", "infile"),
+    ("cli", "args", "input_filename"),
     [
         (AlphaSplitterCli, "", "RGBA"),
     ],
 )
-def test(cli: type[CommandLineInterface], args: str, infile: str) -> None:
-    input_path = get_test_infile_path(infile)
+def test(cli: type[CommandLineInterface], args: str, input_filename: str) -> None:
+    input_path = get_test_input_path(input_filename)
 
     with get_temp_file_path(".png") as output_path_1:
         with get_temp_file_path(".png") as output_path_2:

@@ -5,11 +5,11 @@
 from __future__ import annotations
 
 from logging import debug
+from pathlib import Path
 from shutil import copyfile
 from typing import Any
 
 from pipescaler.common.general import run_command
-from pipescaler.common.typing import PathLike
 from pipescaler.core import Runner
 
 
@@ -41,23 +41,25 @@ class PngquantRunner(Runner):
     @property
     def command_template(self) -> str:
         """String template with which to generate command."""
-        return f"{self.executable_path} {self.arguments}" " --output {outfile} {infile}"
+        return f"{self.executable_path} {self.arguments} --output {{output_path}} {{input_path}}"
 
-    def run(self, infile: PathLike, outfile: PathLike) -> None:
-        """Read image from infile, process it, and save to outfile.
+    def run(self, input_path: Path | str, output_path: Path | str) -> None:
+        """Read image from input_path, process it, and save to output_path.
 
         Arguments:
-            infile: Input file path
-            outfile: Output file path
+            input_path: Input file path
+            output_path: Output file path
         """
-        command = self.command_template.format(infile=infile, outfile=outfile)
+        command = self.command_template.format(
+            input_path=input_path, output_path=output_path
+        )
         debug(f"{self}: {command}")
         exitcode, _, _ = run_command(
             command, acceptable_exitcodes=[0, 98, 99], timeout=self.timeout
         )
         if exitcode in [98, 99]:
-            # pngquant may not save outfile if it is too large or low quality
-            copyfile(infile, outfile)
+            # pngquant may not save output file if it is too large or low quality
+            copyfile(input_path, output_path)
 
     @classmethod
     def executable(cls) -> str:

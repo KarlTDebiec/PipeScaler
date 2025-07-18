@@ -35,42 +35,42 @@ class ResizeProcessor(ImageProcessor):
             validate_str(resample, options=self.resample_methods.keys())
         ]
 
-    def __call__(self, input_image: Image.Image) -> Image.Image:
+    def __call__(self, input_img: Image.Image) -> Image.Image:
         """Process an image.
 
         Arguments:
-            input_image: Input image
+            input_img: Input image
         Returns:
             Processed output image
         """
-        input_array = np.array(input_image)
+        input_arr = np.array(input_img)
 
         size = (
-            round(input_image.size[0] * self.scale),
-            round(input_image.size[1] * self.scale),
+            round(input_img.size[0] * self.scale),
+            round(input_img.size[1] * self.scale),
         )
-        if input_image.mode == "RGBA":
-            rgba_array = np.zeros((size[1], size[0], 4), np.uint8)
-            rgb_image = Image.fromarray(input_array[:, :, :3])
-            rgb_image = rgb_image.resize(size, resample=self.resample)
-            rgba_array[:, :, :3] = np.array(rgb_image)
-            a_image = Image.fromarray(input_array[:, :, 3])
-            a_image = a_image.resize(size, resample=self.resample)
-            rgba_array[:, :, 3] = np.array(a_image)
-            output_image = Image.fromarray(rgba_array)
-        elif input_image.mode == "LA":
-            la_array = np.zeros((size[1], size[0], 2), np.uint8)
-            l_image = Image.fromarray(input_array[:, :, 0])
-            l_image = l_image.resize(size, resample=self.resample)
-            la_array[:, :, 0] = np.array(l_image)
-            a_image = Image.fromarray(input_array[:, :, 1])
-            a_image = a_image.resize(size, resample=self.resample)
-            la_array[:, :, 1] = np.array(a_image)
-            output_image = Image.fromarray(la_array)
+        if input_img.mode == "RGBA":
+            rgba_arr = np.zeros((size[1], size[0], 4), np.uint8)
+            rgb_img = Image.fromarray(input_arr[:, :, :3])
+            rgb_img = rgb_img.resize(size, resample=self.resample)
+            rgba_arr[:, :, :3] = np.array(rgb_img)
+            a_img = Image.fromarray(input_arr[:, :, 3])
+            a_img = a_img.resize(size, resample=self.resample)
+            rgba_arr[:, :, 3] = np.array(a_img)
+            output_img = Image.fromarray(rgba_arr)
+        elif input_img.mode == "LA":
+            la_arr = np.zeros((size[1], size[0], 2), np.uint8)
+            l_img = Image.fromarray(input_arr[:, :, 0])
+            l_img = l_img.resize(size, resample=self.resample)
+            la_arr[:, :, 0] = np.array(l_img)
+            a_img = Image.fromarray(input_arr[:, :, 1])
+            a_img = a_img.resize(size, resample=self.resample)
+            la_arr[:, :, 1] = np.array(a_img)
+            output_img = Image.fromarray(la_arr)
         else:
-            output_image = input_image.resize(size, resample=self.resample)
+            output_img = input_img.resize(size, resample=self.resample)
 
-        return output_image
+        return output_img
 
     def __repr__(self) -> str:
         """Representation."""

@@ -6,11 +6,11 @@ from __future__ import annotations
 
 from collections import OrderedDict
 from logging import info
+from pathlib import Path
 
 import torch
 from torch import Tensor
 
-from pipescaler.common.typing import PathLike
 from pipescaler.common.validation import validate_input_file, validate_output_file
 from pipescaler.core import Utility
 from pipescaler.image.models.esrgan import Esrgan, Esrgan1x, Esrgan4x
@@ -63,22 +63,22 @@ class EsrganSerializer(Utility):
         return state_dict, scale
 
     @classmethod
-    def run(cls, infile: PathLike, outfile: PathLike) -> None:
-        """Convert infile to outfile.
+    def run(cls, input_path: Path | str, output_path: Path | str) -> None:
+        """Convert input file to output file.
 
         Arguments:
-            infile: Input file
-            outfile: Output file
+            input_path: Input file
+            output_path: Output file
         """
-        infile = validate_input_file(infile)
-        outfile = validate_output_file(outfile)
+        input_path = validate_input_file(input_path)
+        output_path = validate_output_file(output_path)
 
-        state_dict = torch.load(infile)
+        state_dict = torch.load(input_path)
         model = cls.get_model(state_dict)
-        info(f"{cls}: Model built from '{infile}'")
+        info(f"{cls}: Model built from '{input_path}'")
 
-        torch.save(model, outfile)
-        info(f"{cls}: Complete serialized model saved to '{outfile}'")
+        torch.save(model, output_path)
+        info(f"{cls}: Complete serialized model saved to '{output_path}'")
 
     @staticmethod
     def build_old_keymap(scale: int) -> dict[str, str]:

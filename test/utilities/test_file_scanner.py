@@ -1,38 +1,39 @@
 #  Copyright 2020-2025 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Tests for FileScanner."""
+
 from os import mkdir
 from pathlib import Path
 from shutil import copy
 
 from pipescaler import FileScanner
 from pipescaler.common.file import get_temp_directory_path
-from pipescaler.testing.file import get_test_infile_directory_path, get_test_infile_path
+from pipescaler.testing.file import get_test_input_dir_path, get_test_input_path
 
 
 def stage_files(input_directory: Path, project_root: Path) -> None:
-    for infile in get_test_infile_directory_path().iterdir():
-        copy(infile, input_directory / infile.name)
+    for input_path in get_test_input_dir_path().iterdir():
+        copy(input_path, input_directory / input_path.name)
 
     mkdir(project_root / "reviewed")
-    infile = get_test_infile_path("L")
-    copy(infile, project_root / "reviewed" / infile.name)
+    input_path = get_test_input_path("L")
+    copy(input_path, project_root / "reviewed" / input_path.name)
 
     mkdir(project_root / "ignore")
-    infile = get_test_infile_path("LA")
-    copy(infile, project_root / "ignore" / infile.name)
+    input_path = get_test_input_path("LA")
+    copy(input_path, project_root / "ignore" / input_path.name)
 
     mkdir(project_root / "review")
-    infile = get_test_infile_path("RGB")
-    copy(infile, project_root / "review" / infile.name)
+    input_path = get_test_input_path("RGB")
+    copy(input_path, project_root / "review" / input_path.name)
 
     mkdir(project_root / "remove")
-    infile = get_test_infile_path("1")
-    copy(infile, project_root / "remove" / infile.name)
+    input_path = get_test_input_path("1")
+    copy(input_path, project_root / "remove" / input_path.name)
 
     mkdir(project_root / "new")
-    infile = get_test_infile_path("RGBA")
-    copy(infile, project_root / "new" / infile.name)
+    input_path = get_test_input_path("RGBA")
+    copy(input_path, project_root / "new" / input_path.name)
 
 
 def test():

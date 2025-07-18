@@ -113,30 +113,30 @@ class SubdividedImage:
 
         # Prepare arrays to hold image data and total weights
         if n_dim == 1:
-            recomposed_array = np.zeros((height, width), float)
+            recomposed_arr = np.zeros((height, width), float)
         else:
-            recomposed_array = np.zeros((height, width, n_dim), float)
+            recomposed_arr = np.zeros((height, width, n_dim), float)
         recomposed_weights = np.zeros((height, width), float)
 
         # Sum image data and weights
         weights = cls.get_sub_weights(boxes, size, overlap)
         for sub, box, weight in zip(subs, boxes, weights):
-            sub_array = np.array(sub).astype(float)
+            sub_arr = np.array(sub).astype(float)
             if n_dim == 1:
-                sub_array *= weight
+                sub_arr *= weight
             else:
-                sub_array *= np.stack([weight] * n_dim, axis=2)
-            recomposed_array[box[1] : box[3], box[0] : box[2]] += sub_array
+                sub_arr *= np.stack([weight] * n_dim, axis=2)
+            recomposed_arr[box[1] : box[3], box[0] : box[2]] += sub_arr
             recomposed_weights[box[1] : box[3], box[0] : box[2]] += weight
 
         # Normalize image data and convert to image
         if n_dim == 1:
-            recomposed_array /= recomposed_weights
+            recomposed_arr /= recomposed_weights
         else:
-            recomposed_array /= np.stack([recomposed_weights] * n_dim, axis=2)
-        recomposed_array = np.clip(np.round(recomposed_array), 0, 255).astype(np.uint8)
+            recomposed_arr /= np.stack([recomposed_weights] * n_dim, axis=2)
+        recomposed_arr = np.clip(np.round(recomposed_arr), 0, 255).astype(np.uint8)
 
-        return Image.fromarray(recomposed_array)
+        return Image.fromarray(recomposed_arr)
 
     @classmethod
     def get_sub_weights(

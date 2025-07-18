@@ -37,12 +37,12 @@ class GrayscaleSorter(ImageSorter):
         Returns:
             Outlet to which image should be sorted
         """
-        image = validate_image(obj.image, ("L", "LA", "RGB", "RGBA"))
+        img = validate_image(obj.image, ("L", "LA", "RGB", "RGBA"))
 
-        if image.mode in ("RGB", "RGBA"):
-            rgb_array = np.array(image)[:, :, :3]
-            l_array = np.array(Image.fromarray(rgb_array).convert("L").convert("RGB"))
-            diff = np.abs(rgb_array - l_array)
+        if img.mode in ("RGB", "RGBA"):
+            rgb_arr = np.array(img)[:, :, :3]
+            l_arr = np.array(Image.fromarray(rgb_arr).convert("L").convert("RGB"))
+            diff = np.abs(rgb_arr - l_arr)
             if diff.mean() <= self.mean_threshold and diff.max() <= self.max_threshold:
                 outlet = "drop_rgb"
             else:

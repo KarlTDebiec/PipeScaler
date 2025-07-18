@@ -16,12 +16,12 @@ from pipescaler.common.file import get_temp_file_path
 from pipescaler.common.testing import run_cli_with_args
 from pipescaler.image.cli import ImageUtilitiesCli
 from pipescaler.image.cli.utilities import EsrganSerializerCli, WaifuSerializerCli
-from pipescaler.testing.file import get_test_model_infile_path
+from pipescaler.testing.file import get_test_model_path
 from pipescaler.testing.mark import skip_if_ci, skip_if_codex
 
 
 @pytest.mark.parametrize(
-    ("cli", "args", "infile"),
+    ("cli", "args", "input_filename"),
     [
         skip_if_codex(skip_if_ci())(
             EsrganSerializerCli,
@@ -35,8 +35,8 @@ from pipescaler.testing.mark import skip_if_ci, skip_if_codex
         ),
     ],
 )
-def test(cli: type[CommandLineInterface], args: str, infile: str) -> None:
-    input_path = get_test_model_infile_path(infile)
+def test(cli: type[CommandLineInterface], args: str, input_filename: str) -> None:
+    input_path = get_test_model_path(input_filename)
 
     with get_temp_file_path(".pth") as output_path:
         run_cli_with_args(cli, f"{args} {input_path} {output_path}")

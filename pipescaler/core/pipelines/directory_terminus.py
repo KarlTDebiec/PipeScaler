@@ -9,7 +9,6 @@ from logging import info
 from os import remove, rmdir
 from pathlib import Path
 
-from pipescaler.common.typing import PathLike
 from pipescaler.common.validation import validate_output_directory
 from pipescaler.core.pipelines.terminus import Terminus
 
@@ -17,7 +16,7 @@ from pipescaler.core.pipelines.terminus import Terminus
 class DirectoryTerminus(Terminus, ABC):
     """Abstract base class for termini that write objects to an output directory."""
 
-    def __init__(self, directory: PathLike) -> None:
+    def __init__(self, directory: Path | str) -> None:
         """Validate and store configuration and initialize.
 
         Arguments:

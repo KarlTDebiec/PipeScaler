@@ -16,11 +16,11 @@ from pipescaler.common.file import get_temp_file_path
 from pipescaler.common.testing import run_cli_with_args
 from pipescaler.image.cli import ImageMergersCli
 from pipescaler.image.cli.mergers import AlphaMergerCli, PaletteMatchMergerCli
-from pipescaler.testing.file import get_test_infile_path
+from pipescaler.testing.file import get_test_input_path
 
 
 @pytest.mark.parametrize(
-    ("cli", "args", "infiles"),
+    ("cli", "args", "input_filenames"),
     [
         (AlphaMergerCli, "", ("RGB", "L")),
         (PaletteMatchMergerCli, "", ("RGB", "alt/RGB")),
@@ -28,8 +28,12 @@ from pipescaler.testing.file import get_test_infile_path
         (PaletteMatchMergerCli, "--local --local_range 2", ("RGB", "alt/RGB")),
     ],
 )
-def test(cli: type[CommandLineInterface], args: str, infiles: tuple[str]) -> None:
-    input_paths = [str(get_test_infile_path(infile)) for infile in infiles]
+def test(
+    cli: type[CommandLineInterface], args: str, input_filenames: tuple[str]
+) -> None:
+    input_paths = [
+        str(get_test_input_path(input_filename)) for input_filename in input_filenames
+    ]
 
     with get_temp_file_path(".png") as output_path:
         run_cli_with_args(cli, f"{args} {' '.join(input_paths)} {output_path}")

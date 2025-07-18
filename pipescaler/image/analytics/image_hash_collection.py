@@ -12,7 +12,6 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 
-from pipescaler.common.typing import PathLike
 from pipescaler.common.validation import validate_output_file
 from pipescaler.image.core.analytics.hashing import (
     multichannel_average_hash,
@@ -29,7 +28,7 @@ from pipescaler.image.pipelines.sorters import AlphaSorter, GrayscaleSorter
 class ImageHashCollection(Sequence):
     """Collection of image hashes."""
 
-    def __init__(self, file_paths: Collection[Path], cache: PathLike = "hashes.csv"):
+    def __init__(self, file_paths: Collection[Path], cache: Path | str = "hashes.csv"):
         """Validate configuration and initialize.
 
         Arguments:

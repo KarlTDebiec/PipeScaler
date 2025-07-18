@@ -29,19 +29,19 @@ from pipescaler.image.cli.processors import (
     WaifuCli,
     XbrzCli,
 )
-from pipescaler.testing.file import get_test_infile_path, get_test_model_infile_path
+from pipescaler.testing.file import get_test_input_path, get_test_model_path
 from pipescaler.testing.mark import skip_if_ci, skip_if_codex
 
 if getenv("CODEX_ENV_PYTHON_VERSION") is None:
-    esrgan_path = get_test_model_infile_path("ESRGAN/1x_BC1-smooth2")
-    waifu_path = get_test_model_infile_path("WaifuUpConv7/a-2-3")
+    esrgan_path = get_test_model_path("ESRGAN/1x_BC1-smooth2")
+    waifu_path = get_test_model_path("WaifuUpConv7/a-2-3")
 else:
     esrgan_path = None
     waifu_path = None
 
 
 @pytest.mark.parametrize(
-    ("cli", "args", "infile"),
+    ("cli", "args", "input_filename"),
     [
         (CropCli, "--pixels 4 4 4 4", "RGB"),
         skip_if_codex(skip_if_ci())(
@@ -64,8 +64,8 @@ else:
         (XbrzCli, "--scale 2", "RGB"),
     ],
 )
-def test(cli: type[CommandLineInterface], args: str, infile: str) -> None:
-    input_path = get_test_infile_path(infile)
+def test(cli: type[CommandLineInterface], args: str, input_filename: str) -> None:
+    input_path = get_test_input_path(input_filename)
 
     with get_temp_file_path(".png") as output_path:
         run_cli_with_args(cli, f"{args} {input_path} {output_path}")

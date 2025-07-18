@@ -37,8 +37,8 @@ class AlphaSorter(ImageSorter):
         )
 
         if mode in ("LA", "RGBA"):
-            alpha_array = np.array(image)[:, :, -1]
-            if alpha_array.min() >= self.threshold:
+            alpha_arr = np.array(image)[:, :, -1]
+            if alpha_arr.min() >= self.threshold:
                 outlet = "drop_alpha"
             else:
                 outlet = "keep_alpha"

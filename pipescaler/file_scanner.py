@@ -8,7 +8,7 @@ import re
 from collections.abc import Iterable, Sequence
 from itertools import chain
 from logging import debug, info
-from os import PathLike, remove, rmdir
+from os import remove, rmdir
 from os.path import expandvars
 from pathlib import Path
 from shutil import copy, move
@@ -26,9 +26,9 @@ class FileScanner:
 
     def __init__(
         self,
-        input_directories: PathLike | Iterable[PathLike],
-        project_root: PathLike,
-        reviewed_directories: PathLike | list[PathLike] | None,
+        input_directories: Path | str | Iterable[Path | str],
+        project_root: Path | str,
+        reviewed_directories: Path | str | list[Path | str] | None,
         rules: list[tuple[str, str]] | None = None,
         *,
         remove_prefix: str | None = None,
@@ -217,18 +217,21 @@ class FileScanner:
         Arguments:
             file_path: Path to file
         """
-        if (operation := self.get_operation(file_path.stem)) == "known":
-            debug(f"'{file_path.stem}' known")
-        elif operation == "ignore":
-            debug(f"'{file_path.stem}' ignored")
-        elif operation == "remove":
-            remove(file_path)
-            info(f"'{file_path.stem}' removed")
-        elif operation == "copy":
-            self.copy(file_path)
-            info(f"'{file_path.stem}' copied")
-        elif operation == "move":
-            self.move(file_path)
-            info(f"'{file_path.stem}' moved")
-        else:
-            raise ValueError(f"Unknown operation '{operation}'")
+        operation = self.get_operation(file_path.stem)
+
+        match operation:
+            case "known":
+                debug(f"'{file_path.stem}' known")
+            case "ignore":
+                debug(f"'{file_path.stem}' ignored")
+            case "remove":
+                remove(file_path)
+                info(f"'{file_path.stem}' removed")
+            case "copy":
+                self.copy(file_path)
+                info(f"'{file_path.stem}' copied")
+            case "move":
+                self.move(file_path)
+                info(f"'{file_path.stem}' moved")
+            case _:
+                raise ValueError(f"Unknown operation '{operation}'")

@@ -5,10 +5,10 @@
 from __future__ import annotations
 
 from logging import info
+from pathlib import Path
 
 from PIL import Image
 
-from pipescaler.common.typing import PathLike
 from pipescaler.common.validation import validate_input_directory
 from pipescaler.image.core.pipelines import PipeImage
 
@@ -18,7 +18,7 @@ class ImageSubstituter:
 
     def __init__(
         self,
-        directory: PathLike,
+        directory: Path | str,
         required: bool = False,
         match_input_mode: bool = True,
     ) -> None:
