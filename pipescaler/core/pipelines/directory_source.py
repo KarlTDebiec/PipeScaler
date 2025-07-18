@@ -10,7 +10,6 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-from pipescaler.common.typing import PathLike
 from pipescaler.common.validation import validate_input_directory
 from pipescaler.core.pipelines.source import Source
 from pipescaler.core.sorting import basic_sort
@@ -24,7 +23,7 @@ class DirectorySource(Source, ABC):
 
     def __init__(
         self,
-        directory: PathLike,
+        directory: Path | str,
         *,
         exclusions: set[str | re.Pattern] | None = None,
         inclusions: set[str | re.Pattern] | None = None,

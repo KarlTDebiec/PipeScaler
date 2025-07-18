@@ -11,7 +11,6 @@ from typing import Any, Self
 
 from PIL import Image
 
-from pipescaler.common.typing import PathLike
 from pipescaler.common.validation import validate_output_file
 from pipescaler.core.pipelines import PipeObject
 from pipescaler.image.core.functions import remove_palette
@@ -82,7 +81,7 @@ class PipeImage(PipeObject):
     def image(self, value: Image.Image) -> None:
         self._image = value
 
-    def save(self, path: PathLike) -> None:
+    def save(self, path: Path | str) -> None:
         """Save image to file and set path.
 
         Arguments:

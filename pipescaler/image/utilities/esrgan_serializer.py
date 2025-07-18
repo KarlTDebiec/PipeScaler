@@ -6,11 +6,11 @@ from __future__ import annotations
 
 from collections import OrderedDict
 from logging import info
+from pathlib import Path
 
 import torch
 from torch import Tensor
 
-from pipescaler.common.typing import PathLike
 from pipescaler.common.validation import validate_input_file, validate_output_file
 from pipescaler.core import Utility
 from pipescaler.image.models.esrgan import Esrgan, Esrgan1x, Esrgan4x
@@ -63,7 +63,7 @@ class EsrganSerializer(Utility):
         return state_dict, scale
 
     @classmethod
-    def run(cls, infile: PathLike, outfile: PathLike) -> None:
+    def run(cls, infile: Path | str, outfile: Path | str) -> None:
         """Convert infile to outfile.
 
         Arguments:

@@ -8,7 +8,6 @@ from logging import debug
 from pathlib import Path
 
 from pipescaler.common.general import run_command
-from pipescaler.common.typing import PathLike
 from pipescaler.common.validation import validate_input_directory
 from pipescaler.core import Runner
 
@@ -107,7 +106,7 @@ class TopazVideoAiRunner(Runner):
         # TODO: Actually validate executable?
         return Path(self.executable())
 
-    def run(self, infile: PathLike, outfile: PathLike) -> None:
+    def run(self, infile: Path | str, outfile: Path | str) -> None:
         """Run executable on infile, yielding outfile.
 
         Arguments:

@@ -8,13 +8,13 @@ import re
 from collections.abc import Iterable
 from itertools import chain
 from logging import info
+from pathlib import Path
 from shutil import move
 
 import numpy as np
 import pandas as pd
 from PIL import Image
 
-from pipescaler.common.typing import PathLike
 from pipescaler.common.validation import (
     validate_input_directories,
     validate_input_directory,
@@ -40,11 +40,11 @@ class ScaledPairIdentifier:
 
     def __init__(
         self,
-        input_directories: PathLike | Iterable[PathLike],
-        project_root: PathLike,
+        input_directories: Path | str | Iterable[Path | str],
+        project_root: Path | str,
         *,
-        hash_file: PathLike = "hashes.csv",
-        pairs_file: PathLike = "pairs.csv",
+        hash_file: Path | str = "hashes.csv",
+        pairs_file: Path | str = "pairs.csv",
         interactive: bool = True,
     ):
         """Validate configuration and initialize.
@@ -192,12 +192,7 @@ class ScaledPairIdentifier:
             known_scores: Scores of known pairs
             new_scores: Scores of new pairs
         """
-        print(
-            f"To known pairs:\n"
-            f"{known_scores}\n"
-            f"may be added new pairs:\n"
-            f"{new_scores}"
-        )
+        print(f"To known pairs:\n{known_scores}\nmay be added new pairs:\n{new_scores}")
         all_pairs = pd.concat((known_scores, new_scores)).sort_values(
             "scale", ascending=False
         )

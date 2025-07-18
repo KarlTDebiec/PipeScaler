@@ -10,7 +10,6 @@ from logging import debug
 from pathlib import Path
 
 from pipescaler.common.general import run_command
-from pipescaler.common.typing import PathLike
 from pipescaler.common.validation import validate_executable, validate_int
 
 
@@ -26,7 +25,7 @@ class Runner(ABC):
         self.timeout = validate_int(timeout, 0)
         self._executable_path: Path | None = None
 
-    def __call__(self, infile: PathLike, outfile: PathLike) -> None:
+    def __call__(self, infile: Path | str, outfile: Path | str) -> None:
         """Run executable on infile, yielding outfile.
 
         Arguments:
@@ -59,7 +58,7 @@ class Runner(ABC):
             )
         return self._executable_path
 
-    def run(self, infile: PathLike, outfile: PathLike) -> None:
+    def run(self, infile: Path | str, outfile: Path | str) -> None:
         """Run executable on infile, yielding outfile.
 
         Arguments:

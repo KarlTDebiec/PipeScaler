@@ -6,10 +6,10 @@ from __future__ import annotations
 
 import json
 from logging import info
+from pathlib import Path
 
 import torch
 
-from pipescaler.common.typing import PathLike
 from pipescaler.common.validation import (
     validate_input_file,
     validate_output_file,
@@ -32,7 +32,7 @@ class WaifuSerializer(Utility):
     }
 
     @classmethod
-    def run(cls, architecture: str, infile: PathLike, outfile: PathLike) -> None:
+    def run(cls, architecture: str, infile: Path | str, outfile: Path | str) -> None:
         """Converts infile to outfile.
 
         Arguments:

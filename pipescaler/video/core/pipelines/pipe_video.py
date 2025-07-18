@@ -11,7 +11,6 @@ from typing import Any, Self
 
 import cv2
 
-from pipescaler.common.typing import PathLike
 from pipescaler.common.validation import validate_output_file
 from pipescaler.core.pipelines.pipe_object import PipeObject
 
@@ -78,7 +77,7 @@ class PipeVideo(PipeObject):
     def video(self, video: cv2.VideoCapture) -> None:
         self._video = video
 
-    def save(self, path: PathLike) -> None:
+    def save(self, path: Path | str) -> None:
         """Save image to file and set path.
 
         Arguments:

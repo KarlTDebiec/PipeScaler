@@ -8,21 +8,20 @@ from platform import system
 from unittest.mock import Mock, patch
 
 from pipescaler.common.file import get_temp_directory_path
-from pipescaler.common.typing import PathLike
 from pipescaler.common.validation import validate_output_file
 from pipescaler.core.pipelines import PipeObject, Segment
 from pipescaler.pipelines import CheckpointManager
 
 if system() == "Windows":
-    from pathlib import WindowsPath  # noqa: F401
+    from pathlib import Path, WindowsPath  # noqa: F401
     from pathlib import WindowsPath as PlatformPath
 
 else:
-    from pathlib import PosixPath  # noqa: F401
+    from pathlib import Path, PosixPath  # noqa: F401
     from pathlib import PosixPath as PlatformPath
 
 
-def mock_pipe_object_save(path: PathLike) -> None:
+def mock_pipe_object_save(path: Path | str) -> None:
     """Save object to file and set path.
 
     Arguments:
@@ -32,7 +31,7 @@ def mock_pipe_object_save(path: PathLike) -> None:
     path.touch()
 
 
-def mock_pipe_object_save_2(self: PipeObject, path: PathLike) -> None:
+def mock_pipe_object_save_2(self: PipeObject, path: Path | str) -> None:
     """Save object to file and set path.
     Arguments:
         self: PipeObject to which this mock method is attached

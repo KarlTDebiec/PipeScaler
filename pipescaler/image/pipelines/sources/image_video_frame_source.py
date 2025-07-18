@@ -10,7 +10,6 @@ from typing import Any
 import cv2
 from PIL import Image
 
-from pipescaler.common.typing import PathLike
 from pipescaler.common.validation import validate_input_file
 from pipescaler.image.core.pipelines import ImageSource, PipeImage
 
@@ -20,7 +19,7 @@ class ImageVideoFrameSource(ImageSource):
 
     def __init__(
         self,
-        infile: PathLike,
+        infile: Path | str,
         location: Path | None = None,
         **kwargs: Any,
     ) -> None:

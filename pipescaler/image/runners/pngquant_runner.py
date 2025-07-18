@@ -5,11 +5,11 @@
 from __future__ import annotations
 
 from logging import debug
+from pathlib import Path
 from shutil import copyfile
 from typing import Any
 
 from pipescaler.common.general import run_command
-from pipescaler.common.typing import PathLike
 from pipescaler.core import Runner
 
 
@@ -41,9 +41,11 @@ class PngquantRunner(Runner):
     @property
     def command_template(self) -> str:
         """String template with which to generate command."""
-        return f"{self.executable_path} {self.arguments}" " --output {outfile} {infile}"
+        return (
+            f"{self.executable_path} {self.arguments} --output {{outfile}} {{infile}}"
+        )
 
-    def run(self, infile: PathLike, outfile: PathLike) -> None:
+    def run(self, infile: Path | str, outfile: Path | str) -> None:
         """Read image from infile, process it, and save to outfile.
 
         Arguments:
