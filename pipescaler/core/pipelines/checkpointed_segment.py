@@ -8,18 +8,18 @@ from abc import ABC
 from collections.abc import Sequence
 
 from pipescaler.core.pipelines.checkpoint_manager_base import CheckpointManagerBase
+from pipescaler.core.pipelines.protocols import SegmentProtocol
 from pipescaler.core.pipelines.segment import Segment
-from pipescaler.core.pipelines.typing import SegmentLike
 
 
 class CheckpointedSegment(Segment, ABC):
     """Abstract base class for Segments with checkpoints."""
 
-    segment: SegmentLike
+    segment: SegmentProtocol
 
     def __init__(
         self,
-        segment: SegmentLike,
+        segment: SegmentProtocol,
         cp_manager: CheckpointManagerBase,
         cpts: Sequence[str],
         *,
