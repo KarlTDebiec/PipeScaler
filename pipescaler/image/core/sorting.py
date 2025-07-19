@@ -4,10 +4,12 @@
 
 from __future__ import annotations
 
+from functools import cache
 from logging import error
 from os.path import basename, splitext
 
 
+@cache
 def citra_sort(filename: str) -> int:
     """Sort filenames dumped by Citra.
 
@@ -22,6 +24,7 @@ def citra_sort(filename: str) -> int:
         raise e
 
 
+@cache
 def dolphin_sort(filename: str) -> int:
     """Sort filenames dumped by Dolphin.
 
@@ -48,6 +51,7 @@ def dolphin_sort(filename: str) -> int:
         raise e
 
 
+@cache
 def texmod_sort(filename: str) -> int:
     """Sort filenames dumped by TexMod.
 

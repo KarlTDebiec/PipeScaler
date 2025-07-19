@@ -7,6 +7,7 @@ from __future__ import annotations
 import re
 from abc import ABC, abstractmethod
 from inspect import cleandoc
+from typing import Self
 
 from pipescaler.core.pipelines.pipe_object import PipeObject
 
@@ -14,7 +15,7 @@ from pipescaler.core.pipelines.pipe_object import PipeObject
 class Source[T: PipeObject](ABC):
     """Abstract base class for pipeline sources."""
 
-    def __iter__(self) -> Source:
+    def __iter__(self) -> Self:
         """Iterator for objects."""
         return self
 
