@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from functools import cache
+
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from scipy.ndimage import convolve
@@ -190,6 +192,7 @@ def get_palette(image: Image.Image) -> np.ndarray:
     return np.array([a[1] for a in image.getcolors(16581375)])
 
 
+@cache
 def get_font_size(
     text: str,
     width: int,
@@ -212,6 +215,7 @@ def get_font_size(
     return round(100 / (observed_height / height) * proportional_height)
 
 
+@cache
 def get_text_size(
     text: str, width: int, height: int, font: str = "Arial", size: int = 100
 ) -> tuple[int, int]:
