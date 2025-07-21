@@ -11,7 +11,7 @@ from pathlib import Path
 import torch
 from torch import Tensor
 
-from pipescaler.common.validation import validate_input_file, validate_output_file
+from pipescaler.common.validation import val_input_path, val_output_path
 from pipescaler.core import Utility
 from pipescaler.image.models.esrgan import Esrgan, Esrgan1x, Esrgan4x
 
@@ -70,8 +70,8 @@ class EsrganSerializer(Utility):
             input_path: Input file
             output_path: Output file
         """
-        input_path = validate_input_file(input_path)
-        output_path = validate_output_file(output_path)
+        input_path = val_input_path(input_path)
+        output_path = val_output_path(output_path)
 
         state_dict = torch.load(input_path)
         model = cls.get_model(state_dict)

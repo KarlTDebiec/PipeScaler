@@ -37,7 +37,7 @@ class ListSorter(Sorter):
             for path in paths:
                 if not isinstance(path, Path):
                     path = Path(path)
-                path = path.absolute().resolve()
+                path = path.resolve()
                 if path.exists():
                     names: Iterable[str] = []
                     if path.is_file():

@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from PIL import Image
 
-from pipescaler.common.validation import validate_ints
+from pipescaler.common.validation import val_int
 from pipescaler.image.core.functions import crop_image
 from pipescaler.image.core.operators import ImageProcessor
 from pipescaler.image.core.validation import validate_image
@@ -23,8 +23,8 @@ class CropProcessor(ImageProcessor):
         """
         super().__init__()
 
-        self.left, self.top, self.right, self.bottom = validate_ints(
-            pixels, length=4, min_value=0
+        self.left, self.top, self.right, self.bottom = val_int(
+            pixels, n_values=4, min_value=0
         )
 
     def __call__(self, input_image: Image.Image) -> Image.Image:

@@ -8,7 +8,7 @@ import numpy as np
 from PIL import Image
 from scipy.special import erf
 
-from pipescaler.common.validation import validate_int
+from pipescaler.common.validation import val_int
 
 
 class SubdividedImage:
@@ -23,8 +23,8 @@ class SubdividedImage:
             overlap: Overlap between subdivisions
         """
         self.image = image
-        self.size = validate_int(size, 4)
-        self.overlap = validate_int(overlap, 2)
+        self.size = val_int(size, min_value=4)
+        self.overlap = val_int(overlap, min_value=2)
         self.boxes = self.get_boxes(image.width, image.height, self.size, self.overlap)
 
         self._subs = self.get_subs(image, self.boxes)

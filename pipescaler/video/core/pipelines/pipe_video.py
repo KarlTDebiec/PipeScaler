@@ -11,7 +11,7 @@ from typing import Any, Self
 
 import cv2
 
-from pipescaler.common.validation import validate_output_file
+from pipescaler.common.validation import val_output_path
 from pipescaler.core.pipelines.pipe_object import PipeObject
 
 
@@ -83,7 +83,7 @@ class PipeVideo(PipeObject):
         Arguments:
             path: Path to which to save image
         """
-        path = validate_output_file(path)
+        path = val_output_path(path)
         # TODO: save
         self.path = path
         raise NotImplementedError()

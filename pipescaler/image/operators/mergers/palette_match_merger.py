@@ -8,7 +8,7 @@ from typing import Any
 
 from PIL import Image
 
-from pipescaler.common.validation import validate_int
+from pipescaler.common.validation import val_int
 from pipescaler.image.core import PaletteMatchMode, UnsupportedImageModeError
 from pipescaler.image.core.operators import ImageMerger
 from pipescaler.image.core.validation import validate_image
@@ -35,7 +35,7 @@ class PaletteMatchMerger(ImageMerger):
         super().__init__(**kwargs)
 
         self.palette_match_mode = palette_match_mode
-        self.local_range = validate_int(local_range, min_value=1)
+        self.local_range = val_int(local_range, min_value=1)
 
     def __call__(self, *input_images: Image.Image) -> Image.Image:
         """Merge images.

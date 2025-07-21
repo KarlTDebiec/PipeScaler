@@ -10,7 +10,7 @@ from logging import debug
 from pathlib import Path
 
 from pipescaler.common.general import run_command
-from pipescaler.common.validation import validate_executable, validate_int
+from pipescaler.common.validation import val_executable, val_int
 
 
 class Runner(ABC):
@@ -22,7 +22,7 @@ class Runner(ABC):
         Arguments:
             timeout: Timeout for external tool invocation
         """
-        self.timeout = validate_int(timeout, 0)
+        self.timeout = val_int(timeout, min_value=0)
         self._executable_path: Path | None = None
 
     def __call__(self, input_path: Path | str, output_path: Path | str) -> None:
@@ -54,7 +54,7 @@ class Runner(ABC):
         """Path to executable."""
         if self._executable_path is None:
             self._executable_path = Path(
-                validate_executable(self.executable(), self.supported_platforms())
+                val_executable(self.executable(), self.supported_platforms())
             )
         return self._executable_path
 

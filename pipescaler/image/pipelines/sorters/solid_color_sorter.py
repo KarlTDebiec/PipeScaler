@@ -8,7 +8,7 @@ from logging import info
 
 import numpy as np
 
-from pipescaler.common.validation import validate_int
+from pipescaler.common.validation import val_int
 from pipescaler.image.core.pipelines import ImageSorter, PipeImage
 from pipescaler.image.core.validation import validate_image
 
@@ -25,8 +25,8 @@ class SolidColorSorter(ImageSorter):
             max_threshold: Sort as 'solid' if maximum diff between image and its average
               color is below this threshold
         """
-        self.mean_threshold = validate_int(mean_threshold, 0, 255)
-        self.max_threshold = validate_int(max_threshold, 0, 255)
+        self.mean_threshold = val_int(mean_threshold, min_value=0, max_value=255)
+        self.max_threshold = val_int(max_threshold, min_value=0, max_value=255)
 
     def __call__(self, obj: PipeImage) -> str | None:
         """Get the outlet to which an image should be sorted.

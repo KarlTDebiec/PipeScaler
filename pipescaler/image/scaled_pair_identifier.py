@@ -15,10 +15,7 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 
-from pipescaler.common.validation import (
-    validate_input_directories,
-    validate_input_directory,
-)
+from pipescaler.common.validation import val_input_dir_path
 from pipescaler.image.analytics import (
     ImageHashCollection,
     ImagePairCollection,
@@ -40,7 +37,7 @@ class ScaledPairIdentifier:
 
     def __init__(
         self,
-        input_directories: Path | str | Iterable[Path | str],
+        input_dir_path: Path | str | Iterable[Path | str],
         project_root: Path | str,
         *,
         hash_file: Path | str = "hashes.csv",
@@ -50,16 +47,20 @@ class ScaledPairIdentifier:
         """Validate configuration and initialize.
 
         Arguments:
-            input_directories: Directory or directories from which to read input files
+            input_dir_path: Directory or directories from which to read input files
             project_root: Root directory of project
             hash_file: CSV file to read/write cache of image hashes
             pairs_file: CSV file to read/write scaled image pairs
             interactive: Whether to prompt for user input
         """
         # Store input and output paths and configuration
-        self.input_directories = validate_input_directories(input_directories)
+        validated_input_dir_path = val_input_dir_path(input_dir_path)
+        if isinstance(validated_input_dir_path, Path):
+            self.input_dir_paths = [validated_input_dir_path]
+        else:
+            self.input_dir_paths = validated_input_dir_path
         """Directories from which to read input files."""
-        project_root = validate_input_directory(project_root)
+        project_root = val_input_dir_path(project_root)
         self.scaled_directory = project_root / "scaled"
         """Directory to which to move scaled images."""
         self.comparison_directory = project_root / "scaled_images"
@@ -70,7 +71,7 @@ class ScaledPairIdentifier:
         # Prepare data structures
         self.file_paths = {
             f.stem: f
-            for f in chain.from_iterable(d.iterdir() for d in self.input_directories)
+            for f in chain.from_iterable(d.iterdir() for d in self.input_dir_paths)
         }
         if self.scaled_directory.exists():
             self.file_paths.update({f.stem: f for f in self.scaled_directory.iterdir()})
@@ -178,7 +179,7 @@ class ScaledPairIdentifier:
 
         for file_path in self.scaled_directory.iterdir():
             if file_path.stem not in self.pair_collection.children:
-                new_path = self.input_directories[0] / file_path.name
+                new_path = self.input_dir_paths[0] / file_path.name
                 move(file_path, new_path)
                 self.file_paths[file_path.stem] = new_path
                 info(f"Moved {file_path} to {new_path}")

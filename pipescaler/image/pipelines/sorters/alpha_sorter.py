@@ -8,7 +8,7 @@ from logging import info
 
 import numpy as np
 
-from pipescaler.common.validation import validate_int
+from pipescaler.common.validation import val_int
 from pipescaler.image.core.pipelines import ImageSorter, PipeImage
 from pipescaler.image.core.validation import validate_image_and_convert_mode
 
@@ -22,7 +22,7 @@ class AlphaSorter(ImageSorter):
         Arguments:
             threshold: Sort as 'drop_alpha' if all pixels' alpha is above this threshold
         """
-        self.threshold = validate_int(threshold, 0, 255)
+        self.threshold = val_int(threshold, min_value=0, max_value=255)
 
     def __call__(self, obj: PipeImage) -> str | None:
         """Get the outlet to which an image should be sorted.

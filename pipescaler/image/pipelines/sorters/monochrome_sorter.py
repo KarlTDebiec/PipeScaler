@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from logging import info
 
-from pipescaler.common.validation import validate_float
+from pipescaler.common.validation import val_float
 from pipescaler.image.core.functions import is_monochrome
 from pipescaler.image.core.pipelines import ImageSorter, PipeImage
 from pipescaler.image.core.validation import validate_image
@@ -24,8 +24,8 @@ class MonochromeSorter(ImageSorter):
             max_threshold: Sort as 'drop_gray' if maximum diff between L and 1 images is
              below this threshold
         """
-        self.mean_threshold = validate_float(mean_threshold, 0, 255)
-        self.max_threshold = validate_float(max_threshold, 0, 255)
+        self.mean_threshold = val_float(mean_threshold, min_value=0, max_value=255)
+        self.max_threshold = val_float(max_threshold, min_value=0, max_value=255)
 
     def __call__(self, obj: PipeImage) -> str | None:
         """Get the outlet to which an image should be sorted.

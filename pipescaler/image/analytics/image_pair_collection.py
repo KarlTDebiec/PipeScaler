@@ -6,10 +6,11 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Sequence
 from logging import info
+from pathlib import Path
 
 import pandas as pd
 
-from pipescaler.common.validation import validate_output_file
+from pipescaler.common.validation import val_output_path
 from pipescaler.image.core.analytics.typing import PairDataFrame
 
 
@@ -22,7 +23,7 @@ class ImagePairCollection(Sequence):
         Arguments:
             cache: Path to cache file
         """
-        self.cache = validate_output_file(cache, may_exist=True)
+        self.cache = val_output_path(cache)
         """CSV cache file path."""
 
         # Prepare image pairs

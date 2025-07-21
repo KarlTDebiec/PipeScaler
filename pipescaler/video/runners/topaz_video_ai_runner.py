@@ -8,7 +8,7 @@ from logging import debug
 from pathlib import Path
 
 from pipescaler.common.general import run_command
-from pipescaler.common.validation import validate_input_directory
+from pipescaler.common.validation import val_input_dir_path
 from pipescaler.core import Runner
 
 
@@ -88,7 +88,7 @@ class TopazVideoAiRunner(Runner):
         super().__init__(**kwargs)
 
         self.arguments = arguments
-        self.working_directory = validate_input_directory(working_directory)
+        self.working_directory = val_input_dir_path(working_directory)
 
     def __repr__(self) -> str:
         """Representation."""

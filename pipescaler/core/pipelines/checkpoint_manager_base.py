@@ -8,7 +8,7 @@ from abc import ABC
 from logging import warning
 from pathlib import Path
 
-from pipescaler.common.validation import validate_output_directory
+from pipescaler.common.validation import val_output_dir_path
 
 
 class CheckpointManagerBase(ABC):
@@ -20,7 +20,7 @@ class CheckpointManagerBase(ABC):
         Arguments:
             directory: Directory in which to store checkpoints
         """
-        self.directory = validate_output_directory(directory)
+        self.directory = val_output_dir_path(directory)
         """Directory in which to store checkpoints."""
         self.observed_checkpoints: set[tuple[str, str]] = set()
         """Observed checkpoints as tuples of image and checkpoint names."""

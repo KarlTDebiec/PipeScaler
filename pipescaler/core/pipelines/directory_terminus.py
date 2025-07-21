@@ -9,7 +9,7 @@ from logging import info
 from os import remove, rmdir
 from pathlib import Path
 
-from pipescaler.common.validation import validate_output_directory
+from pipescaler.common.validation import val_output_dir_path
 from pipescaler.core.pipelines.terminus import Terminus
 
 
@@ -22,7 +22,7 @@ class DirectoryTerminus(Terminus, ABC):
         Arguments:
             directory: Directory to which to copy images
         """
-        self.directory = validate_output_directory(directory)
+        self.directory = val_output_dir_path(directory)
         self.observed_files: set[str] = set()
 
     def __repr__(self) -> str:

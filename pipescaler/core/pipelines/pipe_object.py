@@ -9,7 +9,7 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Self
 
-from pipescaler.common.validation import validate_input_file
+from pipescaler.common.validation import val_input_path
 
 
 class PipeObject(ABC):
@@ -35,7 +35,7 @@ class PipeObject(ABC):
         """
         self._path = None
         if path:
-            self._path = validate_input_file(path)
+            self._path = val_input_path(path)
 
         self._parents = None
         if parents:
@@ -114,7 +114,7 @@ class PipeObject(ABC):
     @path.setter
     def path(self, value: Path | str | None) -> None:
         if value:
-            self._path = validate_input_file(value)
+            self._path = val_input_path(value)
         else:
             self._path = None
 

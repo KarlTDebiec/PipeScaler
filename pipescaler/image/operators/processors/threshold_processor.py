@@ -10,7 +10,7 @@ import numpy as np
 from numba import njit
 from PIL import Image
 
-from pipescaler.common.validation import validate_int
+from pipescaler.common.validation import val_int
 from pipescaler.image.core.operators import ImageProcessor
 from pipescaler.image.core.validation import validate_image_and_convert_mode
 
@@ -28,7 +28,7 @@ class ThresholdProcessor(ImageProcessor):
         """
         super().__init__()
 
-        self.threshold = validate_int(threshold, 1, 244)
+        self.threshold = val_int(threshold, min_value=1, max_value=244)
         self.denoise = denoise
 
     def __call__(self, input_img: Image.Image) -> Image.Image:
