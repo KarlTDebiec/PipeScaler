@@ -7,7 +7,7 @@ from __future__ import annotations
 import numpy as np
 from PIL import Image
 
-from pipescaler.common.validation import validate_float
+from pipescaler.common.validation import val_float
 from pipescaler.image.core.operators import ImageProcessor
 from pipescaler.image.core.validation import validate_image_and_convert_mode
 
@@ -23,7 +23,7 @@ class SolidColorProcessor(ImageProcessor):
         """
         super().__init__()
 
-        self.scale = validate_float(scale)
+        self.scale = val_float(scale)
 
     def __call__(self, input_image: Image.Image) -> Image.Image:
         """Process an image.

@@ -7,7 +7,7 @@ from __future__ import annotations
 import numpy as np
 from PIL import Image
 
-from pipescaler.common.validation import validate_float, validate_str
+from pipescaler.common.validation import val_float, val_str
 from pipescaler.image.core.operators import ImageProcessor
 
 
@@ -30,9 +30,9 @@ class ResizeProcessor(ImageProcessor):
         """
         super().__init__()
 
-        self.scale = validate_float(scale, min_value=0)
+        self.scale = val_float(scale, min_value=0)
         self.resample = self.resample_methods[
-            validate_str(resample, options=self.resample_methods.keys())
+            val_str(resample, options=self.resample_methods.keys())
         ]
 
     def __call__(self, input_img: Image.Image) -> Image.Image:

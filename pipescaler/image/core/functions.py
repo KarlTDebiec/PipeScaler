@@ -8,7 +8,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from scipy.ndimage import convolve
 
-from pipescaler.common.validation import validate_float
+from pipescaler.common.validation import val_float
 from pipescaler.image.core.exceptions import UnsupportedImageModeError
 
 
@@ -269,8 +269,8 @@ def is_monochrome(
     """
     if image.mode != "L":
         raise UnsupportedImageModeError()
-    mean_threshold = validate_float(mean_threshold, 0, 255)
-    proportion_threshold = validate_float(proportion_threshold, 0, 1)
+    mean_threshold = val_float(mean_threshold, min_value=0, max_value=255)
+    proportion_threshold = val_float(proportion_threshold, min_value=0, max_value=1)
 
     l_arr = np.array(image)
     one_arr = np.array(image.convert("1").convert("L"))

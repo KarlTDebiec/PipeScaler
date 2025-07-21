@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from PIL import Image
 
-from pipescaler.common.validation import validate_float
+from pipescaler.common.validation import val_float
 from pipescaler.image.core.functions import (
     generate_normal_map_from_height_map_image,
     smooth_image,
@@ -26,7 +26,7 @@ class HeightToNormalProcessor(ImageProcessor):
         """
         super().__init__()
 
-        self.sigma = validate_float(sigma, min_value=0) if sigma else None
+        self.sigma = val_float(sigma, min_value=0) if sigma else None
 
     def __call__(self, input_image: Image.Image) -> Image.Image:
         """Process an image.

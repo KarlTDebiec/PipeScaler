@@ -10,7 +10,7 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-from pipescaler.common.validation import validate_input_directory
+from pipescaler.common.validation import val_input_dir_path
 from pipescaler.core.pipelines.source import Source
 from pipescaler.core.sorting import basic_sort
 
@@ -44,7 +44,7 @@ class DirectorySource(Source, ABC):
         super().__init__(**kwargs)
 
         # Store configuration
-        self.directory = validate_input_directory(directory)
+        self.directory = val_input_dir_path(directory)
         """Directory from which to yield files"""
         self.exclusions = self.parse_exclusions(exclusions)
         """File path regular expressions to exclude"""

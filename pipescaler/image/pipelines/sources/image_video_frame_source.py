@@ -10,7 +10,7 @@ from typing import Any
 import cv2
 from PIL import Image
 
-from pipescaler.common.validation import validate_input_file
+from pipescaler.common.validation import val_input_path
 from pipescaler.image.core.pipelines import ImageSource, PipeImage
 
 
@@ -32,7 +32,7 @@ class ImageVideoFrameSource(ImageSource):
         """
         super().__init__(**kwargs)
 
-        self.input_path = validate_input_file(input_path)
+        self.input_path = val_input_path(input_path)
         """Path to video file"""
         self.location = location
         """Path relative to parent directory"""

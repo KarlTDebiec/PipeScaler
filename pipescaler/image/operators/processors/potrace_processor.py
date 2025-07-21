@@ -9,7 +9,7 @@ from reportlab.graphics.renderPM import drawToFile
 from svglib.svglib import svg2rlg
 
 from pipescaler.common.file import get_temp_file_path
-from pipescaler.common.validation import validate_float
+from pipescaler.common.validation import val_float
 from pipescaler.image.core.operators import ImageProcessor
 from pipescaler.image.core.validation import validate_image_and_convert_mode
 from pipescaler.image.runners import PotraceRunner
@@ -38,7 +38,7 @@ class PotraceProcessor(ImageProcessor):
 
         self.potrace_runner = PotraceRunner(arguments)
         self.invert = invert
-        self.scale = validate_float(scale, min_value=0)
+        self.scale = val_float(scale, min_value=0)
 
     def __call__(self, input_image: Image.Image) -> Image.Image:
         """Process an image.

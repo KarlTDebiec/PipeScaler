@@ -77,7 +77,7 @@ def test_review() -> None:
                     child.save(output_path)
 
             scaled_pair_identifier = ScaledPairIdentifier(
-                input_directories=input_directory,
+                input_dir_path=input_directory,
                 project_root=project_root,
                 hash_file=hash_file,
                 pairs_file=pairs_file,

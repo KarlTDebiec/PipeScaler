@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from PIL import Image, ImageColor
 
-from pipescaler.common.validation import validate_str
+from pipescaler.common.validation import val_str
 from pipescaler.image.core.operators import ImageProcessor
 from pipescaler.image.core.validation import validate_image
 
@@ -29,7 +29,7 @@ class ModeProcessor(ImageProcessor):
         """
         super().__init__()
 
-        self.mode = validate_str(mode, self.outputs()["output"])
+        self.mode = val_str(mode, self.outputs()["output"])
         self.background_color = ImageColor.getrgb(background_color)
         self.threshold = threshold
 

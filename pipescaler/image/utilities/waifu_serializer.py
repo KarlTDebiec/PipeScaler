@@ -10,11 +10,7 @@ from pathlib import Path
 
 import torch
 
-from pipescaler.common.validation import (
-    validate_input_file,
-    validate_output_file,
-    validate_str,
-)
+from pipescaler.common.validation import val_input_path, val_output_path, val_str
 from pipescaler.core import Utility
 from pipescaler.image.models import WaifuUpConv7, WaifuVgg7
 
@@ -42,9 +38,9 @@ class WaifuSerializer(Utility):
             input_path: Input file
             output_path: Output file
         """
-        architecture = validate_str(architecture, cls.architectures.keys())
-        input_path = validate_input_file(input_path)
-        output_path = validate_output_file(output_path)
+        architecture = val_str(architecture, cls.architectures.keys())
+        input_path = val_input_path(input_path)
+        output_path = val_output_path(output_path)
 
         model = cls.architectures[architecture]()
         info(f"{cls}: Waifu {architecture} model built")

@@ -52,8 +52,8 @@ def test_help(commands: tuple[type[CommandLineInterface], ...]) -> None:
         with redirect_stdout(stdout):
             with redirect_stderr(stderr):
                 run_cli_with_args(commands[0], f"{subcommands} -h")
-    except SystemExit as error:
-        assert error.code == 0
+    except SystemExit as exc:
+        assert exc.code == 0
         assert stdout.getvalue().startswith(
             f"usage: {Path(getfile(commands[0])).name} {subcommands}"
         )
@@ -77,8 +77,8 @@ def test_usage(commands: tuple[type[CommandLineInterface], ...]):
         with redirect_stdout(stdout):
             with redirect_stderr(stderr):
                 run_cli_with_args(commands[0], subcommands)
-    except SystemExit as error:
-        assert error.code == 2
+    except SystemExit as exc:
+        assert exc.code == 2
         assert stdout.getvalue() == ""
         assert stderr.getvalue().startswith(
             f"usage: {Path(getfile(commands[0])).name} {subcommands}"

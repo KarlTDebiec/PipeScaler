@@ -8,7 +8,7 @@ from pathlib import Path
 from unittest.mock import Mock
 
 from pipescaler.common.file import get_temp_directory_path
-from pipescaler.common.validation import validate_output_file
+from pipescaler.common.validation import val_output_path
 from pipescaler.core.pipelines import PipeObject, Segment
 from pipescaler.pipelines import CheckpointManager
 from pipescaler.pipelines.segments import PreCheckpointedSegment
@@ -20,7 +20,7 @@ def mock_pipe_object_save(path: Path | str) -> None:
     Arguments:
         path: Path to which to save object
     """
-    path = validate_output_file(path)
+    path = val_output_path(path)
     path.touch()
 
 

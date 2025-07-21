@@ -8,7 +8,7 @@ import numpy as np
 import xbrz
 from PIL import Image
 
-from pipescaler.common.validation import validate_int
+from pipescaler.common.validation import val_int
 from pipescaler.image.core.operators import ImageProcessor
 from pipescaler.image.core.validation import validate_image_and_convert_mode
 
@@ -27,7 +27,7 @@ class XbrzProcessor(ImageProcessor):
         """
         super().__init__()
 
-        self.scale = validate_int(scale, 2, 6)
+        self.scale = val_int(scale, min_value=2, max_value=6)
 
     def __call__(self, input_image: Image.Image) -> Image.Image:
         """Process an image.

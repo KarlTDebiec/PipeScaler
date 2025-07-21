@@ -12,7 +12,7 @@ import numpy as np
 import torch
 from PIL import Image
 
-from pipescaler.common.validation import validate_input_file
+from pipescaler.common.validation import val_input_path
 from pipescaler.image.core.operators import ImageProcessor
 from pipescaler.image.core.validation import validate_image_and_convert_mode
 
@@ -29,11 +29,15 @@ class PyTorchImageProcessor(ImageProcessor, ABC):
         """
         super().__init__(**kwargs)
 
-        self.model_input_path = validate_input_file(model_input_path)
+        self.model_input_path = val_input_path(model_input_path)
         self.model = torch.load(self.model_input_path)
         """Neural network model."""
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.device = "cpu"
         """Name of device on which to run neural network model."""
+        if torch.backends.mps.is_available():
+            self.device = "mps"
+        elif torch.cuda.is_available():
+            self.device = "cuda"
 
     def __call__(self, input_img: Image.Image) -> Image.Image:
         """Process an image.

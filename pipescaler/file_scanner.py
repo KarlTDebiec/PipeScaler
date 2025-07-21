@@ -9,14 +9,13 @@ from collections.abc import Iterable, Sequence
 from itertools import chain
 from logging import debug, info
 from os import remove, rmdir
-from os.path import expandvars
 from pathlib import Path
 from shutil import copy, move
 
 from PIL import Image
 
 from pipescaler.common import DirectoryNotFoundError
-from pipescaler.common.validation import validate_input_directories
+from pipescaler.common.validation import val_input_dir_path
 
 
 class FileScanner:
@@ -26,9 +25,9 @@ class FileScanner:
 
     def __init__(
         self,
-        input_directories: Path | str | Iterable[Path | str],
+        input_dir_path: Path | str | Iterable[Path | str],
         project_root: Path | str,
-        reviewed_directories: Path | str | list[Path | str] | None,
+        review_dir_path: Path | str | list[Path | str] | None,
         rules: list[tuple[str, str]] | None = None,
         *,
         remove_prefix: str | None = None,
@@ -37,64 +36,65 @@ class FileScanner:
         """Validate configuration and initialize.
 
         Arguments:
-            input_directories: Directory or directories from which to read input files
+            input_dir_path: Directory or directories from which to read input files
             project_root: Root directory of project
-            reviewed_directories: Directory or directories of reviewed files
+            review_dir_path: Directory or directories of reviewed files
             rules: Rules by which to process images
             remove_prefix: Prefix to remove from output file names
             output_format: Format of output files
         """
         super().__init__()
 
-        def get_names(directories: Path | Sequence[Path]) -> set[str]:
+        def get_names(dir_paths: Path | Sequence[Path]) -> set[str]:
             """Get names of files in directories.
 
             Arguments:
-                directories: Directory or directories of input files
+                dir_paths: Directory or directories of input files
             Returns:
                 Set of file names
             """
-            if isinstance(directories, Path):
-                directories = [directories]
-            files = chain.from_iterable(d.iterdir() for d in directories)
+            if isinstance(dir_paths, Path):
+                dir_paths = [dir_paths]
+            files = chain.from_iterable(d.iterdir() for d in dir_paths)
             names = {f.stem for f in files}
 
             return names
 
         # Validate input and output directory and file paths
-        self.input_directories = validate_input_directories(input_directories)
-        """Directories from which to read input files."""
-
-        project_root = Path(expandvars(project_root)).resolve()
-        self.ignore_directory = project_root / "ignore"
+        validated_input_dir_path = val_input_dir_path(input_dir_path)
+        if isinstance(validated_input_dir_path, Path):
+            self.input_dir_paths = [validated_input_dir_path]
+            """Directories from which to read input files."""
+        else:
+            self.input_dir_paths = validated_input_dir_path
+        project_root = val_input_dir_path(project_root)
+        self.ignore_dir_path = project_root / "ignore"
         """Directory of images to ignore if present in input directories."""
-        self.copy_directory = project_root / "new"
+        self.copy_dir_path = project_root / "new"
         """Directory to which to copy images that match 'copy' rule."""
-        self.move_directory = project_root / "review"
+        self.move_dir_path = project_root / "review"
         """Directory to which to move images that match 'move' rule."""
-        self.remove_directory = project_root / "remove"
+        self.remove_dir_path = project_root / "remove"
         """Directory of images that should be removed from input directories."""
 
-        self.reviewed_directories = None
+        self.reviewed_dir_path = None
         """Directories of files that have been reviewed."""
-        if reviewed_directories:
+        if review_dir_path:
             try:
-                self.reviewed_directories = validate_input_directories(
-                    reviewed_directories
-                )
+                self.reviewed_dir_path = val_input_dir_path(review_dir_path)
             except DirectoryNotFoundError:
-                self.reviewed_directories = []
+                self.reviewed_dir_path = []
 
         # Prepare filename data structures
         self.reviewed_names: set[str] = set()
         """Names of images that have been reviewed."""
-        if self.reviewed_directories:
-            self.reviewed_names = get_names(self.reviewed_directories)
+        if self.reviewed_dir_path:
+            self.reviewed_names = get_names(self.reviewed_dir_path)
 
         self.ignored_names: set[str] = set()
         """Names of images to ignore."""
-        if self.ignore_directory.exists():
-            self.ignored_names = get_names(self.ignore_directory)
+        if self.ignore_dir_path.exists():
+            self.ignored_names = get_names(self.ignore_dir_path)
 
         # Prepare rules
         self.rules = None
@@ -114,32 +114,32 @@ class FileScanner:
         """Perform operations."""
         self.clean_project_root()
 
-        for input_directory in self.input_directories:
+        for input_directory in self.input_dir_paths:
             for file_path in input_directory.iterdir():
                 self.perform_operation(file_path)
 
     def clean_project_root(self) -> None:
         """Clean project root copy and remove directories."""
-        if self.copy_directory.exists():
-            for file_path in self.copy_directory.iterdir():
+        if self.copy_dir_path.exists():
+            for file_path in self.copy_dir_path.iterdir():
                 remove(file_path)
                 info(f"'{file_path}' removed")
-            rmdir(self.copy_directory)
-            info(f"'{self.copy_directory}' removed")
+            rmdir(self.copy_dir_path)
+            info(f"'{self.copy_dir_path}' removed")
 
-        if self.remove_directory.exists():
-            for file_path in self.remove_directory.iterdir():
+        if self.remove_dir_path.exists():
+            for file_path in self.remove_dir_path.iterdir():
                 name = file_path.name
                 if self.remove_prefix:
                     name = f"{self.remove_prefix}{name}"
-                for input_directory in self.input_directories:
+                for input_directory in self.input_dir_paths:
                     for match in input_directory.glob(f"{Path(name).stem}.*"):
                         remove(match)
                         info(f"'{match}' removed")
                 remove(file_path)
                 info(f"'{file_path}' removed")
-            rmdir(self.remove_directory)
-            info(f"'{self.remove_directory}' removed")
+            rmdir(self.remove_dir_path)
+            info(f"'{self.remove_dir_path}' removed")
 
     def copy(self, file_path: Path) -> None:
         """Copy file to copy directory.
@@ -147,15 +147,15 @@ class FileScanner:
         Arguments:
             file_path: Path to file to copy
         """
-        if not self.copy_directory.exists():
-            self.copy_directory.mkdir(parents=True)
-            info(f"'{self.copy_directory}' created")
+        if not self.copy_dir_path.exists():
+            self.copy_dir_path.mkdir(parents=True)
+            info(f"'{self.copy_dir_path}' created")
 
         output_name = file_path.name
         if self.remove_prefix:
             output_name = output_name.removeprefix(self.remove_prefix)
 
-        output_path = self.copy_directory / output_name
+        output_path = self.copy_dir_path / output_name
         if self.output_format:
             output_path = output_path.with_suffix(self.output_format)
 
@@ -192,15 +192,15 @@ class FileScanner:
         Arguments:
             file_path: Path to file to move
         """
-        if not self.move_directory.exists():
-            self.move_directory.mkdir(parents=True)
-            info(f"'{self.move_directory}' created")
+        if not self.move_dir_path.exists():
+            self.move_dir_path.mkdir(parents=True)
+            info(f"'{self.move_dir_path}' created")
 
         output_name = file_path.name
         if self.remove_prefix:
             output_name = output_name.removeprefix(self.remove_prefix)
 
-        output_path = self.move_directory / output_name
+        output_path = self.move_dir_path / output_name
         if self.output_format:
             output_path = output_path.with_suffix(self.output_format)
 

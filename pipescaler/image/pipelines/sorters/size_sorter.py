@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from logging import info
 
-from pipescaler.common.validation import validate_int
+from pipescaler.common.validation import val_int
 from pipescaler.core.pipelines import Sorter
 from pipescaler.image.core.pipelines import PipeImage
 
@@ -21,7 +21,7 @@ class SizeSorter(Sorter):
             cutoff: Sort as 'less_than' if image's smallest dimension is less than this;
               otherwise, sort as 'greater_than_or_equal_to'
         """
-        self.cutoff = validate_int(cutoff, min_value=1)
+        self.cutoff = val_int(cutoff, min_value=1)
 
     def __call__(self, obj: PipeImage) -> str | None:
         """Get the outlet to which an image should be sorted.

@@ -28,12 +28,12 @@ class WaifuProcessor(PyTorchImageProcessor):
 
         try:
             self.model = self.model.to(self.device)
-        except AssertionError as error:
+        except AssertionError as exc:
             device = "cpu"
             self.model = self.model.to(device)
             self.device = device
             warning(
-                f"{self}: Torch raised '{error}' with device '{device}', "
+                f"{self}: Torch raised '{exc}' with device '{device}', "
                 f"falling back to cpu"
             )
 

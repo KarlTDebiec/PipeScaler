@@ -9,4 +9,4 @@ from collections.abc import Callable
 from pipescaler.video.core.pipelines.pipe_video import PipeVideo
 from pipescaler.video.core.pipelines.video_segment import VideoSegment
 
-type VideoSegmentLike = (VideoSegment | Callable[[PipeVideo], tuple[PipeVideo, ...]])
+type VideoSegmentLike = VideoSegment | Callable[[PipeVideo], tuple[PipeVideo, ...]]

@@ -9,7 +9,7 @@ from pathlib import Path
 
 from PIL import Image
 
-from pipescaler.common.validation import validate_input_directory
+from pipescaler.common.validation import val_input_dir_path
 from pipescaler.image.core.pipelines import PipeImage
 
 
@@ -29,7 +29,7 @@ class ImageSubstituter:
             required: Raise error if alternative image not found
             match_input_mode: Convert image to match input image's mode
         """
-        self.directory = validate_input_directory(directory)
+        self.directory = val_input_dir_path(directory)
         self.substitutes = {f.stem: f for f in self.directory.iterdir()}
         self.required = required
         self.match_input_mode = match_input_mode

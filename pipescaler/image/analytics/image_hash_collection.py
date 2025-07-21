@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 
-from pipescaler.common.validation import validate_output_file
+from pipescaler.common.validation import val_output_path
 from pipescaler.image.core.analytics.hashing import (
     multichannel_average_hash,
     multichannel_color_hash,
@@ -40,7 +40,7 @@ class ImageHashCollection(Sequence):
         self.grayscale_sorter = GrayscaleSorter()
         """Grayscale sorter."""
 
-        self.cache = validate_output_file(cache, may_exist=True)
+        self.cache = val_output_path(cache)
         """CSV cache file path."""
 
         # Prepare image hashes
