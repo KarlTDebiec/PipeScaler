@@ -12,6 +12,7 @@ from pipescaler.image.core.functions import (
     smooth_image,
 )
 from pipescaler.image.core.operators import ImageProcessor
+from pipescaler.image.core.typing import ImageMode
 from pipescaler.image.core.validation import validate_image
 
 
@@ -49,14 +50,14 @@ class HeightToNormalProcessor(ImageProcessor):
         return f"{self.__class__.__name__}(sigma={self.sigma!r})"
 
     @classmethod
-    def inputs(cls) -> dict[str, tuple[str, ...]]:
+    def inputs(cls) -> dict[str, tuple[ImageMode, ...]]:
         """Inputs to this operator."""
         return {
             "input": ("L",),
         }
 
     @classmethod
-    def outputs(cls) -> dict[str, tuple[str, ...]]:
+    def outputs(cls) -> dict[str, tuple[ImageMode, ...]]:
         """Outputs of this operator."""
         return {
             "output": ("RGB",),
