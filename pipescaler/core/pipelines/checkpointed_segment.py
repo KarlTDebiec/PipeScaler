@@ -24,7 +24,7 @@ class CheckpointedSegment(Segment, ABC):
         cpts: Sequence[str],
         *,
         internal_cpts: Sequence[str] | None = None,
-    ) -> None:
+    ):
         """Initialize.
 
         Arguments:

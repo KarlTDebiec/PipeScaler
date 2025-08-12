@@ -22,7 +22,7 @@ class PipeObject(ABC):
         name: str | None = None,
         parents: Self | Sequence[Self] | None = None,
         location: Path | None = None,
-    ) -> None:
+    ):
         """Initialize.
 
         Arguments:
@@ -112,14 +112,14 @@ class PipeObject(ABC):
         return self._path
 
     @path.setter
-    def path(self, value: Path | str | None) -> None:
+    def path(self, value: Path | str | None):
         if value:
             self._path = val_input_path(value)
         else:
             self._path = None
 
     @abstractmethod
-    def save(self, path: Path | str) -> None:
+    def save(self, path: Path | str):
         """Save object to file and set path.
 
         Arguments:

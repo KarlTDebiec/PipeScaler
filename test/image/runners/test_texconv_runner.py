@@ -38,7 +38,7 @@ def runner(request) -> TexconvRunner:
         xfail_if_platform({"Darwin", "Linux"})("PRGBA"),
     ],
 )
-def test(input_filename: str, runner: TexconvRunner) -> None:
+def test(input_filename: str, runner: TexconvRunner):
     input_path = get_test_input_path(input_filename)
 
     with get_temp_file_path(".dds") as output_path:

@@ -37,7 +37,7 @@ def merger(request) -> AlphaMerger:
         ("split/RGBA_monochrome_color_RGB", "split/RGBA_monochrome_alpha_1"),
     ],
 )
-def test(color: str, alpha: str, merger: AlphaMerger) -> None:
+def test(color: str, alpha: str, merger: AlphaMerger):
     color_input_path = get_test_input_path(color)
     color_img = Image.open(color_input_path)
     alpha_input_file = get_test_input_path(alpha)

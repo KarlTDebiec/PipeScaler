@@ -61,9 +61,7 @@ def potrace_processor() -> PotraceProcessor:
         ("xbrz_processor", "RGB", 6),
     ],
 )
-def test_subdivider(
-    processor_name: str, input_filename: str, scale: int, request
-) -> None:
+def test_subdivider(processor_name: str, input_filename: str, scale: int, request):
     processor = request.getfixturevalue(processor_name)
     assert isinstance(processor, ImageProcessor)
 

@@ -41,7 +41,7 @@ def sorter(request) -> SolidColorSorter:
         ("novel/PRGBA_solid", "solid"),
     ],
 )
-def test(input_filename: str, outlet: str, sorter: SolidColorSorter) -> None:
+def test(input_filename: str, outlet: str, sorter: SolidColorSorter):
     img = PipeImage(path=get_test_input_path(input_filename))
 
     assert sorter(img) == outlet

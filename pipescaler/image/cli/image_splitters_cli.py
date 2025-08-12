@@ -17,7 +17,7 @@ class ImageSplittersCli(CommandLineInterface):
     """Command-line interface for PipeScaler ImageSplitters."""
 
     @classmethod
-    def add_arguments_to_argparser(cls, parser: ArgumentParser) -> None:
+    def add_arguments_to_argparser(cls, parser: ArgumentParser):
         """Add arguments to a nascent argument parser.
 
         Arguments:
@@ -44,7 +44,7 @@ class ImageSplittersCli(CommandLineInterface):
         return "merge image"
 
     @classmethod
-    def _main(cls, **kwargs: Any) -> None:
+    def _main(cls, **kwargs: Any):
         """Execute with provided keyword arguments."""
         splitter_name = kwargs.pop("splitter")
         splitter_cli_cls = cls.splitters()[splitter_name]

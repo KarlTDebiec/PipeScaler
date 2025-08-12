@@ -11,7 +11,7 @@ from pipescaler.common.file import get_temp_directory_path
 from pipescaler.testing.file import get_test_input_dir_path, get_test_input_path
 
 
-def stage_files(input_directory: Path, project_root: Path) -> None:
+def stage_files(input_directory: Path, project_root: Path):
     for input_path in get_test_input_dir_path().iterdir():
         copy(input_path, input_directory / input_path.name)
 

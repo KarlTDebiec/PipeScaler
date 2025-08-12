@@ -26,7 +26,7 @@ class UtilityCli(CommandLineInterface, ABC):
         return cls.__name__.removesuffix("Cli").lower()
 
     @classmethod
-    def _main(cls, **kwargs: Any) -> None:
+    def _main(cls, **kwargs: Any):
         """Execute with provided keyword arguments.
 
         May be overridden to distribute keyword arguments between initialization of the

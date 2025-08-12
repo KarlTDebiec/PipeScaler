@@ -21,7 +21,7 @@ class PaletteMatchMergerCli(ImageMergerCli):
     """Command-line interface for PaletteMatchMerger."""
 
     @classmethod
-    def add_arguments_to_argparser(cls, parser: ArgumentParser) -> None:
+    def add_arguments_to_argparser(cls, parser: ArgumentParser):
         """Add arguments to a nascent argument parser.
 
         Arguments:
@@ -61,7 +61,7 @@ class PaletteMatchMergerCli(ImageMergerCli):
         )
 
     @classmethod
-    def _main(cls, **kwargs: Any) -> None:
+    def _main(cls, **kwargs: Any):
         """Execute with provided keyword arguments."""
         reference_input_path = kwargs.pop("reference_input_file")
         fit_input_path = kwargs.pop("fit_input_file")

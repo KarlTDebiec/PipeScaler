@@ -14,7 +14,7 @@ from pipescaler.pipelines import CheckpointManager
 from pipescaler.pipelines.segments import PostCheckpointedSegment
 
 
-def mock_pipe_object_save(path: Path | str) -> None:
+def mock_pipe_object_save(path: Path | str):
     """Save object to file and set path.
 
     Arguments:
@@ -24,7 +24,7 @@ def mock_pipe_object_save(path: Path | str) -> None:
     path.touch()
 
 
-def mock_pipe_object_save_2(self, path: Path | str) -> None:
+def mock_pipe_object_save_2(self, path: Path | str):
     """Save object to file and set path.
     Arguments:
         self: not used; present for compatibility with PipeObject.save

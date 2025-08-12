@@ -17,7 +17,7 @@ class ImageProcessorsCli(CommandLineInterface):
     """Command-line interface for PipeScaler ImageProcessors."""
 
     @classmethod
-    def add_arguments_to_argparser(cls, parser: ArgumentParser) -> None:
+    def add_arguments_to_argparser(cls, parser: ArgumentParser):
         """Add arguments to a nascent argument parser.
 
         Arguments:
@@ -44,7 +44,7 @@ class ImageProcessorsCli(CommandLineInterface):
         return "process image"
 
     @classmethod
-    def _main(cls, **kwargs: Any) -> None:
+    def _main(cls, **kwargs: Any):
         """Execute with provided keyword arguments."""
         processor_name = kwargs.pop("processor")
         processor_cli_cls = cls.processors()[processor_name]

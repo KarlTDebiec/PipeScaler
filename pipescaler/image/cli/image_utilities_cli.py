@@ -17,7 +17,7 @@ class ImageUtilitiesCli(CommandLineInterface):
     """Command-line interface for PipeScaler image utilities."""
 
     @classmethod
-    def add_arguments_to_argparser(cls, parser: ArgumentParser) -> None:
+    def add_arguments_to_argparser(cls, parser: ArgumentParser):
         """Add arguments to a nascent argument parser.
 
         Arguments:
@@ -44,7 +44,7 @@ class ImageUtilitiesCli(CommandLineInterface):
         return "run image utility"
 
     @classmethod
-    def _main(cls, **kwargs: Any) -> None:
+    def _main(cls, **kwargs: Any):
         """Execute with provided keyword arguments."""
         utility_name = kwargs.pop("utility")
         utility_cli_cls = cls.utilities()[utility_name]

@@ -21,7 +21,7 @@ else:
     from pathlib import PosixPath as PlatformPath
 
 
-def mock_pipe_object_save(path: Path | str) -> None:
+def mock_pipe_object_save(path: Path | str):
     """Save object to file and set path.
 
     Arguments:
@@ -31,7 +31,7 @@ def mock_pipe_object_save(path: Path | str) -> None:
     path.touch()
 
 
-def mock_pipe_object_save_2(self: PipeObject, path: Path | str) -> None:
+def mock_pipe_object_save_2(self: PipeObject, path: Path | str):
     """Save object to file and set path.
     Arguments:
         self: PipeObject to which this mock method is attached

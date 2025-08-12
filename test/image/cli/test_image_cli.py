@@ -24,7 +24,7 @@ from pipescaler.image.cli import ImageCli, ImageProcessorsCli, ImageUtilitiesCli
         (ImageCli, ImageUtilitiesCli),
     ],
 )
-def test_help(commands: tuple[type[CommandLineInterface], ...]) -> None:
+def test_help(commands: tuple[type[CommandLineInterface], ...]):
     subcommands = " ".join(f"{command.name()}" for command in commands[1:])
 
     stdout = StringIO()

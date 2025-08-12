@@ -28,9 +28,7 @@ from pipescaler.testing.file import get_test_input_path
         (PaletteMatchMergerCli, "--local --local_range 2", ("RGB", "alt/RGB")),
     ],
 )
-def test(
-    cli: type[CommandLineInterface], args: str, input_filenames: tuple[str]
-) -> None:
+def test(cli: type[CommandLineInterface], args: str, input_filenames: tuple[str]):
     input_paths = [
         str(get_test_input_path(input_filename)) for input_filename in input_filenames
     ]
@@ -49,7 +47,7 @@ def test(
         (ImageMergersCli, PaletteMatchMergerCli),
     ],
 )
-def test_help(commands: tuple[type[CommandLineInterface], ...]) -> None:
+def test_help(commands: tuple[type[CommandLineInterface], ...]):
     subcommands = " ".join(f"{command.name()}" for command in commands[1:])
 
     stdout = StringIO()

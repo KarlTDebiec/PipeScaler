@@ -34,7 +34,7 @@ def sorter(request) -> RegexSorter:
         ("RGBA", "unmatched"),
     ],
 )
-def test(input_filename: str, outlet: str, sorter: RegexSorter) -> None:
+def test(input_filename: str, outlet: str, sorter: RegexSorter):
     image = PipeImage(path=get_test_input_path(input_filename))
     assert sorter(image) == outlet
 

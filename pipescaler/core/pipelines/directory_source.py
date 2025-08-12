@@ -30,7 +30,7 @@ class DirectorySource(Source, ABC):
         sort: Callable[[str], int] | Callable[[str], str] = basic_sort,
         reverse: bool = False,
         **kwargs: Any,
-    ) -> None:
+    ):
         """Validate and store configuration and initialize.
 
         Arguments:
