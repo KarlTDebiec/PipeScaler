@@ -15,7 +15,7 @@ from pipescaler.image.core.validation import validate_image_and_convert_mode
 class SolidColorProcessor(ImageProcessor):
     """Sets entire image color to its average color, optionally resizing."""
 
-    def __init__(self, scale: float = 1) -> None:
+    def __init__(self, scale: float = 1):
         """Validate and store configuration and initialize.
 
         Arguments:

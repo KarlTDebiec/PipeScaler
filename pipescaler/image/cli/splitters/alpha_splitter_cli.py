@@ -41,7 +41,7 @@ class AlphaSplitterCli(ImageSplitterCli):
         )
 
     @classmethod
-    def _main(cls, **kwargs: Any) -> None:
+    def _main(cls, **kwargs: Any):
         """Execute with provided keyword arguments."""
         input_path = kwargs.pop("input_file")
         color_output_path = kwargs.pop("color_output_file")

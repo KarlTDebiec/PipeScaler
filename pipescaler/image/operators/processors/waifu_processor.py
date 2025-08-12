@@ -16,7 +16,7 @@ class WaifuProcessor(PyTorchImageProcessor):
     See [waifu2x](https://github.com/nagadomi/waifu2x).
     """
 
-    def __init__(self, **kwargs: Any) -> None:
+    def __init__(self, **kwargs: Any):
         """Validate and store configuration and initialize.
 
         Arguments:

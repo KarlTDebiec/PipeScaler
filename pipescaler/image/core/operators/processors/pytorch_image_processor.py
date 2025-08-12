@@ -20,7 +20,7 @@ from pipescaler.image.core.validation import validate_image_and_convert_mode
 class PyTorchImageProcessor(ImageProcessor, ABC):
     """Abstract base class for image processors that use PyTorch."""
 
-    def __init__(self, model_input_path: Path | str, **kwargs: Any) -> None:
+    def __init__(self, model_input_path: Path | str, **kwargs: Any):
         """Validate and store configuration and initialize.
 
         Arguments:

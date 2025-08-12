@@ -23,7 +23,7 @@ class PaletteMatchMerger(ImageMerger):
         palette_match_mode: PaletteMatchMode = PaletteMatchMode.BASIC,
         local_range: int = 1,
         **kwargs: Any,
-    ) -> None:
+    ):
         """Validate configuration and initialize.
 
         Arguments:

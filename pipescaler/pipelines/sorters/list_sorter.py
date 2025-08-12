@@ -18,7 +18,7 @@ class ListSorter(Sorter):
     exclusions = {".DS_Store", "Thumbs", "desktop"}
     """File stems to exclude"""
 
-    def __init__(self, **outlets: Path | str | list[Path | str]) -> None:
+    def __init__(self, **outlets: Path | str | list[Path | str]):
         """Validate configuration and initialize.
 
         Arguments:

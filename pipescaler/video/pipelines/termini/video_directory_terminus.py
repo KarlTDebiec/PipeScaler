@@ -14,7 +14,7 @@ from pipescaler.video.core.pipelines import PipeVideo, VideoTerminus
 class VideoDirectoryTerminus(VideoTerminus, DirectoryTerminus):
     """Copies videos to an output directory."""
 
-    def __call__(self, input_video: PipeVideo) -> None:
+    def __call__(self, input_video: PipeVideo):
         """Save video to output directory.
 
         Arguments:

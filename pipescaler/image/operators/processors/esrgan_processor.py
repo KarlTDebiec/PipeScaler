@@ -25,7 +25,7 @@ class EsrganProcessor(PyTorchImageProcessor):
     (https://raw.githubusercontent.com/xinntao/ESRGAN/master/LICENSE)
     """
 
-    def __init__(self, **kwargs: Any) -> None:
+    def __init__(self, **kwargs: Any):
         """Validate and store configuration and initialize.
 
         Arguments:

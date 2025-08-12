@@ -22,7 +22,7 @@ class ImageProcessorCli(CommandLineInterface, ABC):
     """Abstract base class for ImageProcessor command-line interfaces."""
 
     @classmethod
-    def add_arguments_to_argparser(cls, parser: ArgumentParser) -> None:
+    def add_arguments_to_argparser(cls, parser: ArgumentParser):
         """Add arguments to a nascent argument parser.
 
         Arguments:
@@ -47,7 +47,7 @@ class ImageProcessorCli(CommandLineInterface, ABC):
         return cleandoc(str(cls.processor().__doc__)) if cls.processor().__doc__ else ""
 
     @classmethod
-    def _main(cls, **kwargs: Any) -> None:
+    def _main(cls, **kwargs: Any):
         """Execute with provided keyword arguments."""
         input_path = kwargs.pop("input_file")
         output_path = kwargs.pop("output_file")

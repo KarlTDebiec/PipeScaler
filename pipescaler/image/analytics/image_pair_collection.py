@@ -17,7 +17,7 @@ from pipescaler.image.core.analytics.typing import PairDataFrame
 class ImagePairCollection(Sequence):
     """Collection of image pairs."""
 
-    def __init__(self, cache: Path | str = "pairs.csv") -> None:
+    def __init__(self, cache: Path | str = "pairs.csv"):
         """Validate configuration and initialize.
 
         Arguments:
@@ -72,7 +72,7 @@ class ImagePairCollection(Sequence):
         return self._pairs
 
     @pairs.setter
-    def pairs(self, value: PairDataFrame) -> None:
+    def pairs(self, value: PairDataFrame):
         if value.columns.tolist() != self.pairs.columns.tolist():
             raise ValueError(
                 f"pairs must have columns {self.pairs.columns.tolist()}, not "
@@ -80,7 +80,7 @@ class ImagePairCollection(Sequence):
             )
         self._pairs = value
 
-    def add(self, pairs: PairDataFrame) -> None:
+    def add(self, pairs: PairDataFrame):
         """Add pairs to collection.
 
         Arguments:
@@ -110,13 +110,13 @@ class ImagePairCollection(Sequence):
         """
         return self.pairs.loc[self.pairs["filename"] == parent]
 
-    def load_cache(self) -> None:
+    def load_cache(self):
         """Load image pairs from cache file."""
         if self.cache.exists():
             self.pairs = pd.read_csv(self.cache)
             info(f"Image pairs read from {self.cache}")
 
-    def save_cache(self) -> None:
+    def save_cache(self):
         """Save image pairs to cache file."""
         self.pairs = self.pairs.reset_index(drop=True).sort_values(
             ["name", "scale"], ascending=False

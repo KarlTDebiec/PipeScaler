@@ -13,9 +13,7 @@ class PotraceRunner(Runner):
     See [Potrace](http://potrace.sourceforge.net/).
     """
 
-    def __init__(
-        self, arguments: str = "-b svg -k 0.3 -a 1.34 -O 0.2", **kwargs
-    ) -> None:
+    def __init__(self, arguments: str = "-b svg -k 0.3 -a 1.34 -O 0.2", **kwargs):
         """Initialize.
 
         Arguments:

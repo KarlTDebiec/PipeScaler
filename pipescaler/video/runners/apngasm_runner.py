@@ -19,7 +19,7 @@ class ApngasmRunner(Runner):
         self,
         arguments: str = "",
         **kwargs: Any,
-    ) -> None:
+    ):
         """Initialize.
 
         Arguments:

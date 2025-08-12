@@ -77,7 +77,7 @@ class TopazVideoAiRunner(Runner):
         arguments: str,
         working_directory: str = r"C:\Program Files\Topaz Labs LLC\Topaz Video AI",
         **kwargs,
-    ) -> None:
+    ):
         """Initialize.
 
         Arguments:
@@ -106,7 +106,7 @@ class TopazVideoAiRunner(Runner):
         # TODO: Actually validate executable?
         return Path(self.executable())
 
-    def run(self, input_path: Path | str, output_path: Path | str) -> None:
+    def run(self, input_path: Path | str, output_path: Path | str):
         """Run executable on input file, yielding output file.
 
         Arguments:

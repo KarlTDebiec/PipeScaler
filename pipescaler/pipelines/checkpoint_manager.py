@@ -128,7 +128,7 @@ class CheckpointManager(CheckpointManagerBase):
 
         return decorator
 
-    def purge_unrecognized_files(self, directory: Path | None = None) -> None:
+    def purge_unrecognized_files(self, directory: Path | None = None):
         """Remove unrecognized files and subdirectories in checkpoint directory."""
         if directory is None:
             directory = self.directory

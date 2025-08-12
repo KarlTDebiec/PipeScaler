@@ -16,7 +16,7 @@ class ExecutionCounter(Generic[P, R]):
 
     count: int
 
-    def __init__(self, function: Callable[P, R]) -> None:
+    def __init__(self, function: Callable[P, R]):
         """Initialize.
 
         Arguments:

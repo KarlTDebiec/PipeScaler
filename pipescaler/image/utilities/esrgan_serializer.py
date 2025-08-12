@@ -63,7 +63,7 @@ class EsrganSerializer(Utility):
         return state_dict, scale
 
     @classmethod
-    def run(cls, input_path: Path | str, output_path: Path | str) -> None:
+    def run(cls, input_path: Path | str, output_path: Path | str):
         """Convert input file to output file.
 
         Arguments:

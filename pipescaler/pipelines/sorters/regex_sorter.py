@@ -14,7 +14,7 @@ from pipescaler.core.pipelines.sorter import Sorter
 class RegexSorter(Sorter):
     """Sorts image based on filename using a regular expression."""
 
-    def __init__(self, regex: str) -> None:
+    def __init__(self, regex: str):
         """Validate configuration and initialize.
 
         Arguments:

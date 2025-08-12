@@ -14,7 +14,7 @@ from pipescaler.image.core.pipelines import PipeImage
 class SizeSorter(Sorter):
     """Sorts image based on canvas size."""
 
-    def __init__(self, cutoff: int = 32) -> None:
+    def __init__(self, cutoff: int = 32):
         """Validate configuration and initialize.
 
         Arguments:
