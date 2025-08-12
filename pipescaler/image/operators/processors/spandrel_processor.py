@@ -25,3 +25,17 @@ class SpandrelProcessor:
             "Processes image using Pytorch models loaded through "
             "[Spandrel](https://github.com/chaiNNer-org/spandrel)."
         )
+
+    @classmethod
+    def inputs(cls) -> dict[str, tuple[str, ...]]:
+        """Inputs to this operator."""
+        return {
+            "input": ("1", "L", "RGB"),
+        }
+
+    @classmethod
+    def outputs(cls) -> dict[str, tuple[str, ...]]:
+        """Outputs of this operator."""
+        return {
+            "output": ("1", "L", "RGB"),
+        }
