@@ -17,6 +17,7 @@ from pipescaler.image.operators.processors.sharpen_processor import SharpenProce
 from pipescaler.image.operators.processors.solid_color_processor import (
     SolidColorProcessor,
 )
+from pipescaler.image.operators.processors.spandrel_processor import SpandrelProcessor
 from pipescaler.image.operators.processors.threshold_processor import ThresholdProcessor
 from pipescaler.image.operators.processors.waifu_processor import WaifuProcessor
 from pipescaler.image.operators.processors.xbrz_processor import XbrzProcessor
@@ -31,6 +32,7 @@ __all__ = [
     "ResizeProcessor",
     "SharpenProcessor",
     "SolidColorProcessor",
+    "SpandrelProcessor",
     "ThresholdProcessor",
     "WaifuProcessor",
     "XbrzProcessor",

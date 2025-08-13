@@ -15,7 +15,7 @@ from pipescaler.image.core.validation import validate_image
 class MonochromeSorter(ImageSorter):
     """Sorts image based on presence and use of colors other than black and white."""
 
-    def __init__(self, mean_threshold: float = 0, max_threshold: float = 0) -> None:
+    def __init__(self, mean_threshold: float = 0, max_threshold: float = 0):
         """Validate configuration and initialize.
 
         Arguments:

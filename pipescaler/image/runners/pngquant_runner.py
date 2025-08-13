@@ -23,7 +23,7 @@ class PngquantRunner(Runner):
         self,
         arguments: str = " --skip-if-larger --force --quality 10-100 --speed 1 --nofs",
         **kwargs: Any,
-    ) -> None:
+    ):
         """Initialize.
 
         Arguments:
@@ -43,7 +43,7 @@ class PngquantRunner(Runner):
         """String template with which to generate command."""
         return f"{self.executable_path} {self.arguments} --output {{output_path}} {{input_path}}"
 
-    def run(self, input_path: Path | str, output_path: Path | str) -> None:
+    def run(self, input_path: Path | str, output_path: Path | str):
         """Read image from input_path, process it, and save to output_path.
 
         Arguments:

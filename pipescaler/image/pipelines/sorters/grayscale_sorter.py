@@ -17,7 +17,7 @@ from pipescaler.image.core.validation import validate_image
 class GrayscaleSorter(ImageSorter):
     """Sorts image based on presence and use of color channels."""
 
-    def __init__(self, mean_threshold: float = 1, max_threshold: float = 10) -> None:
+    def __init__(self, mean_threshold: float = 1, max_threshold: float = 10):
         """Validate configuration and initialize.
 
         Arguments:

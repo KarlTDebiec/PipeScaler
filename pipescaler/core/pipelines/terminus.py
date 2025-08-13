@@ -15,7 +15,7 @@ class Terminus[T: PipeObject](ABC):
     """Abstract base class for pipeline termini."""
 
     @abstractmethod
-    def __call__(self, input_obj: T) -> None:
+    def __call__(self, input_obj: T):
         """Terminates image.
 
         Arguments:

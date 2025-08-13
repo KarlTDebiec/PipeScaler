@@ -15,7 +15,7 @@ from pipescaler.image.core.validation import validate_image
 class ExpandProcessor(ImageProcessor):
     """Expands image canvas by mirroring image around edges."""
 
-    def __init__(self, pixels: tuple[int, int, int, int]) -> None:
+    def __init__(self, pixels: tuple[int, int, int, int]):
         """Validate and store configuration and initialize.
 
         Arguments:

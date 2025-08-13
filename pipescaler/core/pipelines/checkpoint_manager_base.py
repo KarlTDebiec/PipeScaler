@@ -14,7 +14,7 @@ from pipescaler.common.validation import val_output_dir_path
 class CheckpointManagerBase(ABC):
     """Abstract base class for checkpoint managers."""
 
-    def __init__(self, directory: Path | str) -> None:
+    def __init__(self, directory: Path | str):
         """Initialize.
 
         Arguments:
@@ -33,7 +33,7 @@ class CheckpointManagerBase(ABC):
         """String representation."""
         return f"<{self.__class__.__name__}>"
 
-    def observe(self, location_name: str, cpt: str) -> None:
+    def observe(self, location_name: str, cpt: str):
         """Log observation of a checkpoint.
 
         Strips trailing '.' from relative_name because Windows does not support

@@ -15,6 +15,6 @@ from pipescaler.testing.file import get_test_input_dir_path
         (ImageDirectorySource(get_test_input_dir_path("basic"))),
     ],
 )
-def test(source: Source) -> None:
+def test(source: Source):
     for image in source:
         assert image.parents is None

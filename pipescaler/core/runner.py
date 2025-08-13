@@ -16,7 +16,7 @@ from pipescaler.common.validation import val_executable, val_int
 class Runner(ABC):
     """Abstract base class for executable runners."""
 
-    def __init__(self, timeout: int = 600) -> None:
+    def __init__(self, timeout: int = 600):
         """Validate and store configuration and initialize.
 
         Arguments:
@@ -25,7 +25,7 @@ class Runner(ABC):
         self.timeout = val_int(timeout, min_value=0)
         self._executable_path: Path | None = None
 
-    def __call__(self, input_path: Path | str, output_path: Path | str) -> None:
+    def __call__(self, input_path: Path | str, output_path: Path | str):
         """Run executable on input file, yielding output file.
 
         Arguments:
@@ -58,7 +58,7 @@ class Runner(ABC):
             )
         return self._executable_path
 
-    def run(self, input_path: Path | str, output_path: Path | str) -> None:
+    def run(self, input_path: Path | str, output_path: Path | str):
         """Run executable on input file, yielding output file.
 
         Arguments:

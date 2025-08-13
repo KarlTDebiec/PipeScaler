@@ -36,7 +36,7 @@ def sorter(request) -> ListSorter:
         ("split/LA_alpha_L", None),
     ],
 )
-def test(input_filename: str, outlet: str | None, sorter: ListSorter) -> None:
+def test(input_filename: str, outlet: str | None, sorter: ListSorter):
     image = PipeImage(path=get_test_input_path(input_filename))
     assert sorter(image) == outlet
 
@@ -56,7 +56,7 @@ def test(input_filename: str, outlet: str | None, sorter: ListSorter) -> None:
         ("split/LA_alpha_L", None),
     ],
 )
-def test_text_file(input_filename: str, outlet: str | None) -> None:
+def test_text_file(input_filename: str, outlet: str | None):
     with get_temp_file_path() as basic_file_path:
         with open(basic_file_path, "w") as basic_file:
             basic_file.write("L\n")
@@ -76,7 +76,7 @@ def test_text_file(input_filename: str, outlet: str | None) -> None:
     assert sorter(image) == outlet
 
 
-def test_exclusions() -> None:
+def test_exclusions():
     with get_temp_directory_path() as basic_directory_path:
         (basic_directory_path / ".DS_Store").touch()
         (basic_directory_path / "Thumbs.db").touch()

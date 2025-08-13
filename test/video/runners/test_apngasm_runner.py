@@ -33,7 +33,7 @@ def runner(request) -> ApngasmRunner:
         )(["1", "L", "RGB", "RGBA"]),
     ],
 )
-def test(input_filenames, runner: ApngasmRunner) -> None:
+def test(input_filenames, runner: ApngasmRunner):
     input_paths = [get_test_input_path(i) for i in input_filenames]
 
     with get_temp_file_path(".png") as output_path:

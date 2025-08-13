@@ -33,7 +33,7 @@ def splitter(request) -> NormalSplitter:
         "novel/RGB_normal",
     ],
 )
-def test(input_filename: str, splitter: NormalSplitter) -> None:
+def test(input_filename: str, splitter: NormalSplitter):
     input_path = get_test_input_path(input_filename)
     input_img = Image.open(input_path)
     x_img, y_img, z_img = splitter(input_img)

@@ -25,7 +25,7 @@ from pipescaler.testing.mark import parametrize_with_readable_ids
         (PipeScalerCli, ImageCli),
     ],
 )
-def test_help(commands: tuple[type[CommandLineInterface], ...]) -> None:
+def test_help(commands: tuple[type[CommandLineInterface], ...]):
     subcommands = " ".join(f"{command.name()}" for command in commands[1:])
 
     stdout = StringIO()

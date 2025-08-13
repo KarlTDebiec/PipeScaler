@@ -35,7 +35,7 @@ from pipescaler.testing.mark import skip_if_ci, skip_if_codex
         ),
     ],
 )
-def test(cli: type[CommandLineInterface], args: str, input_filename: str) -> None:
+def test(cli: type[CommandLineInterface], args: str, input_filename: str):
     input_path = get_test_model_path(input_filename)
 
     with get_temp_file_path(".pth") as output_path:
@@ -52,7 +52,7 @@ def test(cli: type[CommandLineInterface], args: str, input_filename: str) -> Non
         (ImageUtilitiesCli, WaifuSerializerCli),
     ],
 )
-def test_help(commands: tuple[type[CommandLineInterface], ...]) -> None:
+def test_help(commands: tuple[type[CommandLineInterface], ...]):
     subcommands = " ".join(f"{command.name()}" for command in commands[1:])
 
     stdout = StringIO()

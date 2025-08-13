@@ -13,7 +13,7 @@ from pipescaler.image.models.esrgan.residual_dense_block import ResidualDenseBlo
 class ResidualInResidualDenseBlock(Module):
     """ESRGAN residual-in-residual dense block module."""
 
-    def __init__(self, n_features: int, growth_channels: int = 32) -> None:
+    def __init__(self, n_features: int, growth_channels: int = 32):
         """Validate configuration and initialize.
 
         Arguments:

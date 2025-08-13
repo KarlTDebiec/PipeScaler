@@ -22,7 +22,7 @@ class ImageVideoFrameSource(ImageSource):
         input_path: Path | str,
         location: Path | None = None,
         **kwargs: Any,
-    ) -> None:
+    ):
         """Initialize.
 
         Arguments:

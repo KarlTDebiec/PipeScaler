@@ -34,7 +34,7 @@ def sorter(request) -> ModeSorter:
         ("PRGBA", "RGBA"),
     ],
 )
-def test(input_filename: str, outlet: str, sorter: ModeSorter) -> None:
+def test(input_filename: str, outlet: str, sorter: ModeSorter):
     img = PipeImage(path=get_test_input_path(input_filename))
 
     assert sorter(img) == outlet

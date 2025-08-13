@@ -16,7 +16,7 @@ from pipescaler.core.pipelines.terminus import Terminus
 class DirectoryTerminus(Terminus, ABC):
     """Abstract base class for termini that write objects to an output directory."""
 
-    def __init__(self, directory: Path | str) -> None:
+    def __init__(self, directory: Path | str):
         """Validate and store configuration and initialize.
 
         Arguments:
@@ -29,7 +29,7 @@ class DirectoryTerminus(Terminus, ABC):
         """Representation."""
         return f"{self.__class__.__name__}(directory={self.directory!r})"
 
-    def purge_unrecognized_files(self, directory: Path | None = None) -> None:
+    def purge_unrecognized_files(self, directory: Path | None = None):
         """Remove unrecognized files and subdirectories in output directory."""
         if directory is None:
             directory = self.directory

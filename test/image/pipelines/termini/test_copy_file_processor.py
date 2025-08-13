@@ -9,7 +9,7 @@ from pipescaler.image.pipelines.termini import ImageDirectoryTerminus
 from pipescaler.testing.file import get_test_input_dir_path
 
 
-def test() -> None:
+def test():
     with TemporaryDirectory() as output_directory:
         terminus = ImageDirectoryTerminus(directory=output_directory)
 

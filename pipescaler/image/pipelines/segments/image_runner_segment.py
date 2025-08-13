@@ -19,7 +19,7 @@ class ImageRunnerSegment(ImageSegment):
         runner: RunnerLike,
         input_extension: str = ".png",
         output_extension: str = ".png",
-    ) -> None:
+    ):
         """Initialize.
 
         Arguments:

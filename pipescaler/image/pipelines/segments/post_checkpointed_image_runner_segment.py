@@ -24,7 +24,7 @@ class PostCheckpointedImageRunnerSegment(CheckpointedSegment):
         cp_manager: CheckpointManagerBase,
         cpts: Sequence[str],
         internal_cpts: Sequence[str] | None = None,
-    ) -> None:
+    ):
         """Initialize.
 
         Arguments:

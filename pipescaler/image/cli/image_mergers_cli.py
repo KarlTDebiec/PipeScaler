@@ -17,7 +17,7 @@ class ImageMergersCli(CommandLineInterface):
     """Command-line interface for PipeScaler ImageMergers."""
 
     @classmethod
-    def add_arguments_to_argparser(cls, parser: ArgumentParser) -> None:
+    def add_arguments_to_argparser(cls, parser: ArgumentParser):
         """Add arguments to a nascent argument parser.
 
         Arguments:
@@ -44,7 +44,7 @@ class ImageMergersCli(CommandLineInterface):
         return "merge image"
 
     @classmethod
-    def _main(cls, **kwargs: Any) -> None:
+    def _main(cls, **kwargs: Any):
         """Execute with provided keyword arguments."""
         merger_name = kwargs.pop("merger")
         merger_cli_cls = cls.mergers()[merger_name]

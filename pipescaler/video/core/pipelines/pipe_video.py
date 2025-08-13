@@ -26,7 +26,7 @@ class PipeVideo(PipeObject):
         name: str | None = None,
         parents: Self | Sequence[Self] | None = None,
         **kwargs: Any,
-    ) -> None:
+    ):
         """Initialize.
 
         Arguments:
@@ -74,10 +74,10 @@ class PipeVideo(PipeObject):
         return self._video
 
     @video.setter
-    def video(self, video: cv2.VideoCapture) -> None:
+    def video(self, video: cv2.VideoCapture):
         self._video = video
 
-    def save(self, path: Path | str) -> None:
+    def save(self, path: Path | str):
         """Save image to file and set path.
 
         Arguments:

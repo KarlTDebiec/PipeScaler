@@ -114,7 +114,7 @@ class ScaledPairIdentifier:
             scores = scores.sort_values("scale", ascending=False)
         return scores
 
-    def identify_pairs(self) -> None:
+    def identify_pairs(self):
         """Identify pairs."""
         for parent in self.potential_parents:
             # Known children may change as parents are reviewed
@@ -151,7 +151,7 @@ class ScaledPairIdentifier:
                 print("Known pairs:")
                 print(known_pairs)
 
-    def sync_comparison_directory(self) -> None:
+    def sync_comparison_directory(self):
         """Ensure comparison images are in sync with known pairs."""
         for parent in sorted(
             self.pair_collection.parents, key=citra_sort, reverse=True
@@ -165,7 +165,7 @@ class ScaledPairIdentifier:
                 to_save.save(output_path)
                 info(f"Saved {output_path}")
 
-    def sync_scaled_directory(self) -> None:
+    def sync_scaled_directory(self):
         """Ensure child images are in scaled directory, and parent images are not."""
         if not self.scaled_directory.exists():
             self.scaled_directory.mkdir(parents=True)

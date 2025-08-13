@@ -11,7 +11,7 @@ from torch.nn import Conv2d, LeakyReLU, Module
 class ResidualDenseBlock(Module):
     """ESRGAN residual dense block module."""
 
-    def __init__(self, n_features: int = 64, growth_channels: int = 32) -> None:
+    def __init__(self, n_features: int = 64, growth_channels: int = 32):
         """Validate configuration and initialize.
 
         Arguments:

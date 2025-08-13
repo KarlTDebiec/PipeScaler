@@ -21,7 +21,7 @@ class ResizeProcessor(ImageProcessor):
         "nearest": Image.Resampling.NEAREST,  # type: ignore
     }
 
-    def __init__(self, scale: float, resample: str = "lanczos") -> None:
+    def __init__(self, scale: float, resample: str = "lanczos"):
         """Validate and store configuration and initialize.
 
         Arguments:

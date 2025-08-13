@@ -32,7 +32,7 @@ class FileScanner:
         *,
         remove_prefix: str | None = None,
         output_format: str | None = None,
-    ) -> None:
+    ):
         """Validate configuration and initialize.
 
         Arguments:
@@ -110,7 +110,7 @@ class FileScanner:
         if output_format and not output_format.startswith("."):
             self.output_format = f".{output_format}"
 
-    def __call__(self) -> None:
+    def __call__(self):
         """Perform operations."""
         self.clean_project_root()
 
@@ -118,7 +118,7 @@ class FileScanner:
             for file_path in input_directory.iterdir():
                 self.perform_operation(file_path)
 
-    def clean_project_root(self) -> None:
+    def clean_project_root(self):
         """Clean project root copy and remove directories."""
         if self.copy_dir_path.exists():
             for file_path in self.copy_dir_path.iterdir():
@@ -141,7 +141,7 @@ class FileScanner:
             rmdir(self.remove_dir_path)
             info(f"'{self.remove_dir_path}' removed")
 
-    def copy(self, file_path: Path) -> None:
+    def copy(self, file_path: Path):
         """Copy file to copy directory.
 
         Arguments:
@@ -186,7 +186,7 @@ class FileScanner:
 
         return "copy"
 
-    def move(self, file_path: Path) -> None:
+    def move(self, file_path: Path):
         """Move file to review directory.
 
         Arguments:
@@ -211,7 +211,7 @@ class FileScanner:
                 image.save(output_path)
             remove(file_path)
 
-    def perform_operation(self, file_path: Path) -> None:
+    def perform_operation(self, file_path: Path):
         """Perform operations for filename.
 
         Arguments:
