@@ -8,6 +8,7 @@ import numpy as np
 from PIL import Image
 
 from pipescaler.image.core.operators import ImageMerger
+from pipescaler.image.core.typing import ImageMode
 from pipescaler.image.core.validation import validate_image
 
 
@@ -42,7 +43,7 @@ class NormalMerger(ImageMerger):
         return output_img
 
     @classmethod
-    def inputs(cls) -> dict[str, tuple[str, ...]]:
+    def inputs(cls) -> dict[str, tuple[ImageMode, ...]]:
         """Inputs to this operator."""
         return {
             "x": ("L",),
@@ -51,7 +52,7 @@ class NormalMerger(ImageMerger):
         }
 
     @classmethod
-    def outputs(cls) -> dict[str, tuple[str, ...]]:
+    def outputs(cls) -> dict[str, tuple[ImageMode, ...]]:
         """Outputs of this operator."""
         return {
             "output": ("RGB",),

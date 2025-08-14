@@ -14,6 +14,7 @@ from PIL import Image
 
 from pipescaler.common.validation import val_input_path
 from pipescaler.image.core.operators import ImageProcessor
+from pipescaler.image.core.typing import ImageMode
 from pipescaler.image.core.validation import validate_image_and_convert_mode
 
 
@@ -85,14 +86,14 @@ class PyTorchImageProcessor(ImageProcessor, ABC):
         return output_arr
 
     @classmethod
-    def inputs(cls) -> dict[str, tuple[str, ...]]:
+    def inputs(cls) -> dict[str, tuple[ImageMode, ...]]:
         """Inputs to this operator."""
         return {
             "input": ("1", "L", "RGB"),
         }
 
     @classmethod
-    def outputs(cls) -> dict[str, tuple[str, ...]]:
+    def outputs(cls) -> dict[str, tuple[ImageMode, ...]]:
         """Outputs of this operator."""
         return {
             "output": ("1", "L", "RGB"),

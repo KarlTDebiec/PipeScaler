@@ -10,6 +10,7 @@ from skimage.exposure import match_histograms
 
 from pipescaler.image.core import UnsupportedImageModeError
 from pipescaler.image.core.operators import ImageMerger
+from pipescaler.image.core.typing import ImageMode
 from pipescaler.image.core.validation import validate_image
 
 
@@ -44,7 +45,7 @@ class HistogramMatchMerger(ImageMerger):
         return output_img
 
     @classmethod
-    def inputs(cls) -> dict[str, tuple[str, ...]]:
+    def inputs(cls) -> dict[str, tuple[ImageMode, ...]]:
         """Inputs to this operator."""
         return {
             "ref": ("L", "LA", "RGB", "RGBA"),
@@ -52,7 +53,7 @@ class HistogramMatchMerger(ImageMerger):
         }
 
     @classmethod
-    def outputs(cls) -> dict[str, tuple[str, ...]]:
+    def outputs(cls) -> dict[str, tuple[ImageMode, ...]]:
         """Outputs of this operator."""
         return {
             "output": ("L", "LA", "RGB", "RGBA"),

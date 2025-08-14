@@ -9,6 +9,8 @@ from abc import ABC
 from inspect import cleandoc
 from typing import Any
 
+from pipescaler.image.core.typing import ImageMode
+
 
 class ImageOperator(ABC):
     """Abstract base class for image operators."""
@@ -32,11 +34,11 @@ class ImageOperator(ABC):
         return ""
 
     @classmethod
-    def inputs(cls) -> dict[str, tuple[str, ...]]:
+    def inputs(cls) -> dict[str, tuple[ImageMode, ...]]:
         """Inputs to this operator."""
         raise NotImplementedError()
 
     @classmethod
-    def outputs(cls) -> dict[str, tuple[str, ...]]:
+    def outputs(cls) -> dict[str, tuple[ImageMode, ...]]:
         """Outputs of this operator."""
         raise NotImplementedError()
