@@ -27,7 +27,7 @@ class PipeImage(PipeObject):
         name: str | None = None,
         parents: Self | Sequence[Self] | None = None,
         **kwargs: Any,
-    ) -> None:
+    ):
         """Initialize.
 
         Arguments:
@@ -78,10 +78,10 @@ class PipeImage(PipeObject):
         return self._image
 
     @image.setter
-    def image(self, value: Image.Image) -> None:
+    def image(self, value: Image.Image):
         self._image = value
 
-    def save(self, path: Path | str) -> None:
+    def save(self, path: Path | str):
         """Save image to file and set path.
 
         Arguments:

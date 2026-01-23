@@ -33,7 +33,7 @@ def sorter(request) -> GrayscaleSorter:
         ("PRGBA", "keep_rgb"),
     ],
 )
-def test(input_filename: str, outlet: str, sorter: GrayscaleSorter) -> None:
+def test(input_filename: str, outlet: str, sorter: GrayscaleSorter):
     img = PipeImage(path=get_test_input_path(input_filename))
 
     assert sorter(img) == outlet

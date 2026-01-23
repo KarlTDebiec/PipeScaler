@@ -15,7 +15,7 @@ from pipescaler.image.core.typing import ImageMode
 class ImageOperator(ABC):
     """Abstract base class for image operators."""
 
-    def __init__(self, **kwargs: Any) -> None:
+    def __init__(self, **kwargs: Any):
         """Initializes an image operator."""
 
     def __repr__(self) -> str:

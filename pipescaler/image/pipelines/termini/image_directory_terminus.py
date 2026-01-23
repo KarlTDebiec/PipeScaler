@@ -19,7 +19,7 @@ from pipescaler.image.core.pipelines import ImageTerminus, PipeImage
 class ImageDirectoryTerminus(ImageTerminus, DirectoryTerminus):
     """Copies images to an output directory."""
 
-    def __call__(self, input_obj: PipeImage) -> None:
+    def __call__(self, input_obj: PipeImage):
         """Save image to output directory.
 
         If image already exists within output directory, checks if it should be

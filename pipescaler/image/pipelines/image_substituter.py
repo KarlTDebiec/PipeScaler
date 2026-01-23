@@ -21,7 +21,7 @@ class ImageSubstituter:
         directory: Path | str,
         required: bool = False,
         match_input_mode: bool = True,
-    ) -> None:
+    ):
         """Validate and store configuration and initialize.
 
         Arguments:

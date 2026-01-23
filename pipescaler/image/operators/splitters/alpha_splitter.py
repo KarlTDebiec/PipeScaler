@@ -23,7 +23,7 @@ class AlphaSplitter(ImageSplitter):
         self,
         alpha_mode: AlphaMode = AlphaMode.GRAYSCALE,
         mask_fill_mode: MaskFillMode | None = None,
-    ) -> None:
+    ):
         """Validate configuration and initialize.
 
         Arguments:

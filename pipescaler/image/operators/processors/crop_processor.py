@@ -16,7 +16,7 @@ from pipescaler.image.core.validation import validate_image
 class CropProcessor(ImageProcessor):
     """Crops image canvas."""
 
-    def __init__(self, pixels: tuple[int, int, int, int]) -> None:
+    def __init__(self, pixels: tuple[int, int, int, int]):
         """Validate and store configuration and initialize.
 
         Arguments:

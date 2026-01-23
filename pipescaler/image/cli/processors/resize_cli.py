@@ -20,7 +20,7 @@ class ResizeCli(ImageProcessorCli):
     """Command-line interface for ResizeProcessor."""
 
     @classmethod
-    def add_arguments_to_argparser(cls, parser: ArgumentParser) -> None:
+    def add_arguments_to_argparser(cls, parser: ArgumentParser):
         """Add arguments to a nascent argument parser.
 
         Arguments:

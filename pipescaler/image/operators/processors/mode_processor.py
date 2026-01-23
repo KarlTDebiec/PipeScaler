@@ -20,7 +20,7 @@ class ModeProcessor(ImageProcessor):
         mode: str = "RGB",
         background_color: str = "#000000",
         threshold: int = 128,
-    ) -> None:
+    ):
         """Validate and store configuration and initialize.
 
         Arguments:

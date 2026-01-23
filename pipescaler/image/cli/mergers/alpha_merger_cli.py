@@ -20,7 +20,7 @@ class AlphaMergerCli(ImageMergerCli):
     """Command-line interface for AlphaMerger."""
 
     @classmethod
-    def add_arguments_to_argparser(cls, parser: ArgumentParser) -> None:
+    def add_arguments_to_argparser(cls, parser: ArgumentParser):
         """Add arguments to a nascent argument parser.
 
         Arguments:
@@ -45,7 +45,7 @@ class AlphaMergerCli(ImageMergerCli):
         )
 
     @classmethod
-    def _main(cls, **kwargs: Any) -> None:
+    def _main(cls, **kwargs: Any):
         """Execute with provided keyword arguments."""
         color_input_path = kwargs.pop("color_input_file")
         alpha_input_path = kwargs.pop("alpha_input_file")

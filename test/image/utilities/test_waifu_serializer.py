@@ -24,7 +24,7 @@ def utility(request) -> WaifuSerializer:
         skip_if_codex(skip_if_ci())("vgg7", "WaifuVgg7/a-2-0.json"),
     ],
 )
-def test(architecture: str, input_filename: str, utility: WaifuSerializer) -> None:
+def test(architecture: str, input_filename: str, utility: WaifuSerializer):
     input_path = get_test_model_path(input_filename)
 
     with get_temp_file_path(".pth") as output_path:

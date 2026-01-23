@@ -19,7 +19,7 @@ from pipescaler.image.core.validation import validate_image
 class HeightToNormalProcessor(ImageProcessor):
     """Converts height map image to a normal map image."""
 
-    def __init__(self, sigma: float | None = None) -> None:
+    def __init__(self, sigma: float | None = None):
         """Validate and store configuration and initialize.
 
         Arguments:

@@ -31,7 +31,7 @@ def merger(request) -> NormalMerger:
         ("split/RGB_normal_x_PL", "split/RGB_normal_y_PL", "split/RGB_normal_z_PL"),
     ],
 )
-def test(x: str, y: str, z: str, merger: NormalMerger) -> None:
+def test(x: str, y: str, z: str, merger: NormalMerger):
     x_input_path = get_test_input_path(x)
     x_img = Image.open(x_input_path)
     y_input_path = get_test_input_path(y)

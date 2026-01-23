@@ -20,7 +20,7 @@ class XbrzProcessor(ImageProcessor):
     See [xbrz](https://github.com/ioistired/xbrz.py).
     """
 
-    def __init__(self, scale: int = 4) -> None:
+    def __init__(self, scale: int = 4):
         """Validate and store configuration and initialize.
 
         Arguments:

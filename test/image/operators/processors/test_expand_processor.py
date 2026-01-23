@@ -35,7 +35,7 @@ def processor(request) -> ExpandProcessor:
         "PRGBA",
     ],
 )
-def test(input_filename: str, processor: ExpandProcessor) -> None:
+def test(input_filename: str, processor: ExpandProcessor):
     input_path = get_test_input_path(input_filename)
     input_img = Image.open(input_path)
     output_img = processor(input_img)

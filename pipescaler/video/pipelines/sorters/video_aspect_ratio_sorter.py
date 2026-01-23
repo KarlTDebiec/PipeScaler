@@ -15,7 +15,7 @@ from pipescaler.video.core.pipelines import PipeVideo, VideoSorter
 class VideoAspectRatioSorter(VideoSorter):
     """Sorts video based on aspect ratio."""
 
-    def __init__(self, **outlets: dict[str, float]) -> None:
+    def __init__(self, **outlets: dict[str, float]):
         """Initialize.
 
         Arguments:

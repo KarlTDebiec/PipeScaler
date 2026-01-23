@@ -16,7 +16,7 @@ class ImageOperatorSegment[T: ImageOperator](ImageSegment, ABC):
 
     operator: T
 
-    def __init__(self, operator: T) -> None:
+    def __init__(self, operator: T):
         """Initialize.
 
         Arguments:

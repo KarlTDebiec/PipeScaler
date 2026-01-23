@@ -26,7 +26,7 @@ def sorter(request) -> SizeSorter:
         ("L", "greater_than_or_equal_to"),
     ],
 )
-def test(input_filename: str, outlet: str, sorter: SizeSorter) -> None:
+def test(input_filename: str, outlet: str, sorter: SizeSorter):
     img = PipeImage(path=get_test_input_path(input_filename))
 
     assert sorter(img) == outlet

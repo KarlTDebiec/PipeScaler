@@ -28,7 +28,7 @@ def sorter(request) -> MonochromeSorter:
         ("L", "keep_gray"),
     ],
 )
-def test(input_filename: str, outlet: str, sorter: MonochromeSorter) -> None:
+def test(input_filename: str, outlet: str, sorter: MonochromeSorter):
     img = PipeImage(path=get_test_input_path(input_filename))
 
     assert sorter(img) == outlet

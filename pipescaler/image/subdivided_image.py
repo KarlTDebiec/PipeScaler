@@ -14,7 +14,7 @@ from pipescaler.common.validation import val_int
 class SubdividedImage:
     """Image divided into subdivisions."""
 
-    def __init__(self, image: Image.Image, size: int, overlap: int) -> None:
+    def __init__(self, image: Image.Image, size: int, overlap: int):
         """Initialize.
 
         Arguments:
@@ -52,7 +52,7 @@ class SubdividedImage:
         return self._subs
 
     @subs.setter
-    def subs(self, value: list[Image.Image]) -> None:
+    def subs(self, value: list[Image.Image]):
         if len(value) != len(self._subs):
             raise ValueError(
                 f"Expected {len(self._subs)} subdivisions, received {len(value)}"

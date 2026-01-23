@@ -21,7 +21,7 @@ class AlphaSplitterCli(ImageSplitterCli):
     """Command-line interface for AlphaSplitter."""
 
     @classmethod
-    def add_arguments_to_argparser(cls, parser: ArgumentParser) -> None:
+    def add_arguments_to_argparser(cls, parser: ArgumentParser):
         """Add arguments to a nascent argument parser.
 
         Arguments:
@@ -41,7 +41,7 @@ class AlphaSplitterCli(ImageSplitterCli):
         )
 
     @classmethod
-    def _main(cls, **kwargs: Any) -> None:
+    def _main(cls, **kwargs: Any):
         """Execute with provided keyword arguments."""
         input_path = kwargs.pop("input_file")
         color_output_path = kwargs.pop("color_output_file")

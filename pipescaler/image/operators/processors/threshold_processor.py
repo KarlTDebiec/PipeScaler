@@ -19,7 +19,7 @@ from pipescaler.image.core.validation import validate_image_and_convert_mode
 class ThresholdProcessor(ImageProcessor):
     """Converts image to black and white using threshold, optionally denoising."""
 
-    def __init__(self, threshold: int = 128, denoise: bool = False) -> None:
+    def __init__(self, threshold: int = 128, denoise: bool = False):
         """Validate and store configuration and initialize.
 
         Arguments:
@@ -80,7 +80,7 @@ class ThresholdProcessor(ImageProcessor):
     @no_type_check
     @staticmethod
     @njit(nogil=True, cache=True, fastmath=True)
-    def denoise_array(data: np.ndarray) -> None:
+    def denoise_array(data: np.ndarray):
         """Flip color of pixels bordered by less than 5 pixels of the same color.
 
         Arguments:

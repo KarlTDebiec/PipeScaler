@@ -111,7 +111,7 @@ class ImageHashCollection(Sequence):
         return self._hashes
 
     @hashes.setter
-    def hashes(self, value: HashDataFrame) -> None:
+    def hashes(self, value: HashDataFrame):
         if value.columns.tolist() != self.hashes.columns.tolist():
             raise ValueError(
                 f"hashes must have columns {self.hashes.columns.tolist()}, not "
@@ -119,7 +119,7 @@ class ImageHashCollection(Sequence):
             )
         self._hashes = value
 
-    def add(self, file_path: Path) -> None:
+    def add(self, file_path: Path):
         """Add image hash to collection.
 
         Arguments:
@@ -161,13 +161,13 @@ class ImageHashCollection(Sequence):
         ]
         return matches.copy(deep=True)
 
-    def load_cache(self) -> None:
+    def load_cache(self):
         """Load image hashes from cache."""
         if self.cache.exists():
             self.hashes = pd.read_csv(self.cache)
             info(f"Image hashes read from {self.cache}")
 
-    def save_cache(self) -> None:
+    def save_cache(self):
         """Save image hashes to cache file."""
         self.hashes = self.hashes.reset_index(drop=True)
         self.hashes.to_csv(self.cache, index=False)

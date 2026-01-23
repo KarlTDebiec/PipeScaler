@@ -18,9 +18,7 @@ class TexconvRunner(Runner):
     See [Texconv](https://github.com/Microsoft/DirectXTex/wiki/Texconv).
     """
 
-    def __init__(
-        self, arguments: str = "-y -sepalpha -ft DDS -f BC7_UNORM", **kwargs
-    ) -> None:
+    def __init__(self, arguments: str = "-y -sepalpha -ft DDS -f BC7_UNORM", **kwargs):
         """Initialize.
 
         Arguments:
@@ -43,7 +41,7 @@ class TexconvRunner(Runner):
             ' -o "{output_path.parent}" "{input_path}"'
         )
 
-    def run(self, input_path: Path | str, output_path: Path | str) -> None:
+    def run(self, input_path: Path | str, output_path: Path | str):
         """Run executable on input file, yielding output file.
 
         Arguments:
