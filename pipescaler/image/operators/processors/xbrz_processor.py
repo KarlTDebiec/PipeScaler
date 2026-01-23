@@ -10,6 +10,7 @@ from PIL import Image
 
 from pipescaler.common.validation import val_int
 from pipescaler.image.core.operators import ImageProcessor
+from pipescaler.image.core.typing import ImageMode
 from pipescaler.image.core.validation import validate_image_and_convert_mode
 
 
@@ -63,14 +64,14 @@ class XbrzProcessor(ImageProcessor):
         return "Upscales image using [xbrz](https://github.com/ioistired/xbrz.py)."
 
     @classmethod
-    def inputs(cls) -> dict[str, tuple[str, ...]]:
+    def inputs(cls) -> dict[str, tuple[ImageMode, ...]]:
         """Inputs to this operator."""
         return {
             "input": ("1", "L", "LA", "RGB", "RGBA"),
         }
 
     @classmethod
-    def outputs(cls) -> dict[str, tuple[str, ...]]:
+    def outputs(cls) -> dict[str, tuple[ImageMode, ...]]:
         """Outputs of this operator."""
         return {
             "output": ("1", "L", "LA", "RGB", "RGBA"),

@@ -11,6 +11,7 @@ from pipescaler.common import ArgumentConflictError
 from pipescaler.image.core import AlphaMode, MaskFillMode
 from pipescaler.image.core.functions import is_monochrome
 from pipescaler.image.core.operators import ImageSplitter
+from pipescaler.image.core.typing import ImageMode
 from pipescaler.image.core.validation import validate_image
 from pipescaler.image.utilities import MaskFiller
 
@@ -79,14 +80,14 @@ class AlphaSplitter(ImageSplitter):
         )
 
     @classmethod
-    def inputs(cls) -> dict[str, tuple[str, ...]]:
+    def inputs(cls) -> dict[str, tuple[ImageMode, ...]]:
         """Inputs to this operator."""
         return {
             "input": ("LA", "RGBA"),
         }
 
     @classmethod
-    def outputs(cls) -> dict[str, tuple[str, ...]]:
+    def outputs(cls) -> dict[str, tuple[ImageMode, ...]]:
         """Outputs of this operator."""
         return {
             "color": ("L", "RGB"),

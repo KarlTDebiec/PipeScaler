@@ -11,6 +11,7 @@ from svglib.svglib import svg2rlg
 from pipescaler.common.file import get_temp_file_path
 from pipescaler.common.validation import val_float
 from pipescaler.image.core.operators import ImageProcessor
+from pipescaler.image.core.typing import ImageMode
 from pipescaler.image.core.validation import validate_image_and_convert_mode
 from pipescaler.image.runners import PotraceRunner
 
@@ -70,7 +71,7 @@ class PotraceProcessor(ImageProcessor):
                 traced_drawing.height = int(input_image.size[1] * self.scale)
 
                 with get_temp_file_path(".png") as temp_png_path:
-                    drawToFile(traced_drawing, temp_png_path, fmt="png")
+                    drawToFile(traced_drawing, temp_png_path, fmt="png")  # pyright: ignore[reportArgumentType]
                     output_image = Image.open(temp_png_path).convert("L")
 
         if self.invert:
@@ -96,14 +97,14 @@ class PotraceProcessor(ImageProcessor):
         )
 
     @classmethod
-    def inputs(cls) -> dict[str, tuple[str, ...]]:
+    def inputs(cls) -> dict[str, tuple[ImageMode, ...]]:
         """Inputs to this operator."""
         return {
             "input": ("1", "L"),
         }
 
     @classmethod
-    def outputs(cls) -> dict[str, tuple[str, ...]]:
+    def outputs(cls) -> dict[str, tuple[ImageMode, ...]]:
         """Outputs of this operator."""
         return {
             "output": ("1",),
