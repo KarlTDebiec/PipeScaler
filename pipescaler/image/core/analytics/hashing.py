@@ -7,7 +7,6 @@ from __future__ import annotations
 from collections.abc import Callable
 from functools import partial
 
-from PIL import Image
 from imagehash import (
     ImageHash,
     average_hash,
@@ -18,6 +17,7 @@ from imagehash import (
     phash,
     whash,
 )
+from PIL import Image
 
 from pipescaler.image.core.analytics.typing import HashSeries
 

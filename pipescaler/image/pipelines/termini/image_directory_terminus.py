@@ -38,7 +38,8 @@ class ImageDirectoryTerminus(ImageTerminus, DirectoryTerminus):
             if not output_path.parent.exists():
                 output_path.parent.mkdir(parents=True)
                 info(
-                    f"{self}: '{output_path.parent.relative_to(self.directory)}' created"
+                    f"{self}: "
+                    f"'{output_path.parent.relative_to(self.directory)}' created"
                 )
             if input_obj.path:
                 copyfile(input_obj.path, output_path)
