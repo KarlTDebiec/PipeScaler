@@ -4,3 +4,11 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    # Ensure dependabot works with uv-managed dependencies
+    # It will automatically detect and update the uv.lock file
+    versioning-strategy: "lockfile-only"
+    # Group all dependency updates together
+    groups:
+      dependencies:
+        patterns:
+          - "*"
