@@ -1,5 +1,6 @@
 version: 2
 updates:
+  # Python dependencies managed by uv
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
@@ -10,5 +11,15 @@ updates:
     # Group all dependency updates together
     groups:
       dependencies:
+        patterns:
+          - "*"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      actions:
         patterns:
           - "*"
