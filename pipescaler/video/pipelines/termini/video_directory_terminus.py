@@ -29,7 +29,8 @@ class VideoDirectoryTerminus(VideoTerminus, DirectoryTerminus):
             if not output_path.parent.exists():
                 output_path.parent.mkdir(parents=True)
                 info(
-                    f"{self}: '{output_path.parent.relative_to(self.directory)}' created"
+                    f"{self}: "
+                    f"'{output_path.parent.relative_to(self.directory)}' created"
                 )
             if input_video.path:
                 copyfile(input_video.path, output_path)
@@ -47,8 +48,8 @@ class VideoDirectoryTerminus(VideoTerminus, DirectoryTerminus):
                 info(f"{self}: '{output_path}' is newer; not overwritten")
                 return
             warning(
-                f"{self}: '{output_path}' already exists; not overwritten; comparing video "
-                f"contents not implemented"
+                f"{self}: '{output_path}' already exists; not overwritten; "
+                f"comparing video contents not implemented"
             )
             return
         save_video()

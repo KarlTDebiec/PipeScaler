@@ -55,11 +55,11 @@ class CheckpointManager(CheckpointManagerBase):
         cpt_paths = self.get_cpt_paths(self.directory, location_names, cpts)
         if all(p.exists() for p in cpt_paths):
             outputs = tuple(cls(path=p, parents=inputs) for p in cpt_paths)
-            info(
-                f"{self}: "
-                f"'{location_names[0] if len(location_names) == 1 else location_names}' "
-                f"checkpoints '{cpts[0] if len(cpts) == 1 else cpts}' loaded"
+            location_str = (
+                location_names[0] if len(location_names) == 1 else location_names
             )
+            cpts_str = cpts[0] if len(cpts) == 1 else cpts
+            info(f"{self}: '{location_str}' checkpoints '{cpts_str}' loaded")
 
             internal_cpts = self.get_cpts_of_segments(*calls) if calls else []
             for ln in location_names:

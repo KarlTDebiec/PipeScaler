@@ -33,6 +33,7 @@ def mock_pipe_object_save(path: Path | str):
 
 def mock_pipe_object_save_2(self: PipeObject, path: Path | str):
     """Save object to file and set path.
+
     Arguments:
         self: PipeObject to which this mock method is attached
         path: Path to which to save object

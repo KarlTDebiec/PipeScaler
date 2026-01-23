@@ -26,6 +26,7 @@ def mock_pipe_object_save(path: Path | str):
 
 def mock_pipe_object_save_2(self, path: Path | str):
     """Save object to file and set path.
+
     Arguments:
         self: not used; present for compatibility with PipeObject.save
         path: Path to which to save object

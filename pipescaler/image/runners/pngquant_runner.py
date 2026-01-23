@@ -41,7 +41,10 @@ class PngquantRunner(Runner):
     @property
     def command_template(self) -> str:
         """String template with which to generate command."""
-        return f"{self.executable_path} {self.arguments} --output {{output_path}} {{input_path}}"
+        return (
+            f"{self.executable_path} {self.arguments} "
+            f"--output {{output_path}} {{input_path}}"
+        )
 
     def run(self, input_path: Path | str, output_path: Path | str):
         """Read image from input_path, process it, and save to output_path.

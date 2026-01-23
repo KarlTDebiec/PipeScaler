@@ -37,7 +37,10 @@ class ApngasmRunner(Runner):
     @property
     def command_template(self) -> str:
         """String template with which to generate command."""
-        return f'"{self.executable_path}" -o {{output_path}} {{input_path}} {self.arguments}'
+        return (
+            f'"{self.executable_path}" -o {{output_path}} {{input_path}} '
+            f"{self.arguments}"
+        )
 
     @classmethod
     def executable(cls) -> str:
