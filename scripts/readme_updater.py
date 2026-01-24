@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright 2020-2025 Karl T Debiec. All rights reserved. This software may be modified
+#  Copyright 2020-2026 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Updates README."""
 
@@ -93,7 +93,7 @@ def get_stage_descriptions(module: ModuleType) -> str:
 if __name__ == "__main__":
     # Read README
     readme_path = package_root.parent / "README.md"
-    with open(readme_path, "r", encoding="utf-8") as readme_file:
+    with open(readme_path, encoding="utf-8") as readme_file:
         readme = readme_file.read()
 
     # Update README
