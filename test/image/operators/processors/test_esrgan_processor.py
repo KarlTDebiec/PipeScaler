@@ -44,6 +44,12 @@ from pipescaler.testing.mark import skip_if_ci, skip_if_codex
     ],
 )
 def test(input_filename: str, model: str):
+    """Test EsrganProcessor with various image modes and models.
+
+    Arguments:
+        input_filename: Input image filename
+        model: Model path identifier
+    """
     processor = EsrganProcessor(model_input_path=get_test_model_path(model))
 
     input_path = get_test_input_path(input_filename)

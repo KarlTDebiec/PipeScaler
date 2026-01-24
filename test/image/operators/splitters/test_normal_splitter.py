@@ -18,6 +18,13 @@ from pipescaler.testing.fixture import parametrized_fixture
     ],
 )
 def splitter(request) -> NormalSplitter:
+    """Pytest fixture that provides a NormalSplitter instance.
+
+    Arguments:
+        request: Pytest request fixture containing parameters
+    Returns:
+        Configured NormalSplitter instance
+    """
     return NormalSplitter(**request.param)
 
 
@@ -34,6 +41,12 @@ def splitter(request) -> NormalSplitter:
     ],
 )
 def test(input_filename: str, splitter: NormalSplitter):
+    """Test NormalSplitter with various normal map images.
+
+    Arguments:
+        input_filename: Input image filename
+        splitter: NormalSplitter fixture instance
+    """
     input_path = get_test_input_path(input_filename)
     input_img = Image.open(input_path)
     x_img, y_img, z_img = splitter(input_img)

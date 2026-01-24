@@ -24,6 +24,13 @@ from pipescaler.testing.mark import xfail_if_platform
     ],
 )
 def runner(request) -> PngquantRunner:
+    """Pytest fixture that provides a PngquantRunner instance.
+
+    Arguments:
+        request: Pytest request fixture containing parameters
+    Returns:
+        Configured PngquantRunner instance
+    """
     return PngquantRunner(**request.param)
 
 
@@ -34,6 +41,12 @@ def runner(request) -> PngquantRunner:
     ],
 )
 def test(input_filename: str, runner: PngquantRunner):
+    """Test PngquantRunner compressing PNG images.
+
+    Arguments:
+        input_filename: Input image filename
+        runner: PngquantRunner fixture instance
+    """
     input_path = get_test_input_path(input_filename)
 
     with get_temp_file_path(".png") as output_path:

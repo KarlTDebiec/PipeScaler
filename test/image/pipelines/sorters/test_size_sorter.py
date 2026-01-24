@@ -17,6 +17,13 @@ from pipescaler.testing.fixture import parametrized_fixture
     ],
 )
 def sorter(request) -> SizeSorter:
+    """Pytest fixture that provides a SizeSorter instance.
+
+    Arguments:
+        request: Pytest request fixture containing parameters
+    Returns:
+        Configured SizeSorter instance
+    """
     return SizeSorter(**request.param)
 
 
@@ -27,6 +34,13 @@ def sorter(request) -> SizeSorter:
     ],
 )
 def test(input_filename: str, outlet: str, sorter: SizeSorter):
+    """Test SizeSorter routing images based on size thresholds.
+
+    Arguments:
+        input_filename: Input image filename
+        outlet: Expected outlet name for routing
+        sorter: SizeSorter fixture instance
+    """
     img = PipeImage(path=get_test_input_path(input_filename))
 
     assert sorter(img) == outlet

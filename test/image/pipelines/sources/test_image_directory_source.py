@@ -16,5 +16,10 @@ from pipescaler.testing.file import get_test_input_dir_path
     ],
 )
 def test(source: Source):
+    """Test ImageDirectorySource loading images from directory.
+
+    Arguments:
+        source: ImageDirectorySource instance to test
+    """
     for image in source:
         assert image.parents is None

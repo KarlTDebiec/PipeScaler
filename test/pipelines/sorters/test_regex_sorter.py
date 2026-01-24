@@ -21,6 +21,13 @@ from pipescaler.testing.fixture import parametrized_fixture
     ],
 )
 def sorter(request) -> RegexSorter:
+    """Pytest fixture that provides a RegexSorter instance.
+
+    Arguments:
+        request: Pytest request fixture containing parameters
+    Returns:
+        Configured RegexSorter instance
+    """
     return RegexSorter(**request.param)
 
 
@@ -35,6 +42,13 @@ def sorter(request) -> RegexSorter:
     ],
 )
 def test(input_filename: str, outlet: str, sorter: RegexSorter):
+    """Test RegexSorter routing based on regex pattern matching.
+
+    Arguments:
+        input_filename: Input filename
+        outlet: Expected outlet name
+        sorter: RegexSorter fixture instance
+    """
     image = PipeImage(path=get_test_input_path(input_filename))
     assert sorter(image) == outlet
 

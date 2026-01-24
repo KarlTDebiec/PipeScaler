@@ -18,6 +18,7 @@ from pipescaler.testing.file import get_test_input_path
     system() in {"Linux"}, raises=OSError, reason=f"Not supported on {system()}"
 )
 def test_review():
+    """Test ScaledPairIdentifier identifying and managing scaled image pairs."""
     with (
         get_temp_directory_path() as input_directory,
         get_temp_directory_path() as project_root,

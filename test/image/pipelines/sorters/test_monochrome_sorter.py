@@ -17,6 +17,13 @@ from pipescaler.testing.fixture import parametrized_fixture
     ],
 )
 def sorter(request) -> MonochromeSorter:
+    """Pytest fixture that provides a MonochromeSorter instance.
+
+    Arguments:
+        request: Pytest request fixture containing parameters
+    Returns:
+        Configured MonochromeSorter instance
+    """
     return MonochromeSorter(**request.param)
 
 
@@ -29,6 +36,13 @@ def sorter(request) -> MonochromeSorter:
     ],
 )
 def test(input_filename: str, outlet: str, sorter: MonochromeSorter):
+    """Test MonochromeSorter routing images based on monochrome properties.
+
+    Arguments:
+        input_filename: Input image filename
+        outlet: Expected outlet name for routing
+        sorter: MonochromeSorter fixture instance
+    """
     img = PipeImage(path=get_test_input_path(input_filename))
 
     assert sorter(img) == outlet

@@ -18,6 +18,13 @@ from pipescaler.testing.fixture import parametrized_fixture
     ],
 )
 def processor(request) -> XbrzProcessor:
+    """Pytest fixture that provides an XbrzProcessor instance.
+
+    Arguments:
+        request: Pytest request fixture containing parameters
+    Returns:
+        Configured XbrzProcessor instance
+    """
     return XbrzProcessor(**request.param)
 
 
@@ -35,6 +42,12 @@ def processor(request) -> XbrzProcessor:
     ],
 )
 def test(input_filename: str, processor: XbrzProcessor):
+    """Test XbrzProcessor with various image modes.
+
+    Arguments:
+        input_filename: Input image filename
+        processor: XbrzProcessor fixture instance
+    """
     input_path = get_test_input_path(input_filename)
     input_img = Image.open(input_path)
     output_img = processor(input_img)

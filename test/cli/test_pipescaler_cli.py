@@ -26,6 +26,11 @@ from pipescaler.testing.mark import parametrize_with_readable_ids
     ],
 )
 def test_help(commands: tuple[type[CommandLineInterface], ...]):
+    """Test that help flag displays usage information and exits successfully.
+
+    Arguments:
+        commands: Tuple of command-line interface classes to test
+    """
     subcommands = " ".join(f"{command.name()}" for command in commands[1:])
 
     stdout = StringIO()
@@ -50,6 +55,11 @@ def test_help(commands: tuple[type[CommandLineInterface], ...]):
     ],
 )
 def test_usage(commands: tuple[type[CommandLineInterface], ...]):
+    """Test that running without arguments displays usage and exits with error.
+
+    Arguments:
+        commands: Tuple of command-line interface classes to test
+    """
     subcommands = " ".join(f"{command.name()}" for command in commands[1:])
 
     stdout = StringIO()

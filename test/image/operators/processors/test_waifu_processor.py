@@ -33,6 +33,12 @@ from pipescaler.testing.mark import skip_if_ci, skip_if_codex
     ],
 )
 def test(input_filename: str, model: str):
+    """Test WaifuProcessor with various image modes and models.
+
+    Arguments:
+        input_filename: Input image filename
+        model: Model path identifier
+    """
     processor = WaifuProcessor(model_input_path=get_test_model_path(model))
 
     input_path = get_test_input_path(input_filename)

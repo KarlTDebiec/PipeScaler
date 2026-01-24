@@ -18,6 +18,13 @@ from pipescaler.testing.fixture import parametrized_fixture
     ],
 )
 def processor(request) -> SolidColorProcessor:
+    """Pytest fixture that provides a SolidColorProcessor instance.
+
+    Arguments:
+        request: Pytest request fixture containing parameters
+    Returns:
+        Configured SolidColorProcessor instance
+    """
     return SolidColorProcessor(**request.param)
 
 
@@ -36,6 +43,12 @@ def processor(request) -> SolidColorProcessor:
     ],
 )
 def test(input_filename: str, processor: SolidColorProcessor):
+    """Test SolidColorProcessor with various image modes.
+
+    Arguments:
+        input_filename: Input image filename
+        processor: SolidColorProcessor fixture instance
+    """
     input_path = get_test_input_path(input_filename)
     input_img = Image.open(input_path)
     output_img = processor(input_img)

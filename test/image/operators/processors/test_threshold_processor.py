@@ -20,6 +20,13 @@ from pipescaler.testing.fixture import parametrized_fixture
     ],
 )
 def processor(request) -> ThresholdProcessor:
+    """Pytest fixture that provides a ThresholdProcessor instance.
+
+    Arguments:
+        request: Pytest request fixture containing parameters
+    Returns:
+        Configured ThresholdProcessor instance
+    """
     return ThresholdProcessor(**request.param)
 
 
@@ -38,6 +45,12 @@ def processor(request) -> ThresholdProcessor:
     ],
 )
 def test(input_filename: str, processor: ThresholdProcessor):
+    """Test ThresholdProcessor with various image modes.
+
+    Arguments:
+        input_filename: Input image filename
+        processor: ThresholdProcessor fixture instance
+    """
     input_path = get_test_input_path(input_filename)
     input_img = Image.open(input_path)
     output_img = processor(input_img)

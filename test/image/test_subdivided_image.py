@@ -20,6 +20,13 @@ from pipescaler.testing.mark import skip_if_ci, skip_if_codex
 
 @pytest.fixture
 def esrgan_bc1s2_processor(request) -> EsrganProcessor:
+    """Pytest fixture that provides an EsrganProcessor with BC1-smooth2 model.
+
+    Arguments:
+        request: Pytest request fixture
+    Returns:
+        Configured EsrganProcessor instance
+    """
     return EsrganProcessor(
         model_input_path=get_test_model_path("ESRGAN/1x_BC1-smooth2")
     )
@@ -27,6 +34,11 @@ def esrgan_bc1s2_processor(request) -> EsrganProcessor:
 
 @pytest.fixture
 def esrgan_rrdb_processor() -> EsrganProcessor:
+    """Pytest fixture that provides an EsrganProcessor with RRDB_ESRGAN_x4 model.
+
+    Returns:
+        Configured EsrganProcessor instance
+    """
     return EsrganProcessor(
         model_input_path=get_test_model_path("ESRGAN/RRDB_ESRGAN_x4")
     )
@@ -34,16 +46,31 @@ def esrgan_rrdb_processor() -> EsrganProcessor:
 
 @pytest.fixture
 def waifu_processor() -> WaifuProcessor:
+    """Pytest fixture that provides a WaifuProcessor instance.
+
+    Returns:
+        Configured WaifuProcessor instance
+    """
     return WaifuProcessor(model_input_path=get_test_model_path("WaifuUpConv7/a-2-3"))
 
 
 @pytest.fixture
 def xbrz_processor() -> XbrzProcessor:
+    """Pytest fixture that provides an XbrzProcessor instance.
+
+    Returns:
+        Configured XbrzProcessor instance
+    """
     return XbrzProcessor(scale=6)
 
 
 @pytest.fixture
 def potrace_processor() -> PotraceProcessor:
+    """Pytest fixture that provides a PotraceProcessor instance.
+
+    Returns:
+        Configured PotraceProcessor instance
+    """
     return PotraceProcessor(scale=10)
 
 
@@ -62,6 +89,14 @@ def potrace_processor() -> PotraceProcessor:
     ],
 )
 def test_subdivider(processor_name: str, input_filename: str, scale: int, request):
+    """Test SubdividedImage processing images in subdivisions.
+
+    Arguments:
+        processor_name: Name of processor fixture to use
+        input_filename: Input image filename
+        scale: Expected output scale factor
+        request: Pytest request fixture for accessing other fixtures
+    """
     processor = request.getfixturevalue(processor_name)
     assert isinstance(processor, ImageProcessor)
 

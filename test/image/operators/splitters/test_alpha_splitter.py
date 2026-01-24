@@ -37,6 +37,13 @@ from pipescaler.testing.fixture import parametrized_fixture
     ],
 )
 def splitter(request) -> AlphaSplitter:
+    """Pytest fixture that provides an AlphaSplitter instance.
+
+    Arguments:
+        request: Pytest request fixture containing parameters
+    Returns:
+        Configured AlphaSplitter instance
+    """
     return AlphaSplitter(**request.param)
 
 
@@ -54,6 +61,12 @@ def splitter(request) -> AlphaSplitter:
     ],
 )
 def test(input_filename: str, splitter: AlphaSplitter):
+    """Test AlphaSplitter with various image modes containing alpha channels.
+
+    Arguments:
+        input_filename: Input image filename
+        splitter: AlphaSplitter fixture instance
+    """
     input_path = get_test_input_path(input_filename)
     input_img = Image.open(input_path)
     color_img, alpha_img = splitter(input_img)

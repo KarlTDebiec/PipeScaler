@@ -14,6 +14,13 @@ from pipescaler.testing.mark import skip_if_ci, skip_if_codex
 
 @fixture
 def utility(request) -> WaifuSerializer:
+    """Pytest fixture that provides a WaifuSerializer instance.
+
+    Arguments:
+        request: Pytest request fixture
+    Returns:
+        Configured WaifuSerializer instance
+    """
     return WaifuSerializer()
 
 
@@ -25,6 +32,13 @@ def utility(request) -> WaifuSerializer:
     ],
 )
 def test(architecture: str, input_filename: str, utility: WaifuSerializer):
+    """Test WaifuSerializer converting Waifu2x models to PyTorch format.
+
+    Arguments:
+        architecture: Model architecture type
+        input_filename: Input model filename
+        utility: WaifuSerializer fixture instance
+    """
     input_path = get_test_model_path(input_filename)
 
     with get_temp_file_path(".pth") as output_path:

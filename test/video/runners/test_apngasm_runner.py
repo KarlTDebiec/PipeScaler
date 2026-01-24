@@ -22,6 +22,13 @@ from pipescaler.video.runners import ApngasmRunner
     ],
 )
 def runner(request) -> ApngasmRunner:
+    """Pytest fixture that provides an ApngasmRunner instance.
+
+    Arguments:
+        request: Pytest request fixture containing parameters
+    Returns:
+        Configured ApngasmRunner instance
+    """
     return ApngasmRunner(**request.param)
 
 
@@ -34,6 +41,12 @@ def runner(request) -> ApngasmRunner:
     ],
 )
 def test(input_filenames, runner: ApngasmRunner):
+    """Test ApngasmRunner creating animated PNG from multiple images.
+
+    Arguments:
+        input_filenames: List of input image filenames
+        runner: ApngasmRunner fixture instance
+    """
     input_paths = [get_test_input_path(i) for i in input_filenames]
 
     with get_temp_file_path(".png") as output_path:

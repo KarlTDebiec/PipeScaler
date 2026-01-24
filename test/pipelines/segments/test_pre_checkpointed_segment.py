@@ -25,6 +25,7 @@ def mock_pipe_object_save(path: Path | str):
 
 
 def test():
+    """Test PreCheckpointedSegment managing checkpoints before segment execution."""
     with get_temp_directory_path() as cp_directory_path:
         # Mocks
         mock_segment = Mock(spec=Segment)
