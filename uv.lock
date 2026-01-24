@@ -633,31 +633,31 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "imagehash", specifier = ">=4.3.1" },
-    { name = "numba", specifier = ">=0.60.0" },
-    { name = "numpy", specifier = ">=1.26.4" },
-    { name = "opencv-python", specifier = ">=4.10.0.84" },
+    { name = "imagehash", specifier = ">=4.3.2" },
+    { name = "numba", specifier = ">=0.61.2" },
+    { name = "numpy", specifier = ">=2.2.6" },
+    { name = "opencv-python", specifier = ">=4.11.0.86" },
     { name = "pandas", specifier = ">=2.2.3" },
-    { name = "pillow", specifier = ">=11.0.0" },
-    { name = "reportlab", specifier = ">=4.0.0" },
+    { name = "pillow", specifier = ">=12.1.0" },
+    { name = "reportlab", specifier = ">=4.4.1" },
     { name = "rlpycairo", specifier = ">=0.3.0" },
-    { name = "scikit-image", specifier = ">=0.24.0" },
-    { name = "scipy", specifier = ">=1.14.1" },
+    { name = "scikit-image", specifier = ">=0.25.2" },
+    { name = "scipy", specifier = ">=1.15.3" },
     { name = "spandrel", specifier = ">=0.4.1" },
     { name = "svglib", specifier = ">=1.5.1" },
-    { name = "torch", specifier = ">=2.5.1" },
+    { name = "torch", specifier = ">=2.10.0" },
     { name = "xbrz-py", git = "https://github.com/ioistired/xbrz.py" },
 ]
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "pandas-stubs", specifier = ">=2.2.3.241009" },
-    { name = "pyright", specifier = ">=1.1.396" },
-    { name = "pytest", specifier = ">=8.3.4" },
-    { name = "pytest-cov", specifier = ">=6.0.0" },
-    { name = "pytest-xdist", specifier = ">=3.6.1" },
-    { name = "ruff", specifier = ">=0.9.10" },
-    { name = "ty" },
+    { name = "pandas-stubs", specifier = ">=2.3.3.260113" },
+    { name = "pyright", specifier = ">=1.1.401" },
+    { name = "pytest", specifier = ">=8.4.0" },
+    { name = "pytest-cov", specifier = ">=6.1.1" },
+    { name = "pytest-xdist", specifier = ">=3.7.0" },
+    { name = "ruff", specifier = ">=0.14.14" },
+    { name = "ty", specifier = ">=0.0.13" },
     { name = "types-pillow", specifier = ">=10.2.0.20240822" },
 ]
 
