@@ -9,19 +9,19 @@ license = "BSD-3-Clause"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "ImageHash>=4.3.1",
-    "numba>=0.60.0",
-    "numpy>=1.26.4",
-    "opencv-python>=4.10.0.84",
+    "ImageHash>=4.3.2",
+    "numba>=0.61.2",
+    "numpy>=2.2.6",
+    "opencv-python>=4.11.0.86",
     "pandas>=2.2.3",
-    "Pillow>=11.0.0",
-    "reportlab>=4.0.0",
+    "Pillow>=12.1.0",
+    "reportlab>=4.4.1",
     "rlpycairo>=0.3.0",
-    "scikit-image>=0.24.0",
-    "scipy>=1.14.1",
+    "scikit-image>=0.25.2",
+    "scipy>=1.15.3",
     "spandrel>=0.4.1",
     "svglib>=1.5.1",
-    "torch>=2.5.1",
+    "torch>=2.10.0",
     "xbrz.py @ git+https://github.com/ioistired/xbrz.py",
 ]
 
@@ -30,12 +30,13 @@ pipescaler = "pipescaler.cli.pipescaler_cli:PipeScalerCli.main"
 
 [dependency-groups]
 dev = [
-    "pandas-stubs>=2.2.3.241009",
-    "pyright>=1.1.396",
-    "pytest>=8.3.4",
-    "pytest-cov>=6.0.0",
-    "pytest-xdist>=3.6.1",
-    "ruff>=0.9.10",
+    "pandas-stubs>=2.3.3.260113",
+    "pyright>=1.1.401",
+    "pytest>=8.4.0",
+    "pytest-cov>=6.1.1",
+    "pytest-xdist>=3.7.0",
+    "ruff>=0.14.14",
+    "ty>=0.0.13",
     "types-Pillow>=10.2.0.20240822",
 ]
 
