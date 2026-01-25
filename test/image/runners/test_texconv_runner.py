@@ -21,6 +21,13 @@ from pipescaler.testing.mark import xfail_if_platform
     ],
 )
 def runner(request) -> TexconvRunner:
+    """Pytest fixture that provides a TexconvRunner instance.
+
+    Arguments:
+        request: Pytest request fixture containing parameters
+    Returns:
+        Configured TexconvRunner instance
+    """
     return TexconvRunner(**request.param)
 
 
@@ -39,6 +46,12 @@ def runner(request) -> TexconvRunner:
     ],
 )
 def test(input_filename: str, runner: TexconvRunner):
+    """Test TexconvRunner converting images to DDS format.
+
+    Arguments:
+        input_filename: Input image filename
+        runner: TexconvRunner fixture instance
+    """
     input_path = get_test_input_path(input_filename)
 
     with get_temp_file_path(".dds") as output_path:

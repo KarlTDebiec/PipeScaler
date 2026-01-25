@@ -20,6 +20,13 @@ from pipescaler.testing.fixture import parametrized_fixture
     ],
 )
 def runner(request) -> PotraceRunner:
+    """Pytest fixture that provides a PotraceRunner instance.
+
+    Arguments:
+        request: Pytest request fixture containing parameters
+    Returns:
+        Configured PotraceRunner instance
+    """
     return PotraceRunner(**request.param)
 
 
@@ -30,6 +37,12 @@ def runner(request) -> PotraceRunner:
     ],
 )
 def test(input_filename: str, runner: PotraceRunner):
+    """Test PotraceRunner converting bitmap images to SVG.
+
+    Arguments:
+        input_filename: Input image filename
+        runner: PotraceRunner fixture instance
+    """
     input_path = get_test_input_path(input_filename)
 
     with get_temp_file_path(".bmp") as bmp_path:

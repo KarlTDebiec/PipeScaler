@@ -14,6 +14,13 @@ from pipescaler.testing.mark import skip_if_ci, skip_if_codex
 
 @fixture
 def utility(request) -> EsrganSerializer:
+    """Pytest fixture that provides an EsrganSerializer instance.
+
+    Arguments:
+        request: Pytest request fixture
+    Returns:
+        Configured EsrganSerializer instance
+    """
     return EsrganSerializer()
 
 
@@ -26,6 +33,12 @@ def utility(request) -> EsrganSerializer:
     ],
 )
 def test(input_filename: str, utility: EsrganSerializer):
+    """Test EsrganSerializer converting ESRGAN models to PyTorch format.
+
+    Arguments:
+        input_filename: Input model filename
+        utility: EsrganSerializer fixture instance
+    """
     input_path = get_test_model_path(input_filename)
     with get_temp_file_path(".pth") as output_path:
         utility.run(input_path, output_path)

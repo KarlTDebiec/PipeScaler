@@ -36,6 +36,13 @@ from pipescaler.testing.mark import skip_if_ci, skip_if_codex
     ],
 )
 def test(cli: type[CommandLineInterface], args: str, input_filename: str):
+    """Test utility CLI with various model files and arguments.
+
+    Arguments:
+        cli: The command-line interface class to test
+        args: Command-line arguments string
+        input_filename: Input model filename
+    """
     input_path = get_test_model_path(input_filename)
 
     with get_temp_file_path(".pth") as output_path:
@@ -53,6 +60,11 @@ def test(cli: type[CommandLineInterface], args: str, input_filename: str):
     ],
 )
 def test_help(commands: tuple[type[CommandLineInterface], ...]):
+    """Test that help flag displays usage information and exits successfully.
+
+    Arguments:
+        commands: Tuple of command-line interface classes to test
+    """
     subcommands = " ".join(f"{command.name()}" for command in commands[1:])
 
     stdout = StringIO()
@@ -80,6 +92,11 @@ def test_help(commands: tuple[type[CommandLineInterface], ...]):
     ],
 )
 def test_usage(commands: tuple[type[CommandLineInterface], ...]):
+    """Test that missing arguments displays usage information and exits with error.
+
+    Arguments:
+        commands: Tuple of command-line interface classes to test
+    """
     subcommands = " ".join(f"{command.name()}" for command in commands[1:])
 
     stdout = StringIO()

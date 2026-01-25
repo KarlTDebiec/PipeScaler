@@ -21,6 +21,13 @@ from pipescaler.testing.fixture import parametrized_fixture
     ],
 )
 def merger(request) -> AlphaMerger:
+    """Pytest fixture that provides an AlphaMerger instance.
+
+    Arguments:
+        request: Pytest request fixture containing parameters
+    Returns:
+        Configured AlphaMerger instance
+    """
     return AlphaMerger(**request.param)
 
 
@@ -38,6 +45,13 @@ def merger(request) -> AlphaMerger:
     ],
 )
 def test(color: str, alpha: str, merger: AlphaMerger):
+    """Test AlphaMerger with various color and alpha channel combinations.
+
+    Arguments:
+        color: Color image filename
+        alpha: Alpha channel image filename
+        merger: AlphaMerger fixture instance
+    """
     color_input_path = get_test_input_path(color)
     color_img = Image.open(color_input_path)
     alpha_input_file = get_test_input_path(alpha)

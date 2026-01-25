@@ -45,6 +45,7 @@ def mock_pipe_object_save_2(self: PipeObject, path: Path | str):
 @patch.object(PipeObject, "save", mock_pipe_object_save_2)
 @patch.object(PipeObject, "__abstractmethods__", set())
 def test_load_save():
+    """Test CheckpointManager loading and saving checkpoints."""
     with get_temp_directory_path() as cp_directory_path:
         cp_manager = CheckpointManager(cp_directory_path)
 
@@ -109,18 +110,21 @@ def test_load_save():
 
 
 def test_pre_segment():
+    """Test CheckpointManager wrapping segments with pre-checkpointing."""
     with get_temp_directory_path() as cp_directory_path:
         cp_manager = CheckpointManager(cp_directory_path)
         cp_manager.pre_segment("cpt.txt")(Mock(spec=Segment))
 
 
 def test_post_segment():
+    """Test CheckpointManager wrapping segments with post-checkpointing."""
     with get_temp_directory_path() as cp_directory_path:
         cp_manager = CheckpointManager(cp_directory_path)
         cp_manager.post_segment("cpt.txt")(Mock(spec=Segment))
 
 
 def test_print():
+    """Test CheckpointManager string representation methods."""
     with get_temp_directory_path() as cp_directory_path:
         assert isinstance(cp_directory_path, PlatformPath)
 

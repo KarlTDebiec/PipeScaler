@@ -1,6 +1,6 @@
 #  Copyright 2020-2026 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
-"""Tests for NormalMerger"""
+"""Tests for NormalMerger."""
 
 import pytest
 from PIL import Image
@@ -18,6 +18,13 @@ from pipescaler.testing.fixture import parametrized_fixture
     ],
 )
 def merger(request) -> NormalMerger:
+    """Pytest fixture that provides a NormalMerger instance.
+
+    Arguments:
+        request: Pytest request fixture containing parameters
+    Returns:
+        Configured NormalMerger instance
+    """
     return NormalMerger(**request.param)
 
 
@@ -32,6 +39,14 @@ def merger(request) -> NormalMerger:
     ],
 )
 def test(x: str, y: str, z: str, merger: NormalMerger):
+    """Test NormalMerger with X, Y, and Z normal map channels.
+
+    Arguments:
+        x: X channel normal map filename
+        y: Y channel normal map filename
+        z: Z channel normal map filename
+        merger: NormalMerger fixture instance
+    """
     x_input_path = get_test_input_path(x)
     x_img = Image.open(x_input_path)
     y_input_path = get_test_input_path(y)

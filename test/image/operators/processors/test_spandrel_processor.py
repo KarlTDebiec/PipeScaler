@@ -40,6 +40,12 @@ from pipescaler.testing.mark import skip_if_ci, skip_if_codex
     ],
 )
 def test(input_filename: str, model: str):
+    """Test SpandrelProcessor with various image modes and models.
+
+    Arguments:
+        input_filename: Input image filename
+        model: Model path identifier
+    """
     processor = SpandrelProcessor(model_input_path=get_test_model_path(model))
 
     input_path = get_test_input_path(input_filename)

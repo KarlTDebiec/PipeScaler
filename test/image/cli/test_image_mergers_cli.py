@@ -29,6 +29,13 @@ from pipescaler.testing.file import get_test_input_path
     ],
 )
 def test(cli: type[CommandLineInterface], args: str, input_filenames: tuple[str]):
+    """Test merger CLI with various input files and arguments.
+
+    Arguments:
+        cli: The command-line interface class to test
+        args: Command-line arguments string
+        input_filenames: Tuple of input image filenames
+    """
     input_paths = [
         str(get_test_input_path(input_filename)) for input_filename in input_filenames
     ]
@@ -48,6 +55,11 @@ def test(cli: type[CommandLineInterface], args: str, input_filenames: tuple[str]
     ],
 )
 def test_help(commands: tuple[type[CommandLineInterface], ...]):
+    """Test that help flag displays usage information and exits successfully.
+
+    Arguments:
+        commands: Tuple of command-line interface classes to test
+    """
     subcommands = " ".join(f"{command.name()}" for command in commands[1:])
 
     stdout = StringIO()
@@ -75,6 +87,11 @@ def test_help(commands: tuple[type[CommandLineInterface], ...]):
     ],
 )
 def test_usage(commands: tuple[type[CommandLineInterface], ...]):
+    """Test that missing arguments displays usage information and exits with error.
+
+    Arguments:
+        commands: Tuple of command-line interface classes to test
+    """
     subcommands = " ".join(f"{command.name()}" for command in commands[1:])
 
     stdout = StringIO()

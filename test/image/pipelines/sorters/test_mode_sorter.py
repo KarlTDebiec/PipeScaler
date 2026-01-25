@@ -17,6 +17,13 @@ from pipescaler.testing.fixture import parametrized_fixture
     ],
 )
 def sorter(request) -> ModeSorter:
+    """Pytest fixture that provides a ModeSorter instance.
+
+    Arguments:
+        request: Pytest request fixture containing parameters
+    Returns:
+        Configured ModeSorter instance
+    """
     return ModeSorter(**request.param)
 
 
@@ -35,6 +42,13 @@ def sorter(request) -> ModeSorter:
     ],
 )
 def test(input_filename: str, outlet: str, sorter: ModeSorter):
+    """Test ModeSorter routing images based on image mode.
+
+    Arguments:
+        input_filename: Input image filename
+        outlet: Expected outlet name for routing
+        sorter: ModeSorter fixture instance
+    """
     img = PipeImage(path=get_test_input_path(input_filename))
 
     assert sorter(img) == outlet

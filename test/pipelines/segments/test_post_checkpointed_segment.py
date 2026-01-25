@@ -38,6 +38,7 @@ def mock_pipe_object_save_2(self, path: Path | str):
 @patch.object(PipeObject, "save", mock_pipe_object_save_2)
 @patch.object(PipeObject, "__abstractmethods__", set())
 def test():
+    """Test PostCheckpointedSegment managing checkpoints after segment execution."""
     with get_temp_directory_path() as cp_directory_path:
         # Mocks
         mock_segment = Mock(spec=Segment)

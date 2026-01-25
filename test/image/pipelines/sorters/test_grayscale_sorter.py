@@ -17,6 +17,13 @@ from pipescaler.testing.fixture import parametrized_fixture
     ],
 )
 def sorter(request) -> GrayscaleSorter:
+    """Pytest fixture that provides a GrayscaleSorter instance.
+
+    Arguments:
+        request: Pytest request fixture containing parameters
+    Returns:
+        Configured GrayscaleSorter instance
+    """
     return GrayscaleSorter(**request.param)
 
 
@@ -34,6 +41,13 @@ def sorter(request) -> GrayscaleSorter:
     ],
 )
 def test(input_filename: str, outlet: str, sorter: GrayscaleSorter):
+    """Test GrayscaleSorter routing images based on grayscale properties.
+
+    Arguments:
+        input_filename: Input image filename
+        outlet: Expected outlet name for routing
+        sorter: GrayscaleSorter fixture instance
+    """
     img = PipeImage(path=get_test_input_path(input_filename))
 
     assert sorter(img) == outlet
