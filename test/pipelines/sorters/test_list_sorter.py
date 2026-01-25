@@ -24,6 +24,13 @@ from pipescaler.testing.fixture import parametrized_fixture
     ],
 )
 def sorter(request) -> ListSorter:
+    """Pytest fixture that provides a ListSorter instance.
+
+    Arguments:
+        request: Pytest request fixture containing parameters
+    Returns:
+        Configured ListSorter instance
+    """
     return ListSorter(**request.param)
 
 
@@ -37,6 +44,13 @@ def sorter(request) -> ListSorter:
     ],
 )
 def test(input_filename: str, outlet: str | None, sorter: ListSorter):
+    """Test ListSorter routing based on predefined file lists.
+
+    Arguments:
+        input_filename: Input filename
+        outlet: Expected outlet name or None
+        sorter: ListSorter fixture instance
+    """
     image = PipeImage(path=get_test_input_path(input_filename))
     assert sorter(image) == outlet
 
@@ -57,6 +71,12 @@ def test(input_filename: str, outlet: str | None, sorter: ListSorter):
     ],
 )
 def test_text_file(input_filename: str, outlet: str | None):
+    """Test ListSorter loading lists from text files.
+
+    Arguments:
+        input_filename: Input filename
+        outlet: Expected outlet name or None
+    """
     with get_temp_file_path() as basic_file_path:
         with open(basic_file_path, "w") as basic_file:
             basic_file.write("L\n")
@@ -77,6 +97,7 @@ def test_text_file(input_filename: str, outlet: str | None):
 
 
 def test_exclusions():
+    """Test ListSorter excluding system files like .DS_Store and Thumbs.db."""
     with get_temp_directory_path() as basic_directory_path:
         (basic_directory_path / ".DS_Store").touch()
         (basic_directory_path / "Thumbs.db").touch()

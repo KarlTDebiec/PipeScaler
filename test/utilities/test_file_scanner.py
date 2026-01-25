@@ -12,6 +12,12 @@ from pipescaler.testing.file import get_test_input_dir_path, get_test_input_path
 
 
 def stage_files(input_directory: Path, project_root: Path):
+    """Stage test files in temporary directories.
+
+    Arguments:
+        input_directory: Directory for input files
+        project_root: Project root directory
+    """
     for input_path in get_test_input_dir_path().iterdir():
         copy(input_path, input_directory / input_path.name)
 
@@ -37,6 +43,7 @@ def stage_files(input_directory: Path, project_root: Path):
 
 
 def test():
+    """Test FileScanner organizing files based on rules."""
     with (
         get_temp_directory_path() as input_directory,
         get_temp_directory_path() as project_root,
@@ -56,6 +63,7 @@ def test():
 
 
 def test_remove_prefix():
+    """Test FileScanner with prefix removal option."""
     with (
         get_temp_directory_path() as input_directory,
         get_temp_directory_path() as project_root,
@@ -76,6 +84,7 @@ def test_remove_prefix():
 
 
 def test_output_format():
+    """Test FileScanner with output format conversion."""
     with (
         get_temp_directory_path() as input_directory,
         get_temp_directory_path() as project_root,

@@ -17,6 +17,13 @@ from pipescaler.testing.fixture import parametrized_fixture
     ],
 )
 def sorter(request) -> SolidColorSorter:
+    """Pytest fixture that provides a SolidColorSorter instance.
+
+    Arguments:
+        request: Pytest request fixture containing parameters
+    Returns:
+        Configured SolidColorSorter instance
+    """
     return SolidColorSorter(**request.param)
 
 
@@ -42,6 +49,13 @@ def sorter(request) -> SolidColorSorter:
     ],
 )
 def test(input_filename: str, outlet: str, sorter: SolidColorSorter):
+    """Test SolidColorSorter routing images based on solid color properties.
+
+    Arguments:
+        input_filename: Input image filename
+        outlet: Expected outlet name for routing
+        sorter: SolidColorSorter fixture instance
+    """
     img = PipeImage(path=get_test_input_path(input_filename))
 
     assert sorter(img) == outlet

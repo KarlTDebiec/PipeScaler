@@ -18,6 +18,13 @@ from pipescaler.testing.fixture import parametrized_fixture
     ],
 )
 def processor(request) -> CropProcessor:
+    """Pytest fixture that provides a CropProcessor instance.
+
+    Arguments:
+        request: Pytest request fixture containing parameters
+    Returns:
+        Configured CropProcessor instance
+    """
     return CropProcessor(**request.param)
 
 
@@ -36,6 +43,12 @@ def processor(request) -> CropProcessor:
     ],
 )
 def test(input_filename: str, processor: CropProcessor):
+    """Test CropProcessor with various image modes.
+
+    Arguments:
+        input_filename: Input image filename
+        processor: CropProcessor fixture instance
+    """
     input_path = get_test_input_path(input_filename)
     input_img = Image.open(input_path)
     output_img = processor(input_img)

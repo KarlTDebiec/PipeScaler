@@ -18,6 +18,13 @@ from pipescaler.testing.fixture import parametrized_fixture
     ],
 )
 def merger(request) -> HistogramMatchMerger:
+    """Pytest fixture that provides a HistogramMatchMerger instance.
+
+    Arguments:
+        request: Pytest request fixture containing parameters
+    Returns:
+        Configured HistogramMatchMerger instance
+    """
     return HistogramMatchMerger(**request.param)
 
 
@@ -35,6 +42,13 @@ def merger(request) -> HistogramMatchMerger:
     ],
 )
 def test(ref: str, fit: str, merger: HistogramMatchMerger):
+    """Test HistogramMatchMerger with reference and fit images.
+
+    Arguments:
+        ref: Reference image filename
+        fit: Image to fit to reference filename
+        merger: HistogramMatchMerger fixture instance
+    """
     ref_input_path = get_test_input_path(ref)
     ref_img = Image.open(ref_input_path)
     fit_input_path = get_test_input_path(fit)

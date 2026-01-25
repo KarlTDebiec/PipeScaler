@@ -17,6 +17,13 @@ from pipescaler.testing.fixture import parametrized_fixture
     params=[{"sigma": None}, {"sigma": 1.0}],
 )
 def processor(request) -> HeightToNormalProcessor:
+    """Pytest fixture that provides a HeightToNormalProcessor instance.
+
+    Arguments:
+        request: Pytest request fixture containing parameters
+    Returns:
+        Configured HeightToNormalProcessor instance
+    """
     return HeightToNormalProcessor(**request.param)
 
 
@@ -35,6 +42,12 @@ def processor(request) -> HeightToNormalProcessor:
     ],
 )
 def test(input_filename: str, processor: HeightToNormalProcessor):
+    """Test HeightToNormalProcessor with various height map modes.
+
+    Arguments:
+        input_filename: Input image filename
+        processor: HeightToNormalProcessor fixture instance
+    """
     input_path = get_test_input_path(input_filename)
     input_img = Image.open(input_path)
     output_img = processor(input_img)

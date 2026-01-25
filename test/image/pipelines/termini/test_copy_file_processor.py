@@ -10,6 +10,7 @@ from pipescaler.testing.file import get_test_input_dir_path
 
 
 def test():
+    """Test ImageDirectoryTerminus copying and managing image files."""
     with TemporaryDirectory() as output_directory:
         terminus = ImageDirectoryTerminus(directory=output_directory)
 

@@ -24,6 +24,13 @@ from pipescaler.testing.fixture import parametrized_fixture
     ],
 )
 def merger(request) -> PaletteMatchMerger:
+    """Pytest fixture that provides a PaletteMatchMerger instance.
+
+    Arguments:
+        request: Pytest request fixture containing parameters
+    Returns:
+        Configured PaletteMatchMerger instance
+    """
     return PaletteMatchMerger(**request.param)
 
 
@@ -37,6 +44,13 @@ def merger(request) -> PaletteMatchMerger:
     ],
 )
 def test(ref: str, fit: str, merger: PaletteMatchMerger):
+    """Test PaletteMatchMerger with reference and fit images.
+
+    Arguments:
+        ref: Reference image filename with palette
+        fit: Image to fit to reference palette filename
+        merger: PaletteMatchMerger fixture instance
+    """
     ref_input_path = get_test_input_path(ref)
     ref_img = Image.open(ref_input_path)
     fit_input_path = get_test_input_path(fit)

@@ -18,6 +18,13 @@ from pipescaler.testing.fixture import parametrized_fixture
     ],
 )
 def processor(request) -> ExpandProcessor:
+    """Pytest fixture that provides an ExpandProcessor instance.
+
+    Arguments:
+        request: Pytest request fixture containing parameters
+    Returns:
+        Configured ExpandProcessor instance
+    """
     return ExpandProcessor(**request.param)
 
 
@@ -36,6 +43,12 @@ def processor(request) -> ExpandProcessor:
     ],
 )
 def test(input_filename: str, processor: ExpandProcessor):
+    """Test ExpandProcessor with various image modes.
+
+    Arguments:
+        input_filename: Input image filename
+        processor: ExpandProcessor fixture instance
+    """
     input_path = get_test_input_path(input_filename)
     input_img = Image.open(input_path)
     output_img = processor(input_img)

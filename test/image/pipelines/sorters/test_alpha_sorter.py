@@ -17,6 +17,13 @@ from pipescaler.testing.fixture import parametrized_fixture
     ],
 )
 def sorter(request) -> AlphaSorter:
+    """Pytest fixture that provides an AlphaSorter instance.
+
+    Arguments:
+        request: Pytest request fixture containing parameters
+    Returns:
+        Configured AlphaSorter instance
+    """
     return AlphaSorter(**request.param)
 
 
@@ -36,6 +43,13 @@ def sorter(request) -> AlphaSorter:
     ],
 )
 def test(input_filename: str, outlet: str, sorter: AlphaSorter):
+    """Test AlphaSorter routing images based on alpha channel properties.
+
+    Arguments:
+        input_filename: Input image filename
+        outlet: Expected outlet name for routing
+        sorter: AlphaSorter fixture instance
+    """
     img = PipeImage(path=get_test_input_path(input_filename))
 
     assert sorter(img) == outlet

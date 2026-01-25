@@ -21,6 +21,13 @@ from pipescaler.testing.fixture import parametrized_fixture
     ],
 )
 def processor(request) -> ModeProcessor:
+    """Pytest fixture that provides a ModeProcessor instance.
+
+    Arguments:
+        request: Pytest request fixture containing parameters
+    Returns:
+        Configured ModeProcessor instance
+    """
     return ModeProcessor(**request.param)
 
 
@@ -39,6 +46,12 @@ def processor(request) -> ModeProcessor:
     ],
 )
 def test(input_filename: str, processor: ModeProcessor):
+    """Test ModeProcessor with various image modes.
+
+    Arguments:
+        input_filename: Input image filename
+        processor: ModeProcessor fixture instance
+    """
     input_path = get_test_input_path(input_filename)
     input_img = Image.open(input_path)
     output_img = processor(input_img)

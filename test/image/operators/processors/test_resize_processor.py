@@ -17,6 +17,13 @@ from pipescaler.testing.fixture import parametrized_fixture
     ],
 )
 def processor(request) -> ResizeProcessor:
+    """Pytest fixture that provides a ResizeProcessor instance.
+
+    Arguments:
+        request: Pytest request fixture containing parameters
+    Returns:
+        Configured ResizeProcessor instance
+    """
     return ResizeProcessor(**request.param)
 
 
@@ -35,6 +42,12 @@ def processor(request) -> ResizeProcessor:
     ],
 )
 def test(input_filename: str, processor: ResizeProcessor):
+    """Test ResizeProcessor with various image modes.
+
+    Arguments:
+        input_filename: Input image filename
+        processor: ResizeProcessor fixture instance
+    """
     input_path = get_test_input_path(input_filename)
     input_img = Image.open(input_path)
     output_img = processor(input_img)
