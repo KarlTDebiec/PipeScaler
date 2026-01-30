@@ -71,7 +71,7 @@ class PotraceProcessor(ImageProcessor):
                 traced_drawing.height = int(input_image.size[1] * self.scale)
 
                 with get_temp_file_path(".png") as temp_png_path:
-                    drawToFile(traced_drawing, temp_png_path, fmt="png")  # pyright: ignore[reportArgumentType]
+                    drawToFile(traced_drawing, temp_png_path, fmt="png")
                     output_image = Image.open(temp_png_path).convert("L")
 
         if self.invert:
