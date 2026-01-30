@@ -31,7 +31,6 @@ pipescaler = "pipescaler.cli.pipescaler_cli:PipeScalerCli.main"
 [dependency-groups]
 dev = [
     "pandas-stubs>=2.3.3.260113",
-    "pyright>=1.1.401",
     "pytest>=8.4.0",
     "pytest-cov>=6.1.1",
     "pytest-xdist>=3.7.0",

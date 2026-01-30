@@ -6,7 +6,6 @@
 * Run the following checks on **only the Python files you have changed or been asked to**:
   1. `uv run ruff format`
   2. `uv run ruff check --fix`
-  3. `uv run pyright`
 * Testing: `uv run pytest`
 
 ## Code Style
