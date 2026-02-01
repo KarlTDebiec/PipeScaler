@@ -9,7 +9,7 @@ from inspect import cleandoc
 from logging import debug
 from pathlib import Path
 
-from pipescaler.common.general import run_command
+from pipescaler.common.subprocess import run_command
 from pipescaler.common.validation import val_executable, val_int
 
 

@@ -7,7 +7,7 @@ from __future__ import annotations
 from logging import debug
 from pathlib import Path
 
-from pipescaler.common.general import run_command
+from pipescaler.common.subprocess import run_command
 from pipescaler.common.validation import val_input_dir_path
 from pipescaler.core import Runner
 

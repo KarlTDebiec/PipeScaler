@@ -1,6 +1,6 @@
 #  Copyright 2017-2026 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
-"""Abstract base class for command-line interfaces."""
+"""ABC for command-line interfaces."""
 
 from __future__ import annotations
 
@@ -13,16 +13,24 @@ from argparse import (
 )
 from datetime import datetime
 from inspect import cleandoc
-from logging import FileHandler, basicConfig, getLogger, info
+from logging import FileHandler, Formatter, getLogger
 from pathlib import Path
 from sys import argv
-from typing import Any
+from typing import TypedDict, Unpack
 
-from .logs import set_logging_verbosity
+from .logs import DEFAULT_LOG_FORMAT, configure_logging
+
+logger = getLogger(__name__)
+
+
+class CLIKwargs(TypedDict, total=False):
+    """Keyword arguments for command-line interface _main methods."""
+
+    pass
 
 
 class CommandLineInterface(ABC):
-    """Abstract base class for command-line interfaces."""
+    """ABC for command-line interfaces."""
 
     @classmethod
     def add_arguments_to_argparser(cls, parser: ArgumentParser):
@@ -106,20 +114,20 @@ class CommandLineInterface(ABC):
         parser = cls.argparser()
         kwargs = vars(parser.parse_args())
 
-        # Stdout logging
-        logger = getLogger()
-        logger.handlers.clear()
-        basicConfig()
+        # Configure logging
         verbosity = kwargs.pop("verbosity", 1)
-        set_logging_verbosity(verbosity)
+        configure_logging(verbosity)
 
         # File logging
         log_file = kwargs.pop("log_file")
         if log_file:
             log_file_path = Path(log_file).resolve()
-            file_logger = FileHandler(log_file_path)
-            logger.addHandler(file_logger)
-            info(f"Logging to {log_file_path} at level {logger.level}")
+            file_handler = FileHandler(log_file_path)
+            file_handler.setLevel(getLogger().level)
+            formatter = Formatter(DEFAULT_LOG_FORMAT)
+            file_handler.setFormatter(formatter)
+            getLogger().addHandler(file_handler)
+            logger.info(f"Logging to {log_file_path} at level {getLogger().level}")
 
         cls._main(**kwargs)
 
@@ -136,10 +144,10 @@ class CommandLineInterface(ABC):
         """Log the command line with which the script was run."""
         args = argv[:]
         command_line = " ".join(args)
-        info(f"Run with command line: {command_line}")
+        logger.info(f"Run with command line: {command_line}")
 
     @classmethod
     @abstractmethod
-    def _main(cls, **kwargs: Any):
+    def _main(cls, **kwargs: Unpack[CLIKwargs]):
         """Execute with provided keyword arguments."""
         raise NotImplementedError()

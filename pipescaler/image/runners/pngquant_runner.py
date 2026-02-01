@@ -9,7 +9,7 @@ from pathlib import Path
 from shutil import copyfile
 from typing import Any
 
-from pipescaler.common.general import run_command
+from pipescaler.common.subprocess import run_command
 from pipescaler.core import Runner
 
 
