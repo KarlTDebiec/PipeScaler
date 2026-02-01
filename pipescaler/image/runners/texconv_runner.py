@@ -8,7 +8,7 @@ from logging import debug
 from os import rename
 from pathlib import Path
 
-from pipescaler.common.general import run_command
+from pipescaler.common.subprocess import run_command
 from pipescaler.core import Runner
 
 
