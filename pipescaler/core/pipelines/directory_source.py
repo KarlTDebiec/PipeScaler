@@ -11,8 +11,9 @@ from pathlib import Path
 from typing import Any
 
 from pipescaler.common.validation import val_input_dir_path
-from pipescaler.core.pipelines.source import Source
 from pipescaler.core.sorting import basic_sort
+
+from .source import Source
 
 
 class DirectorySource(Source, ABC):

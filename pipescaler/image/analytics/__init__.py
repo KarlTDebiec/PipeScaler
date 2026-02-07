@@ -4,9 +4,9 @@
 
 from __future__ import annotations
 
-from pipescaler.image.analytics.image_hash_collection import ImageHashCollection
-from pipescaler.image.analytics.image_pair_collection import ImagePairCollection
-from pipescaler.image.analytics.image_pair_scorer import ImagePairScorer
+from .image_hash_collection import ImageHashCollection
+from .image_pair_collection import ImagePairCollection
+from .image_pair_scorer import ImagePairScorer
 
 __all__ = [
     "ImageHashCollection",

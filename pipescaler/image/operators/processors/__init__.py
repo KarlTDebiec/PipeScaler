@@ -4,21 +4,21 @@
 
 from __future__ import annotations
 
-from pipescaler.image.operators.processors.crop_processor import CropProcessor
-from pipescaler.image.operators.processors.expand_processor import ExpandProcessor
-from pipescaler.image.operators.processors.height_to_normal_processor import (
+from .crop_processor import CropProcessor
+from .expand_processor import ExpandProcessor
+from .height_to_normal_processor import (
     HeightToNormalProcessor,
 )
-from pipescaler.image.operators.processors.mode_processor import ModeProcessor
-from pipescaler.image.operators.processors.potrace_processor import PotraceProcessor
-from pipescaler.image.operators.processors.resize_processor import ResizeProcessor
-from pipescaler.image.operators.processors.sharpen_processor import SharpenProcessor
-from pipescaler.image.operators.processors.solid_color_processor import (
+from .mode_processor import ModeProcessor
+from .potrace_processor import PotraceProcessor
+from .resize_processor import ResizeProcessor
+from .sharpen_processor import SharpenProcessor
+from .solid_color_processor import (
     SolidColorProcessor,
 )
-from pipescaler.image.operators.processors.spandrel_processor import SpandrelProcessor
-from pipescaler.image.operators.processors.threshold_processor import ThresholdProcessor
-from pipescaler.image.operators.processors.xbrz_processor import XbrzProcessor
+from .spandrel_processor import SpandrelProcessor
+from .threshold_processor import ThresholdProcessor
+from .xbrz_processor import XbrzProcessor
 
 __all__ = [
     "CropProcessor",

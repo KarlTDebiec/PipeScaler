@@ -4,12 +4,12 @@
 
 from __future__ import annotations
 
-from pipescaler.image.operators.mergers.alpha_merger import AlphaMerger
-from pipescaler.image.operators.mergers.histogram_match_merger import (
+from .alpha_merger import AlphaMerger
+from .histogram_match_merger import (
     HistogramMatchMerger,
 )
-from pipescaler.image.operators.mergers.normal_merger import NormalMerger
-from pipescaler.image.operators.mergers.palette_match_merger import PaletteMatchMerger
+from .normal_merger import NormalMerger
+from .palette_match_merger import PaletteMatchMerger
 
 __all__ = [
     "AlphaMerger",

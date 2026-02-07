@@ -7,9 +7,9 @@ from __future__ import annotations
 from abc import ABC
 from collections.abc import Sequence
 
-from pipescaler.core.pipelines.checkpoint_manager_base import CheckpointManagerBase
-from pipescaler.core.pipelines.segment import Segment
-from pipescaler.core.pipelines.typing import SegmentLike
+from .checkpoint_manager_base import CheckpointManagerBase
+from .segment import Segment
+from .typing import SegmentLike
 
 
 class CheckpointedSegment(Segment, ABC):

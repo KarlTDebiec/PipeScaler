@@ -8,8 +8,8 @@ from collections.abc import Collection
 
 from PIL import Image
 
-from pipescaler.image.core.exceptions import UnsupportedImageModeError
-from pipescaler.image.core.functions import remove_palette
+from .exceptions import UnsupportedImageModeError
+from .functions import remove_palette
 
 
 def validate_image(

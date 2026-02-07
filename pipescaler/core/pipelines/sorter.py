@@ -8,7 +8,7 @@ import re
 from abc import ABC, abstractmethod
 from inspect import cleandoc
 
-from pipescaler.core.pipelines import PipeObject
+from . import PipeObject
 
 
 class Sorter[T: PipeObject](ABC):
