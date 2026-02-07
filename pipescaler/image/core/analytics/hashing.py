@@ -19,7 +19,7 @@ from imagehash import (
 )
 from PIL import Image
 
-from pipescaler.image.core.analytics.typing import HashSeries
+from .typing import HashSeries
 
 
 def multichannel_hamming(first: HashSeries, second: HashSeries, hash_type: str) -> int:

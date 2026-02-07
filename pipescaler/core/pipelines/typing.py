@@ -6,8 +6,8 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
-from pipescaler.core.pipelines.pipe_object import PipeObject
-from pipescaler.core.pipelines.segment import Segment
+from .pipe_object import PipeObject
+from .segment import Segment
 
 type SegmentLike = Segment | Callable[[PipeObject], tuple[PipeObject, ...]]
 """Type alias for a Segment or callable with the same call signature."""

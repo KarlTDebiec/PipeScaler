@@ -7,7 +7,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from pathlib import Path
 
-from pipescaler.core.runner import Runner
+from .runner import Runner
 
 RunnerLike = Runner | Callable[[Path, Path], None]
 """Type alias for a Runner or a callable with the same call signature."""

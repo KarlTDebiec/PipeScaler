@@ -4,8 +4,8 @@
 
 from __future__ import annotations
 
-from pipescaler.image.pipelines.image_checkpoint_manager import ImageCheckpointManager
-from pipescaler.image.pipelines.image_substituter import ImageSubstituter
+from .image_checkpoint_manager import ImageCheckpointManager
+from .image_substituter import ImageSubstituter
 
 __all__ = [
     "ImageCheckpointManager",
