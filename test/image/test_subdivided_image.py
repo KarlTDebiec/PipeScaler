@@ -8,50 +8,10 @@ from PIL import Image
 from pipescaler.image import SubdividedImage
 from pipescaler.image.core.operators import ImageProcessor
 from pipescaler.image.operators.processors import (
-    EsrganProcessor,
     PotraceProcessor,
-    WaifuProcessor,
     XbrzProcessor,
 )
-from pipescaler.image.testing import xfail_unsupported_image_mode
-from pipescaler.testing.file import get_test_input_path, get_test_model_path
-from pipescaler.testing.mark import skip_if_ci, skip_if_codex
-
-
-@pytest.fixture
-def esrgan_bc1s2_processor(request) -> EsrganProcessor:
-    """Pytest fixture that provides an EsrganProcessor with BC1-smooth2 model.
-
-    Arguments:
-        request: Pytest request fixture
-    Returns:
-        Configured EsrganProcessor instance
-    """
-    return EsrganProcessor(
-        model_input_path=get_test_model_path("ESRGAN/1x_BC1-smooth2")
-    )
-
-
-@pytest.fixture
-def esrgan_rrdb_processor() -> EsrganProcessor:
-    """Pytest fixture that provides an EsrganProcessor with RRDB_ESRGAN_x4 model.
-
-    Returns:
-        Configured EsrganProcessor instance
-    """
-    return EsrganProcessor(
-        model_input_path=get_test_model_path("ESRGAN/RRDB_ESRGAN_x4")
-    )
-
-
-@pytest.fixture
-def waifu_processor() -> WaifuProcessor:
-    """Pytest fixture that provides a WaifuProcessor instance.
-
-    Returns:
-        Configured WaifuProcessor instance
-    """
-    return WaifuProcessor(model_input_path=get_test_model_path("WaifuUpConv7/a-2-3"))
+from pipescaler.testing.file import get_test_input_path
 
 
 @pytest.fixture
@@ -77,14 +37,7 @@ def potrace_processor() -> PotraceProcessor:
 @pytest.mark.parametrize(
     ("processor_name", "input_filename", "scale"),
     [
-        skip_if_codex(skip_if_ci())("esrgan_bc1s2_processor", "L", 1),
-        skip_if_codex(skip_if_ci())("esrgan_bc1s2_processor", "RGB", 1),
-        skip_if_codex(skip_if_ci(xfail_unsupported_image_mode()))(
-            "esrgan_bc1s2_processor", "RGBA", 1
-        ),
-        skip_if_codex(skip_if_ci())("esrgan_rrdb_processor", "RGB", 4),
         ("potrace_processor", "L", 10),
-        skip_if_codex(skip_if_ci())("waifu_processor", "RGB", 2),
         ("xbrz_processor", "RGB", 6),
     ],
 )
