@@ -8,7 +8,9 @@ from argparse import ArgumentParser
 from typing import Any
 
 from pipescaler.common import CommandLineInterface
+from pipescaler.image.cli.image_mergers_cli import ImageMergersCli
 from pipescaler.image.cli.image_processors_cli import ImageProcessorsCli
+from pipescaler.image.cli.image_splitters_cli import ImageSplittersCli
 from pipescaler.image.cli.image_utilities_cli import ImageUtilitiesCli
 
 
@@ -57,9 +59,17 @@ class ImageCli(CommandLineInterface):
     @classmethod
     def subcommands(
         cls,
-    ) -> dict[str, type[ImageProcessorsCli] | type[ImageUtilitiesCli]]:
+    ) -> dict[
+        str,
+        type[ImageMergersCli]
+        | type[ImageProcessorsCli]
+        | type[ImageSplittersCli]
+        | type[ImageUtilitiesCli],
+    ]:
         """Names and types of tools wrapped by command-line interface."""
         return {
+            ImageMergersCli.name(): ImageMergersCli,
             ImageProcessorsCli.name(): ImageProcessorsCli,
+            ImageSplittersCli.name(): ImageSplittersCli,
             ImageUtilitiesCli.name(): ImageUtilitiesCli,
         }
