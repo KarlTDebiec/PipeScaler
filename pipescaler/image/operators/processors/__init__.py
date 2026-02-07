@@ -5,7 +5,6 @@
 from __future__ import annotations
 
 from pipescaler.image.operators.processors.crop_processor import CropProcessor
-from pipescaler.image.operators.processors.esrgan_processor import EsrganProcessor
 from pipescaler.image.operators.processors.expand_processor import ExpandProcessor
 from pipescaler.image.operators.processors.height_to_normal_processor import (
     HeightToNormalProcessor,
@@ -19,12 +18,10 @@ from pipescaler.image.operators.processors.solid_color_processor import (
 )
 from pipescaler.image.operators.processors.spandrel_processor import SpandrelProcessor
 from pipescaler.image.operators.processors.threshold_processor import ThresholdProcessor
-from pipescaler.image.operators.processors.waifu_processor import WaifuProcessor
 from pipescaler.image.operators.processors.xbrz_processor import XbrzProcessor
 
 __all__ = [
     "CropProcessor",
-    "EsrganProcessor",
     "ExpandProcessor",
     "HeightToNormalProcessor",
     "ModeProcessor",
@@ -34,6 +31,5 @@ __all__ = [
     "SolidColorProcessor",
     "SpandrelProcessor",
     "ThresholdProcessor",
-    "WaifuProcessor",
     "XbrzProcessor",
 ]
