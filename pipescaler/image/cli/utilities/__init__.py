@@ -4,10 +4,4 @@
 
 from __future__ import annotations
 
-from pipescaler.image.cli.utilities.esrgan_serializer_cli import EsrganSerializerCli
-from pipescaler.image.cli.utilities.waifu_serializer_cli import WaifuSerializerCli
-
-__all__ = [
-    "EsrganSerializerCli",
-    "WaifuSerializerCli",
-]
+__all__: list[str] = []
