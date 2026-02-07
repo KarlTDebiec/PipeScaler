@@ -36,12 +36,12 @@ class ImageSplittersCli(CommandLineInterface):
     @classmethod
     def description(cls) -> str:
         """Long description of this tool displayed below usage."""
-        return "Merges images."
+        return "Splits images."
 
     @classmethod
     def help(cls) -> str:
         """Short description of this tool used when it is a subparser."""
-        return "merge image"
+        return "split image"
 
     @classmethod
     def _main(cls, **kwargs: Any):
@@ -53,7 +53,7 @@ class ImageSplittersCli(CommandLineInterface):
     @classmethod
     def name(cls) -> str:
         """Name of this tool used to define it when it is a subparser."""
-        return "merge"
+        return "split"
 
     @classmethod
     def splitters(cls) -> dict[str, type[ImageSplitterCli]]:

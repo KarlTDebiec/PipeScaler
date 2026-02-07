@@ -13,14 +13,22 @@ import pytest
 
 from pipescaler.common import CommandLineInterface
 from pipescaler.common.testing import run_cli_with_args
-from pipescaler.image.cli import ImageCli, ImageProcessorsCli, ImageUtilitiesCli
+from pipescaler.image.cli import (
+    ImageCli,
+    ImageMergersCli,
+    ImageProcessorsCli,
+    ImageSplittersCli,
+    ImageUtilitiesCli,
+)
 
 
 @pytest.mark.parametrize(
     "commands",
     [
         (ImageCli,),
+        (ImageCli, ImageMergersCli),
         (ImageCli, ImageProcessorsCli),
+        (ImageCli, ImageSplittersCli),
         (ImageCli, ImageUtilitiesCli),
     ],
 )
@@ -50,7 +58,9 @@ def test_help(commands: tuple[type[CommandLineInterface], ...]):
     "commands",
     [
         (ImageCli,),
+        (ImageCli, ImageMergersCli),
         (ImageCli, ImageProcessorsCli),
+        (ImageCli, ImageSplittersCli),
         (ImageCli, ImageUtilitiesCli),
     ],
 )
