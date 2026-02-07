@@ -4,10 +4,4 @@
 
 from __future__ import annotations
 
-from pipescaler.image.models.waifu_upconv7 import WaifuUpConv7
-from pipescaler.image.models.waifu_vgg7 import WaifuVgg7
-
-__all__ = [
-    "WaifuVgg7",
-    "WaifuUpConv7",
-]
+__all__: list[str] = []

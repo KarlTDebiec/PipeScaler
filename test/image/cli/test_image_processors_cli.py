@@ -7,7 +7,6 @@ from __future__ import annotations
 from contextlib import redirect_stderr, redirect_stdout
 from inspect import getfile
 from io import StringIO
-from os import getenv
 from pathlib import Path
 
 import pytest
@@ -18,7 +17,6 @@ from pipescaler.common.testing import run_cli_with_args
 from pipescaler.image.cli import ImageProcessorsCli
 from pipescaler.image.cli.processors import (
     CropCli,
-    EsrganCli,
     ExpandCli,
     HeightToNormalCli,
     ModeCli,
@@ -26,29 +24,15 @@ from pipescaler.image.cli.processors import (
     SharpenCli,
     SolidColorCli,
     ThresholdCli,
-    WaifuCli,
     XbrzCli,
 )
-from pipescaler.testing.file import get_test_input_path, get_test_model_path
-from pipescaler.testing.mark import skip_if_ci, skip_if_codex
-
-if getenv("CODEX_ENV_PYTHON_VERSION") is None:
-    esrgan_path = get_test_model_path("ESRGAN/1x_BC1-smooth2")
-    waifu_path = get_test_model_path("WaifuUpConv7/a-2-3")
-else:
-    esrgan_path = None
-    waifu_path = None
+from pipescaler.testing.file import get_test_input_path
 
 
 @pytest.mark.parametrize(
     ("cli", "args", "input_filename"),
     [
         (CropCli, "--pixels 4 4 4 4", "RGB"),
-        skip_if_codex(skip_if_ci())(
-            EsrganCli,
-            f"--model {esrgan_path}",
-            "RGB",
-        ),
         (ExpandCli, "--pixels 8 8 8 8", "RGB"),
         (HeightToNormalCli, "--sigma 1.0", "L"),
         (ModeCli, "--mode L", "RGB"),
@@ -56,11 +40,6 @@ else:
         (SharpenCli, "", "RGB"),
         (SolidColorCli, "--scale 2", "RGB"),
         (ThresholdCli, "--threshold 64 --denoise", "L"),
-        skip_if_codex(skip_if_ci())(
-            WaifuCli,
-            f"--model {waifu_path}",
-            "RGB",
-        ),
         (XbrzCli, "--scale 2", "RGB"),
     ],
 )
@@ -82,7 +61,6 @@ def test(cli: type[CommandLineInterface], args: str, input_filename: str):
     "commands",
     [
         (CropCli,),
-        (EsrganCli,),
         (ExpandCli,),
         (HeightToNormalCli,),
         (ModeCli,),
@@ -90,11 +68,9 @@ def test(cli: type[CommandLineInterface], args: str, input_filename: str):
         (SharpenCli,),
         (SolidColorCli,),
         (ThresholdCli,),
-        (WaifuCli,),
         (XbrzCli,),
         (ImageProcessorsCli,),
         (ImageProcessorsCli, CropCli),
-        (ImageProcessorsCli, EsrganCli),
         (ImageProcessorsCli, ExpandCli),
         (ImageProcessorsCli, HeightToNormalCli),
         (ImageProcessorsCli, ModeCli),
@@ -102,7 +78,6 @@ def test(cli: type[CommandLineInterface], args: str, input_filename: str):
         (ImageProcessorsCli, SharpenCli),
         (ImageProcessorsCli, SolidColorCli),
         (ImageProcessorsCli, ThresholdCli),
-        (ImageProcessorsCli, WaifuCli),
         (ImageProcessorsCli, XbrzCli),
     ],
 )
@@ -132,7 +107,6 @@ def test_help(commands: tuple[type[CommandLineInterface], ...]):
     "commands",
     [
         (CropCli,),
-        (EsrganCli,),
         (ExpandCli,),
         (HeightToNormalCli,),
         (ModeCli,),
@@ -140,11 +114,9 @@ def test_help(commands: tuple[type[CommandLineInterface], ...]):
         (SharpenCli,),
         (SolidColorCli,),
         (ThresholdCli,),
-        (WaifuCli,),
         (XbrzCli,),
         (ImageProcessorsCli,),
         (ImageProcessorsCli, CropCli),
-        (ImageProcessorsCli, EsrganCli),
         (ImageProcessorsCli, ExpandCli),
         (ImageProcessorsCli, HeightToNormalCli),
         (ImageProcessorsCli, ModeCli),
@@ -152,7 +124,6 @@ def test_help(commands: tuple[type[CommandLineInterface], ...]):
         (ImageProcessorsCli, SharpenCli),
         (ImageProcessorsCli, SolidColorCli),
         (ImageProcessorsCli, ThresholdCli),
-        (ImageProcessorsCli, WaifuCli),
         (ImageProcessorsCli, XbrzCli),
     ],
 )
