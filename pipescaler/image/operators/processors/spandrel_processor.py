@@ -14,10 +14,12 @@ from PIL import Image
 from spandrel import ModelLoader
 
 from pipescaler.common.validation import val_input_path
+from pipescaler.image.core.operators import ImageProcessor
+from pipescaler.image.core.typing import ImageMode
 from pipescaler.image.core.validation import validate_image_and_convert_mode
 
 
-class SpandrelProcessor:
+class SpandrelProcessor(ImageProcessor):
     """Processes image using Pytorch models loaded through Spandrel."""
 
     def __init__(self, model_input_path: Path | str, **kwargs: Any):
@@ -28,6 +30,8 @@ class SpandrelProcessor:
             channel_order: Order of channels in input image (default: "RGB")
             kwargs: Additional keyword arguments
         """
+        super().__init__(**kwargs)
+
         self.device = "cpu"
         """Name of device on which to run neural network model."""
         if torch.backends.mps.is_available():
@@ -111,14 +115,14 @@ class SpandrelProcessor:
         )
 
     @classmethod
-    def inputs(cls) -> dict[str, tuple[str, ...]]:
+    def inputs(cls) -> dict[str, tuple[ImageMode, ...]]:
         """Inputs to this operator."""
         return {
             "input": ("1", "L", "RGB"),
         }
 
     @classmethod
-    def outputs(cls) -> dict[str, tuple[str, ...]]:
+    def outputs(cls) -> dict[str, tuple[ImageMode, ...]]:
         """Outputs of this operator."""
         return {
             "output": ("1", "L", "RGB"),
