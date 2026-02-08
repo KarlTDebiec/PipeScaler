@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from typing import Literal, cast
+
 from PIL import Image, ImageColor
 
 from pipescaler.common.validation import val_str
@@ -11,13 +13,18 @@ from pipescaler.image.core.operators import ImageProcessor
 from pipescaler.image.core.typing import ImageMode
 from pipescaler.image.core.validation import validate_image
 
+type ModeSetting = Literal["1", "L", "LA", "RGB", "RGBA"]
+"""Mode settings supported by ModeProcessor."""
+
 
 class ModeProcessor(ImageProcessor):
     """Converts mode of image."""
 
+    supported_modes: tuple[ModeSetting, ...] = ("1", "L", "LA", "RGB", "RGBA")
+
     def __init__(
         self,
-        mode: str = "RGB",
+        mode: ModeSetting = "RGB",
         background_color: str = "#000000",
         threshold: int = 128,
     ):
@@ -30,7 +37,7 @@ class ModeProcessor(ImageProcessor):
         """
         super().__init__()
 
-        self.mode = val_str(mode, self.outputs()["output"])
+        self.mode = cast(ModeSetting, val_str(mode, self.supported_modes))
         self.background_color = ImageColor.getrgb(background_color)
         self.threshold = threshold
 
@@ -72,12 +79,12 @@ class ModeProcessor(ImageProcessor):
     def inputs(cls) -> dict[str, tuple[ImageMode, ...]]:
         """Inputs to this operator."""
         return {
-            "input": ("1", "L", "LA", "RGB", "RGBA"),
+            "input": cls.supported_modes,
         }
 
     @classmethod
     def outputs(cls) -> dict[str, tuple[ImageMode, ...]]:
         """Outputs of this operator."""
         return {
-            "output": ("1", "L", "LA", "RGB", "RGBA"),
+            "output": cls.supported_modes,
         }
