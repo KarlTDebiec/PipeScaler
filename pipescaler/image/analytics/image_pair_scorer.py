@@ -11,7 +11,6 @@ import numpy as np
 import pandas as pd
 from scipy.stats import zscore
 
-from pipescaler.image.analytics.image_hash_collection import ImageHashCollection
 from pipescaler.image.core.analytics.hashing import (
     multichannel_average_hamming,
     multichannel_color_hamming,
@@ -28,6 +27,8 @@ from pipescaler.image.core.analytics.typing import (
     ScoreStatsDataFrame,
     ScoreStatsSeries,
 )
+
+from .image_hash_collection import ImageHashCollection
 
 
 class ImagePairScorer:

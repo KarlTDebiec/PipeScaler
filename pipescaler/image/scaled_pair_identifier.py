@@ -16,16 +16,17 @@ import pandas as pd
 from PIL import Image
 
 from pipescaler.common.validation import val_input_dir_path
-from pipescaler.image.analytics import (
-    ImageHashCollection,
-    ImagePairCollection,
-    ImagePairScorer,
-)
 from pipescaler.image.core.analytics.typing import ScoreDataFrame, ScoreStatsDataFrame
 from pipescaler.image.core.functions import hstack_images, vstack_images
 from pipescaler.image.core.pipelines import PipeImage
 from pipescaler.image.core.sorting import citra_sort
 from pipescaler.image.pipelines.sorters import AlphaSorter, GrayscaleSorter
+
+from .analytics import (
+    ImageHashCollection,
+    ImagePairCollection,
+    ImagePairScorer,
+)
 
 pd.set_option("display.max_rows", None)
 pd.set_option("display.max_columns", None)

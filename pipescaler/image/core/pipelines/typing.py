@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
-from pipescaler.image.core.pipelines.image_segment import ImageSegment
-from pipescaler.image.core.pipelines.pipe_image import PipeImage
+from .image_segment import ImageSegment
+from .pipe_image import PipeImage
 
 type ImageSegmentLike = ImageSegment | Callable[[PipeImage], tuple[PipeImage, ...]]
