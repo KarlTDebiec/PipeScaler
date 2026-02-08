@@ -5,12 +5,39 @@
 import pytest
 from PIL import Image
 
+from pipescaler.image.core.operators import ImageProcessor
 from pipescaler.image.operators.processors import SpandrelProcessor
 from pipescaler.image.testing import (
     get_expected_output_mode,
 )
 from pipescaler.testing.file import get_test_input_path, get_test_model_path
 from pipescaler.testing.mark import skip_if_ci, skip_if_codex
+
+
+def test_imageprocessor_interface():
+    """Test that SpandrelProcessor conforms to ImageProcessor interface.
+
+    This test validates that SpandrelProcessor properly inherits from
+    ImageProcessor and implements the required interface methods without
+    requiring the heavy dependencies (torch, spandrel, etc.).
+    """
+    # Verify inheritance
+    assert issubclass(SpandrelProcessor, ImageProcessor)
+
+    # Verify required class methods exist and return correct types
+    inputs = SpandrelProcessor.inputs()
+    outputs = SpandrelProcessor.outputs()
+
+    assert isinstance(inputs, dict)
+    assert isinstance(outputs, dict)
+    assert "input" in inputs
+    assert "output" in outputs
+
+    # Verify the types of the tuples
+    assert isinstance(inputs["input"], tuple)
+    assert isinstance(outputs["output"], tuple)
+    assert all(isinstance(mode, str) for mode in inputs["input"])
+    assert all(isinstance(mode, str) for mode in outputs["output"])
 
 
 @pytest.mark.serial
