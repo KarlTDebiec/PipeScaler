@@ -47,11 +47,11 @@ def test_non_callable_segment_validation():
 
 def test():
     """Test PreCheckpointedSegment managing checkpoints before segment execution."""
-    with get_temp_directory_path() as cp_directory_path:
+    with get_temp_directory_path() as cp_dir_path:
         # Mocks
         mock_segment = Mock(spec=Segment)
         mock_cp_manager = Mock(spec=CheckpointManager)
-        mock_cp_manager.directory = cp_directory_path
+        mock_cp_manager.dir_path = cp_dir_path
         mock_pipe_object = Mock(spec=PipeObject)
         mock_pipe_object.location_name = "test"
         mock_pipe_object.save.side_effect = mock_pipe_object_save
@@ -65,7 +65,7 @@ def test():
         pre_checkpointed_segment(mock_pipe_object)
         assert mock_pipe_object.save.call_count == 1
         assert mock_pipe_object.save.call_args_list[0][0] == (
-            cp_directory_path / mock_pipe_object.location_name / "pre.txt",
+            cp_dir_path / mock_pipe_object.location_name / "pre.txt",
         )
 
         assert mock_cp_manager.observe.call_count == 1

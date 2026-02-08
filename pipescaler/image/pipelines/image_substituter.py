@@ -18,19 +18,19 @@ class ImageSubstituter:
 
     def __init__(
         self,
-        directory: Path | str,
+        dir_path: Path | str,
         required: bool = False,
         match_input_mode: bool = True,
     ):
         """Validate and store configuration and initialize.
 
         Arguments:
-            directory: Directory from which to source alternative images
+            dir_path: Path to directory from which to source alternative images
             required: Raise error if alternative image not found
             match_input_mode: Convert image to match input image's mode
         """
-        self.directory = val_input_dir_path(directory)
-        self.substitutes = {f.stem: f for f in self.directory.iterdir()}
+        self.dir_path = val_input_dir_path(dir_path)
+        self.substitutes = {f.stem: f for f in self.dir_path.iterdir()}
         self.required = required
         self.match_input_mode = match_input_mode
 

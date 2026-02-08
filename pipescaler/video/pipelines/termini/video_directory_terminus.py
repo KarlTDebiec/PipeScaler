@@ -11,39 +11,38 @@ from pipescaler.core.pipelines import DirectoryTerminus
 from pipescaler.video.core.pipelines import PipeVideo, VideoTerminus
 
 
-class VideoDirectoryTerminus(VideoTerminus, DirectoryTerminus):
+class VideoDirectoryTerminus(VideoTerminus, DirectoryTerminus[PipeVideo]):
     """Copies videos to an output directory."""
 
-    def __call__(self, input_video: PipeVideo):
+    def __call__(self, input_obj: PipeVideo):
         """Save video to output directory.
 
         Arguments:
-            input_video: Video to save to output directory
+            input_obj: Video to save to output directory
         """
 
         def save_video():
             """Save video to output directory."""
-            if not self.directory.exists():
-                self.directory.mkdir(parents=True)
-                info(f"{self}: '{self.directory}' created")
+            if not self.dir_path.exists():
+                self.dir_path.mkdir(parents=True)
+                info(f"{self}: '{self.dir_path}' created")
             if not output_path.parent.exists():
                 output_path.parent.mkdir(parents=True)
                 info(
-                    f"{self}: "
-                    f"'{output_path.parent.relative_to(self.directory)}' created"
+                    f"{self}: '{output_path.parent.relative_to(self.dir_path)}' created"
                 )
-            if input_video.path:
-                copyfile(input_video.path, output_path)
+            if input_obj.path:
+                copyfile(input_obj.path, output_path)
             else:
                 raise NotImplementedError("Saving video from memory not implemented")
 
-        suffix = input_video.path.suffix if input_video.path else ".mp4"
-        output_path = (self.directory / input_video.location_name).with_suffix(suffix)
-        self.observed_files.add(str(output_path.relative_to(self.directory)))
+        suffix = input_obj.path.suffix if input_obj.path else ".mp4"
+        output_path = (self.dir_path / input_obj.location_name).with_suffix(suffix)
+        self.observed_files.add(str(output_path.relative_to(self.dir_path)))
         if output_path.exists():
             if (
-                input_video.path
-                and output_path.stat().st_mtime > input_video.path.stat().st_mtime
+                input_obj.path
+                and output_path.stat().st_mtime > input_obj.path.stat().st_mtime
             ):
                 info(f"{self}: '{output_path}' is newer; not overwritten")
                 return

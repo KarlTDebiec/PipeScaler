@@ -46,8 +46,8 @@ def mock_pipe_object_save_2(self: PipeObject, path: Path | str):
 @patch.object(PipeObject, "__abstractmethods__", set())
 def test_load_save():
     """Test CheckpointManager loading and saving checkpoints."""
-    with get_temp_directory_path() as cp_directory_path:
-        cp_manager = CheckpointManager(cp_directory_path)
+    with get_temp_directory_path() as cp_dir_path:
+        cp_manager = CheckpointManager(cp_dir_path)
 
         # Mocks
         mock_pipe_object_input = Mock(spec=PipeObject)
@@ -80,13 +80,13 @@ def test_load_save():
 
         # Save checkpoint
         cp_manager.save((mock_pipe_object_input,), ("cpt.txt",))
-        assert (cp_directory_path / "test" / "cpt.txt").exists()
+        assert (cp_dir_path / "test" / "cpt.txt").exists()
 
         # Try to save again, without overwriting
         outputs = cp_manager.save(
             (mock_pipe_object_input,), ("cpt.txt",), overwrite=False
         )
-        assert outputs[0].path == (cp_directory_path / "test" / "cpt.txt")
+        assert outputs[0].path == (cp_dir_path / "test" / "cpt.txt")
 
         # Load checkpoint
         internal_segment = Mock(spec=Segment)
@@ -103,34 +103,34 @@ def test_load_save():
         assert outputs
 
         # Purge
-        (cp_directory_path / "delete_me.txt").touch()
-        (cp_directory_path / "delete_me").mkdir()
-        (cp_directory_path / "delete_me" / "delete_me.txt").touch()
+        (cp_dir_path / "delete_me.txt").touch()
+        (cp_dir_path / "delete_me").mkdir()
+        (cp_dir_path / "delete_me" / "delete_me.txt").touch()
         cp_manager.purge_unrecognized_files()
 
 
 def test_pre_segment():
     """Test CheckpointManager wrapping segments with pre-checkpointing."""
-    with get_temp_directory_path() as cp_directory_path:
-        cp_manager = CheckpointManager(cp_directory_path)
+    with get_temp_directory_path() as cp_dir_path:
+        cp_manager = CheckpointManager(cp_dir_path)
         cp_manager.pre_segment("cpt.txt")(Mock(spec=Segment))
 
 
 def test_post_segment():
     """Test CheckpointManager wrapping segments with post-checkpointing."""
-    with get_temp_directory_path() as cp_directory_path:
-        cp_manager = CheckpointManager(cp_directory_path)
+    with get_temp_directory_path() as cp_dir_path:
+        cp_manager = CheckpointManager(cp_dir_path)
         cp_manager.post_segment("cpt.txt")(Mock(spec=Segment))
 
 
 def test_print():
     """Test CheckpointManager string representation methods."""
-    with get_temp_directory_path() as cp_directory_path:
-        assert isinstance(cp_directory_path, PlatformPath)
+    with get_temp_directory_path() as cp_dir_path:
+        assert isinstance(cp_dir_path, PlatformPath)
 
-        cp_manager = CheckpointManager(cp_directory_path)
+        cp_manager = CheckpointManager(cp_dir_path)
         print(cp_manager)
         print(repr(cp_manager))
 
         cp_manager_2 = eval(repr(cp_manager))
-        assert cp_manager_2.directory == cp_manager.directory
+        assert cp_manager_2.dir_path == cp_manager.dir_path

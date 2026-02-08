@@ -17,18 +17,18 @@ _CITRA_STEM_RE = re.compile(
 )
 
 
-def citra_sort(filename: str) -> int:
+def citra_sort(file_path: str) -> int:
     """Sort filenames dumped by Citra.
 
     Supports:
       - tex1_32x32_0A4B083BF0B35A78_12.png
       - tex1_8x8_0EAEA8971E8954F4_13_mip0.png
     """
-    stem = splitext(basename(filename))[0]
+    stem = splitext(basename(file_path))[0]
     m = _CITRA_STEM_RE.match(stem)
     if not m:
-        error(f"Error encountered while sorting {filename}")
-        raise ValueError(f"Unrecognized Citra filename pattern: {filename}")
+        error(f"Error encountered while sorting {file_path}")
+        raise ValueError(f"Unrecognized Citra filename pattern: {file_path}")
 
     width = int(m["w"])
     height = int(m["h"])
@@ -37,13 +37,13 @@ def citra_sort(filename: str) -> int:
     return int(f"1{width:04d}{height:04d}{code:022d}")
 
 
-def dolphin_sort(filename: str) -> int:
+def dolphin_sort(file_path: str) -> int:
     """Sort filenames dumped by Dolphin.
 
     See [Dolphin](https://dolphin-emu.org/).
     """
     try:
-        components = splitext(basename(filename))[0].split("_")
+        components = splitext(basename(file_path))[0].split("_")
         if len(components) == 4:
             size = components[1]
             code = components[2]
@@ -59,17 +59,17 @@ def dolphin_sort(filename: str) -> int:
 
         return int(f"1{int(width):04d}{int(height):04d}{int(code, 16):022d}")
     except ValueError as e:
-        error(f"Error encountered while sorting {filename}")
+        error(f"Error encountered while sorting {file_path}")
         raise e
 
 
-def texmod_sort(filename: str) -> int:
+def texmod_sort(file_path: str) -> int:
     """Sort filenames dumped by TexMod.
 
     See [TexMod](https://www.moddb.com/downloads/texmod4).
     """
     try:
-        return int(f"1{int(splitext(basename(filename))[0][2:10], 16):022d}")
+        return int(f"1{int(splitext(basename(file_path))[0][2:10], 16):022d}")
     except ValueError as e:
-        error(f"Error encountered while sorting {filename}")
+        error(f"Error encountered while sorting {file_path}")
         raise e

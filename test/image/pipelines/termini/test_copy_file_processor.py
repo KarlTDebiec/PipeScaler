@@ -11,8 +11,8 @@ from pipescaler.testing.file import get_test_input_dir_path
 
 def test():
     """Test ImageDirectoryTerminus copying and managing image files."""
-    with TemporaryDirectory() as output_directory:
-        terminus = ImageDirectoryTerminus(directory=output_directory)
+    with TemporaryDirectory() as output_dir_path:
+        terminus = ImageDirectoryTerminus(dir_path=output_dir_path)
 
         for input_path in get_test_input_dir_path("basic").iterdir():
             terminus(PipeImage(path=input_path))
@@ -21,5 +21,5 @@ def test():
         for input_path in get_test_input_dir_path("alt").iterdir():
             terminus(PipeImage(path=input_path))
 
-        terminus = ImageDirectoryTerminus(directory=output_directory)
+        terminus = ImageDirectoryTerminus(dir_path=output_dir_path)
         terminus.purge_unrecognized_files()
