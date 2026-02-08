@@ -40,7 +40,11 @@ class CheckpointManagerBase(ABC):
 
     def __repr__(self) -> str:
         """Representation."""
-        return f"{self.__class__.__name__}(dir_path={self.dir_path!r})"
+        return (
+            f"{self.__class__.__name__}("
+            f"dir_path={self.dir_path!r}, "
+            f"validate_input_mtime={self.validate_input_mtime!r})"
+        )
 
     def __str__(self) -> str:
         """String representation."""
@@ -79,12 +83,16 @@ class CheckpointManagerBase(ABC):
         if not self.validate_input_mtime:
             return True
 
-        if system() not in self.SUPPORTED_MTIME_SYSTEMS:
+        sysname = system()
+        if sysname not in self.SUPPORTED_MTIME_SYSTEMS:
             raise NotImplementedError(
                 "Input mtime checkpoint validation is unsupported on "
-                f"'{system()}'; supported operating systems are "
+                f"'{sysname}'; supported operating systems are "
                 f"{sorted(self.SUPPORTED_MTIME_SYSTEMS)!r}."
             )
+
+        if len(inputs) == 0:
+            raise ValueError("At least one input object is required.")
 
         if len(cpt_paths) == 0:
             raise ValueError("At least one checkpoint path is required.")

@@ -185,6 +185,16 @@ def test_load_respects_input_mtime_unsupported_os():
                 cp_manager.load((mock_pipe_object_input,), ("cpt.txt",))
 
 
+@patch.object(PipeObject, "__abstractmethods__", set())
+def test_checkpoints_current_requires_inputs():
+    """Test that mtime checkpoint validation requires at least one input."""
+    with get_temp_directory_path() as cp_dir_path:
+        cp_manager = CheckpointManager(cp_dir_path, validate_input_mtime=True)
+
+        with pytest.raises(ValueError):
+            cp_manager.checkpoints_current((), [cp_dir_path / "cpt.txt"])
+
+
 def test_post_segment():
     """Test CheckpointManager wrapping segments with post-checkpointing."""
     with get_temp_directory_path() as cp_dir_path:
@@ -197,9 +207,10 @@ def test_print():
     with get_temp_directory_path() as cp_dir_path:
         assert isinstance(cp_dir_path, PlatformPath)
 
-        cp_manager = CheckpointManager(cp_dir_path)
+        cp_manager = CheckpointManager(cp_dir_path, validate_input_mtime=True)
         print(cp_manager)
         print(repr(cp_manager))
 
         cp_manager_2 = eval(repr(cp_manager))
         assert cp_manager_2.dir_path == cp_manager.dir_path
+        assert cp_manager_2.validate_input_mtime == cp_manager.validate_input_mtime
