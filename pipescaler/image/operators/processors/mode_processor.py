@@ -4,11 +4,11 @@
 
 from __future__ import annotations
 
-from typing import Literal, cast
+from typing import Literal
 
 from PIL import Image, ImageColor
 
-from pipescaler.common.validation import val_str
+from pipescaler.common.validation import val_literal
 from pipescaler.image.core.operators import ImageProcessor
 from pipescaler.image.core.typing import ImageMode
 from pipescaler.image.core.validation import validate_image
@@ -37,7 +37,7 @@ class ModeProcessor(ImageProcessor):
         """
         super().__init__()
 
-        self.mode = cast(ModeSetting, val_str(mode, self.supported_modes))
+        self.mode = val_literal(mode, ModeSetting)
         self.background_color = ImageColor.getrgb(background_color)
         self.threshold = threshold
 

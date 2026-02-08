@@ -10,7 +10,7 @@ from os.path import defpath, expanduser, expandvars
 from pathlib import Path
 from platform import system
 from shutil import which
-from typing import Any, overload
+from typing import Any, TypeAliasType, get_args, overload
 
 from .exception import (
     ArgumentConflictError,
@@ -26,6 +26,7 @@ __all__ = [
     "val_input_dir_path",
     "val_input_path",
     "val_int",
+    "val_literal",
     "val_output_dir_path",
     "val_output_path",
     "val_str",
@@ -438,6 +439,33 @@ def val_output_path(
 
     # Handle iterables
     return [_val_output_path(value_to_validate) for value_to_validate in value]
+
+
+def val_literal[LiteralValue](value: LiteralValue, literal_type: Any) -> LiteralValue:
+    """Validate a value against a Literal type or type alias.
+
+    Arguments:
+        value: Input value to validate
+        literal_type: Literal type or type alias with Literal value options
+    Returns:
+        Value if it is one of the Literal options
+    Raises:
+        ArgumentConflictError: If literal_type does not resolve to Literal options
+        ValueError: If value is not one of the provided Literal options
+    """
+    literal_value = (
+        literal_type.__value__
+        if isinstance(literal_type, TypeAliasType)
+        else literal_type
+    )
+    options = get_args(literal_value)
+    if not options:
+        raise ArgumentConflictError(
+            f"'{literal_type}' does not contain Literal options"
+        ) from None
+    if value not in options:
+        raise ValueError(f"'{value}' is not one of options '{options}'") from None
+    return value
 
 
 def val_str(value: Any, options: Iterable[str]) -> str:
