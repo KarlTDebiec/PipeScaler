@@ -7,9 +7,9 @@ from __future__ import annotations
 from abc import ABC
 from collections.abc import Sequence
 
-from pipescaler.core.pipelines.checkpoint_manager_base import CheckpointManagerBase
-from pipescaler.core.pipelines.segment import Segment
-from pipescaler.core.pipelines.typing import SegmentLike
+from .checkpoint_manager_base import CheckpointManagerBase
+from .segment import Segment
+from .typing import SegmentLike
 
 
 class CheckpointedSegment(Segment, ABC):
@@ -41,7 +41,7 @@ class CheckpointedSegment(Segment, ABC):
         if not hasattr(segment, "__call__"):
             raise ValueError(
                 f"{self.__class__.__name__} requires a callable Segment; "
-                f"{self.segment.__class__.__name__} is not callable."
+                f"{segment.__class__.__name__} is not callable."
             )
 
         self.segment = segment

@@ -9,7 +9,8 @@ from PIL import Image, ImageDraw, ImageFont
 from scipy.ndimage import convolve
 
 from pipescaler.common.validation import val_float
-from pipescaler.image.core.exceptions import UnsupportedImageModeError
+
+from .exceptions import UnsupportedImageModeError
 
 
 def convert_mode(image: Image.Image, mode: str) -> tuple[Image.Image, str]:

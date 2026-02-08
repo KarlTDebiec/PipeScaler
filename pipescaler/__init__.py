@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from pipescaler.file_scanner import FileScanner
+from .file_scanner import FileScanner
 
 __all__ = [
     "FileScanner",

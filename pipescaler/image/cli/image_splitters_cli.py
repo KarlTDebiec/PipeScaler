@@ -9,8 +9,9 @@ from argparse import ArgumentParser
 from typing import Any
 
 from pipescaler.common import CommandLineInterface
-from pipescaler.image.cli import splitters
 from pipescaler.image.core.cli import ImageSplitterCli
+
+from . import splitters
 
 
 class ImageSplittersCli(CommandLineInterface):

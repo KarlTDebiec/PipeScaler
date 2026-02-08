@@ -4,8 +4,8 @@
 
 from __future__ import annotations
 
-from pipescaler.image.scaled_pair_identifier import ScaledPairIdentifier
-from pipescaler.image.subdivided_image import SubdividedImage
+from .scaled_pair_identifier import ScaledPairIdentifier
+from .subdivided_image import SubdividedImage
 
 __all__ = [
     "ScaledPairIdentifier",
