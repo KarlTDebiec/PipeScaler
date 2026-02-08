@@ -2,6 +2,10 @@
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Tests for ModeProcessor."""
 
+from __future__ import annotations
+
+from typing import Any, cast
+
 import pytest
 from PIL import Image
 
@@ -58,3 +62,9 @@ def test(input_filename: str, processor: ModeProcessor):
 
     assert output_img.size == input_img.size
     assert output_img.mode == processor.mode
+
+
+def test_invalid_mode():
+    """Test ModeProcessor with unsupported output mode."""
+    with pytest.raises(ValueError, match="not one of options"):
+        ModeProcessor(mode=cast(Any, "HSV"))
