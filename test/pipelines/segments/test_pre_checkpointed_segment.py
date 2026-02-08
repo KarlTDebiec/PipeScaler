@@ -24,6 +24,32 @@ def mock_pipe_object_save(path: Path | str):
     path.touch()
 
 
+def test_non_callable_segment_validation():
+    """Test that non-callable segment raises appropriate ValueError."""
+    with get_temp_directory_path() as cp_directory_path:
+        # Mocks
+        non_callable_segment = "not_a_callable"  # String is not callable
+        mock_cp_manager = Mock(spec=CheckpointManager)
+        mock_cp_manager.directory = cp_directory_path
+
+        # Attempt to initialize with non-callable segment
+        try:
+            PreCheckpointedSegment(non_callable_segment, mock_cp_manager, ["test.txt"])
+            # If we reach here, the test should fail
+            raise AssertionError("Expected ValueError was not raised")
+        except ValueError as e:
+            # Verify the error message contains expected content
+            error_message = str(e)
+            assert "requires a callable Segment" in error_message
+            assert "str" in error_message  # The class name of the non-callable
+            assert "is not callable" in error_message
+        except AttributeError:
+            # This should not happen with the fix
+            raise AssertionError(
+                "AttributeError raised instead of ValueError - the bug is not fixed"
+            )
+
+
 def test():
     """Test PreCheckpointedSegment managing checkpoints before segment execution."""
     with get_temp_directory_path() as cp_directory_path:
