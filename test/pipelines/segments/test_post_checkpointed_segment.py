@@ -7,6 +7,8 @@ from __future__ import annotations
 from pathlib import Path
 from unittest.mock import Mock, patch
 
+import pytest
+
 from pipescaler.common.file import get_temp_directory_path
 from pipescaler.common.validation import val_output_path
 from pipescaler.core.pipelines import PipeObject, Segment
@@ -44,21 +46,14 @@ def test_non_callable_segment_validation():
         mock_cp_manager.directory = cp_directory_path
 
         # Attempt to initialize with non-callable segment
-        try:
+        with pytest.raises(ValueError) as exc_info:
             PostCheckpointedSegment(non_callable_segment, mock_cp_manager, ["test.txt"])
-            # If we reach here, the test should fail
-            raise AssertionError("Expected ValueError was not raised")
-        except ValueError as e:
-            # Verify the error message contains expected content
-            error_message = str(e)
-            assert "requires a callable Segment" in error_message
-            assert "int" in error_message  # The class name of the non-callable
-            assert "is not callable" in error_message
-        except AttributeError:
-            # This should not happen with the fix
-            raise AssertionError(
-                "AttributeError raised instead of ValueError - the bug is not fixed"
-            )
+
+        # Verify the error message contains expected content
+        error_message = str(exc_info.value)
+        assert "requires a callable Segment" in error_message
+        assert "int" in error_message  # The class name of the non-callable
+        assert "is not callable" in error_message
 
 
 @patch.object(PipeObject, "save", mock_pipe_object_save_2)
