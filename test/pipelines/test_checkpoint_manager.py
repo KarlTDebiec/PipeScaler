@@ -4,8 +4,11 @@
 
 from __future__ import annotations
 
+from os import utime
 from platform import system
 from unittest.mock import Mock, patch
+
+import pytest
 
 from pipescaler.common.file import get_temp_directory_path
 from pipescaler.common.validation import val_output_path
@@ -114,6 +117,72 @@ def test_pre_segment():
     with get_temp_directory_path() as cp_dir_path:
         cp_manager = CheckpointManager(cp_dir_path)
         cp_manager.pre_segment("cpt.txt")(Mock(spec=Segment))
+
+
+@patch.object(PipeObject, "save", mock_pipe_object_save_2)
+@patch.object(PipeObject, "__abstractmethods__", set())
+def test_load_respects_input_mtime():
+    """Test CheckpointManager loading checkpoints based on input mtime."""
+    with get_temp_directory_path() as cp_dir_path:
+        cp_manager = CheckpointManager(cp_dir_path, validate_input_mtime=True)
+
+        input_path = cp_dir_path / "input.txt"
+        input_path.touch()
+        mock_pipe_object_input = Mock(spec=PipeObject)
+        mock_pipe_object_input.location_name = "test"
+        mock_pipe_object_input.path = input_path
+        mock_pipe_object_input.save.side_effect = mock_pipe_object_save
+
+        cp_manager.save((mock_pipe_object_input,), ("cpt.txt",))
+        cpt_path = cp_dir_path / "test" / "cpt.txt"
+
+        outputs = cp_manager.load((mock_pipe_object_input,), ("cpt.txt",))
+        assert outputs
+
+        newer_mtime_ns = cpt_path.stat().st_mtime_ns + 1_000_000_000
+        utime(input_path, ns=(newer_mtime_ns, newer_mtime_ns))
+        outputs = cp_manager.load((mock_pipe_object_input,), ("cpt.txt",))
+        assert outputs is None
+
+
+@patch.object(PipeObject, "save", mock_pipe_object_save_2)
+@patch.object(PipeObject, "__abstractmethods__", set())
+def test_load_respects_input_mtime_requires_input_path():
+    """Test that mtime checkpoint validation requires input paths."""
+    with get_temp_directory_path() as cp_dir_path:
+        cp_manager = CheckpointManager(cp_dir_path, validate_input_mtime=True)
+
+        mock_pipe_object_input = Mock(spec=PipeObject)
+        mock_pipe_object_input.location_name = "test"
+        mock_pipe_object_input.path = None
+        mock_pipe_object_input.save.side_effect = mock_pipe_object_save
+        cp_manager.save((mock_pipe_object_input,), ("cpt.txt",))
+
+        with pytest.raises(ValueError):
+            cp_manager.load((mock_pipe_object_input,), ("cpt.txt",))
+
+
+@patch.object(PipeObject, "save", mock_pipe_object_save_2)
+@patch.object(PipeObject, "__abstractmethods__", set())
+def test_load_respects_input_mtime_unsupported_os():
+    """Test that mtime checkpoint validation errors on unsupported operating systems."""
+    with get_temp_directory_path() as cp_dir_path:
+        with patch(
+            "pipescaler.core.pipelines.checkpoint_manager_base.system",
+            return_value="Haiku",
+        ):
+            cp_manager = CheckpointManager(cp_dir_path, validate_input_mtime=True)
+
+            input_path = cp_dir_path / "input.txt"
+            input_path.touch()
+            mock_pipe_object_input = Mock(spec=PipeObject)
+            mock_pipe_object_input.location_name = "test"
+            mock_pipe_object_input.path = input_path
+            mock_pipe_object_input.save.side_effect = mock_pipe_object_save
+            cp_manager.save((mock_pipe_object_input,), ("cpt.txt",))
+
+            with pytest.raises(NotImplementedError):
+                cp_manager.load((mock_pipe_object_input,), ("cpt.txt",))
 
 
 def test_post_segment():

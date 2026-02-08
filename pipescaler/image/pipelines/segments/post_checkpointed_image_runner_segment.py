@@ -56,7 +56,9 @@ class PostCheckpointedImageRunnerSegment(CheckpointedSegment):
             consistency with other Segments
         """
         cpt_path = self.cp_manager.dir_path / input_objs[0].location_name / self.cpts[0]
-        if cpt_path.exists():
+        if cpt_path.exists() and self.cp_manager.checkpoints_current(
+            input_objs, [cpt_path]
+        ):
             output = PipeImage(path=cpt_path, parents=input_objs)
             info(
                 f"{self}: '{input_objs[0].location_name}' checkpoints "
