@@ -20,7 +20,7 @@ def test_review():
     """Test ScaledPairIdentifier identifying and managing scaled image pairs."""
     with (
         get_temp_directory_path() as input_dir_path,
-        get_temp_directory_path() as project_root_dir_path,
+        get_temp_directory_path() as project_root_path,
     ):
         with (
             get_temp_file_path("csv") as hash_file,
@@ -75,7 +75,7 @@ def test_review():
 
             scaled_pair_identifier = ScaledPairIdentifier(
                 input_dir_path=input_dir_path,
-                project_root=project_root_dir_path,
+                project_root=project_root_path,
                 hash_file=hash_file,
                 pairs_file=pairs_file,
                 interactive=False,

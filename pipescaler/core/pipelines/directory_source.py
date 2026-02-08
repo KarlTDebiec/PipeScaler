@@ -78,18 +78,18 @@ class DirectorySource(Source, ABC):
             f"reverse={self.reverse!r})"
         )
 
-    def scan_directory(self, root_dir_path: Path, dir_path: Path) -> list[Path]:
+    def scan_directory(self, root_path: Path, dir_path: Path) -> list[Path]:
         """Recursively scan directory for files.
 
         Arguments:
-            root_dir_path: Root directory being scanned overall
+            root_path: Root path being scanned overall
             dir_path: Path to directory to scan presently
         Returns:
             List of file paths within directory
         """
         file_paths = []
         for file_path in [f for f in dir_path.iterdir() if f.is_file()]:
-            relative_path = file_path.relative_to(root_dir_path)
+            relative_path = file_path.relative_to(root_path)
             if any(e.match(str(relative_path)) for e in self.exclusions):
                 continue
             if self.inclusions:
@@ -97,7 +97,7 @@ class DirectorySource(Source, ABC):
                     continue
             file_paths.append(file_path)
         for subdirectory_path in [d for d in dir_path.iterdir() if d.is_dir()]:
-            file_paths.extend(self.scan_directory(root_dir_path, subdirectory_path))
+            file_paths.extend(self.scan_directory(root_path, subdirectory_path))
 
         return file_paths
 

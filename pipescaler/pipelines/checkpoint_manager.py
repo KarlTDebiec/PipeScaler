@@ -187,12 +187,12 @@ class CheckpointManager(CheckpointManagerBase):
 
     @staticmethod
     def get_cpt_paths(
-        root_dir_path: Path, location_names: Collection[str], cpts: Collection[str]
+        root_path: Path, location_names: Collection[str], cpts: Collection[str]
     ) -> list[Path]:
         """Get paths to checkpoints.
 
         Arguments:
-            root_dir_path: Root directory of checkpoints
+            root_path: Root path of checkpoints
             location_names: Locations and names of images
             cpts: Names of checkpoints
         Returns:
@@ -200,7 +200,7 @@ class CheckpointManager(CheckpointManagerBase):
         """
         cpt_paths = []
         for ln, c in zip(cycle(location_names), cpts):
-            cpt_paths.append(root_dir_path / ln / c)
+            cpt_paths.append(root_path / ln / c)
 
         return cpt_paths
 
