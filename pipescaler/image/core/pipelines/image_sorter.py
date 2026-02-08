@@ -7,7 +7,8 @@ from __future__ import annotations
 from abc import ABC
 
 from pipescaler.core.pipelines.sorter import Sorter
-from pipescaler.image.core.pipelines.pipe_image import PipeImage
+
+from .pipe_image import PipeImage
 
 
 class ImageSorter(Sorter[PipeImage], ABC):

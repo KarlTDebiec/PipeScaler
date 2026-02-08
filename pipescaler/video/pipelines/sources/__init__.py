@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from pipescaler.video.pipelines.sources.video_directory_source import (
+from .video_directory_source import (
     VideoDirectorySource,
 )
 

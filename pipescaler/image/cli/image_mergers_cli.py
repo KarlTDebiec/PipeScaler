@@ -9,8 +9,9 @@ from argparse import ArgumentParser
 from typing import Any
 
 from pipescaler.common import CommandLineInterface
-from pipescaler.image.cli import mergers
 from pipescaler.image.core.cli import ImageMergerCli
+
+from . import mergers
 
 
 class ImageMergersCli(CommandLineInterface):

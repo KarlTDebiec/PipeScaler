@@ -9,7 +9,7 @@ from abc import ABC
 from inspect import cleandoc
 from typing import Any
 
-from pipescaler.image.core.typing import ImageMode
+from .typing import ImageMode
 
 
 class ImageOperator(ABC):

@@ -8,7 +8,7 @@ import re
 from abc import ABC, abstractmethod
 from inspect import cleandoc
 
-from pipescaler.core.pipelines.pipe_object import PipeObject
+from .pipe_object import PipeObject
 
 
 class Source[T: PipeObject](ABC):

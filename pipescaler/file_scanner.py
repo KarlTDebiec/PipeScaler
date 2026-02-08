@@ -14,8 +14,9 @@ from shutil import copy, move
 
 from PIL import Image
 
-from pipescaler.common import DirectoryNotFoundError
 from pipescaler.common.validation import val_input_dir_path
+
+from .common import DirectoryNotFoundError
 
 
 class FileScanner:

@@ -9,7 +9,8 @@ from PIL import Image
 
 from pipescaler.core import Utility
 from pipescaler.image.core.enums import MaskFillMode
-from pipescaler.image.utilities.palette_matcher import PaletteMatcher
+
+from .palette_matcher import PaletteMatcher
 
 
 class MaskFiller(Utility):

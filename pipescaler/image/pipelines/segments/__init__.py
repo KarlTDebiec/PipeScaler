@@ -4,15 +4,15 @@
 
 from __future__ import annotations
 
-from pipescaler.image.pipelines.segments.image_merger_segment import ImageMergerSegment
-from pipescaler.image.pipelines.segments.image_processor_segment import (
+from .image_merger_segment import ImageMergerSegment
+from .image_processor_segment import (
     ImageProcessorSegment,
 )
-from pipescaler.image.pipelines.segments.image_runner_segment import ImageRunnerSegment
-from pipescaler.image.pipelines.segments.image_splitter_segment import (
+from .image_runner_segment import ImageRunnerSegment
+from .image_splitter_segment import (
     ImageSplitterSegment,
 )
-from pipescaler.image.pipelines.segments.post_checkpointed_image_runner_segment import (
+from .post_checkpointed_image_runner_segment import (
     PostCheckpointedImageRunnerSegment,
 )
 

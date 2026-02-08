@@ -10,7 +10,8 @@ from logging import info
 from pipescaler.common.file import get_temp_file_path
 from pipescaler.core.pipelines import CheckpointedSegment, CheckpointManagerBase
 from pipescaler.image.core.pipelines import PipeImage
-from pipescaler.image.pipelines.segments.image_runner_segment import ImageRunnerSegment
+
+from .image_runner_segment import ImageRunnerSegment
 
 
 class PostCheckpointedImageRunnerSegment(CheckpointedSegment):
