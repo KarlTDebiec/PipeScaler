@@ -24,7 +24,7 @@ class FileScanner:
 
     exclusions = {".DS_Store", "desktop"}
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         input_dir_path: Path | str | Iterable[Path | str],
         project_root: Path | str,
@@ -115,8 +115,8 @@ class FileScanner:
         """Perform operations."""
         self.clean_project_root()
 
-        for input_directory in self.input_dir_paths:
-            for file_path in input_directory.iterdir():
+        for input_dir_path in self.input_dir_paths:
+            for file_path in input_dir_path.iterdir():
                 self.perform_operation(file_path)
 
     def clean_project_root(self):
@@ -133,8 +133,8 @@ class FileScanner:
                 name = file_path.name
                 if self.remove_prefix:
                     name = f"{self.remove_prefix}{name}"
-                for input_directory in self.input_dir_paths:
-                    for match in input_directory.glob(f"{Path(name).stem}.*"):
+                for input_dir_path in self.input_dir_paths:
+                    for match in input_dir_path.glob(f"{Path(name).stem}.*"):
                         remove(match)
                         info(f"'{match}' removed")
                 remove(file_path)

@@ -11,49 +11,49 @@ from pipescaler.common.file import get_temp_directory_path
 from pipescaler.testing.file import get_test_input_dir_path, get_test_input_path
 
 
-def stage_files(input_directory: Path, project_root: Path):
+def stage_files(input_dir_path: Path, project_root_path: Path):
     """Stage test files in temporary directories.
 
     Arguments:
-        input_directory: Directory for input files
-        project_root: Project root directory
+        input_dir_path: Path to directory for input files
+        project_root_path: Path to project root
     """
     for input_path in get_test_input_dir_path().iterdir():
-        copy(input_path, input_directory / input_path.name)
+        copy(input_path, input_dir_path / input_path.name)
 
-    mkdir(project_root / "reviewed")
+    mkdir(project_root_path / "reviewed")
     input_path = get_test_input_path("L")
-    copy(input_path, project_root / "reviewed" / input_path.name)
+    copy(input_path, project_root_path / "reviewed" / input_path.name)
 
-    mkdir(project_root / "ignore")
+    mkdir(project_root_path / "ignore")
     input_path = get_test_input_path("LA")
-    copy(input_path, project_root / "ignore" / input_path.name)
+    copy(input_path, project_root_path / "ignore" / input_path.name)
 
-    mkdir(project_root / "review")
+    mkdir(project_root_path / "review")
     input_path = get_test_input_path("RGB")
-    copy(input_path, project_root / "review" / input_path.name)
+    copy(input_path, project_root_path / "review" / input_path.name)
 
-    mkdir(project_root / "remove")
+    mkdir(project_root_path / "remove")
     input_path = get_test_input_path("1")
-    copy(input_path, project_root / "remove" / input_path.name)
+    copy(input_path, project_root_path / "remove" / input_path.name)
 
-    mkdir(project_root / "new")
+    mkdir(project_root_path / "new")
     input_path = get_test_input_path("RGBA")
-    copy(input_path, project_root / "new" / input_path.name)
+    copy(input_path, project_root_path / "new" / input_path.name)
 
 
 def test():
     """Test FileScanner organizing files based on rules."""
     with (
-        get_temp_directory_path() as input_directory,
-        get_temp_directory_path() as project_root,
+        get_temp_directory_path() as input_dir_path,
+        get_temp_directory_path() as project_root_path,
     ):
-        stage_files(input_directory, project_root)
+        stage_files(input_dir_path, project_root_path)
 
         file_scanner = FileScanner(
-            [input_directory],
-            project_root,
-            project_root / "reviewed",
+            [input_dir_path],
+            project_root_path,
+            project_root_path / "reviewed",
             rules=[
                 ("^PL$", "move"),
                 ("^PLA$", "remove"),
@@ -65,15 +65,15 @@ def test():
 def test_remove_prefix():
     """Test FileScanner with prefix removal option."""
     with (
-        get_temp_directory_path() as input_directory,
-        get_temp_directory_path() as project_root,
+        get_temp_directory_path() as input_dir_path,
+        get_temp_directory_path() as project_root_path,
     ):
-        stage_files(input_directory, project_root)
+        stage_files(input_dir_path, project_root_path)
 
         file_scanner = FileScanner(
-            [input_directory],
-            project_root,
-            project_root / "reviewed",
+            [input_dir_path],
+            project_root_path,
+            project_root_path / "reviewed",
             rules=[
                 ("^PL$", "move"),
                 ("^PLA$", "remove"),
@@ -86,15 +86,15 @@ def test_remove_prefix():
 def test_output_format():
     """Test FileScanner with output format conversion."""
     with (
-        get_temp_directory_path() as input_directory,
-        get_temp_directory_path() as project_root,
+        get_temp_directory_path() as input_dir_path,
+        get_temp_directory_path() as project_root_path,
     ):
-        stage_files(input_directory, project_root)
+        stage_files(input_dir_path, project_root_path)
 
         file_scanner = FileScanner(
-            [input_directory],
-            project_root,
-            project_root / "reviewed",
+            [input_dir_path],
+            project_root_path,
+            project_root_path / "reviewed",
             rules=[
                 ("^PL$", "move"),
                 ("^PLA$", "remove"),

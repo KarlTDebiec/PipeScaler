@@ -98,9 +98,9 @@ def test_text_file(input_filename: str, outlet: str | None):
 
 def test_exclusions():
     """Test ListSorter excluding system files like .DS_Store and Thumbs.db."""
-    with get_temp_directory_path() as basic_directory_path:
-        (basic_directory_path / ".DS_Store").touch()
-        (basic_directory_path / "Thumbs.db").touch()
-        (basic_directory_path / "desktop.ini").touch()
-        sorter = ListSorter(basic=basic_directory_path)
+    with get_temp_directory_path() as basic_dir_path:
+        (basic_dir_path / ".DS_Store").touch()
+        (basic_dir_path / "Thumbs.db").touch()
+        (basic_dir_path / "desktop.ini").touch()
+        sorter = ListSorter(basic=basic_dir_path)
         assert sorter.outlets_by_filename == {}

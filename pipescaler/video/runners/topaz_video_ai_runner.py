@@ -75,20 +75,20 @@ class TopazVideoAiRunner(Runner):
     def __init__(
         self,
         arguments: str,
-        working_directory: str = r"C:\Program Files\Topaz Labs LLC\Topaz Video AI",
+        working_dir_path: str = r"C:\Program Files\Topaz Labs LLC\Topaz Video AI",
         **kwargs,
     ):
         """Initialize.
 
         Arguments:
             arguments: Command-line arguments to pass to Topaz Video AI
-            working_directory: Directory in which Topaz Video AI is installed
+            working_dir_path: Path to directory in which Topaz Video AI is installed
             kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
 
         self.arguments = arguments
-        self.working_directory = val_input_dir_path(working_directory)
+        self.working_dir_path = val_input_dir_path(working_dir_path)
 
     def __repr__(self) -> str:
         """Representation."""
@@ -97,7 +97,7 @@ class TopazVideoAiRunner(Runner):
     @property
     def command_template(self) -> str:
         """String template with which to generate command."""
-        return f'cd "{self.working_directory}" & ffmpeg {self.arguments}'
+        return f'cd "{self.working_dir_path}" & ffmpeg {self.arguments}'
 
     @property
     def executable_path(self) -> Path:

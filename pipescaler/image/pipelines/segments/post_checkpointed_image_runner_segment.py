@@ -55,9 +55,7 @@ class PostCheckpointedImageRunnerSegment(CheckpointedSegment):
             Output images, loaded from checkpoint if available, within a tuple for
             consistency with other Segments
         """
-        cpt_path = (
-            self.cp_manager.directory / input_objs[0].location_name / self.cpts[0]
-        )
+        cpt_path = self.cp_manager.dir_path / input_objs[0].location_name / self.cpts[0]
         if cpt_path.exists():
             output = PipeImage(path=cpt_path, parents=input_objs)
             info(

@@ -1,6 +1,6 @@
 #  Copyright 2020-2026 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
-"""Sorts image based on filename using a regular expression."""
+"""Sorts image based on name using a regular expression."""
 
 from __future__ import annotations
 
@@ -11,8 +11,8 @@ from pipescaler.core.pipelines import PipeObject
 from pipescaler.core.pipelines.sorter import Sorter
 
 
-class RegexSorter(Sorter):
-    """Sorts image based on filename using a regular expression."""
+class RegexSorter(Sorter[PipeObject]):
+    """Sorts image based on name using a regular expression."""
 
     def __init__(self, regex: str):
         """Validate configuration and initialize.
@@ -22,19 +22,19 @@ class RegexSorter(Sorter):
         """
         self.regex = re.compile(regex)
 
-    def __call__(self, pipe_object: PipeObject) -> str | None:
+    def __call__(self, obj: PipeObject) -> str | None:
         """Get the outlet to which an image should be sorted.
 
         Arguments:
-            pipe_object: Image to sort
+            obj: Image to sort
         Returns:
             Outlet to which image should be sorted
         """
-        if self.regex.match(pipe_object.location_name):
+        if self.regex.match(obj.location_name):
             outlet = "matched"
         else:
             outlet = "unmatched"
-        info(f"{self}: '{pipe_object.location_name}' matches '{outlet}'")
+        info(f"{self}: '{obj.location_name}' matches '{outlet}'")
         return outlet
 
     def __repr__(self) -> str:

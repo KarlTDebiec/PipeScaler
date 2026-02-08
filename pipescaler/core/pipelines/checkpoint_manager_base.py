@@ -14,20 +14,20 @@ from pipescaler.common.validation import val_output_dir_path
 class CheckpointManagerBase(ABC):
     """Abstract base class for checkpoint managers."""
 
-    def __init__(self, directory: Path | str):
+    def __init__(self, dir_path: Path | str):
         """Initialize.
 
         Arguments:
-            directory: Directory in which to store checkpoints
+            dir_path: Path to directory in which to store checkpoints
         """
-        self.directory = val_output_dir_path(directory)
-        """Directory in which to store checkpoints."""
+        self.dir_path = val_output_dir_path(dir_path)
+        """Path to directory in which to store checkpoints."""
         self.observed_checkpoints: set[tuple[str, str]] = set()
         """Observed checkpoints as tuples of image and checkpoint names."""
 
     def __repr__(self) -> str:
         """Representation."""
-        return f"{self.__class__.__name__}(directory={self.directory!r})"
+        return f"{self.__class__.__name__}(dir_path={self.dir_path!r})"
 
     def __str__(self) -> str:
         """String representation."""

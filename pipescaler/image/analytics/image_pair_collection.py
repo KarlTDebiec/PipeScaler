@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable
 from logging import info
 from pathlib import Path
 
@@ -14,7 +14,7 @@ from pipescaler.common.validation import val_output_path
 from pipescaler.image.core.analytics.typing import PairDataFrame
 
 
-class ImagePairCollection(Sequence):
+class ImagePairCollection:
     """Collection of image pairs."""
 
     def __init__(self, cache: Path | str = "pairs.csv"):
@@ -94,21 +94,21 @@ class ImagePairCollection(Sequence):
         """Get pair of child.
 
         Arguments:
-            child: Basename of child
+            child: Name of child
         Returns:
             Pair of child
         """
-        return self.pairs.loc[self.pairs["scaled filename"] == child]
+        return self.pairs.loc[self.pairs["scaled name"] == child]
 
     def get_pairs_for_parent(self, parent: str) -> PairDataFrame:
         """Get pairs of parent.
 
         Arguments:
-            parent: Basename of parent
+            parent: Name of parent
         Returns:
             Pairs of parent
         """
-        return self.pairs.loc[self.pairs["filename"] == parent]
+        return self.pairs.loc[self.pairs["name"] == parent]
 
     def load_cache(self):
         """Load image pairs from cache file."""

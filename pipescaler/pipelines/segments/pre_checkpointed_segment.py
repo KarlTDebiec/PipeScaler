@@ -30,7 +30,7 @@ class PreCheckpointedSegment(CheckpointedSegment):
             )
 
         cpt_paths = [
-            self.cp_manager.directory / i.location_name / c
+            self.cp_manager.dir_path / i.location_name / c
             for i in input_objs
             for c in self.cpts
         ]

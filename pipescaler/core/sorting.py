@@ -7,16 +7,16 @@ from __future__ import annotations
 from logging import error
 
 
-def basic_sort(filename: str) -> str:
-    """Get filename in sortable format.
+def basic_sort(file_path: str) -> str:
+    """Get file path in sortable format.
 
     Arguments:
-        filename: filename
+        file_path: File path
     Returns:
-        filename in sortable format
+        File path in sortable format
     """
     try:
-        return "".join([f"{ord(c):03d}" for c in filename.lower()])
+        return "".join([f"{ord(c):03d}" for c in file_path.lower()])
     except ValueError as e:
-        error(f"Error encountered while sorting {filename}")
+        error(f"Error encountered while sorting {file_path}")
         raise e

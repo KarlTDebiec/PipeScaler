@@ -53,7 +53,7 @@ class CheckpointManager(CheckpointManagerBase):
         for ln, c in zip(cycle(location_names), cpts):
             self.observe(ln, c)
 
-        cpt_paths = self.get_cpt_paths(self.directory, location_names, cpts)
+        cpt_paths = self.get_cpt_paths(self.dir_path, location_names, cpts)
         if all(p.exists() for p in cpt_paths):
             outputs = tuple(cls(path=p, parents=inputs) for p in cpt_paths)
             location_str = (
@@ -129,24 +129,24 @@ class CheckpointManager(CheckpointManagerBase):
 
         return decorator
 
-    def purge_unrecognized_files(self, directory: Path | None = None):
+    def purge_unrecognized_files(self, dir_path: Path | None = None):
         """Remove unrecognized files and subdirectories in checkpoint directory."""
-        if directory is None:
-            directory = self.directory
-        for path in directory.iterdir():
+        if dir_path is None:
+            dir_path = self.dir_path
+        for path in dir_path.iterdir():
             if path.is_dir():
                 self.purge_unrecognized_files(path)
             elif path.is_file():
-                relative_path = path.relative_to(self.directory)
+                relative_path = path.relative_to(self.dir_path)
                 checkpoint = (str(relative_path.parent), path.name)
                 if checkpoint not in self.observed_checkpoints:
                     remove(path)
                     info(f"{self}: file '{relative_path}' removed")
             else:
                 raise ValueError(f"Unsupported path type: {path}")
-        if not any(directory.iterdir()) and directory != self.directory:
-            rmdir(directory)
-            info(f"{self}: directory '{directory.relative_to(self.directory)}' removed")
+        if not any(dir_path.iterdir()) and dir_path != self.dir_path:
+            rmdir(dir_path)
+            info(f"{self}: directory '{dir_path.relative_to(self.dir_path)}' removed")
 
     def save(
         self,
@@ -170,7 +170,7 @@ class CheckpointManager(CheckpointManagerBase):
                 f"({len(inputs)})"
             )
         cpt_paths = self.get_cpt_paths(
-            self.directory, [i.location_name for i in inputs], cpts
+            self.dir_path, [i.location_name for i in inputs], cpts
         )
         for i, c, p in zip(inputs, cpts, cpt_paths):
             if not p.parent.exists():
@@ -187,12 +187,12 @@ class CheckpointManager(CheckpointManagerBase):
 
     @staticmethod
     def get_cpt_paths(
-        root_directory: Path, location_names: Collection[str], cpts: Collection[str]
+        root_path: Path, location_names: Collection[str], cpts: Collection[str]
     ) -> list[Path]:
         """Get paths to checkpoints.
 
         Arguments:
-            root_directory: Root directory of checkpoints
+            root_path: Root path of checkpoints
             location_names: Locations and names of images
             cpts: Names of checkpoints
         Returns:
@@ -200,7 +200,7 @@ class CheckpointManager(CheckpointManagerBase):
         """
         cpt_paths = []
         for ln, c in zip(cycle(location_names), cpts):
-            cpt_paths.append(root_directory / ln / c)
+            cpt_paths.append(root_path / ln / c)
 
         return cpt_paths
 

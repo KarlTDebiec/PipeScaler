@@ -62,10 +62,10 @@ class ScaledPairIdentifier:
             self.input_dir_paths = validated_input_dir_path
         """Directories from which to read input files."""
         project_root = val_input_dir_path(project_root)
-        self.scaled_directory = project_root / "scaled"
-        """Directory to which to move scaled images."""
-        self.comparison_directory = project_root / "scaled_images"
-        """Directory to which to write stacked scaled image sets."""
+        self.scaled_dir_path = project_root / "scaled"
+        """Path to directory to which to move scaled images."""
+        self.comparison_dir_path = project_root / "scaled_images"
+        """Path to directory to which to write stacked scaled image sets."""
         self.interactive = interactive
         """Whether to prompt for user input."""
 
@@ -74,8 +74,8 @@ class ScaledPairIdentifier:
             f.stem: f
             for f in chain.from_iterable(d.iterdir() for d in self.input_dir_paths)
         }
-        if self.scaled_directory.exists():
-            self.file_paths.update({f.stem: f for f in self.scaled_directory.iterdir()})
+        if self.scaled_dir_path.exists():
+            self.file_paths.update({f.stem: f for f in self.scaled_dir_path.iterdir()})
 
         self.hash_collection = ImageHashCollection(self.file_paths.values(), hash_file)
         """Image hashes."""
@@ -125,7 +125,7 @@ class ScaledPairIdentifier:
             print(f"Searching for children of {parent}")
             new_scores = []
             known_pairs = self.pair_collection[parent]
-            for scale in np.array([1 / (2**x) for x in range(1, 7)]):
+            for scale in [1 / (2**x) for x in range(1, 7)]:
                 if scale in known_pairs["scale"].values:
                     continue
                 parent_hash = self.hash_collection[parent, 1.0].iloc[0]
@@ -152,7 +152,7 @@ class ScaledPairIdentifier:
                 print("Known pairs:")
                 print(known_pairs)
 
-    def sync_comparison_directory(self):
+    def sync_comparison_dir_path(self):
         """Ensure comparison images are in sync with known pairs."""
         for parent in sorted(
             self.pair_collection.parents, key=citra_sort, reverse=True
@@ -162,23 +162,23 @@ class ScaledPairIdentifier:
                 to_save = self.get_stacked_image(
                     [parent, *list(known_pairs["scaled name"])]
                 )
-                output_path = self.comparison_directory / f"{parent}.png"
+                output_path = self.comparison_dir_path / f"{parent}.png"
                 to_save.save(output_path)
                 info(f"Saved {output_path}")
 
-    def sync_scaled_directory(self):
+    def sync_scaled_dir_path(self):
         """Ensure child images are in scaled directory, and parent images are not."""
-        if not self.scaled_directory.exists():
-            self.scaled_directory.mkdir(parents=True)
+        if not self.scaled_dir_path.exists():
+            self.scaled_dir_path.mkdir(parents=True)
         for name, file_path in self.file_paths.items():
             if name in self.pair_collection.children:
-                if not file_path.is_relative_to(self.scaled_directory):
-                    new_path = self.scaled_directory / file_path.name
+                if not file_path.is_relative_to(self.scaled_dir_path):
+                    new_path = self.scaled_dir_path / file_path.name
                     move(file_path, new_path)
                     self.file_paths[name] = new_path
                     info(f"Moved {file_path} to {new_path}")
 
-        for file_path in self.scaled_directory.iterdir():
+        for file_path in self.scaled_dir_path.iterdir():
             if file_path.stem not in self.pair_collection.children:
                 new_path = self.input_dir_paths[0] / file_path.name
                 move(file_path, new_path)
@@ -243,6 +243,4 @@ class ScaledPairIdentifier:
                 alpha_imgs.append(Image.fromarray(arr[:, :, -1]))
             return vstack_images(hstack_images(*color_imgs), hstack_images(*alpha_imgs))
 
-        return hstack_images(
-            *[Image.open(self.file_paths[filename]) for filename in names]
-        )
+        return hstack_images(*[Image.open(self.file_paths[name]) for name in names])

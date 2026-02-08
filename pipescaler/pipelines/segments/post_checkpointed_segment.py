@@ -23,7 +23,7 @@ class PostCheckpointedSegment(CheckpointedSegment):
         """
         cls = input_objs[0].__class__
         cpt_paths = [
-            self.cp_manager.directory / i.location_name / c
+            self.cp_manager.dir_path / i.location_name / c
             for i in input_objs
             for c in self.cpts
         ]
