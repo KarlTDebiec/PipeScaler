@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from pipescaler.pipelines.checkpoint_manager import CheckpointManager
+from .checkpoint_manager import CheckpointManager
 
 __all__ = [
     "CheckpointManager",

@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from pipescaler.video.pipelines.termini.video_directory_terminus import (
+from .video_directory_terminus import (
     VideoDirectoryTerminus,
 )
 

@@ -7,7 +7,8 @@ from __future__ import annotations
 from abc import ABC
 
 from pipescaler.core.pipelines.segment import Segment
-from pipescaler.video.core.pipelines.pipe_video import PipeVideo
+
+from .pipe_video import PipeVideo
 
 
 class VideoSegment(Segment[PipeVideo], ABC):

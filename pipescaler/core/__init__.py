@@ -4,9 +4,9 @@
 
 from __future__ import annotations
 
-from pipescaler.core.runner import Runner
-from pipescaler.core.typing import RunnerLike
-from pipescaler.core.utility import Utility
+from .runner import Runner
+from .typing import RunnerLike
+from .utility import Utility
 
 __all__ = [
     "Runner",

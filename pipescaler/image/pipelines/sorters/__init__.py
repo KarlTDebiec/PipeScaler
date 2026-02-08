@@ -4,12 +4,12 @@
 
 from __future__ import annotations
 
-from pipescaler.image.pipelines.sorters.alpha_sorter import AlphaSorter
-from pipescaler.image.pipelines.sorters.grayscale_sorter import GrayscaleSorter
-from pipescaler.image.pipelines.sorters.mode_sorter import ModeSorter
-from pipescaler.image.pipelines.sorters.monochrome_sorter import MonochromeSorter
-from pipescaler.image.pipelines.sorters.size_sorter import SizeSorter
-from pipescaler.image.pipelines.sorters.solid_color_sorter import SolidColorSorter
+from .alpha_sorter import AlphaSorter
+from .grayscale_sorter import GrayscaleSorter
+from .mode_sorter import ModeSorter
+from .monochrome_sorter import MonochromeSorter
+from .size_sorter import SizeSorter
+from .solid_color_sorter import SolidColorSorter
 
 __all__ = [
     "AlphaSorter",

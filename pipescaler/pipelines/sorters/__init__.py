@@ -4,8 +4,8 @@
 
 from __future__ import annotations
 
-from pipescaler.pipelines.sorters.list_sorter import ListSorter
-from pipescaler.pipelines.sorters.regex_sorter import RegexSorter
+from .list_sorter import ListSorter
+from .regex_sorter import RegexSorter
 
 __all__ = [
     "ListSorter",

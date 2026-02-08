@@ -4,8 +4,8 @@
 
 from __future__ import annotations
 
-from pipescaler.image.cli.mergers.alpha_merger_cli import AlphaMergerCli
-from pipescaler.image.cli.mergers.palette_match_merger_cli import PaletteMatchMergerCli
+from .alpha_merger_cli import AlphaMergerCli
+from .palette_match_merger_cli import PaletteMatchMergerCli
 
 __all__ = [
     "AlphaMergerCli",

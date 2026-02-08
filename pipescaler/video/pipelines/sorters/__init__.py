@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from pipescaler.video.pipelines.sorters.video_aspect_ratio_sorter import (
+from .video_aspect_ratio_sorter import (
     VideoAspectRatioSorter,
 )
 
