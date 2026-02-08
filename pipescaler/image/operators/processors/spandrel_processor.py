@@ -27,10 +27,9 @@ class SpandrelProcessor(ImageProcessor):
 
         Arguments:
             model_input_path: Path to model file
-            channel_order: Order of channels in input image (default: "RGB")
-            kwargs: Additional keyword arguments
+            kwargs: Additional keyword arguments (reserved for future use)
         """
-        super().__init__(**kwargs)
+        super().__init__()
 
         self.device = "cpu"
         """Name of device on which to run neural network model."""
