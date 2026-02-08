@@ -41,7 +41,7 @@ class CheckpointedSegment(Segment, ABC):
         if not hasattr(segment, "__call__"):
             raise ValueError(
                 f"{self.__class__.__name__} requires a callable Segment; "
-                f"{self.segment.__class__.__name__} is not callable."
+                f"{segment.__class__.__name__} is not callable."
             )
 
         self.segment = segment
