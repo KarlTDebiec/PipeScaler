@@ -1,5 +1,13 @@
 #  Copyright 2020-2026 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
-"""PipeScaler video package; contains code specific to video processing."""
+"""PipeScaler video package; contains code specific to video processing.
+
+This module may import from: common, core, pipelines
+
+Hierarchy within module:
+* core
+* runners
+* pipelines
+"""
 
 from __future__ import annotations
