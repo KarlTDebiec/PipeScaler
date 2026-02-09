@@ -37,11 +37,7 @@ class ModeProcessor(ImageProcessor):
         """
         super().__init__()
 
-        self.mode = val_literal(
-            mode,
-            ModeSetting,
-            normalize=lambda raw_value: str(raw_value).upper(),
-        )
+        self.mode = val_literal(mode, ModeSetting)
         self.background_color = ImageColor.getrgb(background_color)
         self.threshold = threshold
 
