@@ -10,6 +10,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
+from pipescaler.common.exception import UnsupportedPlatformError
 from pipescaler.common.file import get_temp_directory_path
 from pipescaler.common.validation import val_output_path
 from pipescaler.core.pipelines import PipeObject, Segment
@@ -147,8 +148,8 @@ def test_load_respects_input_mtime():
 
 @patch.object(PipeObject, "save", mock_pipe_object_save_2)
 @patch.object(PipeObject, "__abstractmethods__", set())
-def test_load_respects_input_mtime_requires_input_path():
-    """Test that mtime checkpoint validation requires input paths."""
+def test_load_respects_input_mtime_missing_input_path_is_stale():
+    """Test that missing input paths are treated as stale checkpoints."""
     with get_temp_directory_path() as cp_dir_path:
         cp_manager = CheckpointManager(cp_dir_path, validate_input_mtime=True)
 
@@ -158,8 +159,8 @@ def test_load_respects_input_mtime_requires_input_path():
         mock_pipe_object_input.save.side_effect = mock_pipe_object_save
         cp_manager.save((mock_pipe_object_input,), ("cpt.txt",))
 
-        with pytest.raises(ValueError):
-            cp_manager.load((mock_pipe_object_input,), ("cpt.txt",))
+        outputs = cp_manager.load((mock_pipe_object_input,), ("cpt.txt",))
+        assert outputs is None
 
 
 @patch.object(PipeObject, "save", mock_pipe_object_save_2)
@@ -181,7 +182,7 @@ def test_load_respects_input_mtime_unsupported_os():
             mock_pipe_object_input.save.side_effect = mock_pipe_object_save
             cp_manager.save((mock_pipe_object_input,), ("cpt.txt",))
 
-            with pytest.raises(NotImplementedError):
+            with pytest.raises(UnsupportedPlatformError):
                 cp_manager.load((mock_pipe_object_input,), ("cpt.txt",))
 
 

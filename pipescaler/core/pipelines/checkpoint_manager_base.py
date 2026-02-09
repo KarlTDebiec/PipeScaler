@@ -11,6 +11,7 @@ from pathlib import Path
 from platform import system
 from typing import TYPE_CHECKING
 
+from pipescaler.common.exception import UnsupportedPlatformError
 from pipescaler.common.validation import val_output_dir_path
 
 if TYPE_CHECKING:
@@ -85,7 +86,7 @@ class CheckpointManagerBase(ABC):
 
         sysname = system()
         if sysname not in self.SUPPORTED_MTIME_SYSTEMS:
-            raise NotImplementedError(
+            raise UnsupportedPlatformError(
                 "Input mtime checkpoint validation is unsupported on "
                 f"'{sysname}'; supported operating systems are "
                 f"{sorted(self.SUPPORTED_MTIME_SYSTEMS)!r}."
@@ -100,10 +101,7 @@ class CheckpointManagerBase(ABC):
         input_paths: list[Path] = []
         for input_obj in inputs:
             if input_obj.path is None:
-                raise ValueError(
-                    "Input mtime checkpoint validation requires all inputs to have "
-                    "paths."
-                )
+                return False
             input_paths.append(input_obj.path)
 
         latest_input_mtime_ns = max(path.stat().st_mtime_ns for path in input_paths)
