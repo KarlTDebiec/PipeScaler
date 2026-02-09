@@ -104,3 +104,15 @@ def test_exclusions():
         (basic_dir_path / "desktop.ini").touch()
         sorter = ListSorter(basic=basic_dir_path)
         assert sorter.outlets_by_filename == {}
+
+
+def test_repr_round_trip():
+    """Test ListSorter repr round-trip recreation."""
+    sorter = ListSorter(
+        basic=get_test_input_dir_path("basic"),
+        extra=get_test_input_dir_path("extra"),
+        novel=get_test_input_dir_path("novel"),
+    )
+    recreated = eval(repr(sorter))
+    assert recreated.outlets == sorter.outlets
+    assert repr(recreated) == repr(sorter)

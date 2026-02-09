@@ -57,3 +57,11 @@ def test(input_filename: str, runner: PngquantRunner):
                 assert output_img.mode in (input_img.mode, "P")
                 assert output_img.size == input_img.size
                 assert getsize(output_path) <= getsize(input_path)
+
+
+def test_repr_round_trip():
+    """Test PngquantRunner repr round-trip recreation."""
+    runner = PngquantRunner(arguments="--quality 1-10", timeout=1)
+    recreated = eval(repr(runner))
+    assert recreated.arguments == runner.arguments
+    assert recreated.timeout == runner.timeout

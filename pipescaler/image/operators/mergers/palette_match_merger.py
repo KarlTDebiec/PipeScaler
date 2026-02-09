@@ -64,9 +64,12 @@ class PaletteMatchMerger(ImageMerger):
 
     def __repr__(self) -> str:
         """Representation."""
+        palette_match_mode = repr(self.palette_match_mode)
+        if isinstance(self.palette_match_mode, PaletteMatchMode):
+            palette_match_mode = f"PaletteMatchMode.{self.palette_match_mode.name}"
         return (
             f"{self.__class__.__name__}("
-            f"palette_match_mode={self.palette_match_mode!r}, "
+            f"palette_match_mode={palette_match_mode}, "
             f"local_range={self.local_range!r})"
         )
 

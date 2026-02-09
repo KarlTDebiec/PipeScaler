@@ -43,6 +43,16 @@ class ImageVideoFrameSource(ImageSource):
         self.index = 0
         """Index of next frame to be read"""
 
+    def __repr__(self) -> str:
+        """Representation."""
+        input_path = f"Path({str(self.input_path)!r})"
+        location = repr(self.location)
+        if self.location is not None:
+            location = f"Path({str(self.location)!r})"
+        return (
+            f"{self.__class__.__name__}(input_path={input_path}, location={location})"
+        )
+
     def __next__(self) -> PipeImage:
         """Get next image from video."""
         if self.index < self.length:

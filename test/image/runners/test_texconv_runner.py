@@ -61,3 +61,11 @@ def test(input_filename: str, runner: TexconvRunner):
             with Image.open(output_path) as output_img:
                 assert output_img.mode == "RGBA"
                 assert output_img.size == input_img.size
+
+
+def test_repr_round_trip():
+    """Test TexconvRunner repr round-trip recreation."""
+    runner = TexconvRunner(arguments="-y", timeout=1)
+    recreated = eval(repr(runner))
+    assert recreated.arguments == runner.arguments
+    assert recreated.timeout == runner.timeout

@@ -49,3 +49,11 @@ def test(input_filename: str, runner: PotraceRunner):
         Image.open(input_path).save(bmp_path)
         with get_temp_file_path(".svg") as output_path:
             runner.run(bmp_path, output_path)
+
+
+def test_repr_round_trip():
+    """Test PotraceRunner repr round-trip recreation."""
+    runner = PotraceRunner(arguments="-b svg", timeout=1)
+    recreated = eval(repr(runner))
+    assert recreated.arguments == runner.arguments
+    assert recreated.timeout == runner.timeout

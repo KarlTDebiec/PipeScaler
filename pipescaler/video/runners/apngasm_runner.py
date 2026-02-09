@@ -32,7 +32,11 @@ class ApngasmRunner(Runner):
 
     def __repr__(self) -> str:
         """Representation."""
-        return f"{self.__class__.__name__}(arguments={self.arguments!r})"
+        return (
+            f"{self.__class__.__name__}("
+            f"arguments={self.arguments!r}, "
+            f"timeout={self.timeout!r})"
+        )
 
     @property
     def command_template(self) -> str:
