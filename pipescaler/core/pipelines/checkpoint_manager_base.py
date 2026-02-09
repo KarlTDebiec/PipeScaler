@@ -104,8 +104,16 @@ class CheckpointManagerBase(ABC):
                 return False
             input_paths.append(input_obj.path)
 
-        latest_input_mtime_ns = max(path.stat().st_mtime_ns for path in input_paths)
-        earliest_checkpoint_mtime_ns = min(
-            cpt_path.stat().st_mtime_ns for cpt_path in cpt_paths
-        )
+        try:
+            latest_input_mtime_ns = max(path.stat().st_mtime_ns for path in input_paths)
+            earliest_checkpoint_mtime_ns = min(
+                cpt_path.stat().st_mtime_ns for cpt_path in cpt_paths
+            )
+        except OSError:
+            warning(
+                f"{self}: unable to stat one or more input/checkpoint paths; "
+                "treating checkpoints as stale."
+            )
+            return False
+
         return earliest_checkpoint_mtime_ns >= latest_input_mtime_ns

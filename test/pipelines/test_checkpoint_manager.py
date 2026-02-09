@@ -165,6 +165,27 @@ def test_load_respects_input_mtime_missing_input_path_is_stale():
 
 @patch.object(PipeObject, "save", mock_pipe_object_save_2)
 @patch.object(PipeObject, "__abstractmethods__", set())
+def test_load_respects_input_mtime_missing_input_file_is_stale():
+    """Test that missing input files are treated as stale checkpoints."""
+    with get_temp_directory_path() as cp_dir_path:
+        cp_manager = CheckpointManager(cp_dir_path, validate_input_mtime=True)
+
+        input_path = cp_dir_path / "input.txt"
+        input_path.touch()
+        mock_pipe_object_input = Mock(spec=PipeObject)
+        mock_pipe_object_input.location_name = "test"
+        mock_pipe_object_input.path = input_path
+        mock_pipe_object_input.save.side_effect = mock_pipe_object_save
+
+        cp_manager.save((mock_pipe_object_input,), ("cpt.txt",))
+        input_path.unlink()
+
+        outputs = cp_manager.load((mock_pipe_object_input,), ("cpt.txt",))
+        assert outputs is None
+
+
+@patch.object(PipeObject, "save", mock_pipe_object_save_2)
+@patch.object(PipeObject, "__abstractmethods__", set())
 def test_load_respects_input_mtime_unsupported_os():
     """Test that mtime checkpoint validation errors on unsupported operating systems."""
     with get_temp_directory_path() as cp_dir_path:
