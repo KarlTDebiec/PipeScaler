@@ -54,7 +54,9 @@ class CheckpointManager(CheckpointManagerBase):
             self.observe(ln, c)
 
         cpt_paths = self.get_cpt_paths(self.dir_path, location_names, cpts)
-        if all(p.exists() for p in cpt_paths):
+        if all(p.exists() for p in cpt_paths) and self.checkpoints_current(
+            inputs, cpt_paths
+        ):
             outputs = tuple(cls(path=p, parents=inputs) for p in cpt_paths)
             location_str = (
                 location_names[0] if len(location_names) == 1 else location_names

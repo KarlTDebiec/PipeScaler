@@ -27,7 +27,9 @@ class PostCheckpointedSegment(CheckpointedSegment):
             for i in input_objs
             for c in self.cpts
         ]
-        if all(p.exists() for p in cpt_paths):
+        if all(p.exists() for p in cpt_paths) and self.cp_manager.checkpoints_current(
+            input_objs, cpt_paths
+        ):
             outputs = tuple(cls(path=p, parents=input_objs) for p in cpt_paths)
             location_name = input_objs[0].location_name
             info(f"{self}: '{location_name}' checkpoints '{self.cpts}' loaded")
