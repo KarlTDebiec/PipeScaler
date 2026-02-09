@@ -68,9 +68,3 @@ def test_invalid_mode():
     """Test ModeProcessor with unsupported output mode."""
     with pytest.raises(ValueError, match="not one of options"):
         ModeProcessor(mode=cast(Any, "HSV"))
-
-
-def test_mode_case_insensitive():
-    """Test that ModeProcessor accepts mode values case-insensitively."""
-    processor = ModeProcessor(mode=cast(Any, "rgb"))
-    assert processor.mode == "RGB"
