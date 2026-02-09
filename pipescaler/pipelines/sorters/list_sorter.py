@@ -29,46 +29,56 @@ class ListSorter(Sorter):
               matching a line in the file will be sorted to that outlet
         """
         self._outlets = tuple(sorted(outlets.keys()))
+        self._input_paths_by_outlet: dict[str, list[str]] = {}
         self.outlets_by_filename = {}
 
-        for outlet, paths in outlets.items():
-            if not isinstance(paths, list):
-                paths = [paths]
-            for path in paths:
-                if not isinstance(path, Path):
-                    path = Path(path)
-                path = path.resolve()
-                if path.exists():
+        for outlet, configured_paths in outlets.items():
+            path_values = configured_paths
+            if not isinstance(path_values, list):
+                path_values = [path_values]
+            self._input_paths_by_outlet[outlet] = []
+
+            for configured_path in path_values:
+                path_object = configured_path
+                if not isinstance(path_object, Path):
+                    path_object = Path(path_object)
+                resolved_path = path_object.resolve()
+                self._input_paths_by_outlet[outlet].append(str(resolved_path))
+                if resolved_path.exists():
                     names: Iterable[str] = []
-                    if path.is_file():
-                        with open(path, encoding="utf8") as input_file:
+                    if resolved_path.is_file():
+                        with open(resolved_path, encoding="utf8") as input_file:
                             names = (
                                 line.strip()
                                 for line in input_file.readlines()
                                 if not line.startswith("#")
                             )
-                    elif path.is_dir():
-                        names = (f.stem for f in path.iterdir() if f.is_file())
+                    elif resolved_path.is_dir():
+                        names = (f.stem for f in resolved_path.iterdir() if f.is_file())
                     for name in names:
                         if name in self.exclusions:
                             continue
                         self.outlets_by_filename[name] = outlet
 
-    def __call__(self, pipe_object: PipeObject) -> str | None:
+    def __call__(self, obj: PipeObject) -> str | None:
         """Get the outlet to which an object should be sorted.
 
         Arguments:
-            pipe_object: Object to sort
+            obj: Object to sort
         Returns:
             Outlet to which object should be sorted
         """
-        outlet = self.outlets_by_filename.get(pipe_object.name, None)
+        outlet = self.outlets_by_filename.get(obj.name, None)
 
         if outlet:
-            info(f"{self}: '{pipe_object.location_name}' matches '{outlet}'")
+            info(f"{self}: '{obj.location_name}' matches '{outlet}'")
         else:
-            info(f"{self}: '{pipe_object.location_name}' does not match any outlet")
+            info(f"{self}: '{obj.location_name}' does not match any outlet")
         return outlet
+
+    def __repr__(self) -> str:
+        """Representation."""
+        return f"{self.__class__.__name__}(**{self._input_paths_by_outlet!r})"
 
     @property
     def outlets(self) -> tuple[str, ...]:

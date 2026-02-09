@@ -76,3 +76,20 @@ def test(input_filename: str, splitter: AlphaSplitter):
     assert color_img.size == input_img.size
     assert alpha_img.mode in splitter.outputs()["alpha"]
     assert alpha_img.size == input_img.size
+
+
+@pytest.mark.parametrize(
+    "splitter",
+    [
+        AlphaSplitter(),
+        AlphaSplitter(alpha_mode=AlphaMode.MONOCHROME_OR_GRAYSCALE),
+        AlphaSplitter(
+            alpha_mode=AlphaMode.MONOCHROME_OR_GRAYSCALE,
+            mask_fill_mode=MaskFillMode.BASIC,
+        ),
+    ],
+)
+def test_repr_round_trip(splitter: AlphaSplitter):
+    """Test AlphaSplitter repr round-trip recreation."""
+    recreated = eval(repr(splitter))
+    assert repr(recreated) == repr(splitter)

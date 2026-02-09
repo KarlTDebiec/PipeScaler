@@ -2,9 +2,12 @@
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Tests for SpandrelProcessor."""
 
+from __future__ import annotations
+
 import pytest
 from PIL import Image
 
+from pipescaler.common.file import get_temp_file_path
 from pipescaler.image.operators.processors import SpandrelProcessor
 from pipescaler.image.testing import (
     get_expected_output_mode,
@@ -53,3 +56,34 @@ def test(input_filename: str, model: str):
     output_img = processor(input_img)
 
     assert output_img.mode == get_expected_output_mode(input_img)
+
+
+class _FakeModel:
+    """Simple model mock for SpandrelProcessor initialization tests."""
+
+    def eval(self):
+        """Mock eval."""
+
+    def to(self, _device: str):
+        """Mock device transfer."""
+        return self
+
+
+def test_repr_round_trip(monkeypatch: pytest.MonkeyPatch):
+    """Test SpandrelProcessor repr round-trip recreation."""
+    monkeypatch.setattr(
+        "pipescaler.image.operators.processors.spandrel_processor.ModelLoader.load_from_file",
+        lambda *_args, **_kwargs: _FakeModel(),
+    )
+
+    with get_temp_file_path(".pth") as model_path:
+        model_path.touch()
+        processor = SpandrelProcessor(model_input_path=model_path)
+        recreated = eval(
+            repr(processor),
+            {
+                "Path": __import__("pathlib").Path,
+                "SpandrelProcessor": SpandrelProcessor,
+            },
+        )
+        assert recreated.model_input_path == processor.model_input_path

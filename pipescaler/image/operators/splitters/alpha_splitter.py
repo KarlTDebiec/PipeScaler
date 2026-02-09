@@ -42,15 +42,15 @@ class AlphaSplitter(ImageSplitter):
                 )
             self.mask_fill_mode = mask_fill_mode
 
-    def __call__(self, input_img: Image.Image) -> tuple[Image.Image, ...]:
+    def __call__(self, input_image: Image.Image) -> tuple[Image.Image, ...]:
         """Split an image.
 
         Arguments:
-            input_img: Input image
+            input_image: Input image
         Returns:
             Split output images
         """
-        input_img = validate_image(input_img, self.inputs()["input"])
+        input_img = validate_image(input_image, self.inputs()["input"])
 
         input_arr = np.array(input_img)
 
@@ -73,10 +73,16 @@ class AlphaSplitter(ImageSplitter):
 
     def __repr__(self) -> str:
         """Representation."""
+        alpha_mode = repr(self.alpha_mode)
+        if isinstance(self.alpha_mode, AlphaMode):
+            alpha_mode = f"AlphaMode.{self.alpha_mode.name}"
+        mask_fill_mode = repr(self.mask_fill_mode)
+        if isinstance(self.mask_fill_mode, MaskFillMode):
+            mask_fill_mode = f"MaskFillMode.{self.mask_fill_mode.name}"
         return (
             f"{self.__class__.__name__}("
-            f"alpha_mode={self.alpha_mode!r}, "
-            f"mask_fill_mode={self.mask_fill_mode!r})"
+            f"alpha_mode={alpha_mode}, "
+            f"mask_fill_mode={mask_fill_mode})"
         )
 
     @classmethod

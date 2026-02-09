@@ -58,3 +58,11 @@ def test(input_filenames, runner: ApngasmRunner):
         assert image.n_frames == 4
         assert image.info["loop"] == 0
         assert image.info["duration"] == 100.0
+
+
+def test_repr_round_trip():
+    """Test ApngasmRunner repr round-trip recreation."""
+    runner = ApngasmRunner(arguments="1 2 3", timeout=1)
+    recreated = eval(repr(runner))
+    assert recreated.arguments == runner.arguments
+    assert recreated.timeout == runner.timeout

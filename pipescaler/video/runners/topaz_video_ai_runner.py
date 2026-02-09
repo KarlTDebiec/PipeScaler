@@ -92,7 +92,13 @@ class TopazVideoAiRunner(Runner):
 
     def __repr__(self) -> str:
         """Representation."""
-        return f"{self.__class__.__name__}(arguments={self.arguments!r})"
+        working_dir_path = f"Path({str(self.working_dir_path)!r})"
+        return (
+            f"{self.__class__.__name__}("
+            f"arguments={self.arguments!r}, "
+            f"working_dir_path={working_dir_path}, "
+            f"timeout={self.timeout!r})"
+        )
 
     @property
     def command_template(self) -> str:

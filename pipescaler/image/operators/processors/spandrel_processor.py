@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from logging import warning
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import numpy as np
 import torch
@@ -55,16 +55,21 @@ class SpandrelProcessor(ImageProcessor):
                 "falling back to CPU."
             )
 
-    def __call__(self, input_img: Image.Image) -> Image.Image:
+    def __repr__(self) -> str:
+        """Representation."""
+        model_input_path = f"Path({str(self.model_input_path)!r})"
+        return f"{self.__class__.__name__}(model_input_path={model_input_path})"
+
+    def __call__(self, input_image: Image.Image) -> Image.Image:
         """Process an image.
 
         Arguments:
-            input_img: Input image
+            input_image: Input image
         Returns:
             Processed output image
         """
         input_img, output_mode = validate_image_and_convert_mode(
-            input_img, self.inputs()["input"], "RGB"
+            input_image, self.inputs()["input"], "RGB"
         )
 
         # Prepare input
@@ -75,7 +80,8 @@ class SpandrelProcessor(ImageProcessor):
         input_tensor = input_tensor.float().unsqueeze(0).to(self.device)
 
         # Prepare output
-        output_tensor = self.model(input_tensor).data.squeeze().float().cpu()
+        model = cast(Any, self.model)
+        output_tensor = model(input_tensor).data.squeeze().float().cpu()
         output_arr: np.ndarray = output_tensor.clamp_(0, 1).numpy()
         output_arr = np.transpose(output_arr[[2, 1, 0], :, :], (1, 2, 0))
         output_arr = np.array(output_arr * 255, np.uint8)
@@ -98,7 +104,8 @@ class SpandrelProcessor(ImageProcessor):
         input_tensor = torch.from_numpy(input_arr)
         input_tensor = input_tensor.float().unsqueeze(0).to(self.device)
 
-        output_tensor = self.model(input_tensor).data.squeeze().float().cpu()
+        model = cast(Any, self.model)
+        output_tensor = model(input_tensor).data.squeeze().float().cpu()
         output_arr: np.ndarray = output_tensor.clamp_(0, 1).numpy()
         output_arr = np.transpose(output_arr[[2, 1, 0], :, :], (1, 2, 0))
         output_arr = np.array(output_arr * 255, np.uint8)

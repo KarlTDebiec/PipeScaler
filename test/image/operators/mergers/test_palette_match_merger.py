@@ -67,3 +67,16 @@ def test(ref: str, fit: str, merger: PaletteMatchMerger):
     assert output_colors.issubset(ref_colors)
     assert output_img.mode == get_expected_output_mode(fit_img)
     assert output_img.size == fit_img.size
+
+
+@pytest.mark.parametrize(
+    "merger",
+    [
+        PaletteMatchMerger(),
+        PaletteMatchMerger(palette_match_mode=PaletteMatchMode.LOCAL, local_range=2),
+    ],
+)
+def test_repr_round_trip(merger: PaletteMatchMerger):
+    """Test PaletteMatchMerger repr round-trip recreation."""
+    recreated = eval(repr(merger))
+    assert repr(recreated) == repr(merger)
