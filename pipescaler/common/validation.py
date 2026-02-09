@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Collection, Iterable
+from collections.abc import Callable, Collection, Iterable
 from logging import getLogger
 from os.path import defpath, expanduser, expandvars
 from pathlib import Path
@@ -441,14 +441,21 @@ def val_output_path(
     return [_val_output_path(value_to_validate) for value_to_validate in value]
 
 
-def val_literal[LiteralValue](value: LiteralValue, literal_type: Any) -> LiteralValue:
+def val_literal[LiteralValue](
+    value: Any,
+    literal_type: Any,
+    *,
+    normalize: Callable[[Any], Any] | None = None,
+) -> LiteralValue:
     """Validate a value against a Literal type or type alias.
 
     Arguments:
         value: Input value to validate
         literal_type: Literal type or type alias with Literal value options
+        normalize: Function used to normalize both value and options before
+          comparison
     Returns:
-        Value if it is one of the Literal options
+        Canonical Literal option matching value
     Raises:
         ArgumentConflictError: If literal_type does not resolve to Literal options
         ValueError: If value is not one of the provided Literal options
@@ -463,9 +470,24 @@ def val_literal[LiteralValue](value: LiteralValue, literal_type: Any) -> Literal
         raise ArgumentConflictError(
             f"'{literal_type}' does not contain Literal options"
         ) from None
-    if value not in options:
-        raise ValueError(f"'{value}' is not one of options '{options}'") from None
-    return value
+    normalize = normalize or (lambda raw_value: raw_value)
+
+    normalized_options: dict[Any, Any] = {}
+    for option in options:
+        normalized_option = normalize(option)
+        if normalized_option in normalized_options:
+            raise ArgumentConflictError(
+                f"Normalization of '{literal_type}' creates duplicate option "
+                f"'{normalized_option}'."
+            ) from None
+        normalized_options[normalized_option] = option
+
+    normalized_value = normalize(value)
+    if normalized_value not in normalized_options:
+        raise ValueError(
+            f"'{value}' is not one of options '{tuple(normalized_options.values())}'"
+        ) from None
+    return normalized_options[normalized_value]
 
 
 def val_str(value: Any, options: Iterable[str]) -> str:

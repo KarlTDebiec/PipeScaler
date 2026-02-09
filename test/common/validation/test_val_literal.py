@@ -35,6 +35,28 @@ def test_val_literal_literal_type_valid():
     assert val_literal("green", Literal["red", "green", "blue"]) == "green"
 
 
+def test_val_literal_normalized():
+    """Test validation with normalized comparisons."""
+    assert (
+        val_literal(
+            "Green",
+            Literal["red", "green", "blue"],
+            normalize=lambda raw_value: str(raw_value).lower(),
+        )
+        == "green"
+    )
+
+
+def test_val_literal_normalized_duplicate_options():
+    """Test validation with duplicate options after normalization."""
+    with pytest.raises(ArgumentConflictError, match="creates duplicate option"):
+        val_literal(
+            "a",
+            Literal["A", "a"],
+            normalize=lambda raw_value: str(raw_value).lower(),
+        )
+
+
 def test_val_literal_non_literal():
     """Test validation with non-Literal type."""
     with pytest.raises(ArgumentConflictError, match="does not contain Literal options"):
