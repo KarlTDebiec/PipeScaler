@@ -19,10 +19,3 @@ class MaskFillMode(Enum):
 
     BASIC = auto()
     MATCH_PALETTE = auto()
-
-
-class PaletteMatchMode(Enum):
-    """Mode of matching to perform."""
-
-    BASIC = auto()
-    LOCAL = auto()

@@ -5,7 +5,8 @@
 This module may import from: common, core, image.core, image.core.operators
 
 Hierarchy within module:
-* alpha_merger / normal_merger / histogram_match_merger / palette_match_merger
+* alpha_merger / normal_merger / histogram_match_merger / palette_match_merger /
+  local_palette_match_merger
 """
 
 from __future__ import annotations
@@ -14,12 +15,14 @@ from .alpha_merger import AlphaMerger
 from .histogram_match_merger import (
     HistogramMatchMerger,
 )
+from .local_palette_match_merger import LocalPaletteMatchMerger
 from .normal_merger import NormalMerger
 from .palette_match_merger import PaletteMatchMerger
 
 __all__ = [
     "AlphaMerger",
     "HistogramMatchMerger",
+    "LocalPaletteMatchMerger",
     "NormalMerger",
     "PaletteMatchMerger",
 ]

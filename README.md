@@ -37,6 +37,7 @@ PipeScaler includes the following components for image processing:
 **Mergers** combine two or more images into a single image:
 * [AlphaMerger](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/operators/mergers/alpha_merger.py) - Merges color and alpha images into a single image with transparency.
 * [HistogramMatchMerger](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/operators/mergers/histogram_match_merger.py) - Matches an image's color histogram to that of a reference image.
+* [LocalPaletteMatchMerger](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/operators/mergers/local_palette_match_merger.py) - Matches an image's palette to nearby colors from a reference image.
 * [NormalMerger](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/operators/mergers/normal_merger.py) - Merges x, y, and z images into a single normal map image.
 * [PaletteMatchMerger](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/operators/mergers/palette_match_merger.py) - Matches an image's color palette to that of a reference image.
 

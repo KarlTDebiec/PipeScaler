@@ -15,7 +15,11 @@ from pipescaler.common import CommandLineInterface
 from pipescaler.common.file import get_temp_file_path
 from pipescaler.common.testing import run_cli_with_args
 from pipescaler.image.cli import ImageMergersCli
-from pipescaler.image.cli.mergers import AlphaMergerCli, PaletteMatchMergerCli
+from pipescaler.image.cli.mergers import (
+    AlphaMergerCli,
+    LocalPaletteMatchMergerCli,
+    PaletteMatchMergerCli,
+)
 from pipescaler.testing.file import get_test_input_path
 
 
@@ -24,8 +28,8 @@ from pipescaler.testing.file import get_test_input_path
     [
         (AlphaMergerCli, "", ("RGB", "L")),
         (PaletteMatchMergerCli, "", ("RGB", "alt/RGB")),
-        (PaletteMatchMergerCli, "--local", ("RGB", "alt/RGB")),
-        (PaletteMatchMergerCli, "--local --local_range 2", ("RGB", "alt/RGB")),
+        (LocalPaletteMatchMergerCli, "", ("RGB", "alt/RGB")),
+        (LocalPaletteMatchMergerCli, "--local_range 2", ("RGB", "alt/RGB")),
     ],
 )
 def test(cli: type[CommandLineInterface], args: str, input_filenames: tuple[str]):
@@ -48,9 +52,11 @@ def test(cli: type[CommandLineInterface], args: str, input_filenames: tuple[str]
     "commands",
     [
         (AlphaMergerCli,),
+        (LocalPaletteMatchMergerCli,),
         (PaletteMatchMergerCli,),
         (ImageMergersCli,),
         (ImageMergersCli, AlphaMergerCli),
+        (ImageMergersCli, LocalPaletteMatchMergerCli),
         (ImageMergersCli, PaletteMatchMergerCli),
     ],
 )
@@ -80,9 +86,11 @@ def test_help(commands: tuple[type[CommandLineInterface], ...]):
     "commands",
     [
         (AlphaMergerCli,),
+        (LocalPaletteMatchMergerCli,),
         (PaletteMatchMergerCli,),
         (ImageMergersCli,),
         (ImageMergersCli, AlphaMergerCli),
+        (ImageMergersCli, LocalPaletteMatchMergerCli),
         (ImageMergersCli, PaletteMatchMergerCli),
     ],
 )

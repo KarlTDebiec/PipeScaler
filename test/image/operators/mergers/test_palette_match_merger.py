@@ -5,7 +5,6 @@
 import pytest
 from PIL import Image
 
-from pipescaler.image.core import PaletteMatchMode
 from pipescaler.image.core.functions import get_palette, remove_palette
 from pipescaler.image.operators.mergers import PaletteMatchMerger
 from pipescaler.image.testing import (
@@ -19,8 +18,7 @@ from pipescaler.testing.fixture import parametrized_fixture
 @parametrized_fixture(
     cls=PaletteMatchMerger,
     params=[
-        {"palette_match_mode": PaletteMatchMode.BASIC},
-        {"palette_match_mode": PaletteMatchMode.LOCAL},
+        {},
     ],
 )
 def merger(request) -> PaletteMatchMerger:
@@ -73,7 +71,6 @@ def test(ref: str, fit: str, merger: PaletteMatchMerger):
     "merger",
     [
         PaletteMatchMerger(),
-        PaletteMatchMerger(palette_match_mode=PaletteMatchMode.LOCAL, local_range=2),
     ],
 )
 def test_repr_round_trip(merger: PaletteMatchMerger):
