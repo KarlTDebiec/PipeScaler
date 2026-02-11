@@ -84,8 +84,8 @@ class SpandrelProcessor(ImageProcessor):
 
         # Prepare output
         model = cast(Any, self.model)
-        output_tensor = model(input_tensor).squeeze().float().cpu()
-        output_arr: np.ndarray = output_tensor.clamp(0, 1).numpy()
+        output_tensor = model(input_tensor).data.squeeze().float().cpu()
+        output_arr: np.ndarray = output_tensor.clamp_(0, 1).numpy()
         output_arr = np.transpose(output_arr[[2, 1, 0], :, :], (1, 2, 0))
         output_arr = np.array(output_arr * 255, np.uint8)
         output_img = Image.fromarray(output_arr)
@@ -108,8 +108,8 @@ class SpandrelProcessor(ImageProcessor):
         input_tensor = input_tensor.float().unsqueeze(0).to(self.device)
 
         model = cast(Any, self.model)
-        output_tensor = model(input_tensor).squeeze().float().cpu()
-        output_arr: np.ndarray = output_tensor.clamp(0, 1).numpy()
+        output_tensor = model(input_tensor).data.squeeze().float().cpu()
+        output_arr: np.ndarray = output_tensor.clamp_(0, 1).numpy()
         output_arr = np.transpose(output_arr[[2, 1, 0], :, :], (1, 2, 0))
         output_arr = np.array(output_arr * 255, np.uint8)
 
