@@ -77,6 +77,7 @@ class ImagePairCollection:
 
     @pairs.setter
     def pairs(self, value: PairDataFrame):
+        """Set image pairs after validating expected columns."""
         if value.columns.tolist() != self.pairs.columns.tolist():
             raise ValueError(
                 f"pairs must have columns {self.pairs.columns.tolist()}, not "

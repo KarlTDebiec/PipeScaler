@@ -87,6 +87,7 @@ def run_command_live(
     stderr_lines = []
 
     def read_stream(stream, lines):
+        """Read a subprocess stream, echo output, and collect lines."""
         for line in iter(stream.readline, ""):
             print(line, end="")
             lines.append(line)

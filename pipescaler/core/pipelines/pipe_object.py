@@ -115,6 +115,7 @@ class PipeObject(ABC):
 
     @path.setter
     def path(self, value: Path | str | None):
+        """Set path after validating it when provided."""
         if value:
             self._path = val_input_path(value)
         else:
