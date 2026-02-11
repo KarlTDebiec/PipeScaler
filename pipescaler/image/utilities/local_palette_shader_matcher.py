@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from importlib import import_module
+from logging import warning
 from typing import Any
 
 import numpy as np
@@ -28,6 +29,8 @@ class LocalPaletteShaderExecutionError(LocalPaletteShaderError):
 class LocalPaletteShaderMatcher:
     """Matches image palettes locally using a WGSL compute shader."""
 
+    _max_local_range = 2_147_483_647
+    """Maximum local range representable as signed 32-bit integer."""
     _workgroup_x = 8
     _workgroup_y = 8
 
@@ -173,13 +176,14 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
                 f"Local palette shader matcher supports 'L' and 'RGB', not "
                 f"'{fit_img.mode}'"
             )
+        normalized_local_range = cls._normalize_local_range(local_range)
 
         ref_arr, fit_arr = cls._prepare_arrays(ref_img, fit_img)
         channels = fit_arr.shape[2]
         output_arr = cls._run_shader(
             ref_arr=ref_arr,
             fit_arr=fit_arr,
-            local_range=local_range,
+            local_range=normalized_local_range,
         )
         if channels == 1:
             return Image.fromarray(output_arr[:, :, 0])
@@ -220,6 +224,31 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
             ref_arr = ref_arr[:, :, np.newaxis]
             fit_arr = fit_arr[:, :, np.newaxis]
         return ref_arr, fit_arr
+
+    @classmethod
+    def _normalize_local_range(cls, local_range: int) -> int:
+        """Normalize local range for transfer into WGSL params buffer.
+
+        Arguments:
+            local_range: range of adjacent pixels from which to draw best-fit color
+        Returns:
+            non-negative local range clamped to signed 32-bit integer max
+        Raises:
+            ValueError: if local_range is not an integer >= 1
+        """
+        try:
+            local_range_int = int(local_range)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("local_range must be an integer") from exc
+        if local_range_int < 1:
+            raise ValueError("local_range must be >= 1")
+        if local_range_int > cls._max_local_range:
+            warning(
+                f"LocalPaletteShaderMatcher: local_range {local_range_int} exceeds "
+                f"{cls._max_local_range}; clamping"
+            )
+            local_range_int = cls._max_local_range
+        return local_range_int
 
     @classmethod
     def _run_shader(
