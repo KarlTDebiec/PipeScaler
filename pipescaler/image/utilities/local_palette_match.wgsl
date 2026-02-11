@@ -1,3 +1,19 @@
+// Copyright 2020-2026 Karl T Debiec. All rights reserved. This software may be
+// modified and distributed under the terms of the BSD license. See the LICENSE
+// file for details.
+//
+// Local palette match compute shader.
+//
+// Conventions for this file:
+// - This shader is loaded from Python and templated by replacing `WGX` and `WGY`
+//   with integer workgroup sizes before dispatch.
+// - Pixel buffers are channel-interleaved and flattened in row-major order.
+// - `params` layout:
+//   [0]=fit_height, [1]=fit_width, [2]=ref_height, [3]=ref_width,
+//   [4]=local_range, [5]=channels (1 for L, 3 for RGB)
+// - `local_range` is validated/clamped on the Python side before upload.
+
+// Input/output storage buffers for compute pass.
 @group(0) @binding(0)
 var<storage, read> fit_pixels: array<u32>;
 @group(0) @binding(1)
@@ -7,6 +23,7 @@ var<storage, read> params: array<u32>;
 @group(0) @binding(3)
 var<storage, read_write> output_pixels: array<u32>;
 
+// Weighted RGB distance approximation for perceptual similarity.
 fn weighted_distance(
     fit_r_u: u32,
     fit_g_u: u32,
@@ -45,6 +62,7 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
         return;
     }
 
+    // Current fit pixel.
     let fit_idx = (y * fit_width + x) * channels;
     let fit_r = fit_pixels[fit_idx];
     var fit_g = fit_r;
@@ -54,6 +72,7 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
         fit_b = fit_pixels[fit_idx + 2u];
     }
 
+    // Map fit pixel location into reference image coordinates.
     let center_x_u: u32 = min((x * ref_width) / fit_width, ref_width - 1u);
     let center_y_u: u32 = min((y * ref_height) / fit_height, ref_height - 1u);
     let center_x: i32 = i32(center_x_u);
@@ -64,6 +83,7 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
     let y_start = max(0, center_y - local_range);
     let y_end = min(i32(ref_height) - 1, center_y + local_range);
 
+    // Brute-force search within local window in reference image.
     var best_dist = 1e30;
     var best_r: u32 = fit_r;
     var best_g: u32 = fit_g;
@@ -108,6 +128,7 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
         ry = ry + 1;
     }
 
+    // Emit best-matching reference color for this fit pixel.
     output_pixels[fit_idx] = best_r;
     if (channels == 3u) {
         output_pixels[fit_idx + 1u] = best_g;
