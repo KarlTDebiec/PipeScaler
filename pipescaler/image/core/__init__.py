@@ -12,7 +12,7 @@ Hierarchy within module:
 
 from __future__ import annotations
 
-from .enums import AlphaMode, MaskFillMode, PaletteMatchMode
+from .enums import AlphaMode, MaskFillMode
 from .exceptions import UnsupportedImageModeError
 from .image_operator import ImageOperator
 
@@ -20,6 +20,5 @@ __all__ = [
     "AlphaMode",
     "ImageOperator",
     "MaskFillMode",
-    "PaletteMatchMode",
     "UnsupportedImageModeError",
 ]
