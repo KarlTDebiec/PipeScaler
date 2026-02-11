@@ -5,11 +5,14 @@
 
 from __future__ import annotations
 
-from argparse import ArgumentParser
+from typing import TYPE_CHECKING
 
 from pipescaler.common.argument_parsing import get_arg_groups_by_name, int_arg
 from pipescaler.image.core.cli import ImageProcessorCli
 from pipescaler.image.operators.processors import XbrzProcessor
+
+if TYPE_CHECKING:
+    from argparse import ArgumentParser
 
 
 class XbrzCli(ImageProcessorCli):

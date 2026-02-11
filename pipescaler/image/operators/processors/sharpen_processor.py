@@ -4,13 +4,17 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import numpy as np
 from PIL import Image
 from scipy.signal import convolve2d
 
 from pipescaler.image.core.operators import ImageProcessor
-from pipescaler.image.core.typing import ImageMode
 from pipescaler.image.core.validation import validate_image
+
+if TYPE_CHECKING:
+    from pipescaler.image.core.typing import ImageMode
 
 
 class SharpenProcessor(ImageProcessor):

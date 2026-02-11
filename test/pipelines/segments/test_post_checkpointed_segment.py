@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from pathlib import Path
+from typing import TYPE_CHECKING
 from unittest.mock import Mock, patch
 
 import pytest
@@ -14,6 +14,9 @@ from pipescaler.common.validation import val_output_path
 from pipescaler.core.pipelines import PipeObject, Segment
 from pipescaler.pipelines import CheckpointManager
 from pipescaler.pipelines.segments import PostCheckpointedSegment
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def mock_pipe_object_save(path: Path | str):

@@ -5,13 +5,15 @@
 
 from __future__ import annotations
 
-from argparse import ArgumentParser
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pipescaler.common import CommandLineInterface
 from pipescaler.image.core.cli import ImageMergerCli
 
 from . import mergers
+
+if TYPE_CHECKING:
+    from argparse import ArgumentParser
 
 
 class ImageMergersCli(CommandLineInterface):

@@ -6,12 +6,16 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 from logging import info
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pandas as pd
 
 from pipescaler.common.validation import val_output_path
-from pipescaler.image.core.analytics.typing import PairDataFrame
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from pipescaler.image.core.analytics.typing import PairDataFrame
 
 
 class ImagePairCollection:

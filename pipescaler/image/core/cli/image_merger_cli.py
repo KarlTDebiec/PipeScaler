@@ -7,9 +7,12 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from inspect import cleandoc
+from typing import TYPE_CHECKING
 
 from pipescaler.common import CommandLineInterface
-from pipescaler.image.core.operators import ImageMerger
+
+if TYPE_CHECKING:
+    from pipescaler.image.core.operators import ImageMerger
 
 
 class ImageMergerCli(CommandLineInterface, ABC):

@@ -5,11 +5,15 @@
 from __future__ import annotations
 
 from abc import ABC
-from collections.abc import Sequence
+from typing import TYPE_CHECKING
 
-from .checkpoint_manager_base import CheckpointManagerBase
 from .segment import Segment
-from .typing import SegmentLike
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from .checkpoint_manager_base import CheckpointManagerBase
+    from .typing import SegmentLike
 
 
 class CheckpointedSegment(Segment, ABC):

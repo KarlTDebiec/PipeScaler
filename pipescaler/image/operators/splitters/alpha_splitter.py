@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import numpy as np
 from PIL import Image
 
@@ -11,9 +13,11 @@ from pipescaler.common import ArgumentConflictError
 from pipescaler.image.core import AlphaMode, MaskFillMode
 from pipescaler.image.core.functions import is_monochrome
 from pipescaler.image.core.operators import ImageSplitter
-from pipescaler.image.core.typing import ImageMode
 from pipescaler.image.core.validation import validate_image
 from pipescaler.image.utilities import MaskFiller
+
+if TYPE_CHECKING:
+    from pipescaler.image.core.typing import ImageMode
 
 
 class AlphaSplitter(ImageSplitter):

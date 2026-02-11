@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from functools import partial
 from logging import info
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
@@ -18,17 +19,19 @@ from pipescaler.image.core.analytics.hashing import (
     multichannel_perceptual_hamming,
     multichannel_wavelet_hamming,
 )
-from pipescaler.image.core.analytics.typing import (
-    HashDataFrame,
-    HashSeries,
-    PairDataFrame,
-    PairSeries,
-    ScoreDataFrame,
-    ScoreStatsDataFrame,
-    ScoreStatsSeries,
-)
 
-from .image_hash_collection import ImageHashCollection
+if TYPE_CHECKING:
+    from pipescaler.image.core.analytics.typing import (
+        HashDataFrame,
+        HashSeries,
+        PairDataFrame,
+        PairSeries,
+        ScoreDataFrame,
+        ScoreStatsDataFrame,
+        ScoreStatsSeries,
+    )
+
+    from .image_hash_collection import ImageHashCollection
 
 
 class ImagePairScorer:

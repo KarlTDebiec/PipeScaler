@@ -5,18 +5,21 @@
 from __future__ import annotations
 
 import re
-from collections.abc import Iterable, Sequence
 from itertools import chain
 from logging import debug, info
 from os import remove, rmdir
 from pathlib import Path
 from shutil import copy, move
+from typing import TYPE_CHECKING
 
 from PIL import Image
 
 from pipescaler.common.validation import val_input_dir_path
 
 from .common import DirectoryNotFoundError
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Sequence
 
 
 class FileScanner:

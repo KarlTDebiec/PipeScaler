@@ -5,10 +5,12 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-
-from PIL import Image
+from typing import TYPE_CHECKING
 
 from pipescaler.image.core.image_operator import ImageOperator
+
+if TYPE_CHECKING:
+    from PIL import Image
 
 
 class ImageProcessor(ImageOperator, ABC):

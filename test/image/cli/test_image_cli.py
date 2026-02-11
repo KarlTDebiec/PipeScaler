@@ -8,10 +8,10 @@ from contextlib import redirect_stderr, redirect_stdout
 from inspect import getfile
 from io import StringIO
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 
-from pipescaler.common import CommandLineInterface
 from pipescaler.common.testing import run_cli_with_args
 from pipescaler.image.cli import (
     ImageCli,
@@ -20,6 +20,9 @@ from pipescaler.image.cli import (
     ImageSplittersCli,
     ImageUtilitiesCli,
 )
+
+if TYPE_CHECKING:
+    from pipescaler.common import CommandLineInterface
 
 
 @pytest.mark.parametrize(

@@ -4,12 +4,16 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import numpy as np
 from PIL import Image
 
 from pipescaler.common.validation import val_float, val_str
 from pipescaler.image.core.operators import ImageProcessor
-from pipescaler.image.core.typing import ImageMode
+
+if TYPE_CHECKING:
+    from pipescaler.image.core.typing import ImageMode
 
 
 class ResizeProcessor(ImageProcessor):

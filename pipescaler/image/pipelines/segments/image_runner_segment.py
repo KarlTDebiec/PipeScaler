@@ -5,10 +5,13 @@
 from __future__ import annotations
 
 from logging import warning
+from typing import TYPE_CHECKING
 
 from pipescaler.common.file import get_temp_file_path
-from pipescaler.core.typing import RunnerLike
 from pipescaler.image.core.pipelines import ImageSegment, PipeImage
+
+if TYPE_CHECKING:
+    from pipescaler.core.typing import RunnerLike
 
 
 class ImageRunnerSegment(ImageSegment):

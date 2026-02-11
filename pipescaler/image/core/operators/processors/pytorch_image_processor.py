@@ -5,8 +5,7 @@
 from __future__ import annotations
 
 from abc import ABC
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import torch
@@ -14,8 +13,12 @@ from PIL import Image
 
 from pipescaler.common.validation import val_input_path
 from pipescaler.image.core.operators import ImageProcessor
-from pipescaler.image.core.typing import ImageMode
 from pipescaler.image.core.validation import validate_image_and_convert_mode
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from pipescaler.image.core.typing import ImageMode
 
 
 class PyTorchImageProcessor(ImageProcessor, ABC):

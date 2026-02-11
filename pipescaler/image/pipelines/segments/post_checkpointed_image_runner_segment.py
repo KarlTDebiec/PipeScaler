@@ -4,14 +4,17 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
 from logging import info
+from typing import TYPE_CHECKING
 
 from pipescaler.common.file import get_temp_file_path
 from pipescaler.core.pipelines import CheckpointedSegment, CheckpointManagerBase
 from pipescaler.image.core.pipelines import PipeImage
 
-from .image_runner_segment import ImageRunnerSegment
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from .image_runner_segment import ImageRunnerSegment
 
 
 class PostCheckpointedImageRunnerSegment(CheckpointedSegment):

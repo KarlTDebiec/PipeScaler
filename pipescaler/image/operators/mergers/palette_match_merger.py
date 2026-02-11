@@ -4,16 +4,18 @@
 
 from __future__ import annotations
 
-from typing import Any
-
-from PIL import Image
+from typing import TYPE_CHECKING, Any
 
 from pipescaler.common.validation import val_int
 from pipescaler.image.core import PaletteMatchMode, UnsupportedImageModeError
 from pipescaler.image.core.operators import ImageMerger
-from pipescaler.image.core.typing import ImageMode
 from pipescaler.image.core.validation import validate_image
 from pipescaler.image.utilities import LocalPaletteMatcher, PaletteMatcher
+
+if TYPE_CHECKING:
+    from PIL import Image
+
+    from pipescaler.image.core.typing import ImageMode
 
 
 class PaletteMatchMerger(ImageMerger):

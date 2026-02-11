@@ -5,11 +5,14 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING
 
 from pipescaler.image.core import ImageOperator
 
 from .image_segment import ImageSegment
-from .pipe_image import PipeImage
+
+if TYPE_CHECKING:
+    from .pipe_image import PipeImage
 
 
 class ImageOperatorSegment[T: ImageOperator](ImageSegment, ABC):

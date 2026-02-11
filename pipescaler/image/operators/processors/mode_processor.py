@@ -4,14 +4,16 @@
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 from PIL import Image, ImageColor
 
 from pipescaler.common.validation import val_literal
 from pipescaler.image.core.operators import ImageProcessor
-from pipescaler.image.core.typing import ImageMode
 from pipescaler.image.core.validation import validate_image
+
+if TYPE_CHECKING:
+    from pipescaler.image.core.typing import ImageMode
 
 type ModeSetting = Literal["1", "L", "LA", "RGB", "RGBA"]
 """Mode settings supported by ModeProcessor."""

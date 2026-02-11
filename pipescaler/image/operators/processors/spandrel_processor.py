@@ -5,8 +5,7 @@
 from __future__ import annotations
 
 from logging import warning
-from pathlib import Path
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
 import torch
@@ -15,8 +14,12 @@ from spandrel import ModelLoader
 
 from pipescaler.common.validation import val_input_path
 from pipescaler.image.core.operators import ImageProcessor
-from pipescaler.image.core.typing import ImageMode
 from pipescaler.image.core.validation import validate_image_and_convert_mode
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from pipescaler.image.core.typing import ImageMode
 
 
 class SpandrelProcessor(ImageProcessor):
@@ -80,7 +83,7 @@ class SpandrelProcessor(ImageProcessor):
         input_tensor = input_tensor.float().unsqueeze(0).to(self.device)
 
         # Prepare output
-        model = cast(Any, self.model)
+        model = cast("Any", self.model)
         output_tensor = model(input_tensor).data.squeeze().float().cpu()
         output_arr: np.ndarray = output_tensor.clamp_(0, 1).numpy()
         output_arr = np.transpose(output_arr[[2, 1, 0], :, :], (1, 2, 0))
@@ -104,7 +107,7 @@ class SpandrelProcessor(ImageProcessor):
         input_tensor = torch.from_numpy(input_arr)
         input_tensor = input_tensor.float().unsqueeze(0).to(self.device)
 
-        model = cast(Any, self.model)
+        model = cast("Any", self.model)
         output_tensor = model(input_tensor).data.squeeze().float().cpu()
         output_arr: np.ndarray = output_tensor.clamp_(0, 1).numpy()
         output_arr = np.transpose(output_arr[[2, 1, 0], :, :], (1, 2, 0))
