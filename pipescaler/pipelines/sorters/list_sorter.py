@@ -4,12 +4,16 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable
 from logging import info
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-from pipescaler.core.pipelines import PipeObject
 from pipescaler.core.pipelines.sorter import Sorter
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from pipescaler.core.pipelines import PipeObject
 
 
 class ListSorter(Sorter):

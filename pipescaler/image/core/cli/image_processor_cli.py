@@ -6,16 +6,19 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from argparse import ArgumentParser
 from inspect import cleandoc
 from logging import info
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from PIL import Image
 
 from pipescaler.common import CommandLineInterface
 from pipescaler.common.argument_parsing import input_file_arg, output_file_arg
-from pipescaler.image.core.operators import ImageProcessor
+
+if TYPE_CHECKING:
+    from argparse import ArgumentParser
+
+    from pipescaler.image.core.operators import ImageProcessor
 
 
 class ImageProcessorCli(CommandLineInterface, ABC):

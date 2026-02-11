@@ -5,8 +5,7 @@
 from __future__ import annotations
 
 from logging import warning
-from pathlib import Path
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
 import torch
@@ -15,8 +14,12 @@ from spandrel import ModelLoader
 
 from pipescaler.common.validation import val_input_path
 from pipescaler.image.core.operators import ImageProcessor
-from pipescaler.image.core.typing import ImageMode
 from pipescaler.image.core.validation import validate_image_and_convert_mode
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from pipescaler.image.core.typing import ImageMode
 
 
 class SpandrelProcessor(ImageProcessor):

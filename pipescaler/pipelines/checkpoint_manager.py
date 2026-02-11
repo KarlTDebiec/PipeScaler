@@ -4,11 +4,10 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable, Collection, Sequence
 from itertools import cycle
 from logging import info
 from os import remove, rmdir
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from pipescaler.core.pipelines import CheckpointManagerBase, PipeObject, SegmentLike
 
@@ -16,6 +15,10 @@ from .segments import (
     PostCheckpointedSegment,
     PreCheckpointedSegment,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Collection, Sequence
+    from pathlib import Path
 
 
 class CheckpointManager(CheckpointManagerBase):

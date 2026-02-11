@@ -8,14 +8,17 @@ from contextlib import redirect_stderr, redirect_stdout
 from inspect import getfile
 from io import StringIO
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 
 from pipescaler.cli import PipeScalerCli
-from pipescaler.common import CommandLineInterface
 from pipescaler.common.testing import run_cli_with_args
 from pipescaler.image.cli import ImageCli
 from pipescaler.testing.mark import parametrize_with_readable_ids
+
+if TYPE_CHECKING:
+    from pipescaler.common import CommandLineInterface
 
 
 @parametrize_with_readable_ids(

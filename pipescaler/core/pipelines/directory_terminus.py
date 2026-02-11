@@ -7,12 +7,15 @@ from __future__ import annotations
 from abc import ABC
 from logging import info
 from os import remove, rmdir
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from pipescaler.common.validation import val_output_dir_path
 
 from .pipe_object import PipeObject
 from .terminus import Terminus
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class DirectoryTerminus[T: PipeObject](Terminus[T], ABC):

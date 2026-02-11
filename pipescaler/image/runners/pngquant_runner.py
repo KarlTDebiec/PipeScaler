@@ -5,12 +5,14 @@
 from __future__ import annotations
 
 from logging import debug
-from pathlib import Path
 from shutil import copyfile
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pipescaler.common.subprocess import run_command
 from pipescaler.core import Runner
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class PngquantRunner(Runner):

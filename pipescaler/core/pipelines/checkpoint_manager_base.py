@@ -5,9 +5,7 @@
 from __future__ import annotations
 
 from abc import ABC
-from collections.abc import Sequence
 from logging import warning
-from pathlib import Path
 from platform import system
 from typing import TYPE_CHECKING
 
@@ -15,6 +13,9 @@ from pipescaler.common.exception import UnsupportedPlatformError
 from pipescaler.common.validation import val_output_dir_path
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+    from pathlib import Path
+
     from .pipe_object import PipeObject
 
 

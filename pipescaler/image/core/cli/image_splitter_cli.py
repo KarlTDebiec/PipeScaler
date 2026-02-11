@@ -6,12 +6,16 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from argparse import ArgumentParser
 from inspect import cleandoc
+from typing import TYPE_CHECKING
 
 from pipescaler.common import CommandLineInterface
 from pipescaler.common.argument_parsing import input_file_arg
-from pipescaler.image.core.operators import ImageSplitter
+
+if TYPE_CHECKING:
+    from argparse import ArgumentParser
+
+    from pipescaler.image.core.operators import ImageSplitter
 
 
 class ImageSplitterCli(CommandLineInterface, ABC):

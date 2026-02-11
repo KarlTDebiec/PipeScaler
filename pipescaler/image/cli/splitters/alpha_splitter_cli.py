@@ -5,16 +5,19 @@
 
 from __future__ import annotations
 
-from argparse import ArgumentParser
 from logging import info
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from PIL import Image
 
 from pipescaler.common.argument_parsing import output_file_arg
 from pipescaler.image.core.cli import ImageSplitterCli
-from pipescaler.image.core.operators import ImageSplitter
 from pipescaler.image.operators.splitters import AlphaSplitter
+
+if TYPE_CHECKING:
+    from argparse import ArgumentParser
+
+    from pipescaler.image.core.operators import ImageSplitter
 
 
 class AlphaSplitterCli(ImageSplitterCli):

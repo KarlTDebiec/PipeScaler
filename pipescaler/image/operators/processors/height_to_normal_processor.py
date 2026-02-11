@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from PIL import Image
+from typing import TYPE_CHECKING
 
 from pipescaler.common.validation import val_float
 from pipescaler.image.core.functions import (
@@ -12,8 +12,12 @@ from pipescaler.image.core.functions import (
     smooth_image,
 )
 from pipescaler.image.core.operators import ImageProcessor
-from pipescaler.image.core.typing import ImageMode
 from pipescaler.image.core.validation import validate_image
+
+if TYPE_CHECKING:
+    from PIL import Image
+
+    from pipescaler.image.core.typing import ImageMode
 
 
 class HeightToNormalProcessor(ImageProcessor):

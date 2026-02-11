@@ -5,11 +5,14 @@
 
 from __future__ import annotations
 
-from argparse import ArgumentParser
+from typing import TYPE_CHECKING
 
 from pipescaler.common.argument_parsing import float_arg, get_arg_groups_by_name
 from pipescaler.image.core.cli import ImageProcessorCli
 from pipescaler.image.operators.processors import HeightToNormalProcessor
+
+if TYPE_CHECKING:
+    from argparse import ArgumentParser
 
 
 class HeightToNormalCli(ImageProcessorCli):

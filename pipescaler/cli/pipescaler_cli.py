@@ -5,11 +5,13 @@
 
 from __future__ import annotations
 
-from argparse import ArgumentParser
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pipescaler.common import CommandLineInterface
 from pipescaler.image.cli import ImageCli
+
+if TYPE_CHECKING:
+    from argparse import ArgumentParser
 
 
 class PipeScalerCli(CommandLineInterface):

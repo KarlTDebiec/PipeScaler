@@ -5,12 +5,15 @@
 from __future__ import annotations
 
 from functools import partial
+from typing import TYPE_CHECKING
 
-from PIL import Image
 from pytest import mark, param
 
 from pipescaler.image.core.exceptions import UnsupportedImageModeError
 from pipescaler.image.core.functions import remove_palette
+
+if TYPE_CHECKING:
+    from PIL import Image
 
 
 def get_expected_output_mode(input_image: Image.Image) -> str:

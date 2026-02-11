@@ -6,10 +6,12 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Sequence
-from pathlib import Path
-from typing import Self
+from typing import TYPE_CHECKING, Self
 
 from pipescaler.common.validation import val_input_path
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class PipeObject(ABC):

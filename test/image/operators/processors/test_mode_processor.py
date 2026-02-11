@@ -67,4 +67,4 @@ def test(input_filename: str, processor: ModeProcessor):
 def test_invalid_mode():
     """Test ModeProcessor with unsupported output mode."""
     with pytest.raises(ValueError, match="not one of options"):
-        ModeProcessor(mode=cast(Any, "HSV"))
+        ModeProcessor(mode=cast("Any", "HSV"))

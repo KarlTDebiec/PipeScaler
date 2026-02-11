@@ -4,8 +4,10 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
-from typing import Generic, ParamSpec, TypeVar
+from typing import TYPE_CHECKING, Generic, ParamSpec, TypeVar
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 P = ParamSpec("P")
 R = TypeVar("R")
