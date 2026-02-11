@@ -83,7 +83,7 @@ class SpandrelProcessor(ImageProcessor):
         input_tensor = input_tensor.float().unsqueeze(0).to(self.device)
 
         # Prepare output
-        model = cast("Any", self.model)
+        model = cast(Any, self.model)
         output_tensor = model(input_tensor).squeeze().float().cpu()
         output_arr: np.ndarray = output_tensor.clamp(0, 1).numpy()
         output_arr = np.transpose(output_arr[[2, 1, 0], :, :], (1, 2, 0))
@@ -107,7 +107,7 @@ class SpandrelProcessor(ImageProcessor):
         input_tensor = torch.from_numpy(input_arr)
         input_tensor = input_tensor.float().unsqueeze(0).to(self.device)
 
-        model = cast("Any", self.model)
+        model = cast(Any, self.model)
         output_tensor = model(input_tensor).squeeze().float().cpu()
         output_arr: np.ndarray = output_tensor.clamp(0, 1).numpy()
         output_arr = np.transpose(output_arr[[2, 1, 0], :, :], (1, 2, 0))
