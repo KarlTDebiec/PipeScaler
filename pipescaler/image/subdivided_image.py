@@ -53,6 +53,7 @@ class SubdividedImage:
 
     @subs.setter
     def subs(self, value: list[Image.Image]):
+        """Set subdivisions and update internal geometry as needed."""
         if len(value) != len(self._subs):
             raise ValueError(
                 f"Expected {len(self._subs)} subdivisions, received {len(value)}"

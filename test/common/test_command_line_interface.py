@@ -82,12 +82,14 @@ def test_description_no_docstring():
     """Test description() with no docstring."""
 
     class NoDocCli(CommandLineInterface):
+        """Class with a single-sentence docstring."""
+
         @classmethod
         def _main(cls, **kwargs: Unpack[CliTestKwargs]):
             """Execute test CLI."""
             pass
 
-    assert NoDocCli.description() == ""
+    assert NoDocCli.description() == "Class with a single-sentence docstring."
 
 
 def test_help():

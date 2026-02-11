@@ -81,6 +81,7 @@ class PipeImage(PipeObject):
 
     @image.setter
     def image(self, value: Image.Image):
+        """Set image data."""
         self._image = value
 
     def save(self, path: Path | str):

@@ -116,6 +116,7 @@ class ImageHashCollection(Sequence):
 
     @hashes.setter
     def hashes(self, value: HashDataFrame):
+        """Set image hashes after validating expected columns."""
         if value.columns.tolist() != self.hashes.columns.tolist():
             raise ValueError(
                 f"hashes must have columns {self.hashes.columns.tolist()}, not "

@@ -77,6 +77,7 @@ class PipeVideo(PipeObject):
 
     @video.setter
     def video(self, video: cv2.VideoCapture):
+        """Set video capture instance."""
         self._video = video
 
     def save(self, path: Path | str):
