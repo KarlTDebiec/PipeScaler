@@ -84,3 +84,48 @@ def test_treats_non_mip_file_normally_without_analog():
         file_scanner()
 
         assert (project_root_path / "new" / "tex1_16x16_HASH_12.png").exists()
+
+
+def test_remove_operation_removes_mip_variants():
+    """Test that remove operation also removes sibling mip files."""
+    with (
+        get_temp_directory_path() as input_dir_path,
+        get_temp_directory_path() as project_root_path,
+    ):
+        write_png(input_dir_path / "tex1_16x16_HASH_12.png")
+        write_png(input_dir_path / "tex1_16x16_HASH_12_mip0.png")
+        write_png(input_dir_path / "tex1_16x16_HASH_12_mip1.png")
+
+        file_scanner = CitraFileScanner(
+            input_dir_path,
+            project_root_path,
+            None,
+            rules=[("^tex1_16x16_HASH_12$", "remove")],
+        )
+        file_scanner()
+
+        assert not (input_dir_path / "tex1_16x16_HASH_12.png").exists()
+        assert not (input_dir_path / "tex1_16x16_HASH_12_mip0.png").exists()
+        assert not (input_dir_path / "tex1_16x16_HASH_12_mip1.png").exists()
+
+
+def test_remove_directory_entry_removes_mip_variants():
+    """Test that remove-dir entries remove base and mip variants from input."""
+    with (
+        get_temp_directory_path() as input_dir_path,
+        get_temp_directory_path() as project_root_path,
+    ):
+        remove_dir_path = project_root_path / "remove"
+        remove_dir_path.mkdir(parents=True)
+
+        write_png(input_dir_path / "tex1_16x16_HASH_12.png")
+        write_png(input_dir_path / "tex1_16x16_HASH_12_mip0.png")
+        write_png(input_dir_path / "tex1_16x16_HASH_12_mip1.png")
+        write_png(remove_dir_path / "tex1_16x16_HASH_12.png")
+
+        file_scanner = CitraFileScanner(input_dir_path, project_root_path, None, [])
+        file_scanner()
+
+        assert not (input_dir_path / "tex1_16x16_HASH_12.png").exists()
+        assert not (input_dir_path / "tex1_16x16_HASH_12_mip0.png").exists()
+        assert not (input_dir_path / "tex1_16x16_HASH_12_mip1.png").exists()

@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from logging import info
+from os import remove
 from pathlib import Path
 from re import Match, compile
 
@@ -84,3 +86,22 @@ class CitraFileScanner(FileScanner):
         """
         output_name = super().get_output_name(file_path)
         return self.strip_mip0_suffix(output_name)
+
+    def remove(self, file_path: Path):
+        """Remove file and analogous mip variants from input directory.
+
+        Arguments:
+            file_path: path to file to remove
+        """
+        super().remove(file_path)
+
+        mip_match = self.get_mip_match(file_path.stem)
+        base_name = mip_match.group("base") if mip_match else file_path.stem
+        for input_dir_path in self.input_dir_paths:
+            for match in input_dir_path.glob(f"{base_name}_mip*.*"):
+                mip_suffix = self.get_mip_match(match.stem)
+                if mip_suffix is None:
+                    continue
+                if match.exists():
+                    remove(match)
+                    info(f"'{match.stem}' removed")

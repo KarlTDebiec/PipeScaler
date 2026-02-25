@@ -129,6 +129,7 @@ class FileScanner(Utility):
 
     def clean_project_root(self):
         """Clean project root copy and remove directories."""
+        # Remove copy directory, if it exists
         if self.copy_dir_path.exists():
             for file_path in self.copy_dir_path.iterdir():
                 remove(file_path)
@@ -136,6 +137,7 @@ class FileScanner(Utility):
             rmdir(self.copy_dir_path)
             info(f"'{self.copy_dir_path}' removed")
 
+        # Remove remove directory, if it exists
         if self.remove_dir_path.exists():
             for file_path in self.remove_dir_path.iterdir():
                 name = file_path.name
@@ -143,10 +145,8 @@ class FileScanner(Utility):
                     name = f"{self.remove_prefix}{name}"
                 for input_dir_path in self.input_dir_paths:
                     for match in input_dir_path.glob(f"{Path(name).stem}.*"):
-                        remove(match)
-                        info(f"'{match}' removed")
-                remove(file_path)
-                info(f"'{file_path}' removed")
+                        self.remove(match)
+                self.remove(file_path)
             rmdir(self.remove_dir_path)
             info(f"'{self.remove_dir_path}' removed")
 
@@ -230,12 +230,26 @@ class FileScanner(Utility):
                 image.save(output_path)
             remove(file_path)
 
+    def remove(self, file_path: Path):
+        """Remove file from input directory.
+
+        Arguments:
+            file_path: path to file to remove
+        """
+        if file_path.exists():
+            remove(file_path)
+            info(f"'{file_path.stem}' removed")
+
     def perform_operation(self, file_path: Path):
         """Perform operations for filename.
 
         Arguments:
             file_path: Path to file
         """
+        if not file_path.exists():
+            debug(f"'{file_path.stem}' missing")
+            return
+
         operation = self.get_operation(file_path.stem)
 
         match operation:
@@ -244,8 +258,7 @@ class FileScanner(Utility):
             case "ignore":
                 debug(f"'{file_path.stem}' ignored")
             case "remove":
-                remove(file_path)
-                info(f"'{file_path.stem}' removed")
+                self.remove(file_path)
             case "copy":
                 self.copy(file_path)
                 info(f"'{file_path.stem}' copied")
