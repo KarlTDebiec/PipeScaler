@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from logging import info
+from logging import debug, info
 from os import remove
 from pathlib import Path
 from re import Match, compile
@@ -24,6 +24,7 @@ class CitraFileScanner(FileScanner):
             self.input_names.update(
                 file_path.stem for file_path in input_dir_path.iterdir()
             )
+        self.reviewed_paths_by_base_name = self.get_reviewed_paths_by_base_name()
 
         super().__call__()
 
@@ -55,6 +56,44 @@ class CitraFileScanner(FileScanner):
             return f"{stem}{extension}"
         return name
 
+    @classmethod
+    def get_base_name(cls, name: str) -> str:
+        """Get base filename stem without mip suffix.
+
+        Arguments:
+            name: filename stem
+        Returns:
+            base filename stem
+        """
+        mip_match = cls.get_mip_match(name)
+        if mip_match is None:
+            return name
+        return mip_match.group("base")
+
+    def get_reviewed_paths_by_base_name(self) -> dict[str, list[Path]]:
+        """Build index of reviewed file paths by base filename stem.
+
+        Returns:
+            reviewed file paths keyed by base filename stem
+        """
+        reviewed_paths_by_base_name: dict[str, list[Path]] = {}
+        if not self.reviewed_dir_path:
+            return reviewed_paths_by_base_name
+
+        if isinstance(self.reviewed_dir_path, Path):
+            reviewed_dir_paths = [self.reviewed_dir_path]
+        else:
+            reviewed_dir_paths = self.reviewed_dir_path
+
+        for reviewed_dir_path in reviewed_dir_paths:
+            for reviewed_path in reviewed_dir_path.iterdir():
+                base_name = self.get_base_name(reviewed_path.stem)
+                reviewed_paths_by_base_name.setdefault(base_name, []).append(
+                    reviewed_path
+                )
+
+        return reviewed_paths_by_base_name
+
     def get_operation(self, name: str) -> str:
         """Select operation for filename.
 
@@ -75,6 +114,45 @@ class CitraFileScanner(FileScanner):
         if mip_level > 0:
             return "ignore"
         return super().get_operation(base_name)
+
+    def remove_reviewed_paths_for_mip(self, file_path: Path):
+        """Remove reviewed files corresponding to a nonzero mip file.
+
+        Arguments:
+            file_path: input path that may be a nonzero mip
+        """
+        mip_match = self.get_mip_match(file_path.stem)
+        if mip_match is None:
+            return
+
+        mip_level = int(mip_match.group("level"))
+        if mip_level == 0:
+            return
+
+        base_name = mip_match.group("base")
+        for reviewed_path in self.reviewed_paths_by_base_name.pop(base_name, []):
+            if reviewed_path.exists():
+                remove(reviewed_path)
+                info(f"'{reviewed_path}' removed")
+        self.reviewed_names.discard(base_name)
+
+    def perform_operation(self, file_path: Path):
+        """Perform operations for filename.
+
+        Arguments:
+            file_path: path to file
+        """
+        if not file_path.exists():
+            debug(f"'{file_path.stem}' missing")
+            return
+
+        mip_match = self.get_mip_match(file_path.stem)
+        if mip_match is not None and int(mip_match.group("level")) > 0:
+            self.remove_reviewed_paths_for_mip(file_path)
+            debug(f"'{file_path.stem}' ignored")
+            return
+
+        super().perform_operation(file_path)
 
     def get_output_name(self, file_path: Path) -> str:
         """Get output filename for a file.

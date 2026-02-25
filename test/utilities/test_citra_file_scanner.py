@@ -70,6 +70,7 @@ def test_treats_mip0_as_known_when_base_name_reviewed():
         file_scanner()
 
         assert not (project_root_path / "new").exists()
+        assert (reviewed_dir_path / "tex1_16x16_HASH_12.png").exists()
 
 
 def test_treats_non_mip_file_normally_without_analog():
@@ -129,3 +130,50 @@ def test_remove_directory_entry_removes_mip_variants():
         assert not (input_dir_path / "tex1_16x16_HASH_12.png").exists()
         assert not (input_dir_path / "tex1_16x16_HASH_12_mip0.png").exists()
         assert not (input_dir_path / "tex1_16x16_HASH_12_mip1.png").exists()
+
+
+def test_nonzero_mip_removes_matching_reviewed_file():
+    """Test that nonzero mip file removes matching reviewed base file."""
+    with (
+        get_temp_directory_path() as input_dir_path,
+        get_temp_directory_path() as project_root_path,
+    ):
+        reviewed_dir_path = project_root_path / "reviewed"
+        reviewed_dir_path.mkdir(parents=True)
+
+        write_png(input_dir_path / "tex1_16x16_HASH_12_mip1.png")
+        write_png(reviewed_dir_path / "tex1_16x16_HASH_12.png")
+
+        file_scanner = CitraFileScanner(
+            input_dir_path, project_root_path, reviewed_dir_path, []
+        )
+        file_scanner()
+
+        assert not (reviewed_dir_path / "tex1_16x16_HASH_12.png").exists()
+
+
+def test_nonzero_mip_removes_matching_reviewed_file_in_all_review_dirs():
+    """Test that nonzero mip removes all matching reviewed files across dirs."""
+    with (
+        get_temp_directory_path() as input_dir_path,
+        get_temp_directory_path() as project_root_path,
+    ):
+        reviewed_dir_path_1 = project_root_path / "reviewed_a"
+        reviewed_dir_path_2 = project_root_path / "reviewed_b"
+        reviewed_dir_path_1.mkdir(parents=True)
+        reviewed_dir_path_2.mkdir(parents=True)
+
+        write_png(input_dir_path / "tex1_16x16_HASH_12_mip2.png")
+        write_png(reviewed_dir_path_1 / "tex1_16x16_HASH_12.png")
+        write_png(reviewed_dir_path_2 / "tex1_16x16_HASH_12.png")
+
+        file_scanner = CitraFileScanner(
+            input_dir_path,
+            project_root_path,
+            [reviewed_dir_path_1, reviewed_dir_path_2],
+            [],
+        )
+        file_scanner()
+
+        assert not (reviewed_dir_path_1 / "tex1_16x16_HASH_12.png").exists()
+        assert not (reviewed_dir_path_2 / "tex1_16x16_HASH_12.png").exists()
