@@ -177,3 +177,54 @@ def test_nonzero_mip_removes_matching_reviewed_file_in_all_review_dirs():
 
         assert not (reviewed_dir_path_1 / "tex1_16x16_HASH_12.png").exists()
         assert not (reviewed_dir_path_2 / "tex1_16x16_HASH_12.png").exists()
+
+
+def test_nonzero_mip_removes_matching_reviewed_file_with_remove_prefix():
+    """Test nonzero mip invalidates reviewed state with configured remove_prefix."""
+    with (
+        get_temp_directory_path() as input_dir_path,
+        get_temp_directory_path() as project_root_path,
+    ):
+        reviewed_dir_path = project_root_path / "reviewed"
+        reviewed_dir_path.mkdir(parents=True)
+
+        write_png(input_dir_path / "pre_tex1_16x16_HASH_12_mip1.png")
+        write_png(reviewed_dir_path / "tex1_16x16_HASH_12.png")
+
+        file_scanner = CitraFileScanner(
+            input_dir_path,
+            project_root_path,
+            reviewed_dir_path,
+            [],
+            remove_prefix="pre_",
+        )
+
+        file_scanner.reviewed_paths_by_base_name = (
+            file_scanner.get_reviewed_paths_by_base_name()
+        )
+        file_scanner.remove_reviewed_paths_for_mip(
+            input_dir_path / "pre_tex1_16x16_HASH_12_mip1.png"
+        )
+
+        assert not (reviewed_dir_path / "tex1_16x16_HASH_12.png").exists()
+        assert "tex1_16x16_HASH_12" not in file_scanner.reviewed_names
+
+
+def test_cleanup_updates_mip_coexistence_snapshot_before_operations():
+    """Test mip coexistence checks use post-cleanup input directory state."""
+    with (
+        get_temp_directory_path() as input_dir_path,
+        get_temp_directory_path() as project_root_path,
+    ):
+        remove_dir_path = project_root_path / "remove"
+        remove_dir_path.mkdir(parents=True)
+
+        write_png(input_dir_path / "tex1_16x16_HASH_12.png")
+        write_png(input_dir_path / "tex1_16x16_HASH_12_mip1.png")
+        write_png(remove_dir_path / "tex1_16x16_HASH_12_mip1.png")
+
+        file_scanner = CitraFileScanner(input_dir_path, project_root_path, None, [])
+        file_scanner()
+
+        assert (project_root_path / "new" / "tex1_16x16_HASH_12.png").exists()
+        assert (input_dir_path / "tex1_16x16_HASH_12.png").exists()

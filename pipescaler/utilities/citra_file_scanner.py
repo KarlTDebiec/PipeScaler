@@ -19,6 +19,8 @@ class CitraFileScanner(FileScanner):
 
     def __call__(self):
         """Perform operations."""
+        self.clean_project_root()
+
         self.input_names: set[str] = set()
         for input_dir_path in self.input_dir_paths:
             self.input_names.update(
@@ -26,7 +28,21 @@ class CitraFileScanner(FileScanner):
             )
         self.reviewed_paths_by_base_name = self.get_reviewed_paths_by_base_name()
 
-        super().__call__()
+        for input_dir_path in self.input_dir_paths:
+            for file_path in input_dir_path.iterdir():
+                self.perform_operation(file_path)
+
+    def get_normalized_name(self, name: str) -> str:
+        """Normalize filename stem for reviewed-name lookups.
+
+        Arguments:
+            name: filename stem
+        Returns:
+            normalized filename stem
+        """
+        if self.remove_prefix:
+            return name.removeprefix(self.remove_prefix)
+        return name
 
     @classmethod
     def get_mip_match(cls, name: str) -> Match[str] | None:
@@ -87,7 +103,9 @@ class CitraFileScanner(FileScanner):
 
         for reviewed_dir_path in reviewed_dir_paths:
             for reviewed_path in reviewed_dir_path.iterdir():
-                base_name = self.get_base_name(reviewed_path.stem)
+                base_name = self.get_normalized_name(
+                    self.get_base_name(reviewed_path.stem)
+                )
                 reviewed_paths_by_base_name.setdefault(base_name, []).append(
                     reviewed_path
                 )
@@ -105,7 +123,11 @@ class CitraFileScanner(FileScanner):
         mip_match = self.get_mip_match(name)
 
         if mip_match is None:
-            if any(mip_name.startswith(f"{name}_mip") for mip_name in self.input_names):
+            normalized_name = self.get_normalized_name(name)
+            if any(
+                self.get_normalized_name(mip_name).startswith(f"{normalized_name}_mip")
+                for mip_name in self.input_names
+            ):
                 return "remove"
             return super().get_operation(name)
 
@@ -129,7 +151,7 @@ class CitraFileScanner(FileScanner):
         if mip_level == 0:
             return
 
-        base_name = mip_match.group("base")
+        base_name = self.get_normalized_name(mip_match.group("base"))
         for reviewed_path in self.reviewed_paths_by_base_name.pop(base_name, []):
             if reviewed_path.exists():
                 remove(reviewed_path)
