@@ -6,7 +6,7 @@ This module may import from: common, core, pipelines
 
 Hierarchy within module:
 * core
-* models / operators / utilities / runners / analytics
+* operators / utilities / runners / analytics
 * pipelines
 * cli
 """
