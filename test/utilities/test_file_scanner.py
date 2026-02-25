@@ -6,9 +6,9 @@ from os import mkdir
 from pathlib import Path
 from shutil import copy
 
-from pipescaler import FileScanner
 from pipescaler.common.file import get_temp_directory_path
 from pipescaler.testing.file import get_test_input_dir_path, get_test_input_path
+from pipescaler.utilities import FileScanner
 
 
 def stage_files(input_dir_path: Path, project_root_path: Path):

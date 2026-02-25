@@ -10,19 +10,19 @@ from logging import debug, info
 from os import remove, rmdir
 from pathlib import Path
 from shutil import copy, move
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from PIL import Image
 
+from pipescaler.common import DirectoryNotFoundError
 from pipescaler.common.validation import val_input_dir_path
-
-from .common import DirectoryNotFoundError
+from pipescaler.core import Utility
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
 
 
-class FileScanner:
+class FileScanner(Utility):
     """Scans directories for new files."""
 
     exclusions = {".DS_Store", "desktop"}
@@ -121,6 +121,11 @@ class FileScanner:
         for input_dir_path in self.input_dir_paths:
             for file_path in input_dir_path.iterdir():
                 self.perform_operation(file_path)
+
+    @classmethod
+    def run(cls, **kwargs: Any) -> None:
+        """Run file scanner utility."""
+        cls(**kwargs)()
 
     def clean_project_root(self):
         """Clean project root copy and remove directories."""
