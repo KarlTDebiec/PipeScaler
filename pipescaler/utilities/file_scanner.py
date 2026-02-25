@@ -160,9 +160,7 @@ class FileScanner(Utility):
             self.copy_dir_path.mkdir(parents=True)
             info(f"'{self.copy_dir_path}' created")
 
-        output_name = file_path.name
-        if self.remove_prefix:
-            output_name = output_name.removeprefix(self.remove_prefix)
+        output_name = self.get_output_name(file_path)
 
         output_path = self.copy_dir_path / output_name
         if self.output_format:
@@ -195,6 +193,20 @@ class FileScanner(Utility):
 
         return "copy"
 
+    def get_output_name(self, file_path: Path) -> str:
+        """Get output filename for a file.
+
+        Arguments:
+            file_path: path to source file
+        Returns:
+            output filename
+        """
+        output_name = file_path.name
+        if self.remove_prefix:
+            output_name = output_name.removeprefix(self.remove_prefix)
+
+        return output_name
+
     def move(self, file_path: Path):
         """Move file to review directory.
 
@@ -205,9 +217,7 @@ class FileScanner(Utility):
             self.move_dir_path.mkdir(parents=True)
             info(f"'{self.move_dir_path}' created")
 
-        output_name = file_path.name
-        if self.remove_prefix:
-            output_name = output_name.removeprefix(self.remove_prefix)
+        output_name = self.get_output_name(file_path)
 
         output_path = self.move_dir_path / output_name
         if self.output_format:

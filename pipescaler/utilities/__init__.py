@@ -10,8 +10,10 @@ Hierarchy within module:
 
 from __future__ import annotations
 
+from .citra_file_scanner import CitraFileScanner
 from .file_scanner import FileScanner
 
 __all__ = [
+    "CitraFileScanner",
     "FileScanner",
 ]
