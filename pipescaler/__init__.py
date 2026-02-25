@@ -8,13 +8,6 @@ Module hierarchy (modules may import from any above):
 * pipelines
 * image / video
 * cli
+* utilities
 * testing
 """
-
-from __future__ import annotations
-
-from .file_scanner import FileScanner
-
-__all__ = [
-    "FileScanner",
-]
