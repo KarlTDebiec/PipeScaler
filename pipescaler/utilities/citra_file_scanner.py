@@ -152,6 +152,13 @@ class CitraFileScanner(FileScanner):
             return
 
         base_name = self.get_normalized_name(mip_match.group("base"))
+        input_names: set[str] = getattr(self, "input_names", set())
+        if any(
+            self.get_normalized_name(name) == f"{base_name}_mip0"
+            for name in input_names
+        ):
+            return
+
         for reviewed_path in self.reviewed_paths_by_base_name.pop(base_name, []):
             if reviewed_path.exists():
                 remove(reviewed_path)

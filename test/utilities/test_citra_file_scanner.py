@@ -152,6 +152,27 @@ def test_nonzero_mip_removes_matching_reviewed_file():
         assert not (reviewed_dir_path / "tex1_16x16_HASH_12.png").exists()
 
 
+def test_nonzero_mip_does_not_remove_reviewed_when_mip0_exists():
+    """Test nonzero mip does not remove reviewed file when mip0 is present."""
+    with (
+        get_temp_directory_path() as input_dir_path,
+        get_temp_directory_path() as project_root_path,
+    ):
+        reviewed_dir_path = project_root_path / "reviewed"
+        reviewed_dir_path.mkdir(parents=True)
+
+        write_png(input_dir_path / "tex1_16x16_HASH_12_mip0.png")
+        write_png(input_dir_path / "tex1_16x16_HASH_12_mip1.png")
+        write_png(reviewed_dir_path / "tex1_16x16_HASH_12.png")
+
+        file_scanner = CitraFileScanner(
+            input_dir_path, project_root_path, reviewed_dir_path, []
+        )
+        file_scanner()
+
+        assert (reviewed_dir_path / "tex1_16x16_HASH_12.png").exists()
+
+
 def test_nonzero_mip_removes_matching_reviewed_file_in_all_review_dirs():
     """Test that nonzero mip removes all matching reviewed files across dirs."""
     with (
