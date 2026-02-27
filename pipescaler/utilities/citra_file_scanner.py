@@ -1,6 +1,6 @@
 #  Copyright 2020-2026 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
-"""Citra-specific file scanner."""
+"""Scans Citra dump directories for new files."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ from .file_scanner import FileScanner
 
 
 class CitraFileScanner(FileScanner):
-    """Scans Citra texture dump directories."""
+    """Scans Citra dump directories for new files."""
 
     _mip_regex = compile(r"^(?P<base>.+)_mip(?P<level>\d+)$")
 
@@ -21,6 +21,8 @@ class CitraFileScanner(FileScanner):
         """Perform operations."""
         self.clean_project_root()
 
+        # Populate mapping from base name of input file to full path to
+        # This is uses for Citra-specific cleanup of mipmap files
         self.input_names: set[str] = set()
         for input_dir_path in self.input_dir_paths:
             self.input_names.update(
