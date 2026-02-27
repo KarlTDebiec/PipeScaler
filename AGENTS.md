@@ -34,6 +34,16 @@
 * In `__init__.py` files, only import classes from the module, not functions or variables.
 * Use the `logging` module rather than `print` for any user-facing output in scripts or
   libraries.
+* Group class members into the following groups and sort them alphabetically within each group:
+  1. Class attributes
+  2. Dunder methods; __init__ should be listed first, followed by others in alphabetical order
+  3. Properties
+  4. Public methods
+  5. Private methods
+  6. Public class methods
+  7. Private class methods
+  8. Public static methods
+  9. Private static methods
 * Test modules do **not** need `__init__.py` files. Pytest can discover tests without them.
 
 ## Documentation

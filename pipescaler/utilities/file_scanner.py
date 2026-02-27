@@ -122,13 +122,9 @@ class FileScanner(Utility):
             for file_path in input_dir_path.iterdir():
                 self.perform_operation(file_path)
 
-    @classmethod
-    def run(cls, **kwargs: Any) -> None:
-        """Run file scanner utility."""
-        cls(**kwargs)()
-
     def clean_project_root(self):
         """Clean project root copy and remove directories."""
+        # Remove copy directory, if it exists
         if self.copy_dir_path.exists():
             for file_path in self.copy_dir_path.iterdir():
                 remove(file_path)
@@ -136,6 +132,7 @@ class FileScanner(Utility):
             rmdir(self.copy_dir_path)
             info(f"'{self.copy_dir_path}' removed")
 
+        # Remove remove directory, if it exists
         if self.remove_dir_path.exists():
             for file_path in self.remove_dir_path.iterdir():
                 name = file_path.name
@@ -143,10 +140,8 @@ class FileScanner(Utility):
                     name = f"{self.remove_prefix}{name}"
                 for input_dir_path in self.input_dir_paths:
                     for match in input_dir_path.glob(f"{Path(name).stem}.*"):
-                        remove(match)
-                        info(f"'{match}' removed")
-                remove(file_path)
-                info(f"'{file_path}' removed")
+                        self.remove(match)
+                self.remove(file_path)
             rmdir(self.remove_dir_path)
             info(f"'{self.remove_dir_path}' removed")
 
@@ -160,9 +155,7 @@ class FileScanner(Utility):
             self.copy_dir_path.mkdir(parents=True)
             info(f"'{self.copy_dir_path}' created")
 
-        output_name = file_path.name
-        if self.remove_prefix:
-            output_name = output_name.removeprefix(self.remove_prefix)
+        output_name = self.get_output_name(file_path)
 
         output_path = self.copy_dir_path / output_name
         if self.output_format:
@@ -174,6 +167,18 @@ class FileScanner(Utility):
             with Image.open(file_path) as image:
                 image.save(output_path)
 
+    def get_normalized_name(self, name: str) -> str:
+        """Normalize filename stem for lookups.
+
+        Arguments:
+            name: filename stem
+        Returns:
+            normalized filename stem
+        """
+        if self.remove_prefix:
+            return name.removeprefix(self.remove_prefix)
+        return name
+
     def get_operation(self, name: str) -> str:
         """Select operation for filename.
 
@@ -182,8 +187,7 @@ class FileScanner(Utility):
         Returns:
             Operation to perform
         """
-        if self.remove_prefix:
-            name = name.removeprefix(self.remove_prefix)
+        name = self.get_normalized_name(name)
         if name in self.reviewed_names:
             return "known"
         if name in self.ignored_names:
@@ -195,6 +199,20 @@ class FileScanner(Utility):
 
         return "copy"
 
+    def get_output_name(self, file_path: Path) -> str:
+        """Get output filename for a file.
+
+        Arguments:
+            file_path: path to source file
+        Returns:
+            output filename
+        """
+        output_name = file_path.name
+        if self.remove_prefix:
+            output_name = output_name.removeprefix(self.remove_prefix)
+
+        return output_name
+
     def move(self, file_path: Path):
         """Move file to review directory.
 
@@ -205,9 +223,7 @@ class FileScanner(Utility):
             self.move_dir_path.mkdir(parents=True)
             info(f"'{self.move_dir_path}' created")
 
-        output_name = file_path.name
-        if self.remove_prefix:
-            output_name = output_name.removeprefix(self.remove_prefix)
+        output_name = self.get_output_name(file_path)
 
         output_path = self.move_dir_path / output_name
         if self.output_format:
@@ -224,8 +240,12 @@ class FileScanner(Utility):
         """Perform operations for filename.
 
         Arguments:
-            file_path: Path to file
+            file_path: path to file
         """
+        if not file_path.exists():
+            debug(f"'{file_path.stem}' missing")
+            return
+
         operation = self.get_operation(file_path.stem)
 
         match operation:
@@ -234,8 +254,7 @@ class FileScanner(Utility):
             case "ignore":
                 debug(f"'{file_path.stem}' ignored")
             case "remove":
-                remove(file_path)
-                info(f"'{file_path.stem}' removed")
+                self.remove(file_path)
             case "copy":
                 self.copy(file_path)
                 info(f"'{file_path.stem}' copied")
@@ -244,3 +263,18 @@ class FileScanner(Utility):
                 info(f"'{file_path.stem}' moved")
             case _:
                 raise ValueError(f"Unknown operation '{operation}'")
+
+    def remove(self, file_path: Path):
+        """Remove file from input directory.
+
+        Arguments:
+            file_path: path to file to remove
+        """
+        if file_path.exists():
+            remove(file_path)
+            info(f"'{file_path.stem}' removed")
+
+    @classmethod
+    def run(cls, **kwargs: Any) -> None:
+        """Run file scanner utility."""
+        cls(**kwargs)()
