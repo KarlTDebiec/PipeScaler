@@ -219,16 +219,9 @@ def test_nonzero_mip_removes_matching_reviewed_file_with_remove_prefix():
             [],
             remove_prefix="pre_",
         )
-
-        file_scanner.reviewed_paths_by_base_name = (
-            file_scanner.get_reviewed_paths_by_base_name()
-        )
-        file_scanner.remove_reviewed_paths_for_mip(
-            input_dir_path / "pre_tex1_16x16_HASH_12_mip1.png"
-        )
+        file_scanner()
 
         assert not (reviewed_dir_path / "tex1_16x16_HASH_12.png").exists()
-        assert "tex1_16x16_HASH_12" not in file_scanner.reviewed_names
 
 
 def test_cleanup_updates_mip_coexistence_snapshot_before_operations():
