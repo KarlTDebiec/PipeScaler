@@ -11,9 +11,11 @@ Hierarchy within module:
 from __future__ import annotations
 
 from .citra_file_scanner import CitraFileScanner
+from .dolphin_file_scanner import DolphinFileScanner
 from .file_scanner import FileScanner
 
 __all__ = [
     "CitraFileScanner",
+    "DolphinFileScanner",
     "FileScanner",
 ]

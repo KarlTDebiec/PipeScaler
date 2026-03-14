@@ -102,3 +102,26 @@ def test_output_format():
             output_format="bmp",
         )
         file_scanner()
+
+
+def test_ignores_missing_review_directories_when_collecting_reviewed_names():
+    """Test missing reviewed directories do not invalidate existing reviewed dirs."""
+    with (
+        get_temp_directory_path() as input_dir_path,
+        get_temp_directory_path() as project_root_path,
+    ):
+        reviewed_dir_path = project_root_path / "reviewed"
+        mkdir(reviewed_dir_path)
+
+        input_path = get_test_input_path("L")
+        copy(input_path, input_dir_path / input_path.name)
+        copy(input_path, reviewed_dir_path / input_path.name)
+
+        file_scanner = FileScanner(
+            input_dir_path,
+            project_root_path,
+            [reviewed_dir_path, project_root_path / "missing"],
+        )
+        file_scanner()
+
+        assert not (project_root_path / "new").exists()
