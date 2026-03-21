@@ -84,10 +84,18 @@ class FileScanner(Utility):
         self.reviewed_dir_path = None
         """Directories of files that have been reviewed."""
         if review_dir_path:
-            try:
-                self.reviewed_dir_path = val_input_dir_path(review_dir_path)
-            except DirectoryNotFoundError:
+            if isinstance(review_dir_path, Path | str):
+                try:
+                    self.reviewed_dir_path = val_input_dir_path(review_dir_path)
+                except DirectoryNotFoundError:
+                    self.reviewed_dir_path = []
+            else:
                 self.reviewed_dir_path = []
+                for dir_path in review_dir_path:
+                    try:
+                        self.reviewed_dir_path.append(val_input_dir_path(dir_path))
+                    except DirectoryNotFoundError:
+                        continue
 
         # Prepare filename data structures
         self.reviewed_names: set[str] = set()
