@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import sys
+from subprocess import TimeoutExpired
 from time import monotonic
 
 import pytest
@@ -118,14 +119,29 @@ def test_run_command_failure_custom_acceptable():
 def test_run_command_timeout():
     """Test command timeout behavior."""
     start_time = monotonic()
-    exitcode, stdout, stderr = run_command(
-        [sys.executable, "-c", "import time; time.sleep(10)"],
-        timeout=1,
-        acceptable_exitcodes=[-9, -15, 1],
-    )
+    with pytest.raises(TimeoutExpired) as exception_info:
+        run_command(
+            [
+                sys.executable,
+                "-c",
+                (
+                    "import sys, time; "
+                    "sys.stdout.write('stdout before timeout'); "
+                    "sys.stdout.flush(); "
+                    "sys.stderr.write('stderr before timeout'); "
+                    "sys.stderr.flush(); "
+                    "time.sleep(10)"
+                ),
+            ],
+            timeout=1,
+            acceptable_exitcodes=[-9, -15, 1],
+        )
     elapsed = monotonic() - start_time
 
-    assert exitcode != 0
+    assert exception_info.value.cmd[0] == sys.executable
+    assert exception_info.value.timeout == 1
+    assert exception_info.value.output == "stdout before timeout"
+    assert exception_info.value.stderr == "stderr before timeout"
     assert elapsed < 2.0
 
 
