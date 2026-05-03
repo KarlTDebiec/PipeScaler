@@ -5,8 +5,7 @@
 This module may import from: common, core, pipelines
 
 Hierarchy within module:
-* core
-* runners
+* core / runners
 * pipelines
 """
 
