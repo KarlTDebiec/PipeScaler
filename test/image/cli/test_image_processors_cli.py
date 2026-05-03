@@ -12,7 +12,7 @@ from pathlib import Path
 import pytest
 
 from pipescaler.common import CommandLineInterface
-from pipescaler.common.file import get_temp_file_path
+from pipescaler.common.file import get_temp_directory_path, get_temp_file_path
 from pipescaler.common.testing import run_cli_with_args
 from pipescaler.image.cli import ImageProcessorsCli
 from pipescaler.image.cli.processors import (
@@ -23,6 +23,7 @@ from pipescaler.image.cli.processors import (
     ResizeCli,
     SharpenCli,
     SolidColorCli,
+    SpandrelCli,
     ThresholdCli,
     XbrzCli,
 )
@@ -67,6 +68,7 @@ def test(cli: type[CommandLineInterface], args: str, input_filename: str):
         (ResizeCli,),
         (SharpenCli,),
         (SolidColorCli,),
+        (SpandrelCli,),
         (ThresholdCli,),
         (XbrzCli,),
         (ImageProcessorsCli,),
@@ -77,6 +79,7 @@ def test(cli: type[CommandLineInterface], args: str, input_filename: str):
         (ImageProcessorsCli, ResizeCli),
         (ImageProcessorsCli, SharpenCli),
         (ImageProcessorsCli, SolidColorCli),
+        (ImageProcessorsCli, SpandrelCli),
         (ImageProcessorsCli, ThresholdCli),
         (ImageProcessorsCli, XbrzCli),
     ],
@@ -113,6 +116,7 @@ def test_help(commands: tuple[type[CommandLineInterface], ...]):
         (ResizeCli,),
         (SharpenCli,),
         (SolidColorCli,),
+        (SpandrelCli,),
         (ThresholdCli,),
         (XbrzCli,),
         (ImageProcessorsCli,),
@@ -123,6 +127,7 @@ def test_help(commands: tuple[type[CommandLineInterface], ...]):
         (ImageProcessorsCli, ResizeCli),
         (ImageProcessorsCli, SharpenCli),
         (ImageProcessorsCli, SolidColorCli),
+        (ImageProcessorsCli, SpandrelCli),
         (ImageProcessorsCli, ThresholdCli),
         (ImageProcessorsCli, XbrzCli),
     ],
@@ -147,3 +152,29 @@ def test_usage(commands: tuple[type[CommandLineInterface], ...]):
         assert stderr.getvalue().startswith(
             f"usage: {Path(getfile(commands[0])).name} {subcommands}"
         )
+
+
+def test_spandrel_cli_registration_and_parsing():
+    """Test that SpandrelCli is registered and parses its model path."""
+    assert ImageProcessorsCli.processors()["spandrel"] is SpandrelCli
+
+    input_path = get_test_input_path("RGB")
+    with get_temp_file_path(".pth") as model_input_path:
+        with get_temp_directory_path() as output_dir_path:
+            model_input_path.touch()
+            output_path = output_dir_path / "output.png"
+
+            parsed_args = ImageProcessorsCli.argparser().parse_args(
+                [
+                    "spandrel",
+                    "--model-input-path",
+                    str(model_input_path),
+                    str(input_path),
+                    str(output_path),
+                ]
+            )
+
+    assert parsed_args.processor == "spandrel"
+    assert parsed_args.model_input_path == model_input_path.resolve()
+    assert parsed_args.input_file == input_path
+    assert parsed_args.output_file == output_path.resolve()
