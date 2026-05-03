@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import sys
 from contextlib import redirect_stderr, redirect_stdout
-from ctypes import byref, c_int
+from ctypes import POINTER, byref, c_int, c_void_p, c_wchar_p
 from inspect import getfile
 from io import StringIO
 from os import name as os_name
@@ -116,13 +116,20 @@ def _split_cli_args(args: str) -> list[str]:
     if os_name != "nt":
         return split(args)
 
-    from ctypes import windll  # noqa: PLC0415
+    from ctypes import WinDLL  # noqa: PLC0415
 
     argc = c_int()
-    argv = windll.shell32.CommandLineToArgvW(args, byref(argc))
+    shell32 = WinDLL("shell32", use_last_error=True)
+    shell32.CommandLineToArgvW.argtypes = [c_wchar_p, POINTER(c_int)]
+    shell32.CommandLineToArgvW.restype = POINTER(c_wchar_p)
+    kernel32 = WinDLL("kernel32", use_last_error=True)
+    kernel32.LocalFree.argtypes = [c_void_p]
+    kernel32.LocalFree.restype = c_void_p
+
+    argv = shell32.CommandLineToArgvW(args, byref(argc))
     if not argv:
         return []
     try:
         return [argv[index] for index in range(argc.value)]
     finally:
-        windll.kernel32.LocalFree(argv)
+        kernel32.LocalFree(argv)
