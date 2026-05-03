@@ -47,9 +47,7 @@ def test_ignores_mipmap_textures():
         file_scanner = DolphinFileScanner(input_dir_path, project_root_path, None, [])
         file_scanner()
 
-        assert (
-            input_dir_path / "tex1_256x128_m_e3018a378fd26b5e_14_mip1.png"
-        ).exists()
+        assert (input_dir_path / "tex1_256x128_m_e3018a378fd26b5e_14_mip1.png").exists()
         assert not (project_root_path / "new").exists()
 
 
@@ -68,6 +66,4 @@ def test_base_texture_is_not_treated_as_mipmap_due_to_embedded_m_marker():
         assert (
             project_root_path / "new" / "tex1_256x128_m_e3018a378fd26b5e_14.png"
         ).exists()
-        assert (
-            input_dir_path / "tex1_256x128_m_e3018a378fd26b5e_14_mip2.png"
-        ).exists()
+        assert (input_dir_path / "tex1_256x128_m_e3018a378fd26b5e_14_mip2.png").exists()
