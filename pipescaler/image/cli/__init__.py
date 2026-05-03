@@ -2,7 +2,8 @@
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """PipeScaler image command-line interfaces package.
 
-This module may import from: common, core, image.core, image.operators, image.utilities, image.analytics, image.pipelines
+This module may import from: common, core, image.core, image.operators,
+image.utilities, image.pipelines
 
 Hierarchy within module:
 * mergers / processors / splitters / utilities
