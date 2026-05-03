@@ -43,6 +43,7 @@ def run_command(
         exitcode, standard output, and standard error
     Raises:
         ValueError: If exitcode is not one of acceptable_exitcodes
+        TimeoutExpired: If command does not complete before timeout
     """
     if acceptable_exitcodes is None:
         acceptable_exitcodes = [0]
@@ -50,19 +51,18 @@ def run_command(
     with Popen(command, stdout=PIPE, stderr=PIPE) as child:
         try:
             stdout, stderr = child.communicate(timeout=timeout)
-        except TimeoutExpired:
+        except TimeoutExpired as exception:
             child.kill()
             stdout, stderr = child.communicate()
+            raise TimeoutExpired(
+                command,
+                timeout,
+                output=_decode_output(stdout),
+                stderr=_decode_output(stderr),
+            ) from exception
 
-        try:
-            stdout_str = stdout.decode("utf-8")
-        except UnicodeDecodeError:
-            stdout_str = stdout.decode("ISO-8859-1")
-
-        try:
-            stderr_str = stderr.decode("utf-8")
-        except UnicodeDecodeError:
-            stderr_str = stderr.decode("ISO-8859-1")
+        stdout_str = _decode_output(stdout)
+        stderr_str = _decode_output(stderr)
 
         exitcode = child.returncode
 
