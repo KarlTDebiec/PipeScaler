@@ -3,7 +3,7 @@
 """PipeScaler image command-line interfaces package.
 
 This module may import from: common, core, image.core, image.operators,
-image.utilities, image.analytics, image.pipelines
+image.utilities, image.pipelines
 
 Hierarchy within module:
 * image_mergers_cli / image_processors_cli / image_splitters_cli /

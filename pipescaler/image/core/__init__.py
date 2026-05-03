@@ -6,7 +6,7 @@ This module may import from: common, core, image
 
 Hierarchy within module:
 * enums / exceptions / numba / sorting / typing
-* analytics / functions / image_operator
+* functions / image_operator
 * pipelines / validation
 * operators
 * cli
