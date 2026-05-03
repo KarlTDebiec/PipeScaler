@@ -5,7 +5,7 @@
 This module may import from: common, core.pipelines
 
 Hierarchy within module:
-* pre_checkpointed_segment / post_checkpointed_segment
+* post_checkpointed_segment / pre_checkpointed_segment
 """
 
 from __future__ import annotations

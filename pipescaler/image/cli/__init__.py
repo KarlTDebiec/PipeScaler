@@ -6,7 +6,9 @@ This module may import from: common, core, image.core, image.operators,
 image.utilities, image.pipelines
 
 Hierarchy within module:
-* mergers / processors / splitters / utilities
+* image_mergers_cli / image_processors_cli / image_splitters_cli /
+  image_utilities_cli / mergers / processors / splitters / utilities
+* image_cli
 """
 
 from __future__ import annotations
