@@ -20,6 +20,11 @@ from typing import TypedDict, Unpack
 
 from .logs import DEFAULT_LOG_FORMAT, configure_logging
 
+__all__ = [
+    "CLIKwargs",
+    "CommandLineInterface",
+]
+
 logger = getLogger(__name__)
 
 
@@ -119,9 +124,9 @@ class CommandLineInterface(ABC):
         configure_logging(verbosity)
 
         # File logging
-        log_file_path = kwargs.pop("log_file")
-        if log_file_path:
-            log_file_path = Path(log_file_path).resolve()
+        log_file = kwargs.pop("log_file")
+        if log_file:
+            log_file_path = Path(log_file).resolve()
             file_handler = FileHandler(log_file_path)
             file_handler.setLevel(getLogger().level)
             formatter = Formatter(DEFAULT_LOG_FORMAT)

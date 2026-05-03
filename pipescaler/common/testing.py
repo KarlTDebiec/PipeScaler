@@ -9,6 +9,7 @@ from contextlib import redirect_stderr, redirect_stdout
 from inspect import getfile
 from io import StringIO
 from pathlib import Path
+from shlex import split
 from unittest.mock import patch
 
 import pytest
@@ -16,9 +17,18 @@ import pytest
 from .command_line_interface import CommandLineInterface
 
 CliTuple = tuple[type[CommandLineInterface], ...]
+"""CLI class tuple with optional subcommands."""
+
+__all__ = [
+    "assert_cli_help",
+    "assert_cli_usage",
+    "build_subcommands",
+    "get_usage_prefix",
+    "run_cli_with_args",
+]
 
 
-def assert_cli_help(cli: CliTuple) -> None:
+def assert_cli_help(cli: CliTuple):
     """Assert that a CLI tuple shows help text.
 
     Arguments:
@@ -36,7 +46,7 @@ def assert_cli_help(cli: CliTuple) -> None:
     assert stderr.getvalue() == ""
 
 
-def assert_cli_usage(cli: CliTuple) -> None:
+def assert_cli_usage(cli: CliTuple):
     """Assert that a CLI tuple shows usage on missing args.
 
     Arguments:
@@ -87,5 +97,5 @@ def run_cli_with_args(cli: type[CommandLineInterface], args: str = ""):
         cli: CommandLineInterface to run
         args: Arguments to pass
     """
-    with patch.object(sys, "argv", [getfile(cli)] + args.split()):
+    with patch.object(sys, "argv", [getfile(cli)] + split(args)):
         cli.main()

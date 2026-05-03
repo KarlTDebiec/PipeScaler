@@ -7,8 +7,9 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-from common.exception import DirectoryNotFoundError  # ty:ignore[unresolved-import]
-from common.validation import val_input_dir_path  # ty:ignore[unresolved-import]
+
+from pipescaler.common.exception import DirectoryNotFoundError
+from pipescaler.common.validation import val_input_dir_path
 
 
 def test_val_input_dir_path_valid(tmp_path: Path):
@@ -137,12 +138,12 @@ def test_val_input_dir_path_expands_user(
 
     # Mock expanduser to return our test path
     def mock_expanduser(path: str) -> str:
-        """Return a deterministic expanded path for tests."""
+        """Map `~` paths to the temporary test directory."""
         if path.startswith("~"):
             return str(test_dir)
         return path
 
-    monkeypatch.setattr("common.validation.expanduser", mock_expanduser)
+    monkeypatch.setattr("pipescaler.common.validation.expanduser", mock_expanduser)
 
     result = val_input_dir_path("~/testdir")
     assert result.exists()
