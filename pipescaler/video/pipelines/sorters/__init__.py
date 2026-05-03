@@ -14,6 +14,4 @@ from .video_aspect_ratio_sorter import (
     VideoAspectRatioSorter,
 )
 
-__all__ = [
-    "VideoAspectRatioSorter",
-]
+__all__ = ["VideoAspectRatioSorter"]

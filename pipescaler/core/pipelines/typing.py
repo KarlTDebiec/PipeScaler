@@ -9,5 +9,7 @@ from collections.abc import Callable
 from .pipe_object import PipeObject
 from .segment import Segment
 
+__all__ = ["SegmentLike"]
+
 type SegmentLike = Segment | Callable[[PipeObject], tuple[PipeObject, ...]]
 """Type alias for a Segment or callable with the same call signature."""

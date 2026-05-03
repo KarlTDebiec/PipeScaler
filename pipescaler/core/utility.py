@@ -8,6 +8,8 @@ from abc import ABC, abstractmethod
 from inspect import cleandoc
 from typing import Any
 
+__all__ = ["Utility"]
+
 
 class Utility(ABC):
     """Abstract base class for utilities."""

@@ -13,6 +13,8 @@ from shlex import split
 from pipescaler.common.subprocess import run_command
 from pipescaler.common.validation import val_executable, val_int
 
+__all__ = ["Runner"]
+
 
 class Runner(ABC):
     """Abstract base class for executable runners."""

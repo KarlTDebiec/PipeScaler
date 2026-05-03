@@ -7,10 +7,11 @@ from __future__ import annotations
 import re
 from abc import ABC
 from inspect import cleandoc
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
-if TYPE_CHECKING:
-    from .typing import ImageMode
+from .typing import ImageMode
+
+__all__ = ["ImageOperator"]
 
 
 class ImageOperator(ABC):

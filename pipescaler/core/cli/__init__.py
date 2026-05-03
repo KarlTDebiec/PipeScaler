@@ -9,6 +9,4 @@ from __future__ import annotations
 
 from .utility_cli import UtilityCli
 
-__all__ = [
-    "UtilityCli",
-]
+__all__ = ["UtilityCli"]

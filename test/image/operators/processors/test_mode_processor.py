@@ -24,7 +24,7 @@ from pipescaler.testing.fixture import parametrized_fixture
         {"mode": "RGBA"},
     ],
 )
-def processor(request) -> ModeProcessor:
+def processor(request: pytest.FixtureRequest) -> ModeProcessor:
     """Pytest fixture that provides a ModeProcessor instance.
 
     Arguments:

@@ -9,6 +9,8 @@ from logging import info
 from pipescaler.image.core.operators import ImageMerger
 from pipescaler.image.core.pipelines import ImageOperatorSegment, PipeImage
 
+__all__ = ["ImageMergerSegment"]
+
 
 class ImageMergerSegment(ImageOperatorSegment[ImageMerger]):
     """Segment that applies an ImageMerger."""

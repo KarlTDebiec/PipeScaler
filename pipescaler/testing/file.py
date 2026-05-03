@@ -7,6 +7,12 @@ from __future__ import annotations
 from os import getenv
 from pathlib import Path
 
+__all__ = [
+    "get_test_input_dir_path",
+    "get_test_input_path",
+    "get_test_model_path",
+]
+
 if getenv("PACKAGE_ROOT"):
     package_root = Path(str(getenv("PACKAGE_ROOT")))
 else:

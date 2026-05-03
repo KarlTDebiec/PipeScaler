@@ -2,6 +2,8 @@
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Tests for PotraceProcessor."""
 
+from __future__ import annotations
+
 import pytest
 from PIL import Image
 
@@ -19,7 +21,7 @@ from pipescaler.testing.mark import xfail_if_platform
         {"scale": 2},
     ],
 )
-def processor(request) -> PotraceProcessor:
+def processor(request: pytest.FixtureRequest) -> PotraceProcessor:
     """Pytest fixture that provides a PotraceProcessor instance.
 
     Arguments:

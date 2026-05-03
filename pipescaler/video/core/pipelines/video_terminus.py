@@ -10,6 +10,8 @@ from pipescaler.core.pipelines.terminus import Terminus
 
 from .pipe_video import PipeVideo
 
+__all__ = ["VideoTerminus"]
+
 
 class VideoTerminus(Terminus[PipeVideo], ABC):
     """Abstract base class for video termini."""

@@ -5,15 +5,14 @@
 from __future__ import annotations
 
 from logging import info
-from typing import TYPE_CHECKING
+from pathlib import Path
 
 from PIL import Image
 
 from pipescaler.common.validation import val_input_dir_path
 from pipescaler.image.core.pipelines import PipeImage
 
-if TYPE_CHECKING:
-    from pathlib import Path
+__all__ = ["ImageSubstituter"]
 
 
 class ImageSubstituter:

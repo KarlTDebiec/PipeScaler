@@ -12,6 +12,22 @@ from pipescaler.common.validation import val_float
 
 from .exceptions import UnsupportedImageModeError
 
+__all__ = [
+    "convert_mode",
+    "crop_image",
+    "expand_image",
+    "generate_normal_map_from_height_map_image",
+    "get_font_size",
+    "get_palette",
+    "get_text_size",
+    "hstack_images",
+    "is_monochrome",
+    "label_image",
+    "remove_palette",
+    "smooth_image",
+    "vstack_images",
+]
+
 
 def convert_mode(image: Image.Image, mode: str) -> tuple[Image.Image, str]:
     """Convert image to specified mode, if necessary, returning image and original mode.
@@ -48,7 +64,7 @@ def crop_image(
     return cropped
 
 
-def expand_image(
+def expand_image(  # noqa: PLR0913
     image: Image.Image,
     left: int = 0,
     top: int = 0,
@@ -71,14 +87,10 @@ def expand_image(
     Returns:
         Expanded image
     """
-    transposed_horizontally = image.transpose(
-        Image.Transpose.FLIP_LEFT_RIGHT  # type: ignore
-    )
-    transposed_vertically = image.transpose(
-        Image.Transpose.FLIP_TOP_BOTTOM  # type: ignore
-    )
+    transposed_horizontally = image.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+    transposed_vertically = image.transpose(Image.Transpose.FLIP_TOP_BOTTOM)
     transposed_horizontally_and_vertically = transposed_horizontally.transpose(
-        Image.Transpose.FLIP_TOP_BOTTOM  # type: ignore
+        Image.Transpose.FLIP_TOP_BOTTOM
     )
 
     expanded = Image.new(
@@ -197,7 +209,7 @@ def get_font_size(
     height: int,
     proportional_height: float = 0.2,
     font: str = "Arial",
-):
+) -> int:
     """Get the font size at which text will take up defined portion of image's height.
 
     Arguments:
@@ -233,7 +245,8 @@ def get_text_size(
         font_type = ImageFont.truetype(font, size)
     except OSError:
         font_type = ImageFont.truetype(font.lower(), size)
-    return draw.textsize(text, font_type)
+    left, top, right, bottom = draw.textbbox((0, 0), text, font=font_type)
+    return right - left, bottom - top
 
 
 def hstack_images(*images: Image.Image) -> Image.Image:

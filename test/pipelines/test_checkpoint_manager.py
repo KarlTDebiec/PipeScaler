@@ -230,8 +230,8 @@ def test_print():
         assert isinstance(cp_dir_path, PlatformPath)
 
         cp_manager = CheckpointManager(cp_dir_path, validate_input_mtime=True)
-        print(cp_manager)
-        print(repr(cp_manager))
+        assert str(cp_manager)
+        assert repr(cp_manager)
 
         cp_manager_2 = eval(repr(cp_manager))
         assert cp_manager_2.dir_path == cp_manager.dir_path

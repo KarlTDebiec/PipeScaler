@@ -25,7 +25,7 @@ xfail_texconv_unavailable = pytest.mark.xfail(
         {},
     ],
 )
-def runner(request) -> TexconvRunner:
+def runner(request: pytest.FixtureRequest) -> TexconvRunner:
     """Pytest fixture that provides a TexconvRunner instance.
 
     Arguments:

@@ -4,7 +4,8 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from argparse import ArgumentParser
+from typing import Any
 
 from pipescaler.common import CommandLineInterface
 
@@ -13,8 +14,7 @@ from .image_processors_cli import ImageProcessorsCli
 from .image_splitters_cli import ImageSplittersCli
 from .image_utilities_cli import ImageUtilitiesCli
 
-if TYPE_CHECKING:
-    from argparse import ArgumentParser
+__all__ = ["ImageCli"]
 
 
 class ImageCli(CommandLineInterface):

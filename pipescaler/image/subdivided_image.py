@@ -10,6 +10,8 @@ from scipy.special import erf
 
 from pipescaler.common.validation import val_int
 
+__all__ = ["SubdividedImage"]
+
 
 class SubdividedImage:
     """Image divided into subdivisions."""

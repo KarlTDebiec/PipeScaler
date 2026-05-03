@@ -10,6 +10,8 @@ from inspect import cleandoc
 
 from .pipe_object import PipeObject
 
+__all__ = ["Source"]
+
 
 class Source[T: PipeObject](ABC):
     """Abstract base class for pipeline sources."""

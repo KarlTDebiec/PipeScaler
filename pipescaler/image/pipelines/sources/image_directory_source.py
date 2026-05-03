@@ -9,6 +9,8 @@ from pathlib import Path
 from pipescaler.core.pipelines import DirectorySource
 from pipescaler.image.core.pipelines import PipeImage
 
+__all__ = ["ImageDirectorySource"]
+
 
 class ImageDirectorySource(DirectorySource):
     """Yields images from a directory."""
@@ -21,5 +23,5 @@ class ImageDirectorySource(DirectorySource):
             relative_path: Path | None = file_path.parent.relative_to(self.dir_path)
             if relative_path == Path("../../sources/image"):
                 relative_path = None
-            return PipeImage(path=file_path, location=relative_path)
+            return PipeImage(path=file_path, location_path=relative_path)
         raise StopIteration

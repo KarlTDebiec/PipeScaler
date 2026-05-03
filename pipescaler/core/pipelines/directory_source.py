@@ -6,16 +6,16 @@ from __future__ import annotations
 
 import re
 from abc import ABC
-from typing import TYPE_CHECKING, Any
+from collections.abc import Callable
+from pathlib import Path
+from typing import Any
 
 from pipescaler.common.validation import val_input_dir_path
 from pipescaler.core.sorting import basic_sort
 
 from .source import Source
 
-if TYPE_CHECKING:
-    from collections.abc import Callable
-    from pathlib import Path
+__all__ = ["DirectorySource"]
 
 
 class DirectorySource(Source, ABC):

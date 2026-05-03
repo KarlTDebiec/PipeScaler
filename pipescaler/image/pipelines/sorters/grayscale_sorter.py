@@ -13,6 +13,8 @@ from pipescaler.common.validation import val_float
 from pipescaler.image.core.pipelines import ImageSorter, PipeImage
 from pipescaler.image.core.validation import validate_image
 
+__all__ = ["GrayscaleSorter"]
+
 
 class GrayscaleSorter(ImageSorter):
     """Sorts image based on presence and use of color channels."""

@@ -20,7 +20,7 @@ from pipescaler.testing.mark import xfail_if_platform
         {},
     ],
 )
-def runner(request) -> PotraceRunner:
+def runner(request: pytest.FixtureRequest) -> PotraceRunner:
     """Pytest fixture that provides a PotraceRunner instance.
 
     Arguments:

@@ -1,19 +1,18 @@
-#!/usr/bin/env python
 #  Copyright 2020-2026 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Command-line interface for PipeScaler ImageMergers."""
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from argparse import ArgumentParser
+from typing import Any
 
 from pipescaler.common import CommandLineInterface
 from pipescaler.image.core.cli import ImageMergerCli
 
 from . import mergers
 
-if TYPE_CHECKING:
-    from argparse import ArgumentParser
+__all__ = ["ImageMergersCli"]
 
 
 class ImageMergersCli(CommandLineInterface):
@@ -63,7 +62,7 @@ class ImageMergersCli(CommandLineInterface):
         """Names and types of mergers wrapped by command-line interface."""
         return {
             merger.name(): merger
-            for merger in map(mergers.__dict__.get, mergers.__all__)
+            for merger in map(mergers.__dict__.get, getattr(mergers, "__all__", ()))
             if isinstance(merger, type) and issubclass(merger, ImageMergerCli)
         }
 

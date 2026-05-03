@@ -2,6 +2,8 @@
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Tests for GrayscaleSorter."""
 
+from __future__ import annotations
+
 import pytest
 
 from pipescaler.image.core.pipelines import PipeImage
@@ -16,7 +18,7 @@ from pipescaler.testing.fixture import parametrized_fixture
         {"mean_threshold": 1, "max_threshold": 10},
     ],
 )
-def sorter(request) -> GrayscaleSorter:
+def sorter(request: pytest.FixtureRequest) -> GrayscaleSorter:
     """Pytest fixture that provides a GrayscaleSorter instance.
 
     Arguments:

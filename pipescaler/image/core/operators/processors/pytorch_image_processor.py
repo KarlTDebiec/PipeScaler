@@ -5,7 +5,8 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import TYPE_CHECKING, Any
+from pathlib import Path
+from typing import Any
 
 import numpy as np
 import torch
@@ -13,12 +14,10 @@ from PIL import Image
 
 from pipescaler.common.validation import val_input_path
 from pipescaler.image.core.operators import ImageProcessor
+from pipescaler.image.core.typing import ImageMode
 from pipescaler.image.core.validation import validate_image_and_convert_mode
 
-if TYPE_CHECKING:
-    from pathlib import Path
-
-    from pipescaler.image.core.typing import ImageMode
+__all__ = ["PyTorchImageProcessor"]
 
 
 class PyTorchImageProcessor(ImageProcessor, ABC):
@@ -43,19 +42,19 @@ class PyTorchImageProcessor(ImageProcessor, ABC):
         elif torch.cuda.is_available():
             self.device = "cuda"
 
-    def __call__(self, input_img: Image.Image) -> Image.Image:
+    def __call__(self, input_image: Image.Image) -> Image.Image:
         """Process an image.
 
         Arguments:
-            input_img: Input image
+            input_image: Input image
         Returns:
             Processed output image
         """
-        input_img, output_mode = validate_image_and_convert_mode(
-            input_img, self.inputs()["input"], "RGB"
+        input_image, output_mode = validate_image_and_convert_mode(
+            input_image, self.inputs()["input"], "RGB"
         )
 
-        input_arr = np.array(input_img)
+        input_arr = np.array(input_image)
 
         output_arr = self.upscale(input_arr)
         output_img = Image.fromarray(output_arr)

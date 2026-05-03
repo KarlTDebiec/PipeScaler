@@ -2,6 +2,8 @@
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Tests for ScaledPairIdentifier."""
 
+from __future__ import annotations
+
 from platform import system
 from shutil import copy
 
@@ -75,9 +77,9 @@ def test_review():
 
             scaled_pair_identifier = ScaledPairIdentifier(
                 input_dir_path=input_dir_path,
-                project_root=project_root_path,
-                hash_file=hash_file,
-                pairs_file=pairs_file,
+                project_root_path=project_root_path,
+                hash_file_path=hash_file,
+                pairs_file_path=pairs_file,
                 interactive=False,
             )
             scaled_pair_identifier.identify_pairs()

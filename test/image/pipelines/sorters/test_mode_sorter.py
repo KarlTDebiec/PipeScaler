@@ -2,6 +2,8 @@
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Tests for ModeSorter."""
 
+from __future__ import annotations
+
 import pytest
 
 from pipescaler.image.core.pipelines import PipeImage
@@ -16,7 +18,7 @@ from pipescaler.testing.fixture import parametrized_fixture
         {},
     ],
 )
-def sorter(request) -> ModeSorter:
+def sorter(request: pytest.FixtureRequest) -> ModeSorter:
     """Pytest fixture that provides a ModeSorter instance.
 
     Arguments:

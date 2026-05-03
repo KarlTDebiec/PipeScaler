@@ -14,6 +14,4 @@ from .video_directory_terminus import (
     VideoDirectoryTerminus,
 )
 
-__all__ = [
-    "VideoDirectoryTerminus",
-]
+__all__ = ["VideoDirectoryTerminus"]

@@ -2,6 +2,8 @@
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Tests for FileScanner."""
 
+from __future__ import annotations
+
 from os import mkdir
 from pathlib import Path
 from shutil import copy

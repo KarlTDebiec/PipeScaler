@@ -2,6 +2,8 @@
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Tests for HistogramMatchMerger."""
 
+from __future__ import annotations
+
 import pytest
 from PIL import Image
 
@@ -17,7 +19,7 @@ from pipescaler.testing.fixture import parametrized_fixture
         {},
     ],
 )
-def merger(request) -> HistogramMatchMerger:
+def merger(request: pytest.FixtureRequest) -> HistogramMatchMerger:
     """Pytest fixture that provides a HistogramMatchMerger instance.
 
     Arguments:

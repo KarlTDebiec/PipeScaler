@@ -2,6 +2,8 @@
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Tests for NormalMerger."""
 
+from __future__ import annotations
+
 import pytest
 from PIL import Image
 
@@ -17,7 +19,7 @@ from pipescaler.testing.fixture import parametrized_fixture
         {},
     ],
 )
-def merger(request) -> NormalMerger:
+def merger(request: pytest.FixtureRequest) -> NormalMerger:
     """Pytest fixture that provides a NormalMerger instance.
 
     Arguments:

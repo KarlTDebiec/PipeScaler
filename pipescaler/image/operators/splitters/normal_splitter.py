@@ -4,31 +4,29 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 import numpy as np
 from PIL import Image
 
 from pipescaler.image.core.operators import ImageSplitter
+from pipescaler.image.core.typing import ImageMode
 from pipescaler.image.core.validation import validate_image
 
-if TYPE_CHECKING:
-    from pipescaler.image.core.typing import ImageMode
+__all__ = ["NormalSplitter"]
 
 
 class NormalSplitter(ImageSplitter):
     """Splits a normal map image into separate x, y, and z images."""
 
-    def __call__(self, input_img: Image.Image) -> tuple[Image.Image, ...]:
+    def __call__(self, input_image: Image.Image) -> tuple[Image.Image, ...]:
         """Split an image.
 
         Arguments:
-            input_img: Input image
+            input_image: Input image
         Returns:
             Split output images
         """
-        input_img = validate_image(input_img, self.inputs()["input"])
-        input_arr = np.array(input_img)
+        input_image = validate_image(input_image, self.inputs()["input"])
+        input_arr = np.array(input_image)
         x_arr = input_arr[:, :, 0]
         y_arr = input_arr[:, :, 1]
         z_arr = (input_arr[:, :, 2].astype(float) - 128) * 2

@@ -6,10 +6,13 @@ from __future__ import annotations
 
 from logging import debug
 from pathlib import Path
+from typing import Any
 
 from pipescaler.common.subprocess import run_command
 from pipescaler.common.validation import val_input_dir_path
 from pipescaler.core import Runner
+
+__all__ = ["TopazVideoAiRunner"]
 
 
 class TopazVideoAiRunner(Runner):
@@ -28,6 +31,7 @@ class TopazVideoAiRunner(Runner):
         '"-start_number" "1" '
         '"{output_path}"'
     )
+    """Topaz Proteus command arguments for 4:3 image sequences."""
     proteus_16_9 = (
         '"-hide_banner" "-nostdin" "-y" "-nostats" '
         '"-framerate" "30" "-start_number" "1" '
@@ -41,6 +45,7 @@ class TopazVideoAiRunner(Runner):
         '"-start_number" "1" '
         '"{output_path}"'
     )
+    """Topaz Proteus command arguments for 16:9 image sequences."""
     chronos_60 = (
         '"-hide_banner" "-nostdin" "-y" "-nostats" '
         '"-framerate" "30" "-start_number" "1" '
@@ -56,6 +61,7 @@ class TopazVideoAiRunner(Runner):
         ' "-map_metadata:s:v" "0:s:v" "-an" '
         ' "{output_path}"'
     )
+    """Topaz Chronos command arguments for 60 FPS H.264 output."""
     chronos_60_prores = (
         '"-hide_banner" "-nostdin" "-y" "-nostats" '
         '"-framerate" "30" "-start_number" "1" '
@@ -71,12 +77,13 @@ class TopazVideoAiRunner(Runner):
         '"-map_metadata:s:v" "0:s:v" "-an" '
         ' "{output_path}"'
     )
+    """Topaz Chronos command arguments for 60 FPS ProRes output."""
 
     def __init__(
         self,
         arguments: str,
         working_dir_path: str = r"C:\Program Files\Topaz Labs LLC\Topaz Video AI",
-        **kwargs,
+        **kwargs: Any,
     ):
         """Initialize.
 

@@ -12,6 +12,8 @@ from pipescaler.common.validation import val_int
 from pipescaler.image.core.pipelines import ImageSorter, PipeImage
 from pipescaler.image.core.validation import validate_image_and_convert_mode
 
+__all__ = ["AlphaSorter"]
+
 
 class AlphaSorter(ImageSorter):
     """Sorts image based on presence and use of alpha channel."""

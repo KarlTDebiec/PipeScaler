@@ -2,6 +2,8 @@
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Tests for CitraFileScanner."""
 
+from __future__ import annotations
+
 from pathlib import Path
 
 from PIL import Image

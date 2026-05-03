@@ -9,6 +9,8 @@ from logging import info
 from pipescaler.image.core.operators import ImageSplitter
 from pipescaler.image.core.pipelines import ImageOperatorSegment, PipeImage
 
+__all__ = ["ImageSplitterSegment"]
+
 
 class ImageSplitterSegment(ImageOperatorSegment[ImageSplitter]):
     """Segment that applies a ImageSplitter."""

@@ -13,6 +13,4 @@ from __future__ import annotations
 
 from .checkpoint_manager import CheckpointManager
 
-__all__ = [
-    "CheckpointManager",
-]
+__all__ = ["CheckpointManager"]

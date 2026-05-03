@@ -6,28 +6,26 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 from logging import info
-from typing import TYPE_CHECKING
+from pathlib import Path
 
 import pandas as pd
 
 from pipescaler.common.validation import val_output_path
+from pipescaler.image.core.analytics.typing import PairDataFrame
 
-if TYPE_CHECKING:
-    from pathlib import Path
-
-    from pipescaler.image.core.analytics.typing import PairDataFrame
+__all__ = ["ImagePairCollection"]
 
 
 class ImagePairCollection:
     """Collection of image pairs."""
 
-    def __init__(self, cache: Path | str = "pairs.csv"):
+    def __init__(self, cache_path: Path | str = "pairs.csv"):
         """Validate configuration and initialize.
 
         Arguments:
-            cache: Path to cache file
+            cache_path: Path to cache file
         """
-        self.cache = val_output_path(cache)
+        self.cache = val_output_path(cache_path)
         """CSV cache file path."""
 
         # Prepare image pairs

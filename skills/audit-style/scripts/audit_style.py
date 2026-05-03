@@ -35,9 +35,6 @@ COPYRIGHT_LINE_TWO_RE = re.compile(
 )
 """Regex matching the second line of the repository copyright header."""
 
-PRINT_CALL_RE = re.compile(r"(?<![A-Za-z0-9_])print\s*\(")
-"""Regex matching a likely `print` call."""
-
 RST_DOUBLE_BACKTICK_RE = re.compile(r"``[^`]+``")
 """Regex matching reStructuredText-style double backticks."""
 
@@ -328,7 +325,7 @@ def _audit_function_annotations(
     if function_node.returns is None:
         value_returns = [
             node
-            for node in ast.walk(function_node)
+            for node in _walk_function_body(function_node)
             if isinstance(node, ast.Return)
             and node.value is not None
             and not (isinstance(node.value, ast.Constant) and node.value.value is None)
@@ -442,7 +439,7 @@ def _audit_nomenclature(
     if isinstance(node, ast.arg):
         if (
             _is_path_annotation(node.annotation)
-            and not (node.arg.endswith("_path") or node.arg.endswith("_paths"))
+            and not _uses_path_nomenclature(node.arg)
             and node.arg not in {"path", "paths"}
             and not _is_cli_path_argument_name(file_path, node.arg)
             and not _is_validator_value_name(file_path, node.arg)
@@ -463,7 +460,7 @@ def _audit_nomenclature(
             name = target.id
             if (
                 _is_path_annotation(annotation)
-                and not (name.endswith("_path") or name.endswith("_paths"))
+                and not _uses_path_nomenclature(name)
                 and name not in {"path", "paths"}
                 and not _is_cli_path_argument_name(file_path, name)
                 and not _is_validator_value_name(file_path, name)
@@ -562,6 +559,34 @@ def _audit_string_interpolation(
         )
 
 
+def _audit_print_call(
+    node: ast.AST,
+    file_path: Path,
+    notes: dict[str, list[StyleNote]],
+):
+    """Audit `print` calls outside CLI command output.
+
+    Arguments:
+        node: AST node
+        file_path: source file path
+        notes: notes keyed by POSIX path
+    """
+    if _is_cli_module(file_path):
+        return
+    if (
+        isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Name)
+        and node.func.id == "print"
+    ):
+        _add_note(
+            notes,
+            file_path,
+            "Logging",
+            node.lineno,
+            "uses `print`; prefer `logging` outside CLI command output",
+        )
+
+
 def _audit_text_lines(
     lines: Sequence[str],
     file_path: Path,
@@ -574,16 +599,7 @@ def _audit_text_lines(
         file_path: source file path
         notes: notes keyed by POSIX path
     """
-    allow_print = _is_cli_module(file_path)
     for line_number, line in enumerate(lines, 1):
-        if not allow_print and PRINT_CALL_RE.search(line):
-            _add_note(
-                notes,
-                file_path,
-                "Logging",
-                line_number,
-                "uses `print`; prefer `logging` outside CLI command output",
-            )
         if RST_DOUBLE_BACKTICK_RE.search(line):
             _add_note(
                 notes,
@@ -618,6 +634,7 @@ def _audit_tree(
             _audit_class(node, file_path, notes)
         elif isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef):
             _audit_function(node, file_path, notes)
+        _audit_print_call(node, file_path, notes)
         _audit_string_interpolation(node, file_path, notes)
         _audit_nomenclature(node, file_path, notes)
 
@@ -644,8 +661,47 @@ def _audit_tree_header(
             1,
             "missing `from __future__ import annotations`",
         )
-    if _requires_all(tree, file_path) and _get_all_node(tree) is None:
+    all_node = _get_all_node(tree)
+    if _requires_all(tree, file_path) and all_node is None:
         _add_note(notes, file_path, "Exports", 1, "missing `__all__`")
+    if all_node is not None:
+        _audit_all_format(all_node, file_path, notes)
+
+
+def _audit_all_format(
+    all_node: ast.Assign | ast.AnnAssign,
+    file_path: Path,
+    notes: dict[str, list[StyleNote]],
+):
+    """Audit `__all__` formatting.
+
+    Arguments:
+        all_node: `__all__` assignment
+        file_path: source file path
+        notes: notes keyed by POSIX path
+    """
+    value = all_node.value
+    if isinstance(value, ast.List | ast.Tuple | ast.Set) and len(value.elts) == 0:
+        _add_note(
+            notes,
+            file_path,
+            "Exports",
+            all_node.lineno,
+            "omit `__all__` when there are no public names to export",
+        )
+    if (
+        isinstance(value, ast.List)
+        and len(value.elts) == 1
+        and all_node.end_lineno is not None
+        and all_node.lineno != all_node.end_lineno
+    ):
+        _add_note(
+            notes,
+            file_path,
+            "Exports",
+            all_node.lineno,
+            "single-entry `__all__` should be on one line",
+        )
 
 
 def _audit_class(
@@ -832,6 +888,45 @@ def _has_future_annotations(tree: ast.Module) -> bool:
     )
 
 
+def _has_public_exports(tree: ast.Module, file_path: Path) -> bool:
+    """Check whether a module defines public exports.
+
+    Arguments:
+        tree: parsed module
+        file_path: source file path
+    Returns:
+        whether the module defines names that should be exported
+    """
+    relative_file_path = _get_repo_relative_path(file_path)
+    if relative_file_path.parts and relative_file_path.parts[0] == "test":
+        return False
+    for node in tree.body:
+        if isinstance(node, ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef):
+            if not node.name.startswith("_"):
+                return True
+        elif isinstance(node, ast.TypeAlias) and isinstance(node.name, ast.Name):
+            if not node.name.id.startswith("_"):
+                return True
+        elif isinstance(node, ast.Assign):
+            for target in node.targets:
+                if (
+                    isinstance(target, ast.Name)
+                    and target.id[:1].isupper()
+                    and not target.id.startswith("_")
+                ):
+                    return True
+        elif (
+            file_path.name == "__init__.py"
+            and isinstance(node, ast.ImportFrom)
+            and node.module != "__future__"
+        ):
+            for alias in node.names:
+                public_name = alias.asname or alias.name
+                if not public_name.startswith("_"):
+                    return True
+    return False
+
+
 def _is_path_annotation(annotation: ast.expr | None) -> bool:
     """Check whether an annotation includes a `Path` type.
 
@@ -974,6 +1069,27 @@ def _is_string_expr(node: ast.AST) -> bool:
     return isinstance(node, ast.Constant) and isinstance(node.value, str)
 
 
+def _walk_function_body(
+    function_node: ast.FunctionDef | ast.AsyncFunctionDef,
+) -> list[ast.AST]:
+    """Walk a function body without descending into nested functions or classes.
+
+    Arguments:
+        function_node: function or method definition
+    Returns:
+        AST nodes in the function body
+    """
+    nodes: list[ast.AST] = []
+    pending: list[ast.AST] = list(function_node.body)
+    while pending:
+        node = pending.pop()
+        nodes.append(node)
+        if isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef):
+            continue
+        pending.extend(ast.iter_child_nodes(node))
+    return nodes
+
+
 def _module_name_for(file_path: Path) -> str:
     """Get the dotted module name for a source file.
 
@@ -1011,7 +1127,7 @@ def _requires_all(tree: ast.Module, file_path: Path) -> bool:
     Returns:
         whether `__all__` is required
     """
-    return not _is_pure_package_marker(tree, file_path)
+    return _has_public_exports(tree, file_path)
 
 
 def _requires_future_annotations(tree: ast.Module) -> bool:
@@ -1047,6 +1163,22 @@ def _returns_none(function_node: ast.FunctionDef | ast.AsyncFunctionDef) -> bool
     if isinstance(returns, ast.Constant) and returns.value is None:
         return True
     return isinstance(returns, ast.Name) and returns.id == "None"
+
+
+def _uses_path_nomenclature(name: str) -> bool:
+    """Check whether a name follows path-oriented nomenclature.
+
+    Arguments:
+        name: variable or parameter name
+    Returns:
+        whether the name uses explicit path nomenclature
+    """
+    return (
+        name.endswith("_path")
+        or name.endswith("_paths")
+        or "_path_by_" in name
+        or "_paths_by_" in name
+    )
 
 
 def audit_file(file_path: Path, notes: dict[str, list[StyleNote]]):

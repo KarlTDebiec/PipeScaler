@@ -8,6 +8,12 @@ import re
 from logging import error
 from os.path import basename, splitext
 
+__all__ = [
+    "citra_sort",
+    "dolphin_sort",
+    "texmod_sort",
+]
+
 # tex1_8x8_0EAEA8971E8954F4_13_mip0.png
 # tex1_32x32_0A4B083BF0B35A78_12.png
 

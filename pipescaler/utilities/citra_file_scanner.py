@@ -11,6 +11,8 @@ from re import compile
 
 from .file_scanner import FileScanner
 
+__all__ = ["CitraFileScanner"]
+
 
 class CitraFileScanner(FileScanner):
     """Scans Citra dump directories for new files."""
@@ -28,7 +30,9 @@ class CitraFileScanner(FileScanner):
             self.input_names.update(
                 file_path.stem for file_path in input_dir_path.iterdir()
             )
-        self.reviewed_paths_by_base_name = self.get_reviewed_paths_by_base_name()
+        self.reviewed_file_paths_by_base_name = (
+            self.get_reviewed_file_paths_by_base_name()
+        )
 
         for input_dir_path in self.input_dir_paths:
             for file_path in sorted(
@@ -75,15 +79,15 @@ class CitraFileScanner(FileScanner):
             return f"{mip_match.group('base')}{Path(output_name).suffix}"
         return output_name
 
-    def get_reviewed_paths_by_base_name(self) -> dict[str, list[Path]]:
+    def get_reviewed_file_paths_by_base_name(self) -> dict[str, list[Path]]:
         """Build index of reviewed file paths by base filename stem.
 
         Returns:
             reviewed file paths keyed by base filename stem
         """
-        reviewed_paths_by_base_name: dict[str, list[Path]] = {}
+        reviewed_file_paths_by_base_name: dict[str, list[Path]] = {}
         if not self.reviewed_dir_path:
-            return reviewed_paths_by_base_name
+            return reviewed_file_paths_by_base_name
 
         if isinstance(self.reviewed_dir_path, Path):
             reviewed_dir_paths = [self.reviewed_dir_path]
@@ -99,11 +103,11 @@ class CitraFileScanner(FileScanner):
                     else reviewed_path.stem
                 )
                 base_name = self.get_normalized_name(base_stem)
-                reviewed_paths_by_base_name.setdefault(base_name, []).append(
+                reviewed_file_paths_by_base_name.setdefault(base_name, []).append(
                     reviewed_path
                 )
 
-        return reviewed_paths_by_base_name
+        return reviewed_file_paths_by_base_name
 
     def perform_operation(self, file_path: Path):
         """Perform operations for filename.
@@ -164,7 +168,7 @@ class CitraFileScanner(FileScanner):
         ):
             return
 
-        for reviewed_path in self.reviewed_paths_by_base_name.pop(base_name, []):
+        for reviewed_path in self.reviewed_file_paths_by_base_name.pop(base_name, []):
             if reviewed_path.exists():
                 remove(reviewed_path)
                 info(f"'{reviewed_path}' removed")

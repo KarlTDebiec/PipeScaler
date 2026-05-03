@@ -8,6 +8,8 @@ from logging import info
 
 from pipescaler.core.pipelines import CheckpointedSegment, PipeObject
 
+__all__ = ["PostCheckpointedSegment"]
+
 
 class PostCheckpointedSegment(CheckpointedSegment):
     """Segment with post-execution checkpoints."""
