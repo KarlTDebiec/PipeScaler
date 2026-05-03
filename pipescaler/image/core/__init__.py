@@ -7,7 +7,7 @@ This module may import from: common, core, image
 Hierarchy within module:
 * enums / exceptions
 * image_operator
-* operators / pipelines / cli / analytics
+* operators / pipelines / cli
 """
 
 from __future__ import annotations
