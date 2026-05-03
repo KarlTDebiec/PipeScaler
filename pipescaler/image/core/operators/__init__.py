@@ -5,7 +5,7 @@
 This module may import from: common, core, image.core
 
 Hierarchy within module:
-* image_processor / image_splitter / image_merger
+* image_merger / image_processor / image_splitter / processors
 """
 
 from __future__ import annotations

@@ -5,8 +5,9 @@
 This module may import from: common
 
 Hierarchy within module:
-* runner / typing / utility
-* pipelines / cli
+* runner / sorting / utility
+* cli / typing
+* pipelines
 """
 
 from __future__ import annotations

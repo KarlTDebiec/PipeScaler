@@ -3,6 +3,10 @@
 """PipeScaler image core analytics package.
 
 This module may import from: common, core, image.core
+
+Hierarchy within module:
+* typing
+* hashing
 """
 
 from __future__ import annotations

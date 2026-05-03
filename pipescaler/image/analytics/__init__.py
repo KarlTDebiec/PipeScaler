@@ -5,7 +5,8 @@
 This module may import from: common, core, image.core
 
 Hierarchy within module:
-* image_hash_collection / image_pair_collection / image_pair_scorer
+* image_hash_collection / image_pair_collection
+* image_pair_scorer
 """
 
 from __future__ import annotations

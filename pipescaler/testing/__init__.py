@@ -3,6 +3,9 @@
 """PipeScaler general testing package.
 
 This module may import from: common, core, pipelines, image, video, cli
+
+Hierarchy within module:
+* execution_counter / file / fixture / mark
 """
 
 from __future__ import annotations

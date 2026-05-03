@@ -5,7 +5,7 @@
 This module may import from: common, core, image.core, image.core.operators
 
 Hierarchy within module:
-* alpha_merger / normal_merger / histogram_match_merger / palette_match_merger
+* alpha_merger / histogram_match_merger / normal_merger / palette_match_merger
 """
 
 from __future__ import annotations

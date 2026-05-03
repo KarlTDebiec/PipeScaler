@@ -6,7 +6,8 @@ This module may import from: common, core.pipelines, video.core
 
 Hierarchy within module:
 * pipe_video
-* video_source / video_terminus / video_segment / video_sorter
+* video_segment / video_sorter / video_source / video_terminus
+* typing
 """
 
 from __future__ import annotations

@@ -5,10 +5,10 @@
 This module may import from: common, core, pipelines
 
 Hierarchy within module:
-* core
-* operators / utilities / runners / analytics
-* pipelines
-* cli
+* core / runners / subdivided_image
+* pipelines / testing / utilities
+* analytics / operators
+* cli / scaled_pair_identifier
 """
 
 from __future__ import annotations
