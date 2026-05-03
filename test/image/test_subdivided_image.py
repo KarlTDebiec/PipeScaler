@@ -2,6 +2,8 @@
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Tests for SubdividedImage."""
 
+from __future__ import annotations
+
 import pytest
 from PIL import Image
 
@@ -44,7 +46,12 @@ def potrace_processor() -> PotraceProcessor:
         ("xbrz_processor", "RGB", 6),
     ],
 )
-def test_subdivider(processor_name: str, input_filename: str, scale: int, request):
+def test_subdivider(
+    processor_name: str,
+    input_filename: str,
+    scale: int,
+    request: pytest.FixtureRequest,
+):
     """Test SubdividedImage processing images in subdivisions.
 
     Arguments:

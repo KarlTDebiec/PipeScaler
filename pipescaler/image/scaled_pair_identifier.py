@@ -5,17 +5,21 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Iterable
 from itertools import chain
 from logging import info
 from pathlib import Path
 from shutil import move
-from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
 from PIL import Image
 
 from pipescaler.common.validation import val_input_dir_path
+from pipescaler.image.core.analytics.typing import (
+    ScoreDataFrame,
+    ScoreStatsDataFrame,
+)
 from pipescaler.image.core.functions import hstack_images, vstack_images
 from pipescaler.image.core.pipelines import PipeImage
 from pipescaler.image.core.sorting import citra_sort
@@ -27,13 +31,8 @@ from .analytics import (
     ImagePairScorer,
 )
 
-if TYPE_CHECKING:
-    from collections.abc import Iterable
+__all__ = ["ScaledPairIdentifier"]
 
-    from pipescaler.image.core.analytics.typing import (
-        ScoreDataFrame,
-        ScoreStatsDataFrame,
-    )
 
 pd.set_option("display.max_rows", None)
 pd.set_option("display.max_columns", None)
@@ -46,19 +45,19 @@ class ScaledPairIdentifier:
     def __init__(
         self,
         input_dir_path: Path | str | Iterable[Path | str],
-        project_root: Path | str,
+        project_root_path: Path | str,
         *,
-        hash_file: Path | str = "hashes.csv",
-        pairs_file: Path | str = "pairs.csv",
+        hash_file_path: Path | str = "hashes.csv",
+        pairs_file_path: Path | str = "pairs.csv",
         interactive: bool = True,
     ):
         """Validate configuration and initialize.
 
         Arguments:
             input_dir_path: Directory or directories from which to read input files
-            project_root: Root directory of project
-            hash_file: CSV file to read/write cache of image hashes
-            pairs_file: CSV file to read/write scaled image pairs
+            project_root_path: Root directory of project
+            hash_file_path: CSV file to read/write cache of image hashes
+            pairs_file_path: CSV file to read/write scaled image pairs
             interactive: Whether to prompt for user input
         """
         # Store input and output paths and configuration
@@ -68,10 +67,10 @@ class ScaledPairIdentifier:
         else:
             self.input_dir_paths = validated_input_dir_path
         """Directories from which to read input files."""
-        project_root = val_input_dir_path(project_root)
-        self.scaled_dir_path = project_root / "scaled"
+        project_root_path = val_input_dir_path(project_root_path)
+        self.scaled_dir_path = project_root_path / "scaled"
         """Path to directory to which to move scaled images."""
-        self.comparison_dir_path = project_root / "scaled_images"
+        self.comparison_dir_path = project_root_path / "scaled_images"
         """Path to directory to which to write stacked scaled image sets."""
         self.interactive = interactive
         """Whether to prompt for user input."""
@@ -84,9 +83,11 @@ class ScaledPairIdentifier:
         if self.scaled_dir_path.exists():
             self.file_paths.update({f.stem: f for f in self.scaled_dir_path.iterdir()})
 
-        self.hash_collection = ImageHashCollection(self.file_paths.values(), hash_file)
+        self.hash_collection = ImageHashCollection(
+            self.file_paths.values(), hash_file_path
+        )
         """Image hashes."""
-        self.pair_collection = ImagePairCollection(pairs_file)
+        self.pair_collection = ImagePairCollection(pairs_file_path)
         """Image pairs."""
         self.pair_scorer = ImagePairScorer(self.hash_collection)
         """Image pair scorer."""
@@ -129,7 +130,7 @@ class ScaledPairIdentifier:
             if parent in self.pair_collection.children:
                 continue
 
-            print(f"Searching for children of {parent}")
+            info(f"Searching for children of {parent}")
             new_scores = []
             known_pairs = self.pair_collection[parent]
             for scale in [1 / (2**x) for x in range(1, 7)]:
@@ -156,8 +157,8 @@ class ScaledPairIdentifier:
                 else:
                     pass
             elif len(known_pairs) > 0:
-                print("Known pairs:")
-                print(known_pairs)
+                info("Known pairs:")
+                info(f"{known_pairs}")
 
     def sync_comparison_dir_path(self):
         """Ensure comparison images are in sync with known pairs."""
@@ -201,7 +202,7 @@ class ScaledPairIdentifier:
             known_scores: Scores of known pairs
             new_scores: Scores of new pairs
         """
-        print(f"To known pairs:\n{known_scores}\nmay be added new pairs:\n{new_scores}")
+        info(f"To known pairs:\n{known_scores}\nmay be added new pairs:\n{new_scores}")
         all_pairs = pd.concat((known_scores, new_scores)).sort_values(
             "scale", ascending=False
         )

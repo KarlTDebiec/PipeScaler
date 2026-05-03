@@ -10,6 +10,8 @@ from shutil import copyfile
 from pipescaler.core.pipelines import DirectoryTerminus
 from pipescaler.video.core.pipelines import PipeVideo, VideoTerminus
 
+__all__ = ["VideoDirectoryTerminus"]
+
 
 class VideoDirectoryTerminus(VideoTerminus, DirectoryTerminus[PipeVideo]):
     """Copies videos to an output directory."""

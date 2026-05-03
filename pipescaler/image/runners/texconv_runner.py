@@ -8,9 +8,12 @@ from logging import debug
 from os import rename
 from pathlib import Path
 from shlex import split
+from typing import Any
 
 from pipescaler.common.subprocess import run_command
 from pipescaler.core import Runner
+
+__all__ = ["TexconvRunner"]
 
 
 class TexconvRunner(Runner):
@@ -19,7 +22,11 @@ class TexconvRunner(Runner):
     See [Texconv](https://github.com/Microsoft/DirectXTex/wiki/Texconv).
     """
 
-    def __init__(self, arguments: str = "-y -sepalpha -ft DDS -f BC7_UNORM", **kwargs):
+    def __init__(
+        self,
+        arguments: str = "-y -sepalpha -ft DDS -f BC7_UNORM",
+        **kwargs: Any,
+    ):
         """Initialize.
 
         Arguments:

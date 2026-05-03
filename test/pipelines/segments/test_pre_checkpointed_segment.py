@@ -4,7 +4,8 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from pathlib import Path
+from typing import Any, cast
 from unittest.mock import Mock
 
 import pytest
@@ -14,9 +15,6 @@ from pipescaler.common.validation import val_output_path
 from pipescaler.core.pipelines import PipeObject, Segment
 from pipescaler.pipelines import CheckpointManager
 from pipescaler.pipelines.segments import PreCheckpointedSegment
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 
 def mock_pipe_object_save(path: Path | str):
@@ -39,7 +37,9 @@ def test_non_callable_segment_validation():
 
         # Attempt to initialize with non-callable segment
         with pytest.raises(ValueError) as exc_info:
-            PreCheckpointedSegment(non_callable_segment, mock_cp_manager, ["test.txt"])
+            PreCheckpointedSegment(
+                cast(Any, non_callable_segment), mock_cp_manager, ["test.txt"]
+            )
 
         # Verify the error message contains expected content
         error_message = str(exc_info.value)
@@ -89,5 +89,5 @@ def test():
             pass
 
         # Test miscellaneous methods
-        print(pre_checkpointed_segment)
-        print(repr(pre_checkpointed_segment))
+        assert str(pre_checkpointed_segment)
+        assert repr(pre_checkpointed_segment)

@@ -6,12 +6,12 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Self
+from pathlib import Path
+from typing import Self, cast
 
 from pipescaler.common.validation import val_input_path
 
-if TYPE_CHECKING:
-    from pathlib import Path
+__all__ = ["PipeObject"]
 
 
 class PipeObject(ABC):
@@ -23,7 +23,7 @@ class PipeObject(ABC):
         path: Path | str | None = None,
         name: str | None = None,
         parents: Self | Sequence[Self] | None = None,
-        location: Path | None = None,
+        location_path: Path | None = None,
     ):
         """Initialize.
 
@@ -33,20 +33,20 @@ class PipeObject(ABC):
               if that is not available will use filename of path excluding extension;
               one of these must be available
             parents: Parent object(s) from which this object is descended
-            location: Path relative to parent directory
+            location_path: Path relative to parent directory
         """
         self._path = None
         if path:
             self._path = val_input_path(path)
 
-        self._parents = None
+        self._parents: list[Self] | None = None
         if parents:
             if isinstance(parents, self.__class__):
                 self._parents = [parents]
             elif isinstance(parents, Sequence) and all(
                 isinstance(p, self.__class__) for p in parents
             ):
-                self._parents = list(parents)
+                self._parents = cast("list[Self]", list(parents))
             else:
                 raise TypeError(
                     f"{self.__class__.__name__}'s parents must be a list of "
@@ -65,8 +65,8 @@ class PipeObject(ABC):
                 f"whose name will be used, or a parent object whose name will be used."
             )
 
-        if location:
-            self._location: Path | None = location
+        if location_path:
+            self._location: Path | None = location_path
         elif self.parents:
             self._location = self.parents[0].location
         else:
@@ -79,7 +79,7 @@ class PipeObject(ABC):
             f"path={self.path!r}, "
             f"name={self.name!r}, "
             f"parents={self.parents!r}, "
-            f"location={self.location!r})"
+            f"location_path={self.location!r})"
         )
 
     def __str__(self) -> str:
@@ -114,10 +114,10 @@ class PipeObject(ABC):
         return self._path
 
     @path.setter
-    def path(self, value: Path | str | None):
+    def path(self, path: Path | str | None):
         """Set path after validating it when provided."""
-        if value:
-            self._path = val_input_path(value)
+        if path:
+            self._path = val_input_path(path)
         else:
             self._path = None
 

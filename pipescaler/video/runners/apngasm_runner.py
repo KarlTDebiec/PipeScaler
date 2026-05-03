@@ -8,6 +8,8 @@ from typing import Any
 
 from pipescaler.core import Runner
 
+__all__ = ["ApngasmRunner"]
+
 
 class ApngasmRunner(Runner):
     """Runs apngasm tool for creating animated pngs.

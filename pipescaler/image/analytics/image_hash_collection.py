@@ -4,9 +4,9 @@
 
 from __future__ import annotations
 
-from collections.abc import Collection, Iterable, Sequence
+from collections.abc import Collection, Iterable
 from logging import info
-from typing import TYPE_CHECKING
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -20,31 +20,31 @@ from pipescaler.image.core.analytics.hashing import (
     multichannel_perceptual_hash,
     multichannel_wavelet_hash,
 )
+from pipescaler.image.core.analytics.typing import HashDataFrame
 from pipescaler.image.core.pipelines import PipeImage
 from pipescaler.image.pipelines.sorters import AlphaSorter, GrayscaleSorter
 
-if TYPE_CHECKING:
-    from pathlib import Path
-
-    from pipescaler.image.core.analytics.typing import HashDataFrame
+__all__ = ["ImageHashCollection"]
 
 
-class ImageHashCollection(Sequence):
+class ImageHashCollection:
     """Collection of image hashes."""
 
-    def __init__(self, file_paths: Collection[Path], cache: Path | str = "hashes.csv"):
+    def __init__(
+        self, file_paths: Collection[Path], cache_path: Path | str = "hashes.csv"
+    ):
         """Validate configuration and initialize.
 
         Arguments:
             file_paths: File paths of images
-            cache: Path to cache file
+            cache_path: Path to cache file
         """
         self.alpha_sorter = AlphaSorter()
         """Alpha sorter."""
         self.grayscale_sorter = GrayscaleSorter()
         """Grayscale sorter."""
 
-        self.cache = val_output_path(cache)
+        self.cache = val_output_path(cache_path)
         """CSV cache file path."""
 
         # Prepare image hashes
@@ -204,7 +204,7 @@ class ImageHashCollection(Sequence):
                     break
                 scaled_image = pipe_image.image.resize(
                     (scaled_width, scaled_height),
-                    Image.Resampling.LANCZOS,  # type: ignore
+                    Image.Resampling.LANCZOS,
                 )
 
             # Calculate hashes of channels of scaled image

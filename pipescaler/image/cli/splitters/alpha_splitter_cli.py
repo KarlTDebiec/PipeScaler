@@ -1,23 +1,21 @@
-#!/usr/bin/env python
 #  Copyright 2020-2026 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Command-line interface for AlphaSplitter."""
 
 from __future__ import annotations
 
+from argparse import ArgumentParser
 from logging import info
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from PIL import Image
 
 from pipescaler.common.argument_parsing import output_file_arg
 from pipescaler.image.core.cli import ImageSplitterCli
+from pipescaler.image.core.operators import ImageSplitter
 from pipescaler.image.operators.splitters import AlphaSplitter
 
-if TYPE_CHECKING:
-    from argparse import ArgumentParser
-
-    from pipescaler.image.core.operators import ImageSplitter
+__all__ = ["AlphaSplitterCli"]
 
 
 class AlphaSplitterCli(ImageSplitterCli):

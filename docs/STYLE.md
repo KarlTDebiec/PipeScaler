@@ -14,10 +14,13 @@
 * Include `from __future__ import annotations` in Python modules that contain imports, exports, type annotations, functions, or classes. Pure package marker files that contain only a module docstring do not need it.
 * For imports within the same directory, use relative imports (for example, `from .foo import bar`).
 * Do not use relative imports for imports from parent or sibling directories (for example, `from ..foo import bar` or `from .. import foo`).
+* Use `if TYPE_CHECKING:` blocks only when necessary to avoid circular imports.
 * Allow `ruff` to manage import sorting.
 
 ## Exports
-* Include `__all__` in Python modules that export public names. Pure package marker files that intentionally export nothing do not need it.
+* Include `__all__` in Python modules that export public names. Omit `__all__` when there are no public names to export.
+* Do not include empty `__all__` assignments.
+* If `__all__` contains one entry, keep it on one line, such as `__all__ = ["AlphaSorter"]`.
 * If `__all__` contains multiple entries, include a trailing comma after the last entry so `ruff` formats it as one item per line.
 * `__all__` should list the intended public API for the module.
 * Do not include internal helpers, which are names prefixed with an underscore.

@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from functools import partial
 from logging import info
-from typing import TYPE_CHECKING
+from typing import cast
 
 import numpy as np
 import pandas as pd
@@ -19,19 +19,19 @@ from pipescaler.image.core.analytics.hashing import (
     multichannel_perceptual_hamming,
     multichannel_wavelet_hamming,
 )
+from pipescaler.image.core.analytics.typing import (
+    HashDataFrame,
+    HashSeries,
+    PairDataFrame,
+    PairSeries,
+    ScoreDataFrame,
+    ScoreStatsDataFrame,
+    ScoreStatsSeries,
+)
 
-if TYPE_CHECKING:
-    from pipescaler.image.core.analytics.typing import (
-        HashDataFrame,
-        HashSeries,
-        PairDataFrame,
-        PairSeries,
-        ScoreDataFrame,
-        ScoreStatsDataFrame,
-        ScoreStatsSeries,
-    )
+from .image_hash_collection import ImageHashCollection
 
-    from .image_hash_collection import ImageHashCollection
+__all__ = ["ImagePairScorer"]
 
 
 class ImagePairScorer:
@@ -67,6 +67,7 @@ class ImagePairScorer:
             0.03125: 350,
         },
     }
+    """Score thresholds by image mode and scale."""
 
     def __init__(self, hash_collection: ImageHashCollection):
         """Validate configurate and initialize.
@@ -76,7 +77,7 @@ class ImagePairScorer:
         """
         self.hash_collection = hash_collection
 
-    def get_best_child_score_stats(
+    def get_best_child_score_stats(  # noqa: PLR0911
         self, parent: str, scale: float
     ) -> ScoreStatsSeries | None:
         """Get the best child of provided parent at scale.
@@ -110,7 +111,9 @@ class ImagePairScorer:
                     f"{candidate_children}"
                 )
                 return None
-            candidate_child: ScoreStatsSeries = candidate_children.loc[best_idx]
+            candidate_child: ScoreStatsSeries = cast(
+                "ScoreStatsSeries", candidate_children.loc[best_idx]
+            )
 
         # Find the best candidate parent of candidate child
         candidate_parents: ScoreStatsDataFrame | None = self.get_candidate_parents(
@@ -129,7 +132,9 @@ class ImagePairScorer:
                     f"{candidate_parents}"
                 )
                 return None
-            candidate_parent: ScoreStatsSeries = candidate_parents.loc[best_idx]
+            candidate_parent: ScoreStatsSeries = cast(
+                "ScoreStatsSeries", candidate_parents.loc[best_idx]
+            )
 
         # Review pair
         if parent == candidate_parent["name"]:
@@ -245,9 +250,9 @@ class ImagePairScorer:
         Returns:
             Score of pair
         """
-        candidate_children: ScoreStatsDataFrame = self.get_candidate_children(
-            pair["name"], pair["scale"]
-        )
+        candidate_children = self.get_candidate_children(pair["name"], pair["scale"])
+        if candidate_children is None:
+            raise ValueError(f"No candidate children found for {pair['name']}.")
         score: ScoreStatsSeries = candidate_children.loc[
             candidate_children["scaled name"] == pair["scaled name"]
         ].iloc[0]

@@ -4,17 +4,15 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 import numpy as np
 from PIL import Image
 
 from pipescaler.common.validation import val_float
 from pipescaler.image.core.operators import ImageProcessor
+from pipescaler.image.core.typing import ImageMode
 from pipescaler.image.core.validation import validate_image_and_convert_mode
 
-if TYPE_CHECKING:
-    from pipescaler.image.core.typing import ImageMode
+__all__ = ["SolidColorProcessor"]
 
 
 class SolidColorProcessor(ImageProcessor):
@@ -49,7 +47,7 @@ class SolidColorProcessor(ImageProcessor):
         array = np.array(input_image)
         if input_image.mode in ("LA", "RGB", "RGBA"):
             color: int | tuple[int, int, int] = tuple(
-                np.rint(array.mean(axis=(0, 1))).astype(np.uint8)  # type: ignore
+                np.rint(array.mean(axis=(0, 1))).astype(np.uint8)
             )
         elif input_image.mode == "L":
             color = round(array.mean())

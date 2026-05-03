@@ -2,6 +2,8 @@
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Tests for AlphaSorter."""
 
+from __future__ import annotations
+
 import pytest
 
 from pipescaler.image.core.pipelines import PipeImage
@@ -16,7 +18,7 @@ from pipescaler.testing.fixture import parametrized_fixture
         {"threshold": 255},
     ],
 )
-def sorter(request) -> AlphaSorter:
+def sorter(request: pytest.FixtureRequest) -> AlphaSorter:
     """Pytest fixture that provides an AlphaSorter instance.
 
     Arguments:

@@ -10,6 +10,8 @@ from inspect import cleandoc
 
 from .pipe_object import PipeObject
 
+__all__ = ["Terminus"]
+
 
 class Terminus[T: PipeObject](ABC):
     """Abstract base class for pipeline termini."""

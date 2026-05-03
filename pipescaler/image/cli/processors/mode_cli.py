@@ -1,18 +1,16 @@
-#!/usr/bin/env python
 #  Copyright 2020-2026 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Command-line interface for ModeProcessor."""
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from argparse import ArgumentParser
 
 from pipescaler.common.argument_parsing import get_arg_groups_by_name, str_arg
 from pipescaler.image.core.cli import ImageProcessorCli
 from pipescaler.image.operators.processors import ModeProcessor
 
-if TYPE_CHECKING:
-    from argparse import ArgumentParser
+__all__ = ["ModeCli"]
 
 
 class ModeCli(ImageProcessorCli):

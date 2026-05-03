@@ -64,7 +64,7 @@ class _FakeModel:
     def eval(self):
         """Mock eval."""
 
-    def to(self, _device: str):
+    def to(self, _device: str) -> _FakeModel:
         """Mock device transfer."""
         return self
 

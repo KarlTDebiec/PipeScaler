@@ -6,6 +6,8 @@ from __future__ import annotations
 
 from typing import Literal
 
+__all__ = ["ImageMode"]
+
 # Image modes supported by PipeScaler
 # 1-bit, grayscale, grayscale+alpha, palette, RGB, RGBA, HSV
 # Extend this type if additional modes are needed

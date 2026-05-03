@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+__all__ = ["TerminusReached"]
+
 
 class TerminusReached(Exception):
     """Pipeline terminus has been reached."""

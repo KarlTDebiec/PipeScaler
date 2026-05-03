@@ -11,6 +11,8 @@ from pipescaler.image.core.functions import is_monochrome
 from pipescaler.image.core.pipelines import ImageSorter, PipeImage
 from pipescaler.image.core.validation import validate_image
 
+__all__ = ["MonochromeSorter"]
+
 
 class MonochromeSorter(ImageSorter):
     """Sorts image based on presence and use of colors other than black and white."""

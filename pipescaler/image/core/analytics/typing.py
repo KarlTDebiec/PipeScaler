@@ -6,6 +6,17 @@ from __future__ import annotations
 
 import pandas as pd
 
+__all__ = [
+    "HashDataFrame",
+    "HashSeries",
+    "PairDataFrame",
+    "PairSeries",
+    "ScoreDataFrame",
+    "ScoreSeries",
+    "ScoreStatsDataFrame",
+    "ScoreStatsSeries",
+]
+
 type HashDataFrame = pd.DataFrame
 type HashSeries = pd.Series
 type PairDataFrame = pd.DataFrame

@@ -4,16 +4,16 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Literal
+from typing import Literal
 
 from PIL import Image, ImageColor
 
 from pipescaler.common.validation import val_literal
 from pipescaler.image.core.operators import ImageProcessor
+from pipescaler.image.core.typing import ImageMode
 from pipescaler.image.core.validation import validate_image
 
-if TYPE_CHECKING:
-    from pipescaler.image.core.typing import ImageMode
+__all__ = ["ModeProcessor"]
 
 type ModeSetting = Literal["1", "L", "LA", "RGB", "RGBA"]
 """Mode settings supported by ModeProcessor."""
@@ -23,6 +23,7 @@ class ModeProcessor(ImageProcessor):
     """Converts mode of image."""
 
     supported_modes: tuple[ModeSetting, ...] = ("1", "L", "LA", "RGB", "RGBA")
+    """Image modes this processor supports."""
 
     def __init__(
         self,

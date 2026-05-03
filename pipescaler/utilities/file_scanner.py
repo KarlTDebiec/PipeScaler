@@ -5,12 +5,13 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Iterable, Sequence
 from itertools import chain
 from logging import debug, info
 from os import remove, rmdir
 from pathlib import Path
 from shutil import copy, move
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from PIL import Image
 
@@ -18,19 +19,19 @@ from pipescaler.common import DirectoryNotFoundError
 from pipescaler.common.validation import val_input_dir_path
 from pipescaler.core import Utility
 
-if TYPE_CHECKING:
-    from collections.abc import Iterable, Sequence
+__all__ = ["FileScanner"]
 
 
 class FileScanner(Utility):
     """Scans directories for new files."""
 
     exclusions = {".DS_Store", "desktop"}
+    """File stems to exclude from scanning."""
 
     def __init__(  # noqa: PLR0913
         self,
         input_dir_path: Path | str | Iterable[Path | str],
-        project_root: Path | str,
+        project_root_path: Path | str,
         review_dir_path: Path | str | list[Path | str] | None,
         rules: list[tuple[str, str]] | None = None,
         *,
@@ -41,7 +42,7 @@ class FileScanner(Utility):
 
         Arguments:
             input_dir_path: Directory or directories from which to read input files
-            project_root: Root directory of project
+            project_root_path: Root directory of project
             review_dir_path: Directory or directories of reviewed files
             rules: Rules by which to process images
             remove_prefix: Prefix to remove from output file names
@@ -71,14 +72,14 @@ class FileScanner(Utility):
             """Directories from which to read input files."""
         else:
             self.input_dir_paths = validated_input_dir_path
-        project_root = val_input_dir_path(project_root)
-        self.ignore_dir_path = project_root / "ignore"
+        project_root_path = val_input_dir_path(project_root_path)
+        self.ignore_dir_path = project_root_path / "ignore"
         """Directory of images to ignore if present in input directories."""
-        self.copy_dir_path = project_root / "new"
+        self.copy_dir_path = project_root_path / "new"
         """Directory to which to copy images that match 'copy' rule."""
-        self.move_dir_path = project_root / "review"
+        self.move_dir_path = project_root_path / "review"
         """Directory to which to move images that match 'move' rule."""
-        self.remove_dir_path = project_root / "remove"
+        self.remove_dir_path = project_root_path / "remove"
         """Directory of images that should be removed from input directories."""
 
         self.reviewed_dir_path = None
@@ -275,6 +276,6 @@ class FileScanner(Utility):
             info(f"'{file_path.stem}' removed")
 
     @classmethod
-    def run(cls, **kwargs: Any) -> None:
+    def run(cls, **kwargs: Any):
         """Run file scanner utility."""
         cls(**kwargs)()

@@ -12,6 +12,8 @@ from pipescaler.common.validation import val_int
 from pipescaler.image.core.pipelines import ImageSorter, PipeImage
 from pipescaler.image.core.validation import validate_image
 
+__all__ = ["SolidColorSorter"]
+
 
 class SolidColorSorter(ImageSorter):
     """Sorts images based on whether their entire canvas is a solid color."""

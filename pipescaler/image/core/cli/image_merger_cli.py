@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #  Copyright 2020-2026 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Abstract base class for ImageMerger command-line interfaces."""
@@ -7,12 +6,11 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from inspect import cleandoc
-from typing import TYPE_CHECKING
 
 from pipescaler.common import CommandLineInterface
+from pipescaler.image.core.operators import ImageMerger
 
-if TYPE_CHECKING:
-    from pipescaler.image.core.operators import ImageMerger
+__all__ = ["ImageMergerCli"]
 
 
 class ImageMergerCli(CommandLineInterface, ABC):

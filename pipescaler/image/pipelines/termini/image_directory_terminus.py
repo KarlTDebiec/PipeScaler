@@ -15,6 +15,8 @@ from PIL import Image
 from pipescaler.core.pipelines import DirectoryTerminus
 from pipescaler.image.core.pipelines import ImageTerminus, PipeImage
 
+__all__ = ["ImageDirectoryTerminus"]
+
 
 class ImageDirectoryTerminus(ImageTerminus, DirectoryTerminus[PipeImage]):
     """Copies images to an output directory."""

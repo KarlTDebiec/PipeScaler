@@ -4,23 +4,23 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from logging import info
-from typing import TYPE_CHECKING
 
 from pipescaler.common.file import get_temp_file_path
 from pipescaler.core.pipelines import CheckpointedSegment, CheckpointManagerBase
 from pipescaler.image.core.pipelines import PipeImage
 
-if TYPE_CHECKING:
-    from collections.abc import Sequence
+from .image_runner_segment import ImageRunnerSegment
 
-    from .image_runner_segment import ImageRunnerSegment
+__all__ = ["PostCheckpointedImageRunnerSegment"]
 
 
 class PostCheckpointedImageRunnerSegment(CheckpointedSegment):
     """Segment that applies a Runner with a post-execution checkpoint."""
 
     segment: ImageRunnerSegment
+    """Image runner segment to apply."""
 
     def __init__(
         self,

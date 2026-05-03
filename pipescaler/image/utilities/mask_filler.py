@@ -12,12 +12,14 @@ from pipescaler.image.core.enums import MaskFillMode
 
 from .palette_matcher import PaletteMatcher
 
+__all__ = ["MaskFiller"]
+
 
 class MaskFiller(Utility):
     """Erases masked pixels within an image."""
 
     @classmethod
-    def run(
+    def run(  # ty: ignore[invalid-method-override]
         cls, img: Image.Image, mask: Image.Image, mask_fill_mode: MaskFillMode
     ) -> Image.Image:
         """Erases masked pixels within an image.

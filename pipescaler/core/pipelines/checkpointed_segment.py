@@ -5,21 +5,20 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import TYPE_CHECKING
+from collections.abc import Sequence
 
+from .checkpoint_manager_base import CheckpointManagerBase
 from .segment import Segment
+from .typing import SegmentLike
 
-if TYPE_CHECKING:
-    from collections.abc import Sequence
-
-    from .checkpoint_manager_base import CheckpointManagerBase
-    from .typing import SegmentLike
+__all__ = ["CheckpointedSegment"]
 
 
 class CheckpointedSegment(Segment, ABC):
     """Abstract base class for Segments with checkpoints."""
 
     segment: SegmentLike
+    """Segment to apply."""
 
     def __init__(
         self,

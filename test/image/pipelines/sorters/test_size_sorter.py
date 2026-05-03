@@ -2,6 +2,8 @@
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Tests for SizeSorter."""
 
+from __future__ import annotations
+
 import pytest
 
 from pipescaler.image.core.pipelines import PipeImage
@@ -16,7 +18,7 @@ from pipescaler.testing.fixture import parametrized_fixture
         {"cutoff": 128},
     ],
 )
-def sorter(request) -> SizeSorter:
+def sorter(request: pytest.FixtureRequest) -> SizeSorter:
     """Pytest fixture that provides a SizeSorter instance.
 
     Arguments:

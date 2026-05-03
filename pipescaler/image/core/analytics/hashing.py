@@ -4,8 +4,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from functools import partial
-from typing import TYPE_CHECKING
 
 from imagehash import (
     ImageHash,
@@ -17,13 +17,14 @@ from imagehash import (
     phash,
     whash,
 )
+from PIL import Image
 
-if TYPE_CHECKING:
-    from collections.abc import Callable
+from .typing import HashSeries
 
-    from PIL import Image
-
-    from .typing import HashSeries
+__all__ = [
+    "multichannel_hamming",
+    "multichannel_hash",
+]
 
 
 def multichannel_hamming(first: HashSeries, second: HashSeries, hash_type: str) -> int:
