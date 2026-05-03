@@ -111,6 +111,7 @@ def _split_cli_args(args: str) -> list[str]:
     Returns:
         split command-line arguments
     """
+    args = args.strip()
     if not args:
         return []
     if os_name != "nt":
@@ -126,10 +127,10 @@ def _split_cli_args(args: str) -> list[str]:
     kernel32.LocalFree.argtypes = [c_void_p]
     kernel32.LocalFree.restype = c_void_p
 
-    argv = shell32.CommandLineToArgvW(args, byref(argc))
+    argv = shell32.CommandLineToArgvW(f"pipescaler-test {args}", byref(argc))
     if not argv:
         return []
     try:
-        return [argv[index] for index in range(argc.value)]
+        return [argv[index] for index in range(1, argc.value)]
     finally:
         kernel32.LocalFree(argv)
