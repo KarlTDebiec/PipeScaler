@@ -6,17 +6,13 @@ This module may import from: common, core, pipelines
 
 Hierarchy within module:
 * core
-* operators / utilities / runners / analytics
+* operators / utilities / runners
 * pipelines
 * cli
 """
 
 from __future__ import annotations
 
-from .scaled_pair_identifier import ScaledPairIdentifier
 from .subdivided_image import SubdividedImage
 
-__all__ = [
-    "ScaledPairIdentifier",
-    "SubdividedImage",
-]
+__all__ = ["SubdividedImage"]

@@ -9,7 +9,7 @@ PipeScaler processes collections of image and video files through composable pip
 * `pipescaler/image/core/` contains image-specific base types and shared image behavior. It should hold abstractions and validation used by multiple image operators, pipelines, or CLIs.
 * `pipescaler/image/operators/` contains concrete image transformations. Processors transform one image, splitters separate one image into multiple images, and mergers combine multiple images into one image.
 * `pipescaler/image/pipelines/` contains concrete image pipeline sources, sorters, termini, checkpoint behavior, substituters, and segment wrappers that adapt operators or runners into pipeline segments.
-* `pipescaler/image/analytics/`, `pipescaler/image/runners/`, and `pipescaler/image/utilities/` contain image analysis collections, wrappers around external image tools, and higher-level utilities respectively.
+* `pipescaler/image/runners/` and `pipescaler/image/utilities/` contain wrappers around external image tools and higher-level utilities respectively.
 * `pipescaler/video/core/`, `pipescaler/video/pipelines/`, and `pipescaler/video/runners/` mirror the image layout for video-specific objects, pipeline components, and external tool runners.
 * `pipescaler/cli/`, `pipescaler/core/cli/`, and `pipescaler/image/cli/` expose command-line entry points. CLI modules should parse arguments and delegate work to core, operator, pipeline, utility, or runner classes.
 * `pipescaler/testing/` contains reusable test helpers for this repository. Keep production code independent from test-only helpers unless a helper is intentionally part of the package's test support surface.
