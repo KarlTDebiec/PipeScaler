@@ -69,7 +69,7 @@ def val_executable(
 
 @overload
 def val_float(
-    value: float,
+    value: float | int | str,
     *,
     n_values: int | None = None,
     min_value: float | None = None,
@@ -88,7 +88,7 @@ def val_float(
 
 
 def val_float(
-    value: float | Iterable[Any],
+    value: float | int | str | Iterable[Any],
     *,
     n_values: int | None = None,
     min_value: float | None = None,
@@ -272,7 +272,7 @@ def val_input_path(
 
 @overload
 def val_int(
-    value: int | float,
+    value: float | int | str,
     *,
     n_values: int | None = None,
     min_value: int | None = None,
@@ -293,7 +293,7 @@ def val_int(
 
 
 def val_int(
-    value: int | float | Iterable[Any],
+    value: float | int | str | Iterable[Any],
     *,
     n_values: int | None = None,
     min_value: int | None = None,
