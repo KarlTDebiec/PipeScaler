@@ -7,11 +7,16 @@ from __future__ import annotations
 import pytest
 from PIL import Image
 
+from pipescaler.common import UnsupportedPlatformError
 from pipescaler.common.file import get_temp_file_path
 from pipescaler.image.runners import TexconvRunner
 from pipescaler.testing.file import get_test_input_path
 from pipescaler.testing.fixture import parametrized_fixture
-from pipescaler.testing.mark import xfail_if_platform
+
+xfail_texconv_unavailable = pytest.mark.xfail(
+    raises=(FileNotFoundError, UnsupportedPlatformError)
+)
+"""Expected failure when texconv is unavailable on the test runner."""
 
 
 @parametrized_fixture(
@@ -34,15 +39,15 @@ def runner(request) -> TexconvRunner:
 @pytest.mark.parametrize(
     "input_filename",
     [
-        xfail_if_platform({"Darwin", "Linux"})("1"),
-        xfail_if_platform({"Darwin", "Linux"})("L"),
-        xfail_if_platform({"Darwin", "Linux"})("LA"),
-        xfail_if_platform({"Darwin", "Linux"})("RGB"),
-        xfail_if_platform({"Darwin", "Linux"})("RGBA"),
-        xfail_if_platform({"Darwin", "Linux"})("PL"),
-        xfail_if_platform({"Darwin", "Linux"})("PLA"),
-        xfail_if_platform({"Darwin", "Linux"})("PRGB"),
-        xfail_if_platform({"Darwin", "Linux"})("PRGBA"),
+        pytest.param("1", marks=xfail_texconv_unavailable),
+        pytest.param("L", marks=xfail_texconv_unavailable),
+        pytest.param("LA", marks=xfail_texconv_unavailable),
+        pytest.param("RGB", marks=xfail_texconv_unavailable),
+        pytest.param("RGBA", marks=xfail_texconv_unavailable),
+        pytest.param("PL", marks=xfail_texconv_unavailable),
+        pytest.param("PLA", marks=xfail_texconv_unavailable),
+        pytest.param("PRGB", marks=xfail_texconv_unavailable),
+        pytest.param("PRGBA", marks=xfail_texconv_unavailable),
     ],
 )
 def test(input_filename: str, runner: TexconvRunner):

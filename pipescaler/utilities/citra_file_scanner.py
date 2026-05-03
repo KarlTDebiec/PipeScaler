@@ -31,7 +31,9 @@ class CitraFileScanner(FileScanner):
         self.reviewed_paths_by_base_name = self.get_reviewed_paths_by_base_name()
 
         for input_dir_path in self.input_dir_paths:
-            for file_path in input_dir_path.iterdir():
+            for file_path in sorted(
+                input_dir_path.iterdir(), key=self._operation_sort_key
+            ):
                 self.perform_operation(file_path)
 
     def get_operation(self, name: str) -> str:
@@ -167,3 +169,17 @@ class CitraFileScanner(FileScanner):
                 remove(reviewed_path)
                 info(f"'{reviewed_path}' removed")
         self.reviewed_names.discard(base_name)
+
+    @classmethod
+    def _operation_sort_key(cls, file_path: Path) -> tuple[int, str]:
+        """Sort mip0 files before their legacy base files.
+
+        Arguments:
+            file_path: path to input file
+        Returns:
+            sort key
+        """
+        mip_match = cls._mip_regex.match(file_path.stem)
+        if mip_match is not None and int(mip_match.group("level")) == 0:
+            return (0, mip_match.group("base"))
+        return (1, file_path.stem)

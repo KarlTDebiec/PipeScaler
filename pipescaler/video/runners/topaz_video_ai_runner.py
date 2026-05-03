@@ -123,8 +123,7 @@ class TopazVideoAiRunner(Runner):
             input_path=input_path, output_path=output_path
         )
         debug(f"{self}: {command}")
-        # TODO: Improve this
-        run_command(command)
+        run_command(["cmd", "/c", command])
 
     @classmethod
     def executable(cls) -> str:

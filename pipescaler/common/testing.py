@@ -6,9 +6,12 @@ from __future__ import annotations
 
 import sys
 from contextlib import redirect_stderr, redirect_stdout
+from ctypes import POINTER, byref, c_int, c_void_p, c_wchar_p
 from inspect import getfile
 from io import StringIO
+from os import name as os_name
 from pathlib import Path
+from shlex import split
 from unittest.mock import patch
 
 import pytest
@@ -16,9 +19,18 @@ import pytest
 from .command_line_interface import CommandLineInterface
 
 CliTuple = tuple[type[CommandLineInterface], ...]
+"""CLI class tuple with optional subcommands."""
+
+__all__ = [
+    "assert_cli_help",
+    "assert_cli_usage",
+    "build_subcommands",
+    "get_usage_prefix",
+    "run_cli_with_args",
+]
 
 
-def assert_cli_help(cli: CliTuple) -> None:
+def assert_cli_help(cli: CliTuple):
     """Assert that a CLI tuple shows help text.
 
     Arguments:
@@ -36,7 +48,7 @@ def assert_cli_help(cli: CliTuple) -> None:
     assert stderr.getvalue() == ""
 
 
-def assert_cli_usage(cli: CliTuple) -> None:
+def assert_cli_usage(cli: CliTuple):
     """Assert that a CLI tuple shows usage on missing args.
 
     Arguments:
@@ -87,5 +99,38 @@ def run_cli_with_args(cli: type[CommandLineInterface], args: str = ""):
         cli: CommandLineInterface to run
         args: Arguments to pass
     """
-    with patch.object(sys, "argv", [getfile(cli)] + args.split()):
+    with patch.object(sys, "argv", [getfile(cli)] + _split_cli_args(args)):
         cli.main()
+
+
+def _split_cli_args(args: str) -> list[str]:
+    """Split command-line arguments using platform-appropriate rules.
+
+    Arguments:
+        args: command-line argument string
+    Returns:
+        split command-line arguments
+    """
+    args = args.strip()
+    if not args:
+        return []
+    if os_name != "nt":
+        return split(args)
+
+    from ctypes import WinDLL  # noqa: PLC0415
+
+    argc = c_int()
+    shell32 = WinDLL("shell32", use_last_error=True)
+    shell32.CommandLineToArgvW.argtypes = [c_wchar_p, POINTER(c_int)]
+    shell32.CommandLineToArgvW.restype = POINTER(c_wchar_p)
+    kernel32 = WinDLL("kernel32", use_last_error=True)
+    kernel32.LocalFree.argtypes = [c_void_p]
+    kernel32.LocalFree.restype = c_void_p
+
+    argv = shell32.CommandLineToArgvW(f"pipescaler-test {args}", byref(argc))
+    if not argv:
+        return []
+    try:
+        return [argv[index] for index in range(1, argc.value)]
+    finally:
+        kernel32.LocalFree(argv)

@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from logging import debug
+from shlex import split
 from shutil import copyfile
 from typing import TYPE_CHECKING, Any
 
@@ -64,7 +65,7 @@ class PngquantRunner(Runner):
         )
         debug(f"{self}: {command}")
         exitcode, _, _ = run_command(
-            command, acceptable_exitcodes=[0, 98, 99], timeout=self.timeout
+            split(command), acceptable_exitcodes=[0, 98, 99], timeout=self.timeout
         )
         if exitcode in [98, 99]:
             # pngquant may not save output file if it is too large or low quality
