@@ -9,6 +9,7 @@ from pipescaler.image.operators.processors import PotraceProcessor
 from pipescaler.image.testing import xfail_unsupported_image_mode
 from pipescaler.testing.file import get_test_input_path
 from pipescaler.testing.fixture import parametrized_fixture
+from pipescaler.testing.mark import xfail_if_platform
 
 
 @parametrized_fixture(
@@ -32,15 +33,27 @@ def processor(request) -> PotraceProcessor:
 @pytest.mark.parametrize(
     "input_filename",
     [
-        "1",
-        "L",
-        xfail_unsupported_image_mode()("LA"),
-        xfail_unsupported_image_mode()("RGB"),
-        xfail_unsupported_image_mode()("RGBA"),
-        "PL",
-        xfail_unsupported_image_mode()("PLA"),
-        xfail_unsupported_image_mode()("PRGB"),
-        xfail_unsupported_image_mode()("PRGBA"),
+        xfail_if_platform({"Windows"}, raises=FileNotFoundError)("1"),
+        xfail_if_platform({"Windows"}, raises=FileNotFoundError)("L"),
+        xfail_unsupported_image_mode(
+            xfail_if_platform({"Windows"}, raises=FileNotFoundError)
+        )("LA"),
+        xfail_unsupported_image_mode(
+            xfail_if_platform({"Windows"}, raises=FileNotFoundError)
+        )("RGB"),
+        xfail_unsupported_image_mode(
+            xfail_if_platform({"Windows"}, raises=FileNotFoundError)
+        )("RGBA"),
+        xfail_if_platform({"Windows"}, raises=FileNotFoundError)("PL"),
+        xfail_unsupported_image_mode(
+            xfail_if_platform({"Windows"}, raises=FileNotFoundError)
+        )("PLA"),
+        xfail_unsupported_image_mode(
+            xfail_if_platform({"Windows"}, raises=FileNotFoundError)
+        )("PRGB"),
+        xfail_unsupported_image_mode(
+            xfail_if_platform({"Windows"}, raises=FileNotFoundError)
+        )("PRGBA"),
     ],
 )
 def test(input_filename: str, processor: PotraceProcessor):

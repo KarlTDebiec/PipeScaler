@@ -11,6 +11,7 @@ from pipescaler.common.file import get_temp_file_path
 from pipescaler.image.runners import PotraceRunner
 from pipescaler.testing.file import get_test_input_path
 from pipescaler.testing.fixture import parametrized_fixture
+from pipescaler.testing.mark import xfail_if_platform
 
 
 @parametrized_fixture(
@@ -33,7 +34,7 @@ def runner(request) -> PotraceRunner:
 @pytest.mark.parametrize(
     "input_filename",
     [
-        "L",
+        xfail_if_platform({"Windows"}, raises=FileNotFoundError)("L"),
     ],
 )
 def test(input_filename: str, runner: PotraceRunner):

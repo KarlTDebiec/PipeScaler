@@ -6,8 +6,10 @@ from __future__ import annotations
 
 import sys
 from contextlib import redirect_stderr, redirect_stdout
+from ctypes import byref, c_int
 from inspect import getfile
 from io import StringIO
+from os import name as os_name
 from pathlib import Path
 from shlex import split
 from unittest.mock import patch
@@ -97,5 +99,30 @@ def run_cli_with_args(cli: type[CommandLineInterface], args: str = ""):
         cli: CommandLineInterface to run
         args: Arguments to pass
     """
-    with patch.object(sys, "argv", [getfile(cli)] + split(args)):
+    with patch.object(sys, "argv", [getfile(cli)] + _split_cli_args(args)):
         cli.main()
+
+
+def _split_cli_args(args: str) -> list[str]:
+    """Split command-line arguments using platform-appropriate rules.
+
+    Arguments:
+        args: command-line argument string
+    Returns:
+        split command-line arguments
+    """
+    if not args:
+        return []
+    if os_name != "nt":
+        return split(args)
+
+    from ctypes import windll  # noqa: PLC0415
+
+    argc = c_int()
+    argv = windll.shell32.CommandLineToArgvW(args, byref(argc))
+    if not argv:
+        return []
+    try:
+        return [argv[index] for index in range(argc.value)]
+    finally:
+        windll.kernel32.LocalFree(argv)
