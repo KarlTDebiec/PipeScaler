@@ -4,10 +4,8 @@
 
 Module hierarchy (modules may import from any above):
 * common
-* core
-* pipelines
-* image / video
+* core / testing
+* pipelines / utilities / video
+* image
 * cli
-* utilities
-* testing
 """
