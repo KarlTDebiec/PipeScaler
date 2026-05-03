@@ -8,6 +8,8 @@ from abc import ABC, abstractmethod
 
 from .pipe_object import PipeObject
 
+__all__ = ["Segment"]
+
 
 class Segment[T: PipeObject](ABC):
     """Abstract base class for pipeline segments."""

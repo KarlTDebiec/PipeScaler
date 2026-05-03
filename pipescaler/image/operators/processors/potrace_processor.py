@@ -4,8 +4,6 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 from PIL import Image, ImageOps
 from reportlab.graphics.renderPM import drawToFile
 from svglib.svglib import svg2rlg
@@ -13,11 +11,11 @@ from svglib.svglib import svg2rlg
 from pipescaler.common.file import get_temp_file_path
 from pipescaler.common.validation import val_float
 from pipescaler.image.core.operators import ImageProcessor
+from pipescaler.image.core.typing import ImageMode
 from pipescaler.image.core.validation import validate_image_and_convert_mode
 from pipescaler.image.runners import PotraceRunner
 
-if TYPE_CHECKING:
-    from pipescaler.image.core.typing import ImageMode
+__all__ = ["PotraceProcessor"]
 
 
 class PotraceProcessor(ImageProcessor):

@@ -14,6 +14,4 @@ from .video_directory_source import (
     VideoDirectorySource,
 )
 
-__all__ = [
-    "VideoDirectorySource",
-]
+__all__ = ["VideoDirectorySource"]

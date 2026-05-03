@@ -6,22 +6,52 @@ from __future__ import annotations
 
 from argparse import ArgumentParser
 from logging import getLogger
-from typing import TYPE_CHECKING, TypedDict, Unpack
+from pathlib import Path
+from typing import ClassVar, TypedDict, Unpack
 from unittest.mock import patch
 
 import pytest
-from common.command_line_interface import (  # ty:ignore[unresolved-import]
+
+from pipescaler.common.command_line_interface import (
     CommandLineInterface,
 )
-
-if TYPE_CHECKING:
-    from pathlib import Path
+from pipescaler.common.testing import run_cli_with_args
 
 
 class CliTestKwargs(TypedDict, total=False):
     """Keyword arguments for TestCli _main method."""
 
     pass
+
+
+class ArgsCaptureCliKwargs(TypedDict, total=False):
+    """Keyword arguments for ArgsCaptureCli _main method."""
+
+    name: str
+    """Name argument captured by the test CLI."""
+
+
+class ArgsCaptureCli(CommandLineInterface):
+    """Test CLI that captures parsed string arguments."""
+
+    captured: ClassVar[dict[str, str]] = {}
+    """Most recently captured keyword arguments."""
+
+    @classmethod
+    def add_arguments_to_argparser(cls, parser: ArgumentParser):
+        """Add arguments to a nascent argument parser.
+
+        Arguments:
+            parser: nascent argument parser
+        """
+        super().add_arguments_to_argparser(parser)
+        parser.add_argument("--name", type=str, required=True)
+
+    @classmethod
+    def _main(cls, **kwargs: Unpack[ArgsCaptureCliKwargs]):
+        """Execute test CLI."""
+        if (name := kwargs.get("name")) is not None:
+            cls.captured["name"] = name
 
 
 class TestCli(CommandLineInterface):
@@ -82,14 +112,16 @@ def test_description_no_docstring():
     """Test description() with no docstring."""
 
     class NoDocCli(CommandLineInterface):
-        """Class with a single-sentence docstring."""
+        """Placeholder class for testing behavior when `__doc__` is unset."""
+
+        __doc__ = None
 
         @classmethod
         def _main(cls, **kwargs: Unpack[CliTestKwargs]):
             """Execute test CLI."""
             pass
 
-    assert NoDocCli.description() == "Class with a single-sentence docstring."
+    assert NoDocCli.description() == ""
 
 
 def test_help():
@@ -153,8 +185,10 @@ def test_argparser_with_subparsers():
 
 def test_log_command_line():
     """Test log_command_line() logs the command line."""
-    with patch("common.command_line_interface.argv", ["script.py", "arg1", "arg2"]):
-        with patch("common.command_line_interface.logger.info") as mock_info:
+    with patch(
+        "pipescaler.common.command_line_interface.argv", ["script.py", "arg1", "arg2"]
+    ):
+        with patch("pipescaler.common.command_line_interface.logger.info") as mock_info:
             TestCli.log_command_line()
             mock_info.assert_called_once()
             call_args = mock_info.call_args[0][0]
@@ -209,3 +243,10 @@ def test_abstract_main():
     with pytest.raises(TypeError):
         # Cannot instantiate ABC without implementing abstract method
         CommandLineInterface()
+
+
+def test_run_cli_with_args_quoted_values():
+    """Test that run_cli_with_args preserves quoted arguments as single values."""
+    ArgsCaptureCli.captured.clear()
+    run_cli_with_args(ArgsCaptureCli, '--name "value with spaces"')
+    assert ArgsCaptureCli.captured.get("name") == "value with spaces"

@@ -6,12 +6,12 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from inspect import cleandoc
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from pipescaler.common import CommandLineInterface
+from pipescaler.core.utility import Utility
 
-if TYPE_CHECKING:
-    from pipescaler.core.utility import Utility
+__all__ = ["UtilityCli"]
 
 
 class UtilityCli(CommandLineInterface, ABC):

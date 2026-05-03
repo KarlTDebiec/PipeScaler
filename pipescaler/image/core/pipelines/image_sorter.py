@@ -10,6 +10,8 @@ from pipescaler.core.pipelines.sorter import Sorter
 
 from .pipe_image import PipeImage
 
+__all__ = ["ImageSorter"]
+
 
 class ImageSorter(Sorter[PipeImage], ABC):
     """Abstract base class for image sorters."""

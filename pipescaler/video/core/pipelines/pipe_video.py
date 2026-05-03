@@ -4,17 +4,17 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from logging import debug
-from typing import TYPE_CHECKING, Any, Self
+from pathlib import Path
+from typing import Any, Self
 
 import cv2
 
 from pipescaler.common.validation import val_output_path
 from pipescaler.core.pipelines.pipe_object import PipeObject
 
-if TYPE_CHECKING:
-    from collections.abc import Sequence
-    from pathlib import Path
+__all__ = ["PipeVideo"]
 
 
 class PipeVideo(PipeObject):

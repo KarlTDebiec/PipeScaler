@@ -1,12 +1,12 @@
-#!/usr/bin/env python
 #  Copyright 2020-2026 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Command-line interface for AlphaMerger."""
 
 from __future__ import annotations
 
+from argparse import ArgumentParser
 from logging import info
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from PIL import Image
 
@@ -14,8 +14,7 @@ from pipescaler.common.argument_parsing import input_file_arg, output_file_arg
 from pipescaler.image.core.cli import ImageMergerCli
 from pipescaler.image.operators.mergers import AlphaMerger
 
-if TYPE_CHECKING:
-    from argparse import ArgumentParser
+__all__ = ["AlphaMergerCli"]
 
 
 class AlphaMergerCli(ImageMergerCli):

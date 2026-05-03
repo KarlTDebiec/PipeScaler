@@ -2,6 +2,8 @@
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Tests for SolidColorProcessor."""
 
+from __future__ import annotations
+
 import pytest
 from PIL import Image
 
@@ -17,7 +19,7 @@ from pipescaler.testing.fixture import parametrized_fixture
         {},
     ],
 )
-def processor(request) -> SolidColorProcessor:
+def processor(request: pytest.FixtureRequest) -> SolidColorProcessor:
     """Pytest fixture that provides a SolidColorProcessor instance.
 
     Arguments:

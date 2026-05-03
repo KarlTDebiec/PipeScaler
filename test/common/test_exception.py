@@ -5,7 +5,8 @@
 from __future__ import annotations
 
 import pytest
-from common.exception import (  # ty:ignore[unresolved-import]
+
+from pipescaler.common.exception import (
     ArgumentConflictError,
     DirectoryExistsError,
     DirectoryNotFoundError,

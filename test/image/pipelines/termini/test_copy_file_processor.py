@@ -2,6 +2,8 @@
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Tests for CopyImageTerminus."""
 
+from __future__ import annotations
+
 from tempfile import TemporaryDirectory
 
 from pipescaler.image.core.pipelines import PipeImage

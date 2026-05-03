@@ -11,6 +11,8 @@ import numpy as np
 
 from pipescaler.video.core.pipelines import PipeVideo, VideoSorter
 
+__all__ = ["VideoAspectRatioSorter"]
+
 
 class VideoAspectRatioSorter(VideoSorter):
     """Sorts video based on aspect ratio."""
@@ -24,25 +26,25 @@ class VideoAspectRatioSorter(VideoSorter):
         """
         self._outlets = {k: str(v) for k, v in outlets.items()}
 
-    def __call__(self, pipe_object: PipeVideo) -> str | None:
+    def __call__(self, obj: PipeVideo) -> str | None:
         """Get the outlet to which a video should be sorted.
 
         Arguments:
-            pipe_object: Video to sort
+            obj: Video to sort
         Returns:
             Outlet to which video should be sorted.
         """
         outlet = None
-        width = pipe_object.video.get(cv2.CAP_PROP_FRAME_WIDTH)
-        height = pipe_object.video.get(cv2.CAP_PROP_FRAME_HEIGHT)
+        width = obj.video.get(cv2.CAP_PROP_FRAME_WIDTH)
+        height = obj.video.get(cv2.CAP_PROP_FRAME_HEIGHT)
         for outlet_name, aspect_ratio in self._outlets.items():
             precision = len(aspect_ratio.split(".")[1])
             if str(np.round(width / height, precision)) == aspect_ratio:
                 outlet = outlet_name
         if outlet:
-            info(f"{self}: '{pipe_object.location_name}' matches '{outlet}'")
+            info(f"{self}: '{obj.location_name}' matches '{outlet}'")
         else:
-            info(f"{self}: '{pipe_object.location_name}' does not match any outlet")
+            info(f"{self}: '{obj.location_name}' does not match any outlet")
         return outlet
 
     def __repr__(self) -> str:

@@ -9,6 +9,4 @@ from __future__ import annotations
 
 from .pipescaler_cli import PipeScalerCli
 
-__all__ = [
-    "PipeScalerCli",
-]
+__all__ = ["PipeScalerCli"]

@@ -5,13 +5,12 @@
 from __future__ import annotations
 
 from logging import info
-from typing import TYPE_CHECKING
 
 from pipescaler.common.validation import val_int
 from pipescaler.core.pipelines import Sorter
+from pipescaler.image.core.pipelines import PipeImage
 
-if TYPE_CHECKING:
-    from pipescaler.image.core.pipelines import PipeImage
+__all__ = ["SizeSorter"]
 
 
 class SizeSorter(Sorter):

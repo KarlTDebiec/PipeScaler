@@ -5,10 +5,10 @@
 This module may import from: common
 
 Hierarchy within module:
-* exceptions / typing / pipe_object
-* source / terminus / segment / sorter
-* checkpoint_manager_base / checkpointed_segment
-* directory_source / directory_terminus
+* exceptions / pipe_object
+* checkpoint_manager_base / segment / sorter / source / terminus
+* directory_source / directory_terminus / typing
+* checkpointed_segment
 """
 
 from __future__ import annotations

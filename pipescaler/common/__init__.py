@@ -2,11 +2,12 @@
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """General-purpose code not tied to a particular project.
 
-This module may import from: standard library only
+This module should not import from other modules outside the standard library.
 
 Hierarchy within module:
-* exception
-* command_line_interface
+* csv / exception / file / logs / subprocess
+* command_line_interface / validation
+* argument_parsing / testing
 """
 
 from __future__ import annotations

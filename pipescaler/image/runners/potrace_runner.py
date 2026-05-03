@@ -4,7 +4,11 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from pipescaler.core import Runner
+
+__all__ = ["PotraceRunner"]
 
 
 class PotraceRunner(Runner):
@@ -13,7 +17,7 @@ class PotraceRunner(Runner):
     See [Potrace](http://potrace.sourceforge.net/).
     """
 
-    def __init__(self, arguments: str = "-b svg -k 0.3 -a 1.34 -O 0.2", **kwargs):
+    def __init__(self, arguments: str = "-b svg -k 0.3 -a 1.34 -O 0.2", **kwargs: Any):
         """Initialize.
 
         Arguments:

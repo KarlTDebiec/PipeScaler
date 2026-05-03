@@ -2,9 +2,7 @@
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """PipeScaler image utility command-line interfaces package.
 
-This module may import from: common, core, image.core, image.utilities, image.analytics
+This module may import from: common, core, image.core, image.utilities
 """
 
 from __future__ import annotations
-
-__all__: list[str] = []

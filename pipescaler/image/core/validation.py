@@ -4,15 +4,17 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from collections.abc import Collection
+
+from PIL import Image
 
 from .exceptions import UnsupportedImageModeError
 from .functions import remove_palette
 
-if TYPE_CHECKING:
-    from collections.abc import Collection
-
-    from PIL import Image
+__all__ = [
+    "validate_image",
+    "validate_image_and_convert_mode",
+]
 
 
 def validate_image(

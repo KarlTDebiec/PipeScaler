@@ -5,9 +5,11 @@
 This module may import from: common, core, image
 
 Hierarchy within module:
-* enums / exceptions
-* image_operator
-* operators / pipelines / cli / analytics
+* enums / exceptions / numba / sorting / typing
+* functions / image_operator
+* pipelines / validation
+* operators
+* cli
 """
 
 from __future__ import annotations

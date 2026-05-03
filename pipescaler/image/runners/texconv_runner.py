@@ -7,9 +7,13 @@ from __future__ import annotations
 from logging import debug
 from os import rename
 from pathlib import Path
+from shlex import split
+from typing import Any
 
 from pipescaler.common.subprocess import run_command
 from pipescaler.core import Runner
+
+__all__ = ["TexconvRunner"]
 
 
 class TexconvRunner(Runner):
@@ -18,7 +22,11 @@ class TexconvRunner(Runner):
     See [Texconv](https://github.com/Microsoft/DirectXTex/wiki/Texconv).
     """
 
-    def __init__(self, arguments: str = "-y -sepalpha -ft DDS -f BC7_UNORM", **kwargs):
+    def __init__(
+        self,
+        arguments: str = "-y -sepalpha -ft DDS -f BC7_UNORM",
+        **kwargs: Any,
+    ):
         """Initialize.
 
         Arguments:
@@ -56,7 +64,7 @@ class TexconvRunner(Runner):
             input_path=input_path, output_path=output_path
         )
         debug(f"{self}: {command}")
-        run_command(command, timeout=self.timeout)
+        run_command(split(command), timeout=self.timeout)
         rename(Path(output_path).with_stem(Path(input_path).stem), output_path)
 
     @classmethod

@@ -1,19 +1,18 @@
-#!/usr/bin/env python
 #  Copyright 2020-2026 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Command-line interface for PipeScaler ImageSplitters."""
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from argparse import ArgumentParser
+from typing import Any
 
 from pipescaler.common import CommandLineInterface
 from pipescaler.image.core.cli import ImageSplitterCli
 
 from . import splitters
 
-if TYPE_CHECKING:
-    from argparse import ArgumentParser
+__all__ = ["ImageSplittersCli"]
 
 
 class ImageSplittersCli(CommandLineInterface):
@@ -63,7 +62,9 @@ class ImageSplittersCli(CommandLineInterface):
         """Names and types of splitters wrapped by command-line interface."""
         return {
             splitter.name(): splitter
-            for splitter in map(splitters.__dict__.get, splitters.__all__)
+            for splitter in map(
+                splitters.__dict__.get, getattr(splitters, "__all__", ())
+            )
             if isinstance(splitter, type) and issubclass(splitter, ImageSplitterCli)
         }
 

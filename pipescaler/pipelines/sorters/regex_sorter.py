@@ -10,6 +10,8 @@ from logging import info
 from pipescaler.core.pipelines import PipeObject
 from pipescaler.core.pipelines.sorter import Sorter
 
+__all__ = ["RegexSorter"]
+
 
 class RegexSorter(Sorter[PipeObject]):
     """Sorts image based on name using a regular expression."""

@@ -1,19 +1,18 @@
-#!/usr/bin/env python
 #  Copyright 2020-2026 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Command-line interface for PipeScaler ImageProcessors."""
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from argparse import ArgumentParser
+from typing import Any
 
 from pipescaler.common import CommandLineInterface
 from pipescaler.image.core.cli import ImageProcessorCli
 
 from . import processors
 
-if TYPE_CHECKING:
-    from argparse import ArgumentParser
+__all__ = ["ImageProcessorsCli"]
 
 
 class ImageProcessorsCli(CommandLineInterface):
@@ -63,7 +62,9 @@ class ImageProcessorsCli(CommandLineInterface):
         """Names and types of processors wrapped by command-line interface."""
         return {
             processor.name(): processor
-            for processor in map(processors.__dict__.get, processors.__all__)
+            for processor in map(
+                processors.__dict__.get, getattr(processors, "__all__", ())
+            )
             if isinstance(processor, type) and issubclass(processor, ImageProcessorCli)
         }
 

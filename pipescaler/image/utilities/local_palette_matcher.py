@@ -14,12 +14,14 @@ from pipescaler.core import Utility
 from pipescaler.image.core.exceptions import UnsupportedImageModeError
 from pipescaler.image.core.numba import get_perceptually_weighted_distance
 
+__all__ = ["LocalPaletteMatcher"]
+
 
 class LocalPaletteMatcher(Utility):
     """Matches the palette of one image to another, restricted to nearby colors."""
 
     @classmethod
-    def run(
+    def run(  # ty: ignore[invalid-method-override]
         cls, ref_img: Image.Image, fit_img: Image.Image, local_range: int = 1
     ) -> Image.Image:
         """Match the palette of an image to a reference.

@@ -4,16 +4,14 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from logging import info
 from pathlib import Path
-from typing import TYPE_CHECKING
 
+from pipescaler.core.pipelines import PipeObject
 from pipescaler.core.pipelines.sorter import Sorter
 
-if TYPE_CHECKING:
-    from collections.abc import Iterable
-
-    from pipescaler.core.pipelines import PipeObject
+__all__ = ["ListSorter"]
 
 
 class ListSorter(Sorter):
@@ -22,21 +20,21 @@ class ListSorter(Sorter):
     exclusions = {".DS_Store", "Thumbs", "desktop"}
     """File stems to exclude"""
 
-    def __init__(self, **outlets: Path | str | list[Path | str]):
+    def __init__(self, **outlet_paths_by_name: Path | str | list[Path | str]):
         """Validate configuration and initialize.
 
         Arguments:
-            **outlets: Outlets to which images may be sorted; keys are outlet names
-              and values are paths to directories or text files; if path is to a
-              directory, images with names matching the files within that directory will
-              be sorted to that outlet; if path is to a text file, images with names
-              matching a line in the file will be sorted to that outlet
+            **outlet_paths_by_name: Outlets to which images may be sorted; keys are
+              outlet names and values are paths to directories or text files; if path is
+              to a directory, images with names matching the files within that directory
+              will be sorted to that outlet; if path is to a text file, images with
+              names matching a line in the file will be sorted to that outlet
         """
-        self._outlets = tuple(sorted(outlets.keys()))
+        self._outlets = tuple(sorted(outlet_paths_by_name.keys()))
         self._input_paths_by_outlet: dict[str, list[str]] = {}
         self.outlets_by_filename = {}
 
-        for outlet, configured_paths in outlets.items():
+        for outlet, configured_paths in outlet_paths_by_name.items():
             path_values = configured_paths
             if not isinstance(path_values, list):
                 path_values = [path_values]

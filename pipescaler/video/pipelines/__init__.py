@@ -5,7 +5,7 @@
 This module may import from: common, core, pipelines, video.core
 
 Hierarchy within module:
-* sources / sorters / termini
+* sorters / sources / termini
 """
 
 from __future__ import annotations

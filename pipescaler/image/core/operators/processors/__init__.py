@@ -14,6 +14,4 @@ from .pytorch_image_processor import (
     PyTorchImageProcessor,
 )
 
-__all__ = [
-    "PyTorchImageProcessor",
-]
+__all__ = ["PyTorchImageProcessor"]

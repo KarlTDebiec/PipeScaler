@@ -4,17 +4,15 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from PIL import Image
 
 from pipescaler.common.validation import val_int
 from pipescaler.image.core.functions import crop_image
 from pipescaler.image.core.operators import ImageProcessor
+from pipescaler.image.core.typing import ImageMode
 from pipescaler.image.core.validation import validate_image
 
-if TYPE_CHECKING:
-    from PIL import Image
-
-    from pipescaler.image.core.typing import ImageMode
+__all__ = ["CropProcessor"]
 
 
 class CropProcessor(ImageProcessor):

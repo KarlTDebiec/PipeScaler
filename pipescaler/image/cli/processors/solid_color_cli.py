@@ -1,18 +1,16 @@
-#!/usr/bin/env python
 #  Copyright 2020-2026 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Command-line interface for SolidColorProcessor."""
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from argparse import ArgumentParser
 
 from pipescaler.common.argument_parsing import float_arg, get_arg_groups_by_name
 from pipescaler.image.core.cli import ImageProcessorCli
 from pipescaler.image.operators.processors import SolidColorProcessor
 
-if TYPE_CHECKING:
-    from argparse import ArgumentParser
+__all__ = ["SolidColorCli"]
 
 
 class SolidColorCli(ImageProcessorCli):

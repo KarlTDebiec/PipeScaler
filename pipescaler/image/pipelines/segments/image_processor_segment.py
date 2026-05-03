@@ -9,6 +9,8 @@ from logging import info
 from pipescaler.image.core.operators import ImageProcessor
 from pipescaler.image.core.pipelines import ImageOperatorSegment, PipeImage
 
+__all__ = ["ImageProcessorSegment"]
+
 
 class ImageProcessorSegment(ImageOperatorSegment[ImageProcessor]):
     """Segment that applies an ImageProcessor."""

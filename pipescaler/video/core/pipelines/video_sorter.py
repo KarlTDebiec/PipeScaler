@@ -10,6 +10,8 @@ from pipescaler.core.pipelines.sorter import Sorter
 
 from .pipe_video import PipeVideo
 
+__all__ = ["VideoSorter"]
+
 
 class VideoSorter(Sorter[PipeVideo], ABC):
     """Abstract base class for video sorters."""

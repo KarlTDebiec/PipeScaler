@@ -9,6 +9,8 @@ from pathlib import Path
 from pipescaler.core.pipelines import DirectorySource
 from pipescaler.video.core.pipelines import PipeVideo
 
+__all__ = ["VideoDirectorySource"]
+
 
 class VideoDirectorySource(DirectorySource):
     """Yields videos from a directory."""
@@ -21,5 +23,5 @@ class VideoDirectorySource(DirectorySource):
             relative_path: Path | None = file_path.parent.relative_to(self.dir_path)
             if relative_path == Path("../../sources/video"):
                 relative_path = None
-            return PipeVideo(path=file_path, location=relative_path)
+            return PipeVideo(path=file_path, location_path=relative_path)
         raise StopIteration

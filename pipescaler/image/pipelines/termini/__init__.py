@@ -14,6 +14,4 @@ from .image_directory_terminus import (
     ImageDirectoryTerminus,
 )
 
-__all__ = [
-    "ImageDirectoryTerminus",
-]
+__all__ = ["ImageDirectoryTerminus"]

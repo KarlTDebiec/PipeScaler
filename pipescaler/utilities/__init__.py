@@ -6,6 +6,7 @@ This module may import from: common, core
 
 Hierarchy within module:
 * file_scanner
+* citra_file_scanner
 """
 
 from __future__ import annotations

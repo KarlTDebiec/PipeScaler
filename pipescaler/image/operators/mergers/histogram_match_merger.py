@@ -4,18 +4,16 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 import numpy as np
 from PIL import Image
 from skimage.exposure import match_histograms
 
 from pipescaler.image.core import UnsupportedImageModeError
 from pipescaler.image.core.operators import ImageMerger
+from pipescaler.image.core.typing import ImageMode
 from pipescaler.image.core.validation import validate_image
 
-if TYPE_CHECKING:
-    from pipescaler.image.core.typing import ImageMode
+__all__ = ["HistogramMatchMerger"]
 
 
 class HistogramMatchMerger(ImageMerger):

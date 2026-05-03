@@ -5,12 +5,12 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
+
+from PIL import Image
 
 from pipescaler.image.core.image_operator import ImageOperator
 
-if TYPE_CHECKING:
-    from PIL import Image
+__all__ = ["ImageSplitter"]
 
 
 class ImageSplitter(ImageOperator, ABC):

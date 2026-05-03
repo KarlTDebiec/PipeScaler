@@ -2,6 +2,8 @@
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Tests of ImageDirectorySource."""
 
+from __future__ import annotations
+
 from pytest import mark
 
 from pipescaler.core.pipelines import Source

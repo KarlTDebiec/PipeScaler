@@ -4,8 +4,10 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from logging import debug
-from typing import TYPE_CHECKING, Any, Self
+from pathlib import Path
+from typing import Any, Self
 
 from PIL import Image
 
@@ -13,9 +15,7 @@ from pipescaler.common.validation import val_output_path
 from pipescaler.core.pipelines import PipeObject
 from pipescaler.image.core.functions import remove_palette
 
-if TYPE_CHECKING:
-    from collections.abc import Sequence
-    from pathlib import Path
+__all__ = ["PipeImage"]
 
 
 class PipeImage(PipeObject):

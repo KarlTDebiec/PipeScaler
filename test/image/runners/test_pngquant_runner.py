@@ -23,7 +23,7 @@ from pipescaler.testing.mark import xfail_if_platform
         {},
     ],
 )
-def runner(request) -> PngquantRunner:
+def runner(request: pytest.FixtureRequest) -> PngquantRunner:
     """Pytest fixture that provides a PngquantRunner instance.
 
     Arguments:

@@ -8,9 +8,12 @@ from abc import ABC, abstractmethod
 from inspect import cleandoc
 from logging import debug
 from pathlib import Path
+from shlex import split
 
 from pipescaler.common.subprocess import run_command
 from pipescaler.common.validation import val_executable, val_int
+
+__all__ = ["Runner"]
 
 
 class Runner(ABC):
@@ -69,7 +72,7 @@ class Runner(ABC):
             input_path=input_path, output_path=output_path
         )
         debug(f"{self}: {command}")
-        run_command(command, timeout=self.timeout)
+        run_command(split(command), timeout=self.timeout)
 
     @classmethod
     def help_markdown(cls) -> str:

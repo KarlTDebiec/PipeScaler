@@ -9,5 +9,7 @@ from pathlib import Path
 
 from .runner import Runner
 
+__all__ = ["RunnerLike"]
+
 RunnerLike = Runner | Callable[[Path, Path], None]
 """Type alias for a Runner or a callable with the same call signature."""

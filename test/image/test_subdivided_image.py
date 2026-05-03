@@ -2,6 +2,8 @@
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Tests for SubdividedImage."""
 
+from __future__ import annotations
+
 import pytest
 from PIL import Image
 
@@ -12,6 +14,7 @@ from pipescaler.image.operators.processors import (
     XbrzProcessor,
 )
 from pipescaler.testing.file import get_test_input_path
+from pipescaler.testing.mark import xfail_if_platform
 
 
 @pytest.fixture
@@ -37,11 +40,18 @@ def potrace_processor() -> PotraceProcessor:
 @pytest.mark.parametrize(
     ("processor_name", "input_filename", "scale"),
     [
-        ("potrace_processor", "L", 10),
+        xfail_if_platform({"Windows"}, raises=FileNotFoundError)(
+            "potrace_processor", "L", 10
+        ),
         ("xbrz_processor", "RGB", 6),
     ],
 )
-def test_subdivider(processor_name: str, input_filename: str, scale: int, request):
+def test_subdivider(
+    processor_name: str,
+    input_filename: str,
+    scale: int,
+    request: pytest.FixtureRequest,
+):
     """Test SubdividedImage processing images in subdivisions.
 
     Arguments:
