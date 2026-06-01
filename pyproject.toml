@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "numba>=0.65.1",
-    "numpy>=2.2.6",
+    "numpy>=2.4.6",
     "opencv-python>=4.11.0.86",
     "Pillow>=12.1.0",
     "reportlab>=4.5.1",
@@ -31,8 +31,8 @@ dev = [
     "pytest>=8.4.0",
     "pytest-cov>=6.1.1",
     "pytest-xdist>=3.7.0",
-    "ruff>=0.15.12",
-    "ty>=0.0.35",
+    "ruff>=0.15.14",
+    "ty>=0.0.41",
     "types-Pillow>=10.2.0.20240822",
 ]
 
