@@ -18,7 +18,7 @@ dependencies = [
     "scikit-image>=0.25.2",
     "scipy>=1.15.3",
     "spandrel>=0.4.1",
-    "svglib>=1.5.1",
+    "svglib>=2.0.1",
     "torch>=2.12.0",
     "xbrz.py @ git+https://github.com/ioistired/xbrz.py",
 ]
