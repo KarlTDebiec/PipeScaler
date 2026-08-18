@@ -50,21 +50,6 @@ class FileScanner(Utility):
         """
         super().__init__()
 
-        def get_names(dir_paths: Path | Sequence[Path]) -> set[str]:
-            """Get names of files in directories.
-
-            Arguments:
-                dir_paths: Directory or directories of input files
-            Returns:
-                Set of file names
-            """
-            if isinstance(dir_paths, Path):
-                dir_paths = [dir_paths]
-            files = chain.from_iterable(d.iterdir() for d in dir_paths)
-            names = {f.stem for f in files}
-
-            return names
-
         # Validate input and output directory and file paths
         validated_input_dir_path = val_input_dir_path(input_dir_path)
         if isinstance(validated_input_dir_path, Path):
@@ -84,22 +69,18 @@ class FileScanner(Utility):
 
         self.reviewed_dir_path = None
         """Directories of files that have been reviewed."""
-        if review_dir_path:
-            try:
-                self.reviewed_dir_path = val_input_dir_path(review_dir_path)
-            except DirectoryNotFoundError:
-                self.reviewed_dir_path = []
+        self.reviewed_dir_path = self._get_reviewed_dir_path(review_dir_path)
 
         # Prepare filename data structures
         self.reviewed_names: set[str] = set()
         """Names of images that have been reviewed."""
         if self.reviewed_dir_path:
-            self.reviewed_names = get_names(self.reviewed_dir_path)
+            self.reviewed_names = self._get_names(self.reviewed_dir_path)
 
         self.ignored_names: set[str] = set()
         """Names of images to ignore."""
         if self.ignore_dir_path.exists():
-            self.ignored_names = get_names(self.ignore_dir_path)
+            self.ignored_names = self._get_names(self.ignore_dir_path)
 
         # Prepare rules
         self.rules = None
@@ -279,3 +260,46 @@ class FileScanner(Utility):
     def run(cls, **kwargs: Any):
         """Run file scanner utility."""
         cls(**kwargs)()
+
+    @classmethod
+    def _get_names(cls, dir_paths: Path | Sequence[Path]) -> set[str]:
+        """Get names of files in directories.
+
+        Arguments:
+            dir_paths: Directory or directories of input files
+        Returns:
+            Set of file names
+        """
+        if isinstance(dir_paths, Path):
+            dir_paths = [dir_paths]
+        files = chain.from_iterable(d.iterdir() for d in dir_paths)
+        return {f.stem for f in files}
+
+    @classmethod
+    def _get_reviewed_dir_path(
+        cls, review_dir_path: Path | str | list[Path | str] | None
+    ) -> Path | list[Path] | None:
+        """Validate reviewed directory paths, ignoring missing directories.
+
+        Arguments:
+            review_dir_path: Directory or directories of reviewed files
+        Returns:
+            Valid reviewed directory path or paths
+        """
+        if not review_dir_path:
+            return None
+
+        if isinstance(review_dir_path, Path | str):
+            try:
+                return val_input_dir_path(review_dir_path)
+            except DirectoryNotFoundError:
+                return []
+
+        reviewed_dir_paths = []
+        for dir_path in review_dir_path:
+            try:
+                reviewed_dir_paths.append(val_input_dir_path(dir_path))
+            except DirectoryNotFoundError:
+                continue
+
+        return reviewed_dir_paths
