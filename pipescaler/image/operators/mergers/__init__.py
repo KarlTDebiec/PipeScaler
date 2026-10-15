@@ -11,6 +11,7 @@ Hierarchy within module:
 from __future__ import annotations
 
 from .alpha_merger import AlphaMerger
+from .diff_merger import DiffMerger
 from .histogram_match_merger import (
     HistogramMatchMerger,
 )
@@ -19,6 +20,7 @@ from .palette_match_merger import PaletteMatchMerger
 
 __all__ = [
     "AlphaMerger",
+    "DiffMerger",
     "HistogramMatchMerger",
     "NormalMerger",
     "PaletteMatchMerger",
