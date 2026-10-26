@@ -5,7 +5,8 @@
 This module may import from: common, core.pipelines, image.core.pipelines
 
 Hierarchy within module:
-* alpha_sorter / grayscale_sorter / mode_sorter / monochrome_sorter / size_sorter / solid_color_sorter
+* alpha_sorter / grayscale_sorter / mode_sorter / monochrome_sorter / size_sorter /
+  solid_color_sorter
 """
 
 from __future__ import annotations
