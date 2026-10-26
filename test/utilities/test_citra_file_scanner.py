@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
 from PIL import Image
 
 from pipescaler.common.file import get_temp_directory_path
@@ -37,6 +38,29 @@ def test_removes_legacy_file_when_mip_variant_exists():
         assert not (input_dir_path / "tex1_16x16_HASH_12.png").exists()
         assert (project_root_path / "new" / "tex1_16x16_HASH_12.png").exists()
         assert not (project_root_path / "new" / "tex1_16x16_HASH_12_mip0.png").exists()
+
+
+def test_explicit_remove_rule_removes_legacy_and_nonzero_mips(tmp_path: Path):
+    """Retain explicit family removal when no mip0 source exists.
+
+    Arguments:
+        tmp_path: temporary test directory
+    """
+    input_dir_path = tmp_path / "input"
+    project_root_path = tmp_path / "project"
+    input_dir_path.mkdir()
+    project_root_path.mkdir()
+    legacy_path = input_dir_path / "texture.png"
+    mip1_path = input_dir_path / "texture_mip1.png"
+    write_png(legacy_path)
+    write_png(mip1_path)
+
+    CitraFileScanner(
+        input_dir_path, project_root_path, None, rules=[("^texture$", "remove")]
+    )()
+
+    assert not legacy_path.exists()
+    assert not mip1_path.exists()
 
 
 def test_ignores_nonzero_mip_files():
@@ -244,3 +268,48 @@ def test_cleanup_updates_mip_coexistence_snapshot_before_operations():
 
         assert (project_root_path / "new" / "tex1_16x16_HASH_12.png").exists()
         assert (input_dir_path / "tex1_16x16_HASH_12.png").exists()
+
+
+@pytest.mark.parametrize("remove_prefix", [None, "pre_"])
+@pytest.mark.parametrize("separate_mip_directory", [False, True])
+def test_repeated_legacy_cleanup_preserves_mip_sources(
+    tmp_path: Path, remove_prefix: str | None, separate_mip_directory: bool
+):
+    """Preserve mip sources and regenerate copied output on successive scans.
+
+    Arguments:
+        tmp_path: temporary test directory
+        remove_prefix: optional prefix stripped from output names
+        separate_mip_directory: whether mip files occupy another input directory
+    """
+    input_dir_path = tmp_path / "input"
+    project_root_path = tmp_path / "project"
+    input_dir_path.mkdir()
+    project_root_path.mkdir()
+    input_dir_paths = [input_dir_path]
+    mip_dir_path = input_dir_path
+    if separate_mip_directory:
+        mip_dir_path = tmp_path / "mips"
+        mip_dir_path.mkdir()
+        input_dir_paths.append(mip_dir_path)
+
+    source_name = f"{remove_prefix or ''}texture"
+    legacy_path = input_dir_path / f"{source_name}.png"
+    mip0_path = mip_dir_path / f"{source_name}_mip0.png"
+    mip1_path = mip_dir_path / f"{source_name}_mip1.png"
+    Image.new("RGB", (2, 2), "red").save(legacy_path)
+    Image.new("RGB", (2, 2), "blue").save(mip0_path)
+    Image.new("RGB", (1, 1), "green").save(mip1_path)
+    mip0_bytes = mip0_path.read_bytes()
+    mip1_bytes = mip1_path.read_bytes()
+    scanner = CitraFileScanner(
+        input_dir_paths, project_root_path, None, remove_prefix=remove_prefix
+    )
+
+    for _ in range(2):
+        scanner()
+
+        assert not legacy_path.exists()
+        assert mip0_path.read_bytes() == mip0_bytes
+        assert mip1_path.read_bytes() == mip1_bytes
+        assert (project_root_path / "new" / "texture.png").read_bytes() == mip0_bytes

@@ -43,6 +43,9 @@ class CitraFileScanner(FileScanner):
     def get_operation(self, name: str) -> str:
         """Select operation for filename.
 
+        Automatic legacy cleanup removes only the superseded file. An explicit
+        remove rule retains the broader texture-family removal behavior.
+
         Arguments:
             name: name of file
         Returns:
@@ -51,13 +54,18 @@ class CitraFileScanner(FileScanner):
         mip_match = self._mip_regex.match(name)
 
         if mip_match is None:
+            operation = super().get_operation(name)
+            if operation == "remove":
+                return operation
             normalized_name = self.get_normalized_name(name)
-            if any(
-                self.get_normalized_name(mip_name).startswith(f"{normalized_name}_mip")
-                for mip_name in self.input_names
-            ):
-                return "remove"
-            return super().get_operation(name)
+            for input_name in self.input_names:
+                input_match = self._mip_regex.match(input_name)
+                if input_match and (
+                    self.get_normalized_name(input_match.group("base"))
+                    == normalized_name
+                ):
+                    return "remove_legacy"
+            return operation
 
         mip_level = int(mip_match.group("level"))
         base_name = mip_match.group("base")
@@ -123,6 +131,10 @@ class CitraFileScanner(FileScanner):
         if mip_match is not None and int(mip_match.group("level")) > 0:
             self.remove_reviewed_paths_for_mip(file_path)
             debug(f"'{file_path.stem}' ignored")
+            return
+
+        if self.get_operation(file_path.stem) == "remove_legacy":
+            super().remove(file_path)
             return
 
         super().perform_operation(file_path)
