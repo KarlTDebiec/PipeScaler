@@ -93,6 +93,7 @@ class PipeImage(PipeObject):
             value: new value to assign
         """
         self._image = value
+        self.path = None
 
     def save(self, path: Path | str):
         """Save image to file, replacing an existing file, and set path.

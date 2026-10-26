@@ -62,3 +62,31 @@ def test_preserves_dotted_names(tmp_path: Path, file_backed: bool):
         with Image.open(output_dir_path / f"{name}.png") as output_image:
             assert output_image.size == (2, 3)
             assert output_image.tobytes() == Image.new("RGB", (2, 3), color).tobytes()
+
+
+def test_modified_file_backed_image_is_saved_from_pixels(tmp_path: Path):
+    """Save replacement pixels while preserving source, identity, and lineage.
+
+    Arguments:
+        tmp_path: temporary test directory
+    """
+    source_path = tmp_path / "source.png"
+    original = Image.new("RGB", (2, 2), "red")
+    original.save(source_path)
+    parent = PipeImage(path=source_path, location_path=Path("nested"))
+    image = parent.image.copy()
+    image.paste("blue", (0, 0, 2, 2))
+    parent.image = image
+
+    terminus = ImageDirectoryTerminus(tmp_path / "output")
+    terminus(parent)
+
+    output_path = tmp_path / "output" / "nested" / "source.png"
+    with Image.open(output_path) as output_image:
+        assert output_image.getpixel((0, 0)) == (0, 0, 255)
+    with Image.open(source_path) as source_image:
+        assert source_image.getpixel((0, 0)) == (255, 0, 0)
+    assert parent.path is None
+    assert parent.name == "source"
+    assert parent.location == Path("nested")
+    assert parent.parents is None
