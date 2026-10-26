@@ -7,7 +7,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Self, cast
+from typing import Self
 
 from pipescaler.common.validation import val_input_path
 
@@ -46,7 +46,7 @@ class PipeObject(ABC):
             elif isinstance(parents, Sequence) and all(
                 isinstance(p, self.__class__) for p in parents
             ):
-                self._parents = cast("list[Self]", list(parents))
+                self._parents = list(parents)
             else:
                 raise TypeError(
                     f"{self.__class__.__name__}'s parents must be a list of "
