@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 
-from itertools import product
 from typing import no_type_check
 
 import numpy as np
@@ -36,7 +35,6 @@ class PaletteMatcher(Utility):
             from ref_palette that are most similar to fit_palette
         """
         ref_palette_set = {tuple(color) for color in ref_palette}
-        ref_palette_by_cell = cls.get_palette_by_cell(ref_palette)
 
         best_fit_palette = np.zeros_like(fit_palette)
         for i, color in enumerate(fit_palette):
@@ -46,51 +44,11 @@ class PaletteMatcher(Utility):
                 continue
 
             # If color is not available in reference palette, find the closest match
-            best_fit_palette[i] = cls.get_best_fit_color_by_cell(
-                color, ref_palette_by_cell
+            _, best_fit_palette[i] = cls.get_best_fit_color_in_palette(
+                color, ref_palette
             )
 
         return best_fit_palette
-
-    @classmethod
-    def get_best_fit_color_by_cell(
-        cls,
-        color: np.ndarray,
-        ref_palette_by_cell: dict[tuple[int, int, int], np.ndarray],
-    ) -> np.ndarray | None:
-        """Get best fit color drawn from a palette, searching within nearby cells.
-
-        Arguments:
-            color: Color to find best match of
-            ref_palette_by_cell: Palette to draw from, divided into cells
-        Returns:
-            Color in palette most similar to provided color
-        """
-        # Prepare set of cells to check
-        cell = tuple(int(c) // 16 for c in color)
-        cell_range = 0
-        cells_to_check: set[tuple[int, int, int]] = set()
-        while len(cells_to_check) == 0:
-            cell_range += 1
-            cell_ranges = [
-                range(max(0, cell[i] - cell_range), min(15, cell[i] + cell_range) + 1)
-                for i in range(3)
-            ]
-            cells_to_check = set(product(*cell_ranges))  # type: ignore
-            cells_to_check = cells_to_check.intersection(ref_palette_by_cell)
-
-        # Search cells for best match color
-        best_dist = None
-        best_color = None
-        for cell_to_check in cells_to_check:
-            best_dist_in_cell, best_color_in_cell = cls.get_best_fit_color_in_palette(
-                color, ref_palette_by_cell[cell_to_check]
-            )
-            if best_dist is None or best_dist_in_cell < best_dist:
-                best_dist = best_dist_in_cell
-                best_color = best_color_in_cell
-
-        return best_color
 
     @classmethod
     def run(  # ty: ignore[invalid-method-override]
@@ -182,43 +140,6 @@ class PaletteMatcher(Utility):
                 indexed_arr[i, j] = color_to_index[tuple(rgb_arr[i, j])]
 
         return indexed_arr
-
-    @staticmethod
-    def get_palette_by_cell(
-        palette: np.ndarray,
-    ) -> dict[tuple[int, int, int], np.ndarray]:
-        """Reorganize palette into 16x16x16 cells within the 256x256x256 rgb space.
-
-        For example, the key (1, 2, 3) would contain an rgb_arr of colors whose red
-        channel is between 16 and 31, whose blue channel is between 32 and 47, and whose
-        green channel is between 48 and 63. The red, blue, and green dimensions each
-        range between 0 and 15, yielding up to 4,096 keys. Keys whose corresponding
-        cell_to_check does not have any colors in the palette are excluded from the
-        dict.
-
-        The resulting output dict narrows down the search for the color in a palette
-        most similar to a specific provided color.
-
-        Arguments:
-            palette: Complete palette
-        Returns:
-            dict whose keys are a tuple of cell_to_check coordinates in the red, green
-            and blue dimensions, and whose values are an rgb_arr of palette colors
-            each cell contains
-        """
-        palette_by_cell_list: dict[tuple[int, int, int], list[int]] = {}
-
-        for color in palette:
-            cell = (color[0] // 16, color[1] // 16, color[2] // 16)
-            if cell not in palette_by_cell_list:
-                palette_by_cell_list[cell] = []
-            palette_by_cell_list[cell].append(color)
-
-        palette_by_cell_arr: dict[tuple[int, int, int], np.ndarray] = {}
-        for cell, cell_palette in palette_by_cell_list.items():
-            palette_by_cell_arr[cell] = np.array(cell_palette)
-
-        return palette_by_cell_arr
 
     @staticmethod
     def get_rgb_array_from_indexed_array(
