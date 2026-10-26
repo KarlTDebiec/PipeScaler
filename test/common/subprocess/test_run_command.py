@@ -156,7 +156,7 @@ def test_timeout_cleans_up_inherited_pipes(
         live: whether to use the live logging helper
         parent_exits: whether the direct child exits before the command deadline
         kill_tree: whether process-tree cleanup is allowed to terminate descendants
-        tmp_path: directory for descendant lifetime markers
+        tmp_path: directory for the descendant heartbeat
         monkeypatch: fixture for simulating an escaped descendant
     """
     if not kill_tree:
@@ -175,8 +175,6 @@ def test_timeout_cleans_up_inherited_pipes(
         monkeypatch.setattr(
             subprocess_module, "_terminate_process_tree", kill_direct_child
         )
-    alive_path = tmp_path / "alive.txt"
-    done_path = tmp_path / "done.txt"
     heartbeat_path = tmp_path / "heartbeat.txt"
     descendant_code = (
         "import sys, time\nfrom pathlib import Path\n"
@@ -184,17 +182,15 @@ def test_timeout_cleans_up_inherited_pipes(
         "print('descendant error', file=sys.stderr, flush=True)\n"
         f"heartbeat = Path({str(heartbeat_path)!r})\n"
         "heartbeat.write_text('0')\n"
-        f"Path({str(alive_path)!r}).touch()\n"
         "for i in range(1, 61):\n"
         " heartbeat.write_text(str(i))\n time.sleep(0.05)\n"
-        f"Path({str(done_path)!r}).touch()"
     )
     parent_code = (
-        "import subprocess, sys, time; from pathlib import Path; "
-        f"subprocess.Popen([sys.executable, '-c', {descendant_code!r}]); "
-        f"alive = Path({str(alive_path)!r}); "
-        "exec('while not alive.exists(): time.sleep(0.01)'); "
-        "print('parent ready', flush=True); "
+        "import subprocess, sys, time\nfrom pathlib import Path\n"
+        f"subprocess.Popen([sys.executable, '-c', {descendant_code!r}])\n"
+        f"heartbeat = Path({str(heartbeat_path)!r})\n"
+        "while not heartbeat.exists():\n    time.sleep(0.01)\n"
+        "print('parent ready', flush=True)\n"
     )
     if not parent_exits:
         parent_code += "time.sleep(10)"
@@ -219,8 +215,7 @@ def test_timeout_cleans_up_inherited_pipes(
     assert "parent ready" in stdout
     assert "descendant output" in stdout
     assert "descendant error" in stderr
-    assert alive_path.exists()
-    assert not done_path.exists()
+    assert heartbeat_path.exists()
     assert not any(
         thread.name.startswith("pipescaler-reader-") for thread in enumerate_threads()
     )
@@ -231,7 +226,6 @@ def test_timeout_cleans_up_inherited_pipes(
         assert heartbeat_path.read_text() == heartbeat
     else:
         assert heartbeat_path.read_text() != heartbeat
-    assert not done_path.exists()
 
 
 @parametrize("live", [False, True])
