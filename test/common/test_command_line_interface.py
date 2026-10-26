@@ -285,8 +285,8 @@ def test_run_cli_with_args_quoted_values():
     assert ArgsCaptureCli.captured.get("name") == "value with spaces"
 
 
-def test_subparser_common_options_are_combined():
-    """Combine verbosity and logfile options across nested command levels."""
+def test_subparser_common_options_preserve_parent_values():
+    """Preserve inherited logging options and honor explicit child overrides."""
     parser = TestCli.argparser()
     subparsers = parser.add_subparsers(dest="command", required=True)
     child = AnotherTestCli.argparser(subparsers=subparsers)
@@ -294,8 +294,20 @@ def test_subparser_common_options_are_combined():
     TestCli.argparser(subparsers=grandchildren)
 
     parsed = parser.parse_args(["-v", "anothertest", "-vv", "test", "-v"])
-    assert parsed.verbosity == 5
+    assert parsed.verbosity == 2
     assert parsed.log_file is None
+
+    parsed = parser.parse_args(["-vv", "anothertest", "test"])
+    assert parsed.verbosity == 3
+
+    parsed = parser.parse_args(["-q", "anothertest", "test"])
+    assert parsed.verbosity == 0
+
+    parsed = parser.parse_args(["-vv", "anothertest", "-v", "test"])
+    assert parsed.verbosity == 2
+
+    parsed = parser.parse_args(["-v", "anothertest", "test", "-q"])
+    assert parsed.verbosity == 0
 
     parsed = parser.parse_args(["-l", "root.log", "anothertest", "test"])
     assert parsed.log_file == "root.log"
@@ -311,11 +323,11 @@ def test_subparser_common_options_are_combined():
     assert parsed.log_file == "leaf.log"
 
     parsed = parser.parse_args(["-q", "anothertest", "-v", "test", "-v"])
-    assert parsed.verbosity == 0
+    assert parsed.verbosity == 2
 
 
 def test_common_options_do_not_leak_between_parses():
-    """Keep common option normalization local to each parse call."""
+    """Keep logging options local to each parse call."""
     parser = TestCli.argparser()
     assert parser.parse_args([]).verbosity == 1
     assert parser.parse_args(["-vv"]).verbosity == 3
@@ -331,7 +343,7 @@ def test_common_options_do_not_leak_between_parses():
 
 
 def test_standalone_leaf_parser_common_options():
-    """Normalize common options when a CLI is parsed without a parent."""
+    """Preserve logging defaults when a CLI is parsed without a parent."""
     parsed = AnotherTestCli.argparser().parse_args(["-v", "-v", "-l", "leaf.log"])
     assert parsed.verbosity == 3
     assert parsed.log_file == "leaf.log"
