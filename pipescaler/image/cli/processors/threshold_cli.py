@@ -38,8 +38,9 @@ class ThresholdCli(ImageProcessorCli):
                 min_value=ThresholdProcessor.MIN_THRESHOLD,
                 max_value=ThresholdProcessor.MAX_THRESHOLD,
             ),
-            help="threshold differentiating black and white (0-255, default: "
-            "%(default)s)",
+            help="threshold differentiating black and white "
+            f"({ThresholdProcessor.MIN_THRESHOLD}-{ThresholdProcessor.MAX_THRESHOLD}, "
+            "default: %(default)s)",
         )
         arg_groups["additional arguments"].add_argument(
             "--denoise",

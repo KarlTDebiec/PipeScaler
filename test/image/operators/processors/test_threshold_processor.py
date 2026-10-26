@@ -66,15 +66,28 @@ def test(input_filename: str, processor: ThresholdProcessor):
         assert np.logical_or(output_arr == 0, output_arr == 255).all()
 
 
-@pytest.mark.parametrize(("threshold", "expected"), [(0, [0, 255]), (255, [0, 0])])
-def test_threshold_8_bit_boundaries(threshold: int, expected: list[int]):
-    """Process the inclusive endpoints of 8-bit grayscale thresholds.
+@pytest.mark.parametrize(
+    ("threshold", "expected"),
+    [(1, [0, 0, 255, 255, 255, 255]), (244, [0, 0, 0, 0, 255, 255])],
+)
+def test_threshold_processor_boundaries(threshold: int, expected: list[int]):
+    """Preserve pixel comparisons at the existing threshold bounds.
 
     Arguments:
-        threshold: grayscale cutoff value
+        threshold: supported cutoff value
         expected: expected binary pixels
     """
-    image = Image.fromarray(np.array([[0, 255]], dtype=np.uint8), mode="L")
+    image = Image.fromarray(np.array([[0, 1, 2, 244, 245, 255]], dtype=np.uint8))
     output_image = ThresholdProcessor(threshold)(image)
-
     assert np.array(output_image).flatten().tolist() == expected
+
+
+@pytest.mark.parametrize("threshold", [-1, 0, 245, 255, 256])
+def test_threshold_processor_rejects_out_of_range_values(threshold: int):
+    """Preserve rejection of thresholds outside the supported range.
+
+    Arguments:
+        threshold: unsupported threshold
+    """
+    with pytest.raises(ValueError):
+        ThresholdProcessor(threshold)

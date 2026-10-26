@@ -68,7 +68,12 @@ def test_rejects_zero_sized_output():
         processor(Image.new("L", (1, 1)))
 
 
-def test_rejects_zero_scale():
-    """Reject a scale that cannot produce any output pixels."""
-    with pytest.raises(ValueError, match="scale must be greater than 0"):
-        ResizeProcessor(0)
+@pytest.mark.parametrize("scale", [0, float("nan"), float("inf"), -float("inf")])
+def test_rejects_invalid_scale(scale: float):
+    """Reject zero and non-finite scales before processing images.
+
+    Arguments:
+        scale: invalid resize scale
+    """
+    with pytest.raises(ValueError):
+        ResizeProcessor(scale)

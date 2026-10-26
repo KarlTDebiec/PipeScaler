@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from math import isfinite
+
 import numpy as np
 from PIL import Image
 
@@ -32,13 +34,13 @@ class ResizeProcessor(ImageProcessor):
             scale: Output image scale relative to input image
             resample: Resample algorithm
         Raises:
-            ValueError: if scale is zero
+            ValueError: if scale is non-finite or not positive
         """
         super().__init__()
 
         self.scale = val_float(scale, min_value=0)
-        if self.scale == 0:
-            raise ValueError("scale must be greater than 0")
+        if not isfinite(self.scale) or self.scale <= 0:
+            raise ValueError("scale must be a finite number greater than 0")
         self.resample = self.resample_methods[
             val_str(resample, options=self.resample_methods.keys())
         ]
