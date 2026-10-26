@@ -20,9 +20,10 @@ Use `uv run` for repository tools and follow the
 serial execution serial.
 
 The [workflow files](../.github/workflows/) own exact triggers, commands,
-dependencies, and tool versions. Pull requests run checks on Linux, macOS, and
-Windows; draft PRs currently run Linux only. Describe validation actually
-performed, including skipped checks and platform limitations.
+dependencies, and tool versions. Pull requests run Linux checks. Pushes to `master`
+after merging run Linux, macOS, and Windows checks. New PR updates cancel older
+runs for that PR; each merged commit keeps its own workflow run. Describe
+validation actually performed, including skipped checks and platform limitations.
 
 ## Pull requests
 
