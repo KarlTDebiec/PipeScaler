@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import numpy as np
 import pytest
 from PIL import Image
 
@@ -35,6 +36,24 @@ def potrace_processor() -> PotraceProcessor:
         Configured PotraceProcessor instance
     """
     return PotraceProcessor(scale=10)
+
+
+@pytest.mark.parametrize("input_filename", ["L", "RGB"])
+def test_get_subs(input_filename: str):
+    """Test NumPy crop boxes preserve full-image and partial-image pixels.
+
+    Arguments:
+        input_filename: input image filename
+    """
+    with Image.open(get_test_input_path(input_filename)) as image:
+        boxes = np.array([[0, 0, *image.size], [3, 5, 13, 15]])
+        subs = SubdividedImage.get_subs(image, boxes)
+        image_array = np.array(image)
+
+        assert len(subs) == 2
+        assert all(sub.mode == image.mode for sub in subs)
+        np.testing.assert_array_equal(np.array(subs[0]), image_array)
+        np.testing.assert_array_equal(np.array(subs[1]), image_array[5:15, 3:13])
 
 
 @pytest.mark.parametrize(

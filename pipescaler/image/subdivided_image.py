@@ -181,7 +181,7 @@ class SubdividedImage:
         Returns:
             Subdivisions of image
         """
-        return [image.crop(box) for box in boxes]
+        return [image.crop(tuple(box)) for box in boxes]
 
     @staticmethod
     def get_sub_count(full_size: int, size: int, overlap: int) -> int:
