@@ -17,7 +17,7 @@ from pipescaler.core.runner import Runner
 class _ArgumentRecorder(Runner):
     """Run Python to record its received arguments without external dependencies."""
 
-    def get_command(self, input_path: Path | str, output_path: Path | str) -> list[str]:
+    def get_command(self, input_path: Path, output_path: Path) -> list[str]:
         """Build a command that records the input path and custom arguments.
 
         Arguments:
@@ -52,7 +52,7 @@ def test_subprocess_receives_literal_tokens(tmp_path: Path):
     Arguments:
         tmp_path: temporary test directory
     """
-    input_path = r"C:\input images\O'Brien\{source}.png"
+    input_path = Path(r"C:\input images\O'Brien\{source}.png")
     output_path = tmp_path / "O'Brien {output} 日本語.json"
     arguments = ["C:\\custom options\\folder\\", "", 'a"b', "${value}", "one two"]
     runner = _ArgumentRecorder(arguments=arguments)
@@ -61,7 +61,7 @@ def test_subprocess_receives_literal_tokens(tmp_path: Path):
     runner(input_path, output_path)
 
     assert json.loads(output_path.read_text(encoding="utf-8")) == [
-        input_path,
+        str(input_path),
         str(output_path),
         "C:\\custom options\\folder\\",
         "",

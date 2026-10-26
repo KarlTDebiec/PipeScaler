@@ -69,8 +69,8 @@ def test_argument_paths_are_preserved(monkeypatch: pytest.MonkeyPatch):
         monkeypatch: pytest monkeypatch fixture
     """
     executable_path = Path("C:/Program Files/O'Brien/{tools}/potrace.exe")
-    input_path = r"C:\input images\O'Brien\{source}.bmp"
-    output_path = r"C:\output images\{result}.svg"
+    input_path = Path(r"C:\input images\O'Brien\{source}.bmp")
+    output_path = Path(r"C:\output images\{result}.svg")
     arguments = ("--backend", "svg", "--opaque", r"C:\custom options\{value}")
     command_runner = Mock(return_value=(0, "", ""))
     monkeypatch.setattr(
@@ -81,5 +81,6 @@ def test_argument_paths_are_preserved(monkeypatch: pytest.MonkeyPatch):
     PotraceRunner(arguments=arguments, timeout=7)(input_path, output_path)
 
     command_runner.assert_called_once_with(
-        [str(executable_path), input_path, *arguments, "-o", output_path], timeout=7
+        [str(executable_path), str(input_path), *arguments, "-o", str(output_path)],
+        timeout=7,
     )

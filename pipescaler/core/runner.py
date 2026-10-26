@@ -16,8 +16,8 @@ from pipescaler.common.validation import val_executable, val_int
 __all__ = ["Runner"]
 
 
-class Runner[InputPath = Path | str](ABC):
-    """Abstract base class for executable runners."""
+class Runner[InputPath = Path](ABC):
+    """Abstract base class for executable runners using Path objects."""
 
     def __init__(self, timeout: int = 600, *, arguments: Sequence[str] = ()):
         """Validate and store configuration and initialize.
@@ -37,12 +37,12 @@ class Runner[InputPath = Path | str](ABC):
         self.timeout = val_int(timeout, min_value=0)
         self._executable_path: Path | None = None
 
-    def __call__(self, input_path: InputPath, output_path: Path | str):
+    def __call__(self, input_path: InputPath, output_path: Path):
         """Run executable on input file, yielding output file.
 
         Arguments:
-            input_path: Input file path
-            output_path: Output file path
+            input_path: input file path
+            output_path: output file path
         """
         self.run(input_path, output_path)
 
@@ -61,13 +61,13 @@ class Runner[InputPath = Path | str](ABC):
     def executable_path(self) -> Path:
         """Path to executable."""
         if self._executable_path is None:
-            self._executable_path = Path(
-                val_executable(self.executable(), self.supported_platforms())
+            self._executable_path = val_executable(
+                self.executable(), self.supported_platforms()
             )
         return self._executable_path
 
     @abstractmethod
-    def get_command(self, input_path: InputPath, output_path: Path | str) -> list[str]:
+    def get_command(self, input_path: InputPath, output_path: Path) -> list[str]:
         """Build an executable argument list without shell parsing.
 
         Arguments:
@@ -78,12 +78,12 @@ class Runner[InputPath = Path | str](ABC):
         """
         raise NotImplementedError()
 
-    def run(self, input_path: InputPath, output_path: Path | str):
+    def run(self, input_path: InputPath, output_path: Path):
         """Run executable on input file, yielding output file.
 
         Arguments:
-            input_path: Input file path
-            output_path: Output file path
+            input_path: input file path
+            output_path: output file path
         """
         command = self.get_command(input_path, output_path)
         debug(f"{self}: {command!r}")

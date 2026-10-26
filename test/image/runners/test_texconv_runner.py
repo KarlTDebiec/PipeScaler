@@ -104,7 +104,7 @@ def test_argument_paths_and_output_rename(
         "pipescaler.image.runners.texconv_runner.run_command", command_runner
     )
 
-    TexconvRunner(arguments=arguments, timeout=7).run(str(input_path), str(output_path))
+    TexconvRunner(arguments=arguments, timeout=7).run(input_path, output_path)
 
     command_runner.assert_called_once_with(
         [str(executable_path), *arguments, "-o", str(output_dir_path), str(input_path)],

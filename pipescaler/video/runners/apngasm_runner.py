@@ -13,7 +13,7 @@ from pipescaler.core import Runner
 __all__ = ["ApngasmRunner"]
 
 
-class ApngasmRunner(Runner[Path | str | Sequence[Path | str]]):
+class ApngasmRunner(Runner[Path | Sequence[Path]]):
     """Runs apngasm tool for creating animated pngs.
 
     See [apngasm](https://github.com/apngasm/apngasm).
@@ -33,7 +33,7 @@ class ApngasmRunner(Runner[Path | str | Sequence[Path | str]]):
         super().__init__(arguments=arguments, **kwargs)
 
     def get_command(
-        self, input_path: Path | str | Sequence[Path | str], output_path: Path | str
+        self, input_path: Path | Sequence[Path], output_path: Path
     ) -> list[str]:
         """Build the apngasm argument list for one or more input frames.
 
@@ -45,7 +45,7 @@ class ApngasmRunner(Runner[Path | str | Sequence[Path | str]]):
         Raises:
             ValueError: if no input frame paths are provided
         """
-        if isinstance(input_path, Path | str):
+        if isinstance(input_path, Path):
             input_paths = [input_path]
         else:
             input_paths = input_path

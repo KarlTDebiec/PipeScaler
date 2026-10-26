@@ -6,7 +6,6 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from logging import debug
-from os import rename
 from pathlib import Path
 from typing import Any
 
@@ -35,7 +34,7 @@ class TexconvRunner(Runner):
         """
         super().__init__(arguments=arguments, **kwargs)
 
-    def get_command(self, input_path: Path | str, output_path: Path | str) -> list[str]:
+    def get_command(self, input_path: Path, output_path: Path) -> list[str]:
         """Build the texconv argument list.
 
         Arguments:
@@ -48,21 +47,21 @@ class TexconvRunner(Runner):
             str(self.executable_path),
             *self.arguments,
             "-o",
-            str(Path(output_path).parent),
+            str(output_path.parent),
             str(input_path),
         ]
 
-    def run(self, input_path: Path | str, output_path: Path | str):
+    def run(self, input_path: Path, output_path: Path):
         """Run executable on input file, yielding output file.
 
         Arguments:
-            input_path: Input file path
-            output_path: Output file path
+            input_path: input file path
+            output_path: output file path
         """
         command = self.get_command(input_path, output_path)
         debug(f"{self}: {command!r}")
         run_command(command, timeout=self.timeout)
-        rename(Path(output_path).with_stem(Path(input_path).stem), output_path)
+        output_path.with_stem(input_path.stem).rename(output_path)
 
     @classmethod
     def executable(cls) -> str:

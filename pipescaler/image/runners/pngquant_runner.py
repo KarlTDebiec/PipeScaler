@@ -43,7 +43,7 @@ class PngquantRunner(Runner):
         """
         super().__init__(arguments=arguments, **kwargs)
 
-    def get_command(self, input_path: Path | str, output_path: Path | str) -> list[str]:
+    def get_command(self, input_path: Path, output_path: Path) -> list[str]:
         """Build the pngquant argument list.
 
         Arguments:
@@ -60,12 +60,12 @@ class PngquantRunner(Runner):
             str(input_path),
         ]
 
-    def run(self, input_path: Path | str, output_path: Path | str):
+    def run(self, input_path: Path, output_path: Path):
         """Read image from input_path, process it, and save to output_path.
 
         Arguments:
-            input_path: Input file path
-            output_path: Output file path
+            input_path: input file path
+            output_path: output file path
         """
         command = self.get_command(input_path, output_path)
         debug(f"{self}: {command!r}")

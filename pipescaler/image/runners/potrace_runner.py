@@ -41,7 +41,7 @@ class PotraceRunner(Runner):
         """
         super().__init__(arguments=arguments, **kwargs)
 
-    def get_command(self, input_path: Path | str, output_path: Path | str) -> list[str]:
+    def get_command(self, input_path: Path, output_path: Path) -> list[str]:
         """Build the potrace argument list.
 
         Arguments:
