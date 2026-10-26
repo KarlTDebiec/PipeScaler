@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import numpy as np
 import pytest
 from PIL import Image
 
@@ -78,6 +79,58 @@ def test(input_filename: str, splitter: AlphaSplitter):
     assert color_img.size == input_img.size
     assert alpha_img.mode in splitter.outputs()["alpha"]
     assert alpha_img.size == input_img.size
+
+
+@pytest.mark.parametrize("size", [(4, 1), (1, 4), (1, 1)])
+@pytest.mark.parametrize(
+    ("mode", "color_pixels"),
+    [
+        ("LA", [[11, 22, 33, 44]]),
+        ("RGBA", [[(11, 21, 31), (12, 22, 32), (13, 23, 33), (14, 24, 34)]]),
+    ],
+)
+def test_singleton_dimensions_preserve_color_pixels(
+    size: tuple[int, int],
+    mode: str,
+    color_pixels: list[list[int | tuple[int, int, int]]],
+):
+    """Preserve spatial dimensions and color pixels when either axis is singleton.
+
+    Arguments:
+        size: Input image dimensions
+        mode: Input image mode
+        color_pixels: Expected color values across the four pixel slots
+    """
+    width, height = size
+    image = Image.new(mode, size)
+    for index in range(width * height):
+        value = color_pixels[0][index]
+        alpha = 101 + index
+        if mode == "RGBA":
+            assert isinstance(value, tuple)
+            pixel = (*value, alpha)
+        else:
+            assert isinstance(value, int)
+            pixel = (value, alpha)
+        image.putpixel((index % width, index // width), pixel)
+
+    color_image, alpha_image = AlphaSplitter()(image)
+
+    assert color_image.size == size
+    assert alpha_image.size == size
+    expected_color = bytearray()
+    if mode == "RGBA":
+        for pixel in color_pixels[0][: width * height]:
+            assert isinstance(pixel, tuple)
+            expected_color.extend(pixel)
+    else:
+        for pixel in color_pixels[0][: width * height]:
+            assert isinstance(pixel, int)
+            expected_color.append(pixel)
+    assert np.asarray(color_image).tobytes() == bytes(expected_color)
+    assert np.asarray(alpha_image).tobytes() == bytes(
+        101 + index for index in range(width * height)
+    )
 
 
 @pytest.mark.parametrize(
