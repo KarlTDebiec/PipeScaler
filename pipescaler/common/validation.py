@@ -6,12 +6,13 @@ from __future__ import annotations
 
 from collections.abc import Collection, Iterable
 from logging import getLogger
+from math import isfinite
 from os import PathLike, fspath
 from os.path import defpath, expanduser, expandvars
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from platform import system
 from shutil import which
-from typing import Any, TypeAliasType, cast, get_args, overload
+from typing import Any, TypeAliasType, TypedDict, cast, get_args, overload
 
 from .exceptions import (
     ArgumentConflictError,
@@ -22,6 +23,11 @@ from .exceptions import (
 )
 
 __all__ = [
+    "FloatValidatorKwargs",
+    "IntValidatorKwargs",
+    "OutputDirValidatorKwargs",
+    "OutputPathValidatorKwargs",
+    "StrValidatorKwargs",
     "val_child_path",
     "val_executable",
     "val_float",
@@ -110,6 +116,23 @@ def val_executable(
     return executable_path
 
 
+class FloatValidatorKwargs(TypedDict, total=False):
+    """Keyword arguments for val_float."""
+
+    n_values: int | None
+    """required number of values."""
+    min_value: float | None
+    """minimum allowed value."""
+    max_value: float | None
+    """maximum allowed value."""
+    min_exclusive: bool
+    """whether to exclude the minimum; requires min_value."""
+    max_exclusive: bool
+    """whether to exclude the maximum; requires max_value."""
+    finite: bool
+    """whether to reject NaN and infinities."""
+
+
 @overload
 def val_float(
     value: float | int | str,
@@ -117,6 +140,9 @@ def val_float(
     n_values: int | None = None,
     min_value: float | None = None,
     max_value: float | None = None,
+    min_exclusive: bool = False,
+    max_exclusive: bool = False,
+    finite: bool = False,
 ) -> float: ...
 
 
@@ -127,32 +153,46 @@ def val_float(
     n_values: int | None = None,
     min_value: float | None = None,
     max_value: float | None = None,
+    min_exclusive: bool = False,
+    max_exclusive: bool = False,
+    finite: bool = False,
 ) -> list[float]: ...
 
 
-def val_float(
+def val_float(  # noqa: PLR0913
     value: float | int | str | Iterable[Any],
     *,
     n_values: int | None = None,
     min_value: float | None = None,
     max_value: float | None = None,
+    min_exclusive: bool = False,
+    max_exclusive: bool = False,
+    finite: bool = False,
 ) -> float | list[float]:
     """Validate one or more floats.
 
     Arguments:
-        value: Single value or iterable of values to validate
-        n_values: Number of values expected, if applicable
-        min_value: Minimum value of float, if applicable
-        max_value: Maximum value of float, if applicable
+        value: single value or iterable of values to validate
+        n_values: number of values expected, if applicable
+        min_value: minimum value of float, if applicable
+        max_value: maximum value of float, if applicable
+        min_exclusive: whether to exclude min_value; requires min_value
+        max_exclusive: whether to exclude max_value; requires max_value
+        finite: whether to reject NaN and infinities; defaults to False
     Returns:
-        Single float or list of floats depending on input
+        single float or list of floats depending on input
     Raises:
-        ArgumentConflictError: if min_value is greater than or equal to max_value
-        TypeError: If a value may not be cast to a float
-        ValueError: If a value is invalid or the list is the wrong length
+        ArgumentConflictError: if bounds conflict or an exclusive bound is missing
+        TypeError: if a value may not be cast to a float
+        ValueError: if a value is invalid or the list is the wrong length
     """
     if min_value is not None and max_value is not None and (min_value >= max_value):
         raise ArgumentConflictError("min_value must be less than max_value")
+
+    if min_exclusive and min_value is None:
+        raise ArgumentConflictError("min_exclusive requires min_value")
+    if max_exclusive and max_value is None:
+        raise ArgumentConflictError("max_exclusive requires max_value")
 
     def _val_float(value_to_validate: Any) -> float:
         """Validate a single value as a float.
@@ -172,6 +212,14 @@ def val_float(
                 f"{value_to_validate} is of type "
                 f"{type(value_to_validate)}, cannot be cast to float"
             ) from exc
+        if finite and not isfinite(validated_value):
+            raise ValueError(f"{validated_value} must be finite")
+        if min_exclusive and validated_value == min_value:
+            raise ValueError(
+                f"{validated_value} must be greater than minimum {min_value}"
+            )
+        if max_exclusive and validated_value == max_value:
+            raise ValueError(f"{validated_value} must be less than maximum {max_value}")
         if min_value is not None and validated_value < min_value:
             raise ValueError(
                 f"{validated_value} is less than minimum value of {min_value}"
@@ -415,6 +463,19 @@ def val_input_path(
     return [_val_input_path(value_to_validate) for value_to_validate in value]
 
 
+class IntValidatorKwargs(TypedDict, total=False):
+    """Keyword arguments for val_int."""
+
+    n_values: int | None
+    """required number of values."""
+    min_value: int | None
+    """minimum allowed value."""
+    max_value: int | None
+    """maximum allowed value."""
+    acceptable_values: Collection[int] | None
+    """explicit set of acceptable values."""
+
+
 @overload
 def val_int(
     value: float | int | str,
@@ -507,6 +568,13 @@ def val_int(
     return validated_values
 
 
+class OutputDirValidatorKwargs(TypedDict, total=False):
+    """Keyword arguments for val_output_dir_path."""
+
+    create: bool
+    """whether missing output directories should be created."""
+
+
 @overload
 def val_output_dir_path(value: str | PathLike[str], create: bool = True) -> Path: ...
 
@@ -596,6 +664,15 @@ def val_output_dir_path(
 
     # Handle iterables
     return [_val_output_dir_path(v) for v in value]
+
+
+class OutputPathValidatorKwargs(TypedDict, total=False):
+    """Keyword arguments for val_output_path."""
+
+    exist_ok: bool
+    """whether existing output files are accepted."""
+    create: bool
+    """whether missing parent directories should be created."""
 
 
 @overload
@@ -693,6 +770,13 @@ def val_literal[LiteralValue](value: LiteralValue, literal_type: Any) -> Literal
     if value not in options:
         raise ValueError(f"'{value}' is not one of options '{options}'") from None
     return value
+
+
+class StrValidatorKwargs(TypedDict, total=False):
+    """Keyword arguments for val_str."""
+
+    options: Collection[str]
+    """allowed string options."""
 
 
 def val_str(value: Any, options: Iterable[Any]) -> str:

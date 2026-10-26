@@ -43,6 +43,17 @@ def test_float_arg():
         validator("-1.0")
 
 
+def test_float_arg_exclusive_and_finite_constraints():
+    """Adapt shared open-bound and finite validation into argument errors."""
+    validator = float_arg(
+        min_value=0, max_value=1, min_exclusive=True, max_exclusive=True, finite=True
+    )
+    assert validator("0.5") == 0.5
+    for value in ["0", "1", "-1", "2", "nan", "inf", "-inf"]:
+        with raises(ArgumentTypeError):
+            validator(value)
+
+
 def test_int_arg():
     """Test int_arg validator."""
     validator = int_arg(min_value=0, max_value=10)
