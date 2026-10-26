@@ -87,73 +87,51 @@ def expand_image(  # noqa: PLR0913
     Returns:
         Expanded image
     """
-    transposed_horizontally = image.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
-    transposed_vertically = image.transpose(Image.Transpose.FLIP_TOP_BOTTOM)
-    transposed_horizontally_and_vertically = transposed_horizontally.transpose(
-        Image.Transpose.FLIP_TOP_BOTTOM
+    width, height = image.size
+    output_width = max(min_size, left + width + right)
+    output_height = max(min_size, top + height + bottom)
+    # Split any minimum-size surplus around the requested padding
+    left += (output_width - (left + width + right)) // 2
+    top += (output_height - (top + height + bottom)) // 2
+
+    # Preserve edge pixels at each reflection boundary
+    tile = Image.new(image.mode, (width * 2, height * 2))
+    mirrored_horizontally = image.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+    mirrored_vertically = image.transpose(Image.Transpose.FLIP_TOP_BOTTOM)
+    tile.paste(image, (0, 0))
+    tile.paste(mirrored_horizontally, (width, 0))
+    tile.paste(mirrored_vertically, (0, height))
+    tile.paste(
+        mirrored_horizontally.transpose(Image.Transpose.FLIP_TOP_BOTTOM),
+        (width, height),
     )
 
-    expanded = Image.new(
-        image.mode,
-        (
-            max(min_size, left + image.size[0] + right),
-            max(min_size, top + image.size[1] + bottom),
-        ),
-    )
-    center = (expanded.size[0] // 2, expanded.size[1] // 2)
+    period_width, period_height = tile.size
+    start_x = (-left) % period_width
+    start_y = (-top) % period_height
+    pattern = Image.new(image.mode, (start_x + output_width, start_y + output_height))
 
-    expanded.paste(
-        image, (center[0] - image.size[0] // 2, center[1] - image.size[1] // 2)
-    )
-    expanded.paste(
-        transposed_horizontally,
-        (center[0] + image.size[0] // 2, center[1] - image.size[1] // 2),
-    )
-    expanded.paste(
-        transposed_horizontally,
-        (
-            center[0] - image.size[0] - image.size[0] // 2,
-            center[1] - image.size[1] // 2,
-        ),
-    )
-    expanded.paste(
-        transposed_vertically,
-        (
-            center[0] - image.size[0] // 2,
-            center[1] - image.size[1] - image.size[1] // 2,
-        ),
-    )
-    expanded.paste(
-        transposed_vertically,
-        (center[0] - image.size[0] // 2, center[1] + image.size[1] // 2),
-    )
-    expanded.paste(
-        transposed_horizontally_and_vertically,
-        (
-            center[0] + image.size[0] // 2,
-            center[1] - image.size[1] - image.size[1] // 2,
-        ),
-    )
-    expanded.paste(
-        transposed_horizontally_and_vertically,
-        (
-            center[0] - image.size[0] - image.size[0] // 2,
-            center[1] - image.size[1] - image.size[1] // 2,
-        ),
-    )
-    expanded.paste(
-        transposed_horizontally_and_vertically,
-        (
-            center[0] - image.size[0] - image.size[0] // 2,
-            center[1] + image.size[1] // 2,
-        ),
-    )
-    expanded.paste(
-        transposed_horizontally_and_vertically,
-        (center[0] + image.size[0] // 2, center[1] + image.size[1] // 2),
-    )
+    # Grow the tiled area by doubling each axis
+    pattern.paste(tile, (0, 0))
+    filled_width = period_width
+    while filled_width < pattern.width:
+        copy_width = min(filled_width, pattern.width - filled_width)
+        pattern.paste(
+            pattern.crop((0, 0, copy_width, period_height)), (filled_width, 0)
+        )
+        filled_width += copy_width
 
-    return expanded
+    filled_height = period_height
+    while filled_height < pattern.height:
+        copy_height = min(filled_height, pattern.height - filled_height)
+        pattern.paste(
+            pattern.crop((0, 0, pattern.width, copy_height)), (0, filled_height)
+        )
+        filled_height += copy_height
+
+    return pattern.crop(
+        (start_x, start_y, start_x + output_width, start_y + output_height)
+    )
 
 
 def generate_normal_map_from_height_map_image(image: Image.Image) -> Image.Image:
