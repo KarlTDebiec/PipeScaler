@@ -14,6 +14,7 @@ from tempfile import NamedTemporaryFile, mkdtemp
 from typing import TextIO, cast
 
 __all__ = [
+    "get_atomic_temp_file_path",
     "get_temp_directory_path",
     "get_temp_file_path",
     "open_atomic_text_file",
@@ -21,6 +22,37 @@ __all__ = [
 ]
 
 logger = getLogger(__name__)
+
+
+@contextmanager
+def get_atomic_temp_file_path(output_path: Path) -> Generator[Path]:
+    """Provide a sibling temporary path that replaces an output on success.
+
+    The output's parent directory must already exist. The temporary path retains the
+    output extension so format-selecting writers can infer the intended format.
+
+    Arguments:
+        output_path: path to replace after writing succeeds
+    Yields:
+        writable temporary path
+    Raises:
+        BaseException: if writing fails
+    """
+    temp_file = NamedTemporaryFile(
+        delete=False,
+        dir=output_path.parent,
+        prefix=f".{output_path.stem}.",
+        suffix=output_path.suffix,
+    )
+    temp_path = Path(temp_file.name)
+    temp_file.close()
+    try:
+        temp_path.unlink()
+        yield temp_path
+        temp_path.replace(output_path)
+    except BaseException:
+        temp_path.unlink(missing_ok=True)
+        raise
 
 
 @contextmanager
