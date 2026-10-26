@@ -60,3 +60,57 @@ def test(ref: str, fit: str, merger: HistogramMatchMerger):
 
     assert output_img.mode == get_expected_output_mode(fit_img)
     assert output_img.size == fit_img.size
+
+
+@pytest.mark.parametrize(
+    ("mode", "reference_pixel", "fit_pixel"),
+    [
+        ("L", 200, 20),
+        ("LA", (200, 128), (20, 255)),
+        ("RGB", (255, 0, 0), (0, 0, 255)),
+        ("RGBA", (255, 0, 0, 64), (0, 0, 255, 192)),
+    ],
+)
+def test_matches_pixel_channels(
+    mode: str,
+    reference_pixel: int
+    | tuple[int, int]
+    | tuple[int, int, int]
+    | tuple[int, int, int, int],
+    fit_pixel: int | tuple[int, int] | tuple[int, int, int] | tuple[int, int, int, int],
+    merger: HistogramMatchMerger,
+):
+    """Match pixel channel values for grayscale and color images.
+
+    Arguments:
+        mode: Pillow image mode
+        reference_pixel: pixel value in the reference image
+        fit_pixel: pixel value in the image to fit
+        merger: histogram merger instance
+    """
+    reference = Image.new(mode, (3, 2), reference_pixel)
+    fit = Image.new(mode, (2, 3), fit_pixel)
+
+    output = merger(reference, fit)
+
+    assert output.mode == mode
+    assert output.size == fit.size
+    assert output.getpixel((0, 0)) == reference_pixel
+
+
+def test_matches_palette_converted_images(merger: HistogramMatchMerger):
+    """Match palette images after conversion to their underlying color modes.
+
+    Arguments:
+        merger: histogram merger instance
+    """
+    reference = Image.new("P", (3, 2), 0)
+    reference.putpalette([255, 0, 0, 0, 0, 255] + [0] * (768 - 6))
+    fit = Image.new("P", (2, 3), 1)
+    fit.putpalette([255, 0, 0, 0, 0, 255] + [0] * (768 - 6))
+
+    output = merger(reference, fit)
+
+    assert output.mode == "RGB"
+    assert output.size == fit.size
+    assert output.getpixel((0, 0)) == (255, 0, 0)
