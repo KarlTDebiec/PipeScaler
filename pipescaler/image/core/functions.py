@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from math import ceil, isfinite
+
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from scipy.ndimage import convolve
@@ -383,18 +385,25 @@ def smooth_image(image: Image.Image, sigma: float) -> Image.Image:
 
     Arguments:
         image: Image to smooth
-        sigma: Sigma of Gaussian with which to smooth
+        sigma: sigma of Gaussian with which to smooth
     Returns:
-        Smoothed image
+        smoothed image
+    Raises:
+        ValueError: if sigma is negative or non-finite
     """
-    kernel = np.exp(
-        (-1 * (np.arange(-3 * sigma, 3 * sigma + 1).astype(float) ** 2))
-        / (2 * (sigma**2))
-    )
+    if not isfinite(sigma) or sigma < 0:
+        raise ValueError("sigma must be a finite non-negative number")
+    if sigma == 0:
+        return image.copy()
+
+    radius = ceil(3 * sigma)
+    positions = np.arange(-radius, radius + 1, dtype=float)
+    kernel = np.exp(-(positions**2) / (2 * sigma**2))
+    kernel /= kernel.sum()
     smoothed_arr = np.array(image).astype(float)
     smoothed_arr = convolve(smoothed_arr, kernel[np.newaxis])
     smoothed_arr = convolve(smoothed_arr, kernel[np.newaxis].T)
-    smoothed_arr = np.clip(smoothed_arr, 0, 255).astype(np.uint8)
+    smoothed_arr = np.rint(np.clip(smoothed_arr, 0, 255)).astype(np.uint8)
     smoothed_img = Image.fromarray(smoothed_arr)
 
     return smoothed_img
