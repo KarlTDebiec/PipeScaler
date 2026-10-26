@@ -27,8 +27,7 @@
 - Declare public module-level functions, classes, and type aliases in `__all__`.
   Include constants and imported aliases when they are intentional public APIs.
   Omit empty `__all__` assignments and internal helpers.
-- Package initializers re-export classes, not functions or variables. Preserve
-  intentional public exports when changing implementation ownership.
+- Package initializers re-export classes, not functions or variables.
 
 ## Organization and implementation
 
@@ -45,8 +44,8 @@ functions, ordinary before decorated functions, then alphabetize.
 - Use one-line block comments above nontrivial continuous steps when helpful,
   without a final period.
 - When renaming APIs, modules, commands, or options, update callers, documentation,
-  and tests together. Keep compatibility facades only for deliberate public
-  contracts, rather than adding wrappers for internal renames.
+  and tests together. Never retain compatibility shims, deprecated aliases, or
+  forwarding modules for old APIs or import paths; remove obsolete interfaces.
 
 ## Names and types
 
@@ -67,8 +66,7 @@ functions, ordinary before decorated functions, then alphabetize.
 
 - Use existing domain exceptions for user-facing failures and built-in exceptions
   for generic validation, low-level helpers, and programming errors. Shared
-  exceptions live in `pipescaler.common.exceptions`; the singular module retains
-  its existing public compatibility imports.
+  exceptions live in `pipescaler.common.exceptions`.
 - Preserve exception context with `raise ... from exc`.
 - Use module logging for diagnostics. CLI tools may write intentional command
   output to stdout. Preserve the local logging convention when editing a module.

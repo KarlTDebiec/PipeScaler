@@ -10,7 +10,7 @@ from logging import warning
 from pathlib import Path
 from platform import system
 
-from pipescaler.common.exception import UnsupportedPlatformError
+from pipescaler.common.exceptions import UnsupportedPlatformError
 from pipescaler.common.validation import val_output_dir_path
 
 from .pipe_object import PipeObject

@@ -19,17 +19,13 @@ from inspect import cleandoc
 from logging import FileHandler, Formatter, getLogger
 from pathlib import Path
 from sys import argv
-from typing import Any, TypedDict
+from typing import Any
 
 from .logs import DEFAULT_LOG_FORMAT, configure_logging
 
-__all__ = ["CLIKwargs", "CommandLineInterface"]
+__all__ = ["CommandLineInterface"]
 
 logger = getLogger(__name__)
-
-
-class CLIKwargs(TypedDict, total=False):
-    """Compatibility type for command-line interface keyword arguments."""
 
 
 class _VerbosityAction(Action):

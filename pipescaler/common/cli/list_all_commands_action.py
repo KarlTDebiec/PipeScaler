@@ -10,7 +10,7 @@ from collections.abc import Callable, Mapping
 from textwrap import fill
 from typing import Any
 
-from .command_line_interface import CommandLineInterface
+from pipescaler.common.command_line_interface import CommandLineInterface
 
 __all__ = ["ListAllCommandsAction"]
 

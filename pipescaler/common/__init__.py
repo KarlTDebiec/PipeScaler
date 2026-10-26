@@ -6,17 +6,15 @@ Utilities in this package depend only on the standard library and one another.
 
 Package hierarchy (modules may import from any above):
 * csv / described_enum / duration / exceptions / file / logs / subprocess
-* exception / command_line_interface / validation
+* command_line_interface / validation
 * argument_parsing / cli / testing
-
-The legacy exception module re-exports the classes defined in exceptions.
 """
 
 from __future__ import annotations
 
 from pathlib import Path
 
-from .command_line_interface import CLIKwargs, CommandLineInterface
+from .command_line_interface import CommandLineInterface
 from .exceptions import (
     ArgumentConflictError,
     DirectoryExistsError,
@@ -38,7 +36,6 @@ If this file is '/path/to/package/common/__init__.py', the value is
 
 __all__ = [
     "ArgumentConflictError",
-    "CLIKwargs",
     "CommandLineInterface",
     "DirectoryExistsError",
     "DirectoryNotFoundError",

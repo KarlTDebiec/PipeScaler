@@ -3,6 +3,8 @@
 Before planning or coding, read [Architecture](docs/ARCHITECTURE.md),
 [Code Style](docs/STYLE.md), and [Documentation](docs/DOCUMENTATION.md).
 Apply the relevant conventions to changed files without unrelated refactoring.
+Never add or retain compatibility shims. Update callers and remove obsolete APIs
+and import paths when changing interfaces.
 
 ## Tools
 

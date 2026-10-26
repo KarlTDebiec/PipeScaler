@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from logging import DEBUG, ERROR, INFO, WARNING, getLogger
 
-from pipescaler.common.logs import set_logging_verbosity
+from pipescaler.common.logs import configure_logging
 from test.helpers import parametrize
 
 
@@ -14,12 +14,12 @@ from test.helpers import parametrize
     ("verbosity", "expected_level"),
     [(0, ERROR), (1, WARNING), (2, INFO), (3, DEBUG), (10, DEBUG)],
 )
-def test_set_logging_verbosity(verbosity: int, expected_level: int):
+def test_configure_logging(verbosity: int, expected_level: int):
     """Test logging level for verbosity values.
 
     Arguments:
         verbosity: verbosity value
         expected_level: expected logging level
     """
-    set_logging_verbosity(verbosity)
+    configure_logging(verbosity)
     assert getLogger().level == expected_level
