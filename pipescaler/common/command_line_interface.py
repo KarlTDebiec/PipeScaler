@@ -7,46 +7,26 @@ from __future__ import annotations
 import re
 from abc import ABC, abstractmethod
 from argparse import (
+    SUPPRESS,
     Action,
     ArgumentParser,
     Namespace,
     RawDescriptionHelpFormatter,
     _SubParsersAction,  # noqa pylint
 )
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 from datetime import datetime
 from inspect import cleandoc
 from logging import FileHandler, Formatter, getLogger
 from pathlib import Path
 from sys import argv
-from typing import Any
+from typing import Any, cast
 
 from .logs import DEFAULT_LOG_FORMAT, configure_logging
 
 __all__ = ["CommandLineInterface"]
 
 logger = getLogger(__name__)
-
-
-class _VerbosityAction(Action):
-    """Count verbosity from warnings even when a child suppresses its default."""
-
-    def __call__(
-        self,
-        parser: ArgumentParser,
-        namespace: Namespace,
-        values: object,
-        option_string: str | None = None,
-    ):
-        """Increase verbosity for one occurrence of the option.
-
-        Arguments:
-            parser: active parser
-            namespace: parsed arguments
-            values: unused value for this zero-argument option
-            option_string: option used to invoke the action
-        """
-        setattr(namespace, self.dest, getattr(namespace, self.dest, 1) + 1)
 
 
 class CommandLineInterface(ABC):
@@ -60,13 +40,29 @@ class CommandLineInterface(ABC):
             parser: Nascent argument parser
         """
         verbosity = parser.add_mutually_exclusive_group()
+        parser_id = id(parser)
+        aggregated = isinstance(parser, _CliArgumentParser)
+        if aggregated:
+            verbosity_dest = f"_cli_verbosity_{parser_id}"
+            quiet_dest = f"_cli_quiet_{parser_id}"
+            log_file_dest = f"_cli_log_file_{parser_id}"
+            verbosity_default = SUPPRESS
+            quiet_default = SUPPRESS
+            log_file_default = SUPPRESS
+        else:
+            verbosity_dest = "verbosity"
+            quiet_dest = "verbosity"
+            log_file_dest = "log_file"
+            verbosity_default = 1
+            quiet_default = None
+            log_file_default = None
         verbosity.add_argument(
             "-v",
             "--verbose",
             action=_VerbosityAction,
             nargs=0,
-            default=1,
-            dest="verbosity",
+            default=verbosity_default,
+            dest=verbosity_dest,
             help=(
                 "increase console verbosity; use -v for info and -vv for debug "
                 "(default: warnings and errors)"
@@ -77,7 +73,8 @@ class CommandLineInterface(ABC):
             "--quiet",
             action="store_const",
             const=0,
-            dest="verbosity",
+            dest=quiet_dest,
+            default=quiet_default,
             help="show only errors",
         )
 
@@ -88,6 +85,8 @@ class CommandLineInterface(ABC):
             nargs="?",
             const=f"{cls.name()}.{timestamp}.log",
             required=False,
+            default=log_file_default,
+            dest=log_file_dest,
             type=str,
             help=(
                 "write logs to an optional path; without a value, use "
@@ -111,7 +110,7 @@ class CommandLineInterface(ABC):
             Argument parser
         """
         if not subparsers:
-            parser = ArgumentParser(
+            parser = _CliArgumentParser(
                 description=str(cls.description()),
                 formatter_class=RawDescriptionHelpFormatter,
             )
@@ -202,3 +201,62 @@ class CommandLineInterface(ABC):
             **kwargs: parsed command-line arguments
         """
         raise NotImplementedError()
+
+
+class _VerbosityAction(Action):
+    """Increment verbosity for one occurrence of the option."""
+
+    def __call__(
+        self,
+        parser: ArgumentParser,
+        namespace: Namespace,
+        values: object,
+        option_string: str | None = None,
+    ):
+        """Increase verbosity for one occurrence of the option.
+
+        Arguments:
+            parser: active parser
+            namespace: parsed arguments
+            values: unused value for this zero-argument option
+            option_string: option used to invoke the action
+        """
+        initial = 0
+        if not self.dest.startswith("_cli_verbosity_"):
+            initial = 1
+        setattr(namespace, self.dest, getattr(namespace, self.dest, initial) + 1)
+
+
+class _CliArgumentParser(ArgumentParser):
+    """Combine common options parsed at different command levels."""
+
+    def parse_args(
+        self, args: Iterable[str] | None = None, namespace: Namespace | None = None
+    ) -> Namespace:
+        """Parse arguments and combine common options from each command level.
+
+        Arguments:
+            args: argument tokens
+            namespace: initial namespace
+        Returns:
+            parsed arguments with normalized common options
+        """
+        parsed = cast(Namespace, super().parse_args(args, namespace))
+        values = vars(parsed)
+        verbosity = 1 + sum(
+            value for key, value in values.items() if key.startswith("_cli_verbosity_")
+        )
+        if any(key.startswith("_cli_quiet_") for key in values):
+            verbosity = 0
+        log_files = [
+            value for key, value in values.items() if key.startswith("_cli_log_file_")
+        ]
+        for key in tuple(values):
+            if key.startswith(("_cli_verbosity_", "_cli_quiet_", "_cli_log_file_")):
+                del values[key]
+        values["verbosity"] = verbosity
+        if log_files:
+            values["log_file"] = log_files[-1]
+        else:
+            values["log_file"] = None
+        return parsed
