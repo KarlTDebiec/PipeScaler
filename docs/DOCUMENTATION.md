@@ -12,6 +12,7 @@ in maintained documentation.
 | `AGENTS.md` | Instructions and routing to repository guides |
 | `README.md` | Project orientation and entry points |
 | `docs/ARCHITECTURE.md` | Package boundaries, dependency policy, and pipeline contracts |
+| `docs/CONTRIBUTING.md` | Branches, pull request descriptions, and CI usage |
 | `docs/STYLE.md` | Python implementation conventions |
 | `__init__.py` hierarchy blocks | Dependency levels between direct package children |
 | Source docstrings and CLI help | API contracts, options, units, and defaults |

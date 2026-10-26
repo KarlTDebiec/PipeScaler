@@ -11,7 +11,8 @@ Checkpoints along the pipeline may be saved to allow processing to be tracked, s
 and resumed.
 
 Developer guidance: [Architecture](docs/ARCHITECTURE.md),
-[Code Style](docs/STYLE.md), and [Documentation](docs/DOCUMENTATION.md).
+[Code Style](docs/STYLE.md), [Documentation](docs/DOCUMENTATION.md), and
+[Contributing](docs/CONTRIBUTING.md).
 
 # Image Processing
 
