@@ -4,7 +4,11 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from tempfile import TemporaryDirectory
+
+import pytest
+from PIL import Image
 
 from pipescaler.image.core.pipelines import PipeImage
 from pipescaler.image.pipelines.termini import ImageDirectoryTerminus
@@ -25,3 +29,36 @@ def test():
 
         terminus = ImageDirectoryTerminus(dir_path=output_dir_path)
         terminus.purge_unrecognized_files()
+
+
+@pytest.mark.parametrize("file_backed", [False, True])
+def test_preserves_dotted_names(tmp_path: Path, file_backed: bool):
+    """Keep dotted image stems distinct in nested output directories.
+
+    Arguments:
+        tmp_path: temporary test directory
+        file_backed: whether source images have an existing file path
+    """
+    terminus = ImageDirectoryTerminus(tmp_path / "output")
+    colors = {"image.one": (255, 0, 0), "image.two": (0, 0, 255)}
+    location_path = Path("nested.directory")
+    for name, color in colors.items():
+        image = Image.new("RGB", (2, 3), color)
+        if file_backed:
+            input_path = tmp_path / f"{name}.png"
+            image.save(input_path)
+            pipe_image = PipeImage(path=input_path, location_path=location_path)
+        else:
+            pipe_image = PipeImage(image=image, name=name, location_path=location_path)
+        terminus(pipe_image)
+
+    terminus.purge_unrecognized_files()
+    output_dir_path = terminus.dir_path / location_path
+    assert {path.name for path in output_dir_path.iterdir()} == {
+        "image.one.png",
+        "image.two.png",
+    }
+    for name, color in colors.items():
+        with Image.open(output_dir_path / f"{name}.png") as output_image:
+            assert output_image.size == (2, 3)
+            assert output_image.tobytes() == Image.new("RGB", (2, 3), color).tobytes()
