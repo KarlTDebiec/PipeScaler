@@ -3,7 +3,7 @@
 PipeScaler processes collections of image and video files through composable pipelines. A pipeline moves `PipeObject` instances from sources through sorters, processors, splitters, mergers, runners, checkpoint wrappers, and termini. Components should stay small and composable so pipelines can be inspected, resumed, and tested one segment at a time.
 
 ## Package Layout
-* `pipescaler/common/` contains cross-cutting utilities for CLI plumbing, validation, filesystem helpers, logging setup, subprocess execution, exceptions, and test support. Keep domain-specific image or video behavior out of this package.
+* `pipescaler/common/` contains cross-cutting utilities for CLI plumbing, validation, duration parsing, described enums, filesystem helpers, logging setup, subprocess execution, exceptions, and test support. See [Common Utilities](COMMON.md) for usage and compatibility imports. Keep domain-specific image or video behavior out of this package.
 * `pipescaler/core/` contains generic pipeline primitives that are not tied to a media type, including `PipeObject`, `Segment`, source and terminus bases, sorter bases, checkpoint base behavior, runner support, typing helpers, and shared sorting utilities.
 * `pipescaler/pipelines/` contains concrete generic pipeline helpers, including checkpoint management, pre-checkpoint and post-checkpoint segment wrappers, and generic sorters.
 * `pipescaler/image/core/` contains image-specific base types and shared image behavior. It should hold abstractions and validation used by multiple image operators, pipelines, or CLIs.
@@ -13,7 +13,7 @@ PipeScaler processes collections of image and video files through composable pip
 * `pipescaler/video/core/`, `pipescaler/video/pipelines/`, and `pipescaler/video/runners/` mirror the image layout for video-specific objects, pipeline components, and external tool runners.
 * `pipescaler/cli/`, `pipescaler/core/cli/`, and `pipescaler/image/cli/` expose command-line entry points. CLI modules should parse arguments and delegate work to core, operator, pipeline, utility, or runner classes.
 * `pipescaler/testing/` contains reusable test helpers for this repository. Keep production code independent from test-only helpers unless a helper is intentionally part of the package's test support surface.
-* `test/` mirrors the package layout. Add focused tests beside the behavior being changed.
+* `test/` mirrors the package layout. `test/helpers.py` provides shared test assertions and symlink helpers; `test/common/subprocess_cases.py` provides portable subprocess cases. Add focused tests beside the behavior being changed. Pytest adds the repository root to its import path so these helpers work when invoked from either the root or `test/`.
 
 ## Dependency Direction
 * Domain-specific packages may depend on `pipescaler.common` and `pipescaler.core`.

@@ -147,7 +147,7 @@ def val_float(
     Returns:
         Single float or list of floats depending on input
     Raises:
-        ArgumentConflictError: If min_value is greater than max_value
+        ArgumentConflictError: if min_value is greater than or equal to max_value
         TypeError: If a value may not be cast to a float
         ValueError: If a value is invalid or the list is the wrong length
     """
@@ -456,7 +456,7 @@ def val_int(
     Returns:
         Single int or list of ints depending on input
     Raises:
-        ArgumentConflictError: If min_value is greater than max_value
+        ArgumentConflictError: if min_value is greater than or equal to max_value
         TypeError: If a value may not be cast to an int
         ValueError: If a value is invalid or the list is the wrong length
     """
@@ -522,6 +522,9 @@ def val_output_dir_path(
 ) -> Path | list[Path]:
     """Validate output directory path(s), make them absolute, and create them if needed.
 
+    Existing directories are accepted. With create=False, missing directories are
+    validated without being created; an existing file at any ancestor is rejected.
+
     Arguments:
         value: Path or paths to output directories
         create: whether missing directories should be created
@@ -559,8 +562,7 @@ def val_output_dir_path(
         Returns:
             Validated path
         Raises:
-            FileExistsError: If path already exists
-            NotADirectoryError: If path is not a directory
+            NotADirectoryError: if the path or an existing ancestor is a file
             TypeError: If value cannot be cast to Path
         """
         try:

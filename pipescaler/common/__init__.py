@@ -2,12 +2,15 @@
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """General-purpose code not tied to a particular project.
 
-This module should not import from other modules outside the standard library.
+Utilities in this package depend only on the standard library and one another.
+See `docs/COMMON.md` for usage and compatibility imports.
 
 Package hierarchy (modules may import from any above):
 * csv / described_enum / duration / exceptions / file / logs / subprocess
 * command_line_interface / validation
 * argument_parsing / cli / testing
+
+The legacy exception module re-exports the classes defined in exceptions.
 """
 
 from __future__ import annotations

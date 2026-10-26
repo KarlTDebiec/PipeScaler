@@ -17,7 +17,7 @@ logger = getLogger(__name__)
 
 
 def _decode_output(content: bytes) -> str:
-    """Decode subprocess output bytes with UTF-8 fallback.
+    """Decode UTF-8 output, falling back to ISO-8859-1 for invalid UTF-8.
 
     Arguments:
         content: bytes to decode
@@ -38,18 +38,23 @@ def run_command(
     cwd_path: Path | None = None,
     env: Mapping[str, str] | None = None,
 ) -> tuple[int, str, str]:
-    """Run a provided command.
+    """Run an argument list without a shell and capture its output.
+
+    If communication times out, kill the child and collect its remaining output.
+    The resulting exit code is checked normally; TimeoutExpired is not propagated.
+    Output is decoded as UTF-8, falling back to ISO-8859-1.
 
     Arguments:
         command: command to run as a list of arguments
-        timeout: maximum time to await command's completion
-        acceptable_exitcodes: acceptable exit codes
-        cwd_path: working directory
-        env: environment variables
+        timeout: seconds to wait before killing the child; defaults to 600
+        acceptable_exitcodes: allowed exit codes; defaults to [0]
+        cwd_path: working directory; None inherits the current directory
+        env: complete child environment; None inherits the current environment
     Returns:
         exitcode, standard output, and standard error
     Raises:
-        ValueError: If exitcode is not one of acceptable_exitcodes
+        OSError: if the child cannot be started
+        ValueError: if the exit code is not accepted, including after a timeout
     """
     if acceptable_exitcodes is None:
         acceptable_exitcodes = [0]
@@ -96,18 +101,26 @@ def run_command_live(
     cwd_path: Path | None = None,
     env: Mapping[str, str] | None = None,
 ) -> tuple[int, str, str]:
-    """Run a provided command and stream output live.
+    """Run an argument list and log both output streams at INFO level.
+
+    Both streams are also captured and returned as text, decoded as UTF-8 with
+    ISO-8859-1 fallback. Newlines and carriage returns delimit live log records.
+    On timeout, kill the child and raise TimeoutExpired with captured text in its
+    output and stderr attributes.
 
     Arguments:
         command: command to run as a list of arguments
-        timeout: maximum time to await command's completion
-        acceptable_exitcodes: acceptable exit codes
-        cwd_path: working directory
-        env: environment variables
+        timeout: seconds allowed for process exit and stream readers to finish;
+          defaults to 86400; None disables the deadline
+        acceptable_exitcodes: allowed exit codes; defaults to [0]
+        cwd_path: working directory; None inherits the current directory
+        env: complete child environment; None inherits the current environment
     Returns:
         exitcode, standard output, and standard error
     Raises:
-        ValueError: If exitcode is not one of acceptable_exitcodes
+        OSError: if the child cannot be started
+        TimeoutExpired: if the process or its output readers exceed the deadline
+        ValueError: if the exit code is not accepted
     """
     if acceptable_exitcodes is None:
         acceptable_exitcodes = [0]

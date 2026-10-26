@@ -387,7 +387,8 @@ def input_file_arg(
         Returns:
             validated path-like value, or "-" when stdin is allowed
         Raises:
-            ArgumentTypeError: If TypeError is raised while validating value
+            ArgumentTypeError: if the path is missing, is not a file, or has an
+              invalid type
         """
         if str(value) == "-":
             return "-"

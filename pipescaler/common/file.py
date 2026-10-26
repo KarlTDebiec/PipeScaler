@@ -81,10 +81,11 @@ def open_atomic_text_file(
 
     The temporary file is created beside the output so replacement remains on the
     same filesystem. It is flushed and synchronized before replacement, and removed
-    if writing fails.
+    if writing fails. The output's parent directory must already exist. An existing
+    output is replaced only after the context exits successfully.
 
     Arguments:
-        output_path: path to replace after writing succeeds
+        output_path: path to replace after writing succeeds, in an existing directory
         encoding: text encoding
     Yields:
         writable temporary text file
