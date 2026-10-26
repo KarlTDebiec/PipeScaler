@@ -9,7 +9,7 @@ from logging import info
 
 from PIL import Image
 
-from pipescaler.common.file import get_atomic_temp_file_path, get_temp_file_path
+from pipescaler.common.file import get_temp_file_path
 from pipescaler.core.pipelines import CheckpointedSegment, CheckpointManagerBase
 from pipescaler.image.core.pipelines import PipeImage
 
@@ -74,7 +74,9 @@ class PostCheckpointedImageRunnerSegment(CheckpointedSegment):
         else:
             if not cpt_path.parent.exists():
                 cpt_path.parent.mkdir(parents=True)
-            with get_atomic_temp_file_path(cpt_path) as temp_cpt_path:
+            with get_temp_file_path(
+                cpt_path.suffix, parent_dir_path=cpt_path.parent
+            ) as temp_cpt_path:
                 if input_objs[0].path is None:
                     with get_temp_file_path(self.segment.input_extension) as input_path:
                         input_objs[0].image.save(input_path)
@@ -83,6 +85,7 @@ class PostCheckpointedImageRunnerSegment(CheckpointedSegment):
                     self.segment.runner(input_objs[0].path, temp_cpt_path)
                 with Image.open(temp_cpt_path) as image:
                     image.load()
+                temp_cpt_path.replace(cpt_path)
             output = PipeImage(path=cpt_path, parents=input_objs[0])
             info(f"{self}: '{output.location_name}' checkpoint '{self.cpts[0]}' saved")
         self.cp_manager.observe(input_objs[0].location_name, self.cpts[0])
