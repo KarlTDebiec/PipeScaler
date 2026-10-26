@@ -33,9 +33,24 @@ class PreCheckpointedSegment(CheckpointedSegment):
                 f"but received {len(input_objs)}."
             )
 
-        for input_obj, cpt in zip(input_objs, self.cpts):
-            cpt_path = self.cp_manager.dir_path / input_obj.location_name / cpt
-            if cpt_path.exists():
+        checkpoint_pairs = tuple(
+            (
+                input_obj,
+                self.cp_manager.dir_path / input_obj.location_name / cpt,
+                cpt,
+            )
+            for input_obj, cpt in zip(input_objs, self.cpts)
+        )
+        checkpoints_current = tuple(
+            cpt_path.exists()
+            and self.cp_manager.checkpoints_current((input_obj,), (cpt_path,))
+            for input_obj, cpt_path, _ in checkpoint_pairs
+        )
+
+        for (input_obj, cpt_path, cpt), is_current in zip(
+            checkpoint_pairs, checkpoints_current
+        ):
+            if cpt_path.exists() and is_current:
                 input_obj.path = cpt_path
             else:
                 input_obj.save(cpt_path)
