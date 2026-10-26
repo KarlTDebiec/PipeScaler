@@ -13,11 +13,11 @@ Package hierarchy (modules may import from any above):
 
 from __future__ import annotations
 
-from pipescaler.image.cli.image_cli import ImageCli
-from pipescaler.image.cli.image_mergers_cli import ImageMergersCli
-from pipescaler.image.cli.image_processors_cli import ImageProcessorsCli
-from pipescaler.image.cli.image_splitters_cli import ImageSplittersCli
-from pipescaler.image.cli.image_utilities_cli import ImageUtilitiesCli
+from .image_cli import ImageCli
+from .image_mergers_cli import ImageMergersCli
+from .image_processors_cli import ImageProcessorsCli
+from .image_splitters_cli import ImageSplittersCli
+from .image_utilities_cli import ImageUtilitiesCli
 
 __all__ = [
     "ImageCli",

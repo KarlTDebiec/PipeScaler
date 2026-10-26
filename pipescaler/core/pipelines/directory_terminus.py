@@ -10,8 +10,9 @@ from os import remove, rmdir
 from pathlib import Path
 
 from pipescaler.common.validation import val_output_dir_path
-from pipescaler.core.pipelines.pipe_object import PipeObject
-from pipescaler.core.pipelines.terminus import Terminus
+
+from .pipe_object import PipeObject
+from .terminus import Terminus
 
 __all__ = ["DirectoryTerminus"]
 

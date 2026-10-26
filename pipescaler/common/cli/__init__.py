@@ -9,7 +9,7 @@ Package hierarchy (modules may import from any above):
 
 from __future__ import annotations
 
-from pipescaler.common.cli.command_line_interface import CommandLineInterface
-from pipescaler.common.cli.list_all_commands_action import ListAllCommandsAction
+from .command_line_interface import CommandLineInterface
+from .list_all_commands_action import ListAllCommandsAction
 
 __all__ = ["CommandLineInterface", "ListAllCommandsAction"]

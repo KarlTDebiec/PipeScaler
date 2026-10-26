@@ -13,7 +13,7 @@ from platform import system
 from shutil import which
 from typing import Any, TypeAliasType, cast, get_args, overload
 
-from pipescaler.common.exceptions import (
+from .exceptions import (
     ArgumentConflictError,
     DirectoryNotFoundError,
     ExecutableNotFoundError,

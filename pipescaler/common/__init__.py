@@ -16,8 +16,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from pipescaler.common.command_line_interface import CLIKwargs, CommandLineInterface
-from pipescaler.common.exceptions import (
+from .command_line_interface import CLIKwargs, CommandLineInterface
+from .exceptions import (
     ArgumentConflictError,
     DirectoryExistsError,
     DirectoryNotFoundError,

@@ -21,7 +21,7 @@ from pathlib import Path
 from sys import argv
 from typing import Any, TypedDict
 
-from pipescaler.common.logs import DEFAULT_LOG_FORMAT, configure_logging
+from .logs import DEFAULT_LOG_FORMAT, configure_logging
 
 __all__ = ["CLIKwargs", "CommandLineInterface"]
 

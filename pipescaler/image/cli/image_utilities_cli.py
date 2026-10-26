@@ -9,7 +9,8 @@ from typing import Any
 
 from pipescaler.common import CommandLineInterface
 from pipescaler.core.cli import UtilityCli
-from pipescaler.image.cli import utilities
+
+from . import utilities
 
 __all__ = ["ImageUtilitiesCli"]
 

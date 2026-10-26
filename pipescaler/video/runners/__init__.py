@@ -10,6 +10,6 @@ Package hierarchy (modules may import from any above):
 
 from __future__ import annotations
 
-from pipescaler.video.runners.apngasm_runner import ApngasmRunner
+from .apngasm_runner import ApngasmRunner
 
 __all__ = ["ApngasmRunner"]

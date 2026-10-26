@@ -109,58 +109,50 @@ def test_module_import_style_rules(tmp_path: Path):
         file_path.write_text(source, encoding="utf-8")
 
     cases = [
-        (
-            "feature/local_relative.py",
-            "from .prompts import FIELDS\n",
-            "project imports must use absolute paths",
-        ),
+        ("feature/local_relative.py", "from .prompts import FIELDS\n", None),
         (
             "feature/local_absolute.py",
             "from example.feature.prompts import FIELDS\n",
-            None,
+            "imports rooted in the current package must be relative",
         ),
-        ("feature/local_absolute_plain.py", "import example.feature.prompts\n", None),
+        (
+            "feature/local_absolute_plain.py",
+            "import example.feature.prompts\n",
+            "imports rooted in the current package must be relative",
+        ),
         ("feature/parent_absolute.py", "from example.shared import value\n", None),
         ("feature/parent_absolute_plain.py", "import example.shared\n", None),
         (
             "feature/parent_relative.py",
             "from ..shared import value\n",
-            "project imports must use absolute paths",
+            "relative imports may not climb to parent packages",
         ),
         (
             "feature/sibling_absolute.py",
             "from example.feature.sibling import Sibling\n",
-            None,
+            "imports rooted in the current package must be relative",
         ),
-        (
-            "feature/sibling_relative.py",
-            "from .sibling import Sibling\n",
-            "project imports must use absolute paths",
-        ),
+        ("feature/sibling_relative.py", "from .sibling import Sibling\n", None),
         (
             "feature/sibling_module_relative.py",
             "from .sibling.models import MODEL\n",
-            "project imports must use absolute paths",
+            None,
         ),
         (
             "feature/sibling_module_absolute.py",
             "from example.feature.sibling.models import MODEL\n",
-            None,
+            "imports rooted in the current package must be relative",
         ),
         (
             "feature/sibling_private_relative.py",
             "from .sibling import HiddenSibling\n",
-            "project imports must use absolute paths",
+            "package facade imports must name exports listed in __all__",
         ),
-        (
-            "feature/child_alias_relative.py",
-            "from . import sibling\n",
-            "project imports must use absolute paths",
-        ),
+        ("feature/child_alias_relative.py", "from . import sibling\n", None),
         (
             "feature/child_alias_absolute.py",
             "from example.feature import sibling\n",
-            None,
+            "imports rooted in the current package must be relative",
         ),
         ("feature/public_facade.py", "from example.core import PublicError\n", None),
         (
@@ -182,11 +174,6 @@ def test_module_import_style_rules(tmp_path: Path):
             "core/llms/ancestor_facade_plain.py",
             "import example.core\n",
             "own ancestor package facades may not be used internally",
-        ),
-        (
-            "feature/private_facade_absolute.py",
-            "from example.feature.sibling import HiddenSibling\n",
-            "package facade imports must name exports listed in __all__",
         ),
     ]
     for relative_path, source, expected_reason in cases:
@@ -517,6 +504,17 @@ def get_absolute_import_from_style_violations(
     ):
         return []
 
+    current_package_name = ".".join(current_package_parts)
+    if module_name.startswith(f"{current_package_name}."):
+        return [
+            format_import_style_violation(
+                file_path,
+                node,
+                "imports rooted in the current package must be relative",
+                package_parent_path=package_parent_path,
+            )
+        ]
+
     target_path = get_module_source_path(
         module_name, package_parent_path=package_parent_path
     )
@@ -536,6 +534,15 @@ def get_absolute_import_from_style_violations(
             f"{module_name}.{alias.name}", package_parent_path=package_parent_path
         )
         if child_target_path is not None:
+            if module_name == current_package_name:
+                violations.append(
+                    format_import_style_violation(
+                        file_path,
+                        node,
+                        "imports rooted in the current package must be relative",
+                        package_parent_path=package_parent_path,
+                    )
+                )
             continue
         if target_is_ancestor:
             violations.append(
@@ -578,11 +585,23 @@ def get_absolute_import_style_violations(
         violation descriptions
     """
     violations: list[str] = []
+    current_package_name = ".".join(current_package_parts)
     for alias in node.names:
         if not (
             alias.name == root_package_name
             or alias.name.startswith(f"{root_package_name}.")
         ):
+            continue
+
+        if alias.name.startswith(f"{current_package_name}."):
+            violations.append(
+                format_import_style_violation(
+                    file_path,
+                    node,
+                    "imports rooted in the current package must be relative",
+                    package_parent_path=package_parent_path,
+                )
+            )
             continue
 
         target_path = get_module_source_path(
@@ -678,14 +697,47 @@ def get_relative_import_style_violations(
     Returns:
         violation descriptions
     """
-    return [
-        format_import_style_violation(
-            file_path,
-            node,
-            "project imports must use absolute paths",
+    current_package_name = ".".join(current_package_parts)
+    if node.level != 1:
+        return [
+            format_import_style_violation(
+                file_path,
+                node,
+                "relative imports may not climb to parent packages",
+                package_parent_path=package_parent_path,
+            )
+        ]
+
+    target_module_name = current_package_name
+    if node.module:
+        target_module_name = f"{target_module_name}.{node.module}"
+    target_path = get_module_source_path(
+        target_module_name, package_parent_path=package_parent_path
+    )
+    package_exports: set[str] | None = None
+    if target_path is not None and target_path.name == "__init__.py":
+        package_exports = get_package_exports(target_path)
+
+    violations: list[str] = []
+    for alias in node.names:
+        child_target_path = get_module_source_path(
+            f"{target_module_name}.{alias.name}",
             package_parent_path=package_parent_path,
         )
-    ]
+        if child_target_path is not None:
+            continue
+        if target_path is None or target_path.name != "__init__.py":
+            continue
+        if package_exports is None or alias.name not in package_exports:
+            violations.append(
+                format_import_style_violation(
+                    file_path,
+                    node,
+                    "package facade imports must name exports listed in __all__",
+                    package_parent_path=package_parent_path,
+                )
+            )
+    return violations
 
 
 def get_module_source_path(

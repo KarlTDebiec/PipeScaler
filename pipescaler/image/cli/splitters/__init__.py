@@ -11,6 +11,6 @@ Package hierarchy (modules may import from any above):
 
 from __future__ import annotations
 
-from pipescaler.image.cli.splitters.alpha_splitter_cli import AlphaSplitterCli
+from .alpha_splitter_cli import AlphaSplitterCli
 
 __all__ = ["AlphaSplitterCli"]

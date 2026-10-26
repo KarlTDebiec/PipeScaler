@@ -8,8 +8,9 @@ from argparse import ArgumentParser
 from typing import Any
 
 from pipescaler.common import CommandLineInterface
-from pipescaler.image.cli import processors
 from pipescaler.image.core.cli import ImageProcessorCli
+
+from . import processors
 
 __all__ = ["ImageProcessorsCli"]
 

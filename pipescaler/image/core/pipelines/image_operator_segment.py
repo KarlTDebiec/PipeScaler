@@ -7,8 +7,9 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 
 from pipescaler.image.core.image_operator import ImageOperator
-from pipescaler.image.core.pipelines.image_segment import ImageSegment
-from pipescaler.image.core.pipelines.pipe_image import PipeImage
+
+from .image_segment import ImageSegment
+from .pipe_image import PipeImage
 
 __all__ = ["ImageOperatorSegment"]
 

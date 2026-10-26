@@ -10,10 +10,10 @@ Package hierarchy (modules may import from any above):
 
 from __future__ import annotations
 
-from pipescaler.image.pipelines.sources.image_directory_source import (
+from .image_directory_source import (
     ImageDirectorySource,
 )
-from pipescaler.image.pipelines.sources.image_video_frame_source import (
+from .image_video_frame_source import (
     ImageVideoFrameSource,
 )
 

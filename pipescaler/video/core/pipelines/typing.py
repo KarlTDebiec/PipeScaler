@@ -6,8 +6,8 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
-from pipescaler.video.core.pipelines.pipe_video import PipeVideo
-from pipescaler.video.core.pipelines.video_segment import VideoSegment
+from .pipe_video import PipeVideo
+from .video_segment import VideoSegment
 
 __all__ = ["VideoSegmentLike"]
 

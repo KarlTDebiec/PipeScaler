@@ -10,9 +10,9 @@ Package hierarchy (modules may import from any above):
 
 from __future__ import annotations
 
-from pipescaler.image.core.cli.image_merger_cli import ImageMergerCli
-from pipescaler.image.core.cli.image_processor_cli import ImageProcessorCli
-from pipescaler.image.core.cli.image_splitter_cli import ImageSplitterCli
+from .image_merger_cli import ImageMergerCli
+from .image_processor_cli import ImageProcessorCli
+from .image_splitter_cli import ImageSplitterCli
 
 __all__ = [
     "ImageMergerCli",

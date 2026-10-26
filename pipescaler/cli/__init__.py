@@ -10,6 +10,6 @@ Package hierarchy (modules may import from any above):
 
 from __future__ import annotations
 
-from pipescaler.cli.pipescaler_cli import PipeScalerCli
+from .pipescaler_cli import PipeScalerCli
 
 __all__ = ["PipeScalerCli"]

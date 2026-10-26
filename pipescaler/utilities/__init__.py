@@ -11,8 +11,8 @@ Package hierarchy (modules may import from any above):
 
 from __future__ import annotations
 
-from pipescaler.utilities.citra_file_scanner import CitraFileScanner
-from pipescaler.utilities.file_scanner import FileScanner
+from .citra_file_scanner import CitraFileScanner
+from .file_scanner import FileScanner
 
 __all__ = [
     "CitraFileScanner",

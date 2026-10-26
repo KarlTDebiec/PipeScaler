@@ -10,7 +10,7 @@ Package hierarchy (modules may import from any above):
 
 from __future__ import annotations
 
-from pipescaler.image.core.operators.processors.pytorch_image_processor import (
+from .pytorch_image_processor import (
     PyTorchImageProcessor,
 )
 

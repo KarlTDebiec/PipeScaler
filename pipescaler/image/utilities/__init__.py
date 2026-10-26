@@ -11,9 +11,9 @@ Package hierarchy (modules may import from any above):
 
 from __future__ import annotations
 
-from pipescaler.image.utilities.local_palette_matcher import LocalPaletteMatcher
-from pipescaler.image.utilities.mask_filler import MaskFiller
-from pipescaler.image.utilities.palette_matcher import PaletteMatcher
+from .local_palette_matcher import LocalPaletteMatcher
+from .mask_filler import MaskFiller
+from .palette_matcher import PaletteMatcher
 
 __all__ = [
     "LocalPaletteMatcher",

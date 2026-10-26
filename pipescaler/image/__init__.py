@@ -13,6 +13,6 @@ Package hierarchy (modules may import from any above):
 
 from __future__ import annotations
 
-from pipescaler.image.subdivided_image import SubdividedImage
+from .subdivided_image import SubdividedImage
 
 __all__ = ["SubdividedImage"]

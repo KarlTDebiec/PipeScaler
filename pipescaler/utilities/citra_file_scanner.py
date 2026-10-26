@@ -9,7 +9,7 @@ from os import remove
 from pathlib import Path
 from re import compile
 
-from pipescaler.utilities.file_scanner import FileScanner
+from .file_scanner import FileScanner
 
 __all__ = ["CitraFileScanner"]
 

@@ -11,9 +11,9 @@ Package hierarchy (modules may import from any above):
 
 from __future__ import annotations
 
-from pipescaler.image.core.operators.image_merger import ImageMerger
-from pipescaler.image.core.operators.image_processor import ImageProcessor
-from pipescaler.image.core.operators.image_splitter import ImageSplitter
+from .image_merger import ImageMerger
+from .image_processor import ImageProcessor
+from .image_splitter import ImageSplitter
 
 __all__ = [
     "ImageMerger",

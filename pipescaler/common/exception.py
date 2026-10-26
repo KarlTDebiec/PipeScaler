@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from pipescaler.common.exceptions import (
+from .exceptions import (
     ArgumentConflictError,
     DirectoryExistsError,
     DirectoryNotFoundError,

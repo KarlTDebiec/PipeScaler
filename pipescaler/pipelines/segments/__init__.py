@@ -10,10 +10,10 @@ Package hierarchy (modules may import from any above):
 
 from __future__ import annotations
 
-from pipescaler.pipelines.segments.post_checkpointed_segment import (
+from .post_checkpointed_segment import (
     PostCheckpointedSegment,
 )
-from pipescaler.pipelines.segments.pre_checkpointed_segment import (
+from .pre_checkpointed_segment import (
     PreCheckpointedSegment,
 )
 

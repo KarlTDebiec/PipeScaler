@@ -11,7 +11,8 @@ from os import remove, rmdir
 from pathlib import Path
 
 from pipescaler.core.pipelines import CheckpointManagerBase, PipeObject, SegmentLike
-from pipescaler.pipelines.segments import (
+
+from .segments import (
     PostCheckpointedSegment,
     PreCheckpointedSegment,
 )

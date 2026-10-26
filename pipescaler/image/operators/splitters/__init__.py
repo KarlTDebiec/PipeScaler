@@ -10,8 +10,8 @@ Package hierarchy (modules may import from any above):
 
 from __future__ import annotations
 
-from pipescaler.image.operators.splitters.alpha_splitter import AlphaSplitter
-from pipescaler.image.operators.splitters.normal_splitter import NormalSplitter
+from .alpha_splitter import AlphaSplitter
+from .normal_splitter import NormalSplitter
 
 __all__ = [
     "AlphaSplitter",

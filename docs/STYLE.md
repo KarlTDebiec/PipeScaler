@@ -10,8 +10,11 @@
 
 ## Imports and exports
 
-- Use absolute `pipescaler...` imports within the package, rooted at the concrete
-  owning module. This keeps internal dependencies visible.
+- Use single-dot relative imports for modules and child packages within the
+  containing package, such as `from .foo import Bar` or
+  `from .child.foo import Bar`.
+- Use absolute imports rooted at the concrete owning module when reaching outside
+  the containing package. Do not use multi-dot relative imports.
 - Public names may be imported from another package's `__init__.py` facade when
   listed in its `__all__`. Within a package subtree, import a name from its owning
   module rather than an ancestor facade that re-exports it.
