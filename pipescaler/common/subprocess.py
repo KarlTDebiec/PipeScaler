@@ -7,6 +7,7 @@ from __future__ import annotations
 import ctypes
 import os
 import signal
+import sys
 from collections.abc import Iterable, Mapping
 from importlib import import_module
 from logging import getLogger
@@ -345,6 +346,8 @@ class _WindowsJob:
         Raises:
             OSError: if a job cannot be created or the running child cannot be assigned
         """
+        if sys.platform != "win32":
+            raise OSError("Windows Job Objects require Windows")
         api = ctypes.WinDLL("kernel32", use_last_error=True)
         wintypes = import_module("ctypes.wintypes")
         for name, restype, argtypes in (
@@ -388,7 +391,7 @@ class _WindowsJob:
 
     def close(self):
         """Release the owned native job handle."""
-        if self._handle:
+        if sys.platform == "win32" and self._handle:
             self._api.CloseHandle(self._handle)
             self._handle = None
 
@@ -398,5 +401,7 @@ class _WindowsJob:
         Raises:
             OSError: if Windows cannot terminate the job
         """
+        if sys.platform != "win32":
+            raise OSError("Windows Job Objects require Windows")
         if self._handle and not self._api.TerminateJobObject(self._handle, 1):
             raise ctypes.WinError(ctypes.get_last_error())
