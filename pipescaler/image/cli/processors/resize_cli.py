@@ -4,10 +4,10 @@
 
 from __future__ import annotations
 
-from argparse import ArgumentParser, ArgumentTypeError
-from math import isfinite
+from argparse import ArgumentParser
 
 from pipescaler.common.argument_parsing import (
+    float_arg,
     get_arg_groups_by_name,
     str_arg,
 )
@@ -38,7 +38,7 @@ class ResizeCli(ImageProcessorCli):
         arg_groups["required arguments"].add_argument(
             "--scale",
             required=True,
-            type=cls._parse_scale,
+            type=float_arg(min_value=0, min_exclusive=True, finite=True),
             help="finite positive scaling factor; output dimensions must round "
             "to at least 1 pixel",
         )
@@ -58,23 +58,6 @@ class ResizeCli(ImageProcessorCli):
             image processor class invoked by this command
         """
         return ResizeProcessor
-
-    @staticmethod
-    def _parse_scale(value: str) -> float:
-        """Parse a finite positive resize scale.
-
-        Arguments:
-            value: command-line scale value
-        Returns:
-            finite positive scale
-        Raises:
-            ValueError: if the value is not a float
-            ArgumentTypeError: if the scale is non-finite or not positive
-        """
-        scale = float(value)
-        if not isfinite(scale) or scale <= 0:
-            raise ArgumentTypeError("scale must be a finite number greater than 0")
-        return scale
 
 
 if __name__ == "__main__":
