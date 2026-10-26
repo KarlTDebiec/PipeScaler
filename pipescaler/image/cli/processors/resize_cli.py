@@ -39,7 +39,8 @@ class ResizeCli(ImageProcessorCli):
             "--scale",
             required=True,
             type=float_arg(min_value=0),
-            help="scaling factor",
+            help="positive scaling factor; output dimensions must round to at least "
+            "1 pixel",
         )
 
         arg_groups["additional arguments"].add_argument(

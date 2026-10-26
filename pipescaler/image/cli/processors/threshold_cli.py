@@ -34,7 +34,10 @@ class ThresholdCli(ImageProcessorCli):
         arg_groups["additional arguments"].add_argument(
             "--threshold",
             default=128,
-            type=int_arg(min_value=0, max_value=255),
+            type=int_arg(
+                min_value=ThresholdProcessor.MIN_THRESHOLD,
+                max_value=ThresholdProcessor.MAX_THRESHOLD,
+            ),
             help="threshold differentiating black and white (0-255, default: "
             "%(default)s)",
         )

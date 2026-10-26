@@ -21,6 +21,11 @@ __all__ = ["ThresholdProcessor"]
 class ThresholdProcessor(ImageProcessor):
     """Converts image to black and white using threshold, optionally denoising."""
 
+    MIN_THRESHOLD = 0
+    """Minimum 8-bit grayscale threshold."""
+    MAX_THRESHOLD = 255
+    """Maximum 8-bit grayscale threshold."""
+
     def __init__(self, threshold: int = 128, denoise: bool = False):
         """Validate and store configuration and initialize.
 
@@ -31,7 +36,9 @@ class ThresholdProcessor(ImageProcessor):
         """
         super().__init__()
 
-        self.threshold = val_int(threshold, min_value=1, max_value=244)
+        self.threshold = val_int(
+            threshold, min_value=self.MIN_THRESHOLD, max_value=self.MAX_THRESHOLD
+        )
         self.denoise = denoise
 
     def __call__(self, input_image: Image.Image) -> Image.Image:

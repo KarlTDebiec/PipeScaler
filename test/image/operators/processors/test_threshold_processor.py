@@ -64,3 +64,17 @@ def test(input_filename: str, processor: ThresholdProcessor):
     else:
         assert output_img.mode == "L"
         assert np.logical_or(output_arr == 0, output_arr == 255).all()
+
+
+@pytest.mark.parametrize(("threshold", "expected"), [(0, [0, 255]), (255, [0, 0])])
+def test_threshold_8_bit_boundaries(threshold: int, expected: list[int]):
+    """Process the inclusive endpoints of 8-bit grayscale thresholds.
+
+    Arguments:
+        threshold: grayscale cutoff value
+        expected: expected binary pixels
+    """
+    image = Image.fromarray(np.array([[0, 255]], dtype=np.uint8), mode="L")
+    output_image = ThresholdProcessor(threshold)(image)
+
+    assert np.array(output_image).flatten().tolist() == expected

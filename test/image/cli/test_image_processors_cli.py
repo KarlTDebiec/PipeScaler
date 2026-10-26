@@ -9,7 +9,9 @@ from inspect import getfile
 from io import StringIO
 from pathlib import Path
 
+import numpy as np
 import pytest
+from PIL import Image
 
 from pipescaler.common import CommandLineInterface
 from pipescaler.common.file import get_temp_directory_path, get_temp_file_path
@@ -178,3 +180,64 @@ def test_spandrel_cli_registration_and_parsing():
     assert parsed_args.model_input_path == model_input_path.resolve()
     assert parsed_args.input_file == input_path
     assert parsed_args.output_file == output_path.resolve()
+
+
+@pytest.mark.parametrize(
+    ("cli", "args", "expected_size"),
+    [
+        (CropCli, "--pixels 0 0 1 1", (2, 2)),
+        (ExpandCli, "--pixels 0 1 0 0", (3, 4)),
+    ],
+)
+def test_zero_pixel_sides_execute(
+    cli: type[CommandLineInterface],
+    args: str,
+    expected_size: tuple[int, int],
+    tmp_path: Path,
+):
+    """Run crop and expand with a zero-valued side and inspect output pixels.
+
+    Arguments:
+        cli: command-line interface to execute
+        args: command-line operation arguments
+        expected_size: expected output image dimensions
+        tmp_path: temporary directory
+    """
+    input_path = tmp_path / "input.png"
+    output_path = tmp_path / "output.png"
+    Image.new("L", (3, 3), 128).save(input_path)
+
+    run_cli_with_args(cli, f"{args} {input_path} {output_path}")
+
+    with Image.open(output_path) as output_image:
+        assert output_image.size == expected_size
+        assert (
+            np.array(output_image).tolist()
+            == np.full(
+                (expected_size[1], expected_size[0]), 128, dtype=np.uint8
+            ).tolist()
+        )
+
+
+@pytest.mark.parametrize(("threshold", "expected"), [(0, [0, 255]), (255, [0, 0])])
+def test_threshold_cli_accepts_8_bit_boundaries(
+    threshold: int, expected: list[int], tmp_path: Path
+):
+    """Execute threshold CLI at the valid grayscale endpoints.
+
+    Arguments:
+        threshold: grayscale cutoff value
+        expected: expected output pixels
+        tmp_path: temporary directory
+    """
+    input_path = tmp_path / "input.png"
+    output_path = tmp_path / "output.png"
+    Image.fromarray(np.array([[0, 255]], dtype=np.uint8)).save(input_path)
+
+    run_cli_with_args(
+        ThresholdCli,
+        f"--threshold {threshold} {input_path} {output_path}",
+    )
+
+    with Image.open(output_path) as output_image:
+        assert np.array(output_image).flatten().tolist() == expected

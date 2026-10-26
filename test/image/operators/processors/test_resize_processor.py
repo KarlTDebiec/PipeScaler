@@ -59,3 +59,16 @@ def test(input_filename: str, processor: ResizeProcessor):
         input_img.size[0] * processor.scale,
         input_img.size[1] * processor.scale,
     )
+
+
+def test_rejects_zero_sized_output():
+    """Reject scales that cannot produce non-empty output dimensions."""
+    processor = ResizeProcessor(0.01)
+    with pytest.raises(ValueError, match="zero-sized output"):
+        processor(Image.new("L", (1, 1)))
+
+
+def test_rejects_zero_scale():
+    """Reject a scale that cannot produce any output pixels."""
+    with pytest.raises(ValueError, match="scale must be greater than 0"):
+        ResizeProcessor(0)
