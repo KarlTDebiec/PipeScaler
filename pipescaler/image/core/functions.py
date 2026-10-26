@@ -171,7 +171,10 @@ def generate_normal_map_from_height_map_image(image: Image.Image) -> Image.Image
     gradient_x = convolve(input_arr.astype(float), kernel)
     gradient_y = convolve(input_arr.astype(float), kernel.T)
     output_arr = np.zeros((input_arr.shape[0], input_arr.shape[1], 3))
-    max_dimension = max(gradient_x.max(), gradient_y.max())
+    # Scale against either gradient direction, with a finite flat-map fallback
+    max_dimension = max(np.abs(gradient_x).max(), np.abs(gradient_y).max())
+    if max_dimension == 0:
+        max_dimension = 1
     output_arr[..., 0] = gradient_x / max_dimension
     output_arr[..., 1] = gradient_y / max_dimension
     output_arr[..., 2] = 1
@@ -185,7 +188,7 @@ def generate_normal_map_from_height_map_image(image: Image.Image) -> Image.Image
     output_arr[..., 2] /= magnitude
 
     # Convert to image
-    output_arr = ((output_arr * 0.5) + 0.5) * 255
+    output_arr = np.rint(((output_arr * 0.5) + 0.5) * 255)
     output_arr = np.clip(output_arr, 0, 255).astype(np.uint8)
     output_img = Image.fromarray(output_arr)
 
@@ -383,9 +386,9 @@ def smooth_image(image: Image.Image, sigma: float) -> Image.Image:
 
     Arguments:
         image: Image to smooth
-        sigma: Sigma of Gaussian with which to smooth
+        sigma: sigma of Gaussian with which to smooth
     Returns:
-        Smoothed image
+        smoothed image
     """
     kernel = np.exp(
         (-1 * (np.arange(-3 * sigma, 3 * sigma + 1).astype(float) ** 2))
