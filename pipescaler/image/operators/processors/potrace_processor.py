@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
+
 from PIL import Image, ImageOps
 from reportlab.graphics.renderPM import drawToFile
 from svglib.svglib import svg2rlg
@@ -26,14 +28,23 @@ class PotraceProcessor(ImageProcessor):
 
     def __init__(
         self,
-        arguments: str = "-b svg -k 0.3 -a 1.34 -O 0.2",
+        arguments: Sequence[str] = (
+            "-b",
+            "svg",
+            "-k",
+            "0.3",
+            "-a",
+            "1.34",
+            "-O",
+            "0.2",
+        ),
         invert: bool = False,
         scale: float = 1.0,
     ):
         """Initialize.
 
         Arguments:
-            arguments: Command-line arguments to pass to potrace
+            arguments: individual argument tokens to pass to potrace without quoting
             invert: Whether to invert image before tracing
             scale: Scale of re-rasterized output image relative to input
         """

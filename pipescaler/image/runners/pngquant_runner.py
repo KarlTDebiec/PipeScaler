@@ -4,9 +4,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from logging import debug
 from pathlib import Path
-from shlex import split
 from shutil import copyfile
 from typing import Any
 
@@ -24,52 +24,53 @@ class PngquantRunner(Runner):
 
     def __init__(
         self,
-        arguments: str = " --skip-if-larger --force --quality 10-100 --speed 1 --nofs",
+        arguments: Sequence[str] = (
+            "--skip-if-larger",
+            "--force",
+            "--quality",
+            "10-100",
+            "--speed",
+            "1",
+            "--nofs",
+        ),
         **kwargs: Any,
     ):
         """Initialize.
 
         Arguments:
-            arguments: Command-line arguments to pass to pngquant
+            arguments: individual argument tokens to pass to pngquant without quoting
             **kwargs: Additional keyword arguments
         """
-        super().__init__(**kwargs)
+        super().__init__(arguments=arguments, **kwargs)
 
-        self.arguments = arguments
+    def get_command(self, input_path: Path, output_path: Path) -> list[str]:
+        """Build the pngquant argument list.
 
-    def __repr__(self) -> str:
-        """Representation.
-
+        Arguments:
+            input_path: input image path
+            output_path: output image path
         Returns:
-            string representation of this object
+            executable and individual argument tokens
         """
-        return (
-            f"{self.__class__.__name__}("
-            f"arguments={self.arguments!r}, "
-            f"timeout={self.timeout!r})"
-        )
+        return [
+            str(self.executable_path),
+            *self.arguments,
+            "--output",
+            str(output_path),
+            str(input_path),
+        ]
 
-    @property
-    def command_template(self) -> str:
-        """String template with which to generate command."""
-        return (
-            f"{self.executable_path} {self.arguments} "
-            f"--output {{output_path}} {{input_path}}"
-        )
-
-    def run(self, input_path: Path | str, output_path: Path | str):
+    def run(self, input_path: Path, output_path: Path):
         """Read image from input_path, process it, and save to output_path.
 
         Arguments:
-            input_path: Input file path
-            output_path: Output file path
+            input_path: input file path
+            output_path: output file path
         """
-        command = self.command_template.format(
-            input_path=input_path, output_path=output_path
-        )
-        debug(f"{self}: {command}")
+        command = self.get_command(input_path, output_path)
+        debug(f"{self}: {command!r}")
         exitcode, _, _ = run_command(
-            split(command), acceptable_exitcodes=[0, 98, 99], timeout=self.timeout
+            command, acceptable_exitcodes=[0, 98, 99], timeout=self.timeout
         )
         if exitcode in [98, 99]:
             # pngquant may not save output file if it is too large or low quality
