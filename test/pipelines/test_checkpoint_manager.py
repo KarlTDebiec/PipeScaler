@@ -9,11 +9,13 @@ from platform import system
 from unittest.mock import Mock, patch
 
 import pytest
+from PIL import Image
 
 from pipescaler.common.exceptions import UnsupportedPlatformError
 from pipescaler.common.file import get_temp_directory_path
 from pipescaler.common.validation import val_output_path
 from pipescaler.core.pipelines import PipeObject, Segment
+from pipescaler.image.core.pipelines import PipeImage
 from pipescaler.pipelines import CheckpointManager
 
 if system() == "Windows":
@@ -236,3 +238,29 @@ def test_print():
         cp_manager_2 = eval(repr(cp_manager))
         assert cp_manager_2.dir_path == cp_manager.dir_path
         assert cp_manager_2.validate_input_mtime == cp_manager.validate_input_mtime
+
+
+@pytest.mark.parametrize("overwrite", [False, True])
+def test_save_existing_image_checkpoint(tmp_path: Path, overwrite: bool):
+    """Save replacement pixels only when checkpoint overwriting is enabled.
+
+    Arguments:
+        tmp_path: temporary directory for checkpoints
+        overwrite: whether to replace the original checkpoint
+    """
+    cp_manager = CheckpointManager(tmp_path)
+    original = PipeImage(image=Image.new("RGB", (2, 2), "red"), name="image")
+    replacement = PipeImage(image=Image.new("RGB", (2, 2), "blue"), name="image")
+    cp_manager.save((original,), ("output.png",))
+
+    outputs = cp_manager.save((replacement,), ("output.png",), overwrite=overwrite)
+
+    checkpoint_path = tmp_path / "image" / "output.png"
+    assert outputs == (replacement,)
+    assert replacement.path == checkpoint_path
+    with Image.open(checkpoint_path) as image:
+        if overwrite:
+            expected_color = (0, 0, 255)
+        else:
+            expected_color = (255, 0, 0)
+        assert image.getpixel((0, 0)) == expected_color

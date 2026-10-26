@@ -95,11 +95,11 @@ class PipeImage(PipeObject):
         self._image = value
 
     def save(self, path: Path | str):
-        """Save image to file and set path.
+        """Save image to file, replacing an existing file, and set path.
 
         Arguments:
-            path: Path to which to save image
+            path: path to which to save image
         """
-        path = val_output_path(path)
+        path = val_output_path(path, exist_ok=True)
         self.image.save(path)
         self.path = path
