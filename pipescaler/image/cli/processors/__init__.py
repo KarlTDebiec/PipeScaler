@@ -5,23 +5,23 @@
 This module may import from: common, core, image.core, image.core.cli,
 image.operators.processors
 
-Hierarchy within module:
-* crop_cli / expand_cli / height_to_normal_cli / mode_cli / resize_cli /
-  sharpen_cli / solid_color_cli / spandrel_cli / threshold_cli / xbrz_cli
+Package hierarchy (modules may import from any above):
+* crop_cli / expand_cli / height_to_normal_cli / mode_cli / resize_cli
+/ sharpen_cli / solid_color_cli / spandrel_cli / threshold_cli / xbrz_cli
 """
 
 from __future__ import annotations
 
-from .crop_cli import CropCli
-from .expand_cli import ExpandCli
-from .height_to_normal_cli import HeightToNormalCli
-from .mode_cli import ModeCli
-from .resize_cli import ResizeCli
-from .sharpen_cli import SharpenCli
-from .solid_color_cli import SolidColorCli
-from .spandrel_cli import SpandrelCli
-from .threshold_cli import ThresholdCli
-from .xbrz_cli import XbrzCli
+from pipescaler.image.cli.processors.crop_cli import CropCli
+from pipescaler.image.cli.processors.expand_cli import ExpandCli
+from pipescaler.image.cli.processors.height_to_normal_cli import HeightToNormalCli
+from pipescaler.image.cli.processors.mode_cli import ModeCli
+from pipescaler.image.cli.processors.resize_cli import ResizeCli
+from pipescaler.image.cli.processors.sharpen_cli import SharpenCli
+from pipescaler.image.cli.processors.solid_color_cli import SolidColorCli
+from pipescaler.image.cli.processors.spandrel_cli import SpandrelCli
+from pipescaler.image.cli.processors.threshold_cli import ThresholdCli
+from pipescaler.image.cli.processors.xbrz_cli import XbrzCli
 
 __all__ = [
     "CropCli",

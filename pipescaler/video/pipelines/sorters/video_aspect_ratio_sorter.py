@@ -48,7 +48,11 @@ class VideoAspectRatioSorter(VideoSorter):
         return outlet
 
     def __repr__(self) -> str:
-        """Representation."""
+        """Representation.
+
+        Returns:
+            string representation of this object
+        """
         outlets_str = ", ".join(f"{k}={v}" for k, v in self._outlets.items())
         return f"{self.__class__.__name__}({outlets_str})"
 

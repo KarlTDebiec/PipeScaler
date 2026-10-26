@@ -4,13 +4,13 @@
 
 This module may import from: common, core.pipelines, video.core.pipelines
 
-Hierarchy within module:
+Package hierarchy (modules may import from any above):
 * video_directory_terminus
 """
 
 from __future__ import annotations
 
-from .video_directory_terminus import (
+from pipescaler.video.pipelines.termini.video_directory_terminus import (
     VideoDirectoryTerminus,
 )
 

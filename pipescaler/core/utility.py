@@ -28,7 +28,11 @@ class Utility(ABC):
 
     @classmethod
     def help_markdown(cls) -> str:
-        """Short description of this utility in markdown, with links."""
+        """Short description of this utility in markdown, with links.
+
+        Returns:
+            Markdown help describing this component
+        """
         if cls.__doc__:
             return cleandoc(cls.__doc__).split(". ", maxsplit=1)[0]
         return ""

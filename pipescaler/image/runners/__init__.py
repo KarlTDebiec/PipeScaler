@@ -4,15 +4,15 @@
 
 This module may import from: common, core, image.core
 
-Hierarchy within module:
+Package hierarchy (modules may import from any above):
 * pngquant_runner / potrace_runner / texconv_runner
 """
 
 from __future__ import annotations
 
-from .pngquant_runner import PngquantRunner
-from .potrace_runner import PotraceRunner
-from .texconv_runner import TexconvRunner
+from pipescaler.image.runners.pngquant_runner import PngquantRunner
+from pipescaler.image.runners.potrace_runner import PotraceRunner
+from pipescaler.image.runners.texconv_runner import TexconvRunner
 
 __all__ = [
     "PngquantRunner",

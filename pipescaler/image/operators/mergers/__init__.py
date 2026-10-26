@@ -4,18 +4,18 @@
 
 This module may import from: common, core, image.core, image.core.operators
 
-Hierarchy within module:
+Package hierarchy (modules may import from any above):
 * alpha_merger / histogram_match_merger / normal_merger / palette_match_merger
 """
 
 from __future__ import annotations
 
-from .alpha_merger import AlphaMerger
-from .histogram_match_merger import (
+from pipescaler.image.operators.mergers.alpha_merger import AlphaMerger
+from pipescaler.image.operators.mergers.histogram_match_merger import (
     HistogramMatchMerger,
 )
-from .normal_merger import NormalMerger
-from .palette_match_merger import PaletteMatchMerger
+from pipescaler.image.operators.mergers.normal_merger import NormalMerger
+from pipescaler.image.operators.mergers.palette_match_merger import PaletteMatchMerger
 
 __all__ = [
     "AlphaMerger",

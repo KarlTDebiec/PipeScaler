@@ -31,6 +31,8 @@ class AlphaSplitter(ImageSplitter):
         Arguments:
             alpha_mode: Mode of alpha treatment to perform
             mask_fill_mode: Mode of mask filling to perform
+        Raises:
+            ArgumentConflictError: if the operation fails
         """
         super().__init__()
 
@@ -74,7 +76,11 @@ class AlphaSplitter(ImageSplitter):
         return color_img, alpha_img
 
     def __repr__(self) -> str:
-        """Representation."""
+        """Representation.
+
+        Returns:
+            string representation of this object
+        """
         alpha_mode = repr(self.alpha_mode)
         if isinstance(self.alpha_mode, AlphaMode):
             alpha_mode = f"AlphaMode.{self.alpha_mode.name}"
@@ -89,14 +95,22 @@ class AlphaSplitter(ImageSplitter):
 
     @classmethod
     def inputs(cls) -> dict[str, tuple[ImageMode, ...]]:
-        """Inputs to this operator."""
+        """Inputs to this operator.
+
+        Returns:
+            mapping of input names to their supported image modes
+        """
         return {
             "input": ("LA", "RGBA"),
         }
 
     @classmethod
     def outputs(cls) -> dict[str, tuple[ImageMode, ...]]:
-        """Outputs of this operator."""
+        """Outputs of this operator.
+
+        Returns:
+            mapping of output names to their supported image modes
+        """
         return {
             "color": ("L", "RGB"),
             "alpha": ("1", "L"),

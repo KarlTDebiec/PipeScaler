@@ -4,7 +4,7 @@
 
 This module may import from: common
 
-Hierarchy within module:
+Package hierarchy (modules may import from any above):
 * runner / sorting / utility
 * cli / typing
 * pipelines
@@ -12,9 +12,9 @@ Hierarchy within module:
 
 from __future__ import annotations
 
-from .runner import Runner
-from .typing import RunnerLike
-from .utility import Utility
+from pipescaler.core.runner import Runner
+from pipescaler.core.typing import RunnerLike
+from pipescaler.core.utility import Utility
 
 __all__ = [
     "Runner",

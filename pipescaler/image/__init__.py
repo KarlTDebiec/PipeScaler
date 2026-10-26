@@ -4,7 +4,7 @@
 
 This module may import from: common, core, pipelines
 
-Hierarchy within module:
+Package hierarchy (modules may import from any above):
 * core / runners / subdivided_image
 * pipelines / testing / utilities
 * operators
@@ -13,6 +13,6 @@ Hierarchy within module:
 
 from __future__ import annotations
 
-from .subdivided_image import SubdividedImage
+from pipescaler.image.subdivided_image import SubdividedImage
 
 __all__ = ["SubdividedImage"]

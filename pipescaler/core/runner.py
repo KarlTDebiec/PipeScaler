@@ -38,7 +38,11 @@ class Runner(ABC):
         self.run(input_path, output_path)
 
     def __repr__(self) -> str:
-        """Representation."""
+        """Representation.
+
+        Returns:
+            string representation of this object
+        """
         return f"{self.__class__.__name__}(timeout={self.timeout!r})"
 
     @property
@@ -49,7 +53,13 @@ class Runner(ABC):
 
     @classmethod
     def executable(cls) -> str:
-        """Name of executable."""
+        """Name of executable.
+
+        Returns:
+            absolute path of the external executable
+        Raises:
+            NotImplementedError: if the subclass does not implement this operation
+        """
         raise NotImplementedError()
 
     @property
@@ -76,12 +86,20 @@ class Runner(ABC):
 
     @classmethod
     def help_markdown(cls) -> str:
-        """Short description of this tool in markdown, with links."""
+        """Short description of this tool in markdown, with links.
+
+        Returns:
+            Markdown help describing this component
+        """
         if cls.__doc__:
             return cleandoc(cls.__doc__).split(". ", maxsplit=1)[0]
         return ""
 
     @classmethod
     def supported_platforms(cls) -> set[str]:
-        """Platforms on which runner is supported."""
+        """Platforms on which runner is supported.
+
+        Returns:
+            names of platforms supported by this runner
+        """
         return {"Darwin", "Linux", "Windows"}

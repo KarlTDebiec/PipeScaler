@@ -4,7 +4,7 @@
 
 This module may import from: common
 
-Hierarchy within module:
+Package hierarchy (modules may import from any above):
 * exceptions / pipe_object
 * checkpoint_manager_base / segment / sorter / source / terminus
 * directory_source / directory_terminus / typing
@@ -13,17 +13,17 @@ Hierarchy within module:
 
 from __future__ import annotations
 
-from .checkpoint_manager_base import CheckpointManagerBase
-from .checkpointed_segment import CheckpointedSegment
-from .directory_source import DirectorySource
-from .directory_terminus import DirectoryTerminus
-from .exceptions import TerminusReached
-from .pipe_object import PipeObject
-from .segment import Segment
-from .sorter import Sorter
-from .source import Source
-from .terminus import Terminus
-from .typing import SegmentLike
+from pipescaler.core.pipelines.checkpoint_manager_base import CheckpointManagerBase
+from pipescaler.core.pipelines.checkpointed_segment import CheckpointedSegment
+from pipescaler.core.pipelines.directory_source import DirectorySource
+from pipescaler.core.pipelines.directory_terminus import DirectoryTerminus
+from pipescaler.core.pipelines.exceptions import TerminusReached
+from pipescaler.core.pipelines.pipe_object import PipeObject
+from pipescaler.core.pipelines.segment import Segment
+from pipescaler.core.pipelines.sorter import Sorter
+from pipescaler.core.pipelines.source import Source
+from pipescaler.core.pipelines.terminus import Terminus
+from pipescaler.core.pipelines.typing import SegmentLike
 
 __all__ = [
     "CheckpointManagerBase",

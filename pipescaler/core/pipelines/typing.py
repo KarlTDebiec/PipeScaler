@@ -6,8 +6,8 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
-from .pipe_object import PipeObject
-from .segment import Segment
+from pipescaler.core.pipelines.pipe_object import PipeObject
+from pipescaler.core.pipelines.segment import Segment
 
 __all__ = ["SegmentLike"]
 

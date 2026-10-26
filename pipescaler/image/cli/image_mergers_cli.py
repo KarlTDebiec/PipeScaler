@@ -8,9 +8,8 @@ from argparse import ArgumentParser
 from typing import Any
 
 from pipescaler.common import CommandLineInterface
+from pipescaler.image.cli import mergers
 from pipescaler.image.core.cli import ImageMergerCli
-
-from . import mergers
 
 __all__ = ["ImageMergersCli"]
 
@@ -37,29 +36,49 @@ class ImageMergersCli(CommandLineInterface):
 
     @classmethod
     def description(cls) -> str:
-        """Long description of this tool displayed below usage."""
+        """Long description of this tool displayed below usage.
+
+        Returns:
+            long description displayed in command help
+        """
         return "Merges images."
 
     @classmethod
     def help(cls) -> str:
-        """Short description of this tool used when it is a subparser."""
+        """Short description of this tool used when it is a subparser.
+
+        Returns:
+            short description displayed beside the subcommand
+        """
         return "merge image"
 
     @classmethod
     def _main(cls, **kwargs: Any):
-        """Execute with provided keyword arguments."""
+        """Execute with provided keyword arguments.
+
+        Arguments:
+            **kwargs: additional options forwarded to the selected implementation
+        """
         merger_name = kwargs.pop("merger")
         merger_cli_cls = cls.mergers()[merger_name]
         merger_cli_cls._main(**kwargs)
 
     @classmethod
     def name(cls) -> str:
-        """Name of this tool used to define it when it is a subparser."""
+        """Name of this tool used to define it when it is a subparser.
+
+        Returns:
+            command name used by the argument parser
+        """
         return "merge"
 
     @classmethod
     def mergers(cls) -> dict[str, type[ImageMergerCli]]:
-        """Names and types of mergers wrapped by command-line interface."""
+        """Names and types of mergers wrapped by command-line interface.
+
+        Returns:
+            mapping of merger names to their CLI classes
+        """
         return {
             merger.name(): merger
             for merger in map(mergers.__dict__.get, getattr(mergers, "__all__", ()))

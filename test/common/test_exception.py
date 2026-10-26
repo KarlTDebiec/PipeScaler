@@ -21,55 +21,91 @@ from pipescaler.common.exception import (
 
 
 def test_argument_conflict_error():
-    """Test ArgumentConflictError can be raised and caught."""
+    """Test ArgumentConflictError can be raised and caught.
+
+    Raises:
+        ArgumentConflictError: if the operation fails
+    """
     with pytest.raises(ArgumentConflictError, match="test message"):
         raise ArgumentConflictError("test message")
 
 
 def test_directory_exists_error():
-    """Test DirectoryExistsError can be raised and caught."""
+    """Test DirectoryExistsError can be raised and caught.
+
+    Raises:
+        DirectoryExistsError: if the operation fails
+    """
     with pytest.raises(DirectoryExistsError, match="test message"):
         raise DirectoryExistsError("test message")
 
 
 def test_directory_not_found_error():
-    """Test DirectoryNotFoundError can be raised and caught."""
+    """Test DirectoryNotFoundError can be raised and caught.
+
+    Raises:
+        DirectoryNotFoundError: if the operation fails
+    """
     with pytest.raises(DirectoryNotFoundError, match="test message"):
         raise DirectoryNotFoundError("test message")
 
 
 def test_executable_not_found_error():
-    """Test ExecutableNotFoundError can be raised and caught."""
+    """Test ExecutableNotFoundError can be raised and caught.
+
+    Raises:
+        ExecutableNotFoundError: if the operation fails
+    """
     with pytest.raises(ExecutableNotFoundError, match="test message"):
         raise ExecutableNotFoundError("test message")
 
 
 def test_getter_error():
-    """Test GetterError can be raised and caught."""
+    """Test GetterError can be raised and caught.
+
+    Raises:
+        GetterError: if the operation fails
+    """
     with pytest.raises(GetterError, match="test message"):
         raise GetterError("test message")
 
 
 def test_is_a_file_error():
-    """Test IsAFileError can be raised and caught."""
+    """Test IsAFileError can be raised and caught.
+
+    Raises:
+        IsAFileError: if the operation fails
+    """
     with pytest.raises(IsAFileError, match="test message"):
         raise IsAFileError("test message")
 
 
 def test_not_a_file_error():
-    """Test NotAFileError can be raised and caught."""
+    """Test NotAFileError can be raised and caught.
+
+    Raises:
+        NotAFileError: if the operation fails
+    """
     with pytest.raises(NotAFileError, match="test message"):
         raise NotAFileError("test message")
 
 
 def test_not_a_file_or_directory_error():
-    """Test NotAFileOrDirectoryError can be raised and caught."""
+    """Test NotAFileOrDirectoryError can be raised and caught.
+
+    Raises:
+        NotAFileOrDirectoryError: if the operation fails
+    """
     with pytest.raises(NotAFileOrDirectoryError, match="test message"):
         raise NotAFileOrDirectoryError("test message")
 
 
 def test_unsupported_platform_error():
-    """Test UnsupportedPlatformError can be raised and caught."""
+    """Test UnsupportedPlatformError can be raised and caught.
+
+    Raises:
+        UnsupportedPlatformError: to verify exception handling
+    """
     with pytest.raises(UnsupportedPlatformError, match="test message"):
         raise UnsupportedPlatformError("test message")
 

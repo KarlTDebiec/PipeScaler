@@ -7,7 +7,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from pathlib import Path
 
-from .runner import Runner
+from pipescaler.core.runner import Runner
 
 __all__ = ["RunnerLike"]
 

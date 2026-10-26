@@ -4,7 +4,7 @@
 
 This module may import from: common, core, image
 
-Hierarchy within module:
+Package hierarchy (modules may import from any above):
 * enums / exceptions / numba / sorting / typing
 * functions / image_operator
 * pipelines / validation
@@ -14,9 +14,9 @@ Hierarchy within module:
 
 from __future__ import annotations
 
-from .enums import AlphaMode, MaskFillMode, PaletteMatchMode
-from .exceptions import UnsupportedImageModeError
-from .image_operator import ImageOperator
+from pipescaler.image.core.enums import AlphaMode, MaskFillMode, PaletteMatchMode
+from pipescaler.image.core.exceptions import UnsupportedImageModeError
+from pipescaler.image.core.image_operator import ImageOperator
 
 __all__ = [
     "AlphaMode",

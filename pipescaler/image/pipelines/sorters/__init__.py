@@ -4,19 +4,19 @@
 
 This module may import from: common, core.pipelines, image.core.pipelines
 
-Hierarchy within module:
-* alpha_sorter / grayscale_sorter / mode_sorter / monochrome_sorter / size_sorter /
-  solid_color_sorter
+Package hierarchy (modules may import from any above):
+* alpha_sorter / grayscale_sorter / mode_sorter / monochrome_sorter / size_sorter
+/ solid_color_sorter
 """
 
 from __future__ import annotations
 
-from .alpha_sorter import AlphaSorter
-from .grayscale_sorter import GrayscaleSorter
-from .mode_sorter import ModeSorter
-from .monochrome_sorter import MonochromeSorter
-from .size_sorter import SizeSorter
-from .solid_color_sorter import SolidColorSorter
+from pipescaler.image.pipelines.sorters.alpha_sorter import AlphaSorter
+from pipescaler.image.pipelines.sorters.grayscale_sorter import GrayscaleSorter
+from pipescaler.image.pipelines.sorters.mode_sorter import ModeSorter
+from pipescaler.image.pipelines.sorters.monochrome_sorter import MonochromeSorter
+from pipescaler.image.pipelines.sorters.size_sorter import SizeSorter
+from pipescaler.image.pipelines.sorters.solid_color_sorter import SolidColorSorter
 
 __all__ = [
     "AlphaSorter",

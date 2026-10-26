@@ -4,15 +4,16 @@
 
 This module may import from: common, core, image.core
 
-Hierarchy within module:
-* image_merger / image_processor / image_splitter / processors
+Package hierarchy (modules may import from any above):
+* image_merger / image_processor / image_splitter
+* processors
 """
 
 from __future__ import annotations
 
-from .image_merger import ImageMerger
-from .image_processor import ImageProcessor
-from .image_splitter import ImageSplitter
+from pipescaler.image.core.operators.image_merger import ImageMerger
+from pipescaler.image.core.operators.image_processor import ImageProcessor
+from pipescaler.image.core.operators.image_splitter import ImageSplitter
 
 __all__ = [
     "ImageMerger",

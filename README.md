@@ -10,8 +10,8 @@ through a series of sorters, processors, splitters, and mergers into a terminus.
 Checkpoints along the pipeline may be saved to allow processing to be tracked, stopped,
 and resumed.
 
-Developer documentation: [Architecture](docs/ARCHITECTURE.md),
-[Code Style](docs/STYLE.md), and [Common Utilities](docs/COMMON.md).
+Developer guidance: [Architecture](docs/ARCHITECTURE.md),
+[Code Style](docs/STYLE.md), and [Documentation](docs/DOCUMENTATION.md).
 
 # Image Processing
 

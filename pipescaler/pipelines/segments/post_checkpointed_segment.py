@@ -18,10 +18,12 @@ class PostCheckpointedSegment(CheckpointedSegment):
         """Return outputs of wrapped Segment, loaded from checkpoints if available.
 
         Arguments:
-            input_objs: Input objects
+            *input_objs: Input objects
         Returns:
             Output objects, loaded from checkpoint if available, within a tuple even if
             only one
+        Raises:
+            ValueError: if input values or configuration are invalid
         """
         cls = input_objs[0].__class__
         cpt_paths = [

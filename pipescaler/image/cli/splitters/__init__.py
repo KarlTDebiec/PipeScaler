@@ -5,12 +5,12 @@
 This module may import from: common, core, image.core, image.core.cli,
 image.operators.splitters
 
-Hierarchy within module:
+Package hierarchy (modules may import from any above):
 * alpha_splitter_cli
 """
 
 from __future__ import annotations
 
-from .alpha_splitter_cli import AlphaSplitterCli
+from pipescaler.image.cli.splitters.alpha_splitter_cli import AlphaSplitterCli
 
 __all__ = ["AlphaSplitterCli"]

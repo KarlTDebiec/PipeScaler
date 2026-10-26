@@ -33,8 +33,8 @@ class ExecutionCounter[**P, R]:
         """Call the function and increments the counter.
 
         Arguments:
-            args: Positional arguments
-            kwargs: Keyword arguments
+            *args: Positional arguments
+            **kwargs: Keyword arguments
         Returns:
             Result of the function
         """

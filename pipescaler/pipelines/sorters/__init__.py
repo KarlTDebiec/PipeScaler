@@ -4,14 +4,14 @@
 
 This module may import from: common, core.pipelines
 
-Hierarchy within module:
+Package hierarchy (modules may import from any above):
 * list_sorter / regex_sorter
 """
 
 from __future__ import annotations
 
-from .list_sorter import ListSorter
-from .regex_sorter import RegexSorter
+from pipescaler.pipelines.sorters.list_sorter import ListSorter
+from pipescaler.pipelines.sorters.regex_sorter import RegexSorter
 
 __all__ = [
     "ListSorter",

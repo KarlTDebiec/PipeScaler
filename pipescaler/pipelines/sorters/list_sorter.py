@@ -79,7 +79,11 @@ class ListSorter(Sorter):
         return outlet
 
     def __repr__(self) -> str:
-        """Representation."""
+        """Representation.
+
+        Returns:
+            string representation of this object
+        """
         return f"{self.__class__.__name__}(**{self._input_paths_by_outlet!r})"
 
     @property

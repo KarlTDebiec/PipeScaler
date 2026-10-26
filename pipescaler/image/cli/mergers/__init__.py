@@ -5,14 +5,14 @@
 This module may import from: common, core, image.core, image.core.cli,
 image.operators.mergers
 
-Hierarchy within module:
+Package hierarchy (modules may import from any above):
 * alpha_merger_cli / palette_match_merger_cli
 """
 
 from __future__ import annotations
 
-from .alpha_merger_cli import AlphaMergerCli
-from .palette_match_merger_cli import PaletteMatchMergerCli
+from pipescaler.image.cli.mergers.alpha_merger_cli import AlphaMergerCli
+from pipescaler.image.cli.mergers.palette_match_merger_cli import PaletteMatchMergerCli
 
 __all__ = [
     "AlphaMergerCli",

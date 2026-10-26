@@ -236,6 +236,11 @@ def tarjan_scc(nodes: list[str], edges: dict[str, set[str]]) -> list[list[str]]:
     components: list[list[str]] = []
 
     def strong_connect(node_name: str):
+        """Visit a node while tracking Tarjan's active component stack.
+
+        Arguments:
+            node_name: node name
+        """
         index_of[node_name] = next_index[0]
         lowlink_of[node_name] = next_index[0]
         next_index[0] += 1
@@ -294,6 +299,13 @@ def get_levels(
 
     @cache
     def level_for_component(component_id: int) -> int:
+        """Get the dependency level of one strongly connected component.
+
+        Arguments:
+            component_id: component id
+        Returns:
+            dependency level of the component
+        """
         imported_components = component_edges.get(component_id, set())
         if not imported_components:
             return 1
@@ -401,7 +413,11 @@ def print_result(result: PackageAuditResult, target_dir_path: Path):
 
 
 def main():
-    """Run hierarchy audit for selected package directory."""
+    """Run hierarchy audit for selected package directory.
+
+    Raises:
+        FileNotFoundError: if a required input path does not exist
+    """
     args = parse_args()
     target_dir_path = Path(args.target).resolve()
     if not target_dir_path.exists():

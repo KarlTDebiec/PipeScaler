@@ -8,8 +8,8 @@ from collections.abc import Collection
 
 from PIL import Image
 
-from .exceptions import UnsupportedImageModeError
-from .functions import remove_palette
+from pipescaler.image.core.exceptions import UnsupportedImageModeError
+from pipescaler.image.core.functions import remove_palette
 
 __all__ = [
     "validate_image",
@@ -27,6 +27,8 @@ def validate_image(
         valid_modes: Valid modes
     Returns:
         Validated image
+    Raises:
+        UnsupportedImageModeError: if an image mode is unsupported
     """
     if image.mode == "P":
         image = remove_palette(image)

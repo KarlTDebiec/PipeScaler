@@ -4,12 +4,12 @@
 
 This module may import from: common, core, video.core
 
-Hierarchy within module:
+Package hierarchy (modules may import from any above):
 * apngasm_runner
 """
 
 from __future__ import annotations
 
-from .apngasm_runner import ApngasmRunner
+from pipescaler.video.runners.apngasm_runner import ApngasmRunner
 
 __all__ = ["ApngasmRunner"]

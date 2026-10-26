@@ -4,13 +4,13 @@
 
 This module may import from: common, core.pipelines, video.core.pipelines
 
-Hierarchy within module:
+Package hierarchy (modules may import from any above):
 * video_aspect_ratio_sorter
 """
 
 from __future__ import annotations
 
-from .video_aspect_ratio_sorter import (
+from pipescaler.video.pipelines.sorters.video_aspect_ratio_sorter import (
     VideoAspectRatioSorter,
 )
 

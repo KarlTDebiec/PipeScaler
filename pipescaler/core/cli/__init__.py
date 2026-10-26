@@ -3,10 +3,13 @@
 """PipeScaler general core command-line interfaces package.
 
 This module may import from: common, core
+
+Package hierarchy (modules may import from any above):
+* utility_cli
 """
 
 from __future__ import annotations
 
-from .utility_cli import UtilityCli
+from pipescaler.core.cli.utility_cli import UtilityCli
 
 __all__ = ["UtilityCli"]

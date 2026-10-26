@@ -32,6 +32,8 @@ class LocalPaletteMatcher(Utility):
             local_range: Range of adjacent pixels from which to draw best-fit color
         Returns:
             Image with palette fit to reference
+        Raises:
+            UnsupportedImageModeError: if an image mode is unsupported
         """
         if ref_img.mode != fit_img.mode:
             raise UnsupportedImageModeError(

@@ -3,11 +3,10 @@
 """General-purpose code not tied to a particular project.
 
 Utilities in this package depend only on the standard library and one another.
-See `docs/COMMON.md` for usage and compatibility imports.
 
 Package hierarchy (modules may import from any above):
 * csv / described_enum / duration / exceptions / file / logs / subprocess
-* command_line_interface / validation
+* exception / command_line_interface / validation
 * argument_parsing / cli / testing
 
 The legacy exception module re-exports the classes defined in exceptions.

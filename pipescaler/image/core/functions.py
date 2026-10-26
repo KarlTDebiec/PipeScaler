@@ -9,8 +9,7 @@ from PIL import Image, ImageDraw, ImageFont
 from scipy.ndimage import convolve
 
 from pipescaler.common.validation import val_float
-
-from .exceptions import UnsupportedImageModeError
+from pipescaler.image.core.exceptions import UnsupportedImageModeError
 
 __all__ = [
     "convert_mode",
@@ -280,6 +279,8 @@ def is_monochrome(
           and true monochrome must be below
     Returns:
         Whether image contains only pure black and white
+    Raises:
+        UnsupportedImageModeError: if an image mode is unsupported
     """
     if image.mode != "L":
         raise UnsupportedImageModeError()
@@ -337,6 +338,8 @@ def remove_palette(image: Image.Image) -> Image.Image:
         image: Image in 'P' mode
     Returns:
         Image in 'L', 'LA', 'RGB', or 'RGBA' mode
+    Raises:
+        UnsupportedImageModeError: if an image mode is unsupported
     """
     palette_list = image.getpalette()
     if palette_list is None:

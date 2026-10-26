@@ -4,16 +4,16 @@
 
 This module may import from: common, core.pipelines
 
-Hierarchy within module:
+Package hierarchy (modules may import from any above):
 * post_checkpointed_segment / pre_checkpointed_segment
 """
 
 from __future__ import annotations
 
-from .post_checkpointed_segment import (
+from pipescaler.pipelines.segments.post_checkpointed_segment import (
     PostCheckpointedSegment,
 )
-from .pre_checkpointed_segment import (
+from pipescaler.pipelines.segments.pre_checkpointed_segment import (
     PreCheckpointedSegment,
 )
 

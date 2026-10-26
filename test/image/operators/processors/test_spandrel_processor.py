@@ -65,12 +65,22 @@ class _FakeModel:
         """Mock eval."""
 
     def to(self, _device: str) -> _FakeModel:
-        """Mock device transfer."""
+        """Mock device transfer.
+
+        Arguments:
+            _device:  device
+        Returns:
+            this model after selecting its device
+        """
         return self
 
 
 def test_repr_round_trip(monkeypatch: pytest.MonkeyPatch):
-    """Test SpandrelProcessor repr round-trip recreation."""
+    """Test SpandrelProcessor repr round-trip recreation.
+
+    Arguments:
+        monkeypatch: pytest monkeypatch fixture
+    """
     monkeypatch.setattr(
         "pipescaler.image.operators.processors.spandrel_processor.ModelLoader.load_from_file",
         lambda *_args, **_kwargs: _FakeModel(),

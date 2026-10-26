@@ -13,7 +13,7 @@ import torch
 from PIL import Image
 
 from pipescaler.common.validation import val_input_path
-from pipescaler.image.core.operators import ImageProcessor
+from pipescaler.image.core.operators.image_processor import ImageProcessor
 from pipescaler.image.core.typing import ImageMode
 from pipescaler.image.core.validation import validate_image_and_convert_mode
 
@@ -28,7 +28,7 @@ class PyTorchImageProcessor(ImageProcessor, ABC):
 
         Arguments:
             model_input_path: Path to model file
-            kwargs: Additional keyword arguments
+            **kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
 
@@ -64,7 +64,11 @@ class PyTorchImageProcessor(ImageProcessor, ABC):
         return output_img
 
     def __repr__(self) -> str:
-        """Representation."""
+        """Representation.
+
+        Returns:
+            string representation of this object
+        """
         return f"{self.__class__.__name__}(model_input_path={self.model_input_path!r})"
 
     def upscale(self, input_arr: np.ndarray) -> np.ndarray:
@@ -89,14 +93,22 @@ class PyTorchImageProcessor(ImageProcessor, ABC):
 
     @classmethod
     def inputs(cls) -> dict[str, tuple[ImageMode, ...]]:
-        """Inputs to this operator."""
+        """Inputs to this operator.
+
+        Returns:
+            mapping of input names to their supported image modes
+        """
         return {
             "input": ("1", "L", "RGB"),
         }
 
     @classmethod
     def outputs(cls) -> dict[str, tuple[ImageMode, ...]]:
-        """Outputs of this operator."""
+        """Outputs of this operator.
+
+        Returns:
+            mapping of output names to their supported image modes
+        """
         return {
             "output": ("1", "L", "RGB"),
         }

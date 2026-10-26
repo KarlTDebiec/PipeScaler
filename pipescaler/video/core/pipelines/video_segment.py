@@ -7,8 +7,7 @@ from __future__ import annotations
 from abc import ABC
 
 from pipescaler.core.pipelines.segment import Segment
-
-from .pipe_video import PipeVideo
+from pipescaler.video.core.pipelines.pipe_video import PipeVideo
 
 __all__ = ["VideoSegment"]
 

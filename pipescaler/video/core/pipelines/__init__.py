@@ -4,7 +4,7 @@
 
 This module may import from: common, core.pipelines, video.core
 
-Hierarchy within module:
+Package hierarchy (modules may import from any above):
 * pipe_video
 * video_segment / video_sorter / video_source / video_terminus
 * typing
@@ -12,11 +12,11 @@ Hierarchy within module:
 
 from __future__ import annotations
 
-from .pipe_video import PipeVideo
-from .video_segment import VideoSegment
-from .video_sorter import VideoSorter
-from .video_source import VideoSource
-from .video_terminus import VideoTerminus
+from pipescaler.video.core.pipelines.pipe_video import PipeVideo
+from pipescaler.video.core.pipelines.video_segment import VideoSegment
+from pipescaler.video.core.pipelines.video_sorter import VideoSorter
+from pipescaler.video.core.pipelines.video_source import VideoSource
+from pipescaler.video.core.pipelines.video_terminus import VideoTerminus
 
 __all__ = [
     "PipeVideo",

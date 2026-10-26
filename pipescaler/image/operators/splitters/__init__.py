@@ -4,14 +4,14 @@
 
 This module may import from: common, core, image.core, image.core.operators
 
-Hierarchy within module:
+Package hierarchy (modules may import from any above):
 * alpha_splitter / normal_splitter
 """
 
 from __future__ import annotations
 
-from .alpha_splitter import AlphaSplitter
-from .normal_splitter import NormalSplitter
+from pipescaler.image.operators.splitters.alpha_splitter import AlphaSplitter
+from pipescaler.image.operators.splitters.normal_splitter import NormalSplitter
 
 __all__ = [
     "AlphaSplitter",

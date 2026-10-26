@@ -21,7 +21,7 @@ class NormalMerger(ImageMerger):
         """Merge images.
 
         Arguments:
-            input_images: Input images
+            *input_images: Input images
         Returns:
             Merged output image
         """
@@ -46,7 +46,11 @@ class NormalMerger(ImageMerger):
 
     @classmethod
     def inputs(cls) -> dict[str, tuple[ImageMode, ...]]:
-        """Inputs to this operator."""
+        """Inputs to this operator.
+
+        Returns:
+            mapping of input names to their supported image modes
+        """
         return {
             "x": ("L",),
             "y": ("L",),
@@ -55,7 +59,11 @@ class NormalMerger(ImageMerger):
 
     @classmethod
     def outputs(cls) -> dict[str, tuple[ImageMode, ...]]:
-        """Outputs of this operator."""
+        """Outputs of this operator.
+
+        Returns:
+            mapping of output names to their supported image modes
+        """
         return {
             "output": ("RGB",),
         }

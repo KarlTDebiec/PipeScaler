@@ -33,7 +33,11 @@ class ApngasmRunner(Runner):
         self.arguments = arguments
 
     def __repr__(self) -> str:
-        """Representation."""
+        """Representation.
+
+        Returns:
+            string representation of this object
+        """
         return (
             f"{self.__class__.__name__}("
             f"arguments={self.arguments!r}, "
@@ -50,12 +54,20 @@ class ApngasmRunner(Runner):
 
     @classmethod
     def executable(cls) -> str:
-        """Name of executable."""
+        """Name of executable.
+
+        Returns:
+            absolute path of the external executable
+        """
         return "apngasm"
 
     @classmethod
     def help_markdown(cls) -> str:
-        """Short description of this tool in markdown, with links."""
+        """Short description of this tool in markdown, with links.
+
+        Returns:
+            Markdown help describing this component
+        """
         return (
             "Creates animated pngs using [apngasm](https://github.com/apngasm/apngasm)."
         )

@@ -4,7 +4,7 @@
 
 This module may import from: common, core.pipelines, image.core
 
-Hierarchy within module:
+Package hierarchy (modules may import from any above):
 * pipe_image
 * image_segment / image_sorter / image_source / image_terminus
 * image_operator_segment / typing
@@ -12,12 +12,12 @@ Hierarchy within module:
 
 from __future__ import annotations
 
-from .image_operator_segment import ImageOperatorSegment
-from .image_segment import ImageSegment
-from .image_sorter import ImageSorter
-from .image_source import ImageSource
-from .image_terminus import ImageTerminus
-from .pipe_image import PipeImage
+from pipescaler.image.core.pipelines.image_operator_segment import ImageOperatorSegment
+from pipescaler.image.core.pipelines.image_segment import ImageSegment
+from pipescaler.image.core.pipelines.image_sorter import ImageSorter
+from pipescaler.image.core.pipelines.image_source import ImageSource
+from pipescaler.image.core.pipelines.image_terminus import ImageTerminus
+from pipescaler.image.core.pipelines.pipe_image import PipeImage
 
 __all__ = [
     "ImageOperatorSegment",

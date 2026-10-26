@@ -1,47 +1,69 @@
 # Architecture
 
-PipeScaler processes collections of image and video files through composable pipelines. A pipeline moves `PipeObject` instances from sources through sorters, processors, splitters, mergers, runners, checkpoint wrappers, and termini. Components should stay small and composable so pipelines can be inspected, resumed, and tested one segment at a time.
+PipeScaler processes collections of image and video files through composable
+pipelines. This guide owns stable package boundaries and behavioral contracts.
+Source code owns detailed API and command inventories.
 
-## Package Layout
-* `pipescaler/common/` contains cross-cutting utilities for CLI plumbing, validation, duration parsing, described enums, filesystem helpers, logging setup, subprocess execution, exceptions, and test support. See [Common Utilities](COMMON.md) for usage and compatibility imports. Keep domain-specific image or video behavior out of this package.
-* `pipescaler/core/` contains generic pipeline primitives that are not tied to a media type, including `PipeObject`, `Segment`, source and terminus bases, sorter bases, checkpoint base behavior, runner support, typing helpers, and shared sorting utilities.
-* `pipescaler/pipelines/` contains concrete generic pipeline helpers, including checkpoint management, pre-checkpoint and post-checkpoint segment wrappers, and generic sorters.
-* `pipescaler/image/core/` contains image-specific base types and shared image behavior. It should hold abstractions and validation used by multiple image operators, pipelines, or CLIs.
-* `pipescaler/image/operators/` contains concrete image transformations. Processors transform one image, splitters separate one image into multiple images, and mergers combine multiple images into one image.
-* `pipescaler/image/pipelines/` contains concrete image pipeline sources, sorters, termini, checkpoint behavior, substituters, and segment wrappers that adapt operators or runners into pipeline segments.
-* `pipescaler/image/runners/` and `pipescaler/image/utilities/` contain wrappers around external image tools and higher-level utilities respectively.
-* `pipescaler/video/core/`, `pipescaler/video/pipelines/`, and `pipescaler/video/runners/` mirror the image layout for video-specific objects, pipeline components, and external tool runners.
-* `pipescaler/cli/`, `pipescaler/core/cli/`, and `pipescaler/image/cli/` expose command-line entry points. CLI modules should parse arguments and delegate work to core, operator, pipeline, utility, or runner classes.
-* `pipescaler/testing/` contains reusable test helpers for this repository. Keep production code independent from test-only helpers unless a helper is intentionally part of the package's test support surface.
-* `test/` mirrors the package layout. `test/helpers.py` provides shared test assertions and symlink helpers; `test/common/subprocess_cases.py` provides portable subprocess cases. Add focused tests beside the behavior being changed. Pytest adds the repository root to its import path so these helpers work when invoked from either the root or `test/`.
+## Package hierarchy
 
-## Dependency Direction
-* Domain-specific packages may depend on `pipescaler.common` and `pipescaler.core`.
-* Image and video packages should not depend on each other unless a feature explicitly bridges the domains.
-* Concrete operators, runners, sources, sorters, and termini should depend on base abstractions, not on peer concrete implementations unless composition is the feature being implemented.
-* CLI modules may depend on concrete implementation modules, but implementation modules should not depend on CLI modules.
-* Test helpers may depend on production code; production code should not depend on `test/`.
+The hierarchy in [`pipescaler/__init__.py`](../pipescaler/__init__.py) declares
+dependencies between top-level packages. Each nested package's `__init__.py`
+declares dependency levels between its direct children.
 
-## Pipeline Model
-* `PipeObject` represents the item moving through a pipeline. It tracks a file path, display name, parent objects, and an optional location relative to a source root.
-* `Segment` represents one pipeline step. It accepts one or more pipeline objects and returns a tuple of pipeline objects, even when there is only one output.
-* Sources create pipeline objects from external input, termini write or collect final output, and sorters route objects into named branches.
-* Image and video pipeline classes specialize generic pipeline behavior by binding the object type and media-specific validation or IO.
-* Checkpoint managers observe checkpoint names and locations, load current checkpoints when possible, save outputs after segment execution, and remove unrecognized checkpoint files only when explicitly requested.
+Each child appears once. Entries separated by `/` are independent peers; children
+may depend on children at earlier levels. Sibling dependency cycles are prohibited.
+Hierarchy levels express architectural policy. Adding or removing an import does
+not by itself authorize changing those levels; explain intentional hierarchy
+changes during review.
 
-## Operators And Runners
-* Operators should perform deterministic in-memory transformations where practical. Keep file traversal, checkpointing, and pipeline routing outside operator classes.
-* Processors, splitters, and mergers should define narrow `__call__` contracts and return new objects or image values without surprising side effects.
-* Runners wrap external tools and model execution. Keep subprocess command construction, environment assumptions, and output validation close to the runner class.
-* Prefer existing libraries for image processing, video processing, and ML model execution rather than reimplementing specialized algorithms in project code.
+The [architecture tests](../test/test_module_hierarchy.py) enforce declarations,
+dependency direction, import style, and cycle detection. The
+[hierarchy audit](../skills/audit-module-hierarchy/SKILL.md) reports inferred
+minimum levels as review evidence, not automatic replacements for policy.
 
-## CLIs
-* Command-line classes should focus on argument definitions, command dispatch, and translation from CLI values into implementation objects.
-* Keep user-facing command output deliberate. Libraries and scripts should use logging for status and diagnostics.
-* Reuse validation helpers from `pipescaler.common.validation` for filesystem and argument validation.
+## Responsibilities
 
-## Tests
-* Add or update tests under the matching `test/` package path for behavior changes.
-* Use repository test fixtures and helpers instead of duplicating temporary file, image, or execution-count setup.
-* Mark tests that require serial execution, GUI behavior, external tools, or large resources using the markers configured in `pyproject.toml`.
-* Keep checkpoint and pipeline tests explicit about file paths and expected object lineage so resume behavior stays clear.
+This table is alphabetical; dependency order belongs in the hierarchy declarations.
+
+| Package | Responsibility |
+| --- | --- |
+| `cli` | Root command dispatch and user-facing adapters |
+| `common` | General-purpose standard-library utilities, independent of other PipeScaler packages |
+| `core` | Generic pipeline primitives, runner contracts, and shared CLI bases |
+| `image` | Image pipeline types, operators, sorters, sources, termini, and external-tool adapters |
+| `pipelines` | Concrete generic checkpoint and sorting helpers |
+| `testing` | Reusable test fixtures, markers, paths, and execution helpers |
+| `utilities` | File-scanning and related collection utilities |
+| `video` | Video pipeline types, sorters, sources, termini, and external-tool adapters |
+
+Domain packages build on `common` and `core` according to the declared hierarchy.
+Concrete components depend on their abstractions; peer components may be composed
+when the hierarchy permits it. Production modules do not import `test/`.
+Internal imports expose their concrete dependencies as described in
+[Code Style](STYLE.md).
+
+## Pipeline contracts
+
+- `PipeObject` tracks an input/output path, display name, parent objects, and
+  relative location.
+- `Segment` transforms pipeline objects and returns a tuple of pipeline objects.
+  Sources create objects; sorters route them; termini collect or write outputs.
+- Image processors, splitters, and mergers operate on in-memory images. File
+  traversal and checkpoint orchestration belong in pipeline components.
+- Checkpoint managers own checkpoint identity, freshness checks, loading, and
+  saving. Preserve input lineage and path/mtime behavior when changing resume logic.
+- Runners own subprocess invocation, platform assumptions, output validation, and
+  model execution. Use existing image and video libraries where practical.
+
+## CLI and test boundaries
+
+The console entry point is declared in [`pyproject.toml`](../pyproject.toml).
+CLI classes own their `argparse` command trees and help, validate inputs, and
+delegate processing to lower-level components. Keep library code independent of
+CLI adapters and process arguments.
+
+`test/` mirrors the package layout. Shared assertions belong in `test/helpers.py`;
+portable subprocess cases belong in `test/common/subprocess_cases.py`. Pytest's
+configured root import path supports execution from the root or `test/` without
+adding per-test `sys.path` changes. Preserve serial, platform, external-tool, and
+large-resource markers when modifying tests.

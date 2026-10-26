@@ -21,9 +21,11 @@ class PreCheckpointedSegment(CheckpointedSegment):
         Segment.
 
         Arguments:
-            input_objs: Input objects, saved to checkpoints if not already present
+            *input_objs: Input objects, saved to checkpoints if not already present
         Returns:
             Output objects, within a tuple even if only one
+        Raises:
+            ValueError: if input values or configuration are invalid
         """
         if len(input_objs) != len(self.cpts):
             raise ValueError(

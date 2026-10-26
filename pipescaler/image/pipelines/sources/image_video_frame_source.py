@@ -46,7 +46,11 @@ class ImageVideoFrameSource(ImageSource):
         """Index of next frame to be read"""
 
     def __repr__(self) -> str:
-        """Representation."""
+        """Representation.
+
+        Returns:
+            string representation of this object
+        """
         input_path = f"Path({str(self.input_path)!r})"
         location_path = repr(self.location_path)
         if self.location_path is not None:
@@ -57,7 +61,13 @@ class ImageVideoFrameSource(ImageSource):
         )
 
     def __next__(self) -> PipeImage:
-        """Get next image from video."""
+        """Get next image from video.
+
+        Returns:
+            next object yielded by this source
+        Raises:
+            StopIteration: when no input objects remain
+        """
         if self.index < self.length:
             self.cap.set(cv2.CAP_PROP_POS_FRAMES, self.index)
             _, frame = self.cap.read()

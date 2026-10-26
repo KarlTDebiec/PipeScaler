@@ -4,13 +4,13 @@
 
 This module may import from: common, core.pipelines, video.core.pipelines
 
-Hierarchy within module:
+Package hierarchy (modules may import from any above):
 * video_directory_source
 """
 
 from __future__ import annotations
 
-from .video_directory_source import (
+from pipescaler.video.pipelines.sources.video_directory_source import (
     VideoDirectorySource,
 )
 

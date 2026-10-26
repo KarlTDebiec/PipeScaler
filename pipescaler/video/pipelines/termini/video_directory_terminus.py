@@ -24,7 +24,11 @@ class VideoDirectoryTerminus(VideoTerminus, DirectoryTerminus[PipeVideo]):
         """
 
         def save_video():
-            """Save video to output directory."""
+            """Save video to output directory.
+
+            Raises:
+                NotImplementedError: if the subclass does not implement this operation
+            """
             if not self.dir_path.exists():
                 self.dir_path.mkdir(parents=True)
                 info(f"{self}: '{self.dir_path}' created")

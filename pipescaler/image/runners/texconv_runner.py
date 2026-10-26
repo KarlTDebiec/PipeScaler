@@ -31,14 +31,18 @@ class TexconvRunner(Runner):
 
         Arguments:
             arguments: Command-line arguments to pass to texconv
-            kwargs: Additional keyword arguments
+            **kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
 
         self.arguments = arguments
 
     def __repr__(self) -> str:
-        """Representation."""
+        """Representation.
+
+        Returns:
+            string representation of this object
+        """
         return (
             f"{self.__class__.__name__}("
             f"arguments={self.arguments!r}, "
@@ -69,12 +73,20 @@ class TexconvRunner(Runner):
 
     @classmethod
     def executable(cls) -> str:
-        """Name of executable."""
+        """Name of executable.
+
+        Returns:
+            absolute path of the external executable
+        """
         return "texconv.exe"
 
     @classmethod
     def help_markdown(cls) -> str:
-        """Short description of this tool in markdown, with links."""
+        """Short description of this tool in markdown, with links.
+
+        Returns:
+            Markdown help describing this component
+        """
         return (
             "Processes image using [Texconv]"
             "(https://github.com/Microsoft/DirectXTex/wiki/Texconv)."
@@ -82,5 +94,9 @@ class TexconvRunner(Runner):
 
     @classmethod
     def supported_platforms(cls) -> set[str]:
-        """Platforms on which runner is supported."""
+        """Platforms on which runner is supported.
+
+        Returns:
+            names of platforms supported by this runner
+        """
         return {"Windows"}

@@ -4,16 +4,16 @@
 
 This module may import from: common, core.pipelines, image.core.pipelines
 
-Hierarchy within module:
+Package hierarchy (modules may import from any above):
 * image_directory_source / image_video_frame_source
 """
 
 from __future__ import annotations
 
-from .image_directory_source import (
+from pipescaler.image.pipelines.sources.image_directory_source import (
     ImageDirectorySource,
 )
-from .image_video_frame_source import (
+from pipescaler.image.pipelines.sources.image_video_frame_source import (
     ImageVideoFrameSource,
 )
 

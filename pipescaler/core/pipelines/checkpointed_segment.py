@@ -7,9 +7,9 @@ from __future__ import annotations
 from abc import ABC
 from collections.abc import Sequence
 
-from .checkpoint_manager_base import CheckpointManagerBase
-from .segment import Segment
-from .typing import SegmentLike
+from pipescaler.core.pipelines.checkpoint_manager_base import CheckpointManagerBase
+from pipescaler.core.pipelines.segment import Segment
+from pipescaler.core.pipelines.typing import SegmentLike
 
 __all__ = ["CheckpointedSegment"]
 
@@ -36,6 +36,8 @@ class CheckpointedSegment(Segment, ABC):
             cpts: Checkpoints to save
             internal_cpts: Names of additional checkpoints saved by Segments within
               this Segment
+        Raises:
+            ValueError: if input values or configuration are invalid
         """
         if len(cpts) == 0:
             raise ValueError(
@@ -57,7 +59,11 @@ class CheckpointedSegment(Segment, ABC):
         """Names of additional checkpoints saved by Segments within this Segment"""
 
     def __repr__(self) -> str:
-        """Representation."""
+        """Representation.
+
+        Returns:
+            string representation of this object
+        """
         return (
             f"{self.__class__.__name__}("
             f"segment={self.segment!r}, "

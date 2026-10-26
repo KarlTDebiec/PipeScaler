@@ -4,13 +4,13 @@
 
 This module may import from: common, core.pipelines, image.core.pipelines
 
-Hierarchy within module:
+Package hierarchy (modules may import from any above):
 * image_directory_terminus
 """
 
 from __future__ import annotations
 
-from .image_directory_terminus import (
+from pipescaler.image.pipelines.termini.image_directory_terminus import (
     ImageDirectoryTerminus,
 )
 

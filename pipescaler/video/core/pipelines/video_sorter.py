@@ -7,8 +7,7 @@ from __future__ import annotations
 from abc import ABC
 
 from pipescaler.core.pipelines.sorter import Sorter
-
-from .pipe_video import PipeVideo
+from pipescaler.video.core.pipelines.pipe_video import PipeVideo
 
 __all__ = ["VideoSorter"]
 

@@ -10,8 +10,7 @@ from logging import info
 from pipescaler.common.file import get_temp_file_path
 from pipescaler.core.pipelines import CheckpointedSegment, CheckpointManagerBase
 from pipescaler.image.core.pipelines import PipeImage
-
-from .image_runner_segment import ImageRunnerSegment
+from pipescaler.image.pipelines.segments.image_runner_segment import ImageRunnerSegment
 
 __all__ = ["PostCheckpointedImageRunnerSegment"]
 
@@ -36,6 +35,8 @@ class PostCheckpointedImageRunnerSegment(CheckpointedSegment):
             cp_manager: Checkpoint manager
             cpts: Checkpoints to save
             internal_cpts: Checkpoints to save internally
+        Raises:
+            ValueError: if input values or configuration are invalid
         """
         if len(cpts) != 1:
             raise ValueError(
@@ -53,7 +54,7 @@ class PostCheckpointedImageRunnerSegment(CheckpointedSegment):
         """Return outputs of wrapped Segment, loaded from checkpoints if available.
 
         Arguments:
-            input_objs: Input images
+            *input_objs: Input images
         Returns:
             Output images, loaded from checkpoint if available, within a tuple for
             consistency with other Segments

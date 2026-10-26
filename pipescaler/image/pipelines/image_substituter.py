@@ -43,6 +43,8 @@ class ImageSubstituter:
             pipe_image: Image to substitute
         Returns:
             Alternate image
+        Raises:
+            FileNotFoundError: if a required input path does not exist
         """
         if pipe_image.name in self.substitutes:
             image = Image.open(self.substitutes[pipe_image.name])

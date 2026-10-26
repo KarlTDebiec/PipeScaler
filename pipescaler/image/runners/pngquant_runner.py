@@ -31,14 +31,18 @@ class PngquantRunner(Runner):
 
         Arguments:
             arguments: Command-line arguments to pass to pngquant
-            kwargs: Additional keyword arguments
+            **kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)
 
         self.arguments = arguments
 
     def __repr__(self) -> str:
-        """Representation."""
+        """Representation.
+
+        Returns:
+            string representation of this object
+        """
         return (
             f"{self.__class__.__name__}("
             f"arguments={self.arguments!r}, "
@@ -73,10 +77,18 @@ class PngquantRunner(Runner):
 
     @classmethod
     def executable(cls) -> str:
-        """Name of executable."""
+        """Name of executable.
+
+        Returns:
+            absolute path of the external executable
+        """
         return "pngquant"
 
     @classmethod
     def help_markdown(cls) -> str:
-        """Short description of this tool in markdown, with links."""
+        """Short description of this tool in markdown, with links.
+
+        Returns:
+            Markdown help describing this component
+        """
         return "Reduces image palette using [pngquant](https://pngquant.org/)."

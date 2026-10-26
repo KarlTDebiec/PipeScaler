@@ -8,12 +8,11 @@ from collections.abc import Callable
 from pathlib import Path
 
 from pipescaler.core import RunnerLike
-from pipescaler.pipelines.checkpoint_manager import CheckpointManager
-
-from .segments import (
+from pipescaler.image.pipelines.segments import (
     ImageRunnerSegment,
     PostCheckpointedImageRunnerSegment,
 )
+from pipescaler.pipelines.checkpoint_manager import CheckpointManager
 
 __all__ = ["ImageCheckpointManager"]
 
