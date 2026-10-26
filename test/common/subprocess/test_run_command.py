@@ -7,12 +7,13 @@ from __future__ import annotations
 import os
 import sys
 from pathlib import Path
-from subprocess import TimeoutExpired
+from subprocess import Popen, TimeoutExpired
 from threading import enumerate as enumerate_threads
 from time import monotonic, sleep
 
-from pytest import raises
+from pytest import MonkeyPatch, raises
 
+from pipescaler.common import subprocess as subprocess_module
 from pipescaler.common.subprocess import run_command, run_command_live
 from test.common.subprocess_cases import SUBPROCESS_SUCCESS_CASES
 from test.helpers import parametrize
@@ -132,26 +133,60 @@ def test_run_command_unicode_output():
 
 
 @parametrize(
-    ("live", "parent_exits"),
-    [(False, False), (False, True), (True, False), (True, True)],
+    ("live", "parent_exits", "kill_tree"),
+    [
+        (False, False, True),
+        (False, True, True),
+        (True, False, True),
+        (True, True, True),
+        (False, True, False),
+        (True, True, False),
+    ],
 )
-def test_inherited_pipes_do_not_extend_timeout(
-    live: bool, parent_exits: bool, tmp_path: Path
+def test_timeout_cleans_up_inherited_pipes(
+    live: bool,
+    parent_exits: bool,
+    kill_tree: bool,
+    tmp_path: Path,
+    monkeypatch: MonkeyPatch,
 ):
-    """Stop collection while descendants hold pipes without leaving reader threads.
+    """Terminate descendants and bound readers even when tree cleanup misses them.
 
     Arguments:
         live: whether to use the live logging helper
         parent_exits: whether the direct child exits before the command deadline
+        kill_tree: whether process-tree cleanup is allowed to terminate descendants
         tmp_path: directory for descendant lifetime markers
+        monkeypatch: fixture for simulating an escaped descendant
     """
+    if not kill_tree:
+
+        def kill_direct_child(child: Popen[bytes], job: object):
+            """Simulate tree cleanup missing descendants.
+
+            Arguments:
+                child: direct child to reap
+                job: unused process-tree ownership
+            """
+            if child.poll() is None:
+                child.kill()
+            child.wait(timeout=1)
+
+        monkeypatch.setattr(
+            subprocess_module, "_terminate_process_tree", kill_direct_child
+        )
     alive_path = tmp_path / "alive.txt"
     done_path = tmp_path / "done.txt"
+    heartbeat_path = tmp_path / "heartbeat.txt"
     descendant_code = (
-        "import sys, time; from pathlib import Path; "
-        "print('descendant output', flush=True); "
-        "print('descendant error', file=sys.stderr, flush=True); "
-        f"Path({str(alive_path)!r}).touch(); time.sleep(3); "
+        "import sys, time\nfrom pathlib import Path\n"
+        "print('descendant output', flush=True)\n"
+        "print('descendant error', file=sys.stderr, flush=True)\n"
+        f"heartbeat = Path({str(heartbeat_path)!r})\n"
+        "heartbeat.write_text('0')\n"
+        f"Path({str(alive_path)!r}).touch()\n"
+        "for i in range(1, 61):\n"
+        " heartbeat.write_text(str(i))\n time.sleep(0.05)\n"
         f"Path({str(done_path)!r}).touch()"
     )
     parent_code = (
@@ -189,10 +224,14 @@ def test_inherited_pipes_do_not_extend_timeout(
     assert not any(
         thread.name.startswith("pipescaler-reader-") for thread in enumerate_threads()
     )
-    deadline = monotonic() + 4.0
-    while not done_path.exists() and monotonic() < deadline:
-        sleep(0.05)
-    assert done_path.exists()
+    sleep(0.1)
+    heartbeat = heartbeat_path.read_text()
+    sleep(0.2)
+    if kill_tree:
+        assert heartbeat_path.read_text() == heartbeat
+    else:
+        assert heartbeat_path.read_text() != heartbeat
+    assert not done_path.exists()
 
 
 @parametrize("live", [False, True])

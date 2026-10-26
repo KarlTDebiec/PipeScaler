@@ -4,7 +4,11 @@
 
 from __future__ import annotations
 
+import ctypes
+import os
+import signal
 from collections.abc import Iterable, Mapping
+from importlib import import_module
 from logging import getLogger
 from os import read, set_blocking
 from pathlib import Path
@@ -29,10 +33,10 @@ def run_command(
 ) -> tuple[int, str, str]:
     """Run an argument list without a shell and capture its output.
 
-    On timeout, stop the direct child and cancel output readers after bounded
-    cleanup. Descendants are not terminated, and output they produce afterward is
-    not captured. The resulting exit code is checked normally; the command deadline
-    does not raise TimeoutExpired. Output uses UTF-8 with ISO-8859-1 fallback.
+    On timeout, terminate the command's process group or Windows job and cancel
+    output readers after bounded cleanup. The resulting exit code is checked normally;
+    the command deadline does not raise TimeoutExpired. Output uses UTF-8 with
+    ISO-8859-1 fallback.
 
     Arguments:
         command: command to run as a list of arguments
@@ -43,14 +47,22 @@ def run_command(
     Returns:
         exitcode, standard output, and standard error
     Raises:
-        OSError: if the child cannot be started
+        OSError: if the child cannot be started or assigned to a Windows job
         TimeoutExpired: if cleanup cannot reap the direct child within its deadline
         ValueError: if the exit code is not accepted, including after a timeout
     """
     if acceptable_exitcodes is None:
         acceptable_exitcodes = [0]
 
-    child = Popen(command, stdout=PIPE, stderr=PIPE, cwd=cwd_path, env=env, bufsize=0)
+    child = Popen(
+        command,
+        stdout=PIPE,
+        stderr=PIPE,
+        cwd=cwd_path,
+        env=env,
+        bufsize=0,
+        start_new_session=os.name != "nt",
+    )
     stdout_str, stderr_str = _collect_output(child, timeout, live=False)
     exitcode = child.returncode
 
@@ -81,9 +93,9 @@ def run_command_live(
 
     Both streams are also captured and returned as text, decoded as UTF-8 with
     ISO-8859-1 fallback. Newlines and carriage returns delimit live log records.
-    On timeout, stop the direct child, cancel output readers after bounded cleanup,
-    and raise TimeoutExpired with captured text in output and stderr. Descendants
-    are not terminated, and output they produce afterward is not captured.
+    On timeout, terminate the command's process group or Windows job, cancel output
+    readers after bounded cleanup, and raise TimeoutExpired with captured text in
+    output and stderr.
 
     Arguments:
         command: command to run as a list of arguments
@@ -95,14 +107,22 @@ def run_command_live(
     Returns:
         exitcode, standard output, and standard error
     Raises:
-        OSError: if the child cannot be started
+        OSError: if the child cannot be started or assigned to a Windows job
         TimeoutExpired: if the process or its output readers exceed the deadline
         ValueError: if the exit code is not accepted
     """
     if acceptable_exitcodes is None:
         acceptable_exitcodes = [0]
 
-    child = Popen(command, stdout=PIPE, stderr=PIPE, cwd=cwd_path, env=env, bufsize=0)
+    child = Popen(
+        command,
+        stdout=PIPE,
+        stderr=PIPE,
+        cwd=cwd_path,
+        env=env,
+        bufsize=0,
+        start_new_session=os.name != "nt",
+    )
     stdout_str, stderr_str = _collect_output(child, timeout, live=True)
     exitcode = child.returncode
 
@@ -143,11 +163,14 @@ def _collect_output(
     stderr_chunks: list[bytes] = []
     stop_event = Event()
     readers: list[Thread] = []
-    timed_out = False
+    completed = False
+    job: _WindowsJob | None = None
     deadline = None
     if timeout is not None:
         deadline = monotonic() + timeout
     try:
+        if os.name == "nt":
+            job = _WindowsJob(child)
         for label, stream, chunks in (
             ("stdout", child.stdout, stdout_chunks),
             ("stderr", child.stderr, stderr_chunks),
@@ -162,34 +185,25 @@ def _collect_output(
             )
             reader.start()
             readers.append(reader)
-        try:
-            remaining = None
-            if deadline is not None:
-                remaining = max(0.0, deadline - monotonic())
-            child.wait(timeout=remaining)
-            for reader in readers:
-                remaining = None
-                if deadline is not None:
-                    remaining = max(0.0, deadline - monotonic())
-                reader.join(timeout=remaining)
-            timed_out = any(reader.is_alive() for reader in readers)
-        except TimeoutExpired:
-            timed_out = True
+        completed = _wait_for_output(child, readers, deadline)
     finally:
         try:
-            if child.poll() is None:
-                child.kill()
-                child.wait(timeout=_CLEANUP_TIMEOUT)
+            if not completed:
+                _terminate_process_tree(child, job)
         finally:
-            stop_event.set()
-            cleanup_deadline = monotonic() + _CLEANUP_TIMEOUT
-            for reader in readers:
-                reader.join(timeout=max(0.0, cleanup_deadline - monotonic()))
-            child.stdout.close()
-            child.stderr.close()
+            try:
+                stop_event.set()
+                cleanup_deadline = monotonic() + _CLEANUP_TIMEOUT
+                for reader in readers:
+                    reader.join(timeout=max(0.0, cleanup_deadline - monotonic()))
+                child.stdout.close()
+                child.stderr.close()
+            finally:
+                if job is not None:
+                    job.close()
     stdout = _decode_output(b"".join(stdout_chunks))
     stderr = _decode_output(b"".join(stderr_chunks))
-    if timed_out and live:
+    if not completed and live:
         assert timeout is not None
         raise TimeoutExpired(child.args, timeout, output=stdout, stderr=stderr)
     return stdout, stderr
@@ -264,3 +278,125 @@ def _read_stream(
             logger.info(_decode_output(pending))
     finally:
         stream.close()
+
+
+def _terminate_process_tree(child: Popen[bytes], job: _WindowsJob | None):
+    """Terminate the owned process group or job, then reap the direct child.
+
+    Arguments:
+        child: direct child whose process group or job is owned by this call
+        job: Windows job, or None for a POSIX group or failed Windows setup
+    Raises:
+        OSError: if process-tree termination fails
+        TimeoutExpired: if cleanup cannot reap the direct child within its deadline
+    """
+    try:
+        if job is not None:
+            job.terminate()
+        elif os.name != "nt":
+            try:
+                os.killpg(child.pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+    finally:
+        if child.poll() is None:
+            child.kill()
+        child.wait(timeout=_CLEANUP_TIMEOUT)
+
+
+def _wait_for_output(
+    child: Popen[bytes], readers: list[Thread], deadline: float | None
+) -> bool:
+    """Wait for the direct child and output readers within one deadline.
+
+    Arguments:
+        child: direct child process
+        readers: threads collecting standard output and standard error
+        deadline: monotonic deadline, or None to wait without a timeout
+    Returns:
+        whether both the child and its readers finish before the deadline
+    """
+    try:
+        remaining = None
+        if deadline is not None:
+            remaining = max(0.0, deadline - monotonic())
+        child.wait(timeout=remaining)
+        for reader in readers:
+            remaining = None
+            if deadline is not None:
+                remaining = max(0.0, deadline - monotonic())
+            reader.join(timeout=remaining)
+    except TimeoutExpired:
+        return False
+    return not any(reader.is_alive() for reader in readers)
+
+
+class _WindowsJob:
+    """Own the native Windows job used to terminate a command and its descendants."""
+
+    def __init__(self, child: Popen[bytes]):
+        """Create a job and associate the direct child with it.
+
+        Assignment follows process startup. Children created before assignment can
+        escape the job, so output readers still require bounded cancellation.
+
+        Arguments:
+            child: newly started Windows command
+        Raises:
+            OSError: if a job cannot be created or the running child cannot be assigned
+        """
+        api = ctypes.WinDLL("kernel32", use_last_error=True)
+        wintypes = import_module("ctypes.wintypes")
+        for name, restype, argtypes in (
+            ("CreateJobObjectW", wintypes.HANDLE, (wintypes.LPVOID, wintypes.LPCWSTR)),
+            (
+                "OpenProcess",
+                wintypes.HANDLE,
+                (wintypes.DWORD, wintypes.BOOL, wintypes.DWORD),
+            ),
+            (
+                "AssignProcessToJobObject",
+                wintypes.BOOL,
+                (wintypes.HANDLE, wintypes.HANDLE),
+            ),
+            ("TerminateJobObject", wintypes.BOOL, (wintypes.HANDLE, wintypes.UINT)),
+            ("CloseHandle", wintypes.BOOL, (wintypes.HANDLE,)),
+        ):
+            function = getattr(api, name)
+            function.restype = restype
+            function.argtypes = argtypes
+        self._api = api
+        self._handle = api.CreateJobObjectW(None, None)
+        if not self._handle:
+            raise ctypes.WinError(ctypes.get_last_error())
+        process_handle = api.OpenProcess(0x0101, False, child.pid)
+        try:
+            if not process_handle or not api.AssignProcessToJobObject(
+                self._handle, process_handle
+            ):
+                error = ctypes.get_last_error()
+                if child.poll() is not None:
+                    self.close()
+                    return
+                raise ctypes.WinError(error)
+        except BaseException:
+            self.close()
+            raise
+        finally:
+            if process_handle:
+                api.CloseHandle(process_handle)
+
+    def close(self):
+        """Release the owned native job handle."""
+        if self._handle:
+            self._api.CloseHandle(self._handle)
+            self._handle = None
+
+    def terminate(self):
+        """Terminate processes associated with this job.
+
+        Raises:
+            OSError: if Windows cannot terminate the job
+        """
+        if self._handle and not self._api.TerminateJobObject(self._handle, 1):
+            raise ctypes.WinError(ctypes.get_last_error())
