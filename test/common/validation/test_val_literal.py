@@ -6,9 +6,9 @@ from __future__ import annotations
 
 from typing import Literal
 
-import pytest
+from pytest import raises
 
-from pipescaler.common.exception import ArgumentConflictError
+from pipescaler.common.exceptions import ArgumentConflictError
 from pipescaler.common.validation import val_literal
 
 type Color = Literal["red", "green", "blue"]
@@ -22,13 +22,13 @@ def test_val_literal_literal_type_valid():
 
 def test_val_literal_non_literal():
     """Test validation with non-Literal type."""
-    with pytest.raises(ArgumentConflictError, match="does not contain Literal options"):
+    with raises(ArgumentConflictError, match="does not contain Literal options"):
         val_literal("red", str)
 
 
 def test_val_literal_type_alias_invalid():
     """Test validation with invalid value against a type alias."""
-    with pytest.raises(ValueError, match="not one of options"):
+    with raises(ValueError, match="not one of options"):
         val_literal("yellow", Color)
 
 

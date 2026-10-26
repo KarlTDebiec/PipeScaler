@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import pytest
 
+from pipescaler.common import exception, exceptions
 from pipescaler.common.exception import (
     ArgumentConflictError,
     DirectoryExistsError,
@@ -84,3 +85,9 @@ def test_exception_inheritance():
     assert issubclass(NotAFileError, OSError)
     assert issubclass(NotAFileOrDirectoryError, OSError)
     assert issubclass(UnsupportedPlatformError, OSError)
+
+
+def test_legacy_exception_identity():
+    """Test legacy exception imports retain their canonical class identities."""
+    for name in exception.__all__:
+        assert getattr(exception, name) is getattr(exceptions, name)

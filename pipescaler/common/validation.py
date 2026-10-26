@@ -6,14 +6,14 @@ from __future__ import annotations
 
 from collections.abc import Collection, Iterable
 from logging import getLogger
-from os import PathLike
+from os import PathLike, fspath
 from os.path import defpath, expanduser, expandvars
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PureWindowsPath
 from platform import system
 from shutil import which
-from typing import Any, TypeAliasType, get_args, overload
+from typing import Any, TypeAliasType, cast, get_args, overload
 
-from .exception import (
+from pipescaler.common.exceptions import (
     ArgumentConflictError,
     DirectoryNotFoundError,
     ExecutableNotFoundError,
@@ -22,9 +22,12 @@ from .exception import (
 )
 
 __all__ = [
+    "val_child_path",
     "val_executable",
     "val_float",
+    "val_index_range",
     "val_input_dir_path",
+    "val_input_file_or_dir_path",
     "val_input_path",
     "val_int",
     "val_literal",
@@ -34,6 +37,46 @@ __all__ = [
 ]
 
 logger = getLogger(__name__)
+
+
+def val_child_path(parent_dir_path: str | PathLike[str], child_name: str) -> Path:
+    """Validate that a child name resolves within a parent directory.
+
+    Arguments:
+        parent_dir_path: parent directory path
+        child_name: proposed child name
+    Returns:
+        resolved child path
+    Raises:
+        ValueError: If the name is not a single contained filename
+    """
+    posix_path = PurePosixPath(child_name)
+    windows_path = PureWindowsPath(child_name)
+    if (
+        not child_name
+        or child_name in {".", ".."}
+        or posix_path.name != child_name
+        or windows_path.name != child_name
+    ):
+        raise ValueError(
+            f"Child name must be a single contained filename: {child_name!r}"
+        )
+
+    try:
+        resolved_parent_dir_path = Path(
+            expandvars(expanduser(fspath(parent_dir_path)))
+        ).resolve()
+        child_path = (resolved_parent_dir_path / child_name).resolve()
+        child_path.relative_to(resolved_parent_dir_path)
+    except (OSError, RuntimeError, ValueError) as exc:
+        raise ValueError(
+            f"Child name must be a single contained filename: {child_name!r}"
+        ) from exc
+    if child_path == resolved_parent_dir_path:
+        raise ValueError(
+            f"Child name must be a single contained filename: {child_name!r}"
+        )
+    return child_path
 
 
 def val_executable(
@@ -118,6 +161,9 @@ def val_float(
             value_to_validate: value to validate
         Returns:
             value as a float
+        Raises:
+            TypeError: if a value has an invalid type
+            ValueError: if a value is invalid
         """
         try:
             validated_value = float(value_to_validate)
@@ -150,16 +196,49 @@ def val_float(
     return validated_values
 
 
-@overload
-def val_input_dir_path(value: Path | str | PathLike[Any]) -> Path: ...
+def val_index_range(
+    item_count: int, start_at_idx: int = 0, stop_at_idx: int | None = None
+) -> range:
+    """Validate and construct a zero-based processing range.
+
+    Arguments:
+        item_count: number of available items
+        start_at_idx: inclusive zero-based index at which to start processing
+        stop_at_idx: exclusive zero-based index at which to stop processing
+    Returns:
+        validated processing range
+    Raises:
+        ValueError: if the item count or either boundary is invalid
+    """
+    if item_count < 0:
+        raise ValueError("item_count must be greater than or equal to 0")
+    if start_at_idx < 0:
+        raise ValueError("start_at_idx must be greater than or equal to 0")
+    if stop_at_idx is None:
+        stop_at_idx = item_count
+    else:
+        if stop_at_idx < 0:
+            raise ValueError("stop_at_idx must be greater than or equal to 0")
+        if start_at_idx > stop_at_idx:
+            raise ValueError("start_at_idx must be less than or equal to stop_at_idx")
+        if stop_at_idx > item_count:
+            raise ValueError("stop_at_idx must not exceed item_count")
+    return range(start_at_idx, stop_at_idx)
 
 
 @overload
-def val_input_dir_path(value: Iterable[Path | str | PathLike[Any]]) -> list[Path]: ...
+# Strings are iterable, but the scalar overload intentionally takes precedence.
+def val_input_dir_path(
+    value: str | PathLike[str],
+) -> Path: ...
+
+
+@overload
+def val_input_dir_path(value: Iterable[str | PathLike[str]]) -> list[Path]: ...
 
 
 def val_input_dir_path(
-    value: Path | str | PathLike[Any] | Iterable[Path | str | PathLike[Any]],
+    value: str | PathLike[str] | Iterable[str | PathLike[str]],
 ) -> Path | list[Path]:
     """Validate input directory path(s) and make them absolute.
 
@@ -173,7 +252,7 @@ def val_input_dir_path(
         TypeError: If any value cannot be cast to Path
     """
 
-    def _val_input_dir(value_to_validate: Path | str | PathLike[Any]) -> Path:
+    def _val_input_dir(value_to_validate: str | PathLike[str]) -> Path:
         """Validate a path.
 
         Arguments:
@@ -187,7 +266,7 @@ def val_input_dir_path(
         """
         try:
             validated_value = Path(
-                expandvars(expanduser(str(value_to_validate)))
+                expandvars(expanduser(fspath(value_to_validate)))
             ).resolve()
         except ValueError as exc:
             raise TypeError(
@@ -205,23 +284,89 @@ def val_input_dir_path(
         return validated_value
 
     # Handle non-iterables and iterables we don't want to iterate over
-    if isinstance(value, Path | str | PathLike) or not isinstance(value, Iterable):
-        return _val_input_dir(value)
+    if isinstance(value, str | PathLike) or not isinstance(value, Iterable):
+        return _val_input_dir(cast(str | PathLike[str], value))
 
     # Handle iterables
     return [_val_input_dir(value_to_validate) for value_to_validate in value]
 
 
 @overload
-def val_input_path(value: Path | str | PathLike[Any]) -> Path: ...
+def val_input_file_or_dir_path(
+    value: str | PathLike[str],
+) -> Path: ...
 
 
 @overload
-def val_input_path(value: Iterable[Path | str | PathLike[Any]]) -> list[Path]: ...
+def val_input_file_or_dir_path(value: Iterable[str | PathLike[str]]) -> list[Path]: ...
+
+
+def val_input_file_or_dir_path(
+    value: str | PathLike[str] | Iterable[str | PathLike[str]],
+) -> Path | list[Path]:
+    """Validate input file or directory path(s) and make them absolute.
+
+    Arguments:
+        value: Path or paths to input files or directories
+    Returns:
+        Validated path or paths
+    Raises:
+        FileNotFoundError: If any path does not exist
+        TypeError: If any value cannot be cast to Path
+        ValueError: If any path is neither a file nor a directory
+    """
+
+    def _val_input_file_or_dir_path(value_to_validate: str | PathLike[str]) -> Path:
+        """Validate a path.
+
+        Arguments:
+            value_to_validate: Path to validate
+        Returns:
+            Validated path
+        Raises:
+            FileNotFoundError: If path does not exist
+            TypeError: If value cannot be cast to Path
+            ValueError: If path is neither a file nor a directory
+        """
+        try:
+            validated_value = Path(
+                expandvars(expanduser(fspath(value_to_validate)))
+            ).resolve()
+        except ValueError as exc:
+            raise TypeError(
+                f"{value_to_validate} is of type "
+                f"{type(value_to_validate)}, cannot be cast to Path"
+            ) from exc
+        if not validated_value.exists():
+            raise FileNotFoundError(f"Input path {validated_value} does not exist")
+        if not validated_value.is_file() and not validated_value.is_dir():
+            raise ValueError(
+                f"Input path {validated_value} is neither a file nor a directory"
+            )
+        return validated_value
+
+    # Handle non-iterables and iterables we don't want to iterate over
+    if isinstance(value, str | PathLike) or not isinstance(value, Iterable):
+        return _val_input_file_or_dir_path(cast(str | PathLike[str], value))
+
+    # Handle iterables
+    return [
+        _val_input_file_or_dir_path(value_to_validate) for value_to_validate in value
+    ]
+
+
+@overload
+def val_input_path(
+    value: str | PathLike[str],
+) -> Path: ...
+
+
+@overload
+def val_input_path(value: Iterable[str | PathLike[str]]) -> list[Path]: ...
 
 
 def val_input_path(
-    value: Path | str | PathLike[Any] | Iterable[Path | str | PathLike[Any]],
+    value: str | PathLike[str] | Iterable[str | PathLike[str]],
 ) -> Path | list[Path]:
     """Validate input file path(s) and make them absolute.
 
@@ -235,7 +380,7 @@ def val_input_path(
         TypeError: If any value cannot be cast to Path
     """
 
-    def _val_input_path(value_to_validate: Path | str | PathLike[Any]) -> Path:
+    def _val_input_path(value_to_validate: str | PathLike[str]) -> Path:
         """Validate a path.
 
         Arguments:
@@ -249,7 +394,7 @@ def val_input_path(
         """
         try:
             validated_value = Path(
-                expandvars(expanduser(str(value_to_validate)))
+                expandvars(expanduser(fspath(value_to_validate)))
             ).resolve()
         except ValueError as exc:
             raise TypeError(
@@ -263,8 +408,8 @@ def val_input_path(
         return validated_value
 
     # Handle non-iterables and iterables we don't want to iterate over
-    if isinstance(value, Path | str | PathLike) or not isinstance(value, Iterable):
-        return _val_input_path(value)
+    if isinstance(value, str | PathLike) or not isinstance(value, Iterable):
+        return _val_input_path(cast(str | PathLike[str], value))
 
     # Handle iterables
     return [_val_input_path(value_to_validate) for value_to_validate in value]
@@ -325,6 +470,9 @@ def val_int(
             value_to_validate: Value to validate
         Returns:
             Value as an int
+        Raises:
+            TypeError: if a value has an invalid type
+            ValueError: if a value is invalid
         """
         try:
             validated_value = int(value_to_validate)
@@ -360,20 +508,17 @@ def val_int(
 
 
 @overload
-def val_output_dir_path(
-    value: Path | str | PathLike[Any], create: bool = True
-) -> Path: ...
+def val_output_dir_path(value: str | PathLike[str], create: bool = True) -> Path: ...
 
 
 @overload
 def val_output_dir_path(
-    value: Iterable[Path | str | PathLike[Any]], create: bool = True
+    value: Iterable[str | PathLike[str]], create: bool = True
 ) -> list[Path]: ...
 
 
 def val_output_dir_path(
-    value: Path | str | PathLike[Any] | Iterable[Path | str | PathLike[Any]],
-    create: bool = True,
+    value: str | PathLike[str] | Iterable[str | PathLike[str]], create: bool = True
 ) -> Path | list[Path]:
     """Validate output directory path(s), make them absolute, and create them if needed.
 
@@ -406,7 +551,7 @@ def val_output_dir_path(
             current_path = current_path.parent
         return current_path
 
-    def _val_output_dir_path(value_to_validate: Path | str | PathLike[Any]) -> Path:
+    def _val_output_dir_path(value_to_validate: str | PathLike[str]) -> Path:
         """Validate a path.
 
         Arguments:
@@ -420,7 +565,7 @@ def val_output_dir_path(
         """
         try:
             validated_value = Path(
-                expandvars(expanduser(str(value_to_validate)))
+                expandvars(expanduser(fspath(value_to_validate)))
             ).resolve()
         except ValueError as exc:
             raise TypeError(
@@ -444,8 +589,8 @@ def val_output_dir_path(
         return validated_value
 
     # Handle non-iterables and iterables we don't want to iterate over
-    if isinstance(value, Path | str | PathLike) or not isinstance(value, Iterable):
-        return _val_output_dir_path(value)
+    if isinstance(value, str | PathLike) or not isinstance(value, Iterable):
+        return _val_output_dir_path(cast(str | PathLike[str], value))
 
     # Handle iterables
     return [_val_output_dir_path(v) for v in value]
@@ -453,40 +598,42 @@ def val_output_dir_path(
 
 @overload
 def val_output_path(
-    value: Path | str | PathLike[Any], exist_ok: bool = False
+    value: str | PathLike[str], exist_ok: bool = False, create: bool = True
 ) -> Path: ...
 
 
 @overload
 def val_output_path(
-    value: Iterable[Path | str | PathLike[Any]], exist_ok: bool = False
+    value: Iterable[str | PathLike[str]], exist_ok: bool = False, create: bool = True
 ) -> list[Path]: ...
 
 
 def val_output_path(
-    value: Path | str | PathLike[Any] | Iterable[Path | str | PathLike[Any]],
+    value: str | PathLike[str] | Iterable[str | PathLike[str]],
     exist_ok: bool = False,
+    create: bool = True,
 ) -> Path | list[Path]:
     """Validate output file path(s) and make them absolute.
 
     Arguments:
         value: Path or paths to output files
-        exist_ok: Whether to allow output files to already exist
+        exist_ok: whether to allow output files to already exist
+        create: whether to create missing parent directories
     Returns:
-        Validated path or paths
+        validated path or paths
     Raises:
         FileExistsError: If the file exists and exist_ok is False
         NotAFileError: If a path exists and is not a file
         TypeError: If any value cannot be cast to a Path
     """
 
-    def _val_output_path(value_to_validate: Path | str | PathLike[Any]) -> Path:
+    def _val_output_path(value_to_validate: str | PathLike[str]) -> Path:
         """Validate a path.
 
         Arguments:
             value_to_validate: Path to validate
         Returns:
-            Validated path
+            validated path
         Raises:
             FileExistsError: If file exists and exist_ok is False
             NotAFileError: If path exists and is not a file
@@ -494,7 +641,7 @@ def val_output_path(
         """
         try:
             validated_value = Path(
-                expandvars(expanduser(str(value_to_validate)))
+                expandvars(expanduser(fspath(value_to_validate)))
             ).resolve()
         except ValueError as exc:
             raise TypeError(
@@ -506,14 +653,14 @@ def val_output_path(
             raise NotAFileError(f"{validated_value} is not a file")
         if exists and not exist_ok:
             raise FileExistsError(f"Output file {validated_value} already exists")
-        if not validated_value.parent.exists():
+        if create and not validated_value.parent.exists():
             validated_value.parent.mkdir(parents=True)
             logger.info(f"Created directory {validated_value.parent}")
         return validated_value
 
     # Handle non-iterables and iterables we don't want to iterate over
-    if isinstance(value, Path | str | PathLike) or not isinstance(value, Iterable):
-        return _val_output_path(value)
+    if isinstance(value, str | PathLike) or not isinstance(value, Iterable):
+        return _val_output_path(cast(str | PathLike[str], value))
 
     # Handle iterables
     return [_val_output_path(value_to_validate) for value_to_validate in value]
@@ -576,8 +723,9 @@ def val_str(value: Any, options: Iterable[Any]) -> str:
     value = value.lower()
 
     if value not in case_insensitive_options:
+        options_text = ", ".join(case_insensitive_options.values())
         raise ValueError(
-            f"'{value}' is not one of options '{case_insensitive_options.keys()}'"
+            f"'{value}' is not one of the supported values: {options_text}"
         ) from None
 
     return case_insensitive_options[value]

@@ -7,9 +7,9 @@ from __future__ import annotations
 from pathlib import Path
 from platform import system
 
-import pytest
+from pytest import raises
 
-from pipescaler.common.exception import (
+from pipescaler.common.exceptions import (
     ExecutableNotFoundError,
     UnsupportedPlatformError,
 )
@@ -26,7 +26,7 @@ def test_val_executable_valid():
 
 def test_val_executable_not_found():
     """Test validation of non-existent executable."""
-    with pytest.raises(ExecutableNotFoundError):
+    with raises(ExecutableNotFoundError):
         val_executable("nonexistent_executable_12345")
 
 
@@ -37,7 +37,7 @@ def test_val_executable_unsupported_platform():
     all_platforms = {"Darwin", "Linux", "Windows"}
     other_platforms = all_platforms - {current_platform}
 
-    with pytest.raises(UnsupportedPlatformError):
+    with raises(UnsupportedPlatformError):
         val_executable("python3", supported_platforms=other_platforms)
 
 

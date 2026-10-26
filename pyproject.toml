@@ -43,6 +43,7 @@ concurrency=['multiprocessing']
 parallel=true
 
 [tool.pytest.ini_options]
+pythonpath=["."]
 log_cli=true
 log_cli_level="WARNING"
 markers=[

@@ -4,18 +4,18 @@
 
 This module should not import from other modules outside the standard library.
 
-Hierarchy within module:
-* csv / exception / file / logs / subprocess
+Package hierarchy (modules may import from any above):
+* csv / described_enum / duration / exceptions / file / logs / subprocess
 * command_line_interface / validation
-* argument_parsing / testing
+* argument_parsing / cli / testing
 """
 
 from __future__ import annotations
 
 from pathlib import Path
 
-from .command_line_interface import CLIKwargs, CommandLineInterface
-from .exception import (
+from pipescaler.common.command_line_interface import CLIKwargs, CommandLineInterface
+from pipescaler.common.exceptions import (
     ArgumentConflictError,
     DirectoryExistsError,
     DirectoryNotFoundError,

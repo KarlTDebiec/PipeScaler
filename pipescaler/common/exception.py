@@ -1,8 +1,20 @@
 #  Copyright 2017-2026 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
-"""General-purpose exceptions."""
+"""Compatibility imports for the original exception module."""
 
 from __future__ import annotations
+
+from pipescaler.common.exceptions import (
+    ArgumentConflictError,
+    DirectoryExistsError,
+    DirectoryNotFoundError,
+    ExecutableNotFoundError,
+    GetterError,
+    IsAFileError,
+    NotAFileError,
+    NotAFileOrDirectoryError,
+    UnsupportedPlatformError,
+)
 
 __all__ = [
     "ArgumentConflictError",
@@ -15,39 +27,3 @@ __all__ = [
     "NotAFileOrDirectoryError",
     "UnsupportedPlatformError",
 ]
-
-
-class ArgumentConflictError(Exception):
-    """Two or more arguments are in conflict with one another."""
-
-
-class DirectoryExistsError(OSError):
-    """Directory already exists."""
-
-
-class DirectoryNotFoundError(OSError):
-    """Directory not found."""
-
-
-class ExecutableNotFoundError(OSError):
-    """Executable not found."""
-
-
-class GetterError(TypeError):
-    """Error encountered in getter method."""
-
-
-class IsAFileError(OSError):
-    """Is a file."""
-
-
-class NotAFileError(OSError):
-    """Is not a file."""
-
-
-class NotAFileOrDirectoryError(OSError):
-    """Is not a file or directory."""
-
-
-class UnsupportedPlatformError(OSError):
-    """Platform is unsupported."""

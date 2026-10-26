@@ -10,13 +10,17 @@ from argparse import (
     _ArgumentGroup,  # noqa pylint
 )
 from collections.abc import Callable, Collection
+from datetime import timedelta
+from enum import Enum
 from pathlib import Path
 from typing import Any, TypedDict, Unpack
 
-from .exception import NotAFileError
-from .validation import (
+from pipescaler.common.duration import parse_duration
+from pipescaler.common.exceptions import NotAFileError
+from pipescaler.common.validation import (
     val_float,
     val_input_dir_path,
+    val_input_file_or_dir_path,
     val_input_path,
     val_int,
     val_output_dir_path,
@@ -30,14 +34,21 @@ __all__ = [
     "OutputDirValidatorKwargs",
     "OutputPathValidatorKwargs",
     "StrValidatorKwargs",
+    "duration_arg",
+    "enum_arg",
+    "enum_metavar",
+    "enum_options",
+    "enum_options_list_str",
     "float_arg",
     "get_arg_groups_by_name",
     "get_optional_args_group",
     "get_required_args_group",
     "get_validator",
     "input_dir_arg",
+    "input_file_or_dir_arg",
     "input_file_arg",
     "int_arg",
+    "named_input_file_arg",
     "output_dir_arg",
     "output_file_arg",
     "str_arg",
@@ -73,6 +84,8 @@ class OutputPathValidatorKwargs(TypedDict, total=False):
 
     exist_ok: bool
     """whether existing output files are accepted."""
+    create: bool
+    """whether missing parent directories should be created."""
 
 
 class OutputDirValidatorKwargs(TypedDict, total=False):
@@ -99,7 +112,9 @@ def get_optional_args_group(parser: ArgumentParser) -> _ArgumentGroup:
     """
     action_groups = parser._action_groups  # noqa pylint: disable=protected-access
     return next(
-        ag for ag in action_groups if ag.title in ["optional arguments", "options"]
+        ag
+        for ag in action_groups
+        if ag.title in ["additional arguments", "optional arguments", "options"]
     )
 
 
@@ -133,6 +148,8 @@ def get_arg_groups_by_name(
 
     Groups will be ordered by the order in which they are specified, with additional
     groups whose names were not included in names appearing after the specified groups.
+    A group named "additional help" is placed after the renamed optional arguments
+    group so help-only actions follow standard optional arguments.
 
     For example, if names = ("input arguments", "operation arguments",
     "output arguments"), groups by these names will be created, yielding the final order
@@ -162,17 +179,46 @@ def get_arg_groups_by_name(
 
     action_groups = parser._action_groups  # noqa pylint: disable=protected-access
     additional_groups = {}
-    while len(action_groups) > 0:
-        ag = action_groups.pop()
+    optional_groups = {}
+    additional_help_groups = {}
+    remaining_groups = action_groups[:]
+    action_groups.clear()
+    for ag in remaining_groups:
         if ag.title in ["options", "optional arguments"]:
             ag.title = optional_arguments_name
+            optional_groups[ag.title] = ag
+            continue
+        if ag.title == "positional arguments" and not ag._group_actions:
+            continue
+        if ag.title == "additional help":
+            additional_help_groups[ag.title] = ag
+            continue
         if ag.title:
             additional_groups[ag.title] = ag
 
-    action_groups.extend(specified_groups.values())
-    action_groups.extend(additional_groups.values())
+    leading_groups = {
+        name: group
+        for name, group in specified_groups.items()
+        if name != "additional help"
+    }
+    trailing_groups = {
+        name: group
+        for name, group in specified_groups.items()
+        if name == "additional help"
+    }
 
-    return {**specified_groups, **additional_groups}
+    action_groups.extend(leading_groups.values())
+    action_groups.extend(additional_groups.values())
+    action_groups.extend(optional_groups.values())
+    action_groups.extend(additional_help_groups.values())
+    action_groups.extend(trailing_groups.values())
+
+    return {
+        **specified_groups,
+        **additional_groups,
+        **optional_groups,
+        **additional_help_groups,
+    }
 
 
 def get_validator[T](function: Callable[..., T], **kwargs: Any) -> Callable[[Any], T]:
@@ -193,12 +239,12 @@ def get_validator[T](function: Callable[..., T], **kwargs: Any) -> Callable[[Any
         Returns:
             Validated value
         Raises:
-            ArgumentTypeError: If TypeError is raised by wrapped function
+            ArgumentTypeError: If validation raises a user-facing error
         """
         try:
             return function(value, **kwargs)
-        except TypeError as exc:
-            raise ArgumentTypeError from exc
+        except (OSError, TypeError, ValueError) as exc:
+            raise ArgumentTypeError(str(exc)) from exc
 
     return wrapped
 
@@ -216,6 +262,92 @@ def float_arg(
     return get_validator(val_float, **kwargs)
 
 
+def duration_arg(value: str) -> timedelta:
+    """Parse a duration CLI argument.
+
+    Arguments:
+        value: duration string
+    Returns:
+        parsed duration
+    Raises:
+        ArgumentTypeError: if duration parsing fails
+    """
+    try:
+        return parse_duration(value)
+    except ValueError as exc:
+        raise ArgumentTypeError(str(exc)) from exc
+
+
+def enum_arg[T: Enum](enum_type: type[T]) -> Callable[[Any], T]:
+    """Validate an enum argument.
+
+    Arguments:
+        enum_type: enum class to parse
+    Returns:
+        value validator function
+    """
+
+    def wrapped(value: Any) -> T:
+        """Validate an enum argument.
+
+        Arguments:
+            value: value to validate
+        Returns:
+            validated enum value
+        Raises:
+            ArgumentTypeError: if value is not a valid enum value
+        """
+        try:
+            return enum_type(value)
+        except ValueError as exc:
+            options = ", ".join(enum_options(enum_type))
+            raise ArgumentTypeError(
+                f"{value!r} is not one of the supported values: {options}"
+            ) from exc
+
+    return wrapped
+
+
+def enum_metavar(enum_type: type[Enum]) -> str:
+    """Get argparse metavar for enum values.
+
+    Arguments:
+        enum_type: enum class
+    Returns:
+        argparse metavar for enum values
+    """
+    return f"{{{','.join(enum_options(enum_type))}}}"
+
+
+def enum_options(enum_type: type[Enum]) -> tuple[str, ...]:
+    """Get enum values as strings.
+
+    Arguments:
+        enum_type: enum class
+    Returns:
+        enum values in declaration order
+    """
+    return tuple(str(member.value) for member in enum_type)
+
+
+def enum_options_list_str(enum_type: type[Enum]) -> str:
+    """Get human-readable enum value list.
+
+    Arguments:
+        enum_type: enum class
+    Returns:
+        human-readable enum value list
+    """
+    options = enum_options(enum_type)
+    if not options:
+        return ""
+    if len(options) == 1:
+        return options[0]
+    if len(options) == 2:
+        return f"{options[0]} or {options[1]}"
+    return f"{', '.join(options[:-1])}, or {options[-1]}"
+
+
 def input_dir_arg() -> Callable[[Any], Path | list[Path]]:
     """Validate an input directory path argument.
 
@@ -223,6 +355,15 @@ def input_dir_arg() -> Callable[[Any], Path | list[Path]]:
         value validator function
     """
     return get_validator(val_input_dir_path)
+
+
+def input_file_or_dir_arg() -> Callable[[Any], Path | list[Path]]:
+    """Validate an input file or directory path argument.
+
+    Returns:
+        value validator function
+    """
+    return get_validator(val_input_file_or_dir_path)
 
 
 def input_file_arg(
@@ -267,6 +408,38 @@ def int_arg(**kwargs: Unpack[IntValidatorKwargs]) -> Callable[[Any], int | list[
         value validator function
     """
     return get_validator(val_int, **kwargs)
+
+
+def named_input_file_arg() -> Callable[[Any], tuple[str, Path]]:
+    """Validate a named input file argument in NAME=PATH form.
+
+    Returns:
+        value validator function
+    """
+
+    def wrapped(value: Any) -> tuple[str, Path]:
+        """Validate one named input file argument.
+
+        Arguments:
+            value: value to validate
+        Returns:
+            trimmed name and validated input file path
+        Raises:
+            ArgumentTypeError: if the value is malformed or its path is invalid
+        """
+        name, separator, raw_path = str(value).partition("=")
+        name = name.strip()
+        raw_path = raw_path.strip()
+        if not separator or not name or not raw_path:
+            raise ArgumentTypeError(
+                "named input files must use nonblank NAME=PATH syntax"
+            )
+        try:
+            return name, val_input_path(raw_path)
+        except (OSError, TypeError, ValueError) as exc:
+            raise ArgumentTypeError(str(exc)) from exc
+
+    return wrapped
 
 
 def output_dir_arg(
