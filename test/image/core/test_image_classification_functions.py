@@ -15,7 +15,7 @@ def test_is_monochrome_handles_differences_near_black_and_white(pixel: int):
     """Test small signed differences around the monochrome endpoints.
 
     Arguments:
-        pixel: Grayscale pixel value near black or white
+        pixel: grayscale pixel value near black or white
     """
     image = Image.new("L", (1, 1), pixel)
 
