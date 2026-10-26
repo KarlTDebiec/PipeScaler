@@ -67,7 +67,6 @@ class LocalPaletteMatcher(Utility):
         Returns:
             Matched image array
         """
-        scale = fit_arr.shape[0] // ref_arr.shape[0]
         matched_arr = np.zeros_like(fit_arr)
         dists = dict()  # noqa pylint: disable=use-dict-literal
         for fit_x in range(fit_arr.shape[0]):
@@ -75,7 +74,10 @@ class LocalPaletteMatcher(Utility):
                 best_dist = -1.0
                 best_color = 0
 
-                ref_center = (fit_x // scale, fit_y // scale)
+                ref_center = (
+                    fit_x * ref_arr.shape[0] // fit_arr.shape[0],
+                    fit_y * ref_arr.shape[1] // fit_arr.shape[1],
+                )
                 for ref_x in range(
                     max(0, ref_center[0] - local_range),
                     min(ref_arr.shape[0] - 1, ref_center[0] + local_range) + 1,
@@ -112,7 +114,6 @@ class LocalPaletteMatcher(Utility):
         Returns:
             Matched image array
         """
-        scale = fit_arr.shape[0] // ref_arr.shape[0]
         matched_arr = np.zeros_like(fit_arr)
         dists = dict()  # noqa pylint: disable=use-dict-literal
         for fit_x in range(fit_arr.shape[0]):
@@ -120,7 +121,10 @@ class LocalPaletteMatcher(Utility):
                 best_dist = -1.0
                 best_color = np.array([0, 0, 0], np.uint8)
 
-                ref_center = (fit_x // scale, fit_y // scale)
+                ref_center = (
+                    fit_x * ref_arr.shape[0] // fit_arr.shape[0],
+                    fit_y * ref_arr.shape[1] // fit_arr.shape[1],
+                )
                 for ref_x in range(
                     max(0, ref_center[0] - local_range),
                     min(ref_arr.shape[0] - 1, ref_center[0] + local_range) + 1,

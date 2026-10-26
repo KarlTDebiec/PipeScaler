@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import numpy as np
 import pytest
 from PIL import Image
 
@@ -14,6 +15,7 @@ from pipescaler.image.testing import (
     get_expected_output_mode,
     xfail_unsupported_image_mode,
 )
+from pipescaler.image.utilities import LocalPaletteMatcher
 from pipescaler.testing.file import get_test_input_path
 from pipescaler.testing.fixture import parametrized_fixture
 
@@ -86,3 +88,52 @@ def test_repr_round_trip(merger: PaletteMatchMerger):
     """
     recreated = eval(repr(merger))
     assert repr(recreated) == repr(merger)
+
+
+@pytest.mark.parametrize("mode", ["L", "RGB"])
+@pytest.mark.parametrize(
+    ("ref_size", "fit_size"),
+    [
+        ((4, 4), (2, 2)),
+        ((2, 2), (4, 4)),
+        ((3, 5), (2, 4)),
+        ((5, 3), (4, 2)),
+        ((1, 4), (3, 1)),
+        ((4, 1), (1, 3)),
+    ],
+)
+def test_local_match_maps_fit_pixels_to_reference_coordinates(
+    mode: str, ref_size: tuple[int, int], fit_size: tuple[int, int]
+):
+    """Local matching maps each fit coordinate proportionally to its reference.
+
+    Arguments:
+        mode: image mode to match
+        ref_size: reference image width and height
+        fit_size: fit image width and height
+    """
+    ref_width, ref_height = ref_size
+    fit_width, fit_height = fit_size
+    ref_l = np.fromfunction(
+        lambda y, x: y * ref_width + x, (ref_height, ref_width), dtype=int
+    ).astype(np.uint8)
+    expected_l = np.fromfunction(
+        lambda y, x: ref_l[
+            (y.astype(int) * ref_height // fit_height),
+            (x.astype(int) * ref_width // fit_width),
+        ],
+        (fit_height, fit_width),
+        dtype=int,
+    ).astype(np.uint8)
+    if mode == "RGB":
+        ref_arr = np.repeat(ref_l[:, :, np.newaxis], 3, axis=2)
+        fit_arr = np.repeat(expected_l[:, :, np.newaxis], 3, axis=2)
+    else:
+        ref_arr = ref_l
+        fit_arr = expected_l
+
+    matched = LocalPaletteMatcher.run(
+        Image.fromarray(ref_arr), Image.fromarray(fit_arr), local_range=0
+    )
+
+    np.testing.assert_array_equal(np.asarray(matched), fit_arr)
