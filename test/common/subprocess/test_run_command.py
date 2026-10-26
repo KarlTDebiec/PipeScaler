@@ -116,6 +116,53 @@ def test_run_command_timeout():
     assert elapsed < 1.0
 
 
+def test_run_command_timeout_kills_descendant_holding_pipes():
+    """Ensure timeout cleanup closes pipes held open by a descendant."""
+    descendant_code = "import time; time.sleep(3)"
+    command_code = (
+        "import subprocess, sys, time; print('started', flush=True); "
+        f"subprocess.Popen([sys.executable, '-c', {descendant_code!r}]); "
+        "time.sleep(10)"
+    )
+    start_time = monotonic()
+
+    exitcode, stdout, stderr = run_command(
+        [sys.executable, "-c", command_code], timeout=0.3, acceptable_exitcodes=[-9, 1]
+    )
+
+    assert exitcode != 0
+    assert "started" in stdout
+    assert stderr == ""
+    assert monotonic() - start_time < 2.0
+
+
+def test_run_command_timeout_bounds_cleanup_when_descendant_escapes_tree(monkeypatch):
+    """Bound fallback cleanup when a descendant retains the pipes.
+
+    Arguments:
+        monkeypatch: pytest monkeypatch fixture
+    """
+    descendant_code = "import time; time.sleep(3)"
+    command_code = (
+        "import subprocess, sys, time; print('started', flush=True); "
+        f"subprocess.Popen([sys.executable, '-c', {descendant_code!r}]); "
+        "time.sleep(10)"
+    )
+    monkeypatch.setattr(
+        "pipescaler.common.subprocess._kill_process_tree", lambda child: child.kill()
+    )
+    start_time = monotonic()
+
+    exitcode, stdout, stderr = run_command(
+        [sys.executable, "-c", command_code], timeout=1.0, acceptable_exitcodes=[-9, 1]
+    )
+
+    assert exitcode != 0
+    assert "started" in stdout
+    assert stderr == ""
+    assert monotonic() - start_time < 2.8
+
+
 def test_run_command_unicode_output():
     """Test handling of Unicode output."""
     env = os.environ.copy()
