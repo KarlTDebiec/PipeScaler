@@ -30,6 +30,7 @@ pipescaler = "pipescaler.cli.pipescaler_cli:PipeScalerCli.main"
 dev = [
     "pytest>=9.1.1",
     "pytest-cov>=6.1.1",
+    "pytest-github-actions-annotate-failures>=0.4.2",
     "pytest-xdist>=3.7.0",
     "ruff>=0.15.17",
     "ty>=0.0.65",
@@ -37,9 +38,9 @@ dev = [
 ]
 
 [tool.coverage.run]
-data_file='coverage.coverage'
-concurrency='multiprocessing'
-parallel='True'
+data_file='test/coverage.coverage'
+concurrency=['multiprocessing']
+parallel=true
 
 [tool.pytest.ini_options]
 log_cli=true

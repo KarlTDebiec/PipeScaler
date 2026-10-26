@@ -27,7 +27,7 @@ class CliTestKwargs(TypedDict, total=False):
 class ArgsCaptureCliKwargs(TypedDict, total=False):
     """Keyword arguments for ArgsCaptureCli _main method."""
 
-    name: str
+    name: object
     """Name argument captured by the test CLI."""
 
 
@@ -50,7 +50,7 @@ class ArgsCaptureCli(CommandLineInterface):
     @classmethod
     def _main(cls, **kwargs: Unpack[ArgsCaptureCliKwargs]):
         """Execute test CLI."""
-        if (name := kwargs.get("name")) is not None:
+        if isinstance(name := kwargs.get("name"), str):
             cls.captured["name"] = name
 
 
@@ -242,7 +242,7 @@ def test_abstract_main():
     """Test that _main is abstract and must be implemented."""
     with pytest.raises(TypeError):
         # Cannot instantiate ABC without implementing abstract method
-        CommandLineInterface()
+        CommandLineInterface()  # type: ignore
 
 
 def test_run_cli_with_args_quoted_values():

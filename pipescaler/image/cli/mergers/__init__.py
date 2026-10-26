@@ -2,7 +2,8 @@
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """PipeScaler image merger command-line interfaces package.
 
-This module may import from: common, core, image.core, image.core.cli, image.operators.mergers
+This module may import from: common, core, image.core, image.core.cli,
+image.operators.mergers
 
 Hierarchy within module:
 * alpha_merger_cli / palette_match_merger_cli
