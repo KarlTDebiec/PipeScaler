@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 
-from logging import info
 from pathlib import Path
 
 from PIL import Image
@@ -50,11 +49,6 @@ class ImageSubstituter:
             image = Image.open(self.substitutes[pipe_image.name])
             if self.match_input_mode and image.mode != pipe_image.image.mode:
                 image = image.convert(pipe_image.image.mode)
-                image.save(self.substitutes[pipe_image.name])
-                info(
-                    f"{self}: {self.substitutes[pipe_image.name].name} updated to mode "
-                    f"{image.mode}"
-                )
             return PipeImage(image=image, parents=pipe_image)
         if self.required:
             raise FileNotFoundError()
