@@ -4,10 +4,10 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from logging import debug
 from os import rename
 from pathlib import Path
-from shlex import split
 from typing import Any
 
 from pipescaler.common.subprocess import run_command
@@ -24,38 +24,33 @@ class TexconvRunner(Runner):
 
     def __init__(
         self,
-        arguments: str = "-y -sepalpha -ft DDS -f BC7_UNORM",
+        arguments: Sequence[str] = ("-y", "-sepalpha", "-ft", "DDS", "-f", "BC7_UNORM"),
         **kwargs: Any,
     ):
         """Initialize.
 
         Arguments:
-            arguments: Command-line arguments to pass to texconv
+            arguments: individual argument tokens to pass to texconv without quoting
             **kwargs: Additional keyword arguments
         """
-        super().__init__(**kwargs)
+        super().__init__(arguments=arguments, **kwargs)
 
-        self.arguments = arguments
+    def get_command(self, input_path: Path | str, output_path: Path | str) -> list[str]:
+        """Build the texconv argument list.
 
-    def __repr__(self) -> str:
-        """Representation.
-
+        Arguments:
+            input_path: input image path
+            output_path: output image path
         Returns:
-            string representation of this object
+            executable and individual argument tokens
         """
-        return (
-            f"{self.__class__.__name__}("
-            f"arguments={self.arguments!r}, "
-            f"timeout={self.timeout!r})"
-        )
-
-    @property
-    def command_template(self) -> str:
-        """String template with which to generate command."""
-        return (
-            f"{self.executable_path} {self.arguments}"
-            ' -o "{output_path.parent}" "{input_path}"'
-        )
+        return [
+            str(self.executable_path),
+            *self.arguments,
+            "-o",
+            str(Path(output_path).parent),
+            str(input_path),
+        ]
 
     def run(self, input_path: Path | str, output_path: Path | str):
         """Run executable on input file, yielding output file.
@@ -64,11 +59,9 @@ class TexconvRunner(Runner):
             input_path: Input file path
             output_path: Output file path
         """
-        command = self.command_template.format(
-            input_path=input_path, output_path=output_path
-        )
-        debug(f"{self}: {command}")
-        run_command(split(command), timeout=self.timeout)
+        command = self.get_command(input_path, output_path)
+        debug(f"{self}: {command!r}")
+        run_command(command, timeout=self.timeout)
         rename(Path(output_path).with_stem(Path(input_path).stem), output_path)
 
     @classmethod

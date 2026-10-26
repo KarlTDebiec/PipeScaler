@@ -4,6 +4,9 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+from unittest.mock import Mock
+
 import pytest
 from PIL import Image
 
@@ -70,7 +73,42 @@ def test(input_filename: str, runner: TexconvRunner):
 
 def test_repr_round_trip():
     """Test TexconvRunner repr round-trip recreation."""
-    runner = TexconvRunner(arguments="-y", timeout=1)
+    runner = TexconvRunner(arguments=("-y",), timeout=1)
     recreated = eval(repr(runner))
     assert recreated.arguments == runner.arguments
     assert recreated.timeout == runner.timeout
+
+
+def test_argument_paths_and_output_rename(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+):
+    """Preserve path tokens and rename texconv's generated output to the target.
+
+    Arguments:
+        monkeypatch: pytest monkeypatch fixture
+        tmp_path: temporary test directory
+    """
+    executable_path = Path("C:/Program Files/O'Brien/{tools}/texconv.exe")
+    input_path = tmp_path / "O'Brien {input}.png"
+    output_dir_path = tmp_path / "output directory"
+    output_dir_path.mkdir()
+    output_path = output_dir_path / "{output}.dds"
+    generated_path = output_path.with_stem(input_path.stem)
+    generated_path.write_bytes(b"generated image")
+    arguments = ("-y", "-ft", "DDS", r"C:\custom options\{value}")
+    command_runner = Mock(return_value=(0, "", ""))
+    monkeypatch.setattr(
+        "pipescaler.core.runner.val_executable", lambda *_args: executable_path
+    )
+    monkeypatch.setattr(
+        "pipescaler.image.runners.texconv_runner.run_command", command_runner
+    )
+
+    TexconvRunner(arguments=arguments, timeout=7).run(str(input_path), str(output_path))
+
+    command_runner.assert_called_once_with(
+        [str(executable_path), *arguments, "-o", str(output_dir_path), str(input_path)],
+        timeout=7,
+    )
+    assert output_path.read_bytes() == b"generated image"
+    assert not generated_path.exists()
