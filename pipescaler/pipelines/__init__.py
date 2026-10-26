@@ -4,7 +4,7 @@
 
 This module may import from: common, core
 
-Hierarchy within module:
+Package hierarchy (modules may import from any above):
 * segments / sorters
 * checkpoint_manager
 """

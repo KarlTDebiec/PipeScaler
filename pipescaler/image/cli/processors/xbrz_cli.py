@@ -40,7 +40,11 @@ class XbrzCli(ImageProcessorCli):
 
     @classmethod
     def processor(cls) -> type[XbrzProcessor]:
-        """Type of processor wrapped by command-line interface."""
+        """Type of processor wrapped by command-line interface.
+
+        Returns:
+            image processor class invoked by this command
+        """
         return XbrzProcessor
 
 

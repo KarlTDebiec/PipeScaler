@@ -37,29 +37,49 @@ class ImageProcessorsCli(CommandLineInterface):
 
     @classmethod
     def description(cls) -> str:
-        """Long description of this tool displayed below usage."""
+        """Long description of this tool displayed below usage.
+
+        Returns:
+            long description displayed in command help
+        """
         return "Processes images."
 
     @classmethod
     def help(cls) -> str:
-        """Short description of this tool used when it is a subparser."""
+        """Short description of this tool used when it is a subparser.
+
+        Returns:
+            short description displayed beside the subcommand
+        """
         return "process image"
 
     @classmethod
     def _main(cls, **kwargs: Any):
-        """Execute with provided keyword arguments."""
+        """Execute with provided keyword arguments.
+
+        Arguments:
+            **kwargs: additional options forwarded to the selected implementation
+        """
         processor_name = kwargs.pop("processor")
         processor_cli_cls = cls.processors()[processor_name]
         processor_cli_cls._main(**kwargs)
 
     @classmethod
     def name(cls) -> str:
-        """Name of this tool used to define it when it is a subparser."""
+        """Name of this tool used to define it when it is a subparser.
+
+        Returns:
+            command name used by the argument parser
+        """
         return "process"
 
     @classmethod
     def processors(cls) -> dict[str, type[ImageProcessorCli]]:
-        """Names and types of processors wrapped by command-line interface."""
+        """Names and types of processors wrapped by command-line interface.
+
+        Returns:
+            mapping of processor names to their CLI classes
+        """
         return {
             processor.name(): processor
             for processor in map(

@@ -44,12 +44,20 @@ class ImageProcessorCli(CommandLineInterface, ABC):
 
     @classmethod
     def description(cls) -> str:
-        """Long description of this tool displayed below usage."""
+        """Long description of this tool displayed below usage.
+
+        Returns:
+            long description displayed in command help
+        """
         return cleandoc(str(cls.processor().__doc__)) if cls.processor().__doc__ else ""
 
     @classmethod
     def _main(cls, **kwargs: Any):
-        """Execute with provided keyword arguments."""
+        """Execute with provided keyword arguments.
+
+        Arguments:
+            **kwargs: additional options forwarded to the selected implementation
+        """
         input_path = kwargs.pop("input_file")
         output_path = kwargs.pop("output_file")
         processor_cls = cls.processor()
@@ -61,11 +69,19 @@ class ImageProcessorCli(CommandLineInterface, ABC):
 
     @classmethod
     def name(cls) -> str:
-        """Name of this tool used to define it when it is a subparser."""
+        """Name of this tool used to define it when it is a subparser.
+
+        Returns:
+            command name used by the argument parser
+        """
         return cls.__name__.removesuffix("Cli").lower()
 
     @classmethod
     @abstractmethod
     def processor(cls) -> type[ImageProcessor]:
-        """Type of processor wrapped by command-line interface."""
+        """Type of processor wrapped by command-line interface.
+
+        Returns:
+            image processor class invoked by this command
+        """
         raise NotImplementedError()

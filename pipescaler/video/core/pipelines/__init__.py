@@ -4,7 +4,7 @@
 
 This module may import from: common, core.pipelines, video.core
 
-Hierarchy within module:
+Package hierarchy (modules may import from any above):
 * pipe_video
 * video_segment / video_sorter / video_source / video_terminus
 * typing

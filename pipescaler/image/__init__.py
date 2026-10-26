@@ -4,7 +4,7 @@
 
 This module may import from: common, core, pipelines
 
-Hierarchy within module:
+Package hierarchy (modules may import from any above):
 * core / runners / subdivided_image
 * pipelines / testing / utilities
 * operators

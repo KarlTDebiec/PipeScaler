@@ -4,7 +4,7 @@
 
 This module may import from: common, core, pipelines, image, video, cli
 
-Hierarchy within module:
+Package hierarchy (modules may import from any above):
 * execution_counter / file / fixture / mark
 """
 

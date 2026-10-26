@@ -10,7 +10,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from pipescaler.common.exception import UnsupportedPlatformError
+from pipescaler.common.exceptions import UnsupportedPlatformError
 from pipescaler.common.file import get_temp_directory_path
 from pipescaler.common.validation import val_output_path
 from pipescaler.core.pipelines import PipeObject, Segment

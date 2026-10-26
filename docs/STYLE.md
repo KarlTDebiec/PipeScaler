@@ -1,86 +1,88 @@
-# Style Guide
+# Code Style
 
-## Python Version
-* Target **Python 3.13** features where applicable; do not worry about compatibility with earlier versions.
+## Python and formatting
 
-## Copyright
-* Include the standard two-line copyright header at the top of the file.
-* Preserve the file's established copyright start year when editing existing files. Use the appropriate project start year for new files.
+- Target Python 3.13. Use `uv` and the repository's `pyproject.toml` and `uv.lock`.
+- Preserve the standard two-line copyright/license header and its established
+  start year. Include a module docstring and `from __future__ import annotations`.
+- Let Ruff own formatting and import sorting. Apply conventions to changed code
+  without unrelated cleanup.
 
-## Formatting
-* Allow `ruff format` to manage code formatting details.
+## Imports and exports
 
-## Imports
-* Include `from __future__ import annotations` in Python modules that contain imports, exports, type annotations, functions, or classes. Pure package marker files that contain only a module docstring do not need it.
-* For imports within the same directory, use relative imports (for example, `from .foo import bar`).
-* Do not use relative imports for imports from parent or sibling directories (for example, `from ..foo import bar` or `from .. import foo`).
-* Use `if TYPE_CHECKING:` blocks only when necessary to avoid circular imports.
-* Allow `ruff` to manage import sorting.
+- Use single-dot relative imports for modules and child packages within the
+  containing package, such as `from .foo import Bar` or
+  `from .child.foo import Bar`.
+- Use absolute imports rooted at the concrete owning module when reaching outside
+  the containing package. Do not use multi-dot relative imports.
+- Public names may be imported from another package's `__init__.py` facade when
+  listed in its `__all__`. Within a package subtree, import a name from its owning
+  module rather than an ancestor facade that re-exports it.
+- Do not import underscore-prefixed names from another project module. Make shared
+  project-owned names public and declare them in the owner's `__all__`.
+- Use `TYPE_CHECKING` blocks when needed to avoid circular imports. Import required
+  dependencies at module scope; make optional dependency boundaries explicit.
+- Name dedicated lazy-import helpers `import_<module>[_<symbol_or_purpose>]`
+  (private forms start with `_`). Reserve `get_...` for retrieval or caching.
+- Declare public module-level functions, classes, and type aliases in `__all__`.
+  Include constants and imported aliases when they are intentional public APIs.
+  Omit empty `__all__` assignments and internal helpers.
+- Package initializers re-export classes, not functions or variables.
 
-## Exports
-* Include `__all__` in Python modules that export public names. Omit `__all__` when there are no public names to export.
-* Do not include empty `__all__` assignments.
-* If `__all__` contains one entry, keep it on one line, such as `__all__ = ["AlphaSorter"]`.
-* If `__all__` contains multiple entries, include a trailing comma after the last entry so `ruff` formats it as one item per line.
-* `__all__` should list the intended public API for the module.
-* Do not include internal helpers, which are names prefixed with an underscore.
-* Keep `__all__` stable where practical; renames and removals are user-facing changes.
-* In `__init__.py` files, only import classes from the module, not functions or variables.
+## Organization and implementation
 
-## Organization
-* Within classes, sort methods in the following hierarchy:
-  1. Level 1: `__init__`, other builtins, public properties, public methods, private properties, private methods
-  2. Level 2: standard methods, class methods, static methods
-  3. Level 3: alphabetical order
-* Within modules, sort functions using the same hierarchy described for class methods:
-  1. Level 1: public functions, private functions prefixed with an underscore
-  2. Level 2: standard functions, then decorator-based variants where applicable, such as `@overload`
-  3. Level 3: alphabetical order
+Within classes, order `__init__`, other builtins, public properties, public
+methods, private properties, and private methods. Within each group, order ordinary,
+class, and static methods, then alphabetize. Modules group public before private
+functions, ordinary before decorated functions, then alphabetize.
 
-## Nomenclature
-* Use explicit path nomenclature:
-  * variables or parameters holding `Path` objects should end in `_path`, such as `file_path`, `dir_path`, or `cache_dir_path`
-  * bare `path` or `paths` parameters are acceptable for small path-focused helpers where no more specific role name applies
-  * CLI-facing argument names may use conventional command-line terms such as `infile` and `outfile` without a `_path` suffix
-  * generic validator inputs may use `value` or `value_to_validate`, even when the accepted type includes paths
-  * use `*_name` for bare names and `*_stem` for stems, not for full paths
-  * prefer `*_dir_path` over `*_directory` when the value is a path
+- Use f-strings and explicit `if`/`else` statements. Provide reconstructible
+  `__repr__` implementations where practical.
+- Keep straightforward single-use logic inline. Extract helpers for reuse,
+  independent operations, or meaningful testability; do not add forwarding methods
+  or predicates solely to name a short expression.
+- Use one-line block comments above nontrivial continuous steps when helpful,
+  without a final period.
+- When renaming APIs, modules, commands, or options, update callers, documentation,
+  and tests together. Never retain compatibility shims, deprecated aliases, or
+  forwarding modules for old APIs or import paths; remove obsolete interfaces.
 
-## Style
-* Exclusively use f-strings for string interpolation.
-* Where possible, classes should implement `__repr__` methods such that they may be reconstructed from its `repr` output.
-* Avoid ternary expressions; prefer explicit `if`/`else` statements for readability.
+## Names and types
 
-## Type Annotations
-* Include type annotations for all function and method signatures, with the following exception:
-  * If a function always returns `None`, omit the return type annotation.
+- Use `snake_case` and leading underscores for internals. Prefer `pathlib.Path`.
+  Path values end in `_path` (`file_path`, `dir_path`); small path-focused helpers
+  may use `path`/`paths`. Names and stems use `_name` and `_stem`.
+- CLI-facing names may use `infile`/`outfile`; use `dest=...` when parsed names
+  should identify Python path objects.
+- Annotate function and method signatures. Omit return annotations for callables
+  that always return `None`.
+- Use `object` for values that must be inspected or narrowed, and `Any` for
+  intentional unchecked passthrough. Prefer concrete types, protocols, aliases,
+  and `TypedDict` when a value's shape is known.
+- Type variadic arguments intentionally: use `Any` for ignored/passthrough values,
+  `Unpack[...]` for known keyword shapes, or a narrower shared value type.
 
-## Exceptions
-* Prefer repository-specific exceptions from `pipescaler.common.exception` for domain-specific errors that should be user-facing.
-* Prefer built-in exceptions such as `ValueError` and `TypeError` for programming errors or invalid internal state.
-* When wrapping a caught exception, use exception chaining with `raise ... from err` to preserve context.
+## Errors, logging, and CLI
 
-## Logging
-* Use the `logging` module rather than `print` for any user-facing output in scripts or libraries.
-* CLI tools may use `print` for intentional command output written to stdout.
-* Follow the repository pattern of importing the specific logging functions used in a module when that is already local style.
+- Use existing domain exceptions for user-facing failures and built-in exceptions
+  for generic validation, low-level helpers, and programming errors. Shared
+  exceptions live in `pipescaler.common.exceptions`.
+- Preserve exception context with `raise ... from exc`.
+- Use module logging for diagnostics. CLI tools may write intentional command
+  output to stdout. Preserve the local logging convention when editing a module.
+- Use `get_arg_groups_by_name(...)` for argument groups: positional, input,
+  operation, output, additional arguments, then additional help. Omit empty groups.
+- Use `type=` validators, including `enum_arg(...)`, so CLI implementations receive
+  their expected types. Prefer explicit keyword-only `_main` parameters for leaf
+  commands; dispatching commands may forward keyword arguments.
 
-## Testing
-* Test modules do **not** need `__init__.py` files. Pytest can discover tests without them.
+## Tests and documentation
 
-## Documentation
-* Include a module docstring at the top of each file.
-* Use Markdown for formatting.
-* Do **not** include any reStructuredText markup such as double backticks.
-* Provide docstrings for all modules, classes, properties, and functions, including internal helpers prefixed with an underscore.
-* Provide docstrings for property setters as well as getters when they are defined.
-* Provide docstrings for `TypedDict` classes, enums, and other public type definitions.
-* `@overload` stubs do not need docstrings when the concrete implementation is documented.
-* Document class attributes using triple-quoted strings immediately below each instead of relying only on an `Attributes` section in the class docstring.
-* Format docstrings using Google style, with the following tweaks:
-  * Use `Arguments:` instead of `Args:`.
-  * Do not include an `Arguments:` section for functions or methods that take no arguments.
-  * In argument descriptions, the first word after the colon should be lowercase unless it is a type name.
-  * Do not include a blank line between the `Arguments:` and `Returns:` sections.
-  * Do not include a `Returns:` section for functions or methods that return None.
-  * In the `Returns:` section, the first word should be lowercase unless it is a type name.
+- Test modules do not need package markers for discovery. Keep markers needed for
+  intentional shared imports, such as `test/__init__.py`.
+- Use the configured pytest import path and shared test helpers; do not add new
+  `sys.path` mutations in tests.
+- Follow [Documentation](DOCUMENTATION.md) for coverage, docstring sections,
+  formatting, and exemptions.
+- The [style tests](../test/style/) enforce docstring structure, string
+  interpolation, and variadic annotation rules.

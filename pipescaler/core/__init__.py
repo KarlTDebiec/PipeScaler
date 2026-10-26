@@ -4,7 +4,7 @@
 
 This module may import from: common
 
-Hierarchy within module:
+Package hierarchy (modules may import from any above):
 * runner / sorting / utility
 * cli / typing
 * pipelines

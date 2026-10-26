@@ -280,6 +280,8 @@ def is_monochrome(
           and true monochrome must be below
     Returns:
         Whether image contains only pure black and white
+    Raises:
+        UnsupportedImageModeError: if an image mode is unsupported
     """
     if image.mode != "L":
         raise UnsupportedImageModeError()
@@ -337,6 +339,8 @@ def remove_palette(image: Image.Image) -> Image.Image:
         image: Image in 'P' mode
     Returns:
         Image in 'L', 'LA', 'RGB', or 'RGBA' mode
+    Raises:
+        UnsupportedImageModeError: if an image mode is unsupported
     """
     palette_list = image.getpalette()
     if palette_list is None:

@@ -4,7 +4,7 @@
 
 This module may import from: common
 
-Hierarchy within module:
+Package hierarchy (modules may import from any above):
 * exceptions / pipe_object
 * checkpoint_manager_base / segment / sorter / source / terminus
 * directory_source / directory_terminus / typing

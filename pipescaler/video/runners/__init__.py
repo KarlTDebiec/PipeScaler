@@ -4,7 +4,7 @@
 
 This module may import from: common, core, video.core
 
-Hierarchy within module:
+Package hierarchy (modules may import from any above):
 * apngasm_runner
 """
 

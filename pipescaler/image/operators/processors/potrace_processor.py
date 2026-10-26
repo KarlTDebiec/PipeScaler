@@ -50,6 +50,8 @@ class PotraceProcessor(ImageProcessor):
             input_image: Input image
         Returns:
             Processed output image
+        Raises:
+            ValueError: if input values or configuration are invalid
         """
         input_image, _ = validate_image_and_convert_mode(
             input_image, self.inputs()["input"], "L"
@@ -82,7 +84,11 @@ class PotraceProcessor(ImageProcessor):
         return output_image
 
     def __repr__(self) -> str:
-        """Representation."""
+        """Representation.
+
+        Returns:
+            string representation of this object
+        """
         return (
             f"{self.__class__.__name__}("
             f"arguments={self.potrace_runner.arguments!r}, "
@@ -92,7 +98,11 @@ class PotraceProcessor(ImageProcessor):
 
     @classmethod
     def help_markdown(cls) -> str:
-        """Short description of this tool in markdown, with links."""
+        """Short description of this tool in markdown, with links.
+
+        Returns:
+            Markdown help describing this component
+        """
         return (
             "Traces image using [Potrace](http://potrace.sourceforge.net/) and "
             "re-rasterizes, optionally resizing."
@@ -100,14 +110,22 @@ class PotraceProcessor(ImageProcessor):
 
     @classmethod
     def inputs(cls) -> dict[str, tuple[ImageMode, ...]]:
-        """Inputs to this operator."""
+        """Inputs to this operator.
+
+        Returns:
+            mapping of input names to their supported image modes
+        """
         return {
             "input": ("1", "L"),
         }
 
     @classmethod
     def outputs(cls) -> dict[str, tuple[ImageMode, ...]]:
-        """Outputs of this operator."""
+        """Outputs of this operator.
+
+        Returns:
+            mapping of output names to their supported image modes
+        """
         return {
             "output": ("1",),
         }

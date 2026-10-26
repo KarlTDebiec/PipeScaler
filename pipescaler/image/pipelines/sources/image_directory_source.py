@@ -16,7 +16,13 @@ class ImageDirectorySource(DirectorySource):
     """Yields images from a directory."""
 
     def __next__(self) -> PipeImage:
-        """Yield next image."""
+        """Yield next image.
+
+        Returns:
+            next object yielded by this source
+        Raises:
+            StopIteration: when no input objects remain
+        """
         if self.index < len(self.file_paths):
             file_path = self.file_paths[self.index]
             self.index += 1

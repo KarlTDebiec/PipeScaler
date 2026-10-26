@@ -7,31 +7,46 @@ from __future__ import annotations
 import re
 from abc import ABC, abstractmethod
 from argparse import (
+    Action,
     ArgumentParser,
+    Namespace,
     RawDescriptionHelpFormatter,
     _SubParsersAction,  # noqa pylint
 )
+from collections.abc import Sequence
 from datetime import datetime
 from inspect import cleandoc
 from logging import FileHandler, Formatter, getLogger
 from pathlib import Path
 from sys import argv
-from typing import TypedDict, Unpack
+from typing import Any
 
 from .logs import DEFAULT_LOG_FORMAT, configure_logging
 
-__all__ = [
-    "CLIKwargs",
-    "CommandLineInterface",
-]
+__all__ = ["CommandLineInterface"]
 
 logger = getLogger(__name__)
 
 
-class CLIKwargs(TypedDict, total=False):
-    """Keyword arguments for command-line interface _main methods."""
+class _VerbosityAction(Action):
+    """Count verbosity from warnings even when a child suppresses its default."""
 
-    pass
+    def __call__(
+        self,
+        parser: ArgumentParser,
+        namespace: Namespace,
+        values: object,
+        option_string: str | None = None,
+    ):
+        """Increase verbosity for one occurrence of the option.
+
+        Arguments:
+            parser: active parser
+            namespace: parsed arguments
+            values: unused value for this zero-argument option
+            option_string: option used to invoke the action
+        """
+        setattr(namespace, self.dest, getattr(namespace, self.dest, 1) + 1)
 
 
 class CommandLineInterface(ABC):
@@ -48,10 +63,14 @@ class CommandLineInterface(ABC):
         verbosity.add_argument(
             "-v",
             "--verbose",
-            action="count",
+            action=_VerbosityAction,
+            nargs=0,
             default=1,
             dest="verbosity",
-            help="enable verbose output, may be specified more than once",
+            help=(
+                "increase console verbosity; use -v for info and -vv for debug "
+                "(default: warnings and errors)"
+            ),
         )
         verbosity.add_argument(
             "-q",
@@ -59,7 +78,7 @@ class CommandLineInterface(ABC):
             action="store_const",
             const=0,
             dest="verbosity",
-            help="disable verbose output",
+            help="show only errors",
         )
 
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -70,8 +89,14 @@ class CommandLineInterface(ABC):
             const=f"{cls.name()}.{timestamp}.log",
             required=False,
             type=str,
-            help="log to file (default: 'YYYY-MM-DD_hh-mm-ss.log')",
+            help=(
+                "write logs to an optional path; without a value, use "
+                "<command>.YYYY-MM-DD_hh-mm-ss.log in the current directory"
+            ),
         )
+        for action_group in parser._action_groups:  # noqa: SLF001
+            if action_group.title in {"optional arguments", "options"}:
+                action_group.title = "additional arguments"
 
     @classmethod
     def argparser(
@@ -104,20 +129,32 @@ class CommandLineInterface(ABC):
 
     @classmethod
     def description(cls) -> str:
-        """Long description of this tool displayed below usage."""
+        """Get the long description displayed below usage.
+
+        Returns:
+            long tool description
+        """
         return cleandoc(cls.__doc__) if cls.__doc__ else ""
 
     @classmethod
     def help(cls) -> str:
-        """Short description of this tool used when it is a subparser."""
+        """Get the short description used when this tool is a subparser.
+
+        Returns:
+            short tool description
+        """
         text = re.split(r"\.\s+", str(cls.description()))[0].rstrip(".")
         return text[0].lower() + text[1:]
 
     @classmethod
-    def main(cls):
-        """Execute from command line."""
+    def main(cls, arguments: Sequence[str] | None = None):
+        """Execute from command line.
+
+        Arguments:
+            arguments: explicit tokens, or process arguments when omitted
+        """
         parser = cls.argparser()
-        kwargs = vars(parser.parse_args())
+        kwargs = vars(parser.parse_args(arguments))
 
         # Configure logging
         verbosity = kwargs.pop("verbosity", 1)
@@ -127,7 +164,7 @@ class CommandLineInterface(ABC):
         log_file = kwargs.pop("log_file")
         if log_file:
             log_file_path = Path(log_file).resolve()
-            file_handler = FileHandler(log_file_path)
+            file_handler = FileHandler(log_file_path, encoding="utf-8")
             file_handler.setLevel(getLogger().level)
             formatter = Formatter(DEFAULT_LOG_FORMAT)
             file_handler.setFormatter(formatter)
@@ -138,7 +175,11 @@ class CommandLineInterface(ABC):
 
     @classmethod
     def name(cls) -> str:
-        """Name of this tool used to define it when it is a subparser."""
+        """Get the name used to define this tool as a subparser.
+
+        Returns:
+            subparser name
+        """
         name = cls.__name__
         if name.endswith("Cli"):
             name = name[:-3]
@@ -153,6 +194,11 @@ class CommandLineInterface(ABC):
 
     @classmethod
     @abstractmethod
-    def _main(cls, **kwargs: Unpack[CLIKwargs]):
-        """Execute with provided keyword arguments."""
+    def _main(cls, *args: Any, **kwargs: Any):
+        """Execute with provided command-line arguments.
+
+        Arguments:
+            *args: positional command-line arguments
+            **kwargs: parsed command-line arguments
+        """
         raise NotImplementedError()

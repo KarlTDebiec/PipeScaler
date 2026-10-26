@@ -79,6 +79,10 @@ def test(ref: str, fit: str, merger: PaletteMatchMerger):
     ],
 )
 def test_repr_round_trip(merger: PaletteMatchMerger):
-    """Test PaletteMatchMerger repr round-trip recreation."""
+    """Test PaletteMatchMerger repr round-trip recreation.
+
+    Arguments:
+        merger: merger
+    """
     recreated = eval(repr(merger))
     assert repr(recreated) == repr(merger)

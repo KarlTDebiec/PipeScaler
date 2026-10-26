@@ -4,7 +4,7 @@
 
 This module may import from: common, core, image.core
 
-Hierarchy within module:
+Package hierarchy (modules may import from any above):
 * image_merger_cli / image_processor_cli / image_splitter_cli
 """
 

@@ -10,7 +10,7 @@ from logging import warning
 from pathlib import Path
 from platform import system
 
-from pipescaler.common.exception import UnsupportedPlatformError
+from pipescaler.common.exceptions import UnsupportedPlatformError
 from pipescaler.common.validation import val_output_dir_path
 
 from .pipe_object import PipeObject
@@ -40,7 +40,11 @@ class CheckpointManagerBase(ABC):
         """Observed checkpoints as tuples of image and checkpoint names."""
 
     def __repr__(self) -> str:
-        """Representation."""
+        """Representation.
+
+        Returns:
+            string representation of this object
+        """
         return (
             f"{self.__class__.__name__}("
             f"dir_path={self.dir_path!r}, "
@@ -48,7 +52,11 @@ class CheckpointManagerBase(ABC):
         )
 
     def __str__(self) -> str:
-        """String representation."""
+        """String representation.
+
+        Returns:
+            display string for this object
+        """
         return f"<{self.__class__.__name__}>"
 
     def observe(self, location_name: str, cpt: str):
@@ -80,6 +88,9 @@ class CheckpointManagerBase(ABC):
             cpt_paths: Paths to checkpoints to assess
         Returns:
             Whether all checkpoints should be treated as current
+        Raises:
+            UnsupportedPlatformError: if the current platform is unsupported
+            ValueError: if input values or configuration are invalid
         """
         if not self.validate_input_mtime:
             return True

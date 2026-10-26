@@ -19,9 +19,11 @@ class ImageMergerSegment(ImageOperatorSegment[ImageMerger]):
         """Merge images.
 
         Arguments:
-            input_objs: Input images
+            *input_objs: Input images
         Returns:
             Output image, within a tuple for consistency with other Segments
+        Raises:
+            ValueError: if input values or configuration are invalid
         """
         if len(input_objs) != len(self.operator.inputs()):
             raise ValueError(

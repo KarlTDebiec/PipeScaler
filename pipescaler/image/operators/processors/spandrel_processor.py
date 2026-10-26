@@ -29,7 +29,7 @@ class SpandrelProcessor(ImageProcessor):
 
         Arguments:
             model_input_path: Path to model file
-            kwargs: Additional keyword arguments (reserved for future use)
+            **kwargs: Additional keyword arguments (reserved for future use)
         """
         super().__init__()
 
@@ -58,7 +58,11 @@ class SpandrelProcessor(ImageProcessor):
             )
 
     def __repr__(self) -> str:
-        """Representation."""
+        """Representation.
+
+        Returns:
+            string representation of this object
+        """
         model_input_path = f"Path({str(self.model_input_path)!r})"
         return f"{self.__class__.__name__}(model_input_path={model_input_path})"
 
@@ -116,7 +120,11 @@ class SpandrelProcessor(ImageProcessor):
 
     @classmethod
     def help_markdown(cls) -> str:
-        """Short description of this tool in markdown, with links."""
+        """Short description of this tool in markdown, with links.
+
+        Returns:
+            Markdown help describing this component
+        """
         return (
             "Processes image using Pytorch models loaded through "
             "[Spandrel](https://github.com/chaiNNer-org/spandrel)."
@@ -124,14 +132,22 @@ class SpandrelProcessor(ImageProcessor):
 
     @classmethod
     def inputs(cls) -> dict[str, tuple[ImageMode, ...]]:
-        """Inputs to this operator."""
+        """Inputs to this operator.
+
+        Returns:
+            mapping of input names to their supported image modes
+        """
         return {
             "input": ("1", "L", "RGB"),
         }
 
     @classmethod
     def outputs(cls) -> dict[str, tuple[ImageMode, ...]]:
-        """Outputs of this operator."""
+        """Outputs of this operator.
+
+        Returns:
+            mapping of output names to their supported image modes
+        """
         return {
             "output": ("1", "L", "RGB"),
         }

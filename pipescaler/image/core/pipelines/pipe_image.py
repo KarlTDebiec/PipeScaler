@@ -42,7 +42,9 @@ class PipeImage(PipeObject):
               that is not available will use filename of path excluding extension; one
               of these must be available
             parents: Parent image(s) from which this image is descended
-            kwargs: Additional keyword arguments
+            **kwargs: Additional keyword arguments
+        Raises:
+            ValueError: if input values or configuration are invalid
         """
         if image is None and path is None:
             raise ValueError(
@@ -65,7 +67,11 @@ class PipeImage(PipeObject):
 
     @property
     def image(self) -> Image.Image:
-        """Image; loaded from path if not already available."""
+        """Image; loaded from path if not already available.
+
+        Raises:
+            ValueError: if input values or configuration are invalid
+        """
         if self._image is None:
             if self.path is None:
                 raise ValueError(
@@ -81,7 +87,11 @@ class PipeImage(PipeObject):
 
     @image.setter
     def image(self, value: Image.Image):
-        """Set image data."""
+        """Set image data.
+
+        Arguments:
+            value: new value to assign
+        """
         self._image = value
 
     def save(self, path: Path | str):

@@ -43,7 +43,11 @@ class AlphaSplitterCli(ImageSplitterCli):
 
     @classmethod
     def _main(cls, **kwargs: Any):
-        """Execute with provided keyword arguments."""
+        """Execute with provided keyword arguments.
+
+        Arguments:
+            **kwargs: additional options forwarded to the selected implementation
+        """
         input_path = kwargs.pop("input_file")
         color_output_path = kwargs.pop("color_output_file")
         alpha_output_path = kwargs.pop("alpha_output_file")
@@ -58,7 +62,11 @@ class AlphaSplitterCli(ImageSplitterCli):
 
     @classmethod
     def splitter(cls) -> type[ImageSplitter]:
-        """Type of splitter wrapped by command-line interface."""
+        """Type of splitter wrapped by command-line interface.
+
+        Returns:
+            image splitter class invoked by this command
+        """
         return AlphaSplitter
 
 

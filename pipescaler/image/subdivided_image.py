@@ -32,7 +32,11 @@ class SubdividedImage:
         self._subs = self.get_subs(image, self.boxes)
 
     def __repr__(self) -> str:
-        """Representation."""
+        """Representation.
+
+        Returns:
+            string representation of this object
+        """
         return (
             f"{self.__class__.__name__}("
             f"image={self.image!r}, "
@@ -55,7 +59,13 @@ class SubdividedImage:
 
     @subs.setter
     def subs(self, value: list[Image.Image]):
-        """Set subdivisions and update internal geometry as needed."""
+        """Set subdivisions and update internal geometry as needed.
+
+        Arguments:
+            value: new value to assign
+        Raises:
+            ValueError: if input values or configuration are invalid
+        """
         if len(value) != len(self._subs):
             raise ValueError(
                 f"Expected {len(self._subs)} subdivisions, received {len(value)}"

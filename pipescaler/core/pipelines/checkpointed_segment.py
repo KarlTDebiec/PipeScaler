@@ -36,6 +36,8 @@ class CheckpointedSegment(Segment, ABC):
             cpts: Checkpoints to save
             internal_cpts: Names of additional checkpoints saved by Segments within
               this Segment
+        Raises:
+            ValueError: if input values or configuration are invalid
         """
         if len(cpts) == 0:
             raise ValueError(
@@ -57,7 +59,11 @@ class CheckpointedSegment(Segment, ABC):
         """Names of additional checkpoints saved by Segments within this Segment"""
 
     def __repr__(self) -> str:
-        """Representation."""
+        """Representation.
+
+        Returns:
+            string representation of this object
+        """
         return (
             f"{self.__class__.__name__}("
             f"segment={self.segment!r}, "

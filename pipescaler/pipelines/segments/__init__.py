@@ -4,7 +4,7 @@
 
 This module may import from: common, core.pipelines
 
-Hierarchy within module:
+Package hierarchy (modules may import from any above):
 * post_checkpointed_segment / pre_checkpointed_segment
 """
 

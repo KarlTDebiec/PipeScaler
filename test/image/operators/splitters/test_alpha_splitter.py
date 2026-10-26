@@ -92,6 +92,10 @@ def test(input_filename: str, splitter: AlphaSplitter):
     ],
 )
 def test_repr_round_trip(splitter: AlphaSplitter):
-    """Test AlphaSplitter repr round-trip recreation."""
+    """Test AlphaSplitter repr round-trip recreation.
+
+    Arguments:
+        splitter: splitter
+    """
     recreated = eval(repr(splitter))
     assert repr(recreated) == repr(splitter)

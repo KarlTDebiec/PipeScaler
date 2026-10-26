@@ -43,7 +43,11 @@ class ExpandCli(ImageProcessorCli):
 
     @classmethod
     def processor(cls) -> type[ExpandProcessor]:
-        """Type of processor wrapped by command-line interface."""
+        """Type of processor wrapped by command-line interface.
+
+        Returns:
+            image processor class invoked by this command
+        """
         return ExpandProcessor
 
 

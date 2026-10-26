@@ -1,7 +1,7 @@
 [![Python: =3.13](https://img.shields.io/badge/python-3.13-green.svg)](https://docs.python.org/3/whatsnew/3.13.html)
 [![Build](https://github.com/KarlTDebiec/PipeScaler/actions/workflows/build.yml/badge.svg)](https://github.com/KarlTDebiec/PipeScaler/actions/workflows/build.yml)
 [![Coverage](https://img.shields.io/badge/coverage-83-green)](https://github.com/KarlTDebiec/PipeScaler)
-[![Code Style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Code Style: Ruff](https://img.shields.io/badge/code%20style-Ruff-D7FF64.svg)](https://docs.astral.sh/ruff/)
 [![License: BSD 3-Clause](https://img.shields.io/badge/license-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 
 PipeScaler is a package for processing collections of files with a focus on upscaling
@@ -9,6 +9,9 @@ image and video resolution. Users define a pipeline in which objects flow from a
 through a series of sorters, processors, splitters, and mergers into a terminus.
 Checkpoints along the pipeline may be saved to allow processing to be tracked, stopped,
 and resumed.
+
+Developer guidance: [Architecture](docs/ARCHITECTURE.md),
+[Code Style](docs/STYLE.md), and [Documentation](docs/DOCUMENTATION.md).
 
 # Image Processing
 
