@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
+from pathlib import Path
 from typing import Any
 
 from pipescaler.core import Runner
@@ -11,7 +13,7 @@ from pipescaler.core import Runner
 __all__ = ["ApngasmRunner"]
 
 
-class ApngasmRunner(Runner):
+class ApngasmRunner(Runner[Path | str | Sequence[Path | str]]):
     """Runs apngasm tool for creating animated pngs.
 
     See [apngasm](https://github.com/apngasm/apngasm).
@@ -19,38 +21,43 @@ class ApngasmRunner(Runner):
 
     def __init__(
         self,
-        arguments: str = "",
+        arguments: Sequence[str] = (),
         **kwargs: Any,
     ):
         """Initialize.
 
         Arguments:
-            arguments: Command-line arguments to pass to apngasm
+            arguments: individual argument tokens to pass to apngasm without quoting
             **kwargs: Additional keyword arguments
         """
-        super().__init__(**kwargs)
+        super().__init__(arguments=arguments, **kwargs)
 
-        self.arguments = arguments
+    def get_command(
+        self, input_path: Path | str | Sequence[Path | str], output_path: Path | str
+    ) -> list[str]:
+        """Build the apngasm argument list for one or more input frames.
 
-    def __repr__(self) -> str:
-        """Representation.
-
+        Arguments:
+            input_path: one frame path or an ordered sequence of frame paths
+            output_path: output animated image path
         Returns:
-            string representation of this object
+            executable and individual argument tokens
+        Raises:
+            ValueError: if no input frame paths are provided
         """
-        return (
-            f"{self.__class__.__name__}("
-            f"arguments={self.arguments!r}, "
-            f"timeout={self.timeout!r})"
-        )
-
-    @property
-    def command_template(self) -> str:
-        """String template with which to generate command."""
-        return (
-            f'"{self.executable_path}" -o {{output_path}} {{input_path}} '
-            f"{self.arguments}"
-        )
+        if isinstance(input_path, Path | str):
+            input_paths = [input_path]
+        else:
+            input_paths = input_path
+        if not input_paths:
+            raise ValueError("At least one input frame path is required")
+        return [
+            str(self.executable_path),
+            "-o",
+            str(output_path),
+            *(str(path) for path in input_paths),
+            *self.arguments,
+        ]
 
     @classmethod
     def executable(cls) -> str:

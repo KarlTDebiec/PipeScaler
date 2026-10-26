@@ -57,6 +57,8 @@ class ImageRunnerSegment(ImageSegment):
             else:
                 self.runner(input_objs[0].path, output_path)
             output = PipeImage(path=output_path, parents=input_objs[0])
+            with output.image as image:
+                output.image = image.copy()
             warning(
                 f"{self}: Output file is temporary and only image content is retained; "
                 f"if output file is needed (e.g. if the purpose of this processor is "

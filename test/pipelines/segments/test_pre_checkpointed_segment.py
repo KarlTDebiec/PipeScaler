@@ -9,10 +9,12 @@ from typing import Any, cast
 from unittest.mock import Mock
 
 import pytest
+from PIL import Image
 
 from pipescaler.common.file import get_temp_directory_path
 from pipescaler.common.validation import val_output_path
 from pipescaler.core.pipelines import PipeObject, Segment
+from pipescaler.image.core.pipelines import PipeImage
 from pipescaler.pipelines import CheckpointManager
 from pipescaler.pipelines.segments import PreCheckpointedSegment
 
@@ -91,3 +93,33 @@ def test():
         # Test miscellaneous methods
         assert str(pre_checkpointed_segment)
         assert repr(pre_checkpointed_segment)
+
+
+def test_multiple_inputs_use_their_own_checkpoint_paths(tmp_path: Path):
+    """Pair each input with its checkpoint without losing paths during cleanup.
+
+    Arguments:
+        tmp_path: temporary directory for checkpoints
+    """
+    inputs = (
+        PipeImage(image=Image.new("RGB", (2, 2), "red"), name="first"),
+        PipeImage(image=Image.new("RGB", (2, 2), "blue"), name="second"),
+    )
+    checkpoint_paths = (tmp_path / "first" / "a.png", tmp_path / "second" / "b.png")
+    cp_manager = CheckpointManager(tmp_path)
+    segment = Mock(spec=Segment, return_value=inputs)
+    wrapper = cp_manager.pre_segment("a.png", "b.png")(segment)
+
+    assert wrapper(*inputs) == inputs
+    assert tuple(image.path for image in inputs) == checkpoint_paths
+    assert cp_manager.observed_checkpoints == {("first", "a.png"), ("second", "b.png")}
+    cp_manager.purge_unrecognized_files()
+    for checkpoint_path, expected_color in zip(
+        checkpoint_paths, ((255, 0, 0), (0, 0, 255))
+    ):
+        with Image.open(checkpoint_path) as image:
+            assert image.getpixel((0, 0)) == expected_color
+
+    wrapper(*inputs)
+    assert tuple(image.path for image in inputs) == checkpoint_paths
+    assert segment.call_count == 2

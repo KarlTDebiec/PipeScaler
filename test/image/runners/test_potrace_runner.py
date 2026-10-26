@@ -4,6 +4,9 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+from unittest.mock import Mock
+
 import pytest
 from PIL import Image
 
@@ -11,7 +14,6 @@ from pipescaler.common.file import get_temp_file_path
 from pipescaler.image.runners import PotraceRunner
 from pipescaler.testing.file import get_test_input_path
 from pipescaler.testing.fixture import parametrized_fixture
-from pipescaler.testing.mark import xfail_if_platform
 
 
 @parametrized_fixture(
@@ -34,7 +36,7 @@ def runner(request: pytest.FixtureRequest) -> PotraceRunner:
 @pytest.mark.parametrize(
     "input_filename",
     [
-        xfail_if_platform({"Windows"}, raises=FileNotFoundError)("L"),
+        "L",
     ],
 )
 def test(input_filename: str, runner: PotraceRunner):
@@ -54,7 +56,30 @@ def test(input_filename: str, runner: PotraceRunner):
 
 def test_repr_round_trip():
     """Test PotraceRunner repr round-trip recreation."""
-    runner = PotraceRunner(arguments="-b svg", timeout=1)
+    runner = PotraceRunner(arguments=("-b", "svg"), timeout=1)
     recreated = eval(repr(runner))
     assert recreated.arguments == runner.arguments
     assert recreated.timeout == runner.timeout
+
+
+def test_argument_paths_are_preserved(monkeypatch: pytest.MonkeyPatch):
+    """Pass executable, input, output, and custom paths as unchanged tokens.
+
+    Arguments:
+        monkeypatch: pytest monkeypatch fixture
+    """
+    executable_path = Path("C:/Program Files/O'Brien/{tools}/potrace.exe")
+    input_path = r"C:\input images\O'Brien\{source}.bmp"
+    output_path = r"C:\output images\{result}.svg"
+    arguments = ("--backend", "svg", "--opaque", r"C:\custom options\{value}")
+    command_runner = Mock(return_value=(0, "", ""))
+    monkeypatch.setattr(
+        "pipescaler.core.runner.val_executable", lambda *_args: executable_path
+    )
+    monkeypatch.setattr("pipescaler.core.runner.run_command", command_runner)
+
+    PotraceRunner(arguments=arguments, timeout=7)(input_path, output_path)
+
+    command_runner.assert_called_once_with(
+        [str(executable_path), input_path, *arguments, "-o", output_path], timeout=7
+    )

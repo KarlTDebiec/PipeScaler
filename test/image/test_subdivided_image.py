@@ -15,7 +15,6 @@ from pipescaler.image.operators.processors import (
     XbrzProcessor,
 )
 from pipescaler.testing.file import get_test_input_path
-from pipescaler.testing.mark import xfail_if_platform
 
 
 @pytest.fixture
@@ -59,9 +58,7 @@ def test_get_subs(input_filename: str):
 @pytest.mark.parametrize(
     ("processor_name", "input_filename", "scale"),
     [
-        xfail_if_platform({"Windows"}, raises=FileNotFoundError)(
-            "potrace_processor", "L", 10
-        ),
+        ("potrace_processor", "L", 10),
         ("xbrz_processor", "RGB", 6),
     ],
 )
