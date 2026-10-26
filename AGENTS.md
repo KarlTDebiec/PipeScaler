@@ -42,11 +42,5 @@ $env:PYTHONIOENCODING = "utf-8"
 
 ## Version Control
 
-- Name new branches `feature/brief-description`; continue an existing branch when
-  requested. Preserve unrelated working-tree changes.
-- Interact with GitHub through the GitHub MCP; do not use `gh`.
-- Batch related changes, validate locally, and push when ready for review. Use CI
-  to confirm platform behavior and investigate failures that cannot be reproduced
-  locally. Exact jobs and commands belong in `.github/workflows/`.
-- Write concise PR descriptions covering the problem, resulting behavior, and
-  relevant validation. Explain material limitations or architectural changes.
+Follow [Contributing](docs/CONTRIBUTING.md) for branches, PR descriptions, and
+[CI usage](docs/CONTRIBUTING.md#ci-usage).
