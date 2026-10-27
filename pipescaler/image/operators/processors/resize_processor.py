@@ -86,7 +86,7 @@ class ResizeProcessor(ImageProcessor):
         return output_img
 
     def __repr__(self) -> str:
-        """Representation.
+        """Reconstructible representation.
 
         Returns:
             string representation of this object
@@ -94,7 +94,7 @@ class ResizeProcessor(ImageProcessor):
         return (
             f"{self.__class__.__name__}("
             f"scale={self.scale!r}, "
-            f"resample={self.resample!r})"
+            f"resample={self.resample.name.lower()!r})"
         )
 
     @classmethod
