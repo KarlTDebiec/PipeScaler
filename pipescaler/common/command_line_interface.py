@@ -7,6 +7,7 @@ from __future__ import annotations
 import re
 from abc import ABC, abstractmethod
 from argparse import (
+    SUPPRESS,
     Action,
     ArgumentParser,
     Namespace,
@@ -26,27 +27,6 @@ from .logs import DEFAULT_LOG_FORMAT, configure_logging
 __all__ = ["CommandLineInterface"]
 
 logger = getLogger(__name__)
-
-
-class _VerbosityAction(Action):
-    """Count verbosity from warnings even when a child suppresses its default."""
-
-    def __call__(
-        self,
-        parser: ArgumentParser,
-        namespace: Namespace,
-        values: object,
-        option_string: str | None = None,
-    ):
-        """Increase verbosity for one occurrence of the option.
-
-        Arguments:
-            parser: active parser
-            namespace: parsed arguments
-            values: unused value for this zero-argument option
-            option_string: option used to invoke the action
-        """
-        setattr(namespace, self.dest, getattr(namespace, self.dest, 1) + 1)
 
 
 class CommandLineInterface(ABC):
@@ -104,6 +84,9 @@ class CommandLineInterface(ABC):
     ) -> ArgumentParser:
         """Construct argument parser.
 
+        Child logging defaults preserve parent values. Explicit child options override
+        parent values, and verbosity counts restart at each command level.
+
         Arguments:
             subparsers: Subparsers group to which a new subparser will be added; if
               None, a new ArgumentParser will be created
@@ -124,6 +107,15 @@ class CommandLineInterface(ABC):
             )
 
         cls.add_arguments_to_argparser(parser)
+        if subparsers is not None:
+            default_placeholder = "%(default)s"
+            for action in parser._actions:  # noqa: SLF001
+                if action.dest in {"verbosity", "log_file"}:
+                    if isinstance(action.help, str):
+                        action.help = action.help.replace(
+                            default_placeholder, str(action.default)
+                        )
+                    action.default = SUPPRESS
 
         return parser
 
@@ -202,3 +194,24 @@ class CommandLineInterface(ABC):
             **kwargs: parsed command-line arguments
         """
         raise NotImplementedError()
+
+
+class _VerbosityAction(Action):
+    """Count verbosity from warnings even when a child suppresses its default."""
+
+    def __call__(
+        self,
+        parser: ArgumentParser,
+        namespace: Namespace,
+        values: object,
+        option_string: str | None = None,
+    ):
+        """Increase verbosity for one occurrence of the option.
+
+        Arguments:
+            parser: active parser
+            namespace: parsed arguments
+            values: unused value for this zero-argument option
+            option_string: option used to invoke the action
+        """
+        setattr(namespace, self.dest, getattr(namespace, self.dest, 1) + 1)

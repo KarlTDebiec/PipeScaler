@@ -17,17 +17,20 @@ __all__ = ["MonochromeSorter"]
 class MonochromeSorter(ImageSorter):
     """Sorts image based on presence and use of colors other than black and white."""
 
-    def __init__(self, mean_threshold: float = 0, max_threshold: float = 0):
+    def __init__(self, mean_threshold: float = 0, proportion_threshold: float = 0):
         """Validate configuration and initialize.
 
         Arguments:
-            mean_threshold: Sort as 'drop_gray' if mean diff between L and 1 images is
-              below this threshold
-            max_threshold: Sort as 'drop_gray' if maximum diff between L and 1 images is
-             below this threshold
+            mean_threshold: sort as 'drop_gray' if mean difference from a monochrome
+              image is below this threshold, in the range 0 to 255
+            proportion_threshold: sort as 'drop_gray' if the proportion of pixels that
+              differ from a monochrome image is below this threshold, in the range 0 to
+              1
         """
         self.mean_threshold = val_float(mean_threshold, min_value=0, max_value=255)
-        self.max_threshold = val_float(max_threshold, min_value=0, max_value=255)
+        self.proportion_threshold = val_float(
+            proportion_threshold, min_value=0, max_value=1
+        )
 
     def __call__(self, obj: PipeImage) -> str | None:
         """Get the outlet to which an image should be sorted.
@@ -40,7 +43,11 @@ class MonochromeSorter(ImageSorter):
         image = validate_image(obj.image, ("1", "L"))
 
         if image.mode == "L":
-            if is_monochrome(image):
+            if is_monochrome(
+                image,
+                mean_threshold=self.mean_threshold,
+                proportion_threshold=self.proportion_threshold,
+            ):
                 outlet = "drop_gray"
             else:
                 outlet = "keep_gray"
@@ -59,7 +66,7 @@ class MonochromeSorter(ImageSorter):
         return (
             f"{self.__class__.__name__}("
             f"mean_threshold={self.mean_threshold!r}, "
-            f"max_threshold={self.max_threshold!r})"
+            f"proportion_threshold={self.proportion_threshold!r})"
         )
 
     @property

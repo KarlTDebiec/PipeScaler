@@ -22,8 +22,9 @@ serial execution serial.
 The [workflow files](../.github/workflows/) own exact triggers, commands,
 dependencies, and tool versions. Pull requests run Linux checks. Pushes to `master`
 after merging run Linux, macOS, and Windows checks. New PR updates cancel older
-runs for that PR; each merged commit keeps its own workflow run. Describe
-validation actually performed, including skipped checks and platform limitations.
+runs for that PR; each merged commit keeps its own workflow run. GitHub checks
+provide routine validation results. Mention validation gaps or platform limitations
+in PR Notes only when they materially affect review.
 
 ## Pull requests
 
@@ -32,21 +33,37 @@ Keep descriptions concise. Use these sections:
 ```markdown
 ## Background
 
-Why the change is needed.
+The current problem or constraint, stated in the present tense.
 
 ## Changes
 
-- What changed.
+- What the change does, stated in the present tense.
 
 ## Notes
 
 Optional: a non-obvious choice, implementation limitation, or separate issue.
 ```
 
-Write for reviewers without prior context. Each Changes bullet should identify
-the affected area and its concrete result. Describe the final implementation and
-omit chat history. Include relevant validation and explain material limitations
-or architectural choices in Notes. Omit Notes when there is nothing to add.
+Write for reviewers without prior context. Use present tense in both Background
+and Changes:
 
-Link the relevant issues. Use closing references such as `Closes #123` when the
-PR resolves an issue.
+- Background describes the current problem or constraint: "Checkpoint writes leave
+  partial files when a runner fails."
+- Changes describes the resulting behavior: "Writes checkpoints to temporary files
+  before replacing the destination."
+
+Each Changes bullet identifies the affected area and its concrete result.
+Describe the final implementation and omit chat history or a work log. Notes
+covers non-obvious choices, material limitations, or architectural decisions;
+omit Notes when there is nothing to add.
+
+Keep routine validation out of the description. Do not list executed commands,
+passing checks, test counts, or statements that tests, Ruff, ty, or CI pass.
+Required checks still run; their results belong in GitHub checks. Do not add a
+Testing or Validation section or append a validation checklist to Notes. Describe
+new regression coverage by the behavior it protects when that helps explain the
+change, rather than reporting that the tests run. Mention a validation gap only
+when it leaves relevant behavior unverified and materially affects review.
+
+Attach related issues separately from the description. Closing keywords are not
+required.

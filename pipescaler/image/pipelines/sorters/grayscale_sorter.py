@@ -44,7 +44,7 @@ class GrayscaleSorter(ImageSorter):
         if img.mode in ("RGB", "RGBA"):
             rgb_arr = np.array(img)[:, :, :3]
             l_arr = np.array(Image.fromarray(rgb_arr).convert("L").convert("RGB"))
-            diff = np.abs(rgb_arr - l_arr)
+            diff = np.abs(rgb_arr.astype(np.int16) - l_arr.astype(np.int16))
             if diff.mean() <= self.mean_threshold and diff.max() <= self.max_threshold:
                 outlet = "drop_rgb"
             else:

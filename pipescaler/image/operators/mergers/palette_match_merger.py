@@ -19,7 +19,12 @@ __all__ = ["PaletteMatchMerger"]
 
 
 class PaletteMatchMerger(ImageMerger):
-    """Matches an image's color palette to that of a reference image."""
+    """Matches an image's color palette to that of a reference image.
+
+    Local matching requires a target that is a uniform integer upscale of the
+    reference, with a scale of at least 2 on both axes. Basic matching has no
+    image-size restriction. Local neighborhood ranges use reference pixels.
+    """
 
     def __init__(
         self,
@@ -49,6 +54,7 @@ class PaletteMatchMerger(ImageMerger):
             Merged output image
         Raises:
             UnsupportedImageModeError: if an image mode is unsupported
+            ValueError: if local matching receives incompatible image sizes
         """
         ref_image = validate_image(input_images[0], self.inputs()["ref"])
         fit_image = validate_image(input_images[1], self.inputs()["fit"])

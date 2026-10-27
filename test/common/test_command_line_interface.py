@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from argparse import SUPPRESS, ArgumentParser
+from argparse import ArgumentParser
 from collections.abc import Sequence
 from pathlib import Path
 from typing import ClassVar
@@ -285,28 +285,68 @@ def test_run_cli_with_args_quoted_values():
     assert ArgsCaptureCli.captured.get("name") == "value with spaces"
 
 
-@parametrize(
-    ("arguments", "expected_verbosity"),
-    [([], 1), (["-v"], 2), (["--verbose"], 2), (["-vv"], 3), (["-q"], 0)],
-)
-def test_subparser_suppressed_verbosity_default(
-    arguments: list[str], expected_verbosity: int
-):
-    """Count child verbosity from warnings when its default is suppressed.
-
-    Arguments:
-        arguments: options passed to the child parser
-        expected_verbosity: selected verbosity level
-    """
+def test_subparser_common_options_preserve_parent_values():
+    """Preserve inherited logging options and honor explicit child overrides."""
     parser = TestCli.argparser()
     subparsers = parser.add_subparsers(dest="command", required=True)
     child = AnotherTestCli.argparser(subparsers=subparsers)
-    for action in child._actions:
-        if action.dest == "verbosity":
-            action.default = SUPPRESS
+    grandchildren = child.add_subparsers(dest="subcommand", required=True)
+    TestCli.argparser(subparsers=grandchildren)
 
-    parsed = parser.parse_args([AnotherTestCli.name(), *arguments])
-    assert parsed.verbosity == expected_verbosity
+    parsed = parser.parse_args(["-v", "anothertest", "-vv", "test", "-v"])
+    assert parsed.verbosity == 2
+    assert parsed.log_file is None
+
+    parsed = parser.parse_args(["-vv", "anothertest", "test"])
+    assert parsed.verbosity == 3
+
+    parsed = parser.parse_args(["-q", "anothertest", "test"])
+    assert parsed.verbosity == 0
+
+    parsed = parser.parse_args(["-vv", "anothertest", "-v", "test"])
+    assert parsed.verbosity == 2
+
+    parsed = parser.parse_args(["-v", "anothertest", "test", "-q"])
+    assert parsed.verbosity == 0
+
+    parsed = parser.parse_args(["-l", "root.log", "anothertest", "test"])
+    assert parsed.log_file == "root.log"
+
+    parsed = parser.parse_args(
+        ["-l", "root.log", "anothertest", "-l", "middle.log", "test"]
+    )
+    assert parsed.log_file == "middle.log"
+
+    parsed = parser.parse_args(
+        ["-l", "root.log", "anothertest", "-l", "middle.log", "test", "-l", "leaf.log"]
+    )
+    assert parsed.log_file == "leaf.log"
+
+    parsed = parser.parse_args(["-q", "anothertest", "-v", "test", "-v"])
+    assert parsed.verbosity == 2
+
+
+def test_common_options_do_not_leak_between_parses():
+    """Keep logging options local to each parse call."""
+    parser = TestCli.argparser()
+    assert parser.parse_args([]).verbosity == 1
+    assert parser.parse_args(["-vv"]).verbosity == 3
+    assert parser.parse_args([]).verbosity == 1
+
+    with patch.object(TestCli, "_main"):
+        with patch(
+            "pipescaler.common.command_line_interface.configure_logging"
+        ) as mock_logging:
+            TestCli.main(["-vv"])
+            TestCli.main([])
+    assert [call.args[0] for call in mock_logging.call_args_list] == [3, 1]
+
+
+def test_standalone_leaf_parser_common_options():
+    """Preserve logging defaults when a CLI is parsed without a parent."""
+    parsed = AnotherTestCli.argparser().parse_args(["-v", "-v", "-l", "leaf.log"])
+    assert parsed.verbosity == 3
+    assert parsed.log_file == "leaf.log"
 
 
 def test_assert_cli_usage_failure_reports_streams(monkeypatch: MonkeyPatch):

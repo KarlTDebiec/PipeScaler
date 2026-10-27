@@ -58,7 +58,10 @@ class AlphaSplitter(ImageSplitter):
 
         input_arr = np.array(input_img)
 
-        color_arr = np.squeeze(input_arr[:, :, :-1])
+        if input_img.mode == "LA":
+            color_arr = input_arr[:, :, 0]
+        else:
+            color_arr = input_arr[:, :, :3]
         alpha_arr = input_arr[:, :, -1]
         color_img = Image.fromarray(color_arr)
         alpha_img = Image.fromarray(alpha_arr)

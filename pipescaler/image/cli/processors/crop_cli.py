@@ -36,7 +36,7 @@ class CropCli(ImageProcessorCli):
             metavar=("LEFT", "TOP", "RIGHT", "BOTTOM"),
             nargs=4,
             required=True,
-            type=int_arg(min_value=1),
+            type=int_arg(min_value=0),
             help="number of pixels to remove from each side",
         )
 

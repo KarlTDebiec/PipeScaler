@@ -290,7 +290,7 @@ def is_monochrome(
 
     l_arr = np.array(image)
     one_arr = np.array(image.convert("1").convert("L"))
-    diff = np.abs(l_arr - one_arr)
+    diff = np.abs(l_arr.astype(np.int16) - one_arr.astype(np.int16))
     mean_diff = diff.mean()
     proportion_diff = (diff != 0).sum() / diff.size
 
