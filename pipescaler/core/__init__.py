@@ -6,7 +6,7 @@ This module may import from: common
 
 Package hierarchy (modules may import from any above):
 * runner / sorting / utility
-* cli / typing
+* typing
 * pipelines
 """
 
