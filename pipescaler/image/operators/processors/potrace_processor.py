@@ -23,6 +23,8 @@ __all__ = ["PotraceProcessor"]
 class PotraceProcessor(ImageProcessor):
     """Traces image using potrace and re-rasterizes, optionally resizing.
 
+    Re-rasterized output is always mode `L`, including antialiased gray pixels.
+
     See [Potrace](http://potrace.sourceforge.net/).
     """
 
@@ -45,8 +47,8 @@ class PotraceProcessor(ImageProcessor):
 
         Arguments:
             arguments: individual argument tokens to pass to potrace without quoting
-            invert: Whether to invert image before tracing
-            scale: Scale of re-rasterized output image relative to input
+            invert: whether to invert image before tracing
+            scale: scale of re-rasterized output image relative to input
         """
         super().__init__()
 
@@ -58,9 +60,9 @@ class PotraceProcessor(ImageProcessor):
         """Process an image.
 
         Arguments:
-            input_image: Input image
+            input_image: input image
         Returns:
-            Processed output image
+            re-rasterized grayscale image in mode `L`
         Raises:
             ValueError: if input values or configuration are invalid
         """
@@ -112,7 +114,7 @@ class PotraceProcessor(ImageProcessor):
         """Short description of this tool in markdown, with links.
 
         Returns:
-            Markdown help describing this component
+            markdown help describing this component
         """
         return (
             "Traces image using [Potrace](http://potrace.sourceforge.net/) and "
@@ -138,5 +140,5 @@ class PotraceProcessor(ImageProcessor):
             mapping of output names to their supported image modes
         """
         return {
-            "output": ("1",),
+            "output": ("L",),
         }
