@@ -66,7 +66,6 @@ class ImageRunnerSegment(ImageSegment):
                 f"PostCheckpointedImageRunnerSegment."
             )
         output.path = None
-
         return (output,)
 
     def __repr__(self) -> str:
