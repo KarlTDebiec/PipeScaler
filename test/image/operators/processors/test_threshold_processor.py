@@ -91,3 +91,45 @@ def test_threshold_processor_rejects_out_of_range_values(threshold: int):
     """
     with pytest.raises(ValueError):
         ThresholdProcessor(threshold)
+
+
+@pytest.mark.parametrize("mode", ["1", "L"])
+@pytest.mark.parametrize("value", [0, 255])
+def test_denoise_preserves_uniform_binary_images(mode: str, value: int):
+    """Denoising preserves all-black and all-white images in supported modes.
+
+    Arguments:
+        mode: input image mode
+        value: uniform binary pixel value
+    """
+    if mode == "1":
+        dtype = bool
+    else:
+        dtype = np.uint8
+    input_image = Image.fromarray(np.full((5, 5), value, dtype=dtype))
+
+    output_image = ThresholdProcessor(denoise=True)(input_image)
+
+    assert output_image.mode == mode
+    assert np.array_equal(np.array(output_image), np.array(input_image))
+
+
+@pytest.mark.parametrize("mode", ["1", "L"])
+def test_denoise_removes_isolated_white_pixel(mode: str):
+    """Denoising removes an isolated white pixel in supported modes.
+
+    Arguments:
+        mode: input image mode
+    """
+    if mode == "1":
+        dtype = bool
+    else:
+        dtype = np.uint8
+    input_array = np.zeros((5, 5), dtype=dtype)
+    input_array[2, 2] = 255
+    input_image = Image.fromarray(input_array)
+
+    output_image = ThresholdProcessor(denoise=True)(input_image)
+
+    assert output_image.mode == mode
+    assert np.array_equal(np.array(output_image), np.zeros((5, 5), dtype=dtype))

@@ -25,8 +25,8 @@ class ThresholdProcessor(ImageProcessor):
         """Validate and store configuration and initialize.
 
         Arguments:
-            threshold: Threshold differentiating black and white
-            denoise: Flip color of pixels bordered by less than 5 pixels of the same
+            threshold: threshold differentiating black and white
+            denoise: flip color of pixels bordered by less than 5 pixels of the same
               color
         """
         super().__init__()
@@ -38,9 +38,9 @@ class ThresholdProcessor(ImageProcessor):
         """Process an image.
 
         Arguments:
-            input_image: Input image
+            input_image: input image
         Returns:
-            Processed output image
+            processed output image
         """
         input_image, input_mode = validate_image_and_convert_mode(
             input_image, self.inputs()["input"]
@@ -98,7 +98,7 @@ class ThresholdProcessor(ImageProcessor):
         """Flip color of pixels bordered by less than 5 pixels of the same color.
 
         Arguments:
-            data: Input image array; modified in-place
+            data: input image array; modified in-place
         """
         for x in range(1, data.shape[1] - 1):
             for y in range(1, data.shape[0] - 1):
@@ -106,5 +106,5 @@ class ThresholdProcessor(ImageProcessor):
                 if data[y, x] == 0:
                     if (slc == 0).sum() < 4:
                         data[y, x] = 255
-                elif (slc == 255).sum() < 4:
+                elif (slc != 0).sum() < 4:
                     data[y, x] = 0
