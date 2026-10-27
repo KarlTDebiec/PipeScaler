@@ -19,7 +19,12 @@ __all__ = ["PaletteMatchMerger"]
 
 
 class PaletteMatchMerger(ImageMerger):
-    """Matches an image's color palette to that of a reference image."""
+    """Matches an image's color palette to that of a reference image.
+
+    Local matching requires a target that is a uniform integer upscale of the
+    reference, with a scale of at least 2 on both axes. Basic matching has no
+    image-size restriction. Local neighborhood ranges use reference pixels.
+    """
 
     def __init__(
         self,
@@ -44,9 +49,12 @@ class PaletteMatchMerger(ImageMerger):
         """Merge images.
 
         Arguments:
-            input_images: Input images
+            *input_images: Input images
         Returns:
             Merged output image
+        Raises:
+            UnsupportedImageModeError: if an image mode is unsupported
+            ValueError: if local matching receives incompatible image sizes
         """
         ref_image = validate_image(input_images[0], self.inputs()["ref"])
         fit_image = validate_image(input_images[1], self.inputs()["fit"])
@@ -65,7 +73,11 @@ class PaletteMatchMerger(ImageMerger):
         return output_image
 
     def __repr__(self) -> str:
-        """Representation."""
+        """Representation.
+
+        Returns:
+            string representation of this object
+        """
         palette_match_mode = repr(self.palette_match_mode)
         if isinstance(self.palette_match_mode, PaletteMatchMode):
             palette_match_mode = f"PaletteMatchMode.{self.palette_match_mode.name}"
@@ -77,7 +89,11 @@ class PaletteMatchMerger(ImageMerger):
 
     @classmethod
     def inputs(cls) -> dict[str, tuple[ImageMode, ...]]:
-        """Inputs to this operator."""
+        """Inputs to this operator.
+
+        Returns:
+            mapping of input names to their supported image modes
+        """
         return {
             "ref": ("L", "RGB"),
             "fit": ("L", "RGB"),
@@ -85,7 +101,11 @@ class PaletteMatchMerger(ImageMerger):
 
     @classmethod
     def outputs(cls) -> dict[str, tuple[ImageMode, ...]]:
-        """Outputs of this operator."""
+        """Outputs of this operator.
+
+        Returns:
+            mapping of output names to their supported image modes
+        """
         return {
             "output": ("L", "RGB"),
         }

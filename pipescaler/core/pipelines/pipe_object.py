@@ -7,7 +7,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Self, cast
+from typing import Self
 
 from pipescaler.common.validation import val_input_path
 
@@ -34,6 +34,9 @@ class PipeObject(ABC):
               one of these must be available
             parents: Parent object(s) from which this object is descended
             location_path: Path relative to parent directory
+        Raises:
+            TypeError: if an argument has an unsupported type
+            ValueError: if input values or configuration are invalid
         """
         self._path = None
         if path:
@@ -46,7 +49,7 @@ class PipeObject(ABC):
             elif isinstance(parents, Sequence) and all(
                 isinstance(p, self.__class__) for p in parents
             ):
-                self._parents = cast("list[Self]", list(parents))
+                self._parents = list(parents)
             else:
                 raise TypeError(
                     f"{self.__class__.__name__}'s parents must be a list of "
@@ -73,7 +76,11 @@ class PipeObject(ABC):
             self._location = None
 
     def __repr__(self) -> str:
-        """Representation."""
+        """Representation.
+
+        Returns:
+            string representation of this object
+        """
         return (
             f"{self.__class__.__name__}("
             f"path={self.path!r}, "
@@ -83,7 +90,11 @@ class PipeObject(ABC):
         )
 
     def __str__(self) -> str:
-        """String representation."""
+        """String representation.
+
+        Returns:
+            display string for this object
+        """
         return f"<{self.__class__.__name__} '{self.location_name}'>"
 
     @property
@@ -115,7 +126,11 @@ class PipeObject(ABC):
 
     @path.setter
     def path(self, path: Path | str | None):
-        """Set path after validating it when provided."""
+        """Set path after validating it when provided.
+
+        Arguments:
+            path: filesystem path to validate and assign
+        """
         if path:
             self._path = val_input_path(path)
         else:

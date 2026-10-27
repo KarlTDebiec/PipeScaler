@@ -4,9 +4,9 @@
 
 This module may import from: common, core
 
-Hierarchy within module:
+Package hierarchy (modules may import from any above):
 * file_scanner
-* citra_file_scanner
+* dolphin_file_scanner / citra_file_scanner
 """
 
 from __future__ import annotations

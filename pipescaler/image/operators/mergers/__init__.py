@@ -4,8 +4,9 @@
 
 This module may import from: common, core, image.core, image.core.operators
 
-Hierarchy within module:
-* alpha_merger / histogram_match_merger / normal_merger / palette_match_merger
+Package hierarchy (modules may import from any above):
+* alpha_merger / diff_merger / histogram_match_merger / normal_merger
+  / palette_match_merger
 """
 
 from __future__ import annotations

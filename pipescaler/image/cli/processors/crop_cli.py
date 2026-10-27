@@ -36,13 +36,17 @@ class CropCli(ImageProcessorCli):
             metavar=("LEFT", "TOP", "RIGHT", "BOTTOM"),
             nargs=4,
             required=True,
-            type=int_arg(min_value=1),
+            type=int_arg(min_value=0),
             help="number of pixels to remove from each side",
         )
 
     @classmethod
     def processor(cls) -> type[CropProcessor]:
-        """Type of processor wrapped by command-line interface."""
+        """Type of processor wrapped by command-line interface.
+
+        Returns:
+            image processor class invoked by this command
+        """
         return CropProcessor
 
 

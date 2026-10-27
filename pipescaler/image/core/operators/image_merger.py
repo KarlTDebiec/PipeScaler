@@ -21,7 +21,7 @@ class ImageMerger(ImageOperator, ABC):
         """Merge images.
 
         Arguments:
-            input_images: Input images
+            *input_images: Input images
         Returns:
             Merged output image
         """

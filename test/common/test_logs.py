@@ -6,34 +6,20 @@ from __future__ import annotations
 
 from logging import DEBUG, ERROR, INFO, WARNING, getLogger
 
-from pipescaler.common.logs import set_logging_verbosity
+from pipescaler.common.logs import configure_logging
+from test.helpers import parametrize
 
 
-def test_set_logging_verbosity_error():
-    """Test setting logging verbosity to ERROR level."""
-    set_logging_verbosity(0)
-    assert getLogger().level == ERROR
+@parametrize(
+    ("verbosity", "expected_level"),
+    [(0, ERROR), (1, WARNING), (2, INFO), (3, DEBUG), (10, DEBUG)],
+)
+def test_configure_logging(verbosity: int, expected_level: int):
+    """Test logging level for verbosity values.
 
-
-def test_set_logging_verbosity_warning():
-    """Test setting logging verbosity to WARNING level."""
-    set_logging_verbosity(1)
-    assert getLogger().level == WARNING
-
-
-def test_set_logging_verbosity_info():
-    """Test setting logging verbosity to INFO level."""
-    set_logging_verbosity(2)
-    assert getLogger().level == INFO
-
-
-def test_set_logging_verbosity_debug():
-    """Test setting logging verbosity to DEBUG level."""
-    set_logging_verbosity(3)
-    assert getLogger().level == DEBUG
-
-
-def test_set_logging_verbosity_debug_high():
-    """Test setting logging verbosity to DEBUG level with high value."""
-    set_logging_verbosity(10)
-    assert getLogger().level == DEBUG
+    Arguments:
+        verbosity: verbosity value
+        expected_level: expected logging level
+    """
+    configure_logging(verbosity)
+    assert getLogger().level == expected_level

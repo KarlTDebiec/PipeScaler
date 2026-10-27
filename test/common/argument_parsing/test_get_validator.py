@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from argparse import ArgumentTypeError
 
-import pytest
+from pytest import raises
 
 from pipescaler.common.argument_parsing import get_validator
 
@@ -39,8 +39,6 @@ def test_get_validator_type_error():
 
         Arguments:
             value: input value
-        Returns:
-            validated value
         Raises:
             TypeError: always
         """
@@ -48,5 +46,24 @@ def test_get_validator_type_error():
 
     validator = get_validator(failing_func)
 
-    with pytest.raises(ArgumentTypeError):
+    with raises(ArgumentTypeError):
+        validator("test")
+
+
+def test_get_validator_os_error():
+    """Test get_validator converts OSError to ArgumentTypeError."""
+
+    def failing_func(value: str) -> str:
+        """Function that raises OSError.
+
+        Arguments:
+            value: input value
+        Raises:
+            OSError: always
+        """
+        raise OSError("Invalid path")
+
+    validator = get_validator(failing_func)
+
+    with raises(ArgumentTypeError, match="Invalid path"):
         validator("test")

@@ -48,19 +48,31 @@ class HeightToNormalProcessor(ImageProcessor):
         return output_image
 
     def __repr__(self) -> str:
-        """Representation."""
+        """Representation.
+
+        Returns:
+            string representation of this object
+        """
         return f"{self.__class__.__name__}(sigma={self.sigma!r})"
 
     @classmethod
     def inputs(cls) -> dict[str, tuple[ImageMode, ...]]:
-        """Inputs to this operator."""
+        """Inputs to this operator.
+
+        Returns:
+            mapping of input names to their supported image modes
+        """
         return {
             "input": ("L",),
         }
 
     @classmethod
     def outputs(cls) -> dict[str, tuple[ImageMode, ...]]:
-        """Outputs of this operator."""
+        """Outputs of this operator.
+
+        Returns:
+            mapping of output names to their supported image modes
+        """
         return {
             "output": ("RGB",),
         }

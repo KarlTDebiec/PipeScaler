@@ -4,23 +4,20 @@
 
 from __future__ import annotations
 
-import pytest
+from pytest import raises
 
-from pipescaler.common.csv import (
-    parse_csv_int_list,
-    parse_csv_str_list,
-)
+from pipescaler.common.csv import parse_csv_int_list, parse_csv_str_list
 
 
 def test_parse_csv_int_list_empty():
     """Test parsing of empty integer list values."""
-    with pytest.raises(ValueError, match="--sizes must include at least one integer"):
+    with raises(ValueError, match="--sizes must include at least one integer"):
         parse_csv_int_list(" , ", name="--sizes")
 
 
 def test_parse_csv_int_list_invalid_value():
     """Test parsing of invalid integer list values."""
-    with pytest.raises(ValueError, match="Invalid integer 'x' in --sizes"):
+    with raises(ValueError, match="Invalid integer 'x' in --sizes"):
         parse_csv_int_list("1,x,3", name="--sizes")
 
 

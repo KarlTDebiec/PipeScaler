@@ -17,6 +17,9 @@ if TYPE_CHECKING:
     from pipescaler.image.core.typing import ImageMode
 
 
+__all__ = ["DiffMerger"]
+
+
 class DiffMerger(ImageMerger):
     """Merges two images into a perceptually weighted blue-black-red diff image."""
 
@@ -24,9 +27,11 @@ class DiffMerger(ImageMerger):
         """Merge images.
 
         Arguments:
-            input_images: Input images
+            *input_images: input images
         Returns:
-            Merged output image
+            merged output image
+        Raises:
+            ValueError: if input modes or aspect ratios differ
         """
         first_img = validate_image(input_images[0], self.inputs()["first"])
         second_img = validate_image(input_images[1], self.inputs()["second"])
@@ -65,7 +70,11 @@ class DiffMerger(ImageMerger):
 
     @classmethod
     def inputs(cls) -> dict[str, tuple[ImageMode, ...]]:
-        """Inputs to this operator."""
+        """Inputs to this operator.
+
+        Returns:
+            supported input image modes
+        """
         return {
             "first": ("L", "RGB"),
             "second": ("L", "RGB"),
@@ -73,7 +82,11 @@ class DiffMerger(ImageMerger):
 
     @classmethod
     def outputs(cls) -> dict[str, tuple[ImageMode, ...]]:
-        """Outputs of this operator."""
+        """Outputs of this operator.
+
+        Returns:
+            supported output image modes
+        """
         return {
             "output": ("RGB",),
         }
@@ -120,7 +133,9 @@ class DiffMerger(ImageMerger):
             first_img: First input image
             second_img: Second input image
         Returns:
-            Images with matching sizes
+            images with matching sizes
+        Raises:
+            ValueError: if input aspect ratios differ
         """
         first_ratio = first_img.width / first_img.height
         second_ratio = second_img.width / second_img.height

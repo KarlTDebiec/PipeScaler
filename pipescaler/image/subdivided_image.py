@@ -22,17 +22,25 @@ class SubdividedImage:
         Arguments:
             image: Image to subdivide
             size: Size of subdivisions
-            overlap: Overlap between subdivisions
+            overlap: Non-negative overlap smaller than size
+        Raises:
+            ValueError: if overlap is negative or not smaller than size
         """
         self.image = image
         self.size = val_int(size, min_value=4)
-        self.overlap = val_int(overlap, min_value=2)
+        self.overlap = val_int(overlap, min_value=0)
+        if self.overlap >= self.size:
+            raise ValueError("overlap must be less than size")
         self.boxes = self.get_boxes(image.width, image.height, self.size, self.overlap)
 
         self._subs = self.get_subs(image, self.boxes)
 
     def __repr__(self) -> str:
-        """Representation."""
+        """Representation.
+
+        Returns:
+            string representation of this object
+        """
         return (
             f"{self.__class__.__name__}("
             f"image={self.image!r}, "
@@ -44,32 +52,55 @@ class SubdividedImage:
     def subs(self) -> list[Image.Image]:
         """Subdivisions of image.
 
-        When changed, the new size of the subdivisions is compared to the current size.
-        If it has changed, size, overlap, and boxes are scaled accordingly, and the
-        image is recomposed from the new subdivisions. The new subdivisions are then
-        re-extracted from the recomposed image. A consequence of this is that setting
-        subs to a particular value will not necessarily result in subs being set to
-        that value.
+        When changed, subdivision dimensions must use the same positive integer scale.
+        Size, overlap, and boxes are scaled accordingly, and the image is recomposed
+        from the new subdivisions. The new subdivisions are then re-extracted from
+        the recomposed image. A consequence of this is that setting subs to a
+        particular value will not necessarily result in subs being set to that value.
         """
         return self._subs
 
     @subs.setter
     def subs(self, value: list[Image.Image]):
-        """Set subdivisions and update internal geometry as needed."""
+        """Set subdivisions and update internal geometry as needed.
+
+        Arguments:
+            value: new value to assign
+        Raises:
+            ValueError: if input values or configuration are invalid
+        """
         if len(value) != len(self._subs):
             raise ValueError(
                 f"Expected {len(self._subs)} subdivisions, received {len(value)}"
             )
-        scale = int(value[0].width / self._subs[0].width)
-        if scale != 1:
-            self.size *= scale
-            self.overlap *= scale
-            self.boxes *= scale
+        scales = set()
+        for new_sub, old_sub in zip(value, self._subs):
+            if (
+                new_sub.width % old_sub.width != 0
+                or new_sub.height % old_sub.height != 0
+            ):
+                raise ValueError("Subdivision dimensions must use an integer scale")
+            width_scale = new_sub.width // old_sub.width
+            height_scale = new_sub.height // old_sub.height
+            if width_scale != height_scale:
+                raise ValueError("Subdivision dimensions must use a uniform scale")
+            scales.add(width_scale)
+        if len(scales) != 1 or next(iter(scales)) < 1:
+            raise ValueError(
+                "All subdivisions must use the same positive integer scale"
+            )
 
-        self.image = self.get_recomposed_image(
-            value, self.boxes, self.size, self.overlap
-        )
-        self._subs = self.get_subs(self.image, self.boxes)
+        scale = next(iter(scales))
+        boxes = self.boxes * scale
+        size = self.size * scale
+        overlap = self.overlap * scale
+        image = self.get_recomposed_image(value, boxes, size, overlap)
+        subs = self.get_subs(image, boxes)
+        self.image = image
+        self.boxes = boxes
+        self.size = size
+        self.overlap = overlap
+        self._subs = subs
 
     @classmethod
     def get_boxes(cls, width: int, height: int, size: int, overlap: int) -> np.ndarray:
@@ -158,15 +189,29 @@ class SubdividedImage:
 
         weights = []
         for box in boxes:
-            weight = np.ones((box[3] - box[1], box[2] - box[0]), float)
-            if box[0] != 0:
-                weight[:, :overlap] = np.minimum(weight[:, :overlap], left)
-            if box[1] != 0:
-                weight[:overlap, :] = np.minimum(weight[:overlap, :], top)
-            if box[2] != boxes[:, 2].max():
-                weight[:, -overlap:] = np.minimum(weight[:, -overlap:], right)
-            if box[3] != boxes[:, 3].max():
-                weight[-overlap:, :] = np.minimum(weight[-overlap:, :], bottom)
+            height = box[3] - box[1]
+            width = box[2] - box[0]
+            weight = np.ones((height, width), float)
+            if overlap and box[0] != 0:
+                extent = min(overlap, width)
+                weight[:, :extent] = np.minimum(
+                    weight[:, :extent], left[:height, :extent]
+                )
+            if overlap and box[1] != 0:
+                extent = min(overlap, height)
+                weight[:extent, :] = np.minimum(
+                    weight[:extent, :], top[:extent, :width]
+                )
+            if overlap and box[2] != boxes[:, 2].max():
+                extent = min(overlap, width)
+                weight[:, -extent:] = np.minimum(
+                    weight[:, -extent:], right[:height, -extent:]
+                )
+            if overlap and box[3] != boxes[:, 3].max():
+                extent = min(overlap, height)
+                weight[-extent:, :] = np.minimum(
+                    weight[-extent:, :], bottom[-extent:, :width]
+                )
             weights.append(weight)
 
         return weights
@@ -181,7 +226,7 @@ class SubdividedImage:
         Returns:
             Subdivisions of image
         """
-        return [image.crop(box) for box in boxes]
+        return [image.crop(tuple(box)) for box in boxes]
 
     @staticmethod
     def get_sub_count(full_size: int, size: int, overlap: int) -> int:
@@ -190,7 +235,7 @@ class SubdividedImage:
         Arguments:
             full_size: Full size of image in this dimension
             size: Size of each subdivision
-            overlap: Overlap between subdivisions
+            overlap: Non-negative overlap smaller than subdivision size
         Returns:
             Number of subdivisions
         """
@@ -254,8 +299,11 @@ class SubdividedImage:
             Weights for tapering along left, top, right, and bottom edges
         """
         x = np.arange(overlap)
-        adjusted_x = ((4 * x) / (overlap - 1)) - 2
-        taper = (erf(adjusted_x) + 1) / 2
+        if overlap == 1:
+            taper = np.array([0.5])
+        else:
+            adjusted_x = ((4 * x) / (overlap - 1)) - 2
+            taper = (erf(adjusted_x) + 1) / 2
 
         left = np.tile(taper, (size, 1))
         top = np.tile(np.reshape(taper, (overlap, 1)), (1, size))

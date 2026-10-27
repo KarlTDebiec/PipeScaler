@@ -36,6 +36,8 @@ class PostCheckpointedImageRunnerSegment(CheckpointedSegment):
             cp_manager: Checkpoint manager
             cpts: Checkpoints to save
             internal_cpts: Checkpoints to save internally
+        Raises:
+            ValueError: if input values or configuration are invalid
         """
         if len(cpts) != 1:
             raise ValueError(
@@ -53,7 +55,7 @@ class PostCheckpointedImageRunnerSegment(CheckpointedSegment):
         """Return outputs of wrapped Segment, loaded from checkpoints if available.
 
         Arguments:
-            input_objs: Input images
+            *input_objs: Input images
         Returns:
             Output images, loaded from checkpoint if available, within a tuple for
             consistency with other Segments

@@ -5,7 +5,7 @@
 This module may import from: common, core, image.core, image.core.cli,
 image.operators.splitters
 
-Hierarchy within module:
+Package hierarchy (modules may import from any above):
 * alpha_splitter_cli
 """
 

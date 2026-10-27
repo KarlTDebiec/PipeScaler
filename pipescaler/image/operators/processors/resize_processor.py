@@ -31,10 +31,12 @@ class ResizeProcessor(ImageProcessor):
         Arguments:
             scale: Output image scale relative to input image
             resample: Resample algorithm
+        Raises:
+            ValueError: if scale is non-finite or not positive
         """
         super().__init__()
 
-        self.scale = val_float(scale, min_value=0)
+        self.scale = val_float(scale, min_value=0, min_exclusive=True, finite=True)
         self.resample = self.resample_methods[
             val_str(resample, options=self.resample_methods.keys())
         ]
@@ -46,6 +48,8 @@ class ResizeProcessor(ImageProcessor):
             input_image: Input image
         Returns:
             Processed output image
+        Raises:
+            ValueError: if the scale rounds an output dimension to zero
         """
         input_arr = np.array(input_image)
 
@@ -53,6 +57,11 @@ class ResizeProcessor(ImageProcessor):
             round(input_image.size[0] * self.scale),
             round(input_image.size[1] * self.scale),
         )
+        if size[0] < 1 or size[1] < 1:
+            raise ValueError(
+                "Scale produces a zero-sized output; each output dimension must "
+                "round to at least 1 pixel"
+            )
         if input_image.mode == "RGBA":
             rgba_arr = np.zeros((size[1], size[0], 4), np.uint8)
             rgb_img = Image.fromarray(input_arr[:, :, :3])
@@ -77,7 +86,11 @@ class ResizeProcessor(ImageProcessor):
         return output_img
 
     def __repr__(self) -> str:
-        """Representation."""
+        """Representation.
+
+        Returns:
+            string representation of this object
+        """
         return (
             f"{self.__class__.__name__}("
             f"scale={self.scale!r}, "
@@ -86,14 +99,22 @@ class ResizeProcessor(ImageProcessor):
 
     @classmethod
     def inputs(cls) -> dict[str, tuple[ImageMode, ...]]:
-        """Inputs to this operator."""
+        """Inputs to this operator.
+
+        Returns:
+            mapping of input names to their supported image modes
+        """
         return {
             "input": ("1", "L", "LA", "RGB", "RGBA"),
         }
 
     @classmethod
     def outputs(cls) -> dict[str, tuple[ImageMode, ...]]:
-        """Outputs of this operator."""
+        """Outputs of this operator.
+
+        Returns:
+            mapping of output names to their supported image modes
+        """
         return {
             "output": ("1", "L", "LA", "RGB", "RGBA"),
         }

@@ -5,9 +5,9 @@
 This module may import from: common, core, image.core, image.core.cli,
 image.operators.processors
 
-Hierarchy within module:
-* crop_cli / expand_cli / height_to_normal_cli / mode_cli / resize_cli /
-  sharpen_cli / solid_color_cli / threshold_cli / xbrz_cli
+Package hierarchy (modules may import from any above):
+* crop_cli / expand_cli / height_to_normal_cli / mode_cli / resize_cli
+/ sharpen_cli / solid_color_cli / spandrel_cli / threshold_cli / xbrz_cli
 """
 
 from __future__ import annotations
@@ -19,6 +19,7 @@ from .mode_cli import ModeCli
 from .resize_cli import ResizeCli
 from .sharpen_cli import SharpenCli
 from .solid_color_cli import SolidColorCli
+from .spandrel_cli import SpandrelCli
 from .threshold_cli import ThresholdCli
 from .xbrz_cli import XbrzCli
 
@@ -30,6 +31,7 @@ __all__ = [
     "ResizeCli",
     "SharpenCli",
     "SolidColorCli",
+    "SpandrelCli",
     "ThresholdCli",
     "XbrzCli",
 ]

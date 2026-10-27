@@ -26,17 +26,38 @@ class LocalPaletteMatcher(Utility):
     ) -> Image.Image:
         """Match the palette of an image to a reference.
 
+        The target must be a uniform integer upscale of the reference, with a
+        scale of at least 2 on both axes. Neighborhood ranges use reference pixels.
+
         Arguments:
             ref_img: Image whose palette to use as reference
             fit_img: Image whose palette to fit to reference
             local_range: Range of adjacent pixels from which to draw best-fit color
         Returns:
             Image with palette fit to reference
+        Raises:
+            UnsupportedImageModeError: if an image mode is unsupported
+            ValueError: if the target is not a uniform integer upscale of the reference
         """
         if ref_img.mode != fit_img.mode:
             raise UnsupportedImageModeError(
                 f"Image mode '{ref_img.mode}' of reference image does not match mode "
                 f"'{fit_img.mode}' of fit image"
+            )
+        ref_width, ref_height = ref_img.size
+        fit_width, fit_height = fit_img.size
+        if (
+            ref_width <= 0
+            or ref_height <= 0
+            or fit_width % ref_width != 0
+            or fit_height % ref_height != 0
+            or fit_width // ref_width < 2
+            or fit_width // ref_width != fit_height // ref_height
+        ):
+            raise ValueError(
+                "Local palette matching requires a target that is a uniform integer "
+                "upscale of the reference with scale at least 2; "
+                f"received reference {ref_img.size} and target {fit_img.size}"
             )
         ref_arr = np.array(ref_img)
         fit_arr = np.array(fit_img)

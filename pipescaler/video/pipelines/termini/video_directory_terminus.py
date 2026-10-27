@@ -19,12 +19,20 @@ class VideoDirectoryTerminus(VideoTerminus, DirectoryTerminus[PipeVideo]):
     def __call__(self, input_obj: PipeVideo):
         """Save video to output directory.
 
+        Preserve an existing output when its timestamp is equal to or newer than the
+        input. Replace an older output with the input file. If input and output resolve
+        to the same path, leave the file unchanged.
+
         Arguments:
             input_obj: Video to save to output directory
         """
 
         def save_video():
-            """Save video to output directory."""
+            """Save video to output directory.
+
+            Raises:
+                NotImplementedError: if the subclass does not implement this operation
+            """
             if not self.dir_path.exists():
                 self.dir_path.mkdir(parents=True)
                 info(f"{self}: '{self.dir_path}' created")
@@ -39,19 +47,26 @@ class VideoDirectoryTerminus(VideoTerminus, DirectoryTerminus[PipeVideo]):
                 raise NotImplementedError("Saving video from memory not implemented")
 
         suffix = input_obj.path.suffix if input_obj.path else ".mp4"
-        output_path = (self.dir_path / input_obj.location_name).with_suffix(suffix)
+        output_path = self.dir_path / f"{input_obj.location_name}{suffix}"
         self.observed_files.add(str(output_path.relative_to(self.dir_path)))
         if output_path.exists():
+            if input_obj.path and output_path.resolve() == input_obj.path.resolve():
+                info(f"{self}: '{output_path}' is the input; not overwritten")
+                return
             if (
                 input_obj.path
-                and output_path.stat().st_mtime > input_obj.path.stat().st_mtime
+                and output_path.stat().st_mtime >= input_obj.path.stat().st_mtime
             ):
-                info(f"{self}: '{output_path}' is newer; not overwritten")
+                info(f"{self}: '{output_path}' is equal or newer; not overwritten")
                 return
-            warning(
-                f"{self}: '{output_path}' already exists; not overwritten; "
-                f"comparing video contents not implemented"
-            )
+            if input_obj.path is None:
+                warning(
+                    f"{self}: '{output_path}' already exists; not overwritten; "
+                    f"comparing video contents not implemented"
+                )
+                return
+            save_video()
+            info(f"{self}: '{output_path}' changed; overwritten")
             return
         save_video()
         info(f"{self}: '{output_path}' saved")

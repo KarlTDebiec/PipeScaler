@@ -47,7 +47,11 @@ class AlphaMergerCli(ImageMergerCli):
 
     @classmethod
     def _main(cls, **kwargs: Any):
-        """Execute with provided keyword arguments."""
+        """Execute with provided keyword arguments.
+
+        Arguments:
+            **kwargs: additional options forwarded to the selected implementation
+        """
         color_input_path = kwargs.pop("color_input_file")
         alpha_input_path = kwargs.pop("alpha_input_file")
         output_path = kwargs.pop("output_file")
@@ -63,7 +67,11 @@ class AlphaMergerCli(ImageMergerCli):
 
     @classmethod
     def merger(cls) -> type[AlphaMerger]:
-        """Type of merger wrapped by command-line interface."""
+        """Type of merger wrapped by command-line interface.
+
+        Returns:
+            image merger class invoked by this command
+        """
         return AlphaMerger
 
 

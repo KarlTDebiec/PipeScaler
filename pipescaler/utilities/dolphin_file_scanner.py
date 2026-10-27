@@ -8,6 +8,8 @@ from re import compile
 
 from .file_scanner import FileScanner
 
+__all__ = ["DolphinFileScanner"]
+
 
 class DolphinFileScanner(FileScanner):
     """Scans Dolphin dump directories for new files."""

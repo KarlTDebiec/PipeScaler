@@ -34,9 +34,9 @@ class ThresholdCli(ImageProcessorCli):
         arg_groups["additional arguments"].add_argument(
             "--threshold",
             default=128,
-            type=int_arg(min_value=0, max_value=255),
-            help="threshold differentiating black and white (0-255, default: "
-            "%(default)s)",
+            type=int_arg(min_value=1, max_value=244),
+            help="threshold differentiating black and white (1-244, "
+            "default: %(default)s)",
         )
         arg_groups["additional arguments"].add_argument(
             "--denoise",
@@ -47,7 +47,11 @@ class ThresholdCli(ImageProcessorCli):
 
     @classmethod
     def processor(cls) -> type[ThresholdProcessor]:
-        """Type of processor wrapped by command-line interface."""
+        """Type of processor wrapped by command-line interface.
+
+        Returns:
+            image processor class invoked by this command
+        """
         return ThresholdProcessor
 
 

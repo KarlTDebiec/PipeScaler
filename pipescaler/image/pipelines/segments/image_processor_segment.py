@@ -19,9 +19,11 @@ class ImageProcessorSegment(ImageOperatorSegment[ImageProcessor]):
         """Process an image.
 
         Arguments:
-            input_objs: Input image, within a tuple for consistency with other Segments
+            *input_objs: Input image, within a tuple for consistency with other Segments
         Returns:
             Output image, within a tuple for consistency with other Segments
+        Raises:
+            ValueError: if input values or configuration are invalid
         """
         if len(input_objs) != len(self.operator.inputs()):
             raise ValueError(

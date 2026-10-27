@@ -4,7 +4,7 @@
 
 This module may import from: common, core, image
 
-Hierarchy within module:
+Package hierarchy (modules may import from any above):
 * enums / exceptions / numba / sorting / typing
 * functions / image_operator
 * pipelines / validation

@@ -43,6 +43,8 @@ class CheckpointManager(CheckpointManagerBase):
               cpts are present
         Returns:
             Images loaded from checkpoints if available, otherwise None
+        Raises:
+            ValueError: if input values or configuration are invalid
         """
         cls = inputs[0].__class__
 
@@ -81,7 +83,7 @@ class CheckpointManager(CheckpointManagerBase):
         """Get decorator to wrap Segment to Segment with post-execution checkpoint.
 
         Arguments:
-            cpts: Names of checkpoints
+            *cpts: Names of checkpoints
             calls: Segments called within decorated Segment
         Returns:
             Decorator to wrap Segment to Segment with post-execution checkpoint
@@ -110,7 +112,7 @@ class CheckpointManager(CheckpointManagerBase):
         """Get decorator to wrap Segment to Segment with pre-execution checkpoint.
 
         Arguments:
-            cpts: Names of checkpoints
+            *cpts: Names of checkpoints
             calls: Segments called within decorated Segment
         Returns:
             Decorator to wrap Segment to Segment with pre-execution checkpoint
@@ -134,7 +136,13 @@ class CheckpointManager(CheckpointManagerBase):
         return decorator
 
     def purge_unrecognized_files(self, dir_path: Path | None = None):
-        """Remove unrecognized files and subdirectories in checkpoint directory."""
+        """Remove unrecognized files and subdirectories in checkpoint directory.
+
+        Arguments:
+            dir_path: dir path
+        Raises:
+            ValueError: if input values or configuration are invalid
+        """
         if dir_path is None:
             dir_path = self.dir_path
         for path in dir_path.iterdir():
@@ -167,6 +175,8 @@ class CheckpointManager(CheckpointManagerBase):
             overwrite: Whether to overwrite existing checkpoints
         Returns:
             Images, with paths updated to checkpoints
+        Raises:
+            ValueError: if input values or configuration are invalid
         """
         if len(inputs) != len(cpts):
             raise ValueError(
@@ -213,7 +223,7 @@ class CheckpointManager(CheckpointManagerBase):
         """Get checkpoints created by a collection of Segments.
 
         Arguments:
-            cpts_or_segments: Collection of checkpoint names and
+            *cpts_or_segments: Collection of checkpoint names and
             potentially-checkpointed segments used to prepare list of checkpoint names
         Returns:
             All checkpoint names either provided directly or associated with a provided

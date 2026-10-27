@@ -223,6 +223,8 @@ class FileScanner(Utility):
 
         Arguments:
             file_path: path to file
+        Raises:
+            ValueError: if input values or configuration are invalid
         """
         if not file_path.exists():
             debug(f"'{file_path.stem}' missing")
@@ -258,7 +260,11 @@ class FileScanner(Utility):
 
     @classmethod
     def run(cls, **kwargs: Any):
-        """Run file scanner utility."""
+        """Run file scanner utility.
+
+        Arguments:
+            **kwargs: additional options forwarded to the selected implementation
+        """
         cls(**kwargs)()
 
     @classmethod

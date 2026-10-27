@@ -18,6 +18,9 @@ if TYPE_CHECKING:
     from argparse import ArgumentParser
 
 
+__all__ = ["DiffMergerCli"]
+
+
 class DiffMergerCli(ImageMergerCli):
     """Command-line interface for DiffMerger."""
 
@@ -48,7 +51,11 @@ class DiffMergerCli(ImageMergerCli):
 
     @classmethod
     def _main(cls, **kwargs: Any):
-        """Execute with provided keyword arguments."""
+        """Execute with provided keyword arguments.
+
+        Arguments:
+            **kwargs: options forwarded to the merger
+        """
         first_input_path = kwargs.pop("first_input_file")
         second_input_path = kwargs.pop("second_input_file")
         output_path = kwargs.pop("output_file")
@@ -64,7 +71,11 @@ class DiffMergerCli(ImageMergerCli):
 
     @classmethod
     def merger(cls) -> type[DiffMerger]:
-        """Type of merger wrapped by command-line interface."""
+        """Type of merger wrapped by command-line interface.
+
+        Returns:
+            merger implementation
+        """
         return DiffMerger
 
 

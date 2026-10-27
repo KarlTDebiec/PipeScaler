@@ -38,8 +38,9 @@ class ResizeCli(ImageProcessorCli):
         arg_groups["required arguments"].add_argument(
             "--scale",
             required=True,
-            type=float_arg(min_value=0),
-            help="scaling factor",
+            type=float_arg(min_value=0, min_exclusive=True, finite=True),
+            help="finite positive scaling factor; output dimensions must round "
+            "to at least 1 pixel",
         )
 
         arg_groups["additional arguments"].add_argument(
@@ -51,7 +52,11 @@ class ResizeCli(ImageProcessorCli):
 
     @classmethod
     def processor(cls) -> type[ResizeProcessor]:
-        """Type of processor wrapped by command-line interface."""
+        """Type of processor wrapped by command-line interface.
+
+        Returns:
+            image processor class invoked by this command
+        """
         return ResizeProcessor
 
 

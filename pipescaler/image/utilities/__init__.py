@@ -4,7 +4,7 @@
 
 This module may import from: common, core, image.core
 
-Hierarchy within module:
+Package hierarchy (modules may import from any above):
 * local_palette_matcher / palette_matcher
 * mask_filler
 """

@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
+
 from PIL import Image, ImageOps
 from reportlab.graphics.renderPM import drawToFile
 from svglib.svglib import svg2rlg
@@ -26,14 +28,23 @@ class PotraceProcessor(ImageProcessor):
 
     def __init__(
         self,
-        arguments: str = "-b svg -k 0.3 -a 1.34 -O 0.2",
+        arguments: Sequence[str] = (
+            "-b",
+            "svg",
+            "-k",
+            "0.3",
+            "-a",
+            "1.34",
+            "-O",
+            "0.2",
+        ),
         invert: bool = False,
         scale: float = 1.0,
     ):
         """Initialize.
 
         Arguments:
-            arguments: Command-line arguments to pass to potrace
+            arguments: individual argument tokens to pass to potrace without quoting
             invert: Whether to invert image before tracing
             scale: Scale of re-rasterized output image relative to input
         """
@@ -50,6 +61,8 @@ class PotraceProcessor(ImageProcessor):
             input_image: Input image
         Returns:
             Processed output image
+        Raises:
+            ValueError: if input values or configuration are invalid
         """
         input_image, _ = validate_image_and_convert_mode(
             input_image, self.inputs()["input"], "L"
@@ -82,7 +95,11 @@ class PotraceProcessor(ImageProcessor):
         return output_image
 
     def __repr__(self) -> str:
-        """Representation."""
+        """Representation.
+
+        Returns:
+            string representation of this object
+        """
         return (
             f"{self.__class__.__name__}("
             f"arguments={self.potrace_runner.arguments!r}, "
@@ -92,7 +109,11 @@ class PotraceProcessor(ImageProcessor):
 
     @classmethod
     def help_markdown(cls) -> str:
-        """Short description of this tool in markdown, with links."""
+        """Short description of this tool in markdown, with links.
+
+        Returns:
+            Markdown help describing this component
+        """
         return (
             "Traces image using [Potrace](http://potrace.sourceforge.net/) and "
             "re-rasterizes, optionally resizing."
@@ -100,14 +121,22 @@ class PotraceProcessor(ImageProcessor):
 
     @classmethod
     def inputs(cls) -> dict[str, tuple[ImageMode, ...]]:
-        """Inputs to this operator."""
+        """Inputs to this operator.
+
+        Returns:
+            mapping of input names to their supported image modes
+        """
         return {
             "input": ("1", "L"),
         }
 
     @classmethod
     def outputs(cls) -> dict[str, tuple[ImageMode, ...]]:
-        """Outputs of this operator."""
+        """Outputs of this operator.
+
+        Returns:
+            mapping of output names to their supported image modes
+        """
         return {
             "output": ("1",),
         }

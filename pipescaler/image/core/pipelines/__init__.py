@@ -4,7 +4,7 @@
 
 This module may import from: common, core.pipelines, image.core
 
-Hierarchy within module:
+Package hierarchy (modules may import from any above):
 * pipe_image
 * image_segment / image_sorter / image_source / image_terminus
 * image_operator_segment / typing

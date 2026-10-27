@@ -5,9 +5,9 @@
 This module may import from: common, core.pipelines, image.core.pipelines,
 image.core.operators
 
-Hierarchy within module:
-* image_merger_segment / image_processor_segment / image_runner_segment /
-  image_splitter_segment
+Package hierarchy (modules may import from any above):
+* image_merger_segment / image_processor_segment / image_runner_segment
+/ image_splitter_segment
 * post_checkpointed_image_runner_segment
 """
 

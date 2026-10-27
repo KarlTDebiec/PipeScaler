@@ -4,10 +4,7 @@
 
 from __future__ import annotations
 
-__all__ = [
-    "parse_csv_int_list",
-    "parse_csv_str_list",
-]
+__all__ = ["parse_csv_int_list", "parse_csv_str_list"]
 
 
 def parse_csv_int_list(values: str, *, name: str) -> list[int]:
@@ -18,6 +15,8 @@ def parse_csv_int_list(values: str, *, name: str) -> list[int]:
         name: argument name for error context
     Returns:
         list of parsed integers
+    Raises:
+        ValueError: if a value is invalid
     """
     parsed_values: list[int] = []
     for item in values.split(","):

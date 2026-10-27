@@ -27,6 +27,8 @@ def validate_image(
         valid_modes: Valid modes
     Returns:
         Validated image
+    Raises:
+        UnsupportedImageModeError: if an image mode is unsupported
     """
     if image.mode == "P":
         image = remove_palette(image)

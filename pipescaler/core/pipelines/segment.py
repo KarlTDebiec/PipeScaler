@@ -19,16 +19,24 @@ class Segment[T: PipeObject](ABC):
         """Receive input objects and returns output objects.
 
         Arguments:
-            input_objs: Input objects
+            *input_objs: Input objects
         Returns:
             Output objects, within a tuple even if only one
         """
         raise NotImplementedError()
 
     def __repr__(self) -> str:
-        """Representation."""
+        """Representation.
+
+        Returns:
+            string representation of this object
+        """
         return f"{self.__class__.__name__}()"
 
     def __str__(self) -> str:
-        """String representation."""
+        """String representation.
+
+        Returns:
+            display string for this object
+        """
         return f"<{self.__class__.__name__}>"

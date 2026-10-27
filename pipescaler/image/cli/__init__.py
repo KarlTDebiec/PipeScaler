@@ -5,9 +5,9 @@
 This module may import from: common, core, image.core, image.operators,
 image.utilities, image.pipelines
 
-Hierarchy within module:
-* image_mergers_cli / image_processors_cli / image_splitters_cli /
-  image_utilities_cli / mergers / processors / splitters / utilities
+Package hierarchy (modules may import from any above):
+* mergers / processors / splitters / utilities
+* image_mergers_cli / image_processors_cli / image_splitters_cli / image_utilities_cli
 * image_cli
 """
 

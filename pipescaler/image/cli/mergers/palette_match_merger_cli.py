@@ -51,19 +51,24 @@ class PaletteMatchMergerCli(ImageMergerCli):
             const=PaletteMatchMode.LOCAL,
             default=PaletteMatchMode.BASIC,
             dest="palette_match_mode",
-            help="Match only to local palette of surrounding pixels",
+            help="Match only to local palette of surrounding pixels; target width and "
+            "height must be the same integer multiple of the reference, at least 2",
         )
         parser.add_argument(
             "--local_range",
             type=int,
             default=1,
-            help="Range of surrounding pixels from which to draw best-fit color, if "
-            "performing local matching (default: %(default)s)",
+            help="Range of surrounding reference pixels from which to draw best-fit "
+            "color, if performing local matching (default: %(default)s)",
         )
 
     @classmethod
     def _main(cls, **kwargs: Any):
-        """Execute with provided keyword arguments."""
+        """Execute with provided keyword arguments.
+
+        Arguments:
+            **kwargs: additional options forwarded to the selected implementation
+        """
         reference_input_path = kwargs.pop("reference_input_file")
         fit_input_path = kwargs.pop("fit_input_file")
         output_path = kwargs.pop("output_file")
@@ -86,7 +91,11 @@ class PaletteMatchMergerCli(ImageMergerCli):
 
     @classmethod
     def merger(cls) -> type[PaletteMatchMerger]:
-        """Type of merger wrapped by command-line interface."""
+        """Type of merger wrapped by command-line interface.
+
+        Returns:
+            image merger class invoked by this command
+        """
         return PaletteMatchMerger
 
 
