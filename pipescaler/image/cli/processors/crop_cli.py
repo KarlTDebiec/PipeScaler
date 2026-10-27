@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #  Copyright 2020-2026 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Command-line interface for CropProcessor."""
@@ -10,6 +9,8 @@ from argparse import ArgumentParser
 from pipescaler.common.argument_parsing import get_arg_groups_by_name, int_arg
 from pipescaler.image.core.cli import ImageProcessorCli
 from pipescaler.image.operators.processors import CropProcessor
+
+__all__ = ["CropCli"]
 
 
 class CropCli(ImageProcessorCli):
@@ -35,13 +36,17 @@ class CropCli(ImageProcessorCli):
             metavar=("LEFT", "TOP", "RIGHT", "BOTTOM"),
             nargs=4,
             required=True,
-            type=int_arg(min_value=1),
+            type=int_arg(min_value=0),
             help="number of pixels to remove from each side",
         )
 
     @classmethod
     def processor(cls) -> type[CropProcessor]:
-        """Type of processor wrapped by command-line interface."""
+        """Type of processor wrapped by command-line interface.
+
+        Returns:
+            image processor class invoked by this command
+        """
         return CropProcessor
 
 

@@ -9,8 +9,13 @@ from functools import partial
 from PIL import Image
 from pytest import mark, param
 
-from pipescaler.image.core.exceptions import UnsupportedImageModeError
-from pipescaler.image.core.functions import remove_palette
+from .core.exceptions import UnsupportedImageModeError
+from .core.functions import remove_palette
+
+__all__ = [
+    "get_expected_output_mode",
+    "xfail_unsupported_image_mode",
+]
 
 
 def get_expected_output_mode(input_image: Image.Image) -> str:

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #  Copyright 2020-2026 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Command-line interface for AlphaMerger."""
@@ -14,6 +13,8 @@ from PIL import Image
 from pipescaler.common.argument_parsing import input_file_arg, output_file_arg
 from pipescaler.image.core.cli import ImageMergerCli
 from pipescaler.image.operators.mergers import AlphaMerger
+
+__all__ = ["AlphaMergerCli"]
 
 
 class AlphaMergerCli(ImageMergerCli):
@@ -46,7 +47,11 @@ class AlphaMergerCli(ImageMergerCli):
 
     @classmethod
     def _main(cls, **kwargs: Any):
-        """Execute with provided keyword arguments."""
+        """Execute with provided keyword arguments.
+
+        Arguments:
+            **kwargs: additional options forwarded to the selected implementation
+        """
         color_input_path = kwargs.pop("color_input_file")
         alpha_input_path = kwargs.pop("alpha_input_file")
         output_path = kwargs.pop("output_file")
@@ -62,7 +67,11 @@ class AlphaMergerCli(ImageMergerCli):
 
     @classmethod
     def merger(cls) -> type[AlphaMerger]:
-        """Type of merger wrapped by command-line interface."""
+        """Type of merger wrapped by command-line interface.
+
+        Returns:
+            image merger class invoked by this command
+        """
         return AlphaMerger
 
 

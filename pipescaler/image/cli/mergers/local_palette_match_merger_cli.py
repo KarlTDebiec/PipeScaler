@@ -15,6 +15,8 @@ from pipescaler.common.argument_parsing import input_file_arg, output_file_arg
 from pipescaler.image.core.cli import ImageMergerCli
 from pipescaler.image.operators.mergers import LocalPaletteMatchMerger
 
+__all__ = ["LocalPaletteMatchMergerCli"]
+
 
 class LocalPaletteMatchMergerCli(ImageMergerCli):
     """Command-line interface for LocalPaletteMatchMerger."""
@@ -36,7 +38,8 @@ class LocalPaletteMatchMergerCli(ImageMergerCli):
         parser.add_argument(
             "fit_input_file",
             type=input_file_arg(),
-            help="fit input file",
+            help="target input file; width and height must be the same integer "
+            "multiple of the reference, at least 2",
         )
         parser.add_argument(
             "output_file",
@@ -47,13 +50,17 @@ class LocalPaletteMatchMergerCli(ImageMergerCli):
             "--local_range",
             type=int,
             default=1,
-            help="Range of surrounding pixels from which to draw best-fit color "
-            "(default: %(default)s)",
+            help="Range of surrounding reference pixels for choosing the best-fit "
+            "color (default: %(default)s)",
         )
 
     @classmethod
     def _main(cls, **kwargs: Any):
-        """Execute with provided keyword arguments."""
+        """Execute with provided keyword arguments.
+
+        Arguments:
+            **kwargs: options forwarded to the merger
+        """
         reference_input_path = kwargs.pop("reference_input_file")
         fit_input_path = kwargs.pop("fit_input_file")
         output_path = kwargs.pop("output_file")
@@ -74,7 +81,11 @@ class LocalPaletteMatchMergerCli(ImageMergerCli):
 
     @classmethod
     def merger(cls) -> type[LocalPaletteMatchMerger]:
-        """Type of merger wrapped by command-line interface."""
+        """Type of merger wrapped by command-line interface.
+
+        Returns:
+            merger implementation
+        """
         return LocalPaletteMatchMerger
 
 

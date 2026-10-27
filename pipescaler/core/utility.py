@@ -8,6 +8,8 @@ from abc import ABC, abstractmethod
 from inspect import cleandoc
 from typing import Any
 
+__all__ = ["Utility"]
+
 
 class Utility(ABC):
     """Abstract base class for utilities."""
@@ -26,7 +28,11 @@ class Utility(ABC):
 
     @classmethod
     def help_markdown(cls) -> str:
-        """Short description of this utility in markdown, with links."""
+        """Short description of this utility in markdown, with links.
+
+        Returns:
+            Markdown help describing this component
+        """
         if cls.__doc__:
             return cleandoc(cls.__doc__).split(". ", maxsplit=1)[0]
         return ""

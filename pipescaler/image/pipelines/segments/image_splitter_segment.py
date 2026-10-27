@@ -9,6 +9,8 @@ from logging import info
 from pipescaler.image.core.operators import ImageSplitter
 from pipescaler.image.core.pipelines import ImageOperatorSegment, PipeImage
 
+__all__ = ["ImageSplitterSegment"]
+
 
 class ImageSplitterSegment(ImageOperatorSegment[ImageSplitter]):
     """Segment that applies a ImageSplitter."""
@@ -17,9 +19,11 @@ class ImageSplitterSegment(ImageOperatorSegment[ImageSplitter]):
         """Split an image.
 
         Arguments:
-            input_objs: Input image, within a tuple for consistency with other Segments
+            *input_objs: Input image, within a tuple for consistency with other Segments
         Returns:
             Output images
+        Raises:
+            ValueError: if input values or configuration are invalid
         """
         if len(input_objs) != len(self.operator.inputs()):
             raise ValueError(

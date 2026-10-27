@@ -4,12 +4,15 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from logging import debug
-from os import rename
 from pathlib import Path
+from typing import Any
 
 from pipescaler.common.subprocess import run_command
 from pipescaler.core import Runner
+
+__all__ = ["TexconvRunner"]
 
 
 class TexconvRunner(Runner):
@@ -18,55 +21,64 @@ class TexconvRunner(Runner):
     See [Texconv](https://github.com/Microsoft/DirectXTex/wiki/Texconv).
     """
 
-    def __init__(self, arguments: str = "-y -sepalpha -ft DDS -f BC7_UNORM", **kwargs):
+    def __init__(
+        self,
+        arguments: Sequence[str] = ("-y", "-sepalpha", "-ft", "DDS", "-f", "BC7_UNORM"),
+        **kwargs: Any,
+    ):
         """Initialize.
 
         Arguments:
-            arguments: Command-line arguments to pass to texconv
-            kwargs: Additional keyword arguments
+            arguments: individual argument tokens to pass to texconv without quoting
+            **kwargs: Additional keyword arguments
         """
-        super().__init__(**kwargs)
+        super().__init__(arguments=arguments, **kwargs)
 
-        self.arguments = arguments
+    def get_command(self, input_path: Path, output_path: Path) -> list[str]:
+        """Build the texconv argument list.
 
-    def __repr__(self) -> str:
-        """Representation."""
-        return (
-            f"{self.__class__.__name__}("
-            f"arguments={self.arguments!r}, "
-            f"timeout={self.timeout!r})"
-        )
+        Arguments:
+            input_path: input image path
+            output_path: output image path
+        Returns:
+            executable and individual argument tokens
+        """
+        return [
+            str(self.executable_path),
+            *self.arguments,
+            "-o",
+            str(output_path.parent),
+            str(input_path),
+        ]
 
-    @property
-    def command_template(self) -> str:
-        """String template with which to generate command."""
-        return (
-            f"{self.executable_path} {self.arguments}"
-            ' -o "{output_path.parent}" "{input_path}"'
-        )
-
-    def run(self, input_path: Path | str, output_path: Path | str):
+    def run(self, input_path: Path, output_path: Path):
         """Run executable on input file, yielding output file.
 
         Arguments:
-            input_path: Input file path
-            output_path: Output file path
+            input_path: input file path
+            output_path: output file path
         """
-        command = self.command_template.format(
-            input_path=input_path, output_path=output_path
-        )
-        debug(f"{self}: {command}")
+        command = self.get_command(input_path, output_path)
+        debug(f"{self}: {command!r}")
         run_command(command, timeout=self.timeout)
-        rename(Path(output_path).with_stem(Path(input_path).stem), output_path)
+        output_path.with_stem(input_path.stem).rename(output_path)
 
     @classmethod
     def executable(cls) -> str:
-        """Name of executable."""
+        """Name of executable.
+
+        Returns:
+            absolute path of the external executable
+        """
         return "texconv.exe"
 
     @classmethod
     def help_markdown(cls) -> str:
-        """Short description of this tool in markdown, with links."""
+        """Short description of this tool in markdown, with links.
+
+        Returns:
+            Markdown help describing this component
+        """
         return (
             "Processes image using [Texconv]"
             "(https://github.com/Microsoft/DirectXTex/wiki/Texconv)."
@@ -74,5 +86,9 @@ class TexconvRunner(Runner):
 
     @classmethod
     def supported_platforms(cls) -> set[str]:
-        """Platforms on which runner is supported."""
+        """Platforms on which runner is supported.
+
+        Returns:
+            names of platforms supported by this runner
+        """
         return {"Windows"}

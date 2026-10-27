@@ -65,12 +65,13 @@ def test_run_clamps_large_local_range_before_shader(monkeypatch: pytest.MonkeyPa
     mock_compute = _mock_compute_with_buffers_factory(captured)
     monkeypatch.setattr(
         LocalPaletteShaderMatcher,
-        "_get_compute_with_buffers",
+        "_import_compute_with_buffers",
         classmethod(lambda cls: mock_compute),
     )
     ref_img = Image.fromarray(np.array([[0, 64], [128, 255]], dtype=np.uint8))
     fit_img = Image.fromarray(np.array([[16, 80], [160, 240]], dtype=np.uint8))
 
+    fit_img = fit_img.resize((ref_img.width * 2, ref_img.height * 2))
     output_img = LocalPaletteShaderMatcher.run(
         ref_img=ref_img,
         fit_img=fit_img,
@@ -94,7 +95,7 @@ def test_run_uses_expected_workgroup_dispatch(monkeypatch: pytest.MonkeyPatch):
     mock_compute = _mock_compute_with_buffers_factory(captured)
     monkeypatch.setattr(
         LocalPaletteShaderMatcher,
-        "_get_compute_with_buffers",
+        "_import_compute_with_buffers",
         classmethod(lambda cls: mock_compute),
     )
     ref_arr = np.zeros((9, 17, 3), dtype=np.uint8)
@@ -102,10 +103,11 @@ def test_run_uses_expected_workgroup_dispatch(monkeypatch: pytest.MonkeyPatch):
     ref_img = Image.fromarray(ref_arr, mode="RGB")
     fit_img = Image.fromarray(fit_arr, mode="RGB")
 
+    fit_img = fit_img.resize((ref_img.width * 2, ref_img.height * 2))
     output_img = LocalPaletteShaderMatcher.run(ref_img=ref_img, fit_img=fit_img)
 
     dispatch_n = captured["dispatch_n"]
-    assert dispatch_n == (3, 2, 1)
+    assert dispatch_n == (5, 3, 1)
     assert output_img.mode == "RGB"
     assert output_img.size == fit_img.size
 

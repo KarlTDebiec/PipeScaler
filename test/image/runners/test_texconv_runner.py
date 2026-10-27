@@ -4,14 +4,22 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+from unittest.mock import Mock
+
 import pytest
 from PIL import Image
 
+from pipescaler.common import UnsupportedPlatformError
 from pipescaler.common.file import get_temp_file_path
 from pipescaler.image.runners import TexconvRunner
 from pipescaler.testing.file import get_test_input_path
 from pipescaler.testing.fixture import parametrized_fixture
-from pipescaler.testing.mark import xfail_if_platform
+
+xfail_texconv_unavailable = pytest.mark.xfail(
+    raises=(FileNotFoundError, UnsupportedPlatformError)
+)
+"""Expected failure when texconv is unavailable on the test runner."""
 
 
 @parametrized_fixture(
@@ -20,7 +28,7 @@ from pipescaler.testing.mark import xfail_if_platform
         {},
     ],
 )
-def runner(request) -> TexconvRunner:
+def runner(request: pytest.FixtureRequest) -> TexconvRunner:
     """Pytest fixture that provides a TexconvRunner instance.
 
     Arguments:
@@ -34,15 +42,15 @@ def runner(request) -> TexconvRunner:
 @pytest.mark.parametrize(
     "input_filename",
     [
-        xfail_if_platform({"Darwin", "Linux"})("1"),
-        xfail_if_platform({"Darwin", "Linux"})("L"),
-        xfail_if_platform({"Darwin", "Linux"})("LA"),
-        xfail_if_platform({"Darwin", "Linux"})("RGB"),
-        xfail_if_platform({"Darwin", "Linux"})("RGBA"),
-        xfail_if_platform({"Darwin", "Linux"})("PL"),
-        xfail_if_platform({"Darwin", "Linux"})("PLA"),
-        xfail_if_platform({"Darwin", "Linux"})("PRGB"),
-        xfail_if_platform({"Darwin", "Linux"})("PRGBA"),
+        pytest.param("1", marks=xfail_texconv_unavailable),
+        pytest.param("L", marks=xfail_texconv_unavailable),
+        pytest.param("LA", marks=xfail_texconv_unavailable),
+        pytest.param("RGB", marks=xfail_texconv_unavailable),
+        pytest.param("RGBA", marks=xfail_texconv_unavailable),
+        pytest.param("PL", marks=xfail_texconv_unavailable),
+        pytest.param("PLA", marks=xfail_texconv_unavailable),
+        pytest.param("PRGB", marks=xfail_texconv_unavailable),
+        pytest.param("PRGBA", marks=xfail_texconv_unavailable),
     ],
 )
 def test(input_filename: str, runner: TexconvRunner):
@@ -65,7 +73,42 @@ def test(input_filename: str, runner: TexconvRunner):
 
 def test_repr_round_trip():
     """Test TexconvRunner repr round-trip recreation."""
-    runner = TexconvRunner(arguments="-y", timeout=1)
+    runner = TexconvRunner(arguments=("-y",), timeout=1)
     recreated = eval(repr(runner))
     assert recreated.arguments == runner.arguments
     assert recreated.timeout == runner.timeout
+
+
+def test_argument_paths_and_output_rename(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+):
+    """Preserve path tokens and rename texconv's generated output to the target.
+
+    Arguments:
+        monkeypatch: pytest monkeypatch fixture
+        tmp_path: temporary test directory
+    """
+    executable_path = Path("C:/Program Files/O'Brien/{tools}/texconv.exe")
+    input_path = tmp_path / "O'Brien {input}.png"
+    output_dir_path = tmp_path / "output directory"
+    output_dir_path.mkdir()
+    output_path = output_dir_path / "{output}.dds"
+    generated_path = output_path.with_stem(input_path.stem)
+    generated_path.write_bytes(b"generated image")
+    arguments = ("-y", "-ft", "DDS", r"C:\custom options\{value}")
+    command_runner = Mock(return_value=(0, "", ""))
+    monkeypatch.setattr(
+        "pipescaler.core.runner.val_executable", lambda *_args: executable_path
+    )
+    monkeypatch.setattr(
+        "pipescaler.image.runners.texconv_runner.run_command", command_runner
+    )
+
+    TexconvRunner(arguments=arguments, timeout=7).run(input_path, output_path)
+
+    command_runner.assert_called_once_with(
+        [str(executable_path), *arguments, "-o", str(output_dir_path), str(input_path)],
+        timeout=7,
+    )
+    assert output_path.read_bytes() == b"generated image"
+    assert not generated_path.exists()

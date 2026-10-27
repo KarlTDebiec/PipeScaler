@@ -16,8 +16,8 @@ def test_repr_round_trip():
         input_path.touch()
         source = ImageVideoFrameSource(
             input_path=input_path,
-            location=Path("videos"),
+            location_path=Path("videos"),
         )
         recreated = eval(repr(source))
         assert recreated.input_path == source.input_path
-        assert recreated.location == source.location
+        assert recreated.location_path == source.location_path

@@ -8,6 +8,8 @@ from logging import info
 
 from pipescaler.core.pipelines import CheckpointedSegment, PipeObject
 
+__all__ = ["PostCheckpointedSegment"]
+
 
 class PostCheckpointedSegment(CheckpointedSegment):
     """Segment with post-execution checkpoints."""
@@ -15,23 +17,24 @@ class PostCheckpointedSegment(CheckpointedSegment):
     def __call__(self, *input_objs: PipeObject) -> tuple[PipeObject, ...]:
         """Return outputs of wrapped Segment, loaded from checkpoints if available.
 
+        All output checkpoints use the first input's location and name. A cached
+        call returns one object per checkpoint with all inputs retained as parents.
+
         Arguments:
-            input_objs: Input objects
+            *input_objs: input objects
         Returns:
-            Output objects, loaded from checkpoint if available, within a tuple even if
+            output objects, loaded from checkpoint if available, within a tuple even if
             only one
+        Raises:
+            ValueError: if input values or configuration are invalid
         """
         cls = input_objs[0].__class__
-        cpt_paths = [
-            self.cp_manager.dir_path / i.location_name / c
-            for i in input_objs
-            for c in self.cpts
-        ]
+        location_name = input_objs[0].location_name
+        cpt_paths = [self.cp_manager.dir_path / location_name / c for c in self.cpts]
         if all(p.exists() for p in cpt_paths) and self.cp_manager.checkpoints_current(
             input_objs, cpt_paths
         ):
             outputs = tuple(cls(path=p, parents=input_objs) for p in cpt_paths)
-            location_name = input_objs[0].location_name
             info(f"{self}: '{location_name}' checkpoints '{self.cpts}' loaded")
             for i in input_objs:
                 for c in self.internal_cpts:
@@ -53,8 +56,7 @@ class PostCheckpointedSegment(CheckpointedSegment):
             for o, c, p in zip(outputs, self.cpts, cpt_paths):
                 o.save(p)
                 info(f"{self}: '{o.location_name}' checkpoint '{c}' saved")
-        for i in input_objs:
-            for c in self.cpts:
-                self.cp_manager.observe(i.location_name, c)
+        for c in self.cpts:
+            self.cp_manager.observe(location_name, c)
 
         return outputs

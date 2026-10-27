@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from common.file import get_temp_file_path  # ty:ignore[unresolved-import]
+from pipescaler.common.file import get_temp_file_path
 
 
 def test_get_temp_file_path_no_suffix():
@@ -34,7 +34,11 @@ def test_get_temp_file_path_with_suffix():
 
 
 def test_get_temp_file_path_cleanup_on_exception():
-    """Test temporary file cleanup even when exception occurs."""
+    """Test temporary file cleanup even when exception occurs.
+
+    Raises:
+        ValueError: if a value is invalid
+    """
     temp_file = None
     try:
         with get_temp_file_path() as temp_file_path:

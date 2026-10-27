@@ -4,7 +4,7 @@
 
 This module may import from: common, core, image.core, image.core.operators
 
-Hierarchy within module:
+Package hierarchy (modules may import from any above):
 * alpha_splitter / normal_splitter
 """
 

@@ -2,6 +2,8 @@
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Tests for CropProcessor."""
 
+from __future__ import annotations
+
 import pytest
 from PIL import Image
 
@@ -17,7 +19,7 @@ from pipescaler.testing.fixture import parametrized_fixture
         {"pixels": (4, 4, 4, 4)},
     ],
 )
-def processor(request) -> CropProcessor:
+def processor(request: pytest.FixtureRequest) -> CropProcessor:
     """Pytest fixture that provides a CropProcessor instance.
 
     Arguments:

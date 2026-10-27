@@ -9,19 +9,17 @@ license = "BSD-3-Clause"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "ImageHash>=4.3.2",
-    "numba>=0.61.2",
-    "numpy>=2.2.6",
+    "numba>=0.65.1",
+    "numpy>=2.4.6",
     "opencv-python>=4.11.0.86",
-    "pandas>=2.2.3",
     "Pillow>=12.1.0",
-    "reportlab>=4.4.1",
+    "reportlab>=5.0.0",
     "rlpycairo>=0.3.0",
     "scikit-image>=0.25.2",
-    "scipy>=1.15.3",
+    "scipy>=1.18.0",
     "spandrel>=0.4.1",
-    "svglib>=1.5.1",
-    "torch>=2.10.0",
+    "svglib>=2.0.1",
+    "torch>=2.12.0",
     "wgpu>=0.29.0",
     "xbrz.py @ git+https://github.com/ioistired/xbrz.py",
 ]
@@ -31,21 +29,22 @@ pipescaler = "pipescaler.cli.pipescaler_cli:PipeScalerCli.main"
 
 [dependency-groups]
 dev = [
-    "pandas-stubs>=2.3.3.260113",
-    "pytest>=8.4.0",
+    "pytest>=9.1.1",
     "pytest-cov>=6.1.1",
+    "pytest-github-actions-annotate-failures>=0.4.2",
     "pytest-xdist>=3.7.0",
-    "ruff>=0.14.14",
-    "ty>=0.0.13",
+    "ruff>=0.15.17",
+    "ty>=0.0.65",
     "types-Pillow>=10.2.0.20240822",
 ]
 
 [tool.coverage.run]
-data_file='coverage.coverage'
-concurrency='multiprocessing'
-parallel='True'
+data_file='test/coverage.coverage'
+concurrency=['multiprocessing']
+parallel=true
 
 [tool.pytest.ini_options]
+pythonpath=["."]
 log_cli=true
 log_cli_level="WARNING"
 markers=[

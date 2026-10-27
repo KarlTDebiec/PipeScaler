@@ -10,6 +10,8 @@ from inspect import cleandoc
 
 from .pipe_object import PipeObject
 
+__all__ = ["Sorter"]
+
 
 class Sorter[T: PipeObject](ABC):
     """Abstract base class for sorters."""
@@ -26,21 +28,37 @@ class Sorter[T: PipeObject](ABC):
         raise NotImplementedError()
 
     def __repr__(self) -> str:
-        """Representation."""
+        """Representation.
+
+        Returns:
+            string representation of this object
+        """
         return f"{self.__class__.__name__}()"
 
     def __str__(self) -> str:
-        """String representation."""
+        """String representation.
+
+        Returns:
+            display string for this object
+        """
         return f"<{self.__class__.__name__}>"
 
     @property
     def outlets(self) -> tuple[str, ...]:
-        """Outlets to which images may be sorted."""
+        """Outlets to which images may be sorted.
+
+        Raises:
+            NotImplementedError: if the subclass does not implement this operation
+        """
         raise NotImplementedError()
 
     @classmethod
     def help_markdown(cls) -> str:
-        """Short description of this class in markdown, with links."""
+        """Short description of this class in markdown, with links.
+
+        Returns:
+            Markdown help describing this component
+        """
         if cls.__doc__:
             return re.split(r' *[.?!][\'")\]]* *', cleandoc(cls.__doc__))[0] + "."
         return ""

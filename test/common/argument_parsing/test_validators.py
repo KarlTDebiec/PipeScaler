@@ -4,19 +4,33 @@
 
 from __future__ import annotations
 
+from argparse import ArgumentTypeError
 from pathlib import Path
 
-import pytest
-from common.argument_parsing import (  # ty:ignore[unresolved-import]
+from pytest import raises
+
+from pipescaler.common.argument_parsing import (
+    duration_arg,
     float_arg,
     input_dir_arg,
     input_file_arg,
+    input_file_or_dir_arg,
     int_arg,
+    named_input_file_arg,
     output_dir_arg,
     output_file_arg,
     str_arg,
 )
-from common.exception import DirectoryNotFoundError  # ty:ignore[unresolved-import]
+
+
+def test_duration_arg():
+    """Test duration_arg validator."""
+    validator = duration_arg
+
+    assert validator("12h").total_seconds() == 12 * 60 * 60
+
+    with raises(ArgumentTypeError, match="Invalid duration"):
+        validator("yesterday")
 
 
 def test_float_arg():
@@ -25,9 +39,19 @@ def test_float_arg():
 
     assert validator("5.5") == 5.5
 
-    # ValueError is not caught by get_validator, only TypeError
-    with pytest.raises(ValueError):
+    with raises(ArgumentTypeError, match="less than minimum value"):
         validator("-1.0")
+
+
+def test_float_arg_exclusive_and_finite_constraints():
+    """Adapt shared open-bound and finite validation into argument errors."""
+    validator = float_arg(
+        min_value=0, max_value=1, min_exclusive=True, max_exclusive=True, finite=True
+    )
+    assert validator("0.5") == 0.5
+    for value in ["0", "1", "-1", "2", "nan", "inf", "-inf"]:
+        with raises(ArgumentTypeError):
+            validator(value)
 
 
 def test_int_arg():
@@ -36,8 +60,7 @@ def test_int_arg():
 
     assert validator("5") == 5
 
-    # ValueError is not caught by get_validator, only TypeError
-    with pytest.raises(ValueError):
+    with raises(ArgumentTypeError, match="less than minimum value"):
         validator("-1")
 
 
@@ -48,13 +71,19 @@ def test_str_arg():
     assert validator("option1") == "option1"
     assert validator("OPTION1") == "option1"
 
-    # ValueError is not caught by get_validator, only TypeError
-    with pytest.raises(ValueError):
+    with raises(
+        ArgumentTypeError,
+        match="'invalid' is not one of the supported values: option1, option2, option3",
+    ):
         validator("invalid")
 
 
 def test_input_file_arg(tmp_path: Path):
-    """Test input_file_arg validator."""
+    """Test input_file_arg validator.
+
+    Arguments:
+        tmp_path: temporary directory path
+    """
     test_file = tmp_path / "test.txt"
     test_file.write_text("test content")
 
@@ -64,13 +93,58 @@ def test_input_file_arg(tmp_path: Path):
     assert isinstance(result, Path)
     assert result.exists()
 
-    # FileNotFoundError is not caught by get_validator
-    with pytest.raises(FileNotFoundError):
+    with raises(ArgumentTypeError, match="does not exist"):
         validator(str(tmp_path / "nonexistent.txt"))
 
 
+def test_input_file_or_dir_arg(tmp_path: Path):
+    """Test input_file_or_dir_arg validator.
+
+    Arguments:
+        tmp_path: temporary directory path
+    """
+    test_file = tmp_path / "test.txt"
+    test_file.write_text("test content")
+    test_dir = tmp_path / "testdir"
+    test_dir.mkdir()
+
+    validator = input_file_or_dir_arg()
+
+    assert validator(str(test_file)) == test_file.resolve()
+    assert validator(str(test_dir)) == test_dir.resolve()
+
+    with raises(ArgumentTypeError, match="does not exist"):
+        validator(str(tmp_path / "nonexistent"))
+
+
+def test_named_input_file_arg(tmp_path: Path):
+    """Test named_input_file_arg validator.
+
+    Arguments:
+        tmp_path: temporary path
+    """
+    input_path = tmp_path / "reference=input.srt"
+    input_path.write_text("test content", encoding="utf-8")
+    validator = named_input_file_arg()
+
+    assert validator(f" reference = {input_path} ") == (
+        "reference",
+        input_path.resolve(),
+    )
+    with raises(ArgumentTypeError, match="nonblank NAME=PATH syntax"):
+        validator("reference")
+    with raises(ArgumentTypeError, match="nonblank NAME=PATH syntax"):
+        validator(f"={input_path}")
+    with raises(ArgumentTypeError, match="does not exist"):
+        validator(f"reference={tmp_path / 'missing.srt'}")
+
+
 def test_input_dir_arg(tmp_path: Path):
-    """Test input_dir_arg validator."""
+    """Test input_dir_arg validator.
+
+    Arguments:
+        tmp_path: temporary directory path
+    """
     test_dir = tmp_path / "testdir"
     test_dir.mkdir()
 
@@ -80,13 +154,16 @@ def test_input_dir_arg(tmp_path: Path):
     assert isinstance(result, Path)
     assert result.is_dir()
 
-    # DirectoryNotFoundError is not caught by get_validator
-    with pytest.raises(DirectoryNotFoundError):
+    with raises(ArgumentTypeError, match="does not exist"):
         validator(str(tmp_path / "nonexistent"))
 
 
 def test_output_file_arg(tmp_path: Path):
-    """Test output_file_arg validator."""
+    """Test output_file_arg validator.
+
+    Arguments:
+        tmp_path: temporary directory path
+    """
     test_file = tmp_path / "output.txt"
 
     validator = output_file_arg()
@@ -96,8 +173,27 @@ def test_output_file_arg(tmp_path: Path):
     assert result.parent.exists()
 
 
+def test_output_file_arg_rejects_existing_file_with_argparse_error(tmp_path: Path):
+    """Test output_file_arg reports existing files as argparse errors.
+
+    Arguments:
+        tmp_path: temporary directory path
+    """
+    test_file = tmp_path / "output.txt"
+    test_file.write_text("existing", encoding="utf-8")
+
+    validator = output_file_arg()
+
+    with raises(ArgumentTypeError, match="already exists"):
+        validator(str(test_file))
+
+
 def test_output_dir_arg(tmp_path: Path):
-    """Test output_dir_arg validator."""
+    """Test output_dir_arg validator.
+
+    Arguments:
+        tmp_path: temporary directory path
+    """
     test_dir = tmp_path / "outputdir"
 
     validator = output_dir_arg()
@@ -106,3 +202,36 @@ def test_output_dir_arg(tmp_path: Path):
     assert isinstance(result, Path)
     assert result.exists()
     assert result.is_dir()
+
+
+def test_output_dir_arg_without_create(tmp_path: Path):
+    """Test output_dir_arg validator without directory creation.
+
+    Arguments:
+        tmp_path: temporary directory path
+    """
+    test_dir = tmp_path / "outputdir"
+    assert not test_dir.exists()
+
+    validator = output_dir_arg(create=False)
+
+    result = validator(str(test_dir))
+    assert isinstance(result, Path)
+    assert result == test_dir.resolve()
+    assert not result.exists()
+
+
+def test_output_dir_arg_without_create_rejects_file_ancestor(tmp_path: Path):
+    """Test output_dir_arg rejects paths below a file when create is False.
+
+    Arguments:
+        tmp_path: temporary directory path
+    """
+    file_path = tmp_path / "parent"
+    file_path.write_text("test content")
+    test_dir = file_path / "child"
+
+    validator = output_dir_arg(create=False)
+
+    with raises(ArgumentTypeError, match="is not a directory"):
+        validator(str(test_dir))

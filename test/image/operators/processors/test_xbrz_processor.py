@@ -2,6 +2,8 @@
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Tests for XbrzProcessor."""
 
+from __future__ import annotations
+
 import pytest
 from PIL import Image
 
@@ -17,7 +19,7 @@ from pipescaler.testing.fixture import parametrized_fixture
         {"scale": 2},
     ],
 )
-def processor(request) -> XbrzProcessor:
+def processor(request: pytest.FixtureRequest) -> XbrzProcessor:
     """Pytest fixture that provides an XbrzProcessor instance.
 
     Arguments:

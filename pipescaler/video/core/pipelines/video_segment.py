@@ -10,6 +10,8 @@ from pipescaler.core.pipelines.segment import Segment
 
 from .pipe_video import PipeVideo
 
+__all__ = ["VideoSegment"]
+
 
 class VideoSegment(Segment[PipeVideo], ABC):
     """Abstract base class for video pipeline segments."""

@@ -14,6 +14,8 @@ from .image_processors_cli import ImageProcessorsCli
 from .image_splitters_cli import ImageSplittersCli
 from .image_utilities_cli import ImageUtilitiesCli
 
+__all__ = ["ImageCli"]
+
 
 class ImageCli(CommandLineInterface):
     """Command-line interface for PipeScaler image operations."""
@@ -37,24 +39,40 @@ class ImageCli(CommandLineInterface):
 
     @classmethod
     def description(cls) -> str:
-        """Long description of this tool displayed below usage."""
+        """Long description of this tool displayed below usage.
+
+        Returns:
+            long description displayed in command help
+        """
         return "Image operations."
 
     @classmethod
     def help(cls) -> str:
-        """Short description of this tool used when it is a subparser."""
+        """Short description of this tool used when it is a subparser.
+
+        Returns:
+            short description displayed beside the subcommand
+        """
         return "image operations"
 
     @classmethod
     def _main(cls, **kwargs: Any):
-        """Execute with provided keyword arguments."""
+        """Execute with provided keyword arguments.
+
+        Arguments:
+            **kwargs: additional options forwarded to the selected implementation
+        """
         subcommand_name = kwargs.pop("subcommand")
         subcommand_cli_class = cls.subcommands()[subcommand_name]
         subcommand_cli_class._main(**kwargs)
 
     @classmethod
     def name(cls) -> str:
-        """Name of this tool used to define it when it is a subparser."""
+        """Name of this tool used to define it when it is a subparser.
+
+        Returns:
+            command name used by the argument parser
+        """
         return "image"
 
     @classmethod
@@ -67,7 +85,11 @@ class ImageCli(CommandLineInterface):
         | type[ImageSplittersCli]
         | type[ImageUtilitiesCli],
     ]:
-        """Names and types of tools wrapped by command-line interface."""
+        """Names and types of tools wrapped by command-line interface.
+
+        Returns:
+            mapping of command names to their CLI classes
+        """
         return {
             ImageMergersCli.name(): ImageMergersCli,
             ImageProcessorsCli.name(): ImageProcessorsCli,

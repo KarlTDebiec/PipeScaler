@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #  Copyright 2020-2026 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Command-line interface for PipeScaler."""
@@ -10,6 +9,8 @@ from typing import Any
 
 from pipescaler.common import CommandLineInterface
 from pipescaler.image.cli import ImageCli
+
+__all__ = ["PipeScalerCli"]
 
 
 class PipeScalerCli(CommandLineInterface):
@@ -25,7 +26,7 @@ class PipeScalerCli(CommandLineInterface):
         super().add_arguments_to_argparser(parser)
 
         subparsers = parser.add_subparsers(
-            dest="subcommand",
+            dest="domain",
             help="subcommand",
             required=True,
         )
@@ -34,14 +35,22 @@ class PipeScalerCli(CommandLineInterface):
 
     @classmethod
     def _main(cls, **kwargs: Any):
-        """Execute with provided keyword arguments."""
-        subcommand_name = kwargs.pop("subcommand")
+        """Execute with provided keyword arguments.
+
+        Arguments:
+            **kwargs: additional options forwarded to the selected implementation
+        """
+        subcommand_name = kwargs.pop("domain")
         subcommand_cli_class = cls.subcommands()[subcommand_name]
         subcommand_cli_class._main(**kwargs)
 
     @classmethod
     def subcommands(cls) -> dict[str, type[ImageCli]]:
-        """Names and types of tools wrapped by command-line interface."""
+        """Names and types of tools wrapped by command-line interface.
+
+        Returns:
+            mapping of command names to their CLI classes
+        """
         return {
             ImageCli.name(): ImageCli,
         }

@@ -4,7 +4,7 @@
 
 This module may import from: common, core.pipelines, video.core.pipelines
 
-Hierarchy within module:
+Package hierarchy (modules may import from any above):
 * video_directory_terminus
 """
 
@@ -14,6 +14,4 @@ from .video_directory_terminus import (
     VideoDirectoryTerminus,
 )
 
-__all__ = [
-    "VideoDirectoryTerminus",
-]
+__all__ = ["VideoDirectoryTerminus"]

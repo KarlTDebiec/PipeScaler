@@ -8,6 +8,12 @@ import re
 from logging import error
 from os.path import basename, splitext
 
+__all__ = [
+    "citra_sort",
+    "dolphin_sort",
+    "texmod_sort",
+]
+
 # tex1_8x8_0EAEA8971E8954F4_13_mip0.png
 # tex1_32x32_0A4B083BF0B35A78_12.png
 
@@ -23,6 +29,13 @@ def citra_sort(file_path: str) -> int:
     Supports:
       - tex1_32x32_0A4B083BF0B35A78_12.png
       - tex1_8x8_0EAEA8971E8954F4_13_mip0.png
+
+    Arguments:
+        file_path: file path
+    Returns:
+        sort key for a Citra texture filename
+    Raises:
+        ValueError: if input values or configuration are invalid
     """
     stem = splitext(basename(file_path))[0]
     m = _CITRA_STEM_RE.match(stem)
@@ -41,6 +54,14 @@ def dolphin_sort(file_path: str) -> int:
     """Sort filenames dumped by Dolphin.
 
     See [Dolphin](https://dolphin-emu.org/).
+
+    Arguments:
+        file_path: file path
+    Returns:
+        sort key for a Dolphin texture filename
+    Raises:
+        Exception: if the operation fails
+        ValueError: if input values or configuration are invalid
     """
     try:
         components = splitext(basename(file_path))[0].split("_")
@@ -67,6 +88,13 @@ def texmod_sort(file_path: str) -> int:
     """Sort filenames dumped by TexMod.
 
     See [TexMod](https://www.moddb.com/downloads/texmod4).
+
+    Arguments:
+        file_path: file path
+    Returns:
+        sort key for a TexMod texture filename
+    Raises:
+        Exception: if the operation fails
     """
     try:
         return int(f"1{int(splitext(basename(file_path))[0][2:10], 16):022d}")

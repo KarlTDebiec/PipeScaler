@@ -5,21 +5,65 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
-from logging import getLogger
+from collections.abc import Sequence
 from pathlib import Path
-from typing import TypedDict, Unpack
+from typing import ClassVar
 from unittest.mock import patch
 
-import pytest
-from common.command_line_interface import (  # ty:ignore[unresolved-import]
-    CommandLineInterface,
-)
+from pytest import MonkeyPatch, raises
+
+from pipescaler.common.command_line_interface import CommandLineInterface
+from pipescaler.common.testing import run_cli_with_args
+from test import helpers
+from test.helpers import parametrize
 
 
-class CliTestKwargs(TypedDict, total=False):
-    """Keyword arguments for TestCli _main method."""
+class ArgsCaptureCli(CommandLineInterface):
+    """Test CLI that captures parsed string arguments."""
 
-    pass
+    captured: ClassVar[dict[str, str]] = {}
+    """Most recently captured keyword arguments."""
+
+    @classmethod
+    def add_arguments_to_argparser(cls, parser: ArgumentParser):
+        """Add arguments to a nascent argument parser.
+
+        Arguments:
+            parser: nascent argument parser
+        """
+        super().add_arguments_to_argparser(parser)
+        parser.add_argument("--name", type=str, required=True)
+
+    @classmethod
+    def _main(cls, *, name: str):
+        """Execute test CLI.
+
+        Arguments:
+            name: name
+        """
+        cls.captured["name"] = name
+
+
+class RequiredArgCli(CommandLineInterface):
+    """Test CLI that requires an argument."""
+
+    @classmethod
+    def add_arguments_to_argparser(cls, parser: ArgumentParser):
+        """Add arguments to a nascent argument parser.
+
+        Arguments:
+            parser: nascent argument parser
+        """
+        super().add_arguments_to_argparser(parser)
+        parser.add_argument("--name", required=True)
+
+    @classmethod
+    def _main(cls, *, name: str):
+        """Execute test CLI.
+
+        Arguments:
+            name: name
+        """
 
 
 class TestCli(CommandLineInterface):
@@ -30,7 +74,7 @@ class TestCli(CommandLineInterface):
     """
 
     @classmethod
-    def _main(cls, **kwargs: Unpack[CliTestKwargs]):
+    def _main(cls):
         """Execute test CLI."""
         pass
 
@@ -39,7 +83,7 @@ class TestCliWithoutDoc(CommandLineInterface):
     """Test CLI without detailed documentation."""
 
     @classmethod
-    def _main(cls, **kwargs: Unpack[CliTestKwargs]):
+    def _main(cls):
         """Execute test CLI."""
         pass
 
@@ -48,25 +92,32 @@ class AnotherTestCli(CommandLineInterface):
     """Another test CLI."""
 
     @classmethod
-    def _main(cls, **kwargs: Unpack[CliTestKwargs]):
+    def _main(cls):
         """Execute test CLI."""
         pass
 
 
-def test_name():
-    """Test name() class method."""
-    assert TestCli.name() == "test"
+class ReportTool(CommandLineInterface):
+    """Test CLI whose name does not end in Cli."""
+
+    @classmethod
+    def _main(cls):
+        """Execute test CLI."""
+        pass
 
 
-def test_name_with_cli_suffix():
-    """Test name() strips 'Cli' suffix."""
-    assert TestCli.name() == "test"
+@parametrize(
+    ("cli_cls", "expected_name"),
+    [(TestCli, "test"), (AnotherTestCli, "anothertest"), (ReportTool, "reporttool")],
+)
+def test_name(cli_cls: type[CommandLineInterface], expected_name: str):
+    """Test CLI name derivation.
 
-
-def test_name_without_cli_suffix():
-    """Test name() with class name ending in 'Cli'."""
-    # AnotherTestCli ends with 'Cli', so it gets stripped
-    assert AnotherTestCli.name() == "anothertest"
+    Arguments:
+        cli_cls: CLI class under test
+        expected_name: expected command name
+    """
+    assert cli_cls.name() == expected_name
 
 
 def test_description():
@@ -80,8 +131,12 @@ def test_description_no_docstring():
     """Test description() with no docstring."""
 
     class NoDocCli(CommandLineInterface):
+        """Placeholder class for testing behavior when `__doc__` is unset."""
+
+        __doc__ = None
+
         @classmethod
-        def _main(cls, **kwargs: Unpack[CliTestKwargs]):
+        def _main(cls):
             """Execute test CLI."""
             pass
 
@@ -145,12 +200,15 @@ def test_argparser_with_subparsers():
     parser = TestCli.argparser(subparsers=subparsers)
 
     assert isinstance(parser, ArgumentParser)
+    assert "test" in main_parser.format_help()
 
 
 def test_log_command_line():
     """Test log_command_line() logs the command line."""
-    with patch("common.command_line_interface.argv", ["script.py", "arg1", "arg2"]):
-        with patch("common.command_line_interface.logger.info") as mock_info:
+    with patch(
+        "pipescaler.common.command_line_interface.argv", ["script.py", "arg1", "arg2"]
+    ):
+        with patch("pipescaler.common.command_line_interface.logger.info") as mock_info:
             TestCli.log_command_line()
             mock_info.assert_called_once()
             call_args = mock_info.call_args[0][0]
@@ -165,6 +223,34 @@ def test_main_basic():
             mock_main.assert_called_once()
 
 
+@parametrize("arguments", [[], (), ["-v"], ("-vv",)])
+def test_main_explicit_arguments(arguments: Sequence[str]):
+    """Execute explicit tokens without reading process arguments.
+
+    Arguments:
+        arguments: explicit command-line tokens
+    """
+    with patch("sys.argv", ["test_script.py", "--invalid-process-option"]):
+        with patch.object(TestCli, "_main") as mock_main:
+            with patch(
+                "pipescaler.common.command_line_interface.configure_logging"
+            ) as mock_logging:
+                TestCli.main(arguments)
+
+    mock_main.assert_called_once_with()
+    expected_verbosity = 1
+    if arguments:
+        expected_verbosity += arguments[0].count("v")
+    mock_logging.assert_called_once_with(expected_verbosity)
+
+
+def test_main_explicit_argument_values():
+    """Pass explicit argument values to the selected implementation unchanged."""
+    ArgsCaptureCli.captured.clear()
+    ArgsCaptureCli.main(["--name", "value with spaces"])
+    assert ArgsCaptureCli.captured == {"name": "value with spaces"}
+
+
 def test_main_with_verbosity():
     """Test main() method handles verbosity."""
     with patch.object(TestCli, "_main") as mock_main:
@@ -177,7 +263,11 @@ def test_main_with_verbosity():
 
 
 def test_main_with_log_file(tmp_path: Path):
-    """Test main() method handles log file."""
+    """Test main() method handles log file.
+
+    Arguments:
+        tmp_path: temporary directory path
+    """
     log_file = tmp_path / "test.log"
 
     with patch.object(TestCli, "_main") as mock_main:
@@ -188,20 +278,92 @@ def test_main_with_log_file(tmp_path: Path):
             assert log_file.exists()
 
 
-def test_main_clears_handlers():
-    """Test main() clears existing logger handlers."""
-    logger = getLogger()
+def test_run_cli_with_args_quoted_values():
+    """Test that run_cli_with_args preserves quoted arguments as single values."""
+    ArgsCaptureCli.captured.clear()
+    run_cli_with_args(ArgsCaptureCli, '--name "value with spaces"')
+    assert ArgsCaptureCli.captured.get("name") == "value with spaces"
+
+
+def test_subparser_common_options_preserve_parent_values():
+    """Preserve inherited logging options and honor explicit child overrides."""
+    parser = TestCli.argparser()
+    subparsers = parser.add_subparsers(dest="command", required=True)
+    child = AnotherTestCli.argparser(subparsers=subparsers)
+    grandchildren = child.add_subparsers(dest="subcommand", required=True)
+    TestCli.argparser(subparsers=grandchildren)
+
+    parsed = parser.parse_args(["-v", "anothertest", "-vv", "test", "-v"])
+    assert parsed.verbosity == 2
+    assert parsed.log_file is None
+
+    parsed = parser.parse_args(["-vv", "anothertest", "test"])
+    assert parsed.verbosity == 3
+
+    parsed = parser.parse_args(["-q", "anothertest", "test"])
+    assert parsed.verbosity == 0
+
+    parsed = parser.parse_args(["-vv", "anothertest", "-v", "test"])
+    assert parsed.verbosity == 2
+
+    parsed = parser.parse_args(["-v", "anothertest", "test", "-q"])
+    assert parsed.verbosity == 0
+
+    parsed = parser.parse_args(["-l", "root.log", "anothertest", "test"])
+    assert parsed.log_file == "root.log"
+
+    parsed = parser.parse_args(
+        ["-l", "root.log", "anothertest", "-l", "middle.log", "test"]
+    )
+    assert parsed.log_file == "middle.log"
+
+    parsed = parser.parse_args(
+        ["-l", "root.log", "anothertest", "-l", "middle.log", "test", "-l", "leaf.log"]
+    )
+    assert parsed.log_file == "leaf.log"
+
+    parsed = parser.parse_args(["-q", "anothertest", "-v", "test", "-v"])
+    assert parsed.verbosity == 2
+
+
+def test_common_options_do_not_leak_between_parses():
+    """Keep logging options local to each parse call."""
+    parser = TestCli.argparser()
+    assert parser.parse_args([]).verbosity == 1
+    assert parser.parse_args(["-vv"]).verbosity == 3
+    assert parser.parse_args([]).verbosity == 1
 
     with patch.object(TestCli, "_main"):
-        with patch("sys.argv", ["test_script.py"]):
-            TestCli.main()
+        with patch(
+            "pipescaler.common.command_line_interface.configure_logging"
+        ) as mock_logging:
+            TestCli.main(["-vv"])
+            TestCli.main([])
+    assert [call.args[0] for call in mock_logging.call_args_list] == [3, 1]
 
-    # Logger should have handlers managed
-    assert logger.handlers is not None
+
+def test_standalone_leaf_parser_common_options():
+    """Preserve logging defaults when a CLI is parsed without a parent."""
+    parsed = AnotherTestCli.argparser().parse_args(["-v", "-v", "-l", "leaf.log"])
+    assert parsed.verbosity == 3
+    assert parsed.log_file == "leaf.log"
 
 
-def test_abstract_main():
-    """Test that _main is abstract and must be implemented."""
-    with pytest.raises(TypeError):
-        # Cannot instantiate ABC without implementing abstract method
-        CommandLineInterface()
+def test_assert_cli_usage_failure_reports_streams(monkeypatch: MonkeyPatch):
+    """Test CLI usage assertion failures include expected and actual streams.
+
+    Arguments:
+        monkeypatch: pytest monkeypatch fixture
+    """
+    monkeypatch.setattr(
+        helpers, "get_usage_prefix", lambda cli: "usage: intentionally-wrong.py"
+    )
+
+    with raises(AssertionError) as excinfo:
+        helpers.assert_cli_usage((RequiredArgCli,))
+
+    message = str(excinfo.value)
+    assert "Expected stderr to start with:" in message
+    assert "usage: intentionally-wrong.py" in message
+    assert "Actual stderr:" in message
+    assert "Actual stdout:" in message

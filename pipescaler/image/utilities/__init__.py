@@ -4,8 +4,9 @@
 
 This module may import from: common, core, image.core
 
-Hierarchy within module:
-* palette_matcher / local_palette_matcher / local_palette_shader_matcher / mask_filler
+Package hierarchy (modules may import from any above):
+* local_palette_matcher / palette_matcher
+* local_palette_shader_matcher / mask_filler
 """
 
 from __future__ import annotations

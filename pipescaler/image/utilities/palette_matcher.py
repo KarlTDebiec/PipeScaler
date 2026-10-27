@@ -4,17 +4,19 @@
 
 from __future__ import annotations
 
-from itertools import product
 from typing import no_type_check
 
 import numpy as np
 from numba import njit
 from PIL import Image
+from scipy.spatial import KDTree
 
 from pipescaler.core import Utility
 from pipescaler.image.core import UnsupportedImageModeError
 from pipescaler.image.core.functions import get_palette
 from pipescaler.image.core.numba import get_perceptually_weighted_distance
+
+__all__ = ["PaletteMatcher"]
 
 
 class PaletteMatcher(Utility):
@@ -24,211 +26,146 @@ class PaletteMatcher(Utility):
     def get_best_fit_palette(
         cls, fit_palette: np.ndarray, ref_palette: np.ndarray
     ) -> np.ndarray:
-        """Get palette drawn from ref_palette that is most similar to fit_palette.
+        """Find exact nearest reference colors, keeping palette order for ties.
 
+        Small searches scan the reference directly. Larger searches use a tree
+        only to exclude colors that cannot win under the existing weighted metric.
+        Dense candidate batches fall back to a scan to bound temporary memory.
         Arguments:
-            fit_palette: Palette to fit
-            ref_palette: Reference palette
+            fit_palette: 8-bit RGB colors to match
+            ref_palette: reference 8-bit RGB colors in tie-breaking order
         Returns:
-            Palette whose size matches that of fit_palette, and whose colors are those
-            from ref_palette that are most similar to fit_palette
+            nearest reference color for each input color
+        Raises:
+            ValueError: if the reference palette is empty
         """
-        ref_palette_set = {tuple(color) for color in ref_palette}
-        ref_palette_by_cell = cls.get_palette_by_cell(ref_palette)
+        if len(ref_palette) == 0:
+            raise ValueError("Reference palette must contain at least one color")
+        # Avoid tree setup for searches with at most one million comparisons
+        if len(fit_palette) * len(ref_palette) <= 1_048_576:
+            return _match_palette(fit_palette, ref_palette)
 
-        best_fit_palette = np.zeros_like(fit_palette)
-        for i, color in enumerate(fit_palette):
-            # If color is available in reference palette, use it
-            if tuple(color) in ref_palette_set:
-                best_fit_palette[i] = color
-                continue
-
-            # If color is not available in reference palette, find the closest match
-            best_fit_palette[i] = cls.get_best_fit_color_by_cell(
-                color, ref_palette_by_cell
-            )
-
-        return best_fit_palette
+        # The squared tree distance L = 2*dr**2 + 4*dg**2 + 2*db**2 satisfies
+        # L <= weighted_distance <= 1.5*L for 8-bit RGB colors
+        weights = np.array([np.sqrt(2), 2, np.sqrt(2)])
+        tree = KDTree(ref_palette.astype(float) * weights)
+        matched = np.empty_like(fit_palette)
+        for start in range(0, len(fit_palette), 4096):
+            batch = fit_palette[start : start + 4096]
+            points = batch.astype(float) * weights
+            nearest_distances, _ = tree.query(points)
+            # A nearest tree neighbor gives an upper bound on the winning distance;
+            # include boundary ties despite floating-point rounding in the tree
+            radii = nearest_distances * np.sqrt(1.5) + 1e-10
+            counts = tree.query_ball_point(points, radii, return_length=True)
+            # Count first so dense batches cannot allocate unbounded neighbor lists
+            if counts.sum() > 262_144:
+                result = _match_palette(batch, ref_palette)
+            else:
+                candidates = tree.query_ball_point(points, radii, return_sorted=True)
+                offsets = np.concatenate(([0], np.cumsum(counts)))
+                indices = np.concatenate(candidates).astype(np.int64)
+                result = _match_candidates(batch, ref_palette, indices, offsets)
+            matched[start : start + len(batch)] = result
+        return matched
 
     @classmethod
-    def get_best_fit_color_by_cell(
-        cls,
-        color: np.ndarray,
-        ref_palette_by_cell: dict[tuple[int, int, int], np.ndarray],
-    ) -> np.ndarray | None:
-        """Get best fit color drawn from a palette, searching within nearby cells.
-
-        Arguments:
-            color: Color to find best match of
-            ref_palette_by_cell: Palette to draw from, divided into cells
-        Returns:
-            Color in palette most similar to provided color
-        """
-        # Prepare set of cells to check
-        cell = tuple(int(c) // 16 for c in color)
-        cell_range = 0
-        cells_to_check: set[tuple[int, int, int]] = set()
-        while len(cells_to_check) == 0:
-            cell_range += 1
-            cell_ranges = [
-                range(max(0, cell[i] - cell_range), min(15, cell[i] + cell_range) + 1)
-                for i in range(3)
-            ]
-            cells_to_check = set(product(*cell_ranges))  # type: ignore
-            cells_to_check = cells_to_check.intersection(ref_palette_by_cell)
-
-        # Search cells for best match color
-        best_dist = None
-        best_color = None
-        for cell_to_check in cells_to_check:
-            best_dist_in_cell, best_color_in_cell = cls.get_best_fit_color_in_palette(
-                color, ref_palette_by_cell[cell_to_check]
-            )
-            if best_dist is None or best_dist_in_cell < best_dist:
-                best_dist = best_dist_in_cell
-                best_color = best_color_in_cell
-
-        return best_color
-
-    @classmethod
-    def run(cls, ref_img: Image.Image, fit_img: Image.Image) -> Image.Image:
+    def run(  # ty: ignore[invalid-method-override]
+        cls, ref_img: Image.Image, fit_img: Image.Image
+    ) -> Image.Image:
         """Match the palette of an image to a reference.
 
         Arguments:
-            ref_img: Image whose palette to use as reference
-            fit_img: Image whose palette to fit to reference
+            ref_img: image whose palette to use as reference
+            fit_img: image whose palette to fit to reference
         Returns:
-            Image with palette fit to reference
+            image with palette fit to reference
+        Raises:
+            UnsupportedImageModeError: if image modes differ or are unsupported
         """
-        if ref_img.mode != fit_img.mode:
+        if ref_img.mode != fit_img.mode or fit_img.mode not in {"L", "RGB"}:
             raise UnsupportedImageModeError(
-                f"Image mode '{ref_img.mode}' of reference image does not match mode "
-                f"'{fit_img.mode}' of fit image"
+                "Palette matching requires matching L or RGB modes; "
+                f"received reference '{ref_img.mode}' and target '{fit_img.mode}'"
             )
         ref_palette = get_palette(ref_img).astype(np.uint8)
-        fit_palette = get_palette(fit_img).astype(np.uint8)
-        fit_arr = np.array(fit_img)
-
+        fit_arr = np.asarray(fit_img)
         if fit_img.mode == "L":
-            color_to_index = {color: i for i, color in enumerate(fit_palette)}
-            fit_arr_by_index = np.zeros(fit_arr.shape[:2], np.int32)
-            for i in range(fit_arr.shape[0]):
-                for j in range(fit_arr.shape[1]):
-                    fit_arr_by_index[i, j] = color_to_index[fit_arr[i, j]]
-            dist = (ref_palette.astype(float) - fit_palette.astype(float)[:, None]) ** 2
-            best_fit_palette = ref_palette[dist.argmin(axis=1)]
-            matched_arr = np.zeros_like(fit_arr)
-            for i in range(fit_arr.shape[0]):
-                for j in range(fit_arr.shape[1]):
-                    matched_arr[i, j] = best_fit_palette[fit_arr_by_index[i, j]]
+            fit_palette, inverse = np.unique(fit_arr, return_inverse=True)
+            distances = (
+                ref_palette.astype(float) - fit_palette.astype(float)[:, None]
+            ) ** 2
+            best_fit_palette = ref_palette[distances.argmin(axis=1)]
+            matched_arr = best_fit_palette[inverse].reshape(fit_arr.shape)
         else:
-            fit_arr_by_index = cls.get_indexed_array_from_rgb_array(
-                fit_arr, fit_palette
+            # Pack RGB values so unique/inverse indexing avoids per-pixel Python work
+            channels = fit_arr.astype(np.uint32)
+            packed = (
+                (channels[:, :, 0] << 16) | (channels[:, :, 1] << 8) | channels[:, :, 2]
             )
+            colors, inverse = np.unique(packed, return_inverse=True)
+            fit_palette = np.stack(
+                (colors >> 16, (colors >> 8) & 255, colors & 255), axis=-1
+            ).astype(np.uint8)
             best_fit_palette = cls.get_best_fit_palette(fit_palette, ref_palette)
-            matched_arr = cls.get_rgb_array_from_indexed_array(
-                fit_arr_by_index, best_fit_palette
+            matched_arr = best_fit_palette[inverse].reshape(fit_arr.shape)
+        return Image.fromarray(matched_arr)
+
+
+@no_type_check
+@njit(nogil=True, cache=True)
+def _match_candidates(
+    queries: np.ndarray, palette: np.ndarray, indices: np.ndarray, offsets: np.ndarray
+) -> np.ndarray:
+    """Select the exact nearest color from each ordered tree candidate list.
+
+    Arguments:
+        queries: RGB colors to match
+        palette: reference RGB colors
+        indices: flattened candidate indices in reference-palette order
+        offsets: start and end offsets for each query's candidates
+    Returns:
+        nearest reference color for each query
+    """
+    matched = np.empty_like(queries)
+    for i in range(len(queries)):
+        best = indices[offsets[i]]
+        best_distance = get_perceptually_weighted_distance(queries[i], palette[best])
+        for position in range(offsets[i] + 1, offsets[i + 1]):
+            candidate = indices[position]
+            distance = get_perceptually_weighted_distance(
+                queries[i], palette[candidate]
             )
+            if distance < best_distance:
+                best = candidate
+                best_distance = distance
+        matched[i] = palette[best]
+    return matched
 
-        matched_img = Image.fromarray(matched_arr)
-        return matched_img
 
-    @no_type_check
-    @staticmethod
-    @njit(nogil=True, cache=True, fastmath=True)
-    def get_best_fit_color_in_palette(
-        color: np.ndarray, palette: np.ndarray
-    ) -> tuple[float, np.ndarray]:
-        """Get the color in a palette most similar to a provided color.
+@no_type_check
+@njit(nogil=True, cache=True)
+def _match_palette(queries: np.ndarray, palette: np.ndarray) -> np.ndarray:
+    """Scan a complete reference palette in one compiled call.
 
-        Arguments:
-            color: Color to match
-            palette: Palette to which to match
-        Returns:
-            Weighted distance between color and its closest match, and closest match
-        """
-        best_dist = -1.0
-        best_color = np.array([0, 0, 0], np.uint8)
-        for candidate_color in palette:
-            dist = get_perceptually_weighted_distance(color, candidate_color)
-            if best_dist < 0 or dist < best_dist:
-                best_dist = dist
-                best_color = candidate_color
-
-        return best_dist, best_color
-
-    @staticmethod
-    def get_indexed_array_from_rgb_array(
-        rgb_arr: np.ndarray, palette: np.ndarray
-    ) -> np.ndarray:
-        """Convert RGB image array to indexed image array using provided palette.
-
-        Arguments:
-            rgb_arr: Array whose values are the RGB channels of an image
-            palette: Image palette
-        Returns:
-            Array whose values are the indexes of colors within palette
-        """
-        color_to_index = {tuple(color): i for i, color in enumerate(palette)}
-        indexed_arr = np.zeros(rgb_arr.shape[:2], np.int32)
-        for i in range(rgb_arr.shape[0]):
-            for j in range(rgb_arr.shape[1]):
-                indexed_arr[i, j] = color_to_index[tuple(rgb_arr[i, j])]
-
-        return indexed_arr
-
-    @staticmethod
-    def get_palette_by_cell(
-        palette: np.ndarray,
-    ) -> dict[tuple[int, int, int], np.ndarray]:
-        """Reorganize palette into 16x16x16 cells within the 256x256x256 rgb space.
-
-        For example, the key (1, 2, 3) would contain an rgb_arr of colors whose red
-        channel is between 16 and 31, whose blue channel is between 32 and 47, and whose
-        green channel is between 48 and 63. The red, blue, and green dimensions each
-        range between 0 and 15, yielding up to 4,096 keys. Keys whose corresponding
-        cell_to_check does not have any colors in the palette are excluded from the
-        dict.
-
-        The resulting output dict narrows down the search for the color in a palette
-        most similar to a specific provided color.
-
-        Arguments:
-            palette: Complete palette
-        Returns:
-            dict whose keys are a tuple of cell_to_check coordinates in the red, green
-            and blue dimensions, and whose values are an rgb_arr of palette colors
-            each cell contains
-        """
-        palette_by_cell_list: dict[tuple[int, int, int], list[int]] = {}
-
-        for color in palette:
-            cell = (color[0] // 16, color[1] // 16, color[2] // 16)
-            if cell not in palette_by_cell_list:
-                palette_by_cell_list[cell] = []
-            palette_by_cell_list[cell].append(color)
-
-        palette_by_cell_arr: dict[tuple[int, int, int], np.ndarray] = {}
-        for cell, cell_palette in palette_by_cell_list.items():
-            palette_by_cell_arr[cell] = np.array(cell_palette)
-
-        return palette_by_cell_arr
-
-    @staticmethod
-    def get_rgb_array_from_indexed_array(
-        indexed_arr: np.ndarray, palette: np.ndarray
-    ) -> np.ndarray:
-        """Convert indexed image array to RGB image using provided palette.
-
-        Arguments:
-            indexed_arr: Array whose values are the indexes of colors within palette
-            palette: Image palette
-        Returns:
-            Array whose values are the RGB channels of an image
-        """
-        rgb_arr = np.zeros((*indexed_arr.shape[:2], 3), np.uint8)
-        for i in range(indexed_arr.shape[0]):
-            for j in range(indexed_arr.shape[1]):
-                rgb_arr[i, j, :] = palette[indexed_arr[i, j]]
-
-        return rgb_arr
+    Arguments:
+        queries: RGB colors to match
+        palette: non-empty reference RGB colors in tie-breaking order
+    Returns:
+        nearest reference color for each query
+    """
+    matched = np.empty_like(queries)
+    for i in range(len(queries)):
+        best = 0
+        best_distance = get_perceptually_weighted_distance(queries[i], palette[0])
+        for candidate in range(1, len(palette)):
+            if best_distance == 0:
+                break
+            distance = get_perceptually_weighted_distance(
+                queries[i], palette[candidate]
+            )
+            if distance < best_distance:
+                best = candidate
+                best_distance = distance
+        matched[i] = palette[best]
+    return matched

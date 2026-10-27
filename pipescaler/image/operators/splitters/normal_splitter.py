@@ -11,20 +11,22 @@ from pipescaler.image.core.operators import ImageSplitter
 from pipescaler.image.core.typing import ImageMode
 from pipescaler.image.core.validation import validate_image
 
+__all__ = ["NormalSplitter"]
+
 
 class NormalSplitter(ImageSplitter):
     """Splits a normal map image into separate x, y, and z images."""
 
-    def __call__(self, input_img: Image.Image) -> tuple[Image.Image, ...]:
+    def __call__(self, input_image: Image.Image) -> tuple[Image.Image, ...]:
         """Split an image.
 
         Arguments:
-            input_img: Input image
+            input_image: Input image
         Returns:
             Split output images
         """
-        input_img = validate_image(input_img, self.inputs()["input"])
-        input_arr = np.array(input_img)
+        input_image = validate_image(input_image, self.inputs()["input"])
+        input_arr = np.array(input_image)
         x_arr = input_arr[:, :, 0]
         y_arr = input_arr[:, :, 1]
         z_arr = (input_arr[:, :, 2].astype(float) - 128) * 2
@@ -38,14 +40,22 @@ class NormalSplitter(ImageSplitter):
 
     @classmethod
     def inputs(cls) -> dict[str, tuple[ImageMode, ...]]:
-        """Inputs to this operator."""
+        """Inputs to this operator.
+
+        Returns:
+            mapping of input names to their supported image modes
+        """
         return {
             "input": ("RGB",),
         }
 
     @classmethod
     def outputs(cls) -> dict[str, tuple[ImageMode, ...]]:
-        """Outputs of this operator."""
+        """Outputs of this operator.
+
+        Returns:
+            mapping of output names to their supported image modes
+        """
         return {
             "x": ("L",),
             "y": ("L",),

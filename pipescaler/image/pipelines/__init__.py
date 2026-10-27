@@ -4,8 +4,9 @@
 
 This module may import from: common, core, pipelines, image.core, image.operators
 
-Hierarchy within module:
-* sources / sorters / termini / segments
+Package hierarchy (modules may import from any above):
+* image_substituter / segments / sorters / sources / termini
+* image_checkpoint_manager
 """
 
 from __future__ import annotations

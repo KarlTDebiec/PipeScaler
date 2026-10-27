@@ -6,6 +6,8 @@ from __future__ import annotations
 
 from logging import error
 
+__all__ = ["basic_sort"]
+
 
 def basic_sort(file_path: str) -> str:
     """Get file path in sortable format.
@@ -14,6 +16,8 @@ def basic_sort(file_path: str) -> str:
         file_path: File path
     Returns:
         File path in sortable format
+    Raises:
+        Exception: if the operation fails
     """
     try:
         return "".join([f"{ord(c):03d}" for c in file_path.lower()])

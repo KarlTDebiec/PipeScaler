@@ -5,16 +5,18 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import Generic, ParamSpec, TypeVar
 
-P = ParamSpec("P")
-R = TypeVar("R")
+__all__ = [
+    "ExecutionCounter",
+    "count_executions",
+]
 
 
-class ExecutionCounter(Generic[P, R]):
+class ExecutionCounter[**P, R]:
     """Counts the number of times a function is called."""
 
     count: int
+    """Number of times the function has been called."""
 
     def __init__(self, function: Callable[P, R]):
         """Initialize.
@@ -31,8 +33,8 @@ class ExecutionCounter(Generic[P, R]):
         """Call the function and increments the counter.
 
         Arguments:
-            args: Positional arguments
-            kwargs: Keyword arguments
+            *args: Positional arguments
+            **kwargs: Keyword arguments
         Returns:
             Result of the function
         """
@@ -40,7 +42,7 @@ class ExecutionCounter(Generic[P, R]):
         return self.function(*args, **kwargs)
 
 
-def count_executions(function: Callable[P, R]) -> ExecutionCounter[P, R]:
+def count_executions[**P, R](function: Callable[P, R]) -> ExecutionCounter[P, R]:
     """Decorator to count the number of times a function is executed.
 
     Arguments:

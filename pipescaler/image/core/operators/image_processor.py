@@ -10,6 +10,8 @@ from PIL import Image
 
 from pipescaler.image.core.image_operator import ImageOperator
 
+__all__ = ["ImageProcessor"]
+
 
 class ImageProcessor(ImageOperator, ABC):
     """Processes an image, yielding a modified image."""

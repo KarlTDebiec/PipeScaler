@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #  Copyright 2020-2026 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Command-line interface for AlphaSplitter."""
@@ -15,6 +14,8 @@ from pipescaler.common.argument_parsing import output_file_arg
 from pipescaler.image.core.cli import ImageSplitterCli
 from pipescaler.image.core.operators import ImageSplitter
 from pipescaler.image.operators.splitters import AlphaSplitter
+
+__all__ = ["AlphaSplitterCli"]
 
 
 class AlphaSplitterCli(ImageSplitterCli):
@@ -42,7 +43,11 @@ class AlphaSplitterCli(ImageSplitterCli):
 
     @classmethod
     def _main(cls, **kwargs: Any):
-        """Execute with provided keyword arguments."""
+        """Execute with provided keyword arguments.
+
+        Arguments:
+            **kwargs: additional options forwarded to the selected implementation
+        """
         input_path = kwargs.pop("input_file")
         color_output_path = kwargs.pop("color_output_file")
         alpha_output_path = kwargs.pop("alpha_output_file")
@@ -57,7 +62,11 @@ class AlphaSplitterCli(ImageSplitterCli):
 
     @classmethod
     def splitter(cls) -> type[ImageSplitter]:
-        """Type of splitter wrapped by command-line interface."""
+        """Type of splitter wrapped by command-line interface.
+
+        Returns:
+            image splitter class invoked by this command
+        """
         return AlphaSplitter
 
 

@@ -14,15 +14,20 @@ from pipescaler.core import Utility
 from pipescaler.image.core.exceptions import UnsupportedImageModeError
 from pipescaler.image.core.numba import get_perceptually_weighted_distance
 
+__all__ = ["LocalPaletteMatcher"]
+
 
 class LocalPaletteMatcher(Utility):
     """Matches the palette of one image to another, restricted to nearby colors."""
 
     @classmethod
-    def run(
+    def run(  # ty: ignore[invalid-method-override]
         cls, ref_img: Image.Image, fit_img: Image.Image, local_range: int = 1
     ) -> Image.Image:
         """Match the palette of an image to a reference.
+
+        The target must be a uniform integer upscale of the reference, with a
+        scale of at least 2 on both axes. Neighborhood ranges use reference pixels.
 
         Arguments:
             ref_img: Image whose palette to use as reference
@@ -30,12 +35,16 @@ class LocalPaletteMatcher(Utility):
             local_range: Range of adjacent pixels from which to draw best-fit color
         Returns:
             Image with palette fit to reference
+        Raises:
+            UnsupportedImageModeError: if an image mode is unsupported
+            ValueError: if the target is not a uniform integer upscale of the reference
         """
         if ref_img.mode != fit_img.mode:
             raise UnsupportedImageModeError(
                 f"Image mode '{ref_img.mode}' of reference image does not match mode "
                 f"'{fit_img.mode}' of fit image"
             )
+        cls.validate_geometry(ref_img, fit_img)
         ref_arr = np.array(ref_img)
         fit_arr = np.array(fit_img)
 
@@ -143,3 +152,29 @@ class LocalPaletteMatcher(Utility):
                             best_color = ref_arr[ref_x, ref_y]
                 matched_arr[fit_x, fit_y, :] = best_color
         return matched_arr
+
+    @staticmethod
+    def validate_geometry(ref_img: Image.Image, fit_img: Image.Image):
+        """Require a uniform integer upscale of at least 2 for local matching.
+
+        Arguments:
+            ref_img: smaller reference image
+            fit_img: larger target image
+        Raises:
+            ValueError: if image sizes do not use the required scale
+        """
+        ref_width, ref_height = ref_img.size
+        fit_width, fit_height = fit_img.size
+        if (
+            ref_width <= 0
+            or ref_height <= 0
+            or fit_width % ref_width != 0
+            or fit_height % ref_height != 0
+            or fit_width // ref_width < 2
+            or fit_width // ref_width != fit_height // ref_height
+        ):
+            raise ValueError(
+                "Local palette matching requires a target that is a uniform integer "
+                "upscale of the reference with scale at least 2; "
+                f"received reference {ref_img.size} and target {fit_img.size}"
+            )

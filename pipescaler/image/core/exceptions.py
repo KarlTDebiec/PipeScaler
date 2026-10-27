@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+__all__ = ["UnsupportedImageModeError"]
+
 
 class UnsupportedImageModeError(Exception):
     """Mode of image is not supported."""

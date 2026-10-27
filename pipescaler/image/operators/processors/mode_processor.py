@@ -13,6 +13,8 @@ from pipescaler.image.core.operators import ImageProcessor
 from pipescaler.image.core.typing import ImageMode
 from pipescaler.image.core.validation import validate_image
 
+__all__ = ["ModeProcessor"]
+
 type ModeSetting = Literal["1", "L", "LA", "RGB", "RGBA"]
 """Mode settings supported by ModeProcessor."""
 
@@ -21,6 +23,7 @@ class ModeProcessor(ImageProcessor):
     """Converts mode of image."""
 
     supported_modes: tuple[ModeSetting, ...] = ("1", "L", "LA", "RGB", "RGBA")
+    """Image modes this processor supports."""
 
     def __init__(
         self,
@@ -67,7 +70,11 @@ class ModeProcessor(ImageProcessor):
         return output_image
 
     def __repr__(self) -> str:
-        """Representation."""
+        """Representation.
+
+        Returns:
+            string representation of this object
+        """
         return (
             f"{self.__class__.__name__}("
             f"mode={self.mode!r}, "
@@ -77,14 +84,22 @@ class ModeProcessor(ImageProcessor):
 
     @classmethod
     def inputs(cls) -> dict[str, tuple[ImageMode, ...]]:
-        """Inputs to this operator."""
+        """Inputs to this operator.
+
+        Returns:
+            mapping of input names to their supported image modes
+        """
         return {
             "input": cls.supported_modes,
         }
 
     @classmethod
     def outputs(cls) -> dict[str, tuple[ImageMode, ...]]:
-        """Outputs of this operator."""
+        """Outputs of this operator.
+
+        Returns:
+            mapping of output names to their supported image modes
+        """
         return {
             "output": cls.supported_modes,
         }

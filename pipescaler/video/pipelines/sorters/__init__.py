@@ -4,7 +4,7 @@
 
 This module may import from: common, core.pipelines, video.core.pipelines
 
-Hierarchy within module:
+Package hierarchy (modules may import from any above):
 * video_aspect_ratio_sorter
 """
 
@@ -14,6 +14,4 @@ from .video_aspect_ratio_sorter import (
     VideoAspectRatioSorter,
 )
 
-__all__ = [
-    "VideoAspectRatioSorter",
-]
+__all__ = ["VideoAspectRatioSorter"]

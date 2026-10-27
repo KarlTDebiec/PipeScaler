@@ -4,7 +4,7 @@
 
 This module may import from: common, core.pipelines, image.core.pipelines
 
-Hierarchy within module:
+Package hierarchy (modules may import from any above):
 * image_directory_terminus
 """
 
@@ -14,6 +14,4 @@ from .image_directory_terminus import (
     ImageDirectoryTerminus,
 )
 
-__all__ = [
-    "ImageDirectoryTerminus",
-]
+__all__ = ["ImageDirectoryTerminus"]

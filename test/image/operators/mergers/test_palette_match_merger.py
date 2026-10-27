@@ -2,6 +2,8 @@
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Tests for PaletteMatchMerger."""
 
+from __future__ import annotations
+
 import pytest
 from PIL import Image
 
@@ -21,7 +23,7 @@ from pipescaler.testing.fixture import parametrized_fixture
         {},
     ],
 )
-def merger(request) -> PaletteMatchMerger:
+def merger(request: pytest.FixtureRequest) -> PaletteMatchMerger:
     """Pytest fixture that provides a PaletteMatchMerger instance.
 
     Arguments:
@@ -74,6 +76,22 @@ def test(ref: str, fit: str, merger: PaletteMatchMerger):
     ],
 )
 def test_repr_round_trip(merger: PaletteMatchMerger):
-    """Test PaletteMatchMerger repr round-trip recreation."""
+    """Test PaletteMatchMerger repr round-trip recreation.
+
+    Arguments:
+        merger: merger
+    """
     recreated = eval(repr(merger))
     assert repr(recreated) == repr(merger)
+
+
+@pytest.mark.parametrize("mode", ["L", "RGB"])
+def test_basic_match_allows_unrelated_sizes(mode: str):
+    """Basic matching draws from the global palette regardless of image sizes.
+
+    Arguments:
+        mode: image mode to match
+    """
+    matched = PaletteMatchMerger()(Image.new(mode, (3, 5)), Image.new(mode, (2, 4)))
+
+    assert matched.size == (2, 4)

@@ -14,6 +14,8 @@ import cv2
 from pipescaler.common.validation import val_output_path
 from pipescaler.core.pipelines.pipe_object import PipeObject
 
+__all__ = ["PipeVideo"]
+
 
 class PipeVideo(PipeObject):
     """Video within a pipeline."""
@@ -39,7 +41,9 @@ class PipeVideo(PipeObject):
               that is not available will use filename of path excluding extension; one
               of these must be available
             parents: Parent video(s) from which this video is descended
-            kwargs: Additional keyword arguments
+            **kwargs: Additional keyword arguments
+        Raises:
+            ValueError: if input values or configuration are invalid
         """
         if video is None and path is None:
             raise ValueError(
@@ -62,7 +66,11 @@ class PipeVideo(PipeObject):
 
     @property
     def video(self) -> cv2.VideoCapture:
-        """Video; loaded from path if not already available."""
+        """Video; loaded from path if not already available.
+
+        Raises:
+            ValueError: if input values or configuration are invalid
+        """
         if self._video is None:
             if self.path is None:
                 raise ValueError(
@@ -75,6 +83,11 @@ class PipeVideo(PipeObject):
 
     @video.setter
     def video(self, video: cv2.VideoCapture):
+        """Set video capture instance.
+
+        Arguments:
+            video: video object to assign
+        """
         self._video = video
 
     def save(self, path: Path | str):
@@ -82,6 +95,8 @@ class PipeVideo(PipeObject):
 
         Arguments:
             path: Path to which to save image
+        Raises:
+            NotImplementedError: if the subclass does not implement this operation
         """
         path = val_output_path(path)
         # TODO: save

@@ -4,9 +4,10 @@
 
 This module may import from: common, core, image.core, image.core.operators
 
-Hierarchy within module:
-* crop_processor / expand_processor / mode_processor / resize_processor / solid_color_processor / threshold_processor
-* height_to_normal_processor / sharpen_processor / potrace_processor / xbrz_processor / spandrel_processor
+Package hierarchy (modules may import from any above):
+* crop_processor / expand_processor / height_to_normal_processor / mode_processor
+/ potrace_processor / resize_processor / sharpen_processor / solid_color_processor
+/ spandrel_processor / threshold_processor / xbrz_processor
 """
 
 from __future__ import annotations

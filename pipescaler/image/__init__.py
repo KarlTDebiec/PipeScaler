@@ -4,19 +4,15 @@
 
 This module may import from: common, core, pipelines
 
-Hierarchy within module:
-* core
-* models / operators / utilities / runners / analytics
-* pipelines
+Package hierarchy (modules may import from any above):
+* core / runners / subdivided_image
+* pipelines / testing / utilities
+* operators
 * cli
 """
 
 from __future__ import annotations
 
-from .scaled_pair_identifier import ScaledPairIdentifier
 from .subdivided_image import SubdividedImage
 
-__all__ = [
-    "ScaledPairIdentifier",
-    "SubdividedImage",
-]
+__all__ = ["SubdividedImage"]

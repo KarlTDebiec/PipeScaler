@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #  Copyright 2020-2026 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Command-line interface for PipeScaler image utilities."""
@@ -12,6 +11,8 @@ from pipescaler.common import CommandLineInterface
 from pipescaler.core.cli import UtilityCli
 
 from . import utilities
+
+__all__ = ["ImageUtilitiesCli"]
 
 
 class ImageUtilitiesCli(CommandLineInterface):
@@ -36,32 +37,54 @@ class ImageUtilitiesCli(CommandLineInterface):
 
     @classmethod
     def description(cls) -> str:
-        """Long description of this tool displayed below usage."""
+        """Long description of this tool displayed below usage.
+
+        Returns:
+            long description displayed in command help
+        """
         return "Runs image utilities."
 
     @classmethod
     def help(cls) -> str:
-        """Short description of this tool used when it is a subparser."""
+        """Short description of this tool used when it is a subparser.
+
+        Returns:
+            short description displayed beside the subcommand
+        """
         return "run image utility"
 
     @classmethod
     def _main(cls, **kwargs: Any):
-        """Execute with provided keyword arguments."""
+        """Execute with provided keyword arguments.
+
+        Arguments:
+            **kwargs: additional options forwarded to the selected implementation
+        """
         utility_name = kwargs.pop("utility")
         utility_cli_cls = cls.utilities()[utility_name]
         utility_cli_cls._main(**kwargs)
 
     @classmethod
     def name(cls) -> str:
-        """Name of this tool used to define it when it is a subparser."""
+        """Name of this tool used to define it when it is a subparser.
+
+        Returns:
+            command name used by the argument parser
+        """
         return "utility"
 
     @classmethod
     def utilities(cls) -> dict[str, type[UtilityCli]]:
-        """Names and types of utilities wrapped by command-line interface."""
+        """Names and types of utilities wrapped by command-line interface.
+
+        Returns:
+            mapping of utility names to their CLI classes
+        """
         return {
             utility.name(): utility
-            for utility in map(utilities.__dict__.get, utilities.__all__)
+            for utility in map(
+                utilities.__dict__.get, getattr(utilities, "__all__", ())
+            )
             if isinstance(utility, type) and issubclass(utility, UtilityCli)
         }
 

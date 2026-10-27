@@ -15,6 +15,8 @@ from pipescaler.image.core.operators import ImageProcessor
 from pipescaler.image.core.typing import ImageMode
 from pipescaler.image.core.validation import validate_image_and_convert_mode
 
+__all__ = ["ThresholdProcessor"]
+
 
 class ThresholdProcessor(ImageProcessor):
     """Converts image to black and white using threshold, optionally denoising."""
@@ -32,22 +34,22 @@ class ThresholdProcessor(ImageProcessor):
         self.threshold = val_int(threshold, min_value=1, max_value=244)
         self.denoise = denoise
 
-    def __call__(self, input_img: Image.Image) -> Image.Image:
+    def __call__(self, input_image: Image.Image) -> Image.Image:
         """Process an image.
 
         Arguments:
-            input_img: Input image
+            input_image: Input image
         Returns:
             Processed output image
         """
-        input_img, input_mode = validate_image_and_convert_mode(
-            input_img, self.inputs()["input"]
+        input_image, input_mode = validate_image_and_convert_mode(
+            input_image, self.inputs()["input"]
         )
 
         if input_mode == "L":
-            output_img = input_img.point(lambda p: p > self.threshold and 255)
+            output_img = input_image.point(lambda p: p > self.threshold and 255)
         else:
-            output_img = input_img
+            output_img = input_image
         if self.denoise:
             output_arr = np.array(output_img)
             self.denoise_array(output_arr)
@@ -56,7 +58,11 @@ class ThresholdProcessor(ImageProcessor):
         return output_img
 
     def __repr__(self) -> str:
-        """Representation."""
+        """Representation.
+
+        Returns:
+            string representation of this object
+        """
         return (
             f"{self.__class__.__name__}("
             f"threshold={self.threshold!r},"
@@ -65,14 +71,22 @@ class ThresholdProcessor(ImageProcessor):
 
     @classmethod
     def inputs(cls) -> dict[str, tuple[ImageMode, ...]]:
-        """Inputs to this operator."""
+        """Inputs to this operator.
+
+        Returns:
+            mapping of input names to their supported image modes
+        """
         return {
             "input": ("1", "L"),
         }
 
     @classmethod
     def outputs(cls) -> dict[str, tuple[ImageMode, ...]]:
-        """Outputs of this operator."""
+        """Outputs of this operator.
+
+        Returns:
+            mapping of output names to their supported image modes
+        """
         return {
             "output": ("1",),
         }

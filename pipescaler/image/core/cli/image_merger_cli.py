@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #  Copyright 2020-2026 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Abstract base class for ImageMerger command-line interfaces."""
@@ -11,22 +10,36 @@ from inspect import cleandoc
 from pipescaler.common import CommandLineInterface
 from pipescaler.image.core.operators import ImageMerger
 
+__all__ = ["ImageMergerCli"]
+
 
 class ImageMergerCli(CommandLineInterface, ABC):
     """Abstract base class for ImageMerger command-line interfaces."""
 
     @classmethod
     def description(cls) -> str:
-        """Long description of this tool displayed below usage."""
+        """Long description of this tool displayed below usage.
+
+        Returns:
+            long description displayed in command help
+        """
         return cleandoc(str(cls.merger().__doc__)) if cls.merger().__doc__ else ""
 
     @classmethod
     def name(cls) -> str:
-        """Name of this tool used to define it when it is a subparser."""
+        """Name of this tool used to define it when it is a subparser.
+
+        Returns:
+            command name used by the argument parser
+        """
         return cls.__name__.removesuffix("Cli").lower()
 
     @classmethod
     @abstractmethod
     def merger(cls) -> type[ImageMerger]:
-        """Type of merger wrapped by command-line interface."""
+        """Type of merger wrapped by command-line interface.
+
+        Returns:
+            image merger class invoked by this command
+        """
         raise NotImplementedError()

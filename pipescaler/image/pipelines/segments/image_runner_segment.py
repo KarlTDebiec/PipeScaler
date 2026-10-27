@@ -10,6 +10,8 @@ from pipescaler.common.file import get_temp_file_path
 from pipescaler.core.typing import RunnerLike
 from pipescaler.image.core.pipelines import ImageSegment, PipeImage
 
+__all__ = ["ImageRunnerSegment"]
+
 
 class ImageRunnerSegment(ImageSegment):
     """Segment that applies a Runner."""
@@ -38,9 +40,11 @@ class ImageRunnerSegment(ImageSegment):
         """Receive input image and returns output image.
 
         Arguments:
-            input_objs: Input image, within a tuple for consistency with other Segments
+            *input_objs: Input image, within a tuple for consistency with other Segments
         Returns:
             Output image, within a tuple for consistency with other Segments
+        Raises:
+            ValueError: if input values or configuration are invalid
         """
         if len(input_objs) != 1:
             raise ValueError("RunnerSegment requires 1 input")
@@ -53,6 +57,8 @@ class ImageRunnerSegment(ImageSegment):
             else:
                 self.runner(input_objs[0].path, output_path)
             output = PipeImage(path=output_path, parents=input_objs[0])
+            with output.image as image:
+                output.image = image.copy()
             warning(
                 f"{self}: Output file is temporary and only image content is retained; "
                 f"if output file is needed (e.g. if the purpose of this processor is "
@@ -64,7 +70,11 @@ class ImageRunnerSegment(ImageSegment):
         return (output,)
 
     def __repr__(self) -> str:
-        """Representation."""
+        """Representation.
+
+        Returns:
+            string representation of this object
+        """
         return (
             f"{self.__class__.__name__}(runner={self.runner!r},"
             f"input_extension={self.input_extension!r}, "

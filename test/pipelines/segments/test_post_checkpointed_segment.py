@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any, cast
 from unittest.mock import Mock, patch
 
 import pytest
@@ -47,7 +48,9 @@ def test_non_callable_segment_validation():
 
         # Attempt to initialize with non-callable segment
         with pytest.raises(ValueError) as exc_info:
-            PostCheckpointedSegment(non_callable_segment, mock_cp_manager, ["test.txt"])
+            PostCheckpointedSegment(
+                cast(Any, non_callable_segment), mock_cp_manager, ["test.txt"]
+            )
 
         # Verify the error message contains expected content
         error_message = str(exc_info.value)
@@ -112,5 +115,5 @@ def test():
         )
 
         # Test miscellaneous methods
-        print(post_checkpointed_segment)
-        print(repr(post_checkpointed_segment))
+        assert str(post_checkpointed_segment)
+        assert repr(post_checkpointed_segment)

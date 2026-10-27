@@ -4,15 +4,13 @@
 
 This module may import from: common, core
 
-Hierarchy within module:
-* checkpoint_manager
+Package hierarchy (modules may import from any above):
 * segments / sorters
+* checkpoint_manager
 """
 
 from __future__ import annotations
 
 from .checkpoint_manager import CheckpointManager
 
-__all__ = [
-    "CheckpointManager",
-]
+__all__ = ["CheckpointManager"]

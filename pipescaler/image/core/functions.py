@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from math import ceil, isfinite
+
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from scipy.ndimage import convolve
@@ -11,6 +13,22 @@ from scipy.ndimage import convolve
 from pipescaler.common.validation import val_float
 
 from .exceptions import UnsupportedImageModeError
+
+__all__ = [
+    "convert_mode",
+    "crop_image",
+    "expand_image",
+    "generate_normal_map_from_height_map_image",
+    "get_font_size",
+    "get_palette",
+    "get_text_size",
+    "hstack_images",
+    "is_monochrome",
+    "label_image",
+    "remove_palette",
+    "smooth_image",
+    "vstack_images",
+]
 
 
 def convert_mode(image: Image.Image, mode: str) -> tuple[Image.Image, str]:
@@ -48,7 +66,7 @@ def crop_image(
     return cropped
 
 
-def expand_image(
+def expand_image(  # noqa: PLR0913
     image: Image.Image,
     left: int = 0,
     top: int = 0,
@@ -71,14 +89,10 @@ def expand_image(
     Returns:
         Expanded image
     """
-    transposed_horizontally = image.transpose(
-        Image.Transpose.FLIP_LEFT_RIGHT  # type: ignore
-    )
-    transposed_vertically = image.transpose(
-        Image.Transpose.FLIP_TOP_BOTTOM  # type: ignore
-    )
+    transposed_horizontally = image.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+    transposed_vertically = image.transpose(Image.Transpose.FLIP_TOP_BOTTOM)
     transposed_horizontally_and_vertically = transposed_horizontally.transpose(
-        Image.Transpose.FLIP_TOP_BOTTOM  # type: ignore
+        Image.Transpose.FLIP_TOP_BOTTOM
     )
 
     expanded = Image.new(
@@ -197,7 +211,7 @@ def get_font_size(
     height: int,
     proportional_height: float = 0.2,
     font: str = "Arial",
-):
+) -> int:
     """Get the font size at which text will take up defined portion of image's height.
 
     Arguments:
@@ -233,7 +247,8 @@ def get_text_size(
         font_type = ImageFont.truetype(font, size)
     except OSError:
         font_type = ImageFont.truetype(font.lower(), size)
-    return draw.textsize(text, font_type)
+    left, top, right, bottom = draw.textbbox((0, 0), text, font=font_type)
+    return right - left, bottom - top
 
 
 def hstack_images(*images: Image.Image) -> Image.Image:
@@ -267,6 +282,8 @@ def is_monochrome(
           and true monochrome must be below
     Returns:
         Whether image contains only pure black and white
+    Raises:
+        UnsupportedImageModeError: if an image mode is unsupported
     """
     if image.mode != "L":
         raise UnsupportedImageModeError()
@@ -275,7 +292,7 @@ def is_monochrome(
 
     l_arr = np.array(image)
     one_arr = np.array(image.convert("1").convert("L"))
-    diff = np.abs(l_arr - one_arr)
+    diff = np.abs(l_arr.astype(np.int16) - one_arr.astype(np.int16))
     mean_diff = diff.mean()
     proportion_diff = (diff != 0).sum() / diff.size
 
@@ -324,6 +341,8 @@ def remove_palette(image: Image.Image) -> Image.Image:
         image: Image in 'P' mode
     Returns:
         Image in 'L', 'LA', 'RGB', or 'RGBA' mode
+    Raises:
+        UnsupportedImageModeError: if an image mode is unsupported
     """
     palette_list = image.getpalette()
     if palette_list is None:
@@ -366,18 +385,25 @@ def smooth_image(image: Image.Image, sigma: float) -> Image.Image:
 
     Arguments:
         image: Image to smooth
-        sigma: Sigma of Gaussian with which to smooth
+        sigma: sigma of Gaussian with which to smooth
     Returns:
-        Smoothed image
+        smoothed image
+    Raises:
+        ValueError: if sigma is negative or non-finite
     """
-    kernel = np.exp(
-        (-1 * (np.arange(-3 * sigma, 3 * sigma + 1).astype(float) ** 2))
-        / (2 * (sigma**2))
-    )
+    if not isfinite(sigma) or sigma < 0:
+        raise ValueError("sigma must be a finite non-negative number")
+    if sigma == 0:
+        return image.copy()
+
+    radius = ceil(3 * sigma)
+    positions = np.arange(-radius, radius + 1, dtype=float)
+    kernel = np.exp(-(positions**2) / (2 * sigma**2))
+    kernel /= kernel.sum()
     smoothed_arr = np.array(image).astype(float)
     smoothed_arr = convolve(smoothed_arr, kernel[np.newaxis])
     smoothed_arr = convolve(smoothed_arr, kernel[np.newaxis].T)
-    smoothed_arr = np.clip(smoothed_arr, 0, 255).astype(np.uint8)
+    smoothed_arr = np.rint(np.clip(smoothed_arr, 0, 255)).astype(np.uint8)
     smoothed_img = Image.fromarray(smoothed_arr)
 
     return smoothed_img

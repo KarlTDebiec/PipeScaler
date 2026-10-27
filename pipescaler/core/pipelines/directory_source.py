@@ -15,6 +15,8 @@ from pipescaler.core.sorting import basic_sort
 
 from .source import Source
 
+__all__ = ["DirectorySource"]
+
 
 class DirectorySource(Source, ABC):
     """Abstract base class for sources that yield objects from a directory."""
@@ -68,7 +70,11 @@ class DirectorySource(Source, ABC):
         """Index of next file path to be yielded"""
 
     def __repr__(self) -> str:
-        """Representation."""
+        """Representation.
+
+        Returns:
+            string representation of this object
+        """
         return (
             f"{self.__class__.__name__}("
             f"dir_path={self.dir_path!r}, "
@@ -111,6 +117,8 @@ class DirectorySource(Source, ABC):
             exclusions: Exclusions to parse
         Returns:
             Parsed exclusions
+        Raises:
+            TypeError: if an argument has an unsupported type
         """
         parsed_exclusions = set()
 
@@ -137,6 +145,8 @@ class DirectorySource(Source, ABC):
             inclusions: Inclusions to parse
         Returns:
             Parsed inclusions
+        Raises:
+            TypeError: if an argument has an unsupported type
         """
         if inclusions is None:
             return None

@@ -12,6 +12,8 @@ from pipescaler.image.core.operators import ImageProcessor
 from pipescaler.image.core.typing import ImageMode
 from pipescaler.image.core.validation import validate_image_and_convert_mode
 
+__all__ = ["SolidColorProcessor"]
+
 
 class SolidColorProcessor(ImageProcessor):
     """Sets entire image color to its average color, optionally resizing."""
@@ -45,7 +47,7 @@ class SolidColorProcessor(ImageProcessor):
         array = np.array(input_image)
         if input_image.mode in ("LA", "RGB", "RGBA"):
             color: int | tuple[int, int, int] = tuple(
-                np.rint(array.mean(axis=(0, 1))).astype(np.uint8)  # type: ignore
+                np.rint(array.mean(axis=(0, 1))).astype(np.uint8)
             )
         elif input_image.mode == "L":
             color = round(array.mean())
@@ -56,19 +58,31 @@ class SolidColorProcessor(ImageProcessor):
         return output_image
 
     def __repr__(self) -> str:
-        """Representation."""
+        """Representation.
+
+        Returns:
+            string representation of this object
+        """
         return f"{self.__class__.__name__}(scale={self.scale!r})"
 
     @classmethod
     def inputs(cls) -> dict[str, tuple[ImageMode, ...]]:
-        """Inputs to this operator."""
+        """Inputs to this operator.
+
+        Returns:
+            mapping of input names to their supported image modes
+        """
         return {
             "input": ("1", "L", "LA", "RGB", "RGBA"),
         }
 
     @classmethod
     def outputs(cls) -> dict[str, tuple[ImageMode, ...]]:
-        """Outputs of this operator."""
+        """Outputs of this operator.
+
+        Returns:
+            mapping of output names to their supported image modes
+        """
         return {
             "output": ("1", "L", "LA", "RGB", "RGBA"),
         }

@@ -15,6 +15,15 @@ from PIL import Image
 
 from pipescaler.image.core.exceptions import UnsupportedImageModeError
 
+from .local_palette_matcher import LocalPaletteMatcher
+
+__all__ = [
+    "LocalPaletteShaderError",
+    "LocalPaletteShaderExecutionError",
+    "LocalPaletteShaderMatcher",
+    "LocalPaletteShaderUnavailableError",
+]
+
 
 class LocalPaletteShaderError(RuntimeError):
     """Base error for local palette shader matching failures."""
@@ -34,7 +43,9 @@ class LocalPaletteShaderMatcher:
     _max_local_range = 2_147_483_647
     """Maximum local range representable as signed 32-bit integer."""
     _workgroup_x = 8
+    """Shader workgroup width."""
     _workgroup_y = 8
+    """Shader workgroup height."""
 
     @classmethod
     def run(
@@ -47,7 +58,10 @@ class LocalPaletteShaderMatcher:
             fit_img: Image whose palette to fit to reference
             local_range: Range of adjacent pixels from which to draw best-fit color
         Returns:
-            Image with locally palette-matched colors
+            image with locally palette-matched colors
+        Raises:
+            UnsupportedImageModeError: if input modes differ or are unsupported
+            ValueError: if image sizes or the local range are unsupported
         """
         if ref_img.mode != fit_img.mode:
             raise UnsupportedImageModeError(
@@ -60,6 +74,7 @@ class LocalPaletteShaderMatcher:
                 f"'{fit_img.mode}'"
             )
         normalized_local_range = cls._normalize_local_range(local_range)
+        LocalPaletteMatcher.validate_geometry(ref_img, fit_img)
 
         ref_arr, fit_arr = cls._prepare_arrays(ref_img, fit_img)
         channels = fit_arr.shape[2]
@@ -73,8 +88,25 @@ class LocalPaletteShaderMatcher:
         return Image.fromarray(output_arr)
 
     @classmethod
-    def _get_compute_with_buffers(cls) -> Any:
-        """Get the ``compute_with_buffers`` helper from wgpu."""
+    @lru_cache(maxsize=1)
+    def _get_shader_source(cls) -> str:
+        """Read and cache the WGSL source for local palette matching.
+
+        Returns:
+            shader source text with workgroup placeholders
+        """
+        shader_path = Path(__file__).with_name("local_palette_match.wgsl")
+        return shader_path.read_text(encoding="utf-8")
+
+    @classmethod
+    def _import_compute_with_buffers(cls) -> Any:
+        """Import the wgpu compute helper.
+
+        Returns:
+            compute callback
+        Raises:
+            LocalPaletteShaderUnavailableError: if the runtime cannot be imported
+        """
         try:
             import_module("wgpu.backends.auto")
             compute_module = import_module("wgpu.utils.compute")
@@ -88,25 +120,6 @@ class LocalPaletteShaderMatcher:
                 "wgpu runtime could not be imported"
             ) from exc
         return compute_with_buffers
-
-    @classmethod
-    def _prepare_arrays(
-        cls, ref_img: Image.Image, fit_img: Image.Image
-    ) -> tuple[np.ndarray, np.ndarray]:
-        """Convert input images into channel-last arrays for shader execution.
-
-        Arguments:
-            ref_img: Image whose palette to use as reference
-            fit_img: Image whose palette to fit to reference
-        Returns:
-            Reference and fit arrays with shape ``(height, width, channels)``
-        """
-        ref_arr = np.array(ref_img, np.uint8)
-        fit_arr = np.array(fit_img, np.uint8)
-        if fit_img.mode == "L":
-            ref_arr = ref_arr[:, :, np.newaxis]
-            fit_arr = fit_arr[:, :, np.newaxis]
-        return ref_arr, fit_arr
 
     @classmethod
     def _normalize_local_range(cls, local_range: int) -> int:
@@ -134,19 +147,40 @@ class LocalPaletteShaderMatcher:
         return local_range_int
 
     @classmethod
+    def _prepare_arrays(
+        cls, ref_img: Image.Image, fit_img: Image.Image
+    ) -> tuple[np.ndarray, np.ndarray]:
+        """Convert input images into channel-last arrays for shader execution.
+
+        Arguments:
+            ref_img: Image whose palette to use as reference
+            fit_img: Image whose palette to fit to reference
+        Returns:
+            Reference and fit arrays with shape `(height, width, channels)`
+        """
+        ref_arr = np.array(ref_img, np.uint8)
+        fit_arr = np.array(fit_img, np.uint8)
+        if fit_img.mode == "L":
+            ref_arr = ref_arr[:, :, np.newaxis]
+            fit_arr = fit_arr[:, :, np.newaxis]
+        return ref_arr, fit_arr
+
+    @classmethod
     def _run_shader(
         cls, *, ref_arr: np.ndarray, fit_arr: np.ndarray, local_range: int
     ) -> np.ndarray:
         """Execute the compute shader and return matched pixels.
 
         Arguments:
-            ref_arr: Reference image array with shape ``(height, width, channels)``
-            fit_arr: Fit image array with shape ``(height, width, channels)``
+            ref_arr: Reference image array with shape `(height, width, channels)`
+            fit_arr: Fit image array with shape `(height, width, channels)`
             local_range: Range of adjacent pixels from which to draw best-fit color
         Returns:
-            Matched image array with shape matching ``fit_arr``
+            matched image array with shape matching `fit_arr`
+        Raises:
+            LocalPaletteShaderExecutionError: if shader execution fails
         """
-        compute_with_buffers = cls._get_compute_with_buffers()
+        compute_with_buffers = cls._import_compute_with_buffers()
         fit_height, fit_width, channels = fit_arr.shape
         ref_height, ref_width, _ = ref_arr.shape
 
@@ -161,8 +195,10 @@ class LocalPaletteShaderMatcher:
         workgroups_x = (fit_width + cls._workgroup_x - 1) // cls._workgroup_x
         workgroups_y = (fit_height + cls._workgroup_y - 1) // cls._workgroup_y
 
-        shader = cls._get_shader_source().replace("WGX", str(cls._workgroup_x)).replace(
-            "WGY", str(cls._workgroup_y)
+        shader = (
+            cls._get_shader_source()
+            .replace("WGX", str(cls._workgroup_x))
+            .replace("WGY", str(cls._workgroup_y))
         )
         try:
             result = compute_with_buffers(
@@ -185,14 +221,3 @@ class LocalPaletteShaderMatcher:
             np.clip(output_flat, 0, 255).astype(np.uint8).reshape(fit_arr.shape)
         )
         return output_arr
-
-    @classmethod
-    @lru_cache(maxsize=1)
-    def _get_shader_source(cls) -> str:
-        """Read and cache the WGSL source for local palette matching.
-
-        Returns:
-            shader source text with workgroup placeholders
-        """
-        shader_path = Path(__file__).with_name("local_palette_match.wgsl")
-        return shader_path.read_text(encoding="utf-8")

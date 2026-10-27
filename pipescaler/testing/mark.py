@@ -13,8 +13,18 @@ from pytest import mark, param
 
 from pipescaler.common import UnsupportedPlatformError
 
+__all__ = [
+    "parametrize_with_readable_ids",
+    "skip_if_ci",
+    "skip_if_codex",
+    "xfail_file_not_found",
+    "xfail_if_platform",
+    "xfail_system_exit",
+    "xfail_value",
+]
 
-def parametrize_with_readable_ids(*args, **kwargs) -> partial:
+
+def parametrize_with_readable_ids(*args: Any, **kwargs: Any) -> partial:
     """Parametrize test with readable IDs.
 
     Arguments:
@@ -74,7 +84,9 @@ def skip_if_codex(inner: partial | None = None) -> partial:
     """
     marks = [
         mark.skipif(
-            getenv("CODEX_ENV_PYTHON_VERSION") is not None,
+            getenv("CODEX_CI") is not None
+            or getenv("CODEX_ENV_PYTHON_VERSION") is not None
+            or getenv("CODEX_SHELL") is not None,
             reason="Skip when running in Codex environment",
         )
     ]

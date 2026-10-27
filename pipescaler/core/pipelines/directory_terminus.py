@@ -14,6 +14,8 @@ from pipescaler.common.validation import val_output_dir_path
 from .pipe_object import PipeObject
 from .terminus import Terminus
 
+__all__ = ["DirectoryTerminus"]
+
 
 class DirectoryTerminus[T: PipeObject](Terminus[T], ABC):
     """Abstract base class for termini that write objects to an output directory."""
@@ -28,11 +30,21 @@ class DirectoryTerminus[T: PipeObject](Terminus[T], ABC):
         self.observed_files: set[str] = set()
 
     def __repr__(self) -> str:
-        """Representation."""
+        """Representation.
+
+        Returns:
+            string representation of this object
+        """
         return f"{self.__class__.__name__}(dir_path={self.dir_path!r})"
 
     def purge_unrecognized_files(self, dir_path: Path | None = None):
-        """Remove unrecognized files and subdirectories in output directory."""
+        """Remove unrecognized files and subdirectories in output directory.
+
+        Arguments:
+            dir_path: dir path
+        Raises:
+            ValueError: if input values or configuration are invalid
+        """
         if dir_path is None:
             dir_path = self.dir_path
         for path in dir_path.iterdir():

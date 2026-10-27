@@ -10,30 +10,52 @@ from inspect import cleandoc
 
 from .pipe_object import PipeObject
 
+__all__ = ["Source"]
+
 
 class Source[T: PipeObject](ABC):
     """Abstract base class for pipeline sources."""
 
     def __iter__(self) -> Source:
-        """Iterator for objects."""
+        """Iterator for objects.
+
+        Returns:
+            iterator over source objects
+        """
         return self
 
     @abstractmethod
     def __next__(self) -> T:
-        """Return next object."""
+        """Return next object.
+
+        Returns:
+            next object yielded by this source
+        """
         raise NotImplementedError()
 
     def __repr__(self) -> str:
-        """Representation."""
+        """Representation.
+
+        Returns:
+            string representation of this object
+        """
         return f"{self.__class__.__name__}()"
 
     def __str__(self) -> str:
-        """String representation."""
+        """String representation.
+
+        Returns:
+            display string for this object
+        """
         return f"<{self.__class__.__name__}>"
 
     @classmethod
     def help_markdown(cls) -> str:
-        """Short description of this class in markdown, with links."""
+        """Short description of this class in markdown, with links.
+
+        Returns:
+            Markdown help describing this component
+        """
         if cls.__doc__:
             return re.split(r' *[.?!][\'")\]]* *', cleandoc(cls.__doc__))[0] + "."
         return ""

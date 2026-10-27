@@ -4,13 +4,14 @@
 
 from __future__ import annotations
 
-from logging import info
 from pathlib import Path
 
 from PIL import Image
 
 from pipescaler.common.validation import val_input_dir_path
 from pipescaler.image.core.pipelines import PipeImage
+
+__all__ = ["ImageSubstituter"]
 
 
 class ImageSubstituter:
@@ -41,16 +42,13 @@ class ImageSubstituter:
             pipe_image: Image to substitute
         Returns:
             Alternate image
+        Raises:
+            FileNotFoundError: if a required input path does not exist
         """
         if pipe_image.name in self.substitutes:
             image = Image.open(self.substitutes[pipe_image.name])
             if self.match_input_mode and image.mode != pipe_image.image.mode:
                 image = image.convert(pipe_image.image.mode)
-                image.save(self.substitutes[pipe_image.name])
-                info(
-                    f"{self}: {self.substitutes[pipe_image.name].name} updated to mode "
-                    f"{image.mode}"
-                )
             return PipeImage(image=image, parents=pipe_image)
         if self.required:
             raise FileNotFoundError()

@@ -2,6 +2,8 @@
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Tests for ResizeProcessor."""
 
+from __future__ import annotations
+
 import pytest
 from PIL import Image
 
@@ -16,7 +18,7 @@ from pipescaler.testing.fixture import parametrized_fixture
         {"scale": 2},
     ],
 )
-def processor(request) -> ResizeProcessor:
+def processor(request: pytest.FixtureRequest) -> ResizeProcessor:
     """Pytest fixture that provides a ResizeProcessor instance.
 
     Arguments:
@@ -57,3 +59,21 @@ def test(input_filename: str, processor: ResizeProcessor):
         input_img.size[0] * processor.scale,
         input_img.size[1] * processor.scale,
     )
+
+
+def test_rejects_zero_sized_output():
+    """Reject scales that cannot produce non-empty output dimensions."""
+    processor = ResizeProcessor(0.01)
+    with pytest.raises(ValueError, match="zero-sized output"):
+        processor(Image.new("L", (1, 1)))
+
+
+@pytest.mark.parametrize("scale", [0, float("nan"), float("inf"), -float("inf")])
+def test_rejects_invalid_scale(scale: float):
+    """Reject zero and non-finite scales before processing images.
+
+    Arguments:
+        scale: invalid resize scale
+    """
+    with pytest.raises(ValueError):
+        ResizeProcessor(scale)

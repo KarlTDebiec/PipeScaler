@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #  Copyright 2020-2026 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Updates README."""
@@ -23,6 +22,13 @@ from pipescaler.common import package_root
 from pipescaler.core.pipelines import Source, Terminus
 from pipescaler.core.pipelines.sorter import Sorter
 from pipescaler.image.core import ImageOperator
+
+__all__ = [
+    "get_github_link",
+    "get_module_regexes",
+    "get_stage_description",
+    "get_stage_descriptions",
+]
 
 
 def get_github_link(cls: type[ImageOperator]) -> str:
@@ -84,7 +90,7 @@ def get_stage_descriptions(module: ModuleType) -> str:
         Formatted descriptions of stages
     """
     section = ""
-    for stage in map(module.__dict__.get, module.__all__):
+    for stage in map(module.__dict__.get, getattr(module, "__all__", ())):
         if stage and issubclass(stage, (ImageOperator, Source, Sorter, Terminus)):
             section += get_stage_description(stage)
     return section

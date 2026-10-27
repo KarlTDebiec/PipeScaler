@@ -10,6 +10,8 @@ from pipescaler.core.pipelines.terminus import Terminus
 
 from .pipe_image import PipeImage
 
+__all__ = ["ImageTerminus"]
+
 
 class ImageTerminus(Terminus[PipeImage], ABC):
     """Abstract base class for image termini."""

@@ -4,9 +4,10 @@
 
 This module may import from: common
 
-Hierarchy within module:
-* runner / typing / utility
-* pipelines / cli
+Package hierarchy (modules may import from any above):
+* runner / sorting / utility
+* cli / typing
+* pipelines
 """
 
 from __future__ import annotations

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #  Copyright 2020-2026 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Command-line interface for HeightToNormalProcessor."""
@@ -10,6 +9,8 @@ from argparse import ArgumentParser
 from pipescaler.common.argument_parsing import float_arg, get_arg_groups_by_name
 from pipescaler.image.core.cli import ImageProcessorCli
 from pipescaler.image.operators.processors import HeightToNormalProcessor
+
+__all__ = ["HeightToNormalCli"]
 
 
 class HeightToNormalCli(ImageProcessorCli):
@@ -40,7 +41,11 @@ class HeightToNormalCli(ImageProcessorCli):
 
     @classmethod
     def processor(cls) -> type[HeightToNormalProcessor]:
-        """Type of processor wrapped by command-line interface."""
+        """Type of processor wrapped by command-line interface.
+
+        Returns:
+            image processor class invoked by this command
+        """
         return HeightToNormalProcessor
 
 

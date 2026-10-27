@@ -2,6 +2,8 @@
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Tests for HeightToNormalProcessor."""
 
+from __future__ import annotations
+
 import numpy as np
 import pytest
 from PIL import Image
@@ -16,7 +18,7 @@ from pipescaler.testing.fixture import parametrized_fixture
     cls=HeightToNormalProcessor,
     params=[{"sigma": None}, {"sigma": 1.0}],
 )
-def processor(request) -> HeightToNormalProcessor:
+def processor(request: pytest.FixtureRequest) -> HeightToNormalProcessor:
     """Pytest fixture that provides a HeightToNormalProcessor instance.
 
     Arguments:

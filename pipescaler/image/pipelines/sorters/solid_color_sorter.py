@@ -12,6 +12,8 @@ from pipescaler.common.validation import val_int
 from pipescaler.image.core.pipelines import ImageSorter, PipeImage
 from pipescaler.image.core.validation import validate_image
 
+__all__ = ["SolidColorSorter"]
+
 
 class SolidColorSorter(ImageSorter):
     """Sorts images based on whether their entire canvas is a solid color."""
@@ -57,7 +59,11 @@ class SolidColorSorter(ImageSorter):
         return outlet
 
     def __repr__(self) -> str:
-        """Representation."""
+        """Representation.
+
+        Returns:
+            string representation of this object
+        """
         return (
             f"{self.__class__.__name__}("
             f"mean_threshold={self.mean_threshold!r}, "

@@ -9,6 +9,8 @@ from logging import info
 from pipescaler.image.core.pipelines import ImageSorter, PipeImage
 from pipescaler.image.core.validation import validate_image
 
+__all__ = ["ModeSorter"]
+
 
 class ModeSorter(ImageSorter):
     """Sorts image based on mode.

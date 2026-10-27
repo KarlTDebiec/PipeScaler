@@ -11,6 +11,11 @@ from PIL import Image
 from .exceptions import UnsupportedImageModeError
 from .functions import remove_palette
 
+__all__ = [
+    "validate_image",
+    "validate_image_and_convert_mode",
+]
+
 
 def validate_image(
     image: Image.Image, valid_modes: str | Collection[str] | None = None
@@ -22,6 +27,8 @@ def validate_image(
         valid_modes: Valid modes
     Returns:
         Validated image
+    Raises:
+        UnsupportedImageModeError: if an image mode is unsupported
     """
     if image.mode == "P":
         image = remove_palette(image)

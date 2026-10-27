@@ -10,6 +10,8 @@ from pipescaler.common.validation import val_int
 from pipescaler.core.pipelines import Sorter
 from pipescaler.image.core.pipelines import PipeImage
 
+__all__ = ["SizeSorter"]
+
 
 class SizeSorter(Sorter):
     """Sorts image based on canvas size."""
@@ -42,7 +44,11 @@ class SizeSorter(Sorter):
         return outlet
 
     def __repr__(self) -> str:
-        """Representation."""
+        """Representation.
+
+        Returns:
+            string representation of this object
+        """
         return f"{self.__class__.__name__}(cutoff={self.cutoff!r})"
 
     @property

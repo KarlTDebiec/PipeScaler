@@ -9,4 +9,6 @@ from collections.abc import Callable
 from .pipe_video import PipeVideo
 from .video_segment import VideoSegment
 
+__all__ = ["VideoSegmentLike"]
+
 type VideoSegmentLike = VideoSegment | Callable[[PipeVideo], tuple[PipeVideo, ...]]

@@ -10,6 +10,8 @@ from PIL import Image
 
 from pipescaler.image.core.image_operator import ImageOperator
 
+__all__ = ["ImageMerger"]
+
 
 class ImageMerger(ImageOperator, ABC):
     """Merges two or more images into a single image."""
@@ -19,7 +21,7 @@ class ImageMerger(ImageOperator, ABC):
         """Merge images.
 
         Arguments:
-            input_images: Input images
+            *input_images: Input images
         Returns:
             Merged output image
         """

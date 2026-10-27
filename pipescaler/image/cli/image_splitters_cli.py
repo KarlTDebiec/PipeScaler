@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #  Copyright 2020-2026 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Command-line interface for PipeScaler ImageSplitters."""
@@ -12,6 +11,8 @@ from pipescaler.common import CommandLineInterface
 from pipescaler.image.core.cli import ImageSplitterCli
 
 from . import splitters
+
+__all__ = ["ImageSplittersCli"]
 
 
 class ImageSplittersCli(CommandLineInterface):
@@ -36,32 +37,54 @@ class ImageSplittersCli(CommandLineInterface):
 
     @classmethod
     def description(cls) -> str:
-        """Long description of this tool displayed below usage."""
+        """Long description of this tool displayed below usage.
+
+        Returns:
+            long description displayed in command help
+        """
         return "Splits images."
 
     @classmethod
     def help(cls) -> str:
-        """Short description of this tool used when it is a subparser."""
+        """Short description of this tool used when it is a subparser.
+
+        Returns:
+            short description displayed beside the subcommand
+        """
         return "split image"
 
     @classmethod
     def _main(cls, **kwargs: Any):
-        """Execute with provided keyword arguments."""
+        """Execute with provided keyword arguments.
+
+        Arguments:
+            **kwargs: additional options forwarded to the selected implementation
+        """
         splitter_name = kwargs.pop("splitter")
         splitter_cli_cls = cls.splitters()[splitter_name]
         splitter_cli_cls._main(**kwargs)
 
     @classmethod
     def name(cls) -> str:
-        """Name of this tool used to define it when it is a subparser."""
+        """Name of this tool used to define it when it is a subparser.
+
+        Returns:
+            command name used by the argument parser
+        """
         return "split"
 
     @classmethod
     def splitters(cls) -> dict[str, type[ImageSplitterCli]]:
-        """Names and types of splitters wrapped by command-line interface."""
+        """Names and types of splitters wrapped by command-line interface.
+
+        Returns:
+            mapping of splitter names to their CLI classes
+        """
         return {
             splitter.name(): splitter
-            for splitter in map(splitters.__dict__.get, splitters.__all__)
+            for splitter in map(
+                splitters.__dict__.get, getattr(splitters, "__all__", ())
+            )
             if isinstance(splitter, type) and issubclass(splitter, ImageSplitterCli)
         }
 

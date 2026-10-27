@@ -9,6 +9,8 @@ from typing import no_type_check
 import numpy as np
 from numba import njit
 
+__all__ = ["get_perceptually_weighted_distance"]
+
 
 @no_type_check
 @njit(nogil=True, cache=True, fastmath=True)

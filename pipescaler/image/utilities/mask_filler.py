@@ -12,12 +12,14 @@ from pipescaler.image.core.enums import MaskFillMode
 
 from .palette_matcher import PaletteMatcher
 
+__all__ = ["MaskFiller"]
+
 
 class MaskFiller(Utility):
     """Erases masked pixels within an image."""
 
     @classmethod
-    def run(
+    def run(  # ty: ignore[invalid-method-override]
         cls, img: Image.Image, mask: Image.Image, mask_fill_mode: MaskFillMode
     ) -> Image.Image:
         """Erases masked pixels within an image.
@@ -26,7 +28,7 @@ class MaskFiller(Utility):
         pixels, iteratively.
 
         Arguments:
-            img: Image; mode must be RGB
+            img: Image; mode must be L or RGB
             mask: Mask; mode must be 1; white (True) pixels are masked
             mask_fill_mode: Mask fill mode
         Returns:
@@ -97,16 +99,16 @@ class MaskFiller(Utility):
             opaque_neighbor_counts[pixel] = count
 
         count = max(opaque_neighbor_counts.values())
+        if count == 0:
+            return image_arr, set(), opaque_neighbor_counts, set()
         pixels_to_fill_next_iter = set()
         pixels_to_recount_next_iter = set()
         for pixel in pixels_to_fill:
             if opaque_neighbor_counts[pixel] == count:
-                color = np.zeros(3, dtype=np.uint32)
+                color = np.zeros_like(image_arr[pixel[0], pixel[1]], dtype=np.uint32)
                 for x_p in range(max(0, pixel[0] - 1), min(width, pixel[0] + 2)):
                     for y_p in range(max(0, pixel[1] - 1), min(height, pixel[1] + 2)):
                         pixel_p = (x_p, y_p)
-                        if pixel_p == pixel:
-                            continue
                         if pixel_p not in pixels_to_fill:
                             color += image_arr[x_p, y_p]
                         elif (

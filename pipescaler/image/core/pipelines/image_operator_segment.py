@@ -6,16 +6,19 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from pipescaler.image.core import ImageOperator
+from pipescaler.image.core.image_operator import ImageOperator
 
 from .image_segment import ImageSegment
 from .pipe_image import PipeImage
+
+__all__ = ["ImageOperatorSegment"]
 
 
 class ImageOperatorSegment[T: ImageOperator](ImageSegment, ABC):
     """Abstract base class for segments that apply ImageOperators."""
 
     operator: T
+    """Operator to apply."""
 
     def __init__(self, operator: T):
         """Initialize.
@@ -31,12 +34,16 @@ class ImageOperatorSegment[T: ImageOperator](ImageSegment, ABC):
         """Process an image.
 
         Arguments:
-            input_objs: Input image, within a tuple for consistency with other Segments
+            *input_objs: Input image, within a tuple for consistency with other Segments
         Returns:
             Output image, within a tuple for consistency with other Segments
         """
         raise NotImplementedError()
 
     def __repr__(self) -> str:
-        """Representation."""
+        """Representation.
+
+        Returns:
+            string representation of this object
+        """
         return f"{self.__class__.__name__}(operator={self.operator!r})"

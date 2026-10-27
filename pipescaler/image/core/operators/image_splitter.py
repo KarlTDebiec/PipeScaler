@@ -10,6 +10,8 @@ from PIL import Image
 
 from pipescaler.image.core.image_operator import ImageOperator
 
+__all__ = ["ImageSplitter"]
+
 
 class ImageSplitter(ImageOperator, ABC):
     """Splits one image into two or more images."""

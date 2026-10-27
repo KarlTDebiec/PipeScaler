@@ -2,6 +2,8 @@
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Tests for SharpenProcessor."""
 
+from __future__ import annotations
+
 import pytest
 from PIL import Image
 
@@ -20,7 +22,7 @@ from pipescaler.testing.fixture import parametrized_fixture
         {},
     ],
 )
-def processor(request) -> SharpenProcessor:
+def processor(request: pytest.FixtureRequest) -> SharpenProcessor:
     """Pytest fixture that provides a SharpenProcessor instance.
 
     Arguments:

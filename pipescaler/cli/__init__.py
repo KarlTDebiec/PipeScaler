@@ -3,12 +3,13 @@
 """PipeScaler general command-line interfaces package.
 
 This module may import from: common, core, pipelines, image, video
+
+Package hierarchy (modules may import from any above):
+* pipescaler_cli
 """
 
 from __future__ import annotations
 
 from .pipescaler_cli import PipeScalerCli
 
-__all__ = [
-    "PipeScalerCli",
-]
+__all__ = ["PipeScalerCli"]

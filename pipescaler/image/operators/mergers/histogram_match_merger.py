@@ -13,6 +13,8 @@ from pipescaler.image.core.operators import ImageMerger
 from pipescaler.image.core.typing import ImageMode
 from pipescaler.image.core.validation import validate_image
 
+__all__ = ["HistogramMatchMerger"]
+
 
 class HistogramMatchMerger(ImageMerger):
     """Matches an image's color histogram to that of a reference image."""
@@ -21,9 +23,11 @@ class HistogramMatchMerger(ImageMerger):
         """Merge images.
 
         Arguments:
-            input_images: Input images
+            *input_images: Input images
         Returns:
             Merged output image
+        Raises:
+            UnsupportedImageModeError: if an image mode is unsupported
         """
         ref_img = validate_image(input_images[0], self.inputs()["ref"])
         fit_img = validate_image(input_images[1], self.inputs()["fit"])
@@ -38,7 +42,7 @@ class HistogramMatchMerger(ImageMerger):
         if ref_img.mode == "L":
             output_arr = match_histograms(fit_arr, ref_arr)
         else:
-            output_arr = match_histograms(fit_arr, ref_arr, channel_axis=0)
+            output_arr = match_histograms(fit_arr, ref_arr, channel_axis=-1)
         output_arr = np.clip(output_arr, 0, 255).astype(np.uint8)
         output_img = Image.fromarray(output_arr)
 
@@ -46,7 +50,11 @@ class HistogramMatchMerger(ImageMerger):
 
     @classmethod
     def inputs(cls) -> dict[str, tuple[ImageMode, ...]]:
-        """Inputs to this operator."""
+        """Inputs to this operator.
+
+        Returns:
+            mapping of input names to their supported image modes
+        """
         return {
             "ref": ("L", "LA", "RGB", "RGBA"),
             "fit": ("L", "LA", "RGB", "RGBA"),
@@ -54,7 +62,11 @@ class HistogramMatchMerger(ImageMerger):
 
     @classmethod
     def outputs(cls) -> dict[str, tuple[ImageMode, ...]]:
-        """Outputs of this operator."""
+        """Outputs of this operator.
+
+        Returns:
+            mapping of output names to their supported image modes
+        """
         return {
             "output": ("L", "LA", "RGB", "RGBA"),
         }

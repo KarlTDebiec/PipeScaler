@@ -10,6 +10,8 @@ from pipescaler.core.pipelines.source import Source
 
 from .pipe_video import PipeVideo
 
+__all__ = ["VideoSource"]
+
 
 class VideoSource(Source[PipeVideo], ABC):
     """Abstract base class for video sources."""

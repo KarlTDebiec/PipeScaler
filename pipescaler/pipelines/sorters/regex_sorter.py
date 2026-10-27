@@ -10,6 +10,8 @@ from logging import info
 from pipescaler.core.pipelines import PipeObject
 from pipescaler.core.pipelines.sorter import Sorter
 
+__all__ = ["RegexSorter"]
+
 
 class RegexSorter(Sorter[PipeObject]):
     """Sorts image based on name using a regular expression."""
@@ -38,7 +40,11 @@ class RegexSorter(Sorter[PipeObject]):
         return outlet
 
     def __repr__(self) -> str:
-        """Representation."""
+        """Representation.
+
+        Returns:
+            string representation of this object
+        """
         return f"{self.__class__.__name__}(regex={self.regex.pattern!r})"
 
     @property

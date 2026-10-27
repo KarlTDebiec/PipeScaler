@@ -9,4 +9,6 @@ from collections.abc import Callable
 from .image_segment import ImageSegment
 from .pipe_image import PipeImage
 
+__all__ = ["ImageSegmentLike"]
+
 type ImageSegmentLike = ImageSegment | Callable[[PipeImage], tuple[PipeImage, ...]]

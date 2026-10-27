@@ -4,8 +4,9 @@
 
 from __future__ import annotations
 
-import pytest
-from common.validation import val_str  # ty:ignore[unresolved-import]
+from pytest import raises
+
+from pipescaler.common.validation import val_str
 
 
 def test_val_str_valid():
@@ -23,7 +24,10 @@ def test_val_str_case_insensitive():
 
 def test_val_str_invalid_option():
     """Test validation with invalid option."""
-    with pytest.raises(ValueError, match="is not one of options"):
+    with raises(
+        ValueError,
+        match="'invalid' is not one of the supported values: option1, option2",
+    ):
         val_str("invalid", ["option1", "option2"])
 
 
@@ -38,13 +42,15 @@ def test_val_str_invalid_type():
     Note: None is cast to string "None", which becomes "none" when lowercased.
     This doesn't match any of the provided options, so ValueError is raised.
     """
-    with pytest.raises(ValueError, match="is not one of options"):
+    with raises(
+        ValueError, match="'none' is not one of the supported values: option1, option2"
+    ):
         val_str(None, ["option1", "option2"])
 
 
 def test_val_str_empty_options():
     """Test validation with empty options list."""
-    with pytest.raises(ValueError, match="is not one of options"):
+    with raises(ValueError, match="'any' is not one of the supported values: $"):
         val_str("any", [])
 
 

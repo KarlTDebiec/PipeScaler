@@ -9,6 +9,8 @@ from logging import info
 from pipescaler.image.core.operators import ImageMerger
 from pipescaler.image.core.pipelines import ImageOperatorSegment, PipeImage
 
+__all__ = ["ImageMergerSegment"]
+
 
 class ImageMergerSegment(ImageOperatorSegment[ImageMerger]):
     """Segment that applies an ImageMerger."""
@@ -17,9 +19,11 @@ class ImageMergerSegment(ImageOperatorSegment[ImageMerger]):
         """Merge images.
 
         Arguments:
-            input_objs: Input images
+            *input_objs: Input images
         Returns:
             Output image, within a tuple for consistency with other Segments
+        Raises:
+            ValueError: if input values or configuration are invalid
         """
         if len(input_objs) != len(self.operator.inputs()):
             raise ValueError(

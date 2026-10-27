@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #  Copyright 2020-2026 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Command-line interface for ThresholdProcessor."""
@@ -10,6 +9,8 @@ from argparse import ArgumentParser
 from pipescaler.common.argument_parsing import get_arg_groups_by_name, int_arg
 from pipescaler.image.core.cli import ImageProcessorCli
 from pipescaler.image.operators.processors import ThresholdProcessor
+
+__all__ = ["ThresholdCli"]
 
 
 class ThresholdCli(ImageProcessorCli):
@@ -33,9 +34,9 @@ class ThresholdCli(ImageProcessorCli):
         arg_groups["additional arguments"].add_argument(
             "--threshold",
             default=128,
-            type=int_arg(min_value=0, max_value=255),
-            help="threshold differentiating black and white (0-255, default: "
-            "%(default)s)",
+            type=int_arg(min_value=1, max_value=244),
+            help="threshold differentiating black and white (1-244, "
+            "default: %(default)s)",
         )
         arg_groups["additional arguments"].add_argument(
             "--denoise",
@@ -46,7 +47,11 @@ class ThresholdCli(ImageProcessorCli):
 
     @classmethod
     def processor(cls) -> type[ThresholdProcessor]:
-        """Type of processor wrapped by command-line interface."""
+        """Type of processor wrapped by command-line interface.
+
+        Returns:
+            image processor class invoked by this command
+        """
         return ThresholdProcessor
 
 

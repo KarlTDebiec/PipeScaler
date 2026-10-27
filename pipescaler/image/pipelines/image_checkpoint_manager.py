@@ -15,6 +15,8 @@ from .segments import (
     PostCheckpointedImageRunnerSegment,
 )
 
+__all__ = ["ImageCheckpointManager"]
+
 
 class ImageCheckpointManager(CheckpointManager):
     """Manages checkpoints."""

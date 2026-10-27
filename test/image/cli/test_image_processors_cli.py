@@ -9,10 +9,12 @@ from inspect import getfile
 from io import StringIO
 from pathlib import Path
 
+import numpy as np
 import pytest
+from PIL import Image
 
 from pipescaler.common import CommandLineInterface
-from pipescaler.common.file import get_temp_file_path
+from pipescaler.common.file import get_temp_directory_path, get_temp_file_path
 from pipescaler.common.testing import run_cli_with_args
 from pipescaler.image.cli import ImageProcessorsCli
 from pipescaler.image.cli.processors import (
@@ -23,6 +25,7 @@ from pipescaler.image.cli.processors import (
     ResizeCli,
     SharpenCli,
     SolidColorCli,
+    SpandrelCli,
     ThresholdCli,
     XbrzCli,
 )
@@ -67,6 +70,7 @@ def test(cli: type[CommandLineInterface], args: str, input_filename: str):
         (ResizeCli,),
         (SharpenCli,),
         (SolidColorCli,),
+        (SpandrelCli,),
         (ThresholdCli,),
         (XbrzCli,),
         (ImageProcessorsCli,),
@@ -77,6 +81,7 @@ def test(cli: type[CommandLineInterface], args: str, input_filename: str):
         (ImageProcessorsCli, ResizeCli),
         (ImageProcessorsCli, SharpenCli),
         (ImageProcessorsCli, SolidColorCli),
+        (ImageProcessorsCli, SpandrelCli),
         (ImageProcessorsCli, ThresholdCli),
         (ImageProcessorsCli, XbrzCli),
     ],
@@ -113,6 +118,7 @@ def test_help(commands: tuple[type[CommandLineInterface], ...]):
         (ResizeCli,),
         (SharpenCli,),
         (SolidColorCli,),
+        (SpandrelCli,),
         (ThresholdCli,),
         (XbrzCli,),
         (ImageProcessorsCli,),
@@ -123,6 +129,7 @@ def test_help(commands: tuple[type[CommandLineInterface], ...]):
         (ImageProcessorsCli, ResizeCli),
         (ImageProcessorsCli, SharpenCli),
         (ImageProcessorsCli, SolidColorCli),
+        (ImageProcessorsCli, SpandrelCli),
         (ImageProcessorsCli, ThresholdCli),
         (ImageProcessorsCli, XbrzCli),
     ],
@@ -147,3 +154,142 @@ def test_usage(commands: tuple[type[CommandLineInterface], ...]):
         assert stderr.getvalue().startswith(
             f"usage: {Path(getfile(commands[0])).name} {subcommands}"
         )
+
+
+def test_spandrel_cli_registration_and_parsing():
+    """Test that SpandrelCli is registered and parses its model path."""
+    assert ImageProcessorsCli.processors()["spandrel"] is SpandrelCli
+
+    input_path = get_test_input_path("RGB")
+    with get_temp_file_path(".pth") as model_input_path:
+        with get_temp_directory_path() as output_dir_path:
+            model_input_path.touch()
+            output_path = output_dir_path / "output.png"
+
+            parsed_args = ImageProcessorsCli.argparser().parse_args(
+                [
+                    "spandrel",
+                    "--model-input-path",
+                    str(model_input_path),
+                    str(input_path),
+                    str(output_path),
+                ]
+            )
+
+    assert parsed_args.processor == "spandrel"
+    assert parsed_args.model_input_path == model_input_path.resolve()
+    assert parsed_args.input_file == input_path
+    assert parsed_args.output_file == output_path.resolve()
+
+
+@pytest.mark.parametrize(
+    ("cli", "args", "expected_size"),
+    [
+        (CropCli, "--pixels 0 0 1 1", (2, 2)),
+        (ExpandCli, "--pixels 0 1 0 0", (3, 4)),
+    ],
+)
+def test_zero_pixel_sides_execute(
+    cli: type[CommandLineInterface],
+    args: str,
+    expected_size: tuple[int, int],
+    tmp_path: Path,
+):
+    """Run crop and expand with a zero-valued side and inspect output pixels.
+
+    Arguments:
+        cli: command-line interface to execute
+        args: command-line operation arguments
+        expected_size: expected output image dimensions
+        tmp_path: temporary directory
+    """
+    input_path = tmp_path / "input.png"
+    output_path = tmp_path / "output.png"
+    Image.new("L", (3, 3), 128).save(input_path)
+
+    run_cli_with_args(cli, f"{args} {input_path} {output_path}")
+
+    with Image.open(output_path) as output_image:
+        assert output_image.size == expected_size
+        assert (
+            np.array(output_image).tolist()
+            == np.full(
+                (expected_size[1], expected_size[0]), 128, dtype=np.uint8
+            ).tolist()
+        )
+
+
+@pytest.mark.parametrize(
+    ("threshold", "expected"),
+    [(1, [0, 0, 255, 255, 255, 255]), (244, [0, 0, 0, 0, 255, 255])],
+)
+def test_threshold_cli_accepts_processor_boundaries(
+    threshold: int, expected: list[int], tmp_path: Path
+):
+    """Execute threshold CLI at the existing processor bounds.
+
+    Arguments:
+        threshold: grayscale cutoff value
+        expected: expected output pixels
+        tmp_path: temporary directory
+    """
+    input_path = tmp_path / "input.png"
+    output_path = tmp_path / "output.png"
+    Image.fromarray(np.array([[0, 1, 2, 244, 245, 255]], dtype=np.uint8)).save(
+        input_path
+    )
+
+    run_cli_with_args(
+        ThresholdCli,
+        f"--threshold {threshold} {input_path} {output_path}",
+    )
+
+    with Image.open(output_path) as output_image:
+        assert np.array(output_image).flatten().tolist() == expected
+
+
+@pytest.mark.parametrize("threshold", [-1, 0, 245, 255, 256])
+def test_threshold_cli_rejects_out_of_range_values(
+    threshold: int, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+):
+    """Reject unsupported thresholds before executing the processor.
+
+    Arguments:
+        threshold: unsupported threshold
+        tmp_path: temporary directory for output
+        capsys: captured command output
+    """
+    output_path = tmp_path / "output.png"
+    with pytest.raises(SystemExit) as exc:
+        ThresholdCli.main(
+            [
+                "--threshold",
+                str(threshold),
+                str(get_test_input_path("L")),
+                str(output_path),
+            ]
+        )
+    assert exc.value.code == 2
+    assert "argument --threshold:" in capsys.readouterr().err
+    assert not output_path.exists()
+
+
+@pytest.mark.parametrize("scale", ["0", "-1", "nan", "inf", "-inf"])
+def test_resize_cli_rejects_invalid_scales(
+    scale: str, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+):
+    """Reject invalid scales with an argument error before dispatch.
+
+    Arguments:
+        scale: invalid scale argument
+        tmp_path: temporary directory for output
+        capsys: captured command output
+    """
+    output_path = tmp_path / "output.png"
+    with pytest.raises(SystemExit) as exc:
+        ResizeCli.main(
+            ["--scale", scale, str(get_test_input_path("L")), str(output_path)]
+        )
+    assert exc.value.code == 2
+    assert "argument --scale:" in capsys.readouterr().err
+    assert not output_path.exists()

@@ -10,6 +10,8 @@ from pipescaler.core.pipelines.segment import Segment
 
 from .pipe_image import PipeImage
 
+__all__ = ["ImageSegment"]
+
 
 class ImageSegment(Segment[PipeImage], ABC):
     """Abstract base class for segments within image pipelines."""

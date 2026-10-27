@@ -19,9 +19,15 @@ from pipescaler.image.utilities.local_palette_shader_matcher import (
     LocalPaletteShaderError,
 )
 
+__all__ = ["LocalPaletteMatchMerger"]
+
 
 class LocalPaletteMatchMerger(ImageMerger):
-    """Matches an image's palette to nearby colors from a reference image."""
+    """Matches an image's palette to nearby colors from a reference image.
+
+    The target must be a uniform integer upscale of the reference, with a scale
+    of at least 2 on both axes. Neighborhood ranges use reference pixels.
+    """
 
     def __init__(self, local_range: int = 1, **kwargs: Any):
         """Validate configuration and initialize.
@@ -38,9 +44,12 @@ class LocalPaletteMatchMerger(ImageMerger):
         """Merge images.
 
         Arguments:
-            input_images: Input images
+            *input_images: input images
         Returns:
-            Merged output image
+            merged output image
+        Raises:
+            UnsupportedImageModeError: if input modes differ or are unsupported
+            ValueError: if image sizes do not use a uniform integer upscale
         """
         ref_image = validate_image(input_images[0], self.inputs()["ref"])
         fit_image = validate_image(input_images[1], self.inputs()["fit"])
@@ -64,12 +73,20 @@ class LocalPaletteMatchMerger(ImageMerger):
             return LocalPaletteMatcher.run(ref_image, fit_image, self.local_range)
 
     def __repr__(self) -> str:
-        """Representation."""
+        """Representation.
+
+        Returns:
+            reconstructible string representation
+        """
         return f"{self.__class__.__name__}(local_range={self.local_range!r})"
 
     @classmethod
     def inputs(cls) -> dict[str, tuple[ImageMode, ...]]:
-        """Inputs to this operator."""
+        """Inputs to this operator.
+
+        Returns:
+            supported input modes
+        """
         return {
             "ref": ("L", "RGB"),
             "fit": ("L", "RGB"),
@@ -77,7 +94,11 @@ class LocalPaletteMatchMerger(ImageMerger):
 
     @classmethod
     def outputs(cls) -> dict[str, tuple[ImageMode, ...]]:
-        """Outputs of this operator."""
+        """Outputs of this operator.
+
+        Returns:
+            supported output modes
+        """
         return {
             "output": ("L", "RGB"),
         }

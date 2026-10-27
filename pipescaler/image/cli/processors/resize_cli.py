@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #  Copyright 2020-2026 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Command-line interface for ResizeProcessor."""
@@ -14,6 +13,8 @@ from pipescaler.common.argument_parsing import (
 )
 from pipescaler.image.core.cli import ImageProcessorCli
 from pipescaler.image.operators.processors import ResizeProcessor
+
+__all__ = ["ResizeCli"]
 
 
 class ResizeCli(ImageProcessorCli):
@@ -37,8 +38,9 @@ class ResizeCli(ImageProcessorCli):
         arg_groups["required arguments"].add_argument(
             "--scale",
             required=True,
-            type=float_arg(min_value=0),
-            help="scaling factor",
+            type=float_arg(min_value=0, min_exclusive=True, finite=True),
+            help="finite positive scaling factor; output dimensions must round "
+            "to at least 1 pixel",
         )
 
         arg_groups["additional arguments"].add_argument(
@@ -50,7 +52,11 @@ class ResizeCli(ImageProcessorCli):
 
     @classmethod
     def processor(cls) -> type[ResizeProcessor]:
-        """Type of processor wrapped by command-line interface."""
+        """Type of processor wrapped by command-line interface.
+
+        Returns:
+            image processor class invoked by this command
+        """
         return ResizeProcessor
 
 

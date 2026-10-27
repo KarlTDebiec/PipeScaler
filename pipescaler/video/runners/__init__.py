@@ -4,16 +4,12 @@
 
 This module may import from: common, core, video.core
 
-Hierarchy within module:
-* apngasm_runner / topaz_video_ai_runner
+Package hierarchy (modules may import from any above):
+* apngasm_runner
 """
 
 from __future__ import annotations
 
 from .apngasm_runner import ApngasmRunner
-from .topaz_video_ai_runner import TopazVideoAiRunner
 
-__all__ = [
-    "ApngasmRunner",
-    "TopazVideoAiRunner",
-]
+__all__ = ["ApngasmRunner"]

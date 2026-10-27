@@ -15,6 +15,8 @@ from PIL import Image
 from pipescaler.core.pipelines import DirectoryTerminus
 from pipescaler.image.core.pipelines import ImageTerminus, PipeImage
 
+__all__ = ["ImageDirectoryTerminus"]
+
 
 class ImageDirectoryTerminus(ImageTerminus, DirectoryTerminus[PipeImage]):
     """Copies images to an output directory."""
@@ -46,7 +48,7 @@ class ImageDirectoryTerminus(ImageTerminus, DirectoryTerminus[PipeImage]):
                 input_obj.image.save(output_path)
 
         suffix = input_obj.path.suffix if input_obj.path else ".png"
-        output_path = (self.dir_path / input_obj.location_name).with_suffix(suffix)
+        output_path = self.dir_path / f"{input_obj.location_name}{suffix}"
         self.observed_files.add(str(output_path.relative_to(self.dir_path)))
         if output_path.exists():
             if (

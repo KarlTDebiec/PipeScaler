@@ -12,6 +12,8 @@ from pipescaler.common.validation import val_int
 from pipescaler.image.core.pipelines import ImageSorter, PipeImage
 from pipescaler.image.core.validation import validate_image_and_convert_mode
 
+__all__ = ["AlphaSorter"]
+
 
 class AlphaSorter(ImageSorter):
     """Sorts image based on presence and use of alpha channel."""
@@ -49,7 +51,11 @@ class AlphaSorter(ImageSorter):
         return outlet
 
     def __repr__(self) -> str:
-        """Representation."""
+        """Representation.
+
+        Returns:
+            string representation of this object
+        """
         return f"{self.__class__.__name__}(threshold={self.threshold!r})"
 
     @property

@@ -15,6 +15,8 @@ from pipescaler.common.validation import val_output_path
 from pipescaler.core.pipelines import PipeObject
 from pipescaler.image.core.functions import remove_palette
 
+__all__ = ["PipeImage"]
+
 
 class PipeImage(PipeObject):
     """Image within a pipeline."""
@@ -40,7 +42,9 @@ class PipeImage(PipeObject):
               that is not available will use filename of path excluding extension; one
               of these must be available
             parents: Parent image(s) from which this image is descended
-            kwargs: Additional keyword arguments
+            **kwargs: Additional keyword arguments
+        Raises:
+            ValueError: if input values or configuration are invalid
         """
         if image is None and path is None:
             raise ValueError(
@@ -63,7 +67,11 @@ class PipeImage(PipeObject):
 
     @property
     def image(self) -> Image.Image:
-        """Image; loaded from path if not already available."""
+        """Image; loaded from path if not already available.
+
+        Raises:
+            ValueError: if input values or configuration are invalid
+        """
         if self._image is None:
             if self.path is None:
                 raise ValueError(
@@ -79,14 +87,19 @@ class PipeImage(PipeObject):
 
     @image.setter
     def image(self, value: Image.Image):
+        """Set image data.
+
+        Arguments:
+            value: new value to assign
+        """
         self._image = value
 
     def save(self, path: Path | str):
-        """Save image to file and set path.
+        """Save image to file, replacing an existing file, and set path.
 
         Arguments:
-            path: Path to which to save image
+            path: path to which to save image
         """
-        path = val_output_path(path)
+        path = val_output_path(path, exist_ok=True)
         self.image.save(path)
         self.path = path

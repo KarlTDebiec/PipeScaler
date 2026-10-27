@@ -9,8 +9,10 @@ from typing import Any
 
 from pytest import fixture
 
+__all__ = ["parametrized_fixture"]
 
-def parametrized_fixture(cls: type, params: list[dict[str, Any]]):
+
+def parametrized_fixture(cls: type, params: list[dict[str, Any]]) -> partial:
     """Decorator for parametrized test fixtures which provides clearer test output.
 
     Arguments:

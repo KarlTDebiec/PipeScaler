@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #  Copyright 2020-2026 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Abstract base class for ImageProcessor command-line interfaces."""
@@ -16,6 +15,8 @@ from PIL import Image
 from pipescaler.common import CommandLineInterface
 from pipescaler.common.argument_parsing import input_file_arg, output_file_arg
 from pipescaler.image.core.operators import ImageProcessor
+
+__all__ = ["ImageProcessorCli"]
 
 
 class ImageProcessorCli(CommandLineInterface, ABC):
@@ -43,12 +44,20 @@ class ImageProcessorCli(CommandLineInterface, ABC):
 
     @classmethod
     def description(cls) -> str:
-        """Long description of this tool displayed below usage."""
+        """Long description of this tool displayed below usage.
+
+        Returns:
+            long description displayed in command help
+        """
         return cleandoc(str(cls.processor().__doc__)) if cls.processor().__doc__ else ""
 
     @classmethod
     def _main(cls, **kwargs: Any):
-        """Execute with provided keyword arguments."""
+        """Execute with provided keyword arguments.
+
+        Arguments:
+            **kwargs: additional options forwarded to the selected implementation
+        """
         input_path = kwargs.pop("input_file")
         output_path = kwargs.pop("output_file")
         processor_cls = cls.processor()
@@ -60,11 +69,19 @@ class ImageProcessorCli(CommandLineInterface, ABC):
 
     @classmethod
     def name(cls) -> str:
-        """Name of this tool used to define it when it is a subparser."""
+        """Name of this tool used to define it when it is a subparser.
+
+        Returns:
+            command name used by the argument parser
+        """
         return cls.__name__.removesuffix("Cli").lower()
 
     @classmethod
     @abstractmethod
     def processor(cls) -> type[ImageProcessor]:
-        """Type of processor wrapped by command-line interface."""
+        """Type of processor wrapped by command-line interface.
+
+        Returns:
+            image processor class invoked by this command
+        """
         raise NotImplementedError()

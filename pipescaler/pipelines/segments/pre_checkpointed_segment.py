@@ -8,6 +8,8 @@ from logging import info
 
 from pipescaler.core.pipelines import CheckpointedSegment, PipeObject
 
+__all__ = ["PreCheckpointedSegment"]
+
 
 class PreCheckpointedSegment(CheckpointedSegment):
     """Segment with pre-execution checkpoints."""
@@ -16,12 +18,14 @@ class PreCheckpointedSegment(CheckpointedSegment):
         """Checkpoint inputs and return outputs of wrapped Segment.
 
         Inputs' paths are set to checkpoint paths before passing on to wrapped
-        Segment.
+        Segment. Each input is paired with the checkpoint name at the same position.
 
         Arguments:
-            input_objs: Input objects, saved to checkpoints if not already present
+            *input_objs: input objects, saved to checkpoints if not already present
         Returns:
-            Output objects, within a tuple even if only one
+            output objects, within a tuple even if only one
+        Raises:
+            ValueError: if input values or configuration are invalid
         """
         if len(input_objs) != len(self.cpts):
             raise ValueError(
@@ -29,18 +33,31 @@ class PreCheckpointedSegment(CheckpointedSegment):
                 f"but received {len(input_objs)}."
             )
 
-        cpt_paths = [
-            self.cp_manager.dir_path / i.location_name / c
-            for i in input_objs
-            for c in self.cpts
-        ]
-        for i, c, p in zip(input_objs, self.cpts, cpt_paths):
-            if p.exists():
-                i.path = p
+        checkpoint_pairs = tuple(
+            (
+                input_obj,
+                self.cp_manager.dir_path / input_obj.location_name / cpt,
+                cpt,
+            )
+            for input_obj, cpt in zip(input_objs, self.cpts)
+        )
+        checkpoints_current = tuple(
+            cpt_path.exists()
+            and self.cp_manager.checkpoints_current((input_obj,), (cpt_path,))
+            for input_obj, cpt_path, _ in checkpoint_pairs
+        )
+
+        for (input_obj, cpt_path, cpt), is_current in zip(
+            checkpoint_pairs, checkpoints_current
+        ):
+            if cpt_path.exists() and is_current:
+                input_obj.path = cpt_path
             else:
-                i.save(p)
-                info(f"{self}: '{i.location_name}' checkpoint '{p}' saved")
-            self.cp_manager.observe(i.location_name, c)
+                input_obj.save(cpt_path)
+                info(
+                    f"{self}: '{input_obj.location_name}' checkpoint '{cpt_path}' saved"
+                )
+            self.cp_manager.observe(input_obj.location_name, cpt)
 
         if not hasattr(self.segment, "__call__"):
             raise ValueError(

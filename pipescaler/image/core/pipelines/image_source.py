@@ -10,6 +10,8 @@ from pipescaler.core.pipelines.source import Source
 
 from .pipe_image import PipeImage
 
+__all__ = ["ImageSource"]
+
 
 class ImageSource(Source[PipeImage], ABC):
     """Abstract base class for image sources."""

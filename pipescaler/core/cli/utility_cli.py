@@ -11,18 +11,28 @@ from typing import Any
 from pipescaler.common import CommandLineInterface
 from pipescaler.core.utility import Utility
 
+__all__ = ["UtilityCli"]
+
 
 class UtilityCli(CommandLineInterface, ABC):
     """Abstract base class for Utility command-line interfaces."""
 
     @classmethod
     def description(cls) -> str:
-        """Long description of this tool displayed below usage."""
+        """Long description of this tool displayed below usage.
+
+        Returns:
+            long description displayed in command help
+        """
         return cleandoc(str(cls.utility().__doc__)) if cls.utility().__doc__ else ""
 
     @classmethod
     def name(cls) -> str:
-        """Name of this tool used to define it when it is a subparser."""
+        """Name of this tool used to define it when it is a subparser.
+
+        Returns:
+            command name used by the argument parser
+        """
         return cls.__name__.removesuffix("Cli").lower()
 
     @classmethod
@@ -41,5 +51,9 @@ class UtilityCli(CommandLineInterface, ABC):
     @classmethod
     @abstractmethod
     def utility(cls) -> type[Utility]:
-        """Type of utility wrapped by command-line interface."""
+        """Type of utility wrapped by command-line interface.
+
+        Returns:
+            utility class invoked by this command
+        """
         raise NotImplementedError()

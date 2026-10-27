@@ -4,9 +4,8 @@
 
 This module may import from: common, core, pipelines
 
-Hierarchy within module:
-* core
-* runners
+Package hierarchy (modules may import from any above):
+* core / runners
 * pipelines
 """
 

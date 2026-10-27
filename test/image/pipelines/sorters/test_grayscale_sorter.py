@@ -2,7 +2,10 @@
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Tests for GrayscaleSorter."""
 
+from __future__ import annotations
+
 import pytest
+from PIL import Image
 
 from pipescaler.image.core.pipelines import PipeImage
 from pipescaler.image.pipelines.sorters import GrayscaleSorter
@@ -16,7 +19,7 @@ from pipescaler.testing.fixture import parametrized_fixture
         {"mean_threshold": 1, "max_threshold": 10},
     ],
 )
-def sorter(request) -> GrayscaleSorter:
+def sorter(request: pytest.FixtureRequest) -> GrayscaleSorter:
     """Pytest fixture that provides a GrayscaleSorter instance.
 
     Arguments:
@@ -51,3 +54,16 @@ def test(input_filename: str, outlet: str, sorter: GrayscaleSorter):
     img = PipeImage(path=get_test_input_path(input_filename))
 
     assert sorter(img) == outlet
+
+
+@pytest.mark.parametrize("color", [(100, 101, 100), (101, 100, 101)])
+def test_small_channel_differences_route_to_drop_rgb(color: tuple[int, int, int]):
+    """Test small RGB-to-grayscale differences in either signed direction.
+
+    Arguments:
+        color: RGB color with channel differences of one
+    """
+    sorter = GrayscaleSorter(mean_threshold=2, max_threshold=2)
+    image = PipeImage(image=Image.new("RGB", (1, 1), color), name="small-difference")
+
+    assert sorter(image) == "drop_rgb"

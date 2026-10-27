@@ -4,8 +4,8 @@
 
 This module may import from: common, core, image.core
 
-Hierarchy within module:
-* processors / splitters / mergers
+Package hierarchy (modules may import from any above):
+* mergers / processors / splitters
 """
 
 from __future__ import annotations

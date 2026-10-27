@@ -13,6 +13,8 @@ from pipescaler.common.validation import val_float
 from pipescaler.image.core.pipelines import ImageSorter, PipeImage
 from pipescaler.image.core.validation import validate_image
 
+__all__ = ["GrayscaleSorter"]
+
 
 class GrayscaleSorter(ImageSorter):
     """Sorts image based on presence and use of color channels."""
@@ -42,7 +44,7 @@ class GrayscaleSorter(ImageSorter):
         if img.mode in ("RGB", "RGBA"):
             rgb_arr = np.array(img)[:, :, :3]
             l_arr = np.array(Image.fromarray(rgb_arr).convert("L").convert("RGB"))
-            diff = np.abs(rgb_arr - l_arr)
+            diff = np.abs(rgb_arr.astype(np.int16) - l_arr.astype(np.int16))
             if diff.mean() <= self.mean_threshold and diff.max() <= self.max_threshold:
                 outlet = "drop_rgb"
             else:
@@ -54,7 +56,11 @@ class GrayscaleSorter(ImageSorter):
         return outlet
 
     def __repr__(self) -> str:
-        """Representation."""
+        """Representation.
+
+        Returns:
+            string representation of this object
+        """
         return (
             f"{self.__class__.__name__}("
             f"mean_threshold={self.mean_threshold!r}, "

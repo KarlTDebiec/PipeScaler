@@ -7,6 +7,12 @@ from __future__ import annotations
 from os import getenv
 from pathlib import Path
 
+__all__ = [
+    "get_test_input_dir_path",
+    "get_test_input_path",
+    "get_test_model_path",
+]
+
 if getenv("PACKAGE_ROOT"):
     package_root = Path(str(getenv("PACKAGE_ROOT")))
 else:
@@ -20,6 +26,8 @@ def get_test_input_path(name: str) -> Path:
         name: Name of input file
     Returns:
         Full path to input file
+    Raises:
+        FileNotFoundError: if a required input path does not exist
     """
     path = Path(name)
     if str(path.parent) == ".":
@@ -40,6 +48,8 @@ def get_test_model_path(name: str) -> Path:
         name: Name of model
     Returns:
         Full path to model
+    Raises:
+        FileNotFoundError: if a required input path does not exist
     """
     path = Path(name)
     if str(path.parent) == ".":
@@ -60,6 +70,8 @@ def get_test_input_dir_path(name: str = "basic") -> Path:
         name: Name of subdirectory
     Returns:
         Path to subdirectory
+    Raises:
+        FileNotFoundError: if a required input path does not exist
     """
     path = package_root.parent / "test" / "data" / "images" / name
     if not path.exists():

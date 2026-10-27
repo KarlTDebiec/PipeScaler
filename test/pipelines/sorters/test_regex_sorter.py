@@ -20,7 +20,7 @@ from pipescaler.testing.fixture import parametrized_fixture
         ),
     ],
 )
-def sorter(request) -> RegexSorter:
+def sorter(request: pytest.FixtureRequest) -> RegexSorter:
     """Pytest fixture that provides a RegexSorter instance.
 
     Arguments:
@@ -53,7 +53,7 @@ def test(input_filename: str, outlet: str, sorter: RegexSorter):
     assert sorter(image) == outlet
 
     # Test miscellaneous methods
-    print(sorter)
-    print(repr(sorter))
-    print(sorter.outlets)
-    print(sorter.help_markdown())
+    assert str(sorter)
+    assert repr(sorter)
+    assert sorter.outlets
+    assert sorter.help_markdown()

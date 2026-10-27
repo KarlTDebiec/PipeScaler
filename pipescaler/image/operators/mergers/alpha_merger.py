@@ -11,6 +11,8 @@ from pipescaler.image.core.operators import ImageMerger
 from pipescaler.image.core.typing import ImageMode
 from pipescaler.image.core.validation import validate_image
 
+__all__ = ["AlphaMerger"]
+
 
 class AlphaMerger(ImageMerger):
     """Merges color and alpha images into a single image with transparency."""
@@ -19,7 +21,7 @@ class AlphaMerger(ImageMerger):
         """Merge images.
 
         Arguments:
-            input_images: Input images
+            *input_images: Input images
         Returns:
             Merged output image
         """
@@ -44,7 +46,11 @@ class AlphaMerger(ImageMerger):
 
     @classmethod
     def inputs(cls) -> dict[str, tuple[ImageMode, ...]]:
-        """Inputs to this operator."""
+        """Inputs to this operator.
+
+        Returns:
+            mapping of input names to their supported image modes
+        """
         return {
             "color": ("L", "RGB"),
             "alpha": ("1", "L"),
@@ -52,7 +58,11 @@ class AlphaMerger(ImageMerger):
 
     @classmethod
     def outputs(cls) -> dict[str, tuple[ImageMode, ...]]:
-        """Outputs of this operator."""
+        """Outputs of this operator.
+
+        Returns:
+            mapping of output names to their supported image modes
+        """
         return {
             "output": ("LA", "RGBA"),
         }
