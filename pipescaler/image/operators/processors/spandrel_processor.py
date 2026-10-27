@@ -30,6 +30,8 @@ class SpandrelProcessor(ImageProcessor):
         Arguments:
             model_input_path: Path to model file
             **kwargs: Additional keyword arguments (reserved for future use)
+        Raises:
+            ValueError: if the model descriptor does not support RGB input and output
         """
         super().__init__()
 
@@ -43,8 +45,15 @@ class SpandrelProcessor(ImageProcessor):
         self.model_input_path = val_input_path(model_input_path)
         """Path to model file."""
         self.model = ModelLoader().load_from_file(self.model_input_path)
-
         """Neural network model."""
+        if self.model.input_channels != 3 or self.model.output_channels != 3:
+            raise ValueError(
+                "Spandrel models must have 3 input and 3 output channels for RGB "
+                "processing; descriptor reports "
+                f"input_channels={self.model.input_channels}, "
+                f"output_channels={self.model.output_channels}"
+            )
+
         self.model.eval()
         try:
             self.model = self.model.to(self.device)
@@ -80,6 +89,7 @@ class SpandrelProcessor(ImageProcessor):
 
         # Prepare input
         input_arr = np.array(input_img)
+        self._validate_rgb_array(input_arr, "input")
         input_arr = input_arr * 1.0 / 255
         input_arr = np.transpose(input_arr[:, :, [2, 1, 0]], (2, 0, 1))
         input_tensor = torch.from_numpy(input_arr)
@@ -87,7 +97,7 @@ class SpandrelProcessor(ImageProcessor):
 
         # Prepare output
         model = cast(Any, self.model)
-        output_tensor = model(input_tensor).data.squeeze().float().cpu()
+        output_tensor = self._run_model(model, input_tensor)
         output_arr: np.ndarray = output_tensor.clamp_(0, 1).numpy()
         output_arr = np.transpose(output_arr[[2, 1, 0], :, :], (1, 2, 0))
         output_arr = np.array(output_arr * 255, np.uint8)
@@ -105,13 +115,14 @@ class SpandrelProcessor(ImageProcessor):
         Returns:
             Upscaled array
         """
+        self._validate_rgb_array(input_arr, "input")
         input_arr = input_arr * 1.0 / 255
         input_arr = np.transpose(input_arr[:, :, [2, 1, 0]], (2, 0, 1))
         input_tensor = torch.from_numpy(input_arr)
         input_tensor = input_tensor.float().unsqueeze(0).to(self.device)
 
         model = cast(Any, self.model)
-        output_tensor = model(input_tensor).data.squeeze().float().cpu()
+        output_tensor = self._run_model(model, input_tensor)
         output_arr: np.ndarray = output_tensor.clamp_(0, 1).numpy()
         output_arr = np.transpose(output_arr[[2, 1, 0], :, :], (1, 2, 0))
         output_arr = np.array(output_arr * 255, np.uint8)
@@ -151,3 +162,44 @@ class SpandrelProcessor(ImageProcessor):
         return {
             "output": ("1", "L", "RGB"),
         }
+
+    @staticmethod
+    def _run_model(model: Any, input_tensor: torch.Tensor) -> torch.Tensor:
+        """Run a model and validate its single-image RGB tensor output.
+
+        Arguments:
+            model: loaded Spandrel model
+            input_tensor: BCHW RGB tensor
+        Returns:
+            validated output image as a CHW tensor
+        Raises:
+            ValueError: if the model output is not a single-image RGB tensor
+        """
+        output = model(input_tensor)
+        if not isinstance(output, torch.Tensor):
+            raise ValueError("Model output must be a PyTorch tensor")
+        if output.ndim != 4 or output.shape[0] != 1 or output.shape[1] != 3:
+            raise ValueError(
+                "Model output must have shape (1, 3, height, width); "
+                f"got {tuple(output.shape)}"
+            )
+        if output.shape[2] < 1 or output.shape[3] < 1:
+            raise ValueError("Model output must have non-empty spatial dimensions")
+        return output[0].detach().float().cpu()
+
+    @staticmethod
+    def _validate_rgb_array(image_arr: np.ndarray, label: str):
+        """Validate an RGB image array before converting it to a tensor.
+
+        Arguments:
+            image_arr: image data to validate
+            label: role of the image in the model call
+        Raises:
+            ValueError: if the array is not a non-empty HWC RGB image
+        """
+        if image_arr.ndim != 3 or image_arr.shape[2] != 3:
+            raise ValueError(
+                f"Model {label} must be an HWC RGB array; got shape {image_arr.shape}"
+            )
+        if image_arr.shape[0] < 1 or image_arr.shape[1] < 1:
+            raise ValueError(f"Model {label} must have non-empty spatial dimensions")

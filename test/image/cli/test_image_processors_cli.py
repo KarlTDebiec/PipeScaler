@@ -9,7 +9,9 @@ from inspect import getfile
 from io import StringIO
 from pathlib import Path
 
+import numpy as np
 import pytest
+from PIL import Image
 
 from pipescaler.common import CommandLineInterface
 from pipescaler.common.file import get_temp_directory_path, get_temp_file_path
@@ -178,3 +180,116 @@ def test_spandrel_cli_registration_and_parsing():
     assert parsed_args.model_input_path == model_input_path.resolve()
     assert parsed_args.input_file == input_path
     assert parsed_args.output_file == output_path.resolve()
+
+
+@pytest.mark.parametrize(
+    ("cli", "args", "expected_size"),
+    [
+        (CropCli, "--pixels 0 0 1 1", (2, 2)),
+        (ExpandCli, "--pixels 0 1 0 0", (3, 4)),
+    ],
+)
+def test_zero_pixel_sides_execute(
+    cli: type[CommandLineInterface],
+    args: str,
+    expected_size: tuple[int, int],
+    tmp_path: Path,
+):
+    """Run crop and expand with a zero-valued side and inspect output pixels.
+
+    Arguments:
+        cli: command-line interface to execute
+        args: command-line operation arguments
+        expected_size: expected output image dimensions
+        tmp_path: temporary directory
+    """
+    input_path = tmp_path / "input.png"
+    output_path = tmp_path / "output.png"
+    Image.new("L", (3, 3), 128).save(input_path)
+
+    run_cli_with_args(cli, f"{args} {input_path} {output_path}")
+
+    with Image.open(output_path) as output_image:
+        assert output_image.size == expected_size
+        assert (
+            np.array(output_image).tolist()
+            == np.full(
+                (expected_size[1], expected_size[0]), 128, dtype=np.uint8
+            ).tolist()
+        )
+
+
+@pytest.mark.parametrize(
+    ("threshold", "expected"),
+    [(1, [0, 0, 255, 255, 255, 255]), (244, [0, 0, 0, 0, 255, 255])],
+)
+def test_threshold_cli_accepts_processor_boundaries(
+    threshold: int, expected: list[int], tmp_path: Path
+):
+    """Execute threshold CLI at the existing processor bounds.
+
+    Arguments:
+        threshold: grayscale cutoff value
+        expected: expected output pixels
+        tmp_path: temporary directory
+    """
+    input_path = tmp_path / "input.png"
+    output_path = tmp_path / "output.png"
+    Image.fromarray(np.array([[0, 1, 2, 244, 245, 255]], dtype=np.uint8)).save(
+        input_path
+    )
+
+    run_cli_with_args(
+        ThresholdCli,
+        f"--threshold {threshold} {input_path} {output_path}",
+    )
+
+    with Image.open(output_path) as output_image:
+        assert np.array(output_image).flatten().tolist() == expected
+
+
+@pytest.mark.parametrize("threshold", [-1, 0, 245, 255, 256])
+def test_threshold_cli_rejects_out_of_range_values(
+    threshold: int, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+):
+    """Reject unsupported thresholds before executing the processor.
+
+    Arguments:
+        threshold: unsupported threshold
+        tmp_path: temporary directory for output
+        capsys: captured command output
+    """
+    output_path = tmp_path / "output.png"
+    with pytest.raises(SystemExit) as exc:
+        ThresholdCli.main(
+            [
+                "--threshold",
+                str(threshold),
+                str(get_test_input_path("L")),
+                str(output_path),
+            ]
+        )
+    assert exc.value.code == 2
+    assert "argument --threshold:" in capsys.readouterr().err
+    assert not output_path.exists()
+
+
+@pytest.mark.parametrize("scale", ["0", "-1", "nan", "inf", "-inf"])
+def test_resize_cli_rejects_invalid_scales(
+    scale: str, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+):
+    """Reject invalid scales with an argument error before dispatch.
+
+    Arguments:
+        scale: invalid scale argument
+        tmp_path: temporary directory for output
+        capsys: captured command output
+    """
+    output_path = tmp_path / "output.png"
+    with pytest.raises(SystemExit) as exc:
+        ResizeCli.main(
+            ["--scale", scale, str(get_test_input_path("L")), str(output_path)]
+        )
+    assert exc.value.code == 2
+    assert "argument --scale:" in capsys.readouterr().err
+    assert not output_path.exists()

@@ -51,14 +51,15 @@ class PaletteMatchMergerCli(ImageMergerCli):
             const=PaletteMatchMode.LOCAL,
             default=PaletteMatchMode.BASIC,
             dest="palette_match_mode",
-            help="Match only to local palette of surrounding pixels",
+            help="Match only to local palette of surrounding pixels; target width and "
+            "height must be the same integer multiple of the reference, at least 2",
         )
         parser.add_argument(
             "--local_range",
             type=int,
             default=1,
-            help="Range of surrounding pixels from which to draw best-fit color, if "
-            "performing local matching (default: %(default)s)",
+            help="Range of surrounding reference pixels from which to draw best-fit "
+            "color, if performing local matching (default: %(default)s)",
         )
 
     @classmethod

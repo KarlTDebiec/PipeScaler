@@ -42,7 +42,7 @@ class HistogramMatchMerger(ImageMerger):
         if ref_img.mode == "L":
             output_arr = match_histograms(fit_arr, ref_arr)
         else:
-            output_arr = match_histograms(fit_arr, ref_arr, channel_axis=0)
+            output_arr = match_histograms(fit_arr, ref_arr, channel_axis=-1)
         output_arr = np.clip(output_arr, 0, 255).astype(np.uint8)
         output_img = Image.fromarray(output_arr)
 

@@ -36,7 +36,7 @@ class ExpandCli(ImageProcessorCli):
             default=(0, 0, 0, 0),
             metavar=("LEFT", "TOP", "RIGHT", "BOTTOM"),
             nargs=4,
-            type=int_arg(min_value=1),
+            type=int_arg(min_value=0),
             help="number of pixels to add to left, top, right, and bottom "
             "(default: %(default)s)",
         )

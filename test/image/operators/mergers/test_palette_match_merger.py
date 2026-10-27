@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import numpy as np
 import pytest
 from PIL import Image
 
@@ -14,6 +15,7 @@ from pipescaler.image.testing import (
     get_expected_output_mode,
     xfail_unsupported_image_mode,
 )
+from pipescaler.image.utilities import LocalPaletteMatcher
 from pipescaler.testing.file import get_test_input_path
 from pipescaler.testing.fixture import parametrized_fixture
 
@@ -58,6 +60,8 @@ def test(ref: str, fit: str, merger: PaletteMatchMerger):
     fit_input_path = get_test_input_path(fit)
     fit_img = Image.open(fit_input_path)
 
+    if merger.palette_match_mode == PaletteMatchMode.LOCAL:
+        fit_img = fit_img.resize((ref_img.width * 2, ref_img.height * 2))
     output_img = merger(ref_img, fit_img)
 
     if get_expected_output_mode(fit_img) == "L":
@@ -86,3 +90,71 @@ def test_repr_round_trip(merger: PaletteMatchMerger):
     """
     recreated = eval(repr(merger))
     assert repr(recreated) == repr(merger)
+
+
+@pytest.mark.parametrize("mode", ["L", "RGB"])
+@pytest.mark.parametrize("scale", [2, 3])
+def test_local_match_integer_upscale(mode: str, scale: int):
+    """Local matching preserves an exact uniform integer upscale.
+
+    Arguments:
+        mode: image mode to match
+        scale: integer enlargement factor
+    """
+    ref_arr = np.array([[10, 50, 90], [130, 170, 210]], dtype=np.uint8)
+    if mode == "RGB":
+        ref_arr = np.repeat(ref_arr[:, :, np.newaxis], 3, axis=2)
+    fit_arr = np.repeat(np.repeat(ref_arr, scale, axis=0), scale, axis=1)
+    merger = PaletteMatchMerger(palette_match_mode=PaletteMatchMode.LOCAL)
+
+    matched = merger(Image.fromarray(ref_arr), Image.fromarray(fit_arr))
+
+    np.testing.assert_array_equal(np.asarray(matched), fit_arr)
+
+
+@pytest.mark.parametrize("mode", ["L", "RGB"])
+@pytest.mark.parametrize(
+    ("ref_size", "fit_size"),
+    [
+        ((4, 4), (2, 2)),
+        ((2, 3), (2, 3)),
+        ((3, 3), (5, 5)),
+        ((2, 3), (4, 9)),
+        ((2, 3), (4, 7)),
+        ((2, 3), (5, 6)),
+        ((2, 3), (4, 3)),
+        ((0, 3), (4, 6)),
+        ((2, 0), (4, 6)),
+        ((2, 3), (0, 0)),
+    ],
+)
+def test_local_match_rejects_invalid_geometry(
+    mode: str, ref_size: tuple[int, int], fit_size: tuple[int, int]
+):
+    """Local matching rejects unsupported geometry before entering numeric kernels.
+
+    Arguments:
+        mode: image mode to match
+        ref_size: reference image width and height
+        fit_size: target image width and height
+    """
+    ref_img = Image.new(mode, ref_size)
+    fit_img = Image.new(mode, fit_size)
+    merger = PaletteMatchMerger(palette_match_mode=PaletteMatchMode.LOCAL)
+
+    with pytest.raises(ValueError, match="uniform integer upscale"):
+        LocalPaletteMatcher.run(ref_img, fit_img)
+    with pytest.raises(ValueError, match="uniform integer upscale"):
+        merger(ref_img, fit_img)
+
+
+@pytest.mark.parametrize("mode", ["L", "RGB"])
+def test_basic_match_allows_unrelated_sizes(mode: str):
+    """Basic matching draws from the global palette regardless of image sizes.
+
+    Arguments:
+        mode: image mode to match
+    """
+    matched = PaletteMatchMerger()(Image.new(mode, (3, 5)), Image.new(mode, (2, 4)))
+
+    assert matched.size == (2, 4)
