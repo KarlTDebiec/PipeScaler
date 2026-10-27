@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
+from pathlib import Path
 
 from pipescaler.common.argument_parsing import get_arg_groups_by_name, int_arg
 from pipescaler.image.core.cli import ImageProcessorCli
@@ -27,13 +28,15 @@ class ExpandCli(ImageProcessorCli):
 
         arg_groups = get_arg_groups_by_name(
             parser,
-            "required arguments",
+            "input arguments",
+            "operation arguments",
+            "output arguments",
             optional_arguments_name="additional arguments",
         )
 
-        arg_groups["required arguments"].add_argument(
+        arg_groups["operation arguments"].add_argument(
             "--pixels",
-            default=(0, 0, 0, 0),
+            default=[0, 0, 0, 0],
             metavar=("LEFT", "TOP", "RIGHT", "BOTTOM"),
             nargs=4,
             type=int_arg(min_value=0),
@@ -49,6 +52,30 @@ class ExpandCli(ImageProcessorCli):
             image processor class invoked by this command
         """
         return ExpandProcessor
+
+    @classmethod
+    def _main(
+        cls,
+        *,
+        input_path: Path,
+        output_path: Path,
+        pixels: list[int],
+    ):
+        """Execute with parsed image paths and operation settings.
+
+        Arguments:
+            input_path: input image path
+            output_path: output image path
+            pixels: pixels to add to left, top, right, and bottom
+        """
+        processor_cls = cls.processor()
+        cls.process_image(
+            input_path=input_path,
+            output_path=output_path,
+            processor=processor_cls(
+                pixels=(pixels[0], pixels[1], pixels[2], pixels[3])
+            ),
+        )
 
 
 if __name__ == "__main__":

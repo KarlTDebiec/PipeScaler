@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
+from pathlib import Path
 
 from pipescaler.common.argument_parsing import float_arg, get_arg_groups_by_name
 from pipescaler.image.core.cli import ImageProcessorCli
@@ -27,11 +28,13 @@ class HeightToNormalCli(ImageProcessorCli):
 
         arg_groups = get_arg_groups_by_name(
             parser,
-            "required arguments",
+            "input arguments",
+            "operation arguments",
+            "output arguments",
             optional_arguments_name="additional arguments",
         )
 
-        arg_groups["additional arguments"].add_argument(
+        arg_groups["operation arguments"].add_argument(
             "--sigma",
             default=None,
             type=float_arg(min_value=0),
@@ -47,6 +50,22 @@ class HeightToNormalCli(ImageProcessorCli):
             image processor class invoked by this command
         """
         return HeightToNormalProcessor
+
+    @classmethod
+    def _main(cls, *, input_path: Path, output_path: Path, sigma: float | None):
+        """Execute with parsed image paths and operation settings.
+
+        Arguments:
+            input_path: input image path
+            output_path: output image path
+            sigma: Gaussian smoothing before calculating normals
+        """
+        processor_cls = cls.processor()
+        cls.process_image(
+            input_path=input_path,
+            output_path=output_path,
+            processor=processor_cls(sigma=sigma),
+        )
 
 
 if __name__ == "__main__":

@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
+from pathlib import Path
 
 from pipescaler.common.argument_parsing import (
     float_arg,
@@ -31,11 +32,13 @@ class ResizeCli(ImageProcessorCli):
 
         arg_groups = get_arg_groups_by_name(
             parser,
-            "required arguments",
+            "input arguments",
+            "operation arguments",
+            "output arguments",
             optional_arguments_name="additional arguments",
         )
 
-        arg_groups["required arguments"].add_argument(
+        arg_groups["operation arguments"].add_argument(
             "--scale",
             required=True,
             type=float_arg(min_value=0, min_exclusive=True, finite=True),
@@ -43,7 +46,7 @@ class ResizeCli(ImageProcessorCli):
             "to at least 1 pixel",
         )
 
-        arg_groups["additional arguments"].add_argument(
+        arg_groups["operation arguments"].add_argument(
             "--resample",
             default="lanczos",
             type=str_arg(options=ResizeProcessor.resample_methods.keys()),
@@ -58,6 +61,23 @@ class ResizeCli(ImageProcessorCli):
             image processor class invoked by this command
         """
         return ResizeProcessor
+
+    @classmethod
+    def _main(cls, *, input_path: Path, output_path: Path, scale: float, resample: str):
+        """Execute with parsed image paths and operation settings.
+
+        Arguments:
+            input_path: input image path
+            output_path: output image path
+            scale: output scale relative to the input
+            resample: resampling method
+        """
+        processor_cls = cls.processor()
+        cls.process_image(
+            input_path=input_path,
+            output_path=output_path,
+            processor=processor_cls(scale=scale, resample=resample),
+        )
 
 
 if __name__ == "__main__":
