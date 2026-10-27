@@ -6,15 +6,17 @@ This module may import from: common, core
 
 Package hierarchy (modules may import from any above):
 * file_scanner
-* citra_file_scanner
+* dolphin_file_scanner / citra_file_scanner
 """
 
 from __future__ import annotations
 
 from .citra_file_scanner import CitraFileScanner
+from .dolphin_file_scanner import DolphinFileScanner
 from .file_scanner import FileScanner
 
 __all__ = [
     "CitraFileScanner",
+    "DolphinFileScanner",
     "FileScanner",
 ]
