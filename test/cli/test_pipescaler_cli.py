@@ -30,7 +30,18 @@ def test_image_processing_split_and_merge(tmp_path: Path):
     color_path = tmp_path / "color.png"
     alpha_path = tmp_path / "alpha.png"
     merged_path = tmp_path / "merged.png"
-    image = Image.new("RGBA", (2, 3), (20, 40, 60, 128))
+    image = Image.new("RGBA", (2, 3))
+    for index, pixel in enumerate(
+        [
+            (20, 40, 60, 128),
+            (80, 100, 120, 255),
+            (140, 160, 180, 64),
+            (200, 220, 240, 192),
+            (30, 50, 70, 32),
+            (90, 110, 130, 224),
+        ]
+    ):
+        image.putpixel((index % 2, index // 2), pixel)
     image.save(input_path)
 
     PipeScalerCli.main(
@@ -70,10 +81,9 @@ def test_image_processing_split_and_merge(tmp_path: Path):
     with Image.open(merged_path) as merged_image:
         assert merged_image.mode == "RGBA"
         assert merged_image.size == (4, 6)
-        assert (
-            merged_image.tobytes()
-            == Image.new("RGBA", (4, 6), (20, 40, 60, 128)).tobytes()
-        )
+        for y in range(6):
+            for x in range(4):
+                assert merged_image.getpixel((x, y)) == image.getpixel((x // 2, y // 2))
 
 
 @parametrize_with_readable_ids(
@@ -87,22 +97,20 @@ def test_help(commands: tuple[type[CommandLineInterface], ...]):
     """Test that help flag displays usage information and exits successfully.
 
     Arguments:
-        commands: Tuple of command-line interface classes to test
+        commands: tuple of command-line interface classes to test
     """
     subcommands = " ".join(f"{command.name()}" for command in commands[1:])
 
     stdout = StringIO()
     stderr = StringIO()
-    try:
-        with redirect_stdout(stdout):
-            with redirect_stderr(stderr):
-                run_cli_with_args(commands[0], f"{subcommands} -h")
-    except SystemExit as exc:
-        assert exc.code == 0
-        assert stdout.getvalue().startswith(
-            f"usage: {Path(getfile(commands[0])).name} {subcommands}"
-        )
-        assert stderr.getvalue() == ""
+    with pytest.raises(SystemExit) as exc_info:
+        with redirect_stdout(stdout), redirect_stderr(stderr):
+            run_cli_with_args(commands[0], f"{subcommands} -h")
+    assert exc_info.value.code == 0
+    assert stdout.getvalue().startswith(
+        f"usage: {Path(getfile(commands[0])).name} {subcommands}"
+    )
+    assert stderr.getvalue() == ""
 
 
 @pytest.mark.parametrize(
@@ -116,19 +124,17 @@ def test_usage(commands: tuple[type[CommandLineInterface], ...]):
     """Test that running without arguments displays usage and exits with error.
 
     Arguments:
-        commands: Tuple of command-line interface classes to test
+        commands: tuple of command-line interface classes to test
     """
     subcommands = " ".join(f"{command.name()}" for command in commands[1:])
 
     stdout = StringIO()
     stderr = StringIO()
-    try:
-        with redirect_stdout(stdout):
-            with redirect_stderr(stderr):
-                run_cli_with_args(commands[0], subcommands)
-    except SystemExit as exc:
-        assert exc.code == 2
-        assert stdout.getvalue() == ""
-        assert stderr.getvalue().startswith(
-            f"usage: {Path(getfile(commands[0])).name} {subcommands}"
-        )
+    with pytest.raises(SystemExit) as exc_info:
+        with redirect_stdout(stdout), redirect_stderr(stderr):
+            run_cli_with_args(commands[0], subcommands)
+    assert exc_info.value.code == 2
+    assert stdout.getvalue() == ""
+    assert stderr.getvalue().startswith(
+        f"usage: {Path(getfile(commands[0])).name} {subcommands}"
+    )

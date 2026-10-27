@@ -86,10 +86,8 @@ def test():
         assert mock_cp_manager.observe.call_count == 2
 
         # Incorrect number of inputs
-        try:
+        with pytest.raises(ValueError, match="Expected 1 inputs .* but received 2"):
             pre_checkpointed_segment(Mock(), Mock())
-        except ValueError:
-            pass
 
         # Test miscellaneous methods
         assert str(pre_checkpointed_segment)
