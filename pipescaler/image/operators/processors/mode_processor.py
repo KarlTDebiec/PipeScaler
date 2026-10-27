@@ -57,13 +57,18 @@ class ModeProcessor(ImageProcessor):
         if input_image.mode == self.mode:
             return input_image
 
-        if self.mode == "1":
-            if input_image.mode in ("LA", "RGB", "RGBA"):
-                input_image = input_image.convert("L")
-            return input_image.point(lambda x: 0 if x < self.threshold else 255, "1")
-
         output_image = Image.new("RGBA", input_image.size, self.background_color)
-        output_image.paste(input_image)
+        if self.mode in ("1", "L", "RGB"):
+            output_image = Image.alpha_composite(
+                output_image, input_image.convert("RGBA")
+            )
+        else:
+            output_image.paste(input_image)
+
+        if self.mode == "1":
+            output_image = output_image.convert("L")
+            return output_image.point(lambda x: 0 if x < self.threshold else 255, "1")
+
         if self.mode != "RGBA":
             output_image = output_image.convert(self.mode)
 
