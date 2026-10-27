@@ -27,8 +27,15 @@ requiring judgment. A failed command is an incomplete audit, not a clean result.
 
 ## Interpret the result
 
-The report identifies its static checks and their limitations. Public API intent,
-decorator behavior, and type-aware documentation judgments still need review. No findings does not establish complete compliance.
+The report checks direct public declarations against a single literal `__all__`,
+direct function and recognizable method ordering, and common capitalized prose
+openings in argument, return, and yield descriptions.
+
+Dynamic exports, constants and imported aliases, conditional definitions,
+overloads, property accessors, unknown decorators, and possible type names still
+need review. Decorator names provide syntactic evidence, not resolved runtime
+identities. These checks remain advisory; no findings does not establish complete
+compliance.
 
 This audit does not replace Ruff, type checking, or tests. If the user also asks
 for fixes, make those edits separately and validate changed files under AGENTS.md.
