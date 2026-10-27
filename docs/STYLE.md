@@ -87,7 +87,7 @@ functions, ordinary before decorated functions, then alphabetize.
 - The [style tests](../test/style/) enforce docstring structure, string
   interpolation, and variadic annotation rules.
 
-The [style audit](../skills/audit-style/SKILL.md) provides advisory checks for
+The [style audit](../.agents/skills/audit-style/SKILL.md) provides advisory checks for
 export membership, definition ordering, and description capitalization. Its
 coverage and manual judgment boundaries are documented in the audit skill; a
 report without notes does not certify full compliance with these guides.

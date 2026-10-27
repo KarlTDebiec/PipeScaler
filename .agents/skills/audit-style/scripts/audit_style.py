@@ -120,11 +120,16 @@ def main(argv: Sequence[str] | None = None):
 
     Arguments:
         argv: optional argument sequence
+    Raises:
+        SystemExit: if source discovery, reading, or report writing fails
     """
     basicConfig(format="%(message)s", level=INFO)
     args = parse_args(argv)
-    file_paths, notes = audit_paths(args.target)
-    write_report(file_paths, notes, args.output, _describe_target(args.target))
+    try:
+        file_paths, notes = audit_paths(args.target)
+        write_report(file_paths, notes, args.output, _describe_target(args.target))
+    except (OSError, ValueError) as exc:
+        raise SystemExit(str(exc)) from exc
     note_count = sum(len(file_notes) for file_notes in notes.values())
     info(f"wrote {args.output} with {len(file_paths)} files, {note_count} notes")
 
@@ -219,7 +224,7 @@ def write_report(
             )
         lines.append("")
 
-    output_path.write_text("\n".join(lines) + "\n")
+    output_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def _add_note(
@@ -1397,7 +1402,7 @@ def audit_file(file_path: Path, notes: dict[str, list[StyleNote]]):
         file_path: source file path
         notes: notes keyed by POSIX path
     """
-    text = file_path.read_text()
+    text = file_path.read_text(encoding="utf-8")
     lines = text.splitlines()
     stripped = text.strip()
     package_name = _package_name_for(file_path)
@@ -1423,9 +1428,16 @@ def get_python_files(target_path: Path) -> list[Path]:
         target_path: file or directory path
     Returns:
         sorted Python file paths
+    Raises:
+        FileNotFoundError: if the target does not exist
+        ValueError: if the target is a non-Python file
     """
+    if not target_path.exists():
+        raise FileNotFoundError(f"Audit target not found: {target_path}")
     if target_path.is_file():
-        return [target_path] if target_path.suffix == ".py" else []
+        if target_path.suffix != ".py":
+            raise ValueError(f"Audit target is not a Python file: {target_path}")
+        return [target_path]
     return sorted(
         file_path
         for file_path in target_path.rglob("*.py")

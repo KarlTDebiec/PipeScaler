@@ -17,7 +17,10 @@ def test_audit_report_limits_zero_notes(tmp_path: Path):
         tmp_path: temporary directory path
     """
     audit = run_path(
-        str(Path(__file__).parents[2] / "skills/audit-style/scripts/audit_style.py")
+        str(
+            Path(__file__).parents[2]
+            / ".agents/skills/audit-style/scripts/audit_style.py"
+        )
     )
     report_path = tmp_path / "notes.md"
     audit["write_report"]([], {}, report_path)
@@ -210,7 +213,10 @@ def _audit(tmp_path: Path, source: str, category: str) -> list[str]:
         matching note messages
     """
     audit = run_path(
-        str(Path(__file__).parents[2] / "skills/audit-style/scripts/audit_style.py")
+        str(
+            Path(__file__).parents[2]
+            / ".agents/skills/audit-style/scripts/audit_style.py"
+        )
     )
     source_path = tmp_path / "sample.py"
     source_path.write_text(source)
