@@ -60,6 +60,8 @@ def test(ref: str, fit: str, merger: PaletteMatchMerger):
     fit_input_path = get_test_input_path(fit)
     fit_img = Image.open(fit_input_path)
 
+    if merger.palette_match_mode == PaletteMatchMode.LOCAL:
+        fit_img = fit_img.resize((ref_img.width * 2, ref_img.height * 2))
     output_img = merger(ref_img, fit_img)
 
     if get_expected_output_mode(fit_img) == "L":
@@ -91,49 +93,68 @@ def test_repr_round_trip(merger: PaletteMatchMerger):
 
 
 @pytest.mark.parametrize("mode", ["L", "RGB"])
+@pytest.mark.parametrize("scale", [2, 3])
+def test_local_match_integer_upscale(mode: str, scale: int):
+    """Local matching preserves an exact uniform integer upscale.
+
+    Arguments:
+        mode: image mode to match
+        scale: integer enlargement factor
+    """
+    ref_arr = np.array([[10, 50, 90], [130, 170, 210]], dtype=np.uint8)
+    if mode == "RGB":
+        ref_arr = np.repeat(ref_arr[:, :, np.newaxis], 3, axis=2)
+    fit_arr = np.repeat(np.repeat(ref_arr, scale, axis=0), scale, axis=1)
+    merger = PaletteMatchMerger(palette_match_mode=PaletteMatchMode.LOCAL)
+
+    matched = merger(Image.fromarray(ref_arr), Image.fromarray(fit_arr))
+
+    np.testing.assert_array_equal(np.asarray(matched), fit_arr)
+
+
+@pytest.mark.parametrize("mode", ["L", "RGB"])
 @pytest.mark.parametrize(
     ("ref_size", "fit_size"),
     [
         ((4, 4), (2, 2)),
-        ((2, 2), (4, 4)),
-        ((3, 5), (2, 4)),
-        ((5, 3), (4, 2)),
-        ((1, 4), (3, 1)),
-        ((4, 1), (1, 3)),
+        ((2, 3), (2, 3)),
+        ((3, 3), (5, 5)),
+        ((2, 3), (4, 9)),
+        ((2, 3), (4, 7)),
+        ((2, 3), (5, 6)),
+        ((2, 3), (4, 3)),
+        ((0, 3), (4, 6)),
+        ((2, 0), (4, 6)),
+        ((2, 3), (0, 0)),
     ],
 )
-def test_local_match_maps_fit_pixels_to_reference_coordinates(
+def test_local_match_rejects_invalid_geometry(
     mode: str, ref_size: tuple[int, int], fit_size: tuple[int, int]
 ):
-    """Local matching maps each fit coordinate proportionally to its reference.
+    """Local matching rejects unsupported geometry before entering numeric kernels.
 
     Arguments:
         mode: image mode to match
         ref_size: reference image width and height
-        fit_size: fit image width and height
+        fit_size: target image width and height
     """
-    ref_width, ref_height = ref_size
-    fit_width, fit_height = fit_size
-    ref_l = np.fromfunction(
-        lambda y, x: y * ref_width + x, (ref_height, ref_width), dtype=int
-    ).astype(np.uint8)
-    expected_l = np.fromfunction(
-        lambda y, x: ref_l[
-            (y.astype(int) * ref_height // fit_height),
-            (x.astype(int) * ref_width // fit_width),
-        ],
-        (fit_height, fit_width),
-        dtype=int,
-    ).astype(np.uint8)
-    if mode == "RGB":
-        ref_arr = np.repeat(ref_l[:, :, np.newaxis], 3, axis=2)
-        fit_arr = np.repeat(expected_l[:, :, np.newaxis], 3, axis=2)
-    else:
-        ref_arr = ref_l
-        fit_arr = expected_l
+    ref_img = Image.new(mode, ref_size)
+    fit_img = Image.new(mode, fit_size)
+    merger = PaletteMatchMerger(palette_match_mode=PaletteMatchMode.LOCAL)
 
-    matched = LocalPaletteMatcher.run(
-        Image.fromarray(ref_arr), Image.fromarray(fit_arr), local_range=0
-    )
+    with pytest.raises(ValueError, match="uniform integer upscale"):
+        LocalPaletteMatcher.run(ref_img, fit_img)
+    with pytest.raises(ValueError, match="uniform integer upscale"):
+        merger(ref_img, fit_img)
 
-    np.testing.assert_array_equal(np.asarray(matched), fit_arr)
+
+@pytest.mark.parametrize("mode", ["L", "RGB"])
+def test_basic_match_allows_unrelated_sizes(mode: str):
+    """Basic matching draws from the global palette regardless of image sizes.
+
+    Arguments:
+        mode: image mode to match
+    """
+    matched = PaletteMatchMerger()(Image.new(mode, (3, 5)), Image.new(mode, (2, 4)))
+
+    assert matched.size == (2, 4)
