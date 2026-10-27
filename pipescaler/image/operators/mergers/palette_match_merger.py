@@ -4,46 +4,19 @@
 
 from __future__ import annotations
 
-from typing import Any
-
 from PIL import Image
 
-from pipescaler.common.validation import val_int
-from pipescaler.image.core import PaletteMatchMode, UnsupportedImageModeError
+from pipescaler.image.core import UnsupportedImageModeError
 from pipescaler.image.core.operators import ImageMerger
 from pipescaler.image.core.typing import ImageMode
 from pipescaler.image.core.validation import validate_image
-from pipescaler.image.utilities import LocalPaletteMatcher, PaletteMatcher
+from pipescaler.image.utilities import PaletteMatcher
 
 __all__ = ["PaletteMatchMerger"]
 
 
 class PaletteMatchMerger(ImageMerger):
-    """Matches an image's color palette to that of a reference image.
-
-    Local matching requires a target that is a uniform integer upscale of the
-    reference, with a scale of at least 2 on both axes. Basic matching has no
-    image-size restriction. Local neighborhood ranges use reference pixels.
-    """
-
-    def __init__(
-        self,
-        palette_match_mode: PaletteMatchMode = PaletteMatchMode.BASIC,
-        local_range: int = 1,
-        **kwargs: Any,
-    ):
-        """Validate configuration and initialize.
-
-        Arguments:
-            palette_match_mode: Mode of palette matching to perform
-            local_range: Range of adjacent pixels from which to draw best-fit color;
-              1 checks a 3x3 window, 2 checks a 5x5 window, etc.
-            **kwargs: Additional keyword arguments passed to ImageMerger
-        """
-        super().__init__(**kwargs)
-
-        self.palette_match_mode = palette_match_mode
-        self.local_range = val_int(local_range, min_value=1)
+    """Matches an image's color palette to the full reference palette."""
 
     def __call__(self, *input_images: Image.Image) -> Image.Image:
         """Merge images.
@@ -54,7 +27,6 @@ class PaletteMatchMerger(ImageMerger):
             Merged output image
         Raises:
             UnsupportedImageModeError: if an image mode is unsupported
-            ValueError: if local matching receives incompatible image sizes
         """
         ref_image = validate_image(input_images[0], self.inputs()["ref"])
         fit_image = validate_image(input_images[1], self.inputs()["fit"])
@@ -64,13 +36,7 @@ class PaletteMatchMerger(ImageMerger):
                 f"'{fit_image.mode}' of fit image"
             )
 
-        if self.palette_match_mode == PaletteMatchMode.BASIC:
-            output_image = PaletteMatcher.run(ref_image, fit_image)
-        else:
-            output_image = LocalPaletteMatcher.run(
-                ref_image, fit_image, self.local_range
-            )
-        return output_image
+        return PaletteMatcher.run(ref_image, fit_image)
 
     def __repr__(self) -> str:
         """Representation.
@@ -78,14 +44,7 @@ class PaletteMatchMerger(ImageMerger):
         Returns:
             string representation of this object
         """
-        palette_match_mode = repr(self.palette_match_mode)
-        if isinstance(self.palette_match_mode, PaletteMatchMode):
-            palette_match_mode = f"PaletteMatchMode.{self.palette_match_mode.name}"
-        return (
-            f"{self.__class__.__name__}("
-            f"palette_match_mode={palette_match_mode}, "
-            f"local_range={self.local_range!r})"
-        )
+        return f"{self.__class__.__name__}()"
 
     @classmethod
     def inputs(cls) -> dict[str, tuple[ImageMode, ...]]:

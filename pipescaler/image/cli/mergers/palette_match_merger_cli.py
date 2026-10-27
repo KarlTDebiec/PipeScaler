@@ -11,7 +11,6 @@ from typing import Any
 from PIL import Image
 
 from pipescaler.common.argument_parsing import input_file_arg, output_file_arg
-from pipescaler.image.core import PaletteMatchMode
 from pipescaler.image.core.cli import ImageMergerCli
 from pipescaler.image.operators.mergers import PaletteMatchMerger
 
@@ -45,22 +44,6 @@ class PaletteMatchMergerCli(ImageMergerCli):
             type=output_file_arg(),
             help="output file",
         )
-        parser.add_argument(
-            "--local",
-            action="store_const",
-            const=PaletteMatchMode.LOCAL,
-            default=PaletteMatchMode.BASIC,
-            dest="palette_match_mode",
-            help="Match only to local palette of surrounding pixels; target width and "
-            "height must be the same integer multiple of the reference, at least 2",
-        )
-        parser.add_argument(
-            "--local_range",
-            type=int,
-            default=1,
-            help="Range of surrounding reference pixels from which to draw best-fit "
-            "color, if performing local matching (default: %(default)s)",
-        )
 
     @classmethod
     def _main(cls, **kwargs: Any):
@@ -72,15 +55,9 @@ class PaletteMatchMergerCli(ImageMergerCli):
         reference_input_path = kwargs.pop("reference_input_file")
         fit_input_path = kwargs.pop("fit_input_file")
         output_path = kwargs.pop("output_file")
-        palette_match_mode = kwargs.pop("palette_match_mode")
-        local_range = kwargs.pop("local_range")
 
         merger_cls = cls.merger()
-        merger = merger_cls(
-            palette_match_mode=palette_match_mode,
-            local_range=local_range,
-            **kwargs,
-        )
+        merger = merger_cls(**kwargs)
         with (
             Image.open(reference_input_path) as reference_img,
             Image.open(fit_input_path) as fit_img,

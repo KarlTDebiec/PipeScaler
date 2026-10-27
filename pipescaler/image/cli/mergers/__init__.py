@@ -6,15 +6,17 @@ This module may import from: common, core, image.core, image.core.cli,
 image.operators.mergers
 
 Package hierarchy (modules may import from any above):
-* alpha_merger_cli / palette_match_merger_cli
+* alpha_merger_cli / local_palette_match_merger_cli / palette_match_merger_cli
 """
 
 from __future__ import annotations
 
 from .alpha_merger_cli import AlphaMergerCli
+from .local_palette_match_merger_cli import LocalPaletteMatchMergerCli
 from .palette_match_merger_cli import PaletteMatchMergerCli
 
 __all__ = [
     "AlphaMergerCli",
+    "LocalPaletteMatchMergerCli",
     "PaletteMatchMergerCli",
 ]
