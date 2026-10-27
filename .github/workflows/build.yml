@@ -37,6 +37,9 @@ jobs:
         id: install
         run: uv sync --all-extras --dev --frozen
 
+      - name: Check formatting
+        run: uv run ruff format --check .
+
       - name: Run ruff
         run: uv run ruff check --output-format=github
 
@@ -101,7 +104,13 @@ jobs:
       - name: Install system dependencies
         shell: powershell
         run: |
-          iwr -Uri http://potrace.sourceforge.net/download/1.16/potrace-1.16.win64.zip -OutFile potrace.zip
+          # Artifact matches the SHA1 published at https://potrace.sourceforge.net/download/SHA1SUMS.html
+          # Pin its SHA256 so verification completes before extraction
+          iwr -Uri https://potrace.sourceforge.net/download/1.16/potrace-1.16.win64.zip -OutFile potrace.zip
+          $expectedHash = '63699F9885B5ED053977FD94452A7BDBB77EE62B77BF28A3F17B2F14B9B9C65D'
+          if ((Get-FileHash -LiteralPath potrace.zip -Algorithm SHA256).Hash -ne $expectedHash) {
+            throw 'Potrace archive SHA256 does not match the pinned release artifact'
+          }
           Expand-Archive -Path potrace.zip -DestinationPath potrace
           $exePath = "$(Get-Location)\potrace\potrace-1.16.win64"
           echo "$exePath" | Out-File -FilePath $env:GITHUB_PATH -Append
