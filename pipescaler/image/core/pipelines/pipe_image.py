@@ -11,6 +11,7 @@ from typing import Any, Self
 
 from PIL import Image
 
+from pipescaler.common.file import get_temp_file_path
 from pipescaler.common.validation import val_output_path
 from pipescaler.core.pipelines import PipeObject
 from pipescaler.image.core.functions import remove_palette
@@ -102,5 +103,7 @@ class PipeImage(PipeObject):
             path: path to which to save image
         """
         path = val_output_path(path, exist_ok=True)
-        self.image.save(path)
+        with get_temp_file_path(path.suffix, parent_dir_path=path.parent) as temp_path:
+            self.image.save(temp_path)
+            temp_path.replace(path)
         self.path = path
