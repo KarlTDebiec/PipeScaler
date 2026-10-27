@@ -78,13 +78,26 @@ class PyTorchImageProcessor(ImageProcessor, ABC):
             input_arr: Array to upscale
         Returns:
             Upscaled array
+        Raises:
+            ValueError: if the input or model output is not an RGB image tensor
         """
+        self._validate_rgb_array(input_arr, "input")
         input_arr = input_arr * 1.0 / 255
         input_arr = np.transpose(input_arr[:, :, [2, 1, 0]], (2, 0, 1))
         input_tensor = torch.from_numpy(input_arr)
         input_tensor = input_tensor.float().unsqueeze(0).to(self.device)
 
-        output_tensor = self.model(input_tensor).data.squeeze().float().cpu()
+        output = self.model(input_tensor)
+        if not isinstance(output, torch.Tensor):
+            raise ValueError("Model output must be a PyTorch tensor")
+        if output.ndim != 4 or output.shape[0] != 1 or output.shape[1] != 3:
+            raise ValueError(
+                "Model output must have shape (1, 3, height, width); "
+                f"got {tuple(output.shape)}"
+            )
+        if output.shape[2] < 1 or output.shape[3] < 1:
+            raise ValueError("Model output must have non-empty spatial dimensions")
+        output_tensor = output[0].detach().float().cpu()
         output_arr: np.ndarray = output_tensor.clamp_(0, 1).numpy()
         output_arr = np.transpose(output_arr[[2, 1, 0], :, :], (1, 2, 0))
         output_arr = np.array(output_arr * 255, np.uint8)
@@ -112,3 +125,20 @@ class PyTorchImageProcessor(ImageProcessor, ABC):
         return {
             "output": ("1", "L", "RGB"),
         }
+
+    @staticmethod
+    def _validate_rgb_array(image_arr: np.ndarray, label: str):
+        """Validate an RGB image array before converting it to a tensor.
+
+        Arguments:
+            image_arr: image data to validate
+            label: role of the image in the model call
+        Raises:
+            ValueError: if the array is not a non-empty HWC RGB image
+        """
+        if image_arr.ndim != 3 or image_arr.shape[2] != 3:
+            raise ValueError(
+                f"Model {label} must be an HWC RGB array; got shape {image_arr.shape}"
+            )
+        if image_arr.shape[0] < 1 or image_arr.shape[1] < 1:
+            raise ValueError(f"Model {label} must have non-empty spatial dimensions")
