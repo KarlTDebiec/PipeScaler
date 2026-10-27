@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
+from pathlib import Path
 
 from pipescaler.common.argument_parsing import get_arg_groups_by_name, input_file_arg
 from pipescaler.image.core.cli import ImageProcessorCli
@@ -27,11 +28,12 @@ class SpandrelCli(ImageProcessorCli):
 
         arg_groups = get_arg_groups_by_name(
             parser,
-            "required arguments",
+            "input arguments",
+            "output arguments",
             optional_arguments_name="additional arguments",
         )
 
-        arg_groups["required arguments"].add_argument(
+        arg_groups["input arguments"].add_argument(
             "--model-input-path",
             required=True,
             type=input_file_arg(),
@@ -46,6 +48,22 @@ class SpandrelCli(ImageProcessorCli):
             image processor class invoked by this command
         """
         return SpandrelProcessor
+
+    @classmethod
+    def _main(cls, *, input_path: Path, output_path: Path, model_input_path: Path):
+        """Execute with parsed image paths and operation settings.
+
+        Arguments:
+            input_path: input image path
+            output_path: output image path
+            model_input_path: input model file
+        """
+        processor_cls = cls.processor()
+        cls.process_image(
+            input_path=input_path,
+            output_path=output_path,
+            processor=processor_cls(model_input_path=model_input_path),
+        )
 
 
 if __name__ == "__main__":

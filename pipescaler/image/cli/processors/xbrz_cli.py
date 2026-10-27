@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
+from pathlib import Path
 
 from pipescaler.common.argument_parsing import get_arg_groups_by_name, int_arg
 from pipescaler.image.core.cli import ImageProcessorCli
@@ -27,11 +28,13 @@ class XbrzCli(ImageProcessorCli):
 
         arg_groups = get_arg_groups_by_name(
             parser,
-            "required arguments",
+            "input arguments",
+            "operation arguments",
+            "output arguments",
             optional_arguments_name="additional arguments",
         )
 
-        arg_groups["required arguments"].add_argument(
+        arg_groups["operation arguments"].add_argument(
             "--scale",
             default=2,
             type=int_arg(min_value=2, max_value=6),
@@ -46,6 +49,22 @@ class XbrzCli(ImageProcessorCli):
             image processor class invoked by this command
         """
         return XbrzProcessor
+
+    @classmethod
+    def _main(cls, *, input_path: Path, output_path: Path, scale: int):
+        """Execute with parsed image paths and operation settings.
+
+        Arguments:
+            input_path: input image path
+            output_path: output image path
+            scale: integer output scale
+        """
+        processor_cls = cls.processor()
+        cls.process_image(
+            input_path=input_path,
+            output_path=output_path,
+            processor=processor_cls(scale=scale),
+        )
 
 
 if __name__ == "__main__":

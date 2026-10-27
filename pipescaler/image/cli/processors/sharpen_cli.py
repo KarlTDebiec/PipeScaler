@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from pipescaler.image.core.cli import ImageProcessorCli
 from pipescaler.image.operators.processors import SharpenProcessor
 
@@ -21,6 +23,21 @@ class SharpenCli(ImageProcessorCli):
             image processor class invoked by this command
         """
         return SharpenProcessor
+
+    @classmethod
+    def _main(cls, *, input_path: Path, output_path: Path):
+        """Execute with parsed image paths and operation settings.
+
+        Arguments:
+            input_path: input image path
+            output_path: output image path
+        """
+        processor_cls = cls.processor()
+        cls.process_image(
+            input_path=input_path,
+            output_path=output_path,
+            processor=processor_cls(),
+        )
 
 
 if __name__ == "__main__":
