@@ -71,18 +71,14 @@ def test_load_save():
         # Attempt to load invalid number of checkpoints
         mock_pipe_object_input_2 = Mock(spec=PipeObject)
         mock_pipe_object_input_2.location_name = "test2"
-        try:
+        with pytest.raises(ValueError, match="received 2 and 1"):
             cp_manager.load(
                 (mock_pipe_object_input, mock_pipe_object_input_2), ("cpt.txt",)
             )
-        except ValueError:
-            pass
 
         # Attempt to save invalid number of checkpoints
-        try:
+        with pytest.raises(ValueError, match=r"cpts \(2\).*images \(1\)"):
             cp_manager.save((mock_pipe_object_input,), ("cpt.txt", "cpt2.txt"))
-        except ValueError:
-            pass
 
         # Save checkpoint
         cp_manager.save((mock_pipe_object_input,), ("cpt.txt",))

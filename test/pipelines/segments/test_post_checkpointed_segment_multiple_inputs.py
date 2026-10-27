@@ -26,24 +26,46 @@ def test_multiple_input_merger_cache_matches_initial_output(
         tmp_path: temporary directory for checkpoints
         alpha_name: name of the alpha input, shared with or distinct from color
     """
+    color_path = tmp_path / "color.png"
+    alpha_path = tmp_path / "alpha.png"
+    Image.new("RGB", (2, 2), "red").save(color_path)
+    Image.new("L", (2, 2), 128).save(alpha_path)
     inputs = (
-        PipeImage(image=Image.new("RGB", (2, 2), "red"), name="color"),
-        PipeImage(image=Image.new("L", (2, 2), 128), name=alpha_name),
+        PipeImage(path=color_path, name="color"),
+        PipeImage(path=alpha_path, name=alpha_name),
     )
-    cp_manager = CheckpointManager(tmp_path)
+    checkpoint_dir_path = tmp_path / "checkpoints"
+    cp_manager = CheckpointManager(checkpoint_dir_path)
     segment = Mock(wraps=ImageMergerSegment(AlphaMerger()))
     wrapper = cp_manager.post_segment("merged.png")(segment)
 
     initial_outputs = wrapper(*inputs)
-    cached_outputs = wrapper(*inputs)
+    resumed_inputs = (
+        PipeImage(path=color_path, name="color"),
+        PipeImage(path=alpha_path, name=alpha_name),
+    )
+    resumed_manager = CheckpointManager(checkpoint_dir_path)
+    resumed_segment = Mock(
+        spec=ImageMergerSegment,
+        side_effect=AssertionError("Cached segment runs again"),
+    )
+    resumed_wrapper = resumed_manager.post_segment("merged.png")(resumed_segment)
+    cached_outputs = resumed_wrapper(*resumed_inputs)
 
     assert len(initial_outputs) == len(cached_outputs) == 1
     assert segment.call_count == 1
+    resumed_segment.assert_not_called()
     assert cp_manager.observed_checkpoints == {("color", "merged.png")}
-    cp_manager.purge_unrecognized_files()
-    for output in (*initial_outputs, *cached_outputs):
+    assert resumed_manager.observed_checkpoints == cp_manager.observed_checkpoints
+    resumed_manager.purge_unrecognized_files()
+    for output, parents in zip(
+        (*initial_outputs, *cached_outputs), (inputs, resumed_inputs)
+    ):
         assert isinstance(output, PipeImage)
-        assert output.path == tmp_path / "color" / "merged.png"
+        assert output.path == checkpoint_dir_path / "color" / "merged.png"
         assert output.name == "color"
-        assert output.parents == list(inputs)
-        assert output.image.getpixel((0, 0)) == (255, 0, 0, 128)
+        assert output.parents == list(parents)
+        assert (
+            output.image.tobytes()
+            == Image.new("RGBA", (2, 2), (255, 0, 0, 128)).tobytes()
+        )

@@ -81,10 +81,8 @@ def test():
 
         # Too many outputs
         mock_segment.return_value = (Mock(), Mock())
-        try:
+        with pytest.raises(ValueError, match="Expected 1 outputs .* but received 2"):
             post_checkpointed_segment(mock_pipe_object_input)
-        except ValueError:
-            pass
 
         # New checkpoint
         mock_segment.return_value = (mock_pipe_object_output,)
