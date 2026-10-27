@@ -75,15 +75,18 @@ class ModeProcessor(ImageProcessor):
         return output_image
 
     def __repr__(self) -> str:
-        """Representation.
+        """Reconstructible representation.
 
         Returns:
             string representation of this object
         """
+        background_color = "#" + "".join(
+            f"{channel:02x}" for channel in self.background_color
+        )
         return (
             f"{self.__class__.__name__}("
             f"mode={self.mode!r}, "
-            f"background_color={self.background_color!r}, "
+            f"background_color={background_color!r}, "
             f"threshold={self.threshold!r})"
         )
 
