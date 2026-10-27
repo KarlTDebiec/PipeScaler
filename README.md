@@ -1,69 +1,91 @@
 [![Python: =3.13](https://img.shields.io/badge/python-3.13-green.svg)](https://docs.python.org/3/whatsnew/3.13.html)
 [![Build](https://github.com/KarlTDebiec/PipeScaler/actions/workflows/build.yml/badge.svg)](https://github.com/KarlTDebiec/PipeScaler/actions/workflows/build.yml)
-[![Coverage](https://img.shields.io/badge/coverage-83-green)](https://github.com/KarlTDebiec/PipeScaler)
 [![Code Style: Ruff](https://img.shields.io/badge/code%20style-Ruff-D7FF64.svg)](https://docs.astral.sh/ruff/)
 [![License: BSD 3-Clause](https://img.shields.io/badge/license-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 
-PipeScaler is a package for processing collections of files with a focus on upscaling
-image and video resolution. Users define a pipeline in which objects flow from a source
-through a series of sorters, processors, splitters, and mergers into a terminus.
-Checkpoints along the pipeline may be saved to allow processing to be tracked, stopped,
-and resumed.
+PipeScaler processes collections of image and video files through composable
+pipelines. Objects flow from sources through sorters, processors, splitters, and
+mergers into termini. Checkpoints allow long-running pipelines to resume.
+
+## Install from source
+
+Use Python 3.13 and [uv](https://docs.astral.sh/uv/getting-started/installation/).
+From a clone of this repository, install the package and its locked dependencies:
+
+```console
+uv sync --frozen
+uv run pipescaler --help
+```
+
+The current package installs its image, video, and model dependencies together;
+there are no optional extras. The example below uses Pillow resizing and requires
+no model download or external executable. Some other operations require tools on
+`PATH`: Potrace for tracing, apngasm for animated PNG assembly, pngquant for PNG
+quantization, and Windows texconv for DDS operations. SVG rasterization also needs
+Cairo. The [build workflow](.github/workflows/build.yml) records the system package
+setup used by CI; install the tools required by the operations you choose.
+
+## Resize one image
+
+Generate an input image, then run the resize command from the repository root:
+
+```console
+uv run python -c "from PIL import Image; Image.new('RGB', (16, 16), 'coral').save('example.png')"
+uv run pipescaler image process resize example.png example-2x.png --scale 2 --resample nearest
+```
+
+The result is a 32-by-32 PNG. Use
+`uv run pipescaler image process resize --help` for the current options.
+
+## Build a small pipeline
+
+Save this as `example_pipeline.py` in the repository root, then run
+`uv run python example_pipeline.py`. It generates two input images, reads them
+through a directory source, resizes each image through a pipeline segment, and
+writes the results through a directory terminus. Outputs appear under
+`local/readme-example/output/`, with the nested input directory preserved.
+
+```python
+from pathlib import Path
+
+from PIL import Image
+
+from pipescaler.image.operators.processors.resize_processor import ResizeProcessor
+from pipescaler.image.pipelines.segments.image_processor_segment import (
+    ImageProcessorSegment,
+)
+from pipescaler.image.pipelines.sources.image_directory_source import (
+    ImageDirectorySource,
+)
+from pipescaler.image.pipelines.termini.image_directory_terminus import (
+    ImageDirectoryTerminus,
+)
+
+input_path = Path("local/readme-example/input")
+(input_path / "nested").mkdir(parents=True, exist_ok=True)
+Image.new("RGB", (16, 16), "coral").save(input_path / "first.png")
+Image.new("RGB", (8, 12), "navy").save(input_path / "nested/second.png")
+
+source = ImageDirectorySource(input_path, inclusions={r".*\.png$"})
+resize = ImageProcessorSegment(ResizeProcessor(scale=2, resample="nearest"))
+terminus = ImageDirectoryTerminus(Path("local/readme-example/output"))
+for input_image in source:
+    (output_image,) = resize(input_image)
+    terminus(output_image)
+```
+
+## Find components and contracts
+
+Source docstrings and CLI help own the component inventory, options, and defaults.
+Browse [image operators](pipescaler/image/operators/),
+[image pipeline components](pipescaler/image/pipelines/),
+[image runners](pipescaler/image/runners/),
+[video pipeline components](pipescaler/video/pipelines/), and
+[video runners](pipescaler/video/runners/). Package `__init__.py` files identify
+exports and dependency order. Use `uv run pipescaler image --help` to discover
+available image commands.
 
 Developer guidance: [Architecture](docs/ARCHITECTURE.md),
 [Code Style](docs/STYLE.md), [Documentation](docs/DOCUMENTATION.md), and
-[Contributing](docs/CONTRIBUTING.md).
-
-# Image Processing
-
-PipeScaler includes the following components for image processing:
-
-**Sources** yield images for downstream modification:
-* [ImageDirectorySource](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/pipelines/sources/image_directory_source.py) - Yields images from a directory.
-* [ImageVideoFrameSource](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/pipelines/sources/image_video_frame_source.py) - Yields images from a video file.
-
-**Processors** perform operations on an image, yielding a modified image:
-* [CropProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/operators/processors/crop_processor.py) - Crops image canvas.
-* [ExpandProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/operators/processors/expand_processor.py) - Expands image canvas by mirroring image around edges.
-* [HeightToNormalProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/operators/processors/height_to_normal_processor.py) - Converts height map image to a normal map image.
-* [ModeProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/operators/processors/mode_processor.py) - Converts mode of image.
-* [PotraceProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/operators/processors/potrace_processor.py) - Traces image using [Potrace](http://potrace.sourceforge.net/) and re-rasterizes, optionally resizing.
-* [ResizeProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/operators/processors/resize_processor.py) - Resizes image canvas.
-* [SharpenProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/operators/processors/sharpen_processor.py) - Sharpens an image.
-* [SolidColorProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/operators/processors/solid_color_processor.py) - Sets entire image color to its average color, optionally resizing.
-* [ThresholdProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/operators/processors/threshold_processor.py) - Converts image to black and white using threshold, optionally denoising.
-* [XbrzProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/operators/processors/xbrz_processor.py) - Upscales image using [xbrz](https://github.com/ioistired/xbrz.py).
-
-**Splitters** separate one image into two or more images:
-* [AlphaSplitter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/operators/splitters/alpha_splitter.py) - Splits image with transparency into separate color and alpha images.
-* [NormalSplitter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/operators/splitters/normal_splitter.py) - Splits a normal map image into separate x, y, and z images.
-
-**Mergers** combine two or more images into a single image:
-* [AlphaMerger](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/operators/mergers/alpha_merger.py) - Merges color and alpha images into a single image with transparency.
-* [HistogramMatchMerger](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/operators/mergers/histogram_match_merger.py) - Matches an image's color histogram to that of a reference image.
-* [NormalMerger](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/operators/mergers/normal_merger.py) - Merges x, y, and z images into a single normal map image.
-* [PaletteMatchMerger](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/operators/mergers/palette_match_merger.py) - Matches an image's color palette to that of a reference image.
-
-**Sorters** classify images, allowing them to be routed through different operations:
-* [AlphaSorter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/pipelines/sorters/alpha_sorter.py) - Sorts image based on presence and use of alpha channel.
-* [GrayscaleSorter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/pipelines/sorters/grayscale_sorter.py) - Sorts image based on presence and use of color channels.
-* [ModeSorter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/pipelines/sorters/mode_sorter.py) - Sorts image based on mode.
-* [MonochromeSorter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/pipelines/sorters/monochrome_sorter.py) - Sorts image based on presence and use of colors other than black and white.
-* [SizeSorter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/pipelines/sorters/size_sorter.py) - Sorts image based on canvas size.
-* [SolidColorSorter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/pipelines/sorters/solid_color_sorter.py) - Sorts images based on whether their entire canvas is a solid color.
-
-**Termini** collect processed images:
-* [ImageDirectoryTerminus](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/pipelines/termini/image_directory_terminus.py) - Copies images to an output directory.
-
-# Video Processing
-
-PipeScaler includes the following components for video processing:
-
-**Sources** yield videos for downstream modification:
-* [VideoDirectorySource](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/video/pipelines/sources/video_directory_source.py) - Yields videos from a directory.
-
-**Sorters** classify videos, allowing them to be routed through different operations:
-* [VideoAspectRatioSorter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/video/pipelines/sorters/video_aspect_ratio_sorter.py) - Sorts video based on aspect ratio.
-
-**Termini** collect processed videos:
-* [VideoDirectoryTerminus](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/video/pipelines/termini/video_directory_terminus.py) - Copies videos to an output directory.
+[Contributing](docs/CONTRIBUTING.md). Install development tools with
+`uv sync --dev --frozen` and follow the [validation instructions](AGENTS.md#validation).
