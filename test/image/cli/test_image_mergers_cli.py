@@ -10,6 +10,7 @@ from io import StringIO
 from pathlib import Path
 
 import pytest
+from PIL import Image
 
 from pipescaler.common import CommandLineInterface
 from pipescaler.common.file import get_temp_file_path
@@ -40,7 +41,14 @@ def test(cli: type[CommandLineInterface], args: str, input_filenames: tuple[str]
         str(get_test_input_path(input_filename)) for input_filename in input_filenames
     ]
 
-    with get_temp_file_path(".png") as output_path:
+    with (
+        get_temp_file_path(".png") as output_path,
+        get_temp_file_path(".png") as fit_path,
+    ):
+        if "--local" in args:
+            with Image.open(input_paths[1]) as fit_img:
+                fit_img.resize((fit_img.width * 2, fit_img.height * 2)).save(fit_path)
+            input_paths[1] = str(fit_path)
         run_cli_with_args(cli, f"{args} {' '.join(input_paths)} {output_path}")
 
 
