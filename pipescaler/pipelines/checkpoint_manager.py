@@ -176,7 +176,7 @@ class CheckpointManager(CheckpointManagerBase):
         Arguments:
             inputs: Images
             cpts: Names of checkpoints
-            overwrite: Whether to overwrite existing checkpoints
+            overwrite: whether to overwrite existing checkpoints
         Returns:
             Images, with paths updated to checkpoints
         Raises:

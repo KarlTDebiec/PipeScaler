@@ -56,17 +56,6 @@ class ImageSplittersCli(CommandLineInterface):
         return "split image"
 
     @classmethod
-    def _main(cls, **kwargs: Any):
-        """Execute with provided keyword arguments.
-
-        Arguments:
-            **kwargs: additional options forwarded to the selected implementation
-        """
-        splitter_name = kwargs.pop(cls.subcommand_dest())
-        splitter_cli_cls = cls.splitters()[splitter_name]
-        splitter_cli_cls._main(**kwargs)
-
-    @classmethod
     def name(cls) -> str:
         """Name of this tool used to define it when it is a subparser.
 
@@ -94,6 +83,17 @@ class ImageSplittersCli(CommandLineInterface):
             group="pipescaler.cli.image.splitters",
             base_class=ImageSplitterCli,
         )
+
+    @classmethod
+    def _main(cls, **kwargs: Any):
+        """Execute with provided keyword arguments.
+
+        Arguments:
+            **kwargs: additional options forwarded to the selected implementation
+        """
+        splitter_name = kwargs.pop(cls.subcommand_dest())
+        splitter_cli_cls = cls.splitters()[splitter_name]
+        splitter_cli_cls._main(**kwargs)
 
 
 if __name__ == "__main__":

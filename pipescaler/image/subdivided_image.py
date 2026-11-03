@@ -233,18 +233,6 @@ class SubdividedImage:
         return output
 
     @staticmethod
-    def get_subs(image: Image.Image, boxes: np.ndarray) -> list[Image.Image]:
-        """Get subdivisions of image.
-
-        Arguments:
-            image: Image to be subdivided
-            boxes: Boxes for subdivisions in form of [[left, upper, right, lower], ...]
-        Returns:
-            Subdivisions of image
-        """
-        return [image.crop(tuple(box)) for box in boxes]
-
-    @staticmethod
     def get_sub_count(full_size: int, size: int, overlap: int) -> int:
         """Get number of subdivisions in one dimension.
 
@@ -253,44 +241,13 @@ class SubdividedImage:
             size: Size of each subdivision
             overlap: Non-negative overlap smaller than subdivision size
         Returns:
-            Number of subdivisions
+            number of subdivisions
         """
         count = max(
             1, 2 + int(np.ceil((full_size - (2 * size) + overlap) / (size - overlap)))
         )
 
         return count
-
-    @staticmethod
-    def get_sub_edges(full_size: int, sub_size: int, count: int) -> np.ndarray:
-        """Get edges of subdivisions in one dimension.
-
-        Arguments:
-            full_size: Full size of image in this dimension
-            sub_size: Size of each subdivision
-            count: Number of subdivisions
-        Returns:
-            Edges of subdivisions
-        """
-        if count == 1:
-            return np.array([[0, full_size]], dtype=int)
-        overlap = int(((count * sub_size) - full_size) / (count - 1))
-        centers = np.round(
-            np.linspace(
-                sub_size - overlap + np.floor(sub_size / 2),
-                full_size - sub_size + overlap - np.ceil(sub_size / 2),
-                count - 2,
-            )
-        ).astype(int)
-        left_edges = centers - int(np.floor(sub_size / 2))
-        right_edges = centers + int(np.ceil(sub_size / 2))
-        edges = np.array(
-            [(0, sub_size)]
-            + list(zip(left_edges, right_edges))
-            + [(full_size - sub_size, full_size)]
-        )
-
-        return edges
 
     @staticmethod
     def get_sub_edge_tapers(
@@ -329,3 +286,46 @@ class SubdividedImage:
         bottom = np.tile(np.reshape(taper, (overlap, 1))[::-1], (1, size))
 
         return left, top, right, bottom
+
+    @staticmethod
+    def get_sub_edges(full_size: int, sub_size: int, count: int) -> np.ndarray:
+        """Get edges of subdivisions in one dimension.
+
+        Arguments:
+            full_size: Full size of image in this dimension
+            sub_size: Size of each subdivision
+            count: number of subdivisions
+        Returns:
+            Edges of subdivisions
+        """
+        if count == 1:
+            return np.array([[0, full_size]], dtype=int)
+        overlap = int(((count * sub_size) - full_size) / (count - 1))
+        centers = np.round(
+            np.linspace(
+                sub_size - overlap + np.floor(sub_size / 2),
+                full_size - sub_size + overlap - np.ceil(sub_size / 2),
+                count - 2,
+            )
+        ).astype(int)
+        left_edges = centers - int(np.floor(sub_size / 2))
+        right_edges = centers + int(np.ceil(sub_size / 2))
+        edges = np.array(
+            [(0, sub_size)]
+            + list(zip(left_edges, right_edges))
+            + [(full_size - sub_size, full_size)]
+        )
+
+        return edges
+
+    @staticmethod
+    def get_subs(image: Image.Image, boxes: np.ndarray) -> list[Image.Image]:
+        """Get subdivisions of image.
+
+        Arguments:
+            image: Image to be subdivided
+            boxes: Boxes for subdivisions in form of [[left, upper, right, lower], ...]
+        Returns:
+            Subdivisions of image
+        """
+        return [image.crop(tuple(box)) for box in boxes]

@@ -45,7 +45,7 @@ class PipeVideo(PipeObject):
               access
             path: video file or numbered image-sequence template; mutually exclusive
               with video
-            name: Name of video; if not provided will name of first parent video, and if
+            name: name of video; if not provided will name of first parent video, and if
               that is not available will use the file stem or the sequence directory
               name with its template identifier
             parents: Parent video(s) from which this video is descended

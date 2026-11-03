@@ -31,7 +31,7 @@ class CheckpointManagerBase(ABC):
 
         Arguments:
             dir_path: Path to directory in which to store checkpoints
-            validate_input_mtime: Whether to require checkpoint mtimes to be newer than
+            validate_input_mtime: whether to require checkpoint mtimes to be newer than
               or equal to input mtimes before loading from checkpoint
         """
         self.dir_path = val_output_dir_path(dir_path)
@@ -61,25 +61,6 @@ class CheckpointManagerBase(ABC):
         """
         return f"<{self.__class__.__name__}>"
 
-    def observe(self, location_name: str, cpt: str):
-        """Log observation of a checkpoint.
-
-        Strips trailing '.' from relative_name because Windows does not support
-        directory names with trailing periods.
-
-        Arguments:
-            location_name: Location and name of image
-            cpt: Checkpoint name
-        """
-        if location_name.endswith("."):
-            logger.warning(
-                f"{self}: '{location_name}' has trailing '.', which is not supported "
-                f"for directories on Windows; stripping trailing '.' from checkpoint "
-                f"directory name."
-            )
-            location_name = location_name.rstrip(".")
-        self.observed_checkpoints.add((location_name, cpt))
-
     def checkpoints_current(
         self, inputs: Sequence[PipeObject], cpt_paths: Sequence[Path]
     ) -> bool:
@@ -89,7 +70,7 @@ class CheckpointManagerBase(ABC):
             inputs: Input objects whose source files determine checkpoint freshness
             cpt_paths: Paths to checkpoints to assess
         Returns:
-            Whether all checkpoints should be treated as current
+            whether all checkpoints should be treated as current
         Raises:
             UnsupportedPlatformError: if the current platform is unsupported
             ValueError: if input values or configuration are invalid
@@ -130,3 +111,22 @@ class CheckpointManagerBase(ABC):
             return False
 
         return earliest_checkpoint_mtime_ns >= latest_input_mtime_ns
+
+    def observe(self, location_name: str, cpt: str):
+        """Log observation of a checkpoint.
+
+        Strips trailing '.' from relative_name because Windows does not support
+        directory names with trailing periods.
+
+        Arguments:
+            location_name: Location and name of image
+            cpt: Checkpoint name
+        """
+        if location_name.endswith("."):
+            logger.warning(
+                f"{self}: '{location_name}' has trailing '.', which is not supported "
+                f"for directories on Windows; stripping trailing '.' from checkpoint "
+                f"directory name."
+            )
+            location_name = location_name.rstrip(".")
+        self.observed_checkpoints.add((location_name, cpt))

@@ -29,7 +29,7 @@ class PipeObject(ABC):
 
         Arguments:
             path: Path to object file
-            name: Name of object; if not provided will name of first parent object, and
+            name: name of object; if not provided will name of first parent object, and
               if that is not available will use filename of path excluding extension;
               one of these must be available
             parents: Parent object(s) from which this object is descended
@@ -98,16 +98,16 @@ class PipeObject(ABC):
         return f"<{self.__class__.__name__} '{self.location_name}'>"
 
     @property
+    def location(self) -> Path | None:
+        """Location relative to root directory."""
+        return self._location
+
+    @property
     def location_name(self) -> str:
         """Location relative to root directory and name."""
         if self.location:
             return str(self.location / self.name)
         return self.name
-
-    @property
-    def location(self) -> Path | None:
-        """Location relative to root directory."""
-        return self._location
 
     @property
     def name(self) -> str:

@@ -167,7 +167,7 @@ class FileScanner(Utility):
         """Select operation for filename.
 
         Arguments:
-            name: Name of file
+            name: name of file
         Returns:
             Operation to perform
         """

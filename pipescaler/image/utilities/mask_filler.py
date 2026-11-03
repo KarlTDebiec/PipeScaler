@@ -131,7 +131,7 @@ class MaskFiller(Utility):
         Arguments:
             image_arr: Image array
             pixels_to_fill: Pixels that remain to be filled
-            opaque_neighbor_counts: Number of opaque neighbors of each pixel to fill
+            opaque_neighbor_counts: number of opaque neighbors of each pixel to fill
             pixels_to_recount: Pixels whose opaque neighbor counts need to be updated
         Returns:
             Updated image array, pixels to fill, opaque neighbor counts, and pixels to

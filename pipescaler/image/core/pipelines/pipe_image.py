@@ -43,7 +43,7 @@ class PipeImage(PipeObject):
               access
             path: Path to image file; either image or path must be provided, and both
               may not be provided
-            name: Name of image; if not provided will name of first parent image, and if
+            name: name of image; if not provided will name of first parent image, and if
               that is not available will use filename of path excluding extension; one
               of these must be available
             parents: Parent image(s) from which this image is descended

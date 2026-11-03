@@ -56,17 +56,6 @@ class ImageCli(CommandLineInterface):
         return "image operations"
 
     @classmethod
-    def _main(cls, **kwargs: Any):
-        """Execute with provided keyword arguments.
-
-        Arguments:
-            **kwargs: additional options forwarded to the selected implementation
-        """
-        subcommand_name = kwargs.pop(cls.subcommand_dest())
-        subcommand_cli_class = cls.subcommands()[subcommand_name]
-        subcommand_cli_class._main(**kwargs)
-
-    @classmethod
     def name(cls) -> str:
         """Name of this tool used to define it when it is a subparser.
 
@@ -92,3 +81,14 @@ class ImageCli(CommandLineInterface):
             ImageProcessorsCli.name(): ImageProcessorsCli,
             ImageSplittersCli.name(): ImageSplittersCli,
         }
+
+    @classmethod
+    def _main(cls, **kwargs: Any):
+        """Execute with provided keyword arguments.
+
+        Arguments:
+            **kwargs: additional options forwarded to the selected implementation
+        """
+        subcommand_name = kwargs.pop(cls.subcommand_dest())
+        subcommand_cli_class = cls.subcommands()[subcommand_name]
+        subcommand_cli_class._main(**kwargs)
