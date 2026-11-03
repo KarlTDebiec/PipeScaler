@@ -43,7 +43,7 @@ class ListSorter(Sorter):
             ValueError: if a name is assigned to multiple outlets and allow_duplicates
               is False
         """
-        self._allow_duplicates = allow_duplicates
+        self.allow_duplicates = allow_duplicates
         self._outlets = tuple(sorted(outlet_paths_by_name.keys()))
         self._input_paths_by_outlet: dict[str, list[str]] = {}
         self.outlets_by_filename: dict[str, str] = {}
@@ -88,7 +88,7 @@ class ListSorter(Sorter):
                 for name, outlets in sorted(conflicting_outlets_by_name.items())
             )
             message = f"{self}: names assigned to multiple outlets: {conflicts}"
-            if not allow_duplicates:
+            if not self.allow_duplicates:
                 raise ValueError(message)
             warning(f"{message}; last configured outlet wins")
 
@@ -115,7 +115,7 @@ class ListSorter(Sorter):
             string representation of this object
         """
         return (
-            f"{self.__class__.__name__}(allow_duplicates={self._allow_duplicates!r}, "
+            f"{self.__class__.__name__}(allow_duplicates={self.allow_duplicates!r}, "
             f"**{self._input_paths_by_outlet!r})"
         )
 

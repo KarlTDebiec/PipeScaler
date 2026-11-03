@@ -123,6 +123,7 @@ def test_repr_round_trip(allow_duplicates: bool):
         novel=get_test_input_dir_path("novel"),
     )
     recreated = eval(repr(sorter))
+    assert recreated.allow_duplicates is sorter.allow_duplicates is allow_duplicates
     assert recreated.outlets == sorter.outlets
     assert recreated.outlets_by_filename == sorter.outlets_by_filename
     assert repr(recreated) == repr(sorter)
