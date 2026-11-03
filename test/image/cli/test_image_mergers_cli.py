@@ -26,7 +26,7 @@ from pipescaler.testing.file import get_test_input_path
         (AlphaMergerCli, "", ("RGB", "L")),
         (PaletteMatchMergerCli, "", ("RGB", "alt/RGB")),
         (PaletteMatchMergerCli, "--local", ("RGB", "alt/RGB")),
-        (PaletteMatchMergerCli, "--local --local_range 2", ("RGB", "alt/RGB")),
+        (PaletteMatchMergerCli, "--local --local-range 2", ("RGB", "alt/RGB")),
     ],
 )
 def test(cli: type[CommandLineInterface], args: str, input_filenames: tuple[str]):

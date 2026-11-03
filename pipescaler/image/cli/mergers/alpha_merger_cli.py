@@ -6,11 +6,15 @@ from __future__ import annotations
 
 from argparse import ArgumentParser
 from logging import info
-from typing import Any
+from pathlib import Path
 
 from PIL import Image
 
-from pipescaler.common.argument_parsing import input_file_arg, output_file_arg
+from pipescaler.common.argument_parsing import (
+    get_arg_groups_by_name,
+    input_file_arg,
+    output_file_arg,
+)
 from pipescaler.image.core.cli import ImageMergerCli
 from pipescaler.image.operators.mergers import AlphaMerger
 
@@ -29,41 +33,28 @@ class AlphaMergerCli(ImageMergerCli):
         """
         super().add_arguments_to_argparser(parser)
 
-        parser.add_argument(
-            "color_input_file",
+        arg_groups = get_arg_groups_by_name(
+            parser, "input arguments", "output arguments"
+        )
+
+        arg_groups["input arguments"].add_argument(
+            "color_input_path",
+            metavar="color_input_file",
             type=input_file_arg(),
             help="color input file",
         )
-        parser.add_argument(
-            "alpha_input_file",
+        arg_groups["input arguments"].add_argument(
+            "alpha_input_path",
+            metavar="alpha_input_file",
             type=input_file_arg(),
             help="alpha input file",
         )
-        parser.add_argument(
-            "output_file",
+        arg_groups["output arguments"].add_argument(
+            "output_path",
+            metavar="output_file",
             type=output_file_arg(),
             help="output file",
         )
-
-    @classmethod
-    def _main(cls, **kwargs: Any):
-        """Execute with provided keyword arguments.
-
-        Arguments:
-            **kwargs: additional options forwarded to the selected implementation
-        """
-        color_input_path = kwargs.pop("color_input_file")
-        alpha_input_path = kwargs.pop("alpha_input_file")
-        output_path = kwargs.pop("output_file")
-        merger_cls = cls.merger()
-        merger = merger_cls(**kwargs)
-        with (
-            Image.open(color_input_path) as color_img,
-            Image.open(alpha_input_path) as alpha_img,
-        ):
-            output_img = merger(color_img, alpha_img)
-            output_img.save(output_path)
-            info(f"{cls}: '{output_path}' saved")
 
     @classmethod
     def merger(cls) -> type[AlphaMerger]:
@@ -73,6 +64,27 @@ class AlphaMergerCli(ImageMergerCli):
             image merger class invoked by this command
         """
         return AlphaMerger
+
+    @classmethod
+    def _main(
+        cls, *, color_input_path: Path, alpha_input_path: Path, output_path: Path
+    ):
+        """Execute with parsed image paths and operation settings.
+
+        Arguments:
+            color_input_path: color input path
+            alpha_input_path: alpha input path
+            output_path: output path
+        """
+        merger_cls = cls.merger()
+        merger = merger_cls()
+        with (
+            Image.open(color_input_path) as color_img,
+            Image.open(alpha_input_path) as alpha_img,
+        ):
+            output_img = merger(color_img, alpha_img)
+            output_img.save(output_path)
+            info(f"{cls}: '{output_path}' saved")
 
 
 if __name__ == "__main__":
