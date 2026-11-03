@@ -43,7 +43,7 @@ from pipescaler.image.cli.splitters import AlphaSplitterCli
         (ResizeCli, True),
         (SharpenCli, False),
         (SolidColorCli, True),
-        (SpandrelCli, False),
+        (SpandrelCli, True),
         (ThresholdCli, True),
         (XbrzCli, True),
         (AlphaMergerCli, False),
