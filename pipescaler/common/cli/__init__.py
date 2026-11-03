@@ -3,13 +3,13 @@
 """Reusable command-line interface helpers.
 
 Package hierarchy (modules may import from any above):
-* list_all_commands_action
+* command_line_interface
+* entry_points / list_all_commands_action
 """
 
 from __future__ import annotations
 
-from pipescaler.common.command_line_interface import CommandLineInterface
-
+from .command_line_interface import CommandLineInterface
 from .list_all_commands_action import ListAllCommandsAction
 
 __all__ = ["CommandLineInterface", "ListAllCommandsAction"]

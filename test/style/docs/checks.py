@@ -58,6 +58,9 @@ class _DocstringSection:
     name: str
     """Section name without its trailing colon."""
 
+    header_line_index: int
+    """Zero-based index of the section header within the cleaned docstring."""
+
     content_lines: tuple[str, ...]
     """Lines between this header and the next top-level header."""
 
@@ -284,6 +287,42 @@ class _DocstringVisitor(ast.NodeVisitor):
                 rule_id="missing-raises",
             )
 
+        self._check_section_spacing(
+            docstring=docstring,
+            node=node,
+            qualified_name=qualified_name,
+            sections=sections,
+        )
+
+    def _check_section_spacing(
+        self,
+        *,
+        docstring: str,
+        node: ast.FunctionDef | ast.AsyncFunctionDef,
+        qualified_name: str,
+        sections: list[_DocstringSection],
+    ):
+        """Separate the description from sections while keeping sections compact.
+
+        Arguments:
+            docstring: cleaned callable docstring
+            node: callable definition
+            qualified_name: qualified callable name
+            sections: parsed top-level sections in source order
+        """
+        if sections:
+            first_section = sections[0]
+            previous_index = first_section.header_line_index - 1
+            if previous_index >= 0 and docstring.splitlines()[previous_index].strip():
+                self._add_violation(
+                    line_number=node.lineno,
+                    message=(
+                        "lacks a blank line before the first "
+                        f"`{first_section.name}:` section"
+                    ),
+                    qualified_name=qualified_name,
+                    rule_id="description-section-spacing",
+                )
         compact_section_names = {"Arguments", "Raises", "Returns", "Yields"}
         for section, next_section in zip(sections, sections[1:], strict=False):
             if (
@@ -527,6 +566,7 @@ def _get_docstring_sections(docstring: str) -> list[_DocstringSection]:
         sections.append(
             _DocstringSection(
                 name=lines[header_line_index].strip()[:-1],
+                header_line_index=header_line_index,
                 content_lines=tuple(lines[header_line_index + 1 : content_end_index]),
             )
         )

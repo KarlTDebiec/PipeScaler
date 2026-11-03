@@ -31,7 +31,9 @@ assumptions. Update documentation with the code it describes.
 - Use Markdown and Google-style docstrings with `Arguments:` instead of `Args:`.
   Do not use reStructuredText markup such as double backticks.
 - Begin argument, return, and yield descriptions in lowercase unless the first
-  word is a type name. Do not put blank lines between adjacent sections.
+  word is a type name.
+- Put a blank line between the description and the first structured section.
+  Keep adjacent structured sections together without blank lines between them.
 
 | Section | Requirement |
 | --- | --- |

@@ -14,7 +14,7 @@ from unittest.mock import patch
 
 import __main__
 
-from .command_line_interface import CommandLineInterface
+from .cli.command_line_interface import CommandLineInterface
 
 __all__ = ["echo_command", "run_cli_with_args"]
 

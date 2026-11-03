@@ -22,7 +22,7 @@ from pathlib import Path
 from sys import argv
 from typing import Any
 
-from .logs import DEFAULT_LOG_FORMAT, configure_logging
+from pipescaler.common.logs import DEFAULT_LOG_FORMAT, configure_logging
 
 __all__ = ["CommandLineInterface"]
 
@@ -177,6 +177,18 @@ class CommandLineInterface(ABC):
         if name.endswith("Cli"):
             name = name[:-3]
         return name.lower()
+
+    @classmethod
+    def subcommand_dest(cls) -> str:
+        """Get the internal argparse destination for this CLI's command selection.
+
+        The qualified class name keeps routing metadata distinct between containers.
+        Dots separate it from ordinary keyword arguments passed to leaf commands.
+
+        Returns:
+            namespaced destination used by both parser construction and dispatch
+        """
+        return f"{cls.__module__}.{cls.__qualname__}.subcommand"
 
     @staticmethod
     def log_command_line():

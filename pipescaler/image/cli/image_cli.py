@@ -7,7 +7,7 @@ from __future__ import annotations
 from argparse import ArgumentParser
 from typing import Any
 
-from pipescaler.common import CommandLineInterface
+from pipescaler.common.cli import CommandLineInterface
 
 from .image_mergers_cli import ImageMergersCli
 from .image_processors_cli import ImageProcessorsCli
@@ -30,7 +30,7 @@ class ImageCli(CommandLineInterface):
 
         # Subcommands
         subparsers = parser.add_subparsers(
-            dest="subcommand",
+            dest=cls.subcommand_dest(),
             help="subcommand",
             required=True,
         )
@@ -62,7 +62,7 @@ class ImageCli(CommandLineInterface):
         Arguments:
             **kwargs: additional options forwarded to the selected implementation
         """
-        subcommand_name = kwargs.pop("subcommand")
+        subcommand_name = kwargs.pop(cls.subcommand_dest())
         subcommand_cli_class = cls.subcommands()[subcommand_name]
         subcommand_cli_class._main(**kwargs)
 

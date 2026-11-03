@@ -7,7 +7,8 @@ from __future__ import annotations
 from argparse import ArgumentParser
 from typing import Any
 
-from pipescaler.common import CommandLineInterface
+from pipescaler.common.cli import CommandLineInterface
+from pipescaler.common.cli.entry_points import get_cli_commands
 from pipescaler.image.core.cli import ImageProcessorCli
 
 from . import processors
@@ -29,7 +30,7 @@ class ImageProcessorsCli(CommandLineInterface):
 
         # Subcommands
         subparsers = parser.add_subparsers(
-            dest="processor",
+            dest=cls.subcommand_dest(),
             help="processor",
             required=True,
         )
@@ -61,7 +62,7 @@ class ImageProcessorsCli(CommandLineInterface):
         Arguments:
             **kwargs: additional options forwarded to the selected implementation
         """
-        processor_name = kwargs.pop("processor")
+        processor_name = kwargs.pop(cls.subcommand_dest())
         processor_cli_cls = cls.processors()[processor_name]
         processor_cli_cls._main(**kwargs)
 
@@ -81,13 +82,18 @@ class ImageProcessorsCli(CommandLineInterface):
         Returns:
             mapping of processor names to their CLI classes
         """
-        return {
+        commands = {
             processor.name(): processor
             for processor in map(
                 processors.__dict__.get, getattr(processors, "__all__", ())
             )
             if isinstance(processor, type) and issubclass(processor, ImageProcessorCli)
         }
+        return get_cli_commands(
+            commands,
+            group="pipescaler.cli.image.processors",
+            base_class=ImageProcessorCli,
+        )
 
 
 if __name__ == "__main__":

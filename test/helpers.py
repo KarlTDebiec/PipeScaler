@@ -11,7 +11,7 @@ from pathlib import Path
 
 from pytest import mark, raises, skip
 
-from pipescaler.common import CommandLineInterface
+from pipescaler.common.cli import CommandLineInterface
 from pipescaler.common.testing import run_cli_with_args
 
 parametrize = mark.parametrize

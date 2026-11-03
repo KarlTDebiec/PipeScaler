@@ -7,7 +7,8 @@ from __future__ import annotations
 from argparse import ArgumentParser
 from typing import Any
 
-from pipescaler.common import CommandLineInterface
+from pipescaler.common.cli import CommandLineInterface
+from pipescaler.common.cli.entry_points import get_cli_commands
 from pipescaler.image.core.cli import ImageMergerCli
 
 from . import mergers
@@ -29,7 +30,7 @@ class ImageMergersCli(CommandLineInterface):
 
         # Subcommands
         subparsers = parser.add_subparsers(
-            dest="merger",
+            dest=cls.subcommand_dest(),
             help="merger",
             required=True,
         )
@@ -61,7 +62,7 @@ class ImageMergersCli(CommandLineInterface):
         Arguments:
             **kwargs: additional options forwarded to the selected implementation
         """
-        merger_name = kwargs.pop("merger")
+        merger_name = kwargs.pop(cls.subcommand_dest())
         merger_cli_cls = cls.mergers()[merger_name]
         merger_cli_cls._main(**kwargs)
 
@@ -81,11 +82,16 @@ class ImageMergersCli(CommandLineInterface):
         Returns:
             mapping of merger names to their CLI classes
         """
-        return {
+        commands = {
             merger.name(): merger
             for merger in map(mergers.__dict__.get, getattr(mergers, "__all__", ()))
             if isinstance(merger, type) and issubclass(merger, ImageMergerCli)
         }
+        return get_cli_commands(
+            commands,
+            group="pipescaler.cli.image.mergers",
+            base_class=ImageMergerCli,
+        )
 
 
 if __name__ == "__main__":
