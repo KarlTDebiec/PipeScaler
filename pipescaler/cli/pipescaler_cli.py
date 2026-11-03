@@ -7,7 +7,8 @@ from __future__ import annotations
 from argparse import ArgumentParser
 from typing import Any
 
-from pipescaler.common import CommandLineInterface
+from pipescaler.common.cli import CommandLineInterface
+from pipescaler.common.cli.entry_points import get_cli_commands
 from pipescaler.image.cli import ImageCli
 
 __all__ = ["PipeScalerCli"]
@@ -27,7 +28,7 @@ class PipeScalerCli(CommandLineInterface):
 
         # Subcommands
         subparsers = parser.add_subparsers(
-            dest="domain",
+            dest=cls.subcommand_dest(),
             help="subcommand",
             required=True,
         )
@@ -41,20 +42,22 @@ class PipeScalerCli(CommandLineInterface):
         Arguments:
             **kwargs: additional options forwarded to the selected implementation
         """
-        subcommand_name = kwargs.pop("domain")
+        subcommand_name = kwargs.pop(cls.subcommand_dest())
         subcommand_cli_class = cls.subcommands()[subcommand_name]
         subcommand_cli_class._main(**kwargs)
 
     @classmethod
-    def subcommands(cls) -> dict[str, type[ImageCli]]:
+    def subcommands(cls) -> dict[str, type[CommandLineInterface]]:
         """Names and types of tools wrapped by command-line interface.
 
         Returns:
             mapping of command names to their CLI classes
         """
-        return {
-            ImageCli.name(): ImageCli,
-        }
+        return get_cli_commands(
+            {ImageCli.name(): ImageCli},
+            group="pipescaler.cli.commands",
+            base_class=CommandLineInterface,
+        )
 
 
 if __name__ == "__main__":

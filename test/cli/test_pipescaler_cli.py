@@ -13,7 +13,7 @@ import pytest
 from PIL import Image
 
 from pipescaler.cli import PipeScalerCli
-from pipescaler.common import CommandLineInterface
+from pipescaler.common.cli import CommandLineInterface
 from pipescaler.common.testing import run_cli_with_args
 from pipescaler.image.cli import ImageCli
 from pipescaler.testing.mark import parametrize_with_readable_ids

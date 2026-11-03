@@ -12,6 +12,43 @@ import pytest
 from test.style.docs.checks import get_sample_docstring_violations
 
 
+@pytest.mark.parametrize("section_name", ["Arguments", "Raises", "Returns", "Yields"])
+@pytest.mark.parametrize("has_blank_line", [False, True])
+@pytest.mark.parametrize("has_details", [False, True])
+def test_description_is_separated_from_first_section(
+    section_name: str, has_blank_line: bool, has_details: bool
+):
+    """Require a blank line before the first section after short or long descriptions.
+
+    Arguments:
+        section_name: structured section following the description
+        has_blank_line: whether the description and section are separated
+        has_details: whether the description includes an explanatory paragraph
+    """
+    content, signature, body = {
+        "Arguments": ("        value: sample value", "value", "    pass"),
+        "Raises": ("        ValueError: always", "", "    raise ValueError"),
+        "Returns": ("        returned value", "", "    return 1"),
+        "Yields": ("        generated value", "", "    yield 1"),
+    }[section_name]
+    details = "\n\n    Further explanation of the callable." if has_details else ""
+    separator = "\n" if has_blank_line else ""
+
+    violations = get_sample_docstring_violations(
+        f'''
+def sample({signature}):
+    """Sample function.{details}
+{separator}    {section_name}:
+{content}
+    """
+{body}
+'''
+    )
+
+    expected_rules = [] if has_blank_line else ["description-section-spacing"]
+    assert [violation.rule_id for violation in violations] == expected_rules
+
+
 @pytest.mark.parametrize(
     ("first_section_name", "second_section_name"),
     list(permutations(("Arguments", "Raises", "Returns", "Yields"), 2)),

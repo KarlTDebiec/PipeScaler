@@ -14,6 +14,8 @@ Developer guidance: [Architecture](docs/ARCHITECTURE.md),
 [Code Style](docs/STYLE.md), [Documentation](docs/DOCUMENTATION.md), and
 [Contributing](docs/CONTRIBUTING.md).
 
+Other packages can add commands through [CLI extensions](docs/CLI_EXTENSIONS.md).
+
 # Image Processing
 
 PipeScaler includes the following components for image processing:

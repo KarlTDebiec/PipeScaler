@@ -12,12 +12,12 @@ from pathlib import Path
 
 from PIL import Image
 
-from pipescaler.common import CommandLineInterface
 from pipescaler.common.argument_parsing import (
     get_arg_groups_by_name,
     input_file_arg,
     output_file_arg,
 )
+from pipescaler.common.cli import CommandLineInterface
 from pipescaler.image.core.operators import ImageProcessor
 
 __all__ = ["ImageProcessorCli"]
