@@ -2,7 +2,7 @@
 
 ## Python and formatting
 
-- Target Python 3.13. Use `uv` and the repository's `pyproject.toml` and `uv.lock`.
+- Target Python 3.14. Use `uv` and the repository's `pyproject.toml` and `uv.lock`.
 - Preserve the standard two-line copyright/license header and its established
   start year. Include a module docstring and `from __future__ import annotations`.
 - Let Ruff own formatting and import sorting. Apply conventions to changed code

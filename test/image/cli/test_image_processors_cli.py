@@ -176,7 +176,7 @@ def test_spandrel_cli_registration_and_parsing():
                 ]
             )
 
-    assert parsed_args.processor == "spandrel"
+    assert vars(parsed_args)[ImageProcessorsCli.subcommand_dest()] == "spandrel"
     assert parsed_args.model_input_path == model_input_path.resolve()
     assert parsed_args.input_path == input_path
     assert parsed_args.output_path == output_path.resolve()

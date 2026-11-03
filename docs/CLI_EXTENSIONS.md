@@ -43,7 +43,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "texture-tools"
 version = "0.1.0"
-requires-python = ">=3.13"
+requires-python = ">=3.14"
 dependencies = ["pipescaler"]
 
 [project.entry-points."pipescaler.cli.commands"]
