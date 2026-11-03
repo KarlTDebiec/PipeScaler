@@ -45,7 +45,7 @@ class PotraceProcessor(ImageProcessor):
         """Validate and store native tracing settings.
 
         Arguments:
-            blacklevel: grayscale cutoff in [0, 1]; pixels below it become foreground
+            blacklevel: inclusive grayscale cutoff in [0, 1] for foreground pixels
             turdsize: maximum area of speckles to remove, in input pixels
             turnpolicy: policy for resolving ambiguous diagonal connections
             alphamax: corner threshold; zero preserves corners, above 4/3 smooths all
@@ -105,7 +105,7 @@ class PotraceProcessor(ImageProcessor):
             raise ValueError("Scaled output dimensions must be at least one pixel")
         if self.invert:
             input_image = ImageOps.invert(input_image)
-        bitmap = np.asarray(input_image) < self.blacklevel * 255
+        bitmap = np.asarray(input_image) <= self.blacklevel * 255
         policies = ("black", "white", "left", "right", "minority", "majority", "random")
         path = trace_bitmap(
             bitmap,

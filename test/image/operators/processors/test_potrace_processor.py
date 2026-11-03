@@ -126,6 +126,26 @@ def test_threshold_and_speckle_controls():
     assert high.getpixel((15, 15)) < 255
 
 
+@pytest.mark.parametrize("value", [0, 128, 255])
+@pytest.mark.parametrize("invert", [False, True])
+def test_inclusive_blacklevel(value: int, invert: bool):
+    """Keep pixels exactly at the cutoff in the black foreground.
+
+    Arguments:
+        value: grayscale value exactly on the normalized blacklevel cutoff
+        invert: whether to invert before thresholding and restore output polarity
+    """
+    if invert:
+        image_value = 255 - value
+        expected_value = 255
+    else:
+        image_value = value
+        expected_value = 0
+    image = Image.new("L", (12, 12), image_value)
+    output = PotraceProcessor(blacklevel=value / 255, alphamax=0, invert=invert)(image)
+    assert output.getextrema() == (expected_value, expected_value)
+
+
 @pytest.mark.parametrize("scale", [0.5, 1.25, 2.0])
 def test_fractional_scaling(scale: float):
     """Truncate scaled dimensions while retaining grayscale antialiasing.

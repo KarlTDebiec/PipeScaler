@@ -5,6 +5,8 @@
 from __future__ import annotations
 
 import ctypes as ct
+import json
+from pathlib import Path
 from types import SimpleNamespace
 from typing import Any, Literal
 from unittest.mock import Mock
@@ -12,9 +14,52 @@ from unittest.mock import Mock
 import numpy as np
 import pytest
 from PIL import Image
+from reportlab.graphics.shapes import Path as DrawingPath
 
 from pipescaler.image.operators.processors import PotraceProcessor
 from pipescaler.image.utilities import potrace
+
+
+@pytest.mark.parametrize(
+    ("policy", "policy_code"),
+    [
+        ("black", 0),
+        ("white", 1),
+        ("left", 2),
+        ("right", 3),
+        ("minority", 4),
+        ("majority", 5),
+        ("random", 6),
+    ],
+)
+def test_ambiguous_paths_match_executable(policy: str, policy_code: int):
+    """Match original bottom-up tracing decisions, including nested paths.
+
+    Arguments:
+        policy: turn policy name used to select the executable's reference paths
+        policy_code: corresponding native turn policy code
+    """
+    reference_path = (
+        Path(__file__).resolve().parents[2] / "data" / "potrace" / "checkerboard.json"
+    )
+    reference = json.loads(reference_path.read_text(encoding="utf-8"))
+    rings = reference["paths"][policy]
+    expected = DrawingPath()
+    for start, *points in rings:
+        expected.moveTo(*start)
+        for point in points:
+            expected.lineTo(*point)
+        expected.closePath()
+    actual = potrace.trace_bitmap(
+        np.asarray(reference["pixels"], dtype=np.uint8) <= 0.3 * 255,
+        turdsize=0,
+        turnpolicy=policy_code,
+        alphamax=0,
+        opticurve=True,
+        opttolerance=0.2,
+    )
+    assert actual.operators == expected.operators
+    np.testing.assert_allclose(actual.points, expected.points, atol=1e-6, rtol=0)
 
 
 @pytest.mark.parametrize(

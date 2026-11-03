@@ -4,7 +4,8 @@
 
 The structures mirror upstream `potracelib.h` from Potrace 1.16. In particular,
 `potrace_word` is C unsigned long (32 bits on Windows, 64 on Unix), and pixels
-are packed most-significant-bit first. No Python extension or executable is used.
+are packed most-significant-bit first in bottom-up row order. No Python extension
+or executable is used.
 """
 
 from __future__ import annotations
@@ -117,7 +118,7 @@ def trace_bitmap(  # noqa: PLR0913
     """Trace black foreground pixels and return a compound vector path.
 
     Arguments:
-        bitmap: two-dimensional array with True for black foreground pixels
+        bitmap: top-down, two-dimensional array with True for black foreground pixels
         turdsize: maximum speckle area to suppress
         turnpolicy: native ambiguity policy code, from zero through six
         alphamax: corner smoothing threshold
@@ -134,7 +135,8 @@ def trace_bitmap(  # noqa: PLR0913
     word_bytes = ct.sizeof(ct.c_ulong)
     word_bits = word_bytes * 8
     stride = (width + word_bits - 1) // word_bits
-    padded = np.pad(bitmap, ((0, 0), (0, stride * word_bits - width)))
+    # Match BMP scan order before tracing, including coordinate-dependent turn decisions
+    padded = np.pad(bitmap[::-1], ((0, 0), (0, stride * word_bits - width)))
     packed = np.packbits(padded, axis=1, bitorder="big")
     words = np.ascontiguousarray(
         packed.view(np.dtype(f">u{word_bytes}")).astype(f"u{word_bytes}")
@@ -156,20 +158,20 @@ def trace_bitmap(  # noqa: PLR0913
         while path:
             curve = path.contents.curve
             start = curve.c[curve.n - 1][2]
-            output.moveTo(start.x, height - start.y)
+            output.moveTo(start.x, start.y)
             for index in range(curve.n):
                 first, second, end = curve.c[index]
                 if curve.tag[index] == 2:
-                    output.lineTo(second.x, height - second.y)
-                    output.lineTo(end.x, height - end.y)
+                    output.lineTo(second.x, second.y)
+                    output.lineTo(end.x, end.y)
                 else:
                     output.curveTo(
                         first.x,
-                        height - first.y,
+                        first.y,
                         second.x,
-                        height - second.y,
+                        second.y,
                         end.x,
-                        height - end.y,
+                        end.y,
                     )
             output.closePath()
             path = path.contents.next
