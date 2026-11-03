@@ -2,6 +2,8 @@
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Tests for DolphinFileScanner."""
 
+from __future__ import annotations
+
 from pathlib import Path
 
 from PIL import Image
@@ -10,14 +12,22 @@ from pipescaler.common.file import get_temp_directory_path
 from pipescaler.utilities import DolphinFileScanner
 
 
-def write_png(path: Path):
-    """Write a tiny PNG image.
+def test_base_texture_is_not_treated_as_mipmap_due_to_embedded_m_marker():
+    """Test that Dolphin's embedded _m_ segment does not trigger mip ignore."""
+    with (
+        get_temp_directory_path() as input_dir_path,
+        get_temp_directory_path() as project_root_path,
+    ):
+        write_png(input_dir_path / "tex1_256x128_m_e3018a378fd26b5e_14.png")
+        write_png(input_dir_path / "tex1_256x128_m_e3018a378fd26b5e_14_mip2.png")
 
-    Arguments:
-        path: output file path
-    """
-    image = Image.new("RGBA", (1, 1), (255, 255, 255, 255))
-    image.save(path)
+        file_scanner = DolphinFileScanner(input_dir_path, project_root_path, None, [])
+        file_scanner()
+
+        assert (
+            project_root_path / "new" / "tex1_256x128_m_e3018a378fd26b5e_14.png"
+        ).exists()
+        assert (input_dir_path / "tex1_256x128_m_e3018a378fd26b5e_14_mip2.png").exists()
 
 
 def test_copies_base_texture_without_mip_suffix():
@@ -51,19 +61,11 @@ def test_ignores_mipmap_textures():
         assert not (project_root_path / "new").exists()
 
 
-def test_base_texture_is_not_treated_as_mipmap_due_to_embedded_m_marker():
-    """Test that Dolphin's embedded _m_ segment does not trigger mip ignore."""
-    with (
-        get_temp_directory_path() as input_dir_path,
-        get_temp_directory_path() as project_root_path,
-    ):
-        write_png(input_dir_path / "tex1_256x128_m_e3018a378fd26b5e_14.png")
-        write_png(input_dir_path / "tex1_256x128_m_e3018a378fd26b5e_14_mip2.png")
+def write_png(path: Path):
+    """Write a tiny PNG image.
 
-        file_scanner = DolphinFileScanner(input_dir_path, project_root_path, None, [])
-        file_scanner()
-
-        assert (
-            project_root_path / "new" / "tex1_256x128_m_e3018a378fd26b5e_14.png"
-        ).exists()
-        assert (input_dir_path / "tex1_256x128_m_e3018a378fd26b5e_14_mip2.png").exists()
+    Arguments:
+        path: output file path
+    """
+    image = Image.new("RGBA", (1, 1), (255, 255, 255, 255))
+    image.save(path)

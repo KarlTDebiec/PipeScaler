@@ -9,7 +9,7 @@ from argparse import ArgumentParser
 from inspect import cleandoc
 
 from pipescaler.common import CommandLineInterface
-from pipescaler.common.argument_parsing import input_file_arg
+from pipescaler.common.argument_parsing import get_arg_groups_by_name, input_file_arg
 from pipescaler.image.core.operators import ImageSplitter
 
 __all__ = ["ImageSplitterCli"]
@@ -27,8 +27,11 @@ class ImageSplitterCli(CommandLineInterface, ABC):
         """
         super().add_arguments_to_argparser(parser)
 
-        parser.add_argument(
-            "input_file",
+        arg_groups = get_arg_groups_by_name(parser, "input arguments")
+
+        arg_groups["input arguments"].add_argument(
+            "input_path",
+            metavar="input_file",
             type=input_file_arg(),
             help="input file",
         )

@@ -82,25 +82,14 @@ class SpandrelProcessor(ImageProcessor):
             input_image: Input image
         Returns:
             Processed output image
+        Raises:
+            ValueError: if the model output is not a single-image RGB tensor
         """
         input_img, output_mode = validate_image_and_convert_mode(
             input_image, self.inputs()["input"], "RGB"
         )
 
-        # Prepare input
-        input_arr = np.array(input_img)
-        self._validate_rgb_array(input_arr, "input")
-        input_arr = input_arr * 1.0 / 255
-        input_arr = np.transpose(input_arr[:, :, [2, 1, 0]], (2, 0, 1))
-        input_tensor = torch.from_numpy(input_arr)
-        input_tensor = input_tensor.float().unsqueeze(0).to(self.device)
-
-        # Prepare output
-        model = cast(Any, self.model)
-        output_tensor = self._run_model(model, input_tensor)
-        output_arr: np.ndarray = output_tensor.clamp_(0, 1).numpy()
-        output_arr = np.transpose(output_arr[[2, 1, 0], :, :], (1, 2, 0))
-        output_arr = np.array(output_arr * 255, np.uint8)
+        output_arr = self.upscale(np.array(input_img))
         output_img = Image.fromarray(output_arr)
         if output_img.mode != output_mode:
             output_img = output_img.convert(output_mode)
@@ -114,6 +103,8 @@ class SpandrelProcessor(ImageProcessor):
             input_arr: Array to upscale
         Returns:
             Upscaled array
+        Raises:
+            ValueError: if the input array or model output has an invalid shape
         """
         self._validate_rgb_array(input_arr, "input")
         input_arr = input_arr * 1.0 / 255

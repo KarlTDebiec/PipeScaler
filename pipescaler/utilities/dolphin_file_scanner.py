@@ -15,6 +15,7 @@ class DolphinFileScanner(FileScanner):
     """Scans Dolphin dump directories for new files."""
 
     _mip_regex = compile(r"^.+_mip\d+$")
+    """Match texture stems ending in a numbered mipmap suffix."""
 
     def get_operation(self, name: str) -> str:
         """Select operation for filename.

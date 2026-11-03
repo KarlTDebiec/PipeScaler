@@ -178,8 +178,8 @@ def test_spandrel_cli_registration_and_parsing():
 
     assert parsed_args.processor == "spandrel"
     assert parsed_args.model_input_path == model_input_path.resolve()
-    assert parsed_args.input_file == input_path
-    assert parsed_args.output_file == output_path.resolve()
+    assert parsed_args.input_path == input_path
+    assert parsed_args.output_path == output_path.resolve()
 
 
 @pytest.mark.parametrize(
@@ -245,7 +245,8 @@ def test_threshold_cli_accepts_processor_boundaries(
     )
 
     with Image.open(output_path) as output_image:
-        assert np.array(output_image).flatten().tolist() == expected
+        assert output_image.mode == "1"
+        assert np.array(output_image.convert("L")).flatten().tolist() == expected
 
 
 @pytest.mark.parametrize("threshold", [-1, 0, 245, 255, 256])

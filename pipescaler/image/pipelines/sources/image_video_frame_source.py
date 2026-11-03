@@ -4,8 +4,10 @@
 
 from __future__ import annotations
 
+import math
 from pathlib import Path
-from typing import Any
+from types import TracebackType
+from typing import Any, Self
 
 import cv2
 from PIL import Image
@@ -17,7 +19,13 @@ __all__ = ["ImageVideoFrameSource"]
 
 
 class ImageVideoFrameSource(ImageSource):
-    """Yields images from a video file."""
+    """Yields sequential frames and owns the video capture.
+
+    Exhaustion and decoding errors close the capture. Call `close()` or use a
+    `with` block when iteration may stop early. A positive integral frame count
+    detects premature decoding failure, but never limits sequential reading.
+    With no usable count, OpenCV cannot distinguish EOF from decoding failure.
+    """
 
     def __init__(
         self,
@@ -25,25 +33,107 @@ class ImageVideoFrameSource(ImageSource):
         location_path: Path | None = None,
         **kwargs: Any,
     ):
-        """Initialize.
+        """Initialize and open the video.
 
         Arguments:
-            input_path: Video file from which to yield images
-            location_path: Path relative to parent directory
-            **kwargs: Additional keyword arguments
+            input_path: video file from which to yield images
+            location_path: path relative to parent directory
+            **kwargs: additional keyword arguments
+        Raises:
+            OSError: if the video cannot be opened
         """
         super().__init__(**kwargs)
 
         self.input_path = val_input_path(input_path)
-        """Path to video file"""
+        """Path to video file."""
         self.location_path = location_path
-        """Path relative to parent directory"""
+        """Path relative to parent directory."""
         self.cap = cv2.VideoCapture(str(self.input_path))
-        """Video capture"""
-        self.length = int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))
-        """Number of frames in video"""
+        """Capture owned by this source; released by `close()`."""
+        self._closed = False
         self.index = 0
-        """Index of next frame to be read"""
+        """Number of successfully yielded frames."""
+        try:
+            if not self.cap.isOpened():
+                raise OSError(f"Cannot open video '{self.input_path}'.")
+            count = self.cap.get(cv2.CAP_PROP_FRAME_COUNT)
+            if math.isfinite(count) and count > 0 and count.is_integer():
+                self.length = int(count)
+            else:
+                self.length = None
+            """Reported frame count, or None when unavailable or invalid."""
+        except BaseException:
+            self.close()
+            raise
+
+    def __enter__(self) -> Self:
+        """Return this source for deterministic capture cleanup.
+
+        Returns:
+            this open source
+        Raises:
+            ValueError: if this source is already closed
+        """
+        if self._closed:
+            raise ValueError("Cannot enter a closed video frame source.")
+        return self
+
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
+    ):
+        """Close the capture without suppressing exceptions.
+
+        Arguments:
+            exc_type: active exception type, if any
+            exc_value: active exception, if any
+            traceback: active traceback, if any
+        """
+        self.close()
+
+    def __next__(self) -> PipeImage:
+        """Read the next frame without seeking.
+
+        Returns:
+            next object yielded by this source
+        Raises:
+            StopIteration: when closed or decoding reaches EOF
+            OSError: if decoding fails before a known count or returns no frame
+        """
+        if self._closed:
+            raise StopIteration
+        try:
+            success, frame = self.cap.read()
+            if not success:
+                if self.length is not None and self.index < self.length:
+                    raise OSError(
+                        f"Cannot decode frame {self.index + 1} of "
+                        f"{self.length} in video '{self.input_path}'."
+                    )
+                raise StopIteration
+            if frame is None:
+                raise OSError(
+                    f"Decoder returned no frame {self.index + 1} "
+                    f"in video '{self.input_path}'."
+                )
+            img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+            location_path = Path(
+                f"{self.input_path.stem}_{self.input_path.suffix.lstrip('.')}"
+            )
+            if self.location_path:
+                location_path = self.location_path / location_path
+            obj = PipeImage(
+                image=img,
+                name=f"{self.index + 1:06d}",
+                location_path=location_path,
+            )
+        except BaseException:
+            self.close()
+            raise
+        self.index += 1
+        return obj
 
     def __repr__(self) -> str:
         """Representation.
@@ -60,29 +150,8 @@ class ImageVideoFrameSource(ImageSource):
             f"location_path={location_path})"
         )
 
-    def __next__(self) -> PipeImage:
-        """Get next image from video.
-
-        Returns:
-            next object yielded by this source
-        Raises:
-            StopIteration: when no input objects remain
-        """
-        if self.index < self.length:
-            self.cap.set(cv2.CAP_PROP_POS_FRAMES, self.index)
-            _, frame = self.cap.read()
-            self.index += 1
-            img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-            location_path = Path(
-                f"{self.input_path.stem}_{self.input_path.suffix.lstrip('.')}"
-            )
-            if self.location_path:
-                location_path = self.location_path / location_path
-            return PipeImage(
-                image=img,
-                name=f"{self.index:06d}",
-                location_path=location_path,
-            )
-
-        self.cap.release()
-        raise StopIteration()
+    def close(self):
+        """Release the owned capture once and permanently stop iteration."""
+        if not self._closed:
+            self._closed = True
+            self.cap.release()

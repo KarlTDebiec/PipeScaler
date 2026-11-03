@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
+from pathlib import Path
 
 from pipescaler.common.argument_parsing import float_arg, get_arg_groups_by_name
 from pipescaler.image.core.cli import ImageProcessorCli
@@ -27,11 +28,13 @@ class SolidColorCli(ImageProcessorCli):
 
         arg_groups = get_arg_groups_by_name(
             parser,
-            "required arguments",
+            "input arguments",
+            "operation arguments",
+            "output arguments",
             optional_arguments_name="additional arguments",
         )
 
-        arg_groups["required arguments"].add_argument(
+        arg_groups["operation arguments"].add_argument(
             "--scale",
             default=1,
             type=float_arg(min_value=0),
@@ -46,6 +49,22 @@ class SolidColorCli(ImageProcessorCli):
             image processor class invoked by this command
         """
         return SolidColorProcessor
+
+    @classmethod
+    def _main(cls, *, input_path: Path, output_path: Path, scale: float):
+        """Execute with parsed image paths and operation settings.
+
+        Arguments:
+            input_path: input image path
+            output_path: output image path
+            scale: output scale relative to the input
+        """
+        processor_cls = cls.processor()
+        cls.process_image(
+            input_path=input_path,
+            output_path=output_path,
+            processor=processor_cls(scale=scale),
+        )
 
 
 if __name__ == "__main__":

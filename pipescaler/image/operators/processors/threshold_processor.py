@@ -19,14 +19,18 @@ __all__ = ["ThresholdProcessor"]
 
 
 class ThresholdProcessor(ImageProcessor):
-    """Converts image to black and white using threshold, optionally denoising."""
+    """Threshold and optionally denoise black-and-white pixels.
+
+    Output always uses mode `1`, including after denoising. Palette inputs are
+    expanded before validating their mode.
+    """
 
     def __init__(self, threshold: int = 128, denoise: bool = False):
         """Validate and store configuration and initialize.
 
         Arguments:
-            threshold: Threshold differentiating black and white
-            denoise: Flip color of pixels bordered by less than 5 pixels of the same
+            threshold: threshold differentiating black and white
+            denoise: flip color of pixels bordered by less than 5 pixels of the same
               color
         """
         super().__init__()
@@ -38,16 +42,18 @@ class ThresholdProcessor(ImageProcessor):
         """Process an image.
 
         Arguments:
-            input_image: Input image
+            input_image: input image
         Returns:
-            Processed output image
+            black-and-white image in mode `1`
         """
         input_image, input_mode = validate_image_and_convert_mode(
             input_image, self.inputs()["input"]
         )
 
         if input_mode == "L":
-            output_img = input_image.point(lambda p: p > self.threshold and 255)
+            output_img = input_image.point(
+                lambda p: p > self.threshold and 255, mode="1"
+            )
         else:
             output_img = input_image
         if self.denoise:
@@ -98,7 +104,7 @@ class ThresholdProcessor(ImageProcessor):
         """Flip color of pixels bordered by less than 5 pixels of the same color.
 
         Arguments:
-            data: Input image array; modified in-place
+            data: input image array; modified in-place
         """
         for x in range(1, data.shape[1] - 1):
             for y in range(1, data.shape[0] - 1):
@@ -106,5 +112,5 @@ class ThresholdProcessor(ImageProcessor):
                 if data[y, x] == 0:
                     if (slc == 0).sum() < 4:
                         data[y, x] = 255
-                elif (slc == 255).sum() < 4:
+                elif (slc != 0).sum() < 4:
                     data[y, x] = 0

@@ -6,7 +6,6 @@ This module may import from: common, core, image.core
 
 Package hierarchy (modules may import from any above):
 * image_merger / image_processor / image_splitter
-* processors
 """
 
 from __future__ import annotations

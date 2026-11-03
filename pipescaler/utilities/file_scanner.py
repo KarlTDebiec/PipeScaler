@@ -43,7 +43,7 @@ class FileScanner(Utility):
         Arguments:
             input_dir_path: Directory or directories from which to read input files
             project_root_path: Root directory of project
-            review_dir_path: Directory or directories of reviewed files
+            review_dir_path: directory or directories of reviewed files
             rules: Rules by which to process images
             remove_prefix: Prefix to remove from output file names
             output_format: Format of output files
@@ -272,9 +272,9 @@ class FileScanner(Utility):
         """Get names of files in directories.
 
         Arguments:
-            dir_paths: Directory or directories of input files
+            dir_paths: directory or directories of input files
         Returns:
-            Set of file names
+            set of file names
         """
         if isinstance(dir_paths, Path):
             dir_paths = [dir_paths]
@@ -288,9 +288,9 @@ class FileScanner(Utility):
         """Validate reviewed directory paths, ignoring missing directories.
 
         Arguments:
-            review_dir_path: Directory or directories of reviewed files
+            review_dir_path: directory or directories of reviewed files
         Returns:
-            Valid reviewed directory path or paths
+            valid reviewed directory path or paths
         """
         if not review_dir_path:
             return None

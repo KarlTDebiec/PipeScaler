@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
+from pathlib import Path
 
 from pipescaler.common.argument_parsing import get_arg_groups_by_name, int_arg
 from pipescaler.image.core.cli import ImageProcessorCli
@@ -27,18 +28,20 @@ class ThresholdCli(ImageProcessorCli):
 
         arg_groups = get_arg_groups_by_name(
             parser,
-            "required arguments",
+            "input arguments",
+            "operation arguments",
+            "output arguments",
             optional_arguments_name="additional arguments",
         )
 
-        arg_groups["additional arguments"].add_argument(
+        arg_groups["operation arguments"].add_argument(
             "--threshold",
             default=128,
             type=int_arg(min_value=1, max_value=244),
             help="threshold differentiating black and white (1-244, "
             "default: %(default)s)",
         )
-        arg_groups["additional arguments"].add_argument(
+        arg_groups["operation arguments"].add_argument(
             "--denoise",
             action="store_true",
             help="Flip color of pixels bordered by less than 5 pixels of "
@@ -53,6 +56,25 @@ class ThresholdCli(ImageProcessorCli):
             image processor class invoked by this command
         """
         return ThresholdProcessor
+
+    @classmethod
+    def _main(
+        cls, *, input_path: Path, output_path: Path, threshold: int, denoise: bool
+    ):
+        """Execute with parsed image paths and operation settings.
+
+        Arguments:
+            input_path: input image path
+            output_path: output image path
+            threshold: grayscale cutoff
+            denoise: whether to remove isolated pixels
+        """
+        processor_cls = cls.processor()
+        cls.process_image(
+            input_path=input_path,
+            output_path=output_path,
+            processor=processor_cls(threshold=threshold, denoise=denoise),
+        )
 
 
 if __name__ == "__main__":
