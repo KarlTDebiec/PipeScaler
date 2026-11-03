@@ -16,8 +16,8 @@ from pipescaler.image.core import PaletteMatchMode
 from pipescaler.image.utilities.local_palette_matcher import LocalPaletteMatcher
 from pipescaler.image.utilities.palette_matcher import PaletteMatcher
 from pipescaler.image.utilities.palette_shader_matcher import (
+    PaletteShaderError,
     PaletteShaderMatcher,
-    PaletteShaderUnavailableError,
 )
 
 
@@ -45,7 +45,7 @@ def test_runtime_load_failure_allows_cpu_fallback(error: type[Exception]):
             "pipescaler.image.utilities.palette_shader_matcher.import_module",
             side_effect=failure,
         ),
-        pytest.raises(PaletteShaderUnavailableError) as raised,
+        pytest.raises(PaletteShaderError) as raised,
     ):
         PaletteShaderMatcher.run(Image.new("L", (1, 1)), Image.new("L", (2, 2)))
 

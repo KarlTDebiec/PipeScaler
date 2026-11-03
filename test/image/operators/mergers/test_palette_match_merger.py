@@ -23,8 +23,7 @@ from pipescaler.image.utilities import (
     PaletteShaderMatcher,
 )
 from pipescaler.image.utilities.palette_shader_matcher import (
-    PaletteShaderExecutionError,
-    PaletteShaderUnavailableError,
+    PaletteShaderError,
 )
 from pipescaler.testing.file import get_test_input_path
 from pipescaler.testing.fixture import parametrized_fixture
@@ -172,18 +171,12 @@ def test_basic_match_allows_unrelated_sizes(mode: str):
 
 @pytest.mark.parametrize("mode", ["L", "RGB"])
 @pytest.mark.parametrize("match_mode", list(PaletteMatchMode))
-@pytest.mark.parametrize(
-    "error", [PaletteShaderExecutionError, PaletteShaderUnavailableError]
-)
-def test_shader_fallback(
-    mode: str, match_mode: PaletteMatchMode, error: type[RuntimeError]
-):
+def test_shader_fallback(mode: str, match_mode: PaletteMatchMode):
     """Preserve CPU results when either GPU strategy is unavailable or fails.
 
     Arguments:
         mode: image mode to match
         match_mode: global or local matching strategy
-        error: shader failure that triggers fallback
     """
     rng = np.random.default_rng(792)
     shape = (3, 4) if mode == "L" else (3, 4, 3)
@@ -196,7 +189,9 @@ def test_shader_fallback(
         else LocalPaletteMatcher.run(ref_img, fit_img, 2)
     )
 
-    with patch.object(PaletteShaderMatcher, "run", side_effect=error("forced failure")):
+    with patch.object(
+        PaletteShaderMatcher, "run", side_effect=PaletteShaderError("forced failure")
+    ):
         actual = PaletteMatchMerger(palette_match_mode=match_mode, local_range=2)(
             ref_img, fit_img
         )

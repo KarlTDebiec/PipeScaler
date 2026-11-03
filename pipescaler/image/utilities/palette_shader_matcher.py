@@ -20,22 +20,12 @@ from pipescaler.image.core.validation import validate_image_scale
 
 __all__ = [
     "PaletteShaderError",
-    "PaletteShaderExecutionError",
     "PaletteShaderMatcher",
-    "PaletteShaderUnavailableError",
 ]
 
 
 class PaletteShaderError(RuntimeError):
-    """Base error for palette shader matching failures."""
-
-
-class PaletteShaderUnavailableError(PaletteShaderError):
-    """Raised when the shader runtime is unavailable."""
-
-
-class PaletteShaderExecutionError(PaletteShaderError):
-    """Raised when shader execution fails."""
+    """Raised when the shader runtime cannot load or shader execution fails."""
 
 
 class PaletteShaderMatcher:
@@ -154,18 +144,16 @@ class PaletteShaderMatcher:
         Returns:
             compute callback
         Raises:
-            PaletteShaderUnavailableError: if the runtime cannot be imported
+            PaletteShaderError: if the runtime cannot be imported
         """
         try:
             import_module("wgpu.backends.auto")
             compute_module = import_module("wgpu.utils.compute")
             compute_with_buffers = compute_module.compute_with_buffers
         except ModuleNotFoundError as exc:
-            raise PaletteShaderUnavailableError("wgpu runtime not installed") from exc
+            raise PaletteShaderError("wgpu runtime not installed") from exc
         except (ImportError, OSError, RuntimeError) as exc:
-            raise PaletteShaderUnavailableError(
-                "wgpu runtime could not be loaded"
-            ) from exc
+            raise PaletteShaderError("wgpu runtime could not be loaded") from exc
         return compute_with_buffers
 
     @classmethod
@@ -206,7 +194,7 @@ class PaletteShaderMatcher:
         Returns:
             matched image array with shape matching `fit_arr`
         Raises:
-            PaletteShaderExecutionError: if shader execution fails
+            PaletteShaderError: if shader execution fails
         """
         compute_with_buffers = cls._import_compute_with_buffers()
         fit_height, fit_width, channels = fit_arr.shape
@@ -241,7 +229,7 @@ class PaletteShaderMatcher:
                 n=(workgroups_x, workgroups_y, 1),
             )
         except Exception as exc:  # pragma: no cover - runtime specific
-            raise PaletteShaderExecutionError(
+            raise PaletteShaderError(
                 f"wgpu compute shader execution failed: {exc}"
             ) from exc
 
