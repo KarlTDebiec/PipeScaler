@@ -72,15 +72,6 @@ class ImagequantCli(ImageProcessorCli):
         )
 
     @classmethod
-    def description(cls) -> str:
-        """Describe PNG-only processing and fallback behavior.
-
-        Returns:
-            description displayed in command help
-        """
-        return cls.__doc__ or ""
-
-    @classmethod
     def processor(cls) -> type[ImagequantProcessor]:
         """Identify the in-memory quantizer.
 
