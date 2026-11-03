@@ -7,13 +7,22 @@ from __future__ import annotations
 import os
 import subprocess
 import sys
+from collections.abc import Iterator
+from contextlib import redirect_stdout
+from importlib.metadata import Distribution, EntryPoint
+from importlib.util import module_from_spec, spec_from_file_location
+from io import StringIO
+from logging import getLogger
 from pathlib import Path
 
 import numpy as np
 import pytest
 from PIL import Image
 
+import pipescaler.common.cli.entry_points as command_entries
+from pipescaler.cli.pipescaler_cli import PipeScalerCli
 from pipescaler.common import package_root
+from pipescaler.common.testing import run_cli_with_args
 
 
 def test_broken_extension_identifies_distribution(extension_site: Path):
@@ -30,24 +39,58 @@ def test_broken_extension_identifies_distribution(extension_site: Path):
         encoding="utf-8",
     )
 
-    result = _run_extension_cli(extension_site, "--help")
+    with pytest.raises(ValueError) as raised:
+        run_cli_with_args(PipeScalerCli, "--help")
 
-    assert result.returncode != 0
-    assert "sample-extension" in result.stderr
-    assert "echo" in result.stderr
-    assert "pipescaler.cli.commands" in result.stderr
+    assert "sample-extension" in str(raised.value)
+    assert "echo" in str(raised.value)
+    assert "pipescaler.cli.commands" in str(raised.value)
+    assert isinstance(raised.value.__cause__, ModuleNotFoundError)
 
 
-def test_extension_subtree_preserves_domain_argument(extension_site: Path):
+def test_extension_subtree_preserves_domain_argument(
+    extension_site: Path, capsys: pytest.CaptureFixture[str]
+):
     """Keep custom container routing separate from both ancestors and leaf data.
 
     Arguments:
         extension_site: isolated installed extension distribution
+        capsys: captured command output
     """
-    result = _run_extension_cli(extension_site, "tools", "echo", "example.com")
+    run_cli_with_args(PipeScalerCli, 'tools echo "example.com"')
+
+    assert capsys.readouterr().out.strip() == "example.com"
+
+
+def test_installed_extension_starts_in_fresh_process(extension_site: Path):
+    """Discover real installed metadata during fresh application startup.
+
+    Arguments:
+        extension_site: isolated installed extension distribution
+    """
+    env = os.environ.copy()
+    env["PYTHONPATH"] = os.pathsep.join([str(extension_site), str(package_root.parent)])
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "from pipescaler.cli.pipescaler_cli import PipeScalerCli; "
+            "PipeScalerCli.main()",
+            "echo",
+            "extension works",
+        ],
+        cwd=package_root.parent,
+        env=env,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        timeout=60,
+        check=False,
+    )
 
     assert result.returncode == 0, result.stderr
-    assert result.stdout.strip() == "example.com"
+    assert result.stdout.strip() == "extension works"
+    assert result.stderr == ""
 
 
 def test_nested_extensions_execute(extension_site: Path, tmp_path: Path):
@@ -64,67 +107,51 @@ def test_nested_extensions_execute(extension_site: Path, tmp_path: Path):
     color_path = tmp_path / "color.png"
     Image.new("RGBA", (2, 3), (18, 52, 86, 123)).save(input_path)
 
-    processor = _run_extension_cli(
-        extension_site,
-        "image",
-        "process",
-        "externalmode",
-        "--mode",
-        "RGB",
-        str(input_path),
-        str(rgb_path),
+    run_cli_with_args(
+        PipeScalerCli,
+        f'image process externalmode --mode RGB "{input_path}" "{rgb_path}"',
     )
-    assert processor.returncode == 0, processor.stderr
     with Image.open(rgb_path) as image:
         assert image.mode == "RGB"
         assert image.size == (2, 3)
 
-    merger = _run_extension_cli(
-        extension_site,
-        "image",
-        "merge",
-        "externaldiff",
-        str(rgb_path),
-        str(rgb_path),
-        str(diff_path),
+    run_cli_with_args(
+        PipeScalerCli,
+        f'image merge externaldiff "{rgb_path}" "{rgb_path}" "{diff_path}"',
     )
-    assert merger.returncode == 0, merger.stderr
     with Image.open(diff_path) as image:
         assert not np.asarray(image).any()
 
-    splitter = _run_extension_cli(
-        extension_site,
-        "image",
-        "split",
-        "externalalpha",
-        str(input_path),
-        str(color_path),
-        str(alpha_path),
+    run_cli_with_args(
+        PipeScalerCli,
+        f'image split externalalpha "{input_path}" "{color_path}" "{alpha_path}"',
     )
-    assert splitter.returncode == 0, splitter.stderr
     with Image.open(alpha_path) as image:
         assert image.getpixel((0, 0)) == 123
 
 
-def test_root_extension_preserves_domain_argument(extension_site: Path):
+def test_root_extension_preserves_domain_argument(
+    extension_site: Path, capsys: pytest.CaptureFixture[str]
+):
     """Keep an extension's domain argument separate from root routing metadata.
 
     Arguments:
         extension_site: isolated installed extension distribution
+        capsys: captured command output
     """
-    result = _run_extension_cli(extension_site, "echo", "extension works")
+    run_cli_with_args(PipeScalerCli, 'echo "extension works"')
 
-    assert result.returncode == 0, result.stderr
-    assert result.stdout.strip() == "extension works"
+    assert capsys.readouterr().out.strip() == "extension works"
 
 
 @pytest.fixture
-def extension_site(tmp_path: Path) -> Path:
+def extension_site(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[Path]:
     """Provide an installed-layout distribution exposing all supported entry groups.
 
     Arguments:
         tmp_path: temporary directory for the isolated extension installation
-    Returns:
+        monkeypatch: fixture restoring discovery and loaded extension modules
+    Yields:
         directory containing the extension and its distribution metadata
     """
     site_dir_path = tmp_path / "site-packages"
@@ -190,7 +217,43 @@ class ExternalAlphaCli(AlphaSplitterCli):
         "externalalpha = sample_extension:ExternalAlphaCli\n",
         encoding="utf-8",
     )
-    return site_dir_path
+
+    def installed_entry_points(*, group: str) -> list[EntryPoint]:
+        """Load the current extension source and discover its real metadata.
+
+        Arguments:
+            group: requested command entry-point group
+        Returns:
+            installed entry points belonging to the requested group
+        """
+        if "sample_extension" not in sys.modules:
+            spec = spec_from_file_location(
+                "sample_extension", site_dir_path / "sample_extension.py"
+            )
+            assert spec is not None and spec.loader is not None
+            module = module_from_spec(spec)
+            monkeypatch.setitem(sys.modules, "sample_extension", module)
+            spec.loader.exec_module(module)
+        return [
+            entry
+            for entry in Distribution.at(metadata_dir_path).entry_points
+            if entry.group == group
+        ]
+
+    monkeypatch.delitem(sys.modules, "sample_extension", raising=False)
+    monkeypatch.setattr(command_entries, "entry_points", installed_entry_points)
+    command_entries._load_cli_commands.cache_clear()
+    root_logger = getLogger()
+    handlers, level = root_logger.handlers[:], root_logger.level
+    try:
+        yield site_dir_path
+    finally:
+        command_entries._load_cli_commands.cache_clear()
+        for handler in root_logger.handlers:
+            if handler not in handlers:
+                handler.close()
+        root_logger.handlers[:] = handlers
+        root_logger.setLevel(level)
 
 
 @pytest.mark.parametrize(
@@ -203,21 +266,29 @@ class ExternalAlphaCli(AlphaSplitterCli):
     ],
 )
 def test_extensions_appear_in_help(
-    extension_site: Path, arguments: list[str], command_name: str, builtin_name: str
+    extension_site: Path,
+    capsys: pytest.CaptureFixture[str],
+    arguments: list[str],
+    command_name: str,
+    builtin_name: str,
 ):
     """Expose extensions and built-ins together at every supported command location.
 
     Arguments:
         extension_site: isolated installed extension distribution
+        capsys: captured help output
         arguments: help command tokens
         command_name: extension expected in the help output
         builtin_name: existing command that remains available
     """
-    result = _run_extension_cli(extension_site, *arguments)
+    with pytest.raises(SystemExit) as raised:
+        run_cli_with_args(PipeScalerCli, " ".join(arguments))
 
-    assert result.returncode == 0, result.stderr
-    assert command_name in result.stdout
-    assert builtin_name in result.stdout
+    output = capsys.readouterr()
+    assert raised.value.code == 0
+    assert command_name in output.out
+    assert builtin_name in output.out
+    assert output.err == ""
 
 
 @pytest.mark.parametrize(
@@ -280,40 +351,12 @@ class CollisionCli({base}):
     for name in ("domain", "subcommand", "processor", "merger", "splitter"):
         arguments.extend(["--" + name, name + " value"])
 
-    result = _run_extension_cli(extension_site, *arguments)
+    stdout = StringIO()
+    with redirect_stdout(stdout):
+        run_cli_with_args(
+            PipeScalerCli, " ".join(f'"{argument}"' for argument in arguments)
+        )
 
-    assert result.returncode == 0, result.stderr
-    assert result.stdout.strip() == (
+    assert stdout.getvalue().strip() == (
         "domain value|subcommand value|processor value|merger value|splitter value"
-    )
-
-
-def _run_extension_cli(
-    site_dir_path: Path, *arguments: str
-) -> subprocess.CompletedProcess[str]:
-    """Run PipeScaler with a separate distribution installed on its search path.
-
-    Arguments:
-        site_dir_path: directory containing extension modules and installed metadata
-        *arguments: command-line arguments passed through root dispatch
-    Returns:
-        captured command output and exit status
-    """
-    env = os.environ.copy()
-    env["PYTHONPATH"] = os.pathsep.join([str(site_dir_path), str(package_root.parent)])
-    return subprocess.run(
-        [
-            sys.executable,
-            "-c",
-            "from pipescaler.cli.pipescaler_cli import PipeScalerCli; "
-            "PipeScalerCli.main()",
-            *arguments,
-        ],
-        cwd=package_root.parent,
-        env=env,
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        timeout=60,
-        check=False,
     )
