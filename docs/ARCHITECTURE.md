@@ -54,6 +54,8 @@ Internal imports expose their concrete dependencies as described in
   saving. Preserve input lineage and path/mtime behavior when changing resume logic.
 - Runners own subprocess invocation, platform assumptions, output validation, and
   model execution. Use existing image and video libraries where practical.
+- Image writers own encoded-file selection and publication. They may compose
+  concrete image processors; pipelines accept them through file-callable contracts.
 
 ## CLI and test boundaries
 

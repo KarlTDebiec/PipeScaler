@@ -5,7 +5,8 @@
 This module may import from: common, core, image.core, image.core.operators
 
 Package hierarchy (modules may import from any above):
-* crop_processor / expand_processor / height_to_normal_processor / mode_processor
+* crop_processor / expand_processor / height_to_normal_processor / imagequant_processor
+/ mode_processor
 / potrace_processor / resize_processor / sharpen_processor / solid_color_processor
 / spandrel_processor / threshold_processor / xbrz_processor
 """
@@ -17,6 +18,7 @@ from .expand_processor import ExpandProcessor
 from .height_to_normal_processor import (
     HeightToNormalProcessor,
 )
+from .imagequant_processor import ImagequantProcessor
 from .mode_processor import ModeProcessor
 from .potrace_processor import PotraceProcessor
 from .resize_processor import ResizeProcessor
@@ -32,6 +34,7 @@ __all__ = [
     "CropProcessor",
     "ExpandProcessor",
     "HeightToNormalProcessor",
+    "ImagequantProcessor",
     "ModeProcessor",
     "PotraceProcessor",
     "ResizeProcessor",

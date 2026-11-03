@@ -9,8 +9,8 @@ from typing import Literal
 __all__ = ["ImageMode"]
 
 # Image modes supported by PipeScaler
-# 1-bit, grayscale, grayscale+alpha, palette, RGB, RGBA, HSV
+# 1-bit, grayscale, grayscale+alpha, palette, RGB, RGBA, HSV, 16-bit grayscale
 # Extend this type if additional modes are needed
 
-type ImageMode = Literal["1", "L", "LA", "P", "RGB", "RGBA", "HSV"]
+type ImageMode = Literal["1", "L", "LA", "P", "RGB", "RGBA", "HSV", "I;16"]
 """Type alias for supported PIL image mode strings."""

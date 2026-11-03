@@ -8,6 +8,7 @@ Package hierarchy (modules may import from any above):
 * core / runners
 * pipelines / subdivided_image / testing / utilities
 * operators
+* writers
 * cli
 """
 
