@@ -31,7 +31,12 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libcairo2-dev potrace
+          sudo apt-get install -y libcairo2-dev
+
+      - name: Build libpotrace
+        run: |
+          library_path=$(uv run --no-project python scripts/build_libpotrace.py .native)
+          echo "PIPESCALER_POTRACE_LIBRARY=$library_path" >> "$GITHUB_ENV"
 
       - name: Install package dependencies
         id: install
@@ -64,13 +69,18 @@ jobs:
 
       - name: Install system dependencies
         run: |
-          brew install cairo potrace
+          brew install cairo
 
       - name: Set up uv with cache
         uses: astral-sh/setup-uv@v10.3.2
         with:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
+
+      - name: Build libpotrace
+        run: |
+          library_path=$(uv run --no-project python scripts/build_libpotrace.py .native)
+          echo "PIPESCALER_POTRACE_LIBRARY=$library_path" >> "$GITHUB_ENV"
 
       - name: Install package dependencies
         run: uv sync --all-extras --dev --frozen
@@ -101,13 +111,18 @@ jobs:
       - name: Install system dependencies
         shell: powershell
         run: |
-          iwr -Uri http://potrace.sourceforge.net/download/1.16/potrace-1.16.win64.zip -OutFile potrace.zip
-          Expand-Archive -Path potrace.zip -DestinationPath potrace
-          $exePath = "$(Get-Location)\potrace\potrace-1.16.win64"
-          echo "$exePath" | Out-File -FilePath $env:GITHUB_PATH -Append
-          iwr -Uri https://github.com/microsoft/DirectXTex/releases/download/nov2021/texconv.exe -OutFile texconv.exe
-          Move-Item texconv.exe .\potrace\
-          echo "$(Get-Location)\potrace" | Out-File -FilePath $env:GITHUB_PATH -Append
+          New-Item -ItemType Directory -Path native-tools -Force
+          iwr -Uri https://github.com/microsoft/DirectXTex/releases/download/nov2021/texconv.exe -OutFile native-tools/texconv.exe
+          echo "$(Get-Location)\native-tools" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Set up MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Build libpotrace
+        shell: powershell
+        run: |
+          $libraryPath = uv run --no-project python scripts/build_libpotrace.py .native
+          echo "PIPESCALER_POTRACE_LIBRARY=$libraryPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Install dependencies
         run: uv sync --all-extras --dev --frozen

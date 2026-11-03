@@ -16,6 +16,27 @@ Developer guidance: [Architecture](docs/ARCHITECTURE.md),
 
 Other packages can add commands through [CLI extensions](docs/CLI_EXTENSIONS.md).
 
+# Native tracing library
+
+`PotraceProcessor` uses `libpotrace` directly; the Potrace executable is unnecessary.
+Install a system shared library (for example, `libpotrace0` on Debian/Ubuntu), or
+build the pinned library with a C compiler:
+
+```sh
+uv run --no-project python scripts/build_libpotrace.py .native
+export PIPESCALER_POTRACE_LIBRARY="$PWD/.native/libpotrace.so"
+```
+
+On macOS the output is `.native/libpotrace.dylib`. On Windows, run the build from
+an x64 MSVC developer shell and set
+`$env:PIPESCALER_POTRACE_LIBRARY = (Resolve-Path .native/potrace.dll).Path`.
+The environment variable overrides system library discovery. The build verifies
+the upstream source checksum and compiles only the library. Potrace's upstream
+license applies to that separately installed library.
+
+Tracing uses keyword settings such as `PotraceProcessor(blacklevel=0.3,
+alphamax=1.34, opttolerance=0.2, scale=2)`; executable argument tokens are removed.
+
 # Image Processing
 
 PipeScaler includes the following components for image processing:
