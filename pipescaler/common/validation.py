@@ -424,9 +424,6 @@ def val_input_path(
 ) -> Path | list[Path]:
     """Validate input file path(s) and make them absolute.
 
-    Missing paths are accepted with `must_exist=False` without creating files or
-    directories. Existing paths must still be files.
-
     Arguments:
         value: Path or paths to input files
         must_exist: whether input files must already exist
