@@ -19,20 +19,22 @@ Other packages can add commands through [CLI extensions](docs/CLI_EXTENSIONS.md)
 # Native tracing library
 
 `PotraceProcessor` uses `libpotrace` directly; the Potrace executable is unnecessary.
-Install a system shared library (for example, `libpotrace0` on Debian/Ubuntu), or
-build the pinned library with a C compiler:
+Install a system shared library (for example, `libpotrace0` on Debian/Ubuntu).
+For a library outside the system search path, set its absolute path:
 
 ```sh
-uv run --no-project python scripts/build_libpotrace.py .native
-export PIPESCALER_POTRACE_LIBRARY="$PWD/.native/libpotrace.so"
+export PIPESCALER_POTRACE_LIBRARY="/path/to/libpotrace.so"
 ```
 
-On macOS the output is `.native/libpotrace.dylib`. On Windows, run the build from
-an x64 MSVC developer shell and set
-`$env:PIPESCALER_POTRACE_LIBRARY = (Resolve-Path .native/potrace.dll).Path`.
-The environment variable overrides system library discovery. The build verifies
-the upstream source checksum and compiles only the library. Potrace's upstream
-license applies to that separately installed library.
+Use a `.dylib` on macOS or a compatible DLL on Windows. In PowerShell, set
+`$env:PIPESCALER_POTRACE_LIBRARY = 'C:\path\to\potrace.dll'`.
+The environment variable overrides system library discovery.
+
+The [CI workflow](.github/workflows/build.yml) contains the commands to download,
+verify, and compile the Potrace 1.16 shared library on each platform. For manual
+builds, adapt the workflow paths to local directories and use `cc` on Linux/macOS
+or an x64 MSVC developer shell on Windows. Potrace's upstream license applies to
+the separately installed library.
 
 Tracing uses keyword settings such as `PotraceProcessor(blacklevel=0.3,
 alphamax=1.34, opttolerance=0.2, scale=2)`; executable argument tokens are removed.

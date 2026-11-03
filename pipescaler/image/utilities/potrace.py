@@ -194,8 +194,8 @@ def _import_libpotrace() -> ct.CDLL:
     )
     if not library_path:
         raise OSError(
-            "libpotrace is required: build it with scripts/build_libpotrace.py "
-            "and set PIPESCALER_POTRACE_LIBRARY to the resulting library path"
+            "libpotrace is required: install its shared library and set "
+            "PIPESCALER_POTRACE_LIBRARY if it is outside the system search path"
         )
     library = ct.CDLL(library_path)
     library.potrace_trace.argtypes = [ct.POINTER(_Params), ct.POINTER(_Bitmap)]

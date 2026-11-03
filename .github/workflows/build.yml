@@ -34,9 +34,20 @@ jobs:
           sudo apt-get install -y libcairo2-dev
 
       - name: Build libpotrace
+        shell: bash
         run: |
-          library_path=$(uv run --no-project python scripts/build_libpotrace.py .native)
-          echo "PIPESCALER_POTRACE_LIBRARY=$library_path" >> "$GITHUB_ENV"
+          build_dir="$RUNNER_TEMP/potrace"
+          mkdir -p "$build_dir" "$GITHUB_WORKSPACE/.native"
+          curl --fail --location --retry 3 --max-time 60 \
+            https://potrace.sourceforge.net/download/1.16/potrace-1.16.tar.gz \
+            --output "$build_dir/potrace.tar.gz"
+          echo "be8248a17dedd6ccbaab2fcc45835bb0502d062e40fbded3bc56028ce5eb7acc  $build_dir/potrace.tar.gz" | sha256sum --check
+          tar -xzf "$build_dir/potrace.tar.gz" -C "$build_dir"
+          cd "$build_dir/potrace-1.16/src"
+          cc -O2 -fPIC -DHAVE_INTTYPES_H '-DVERSION="1.16"' -shared \
+            curve.c trace.c decompose.c potracelib.c -lm \
+            -o "$GITHUB_WORKSPACE/.native/libpotrace.so"
+          echo "PIPESCALER_POTRACE_LIBRARY=$GITHUB_WORKSPACE/.native/libpotrace.so" >> "$GITHUB_ENV"
 
       - name: Install package dependencies
         id: install
@@ -78,9 +89,20 @@ jobs:
           cache-dependency-glob: "uv.lock"
 
       - name: Build libpotrace
+        shell: bash
         run: |
-          library_path=$(uv run --no-project python scripts/build_libpotrace.py .native)
-          echo "PIPESCALER_POTRACE_LIBRARY=$library_path" >> "$GITHUB_ENV"
+          build_dir="$RUNNER_TEMP/potrace"
+          mkdir -p "$build_dir" "$GITHUB_WORKSPACE/.native"
+          curl --fail --location --retry 3 --max-time 60 \
+            https://potrace.sourceforge.net/download/1.16/potrace-1.16.tar.gz \
+            --output "$build_dir/potrace.tar.gz"
+          echo "be8248a17dedd6ccbaab2fcc45835bb0502d062e40fbded3bc56028ce5eb7acc  $build_dir/potrace.tar.gz" | shasum -a 256 --check
+          tar -xzf "$build_dir/potrace.tar.gz" -C "$build_dir"
+          cd "$build_dir/potrace-1.16/src"
+          cc -O2 -fPIC -DHAVE_INTTYPES_H '-DVERSION="1.16"' -dynamiclib \
+            curve.c trace.c decompose.c potracelib.c -lm \
+            -o "$GITHUB_WORKSPACE/.native/libpotrace.dylib"
+          echo "PIPESCALER_POTRACE_LIBRARY=$GITHUB_WORKSPACE/.native/libpotrace.dylib" >> "$GITHUB_ENV"
 
       - name: Install package dependencies
         run: uv sync --all-extras --dev --frozen
@@ -119,9 +141,21 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
 
       - name: Build libpotrace
-        shell: powershell
+        shell: pwsh
         run: |
-          $libraryPath = uv run --no-project python scripts/build_libpotrace.py .native
+          $buildDir = Join-Path $env:RUNNER_TEMP "potrace"
+          $libraryPath = Join-Path $env:GITHUB_WORKSPACE ".native/potrace.dll"
+          New-Item -ItemType Directory -Force -Path $buildDir, (Split-Path -Parent $libraryPath) | Out-Null
+          Invoke-WebRequest -Uri https://potrace.sourceforge.net/download/1.16/potrace-1.16.tar.gz -OutFile "$buildDir/potrace.tar.gz"
+          if ((Get-FileHash -LiteralPath "$buildDir/potrace.tar.gz" -Algorithm SHA256).Hash -ne "be8248a17dedd6ccbaab2fcc45835bb0502d062e40fbded3bc56028ce5eb7acc") {
+            throw "Potrace source archive checksum mismatch"
+          }
+          tar -xzf "$buildDir/potrace.tar.gz" -C $buildDir
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Push-Location "$buildDir/potrace-1.16/src"
+          cl /nologo /O2 /LD /std:c11 /DHAVE_INTTYPES_H '/DVERSION="1.16"' curve.c trace.c decompose.c potracelib.c /link "/OUT:$libraryPath" /EXPORT:potrace_trace /EXPORT:potrace_state_free
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Pop-Location
           echo "PIPESCALER_POTRACE_LIBRARY=$libraryPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Install dependencies
