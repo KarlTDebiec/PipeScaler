@@ -4,13 +4,15 @@
 
 from __future__ import annotations
 
-from logging import info, warning
+from logging import getLogger
 from shutil import copyfile
 
 from pipescaler.core.pipelines import DirectoryTerminus
 from pipescaler.video.core.pipelines import PipeVideo, VideoTerminus
 
 __all__ = ["VideoDirectoryTerminus"]
+
+logger = getLogger(__name__)
 
 
 class VideoDirectoryTerminus(VideoTerminus, DirectoryTerminus[PipeVideo]):
@@ -39,10 +41,10 @@ class VideoDirectoryTerminus(VideoTerminus, DirectoryTerminus[PipeVideo]):
             """
             if not self.dir_path.exists():
                 self.dir_path.mkdir(parents=True)
-                info(f"{self}: '{self.dir_path}' created")
+                logger.info(f"{self}: '{self.dir_path}' created")
             if not output_path.parent.exists():
                 output_path.parent.mkdir(parents=True)
-                info(
+                logger.info(
                     f"{self}: '{output_path.parent.relative_to(self.dir_path)}' created"
                 )
             if input_obj.path:
@@ -55,22 +57,24 @@ class VideoDirectoryTerminus(VideoTerminus, DirectoryTerminus[PipeVideo]):
         self.observed_files.add(str(output_path.relative_to(self.dir_path)))
         if output_path.exists():
             if input_obj.path and output_path.resolve() == input_obj.path.resolve():
-                info(f"{self}: '{output_path}' is the input; not overwritten")
+                logger.info(f"{self}: '{output_path}' is the input; not overwritten")
                 return
             if (
                 input_obj.path
                 and output_path.stat().st_mtime >= input_obj.path.stat().st_mtime
             ):
-                info(f"{self}: '{output_path}' is equal or newer; not overwritten")
+                logger.info(
+                    f"{self}: '{output_path}' is equal or newer; not overwritten"
+                )
                 return
             if input_obj.path is None:
-                warning(
+                logger.warning(
                     f"{self}: '{output_path}' already exists; not overwritten; "
                     f"comparing video contents not implemented"
                 )
                 return
             save_video()
-            info(f"{self}: '{output_path}' changed; overwritten")
+            logger.info(f"{self}: '{output_path}' changed; overwritten")
             return
         save_video()
-        info(f"{self}: '{output_path}' saved")
+        logger.info(f"{self}: '{output_path}' saved")

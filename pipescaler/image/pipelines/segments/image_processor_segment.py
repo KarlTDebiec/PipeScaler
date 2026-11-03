@@ -4,12 +4,14 @@
 
 from __future__ import annotations
 
-from logging import info
+from logging import getLogger
 
 from pipescaler.image.core.operators import ImageProcessor
 from pipescaler.image.core.pipelines import ImageOperatorSegment, PipeImage
 
 __all__ = ["ImageProcessorSegment"]
+
+logger = getLogger(__name__)
 
 
 class ImageProcessorSegment(ImageOperatorSegment[ImageProcessor]):
@@ -34,6 +36,6 @@ class ImageProcessorSegment(ImageOperatorSegment[ImageProcessor]):
         input_image = input_objs[0].image
         output_image = self.operator(input_image)
         output = PipeImage(image=output_image, parents=input_objs[0])
-        info(f"{self.operator}: '{input_objs[0].location_name}' processed")
+        logger.info(f"{self.operator}: '{input_objs[0].location_name}' processed")
 
         return (output,)

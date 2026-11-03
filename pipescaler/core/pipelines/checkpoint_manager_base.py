@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from abc import ABC
 from collections.abc import Sequence
-from logging import warning
+from logging import getLogger
 from pathlib import Path
 from platform import system
 
@@ -16,6 +16,8 @@ from pipescaler.common.validation import val_output_dir_path
 from .pipe_object import PipeObject
 
 __all__ = ["CheckpointManagerBase"]
+
+logger = getLogger(__name__)
 
 
 class CheckpointManagerBase(ABC):
@@ -70,7 +72,7 @@ class CheckpointManagerBase(ABC):
             cpt: Checkpoint name
         """
         if location_name.endswith("."):
-            warning(
+            logger.warning(
                 f"{self}: '{location_name}' has trailing '.', which is not supported "
                 f"for directories on Windows; stripping trailing '.' from checkpoint "
                 f"directory name."
@@ -121,7 +123,7 @@ class CheckpointManagerBase(ABC):
                 cpt_path.stat().st_mtime_ns for cpt_path in cpt_paths
             )
         except OSError:
-            warning(
+            logger.warning(
                 f"{self}: unable to stat one or more input/checkpoint paths; "
                 "treating checkpoints as stale."
             )

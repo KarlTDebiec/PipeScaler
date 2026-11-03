@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
-from logging import info
+from logging import getLogger
 from pathlib import Path
 
 from PIL import Image
@@ -21,6 +21,8 @@ from pipescaler.image.core.cli import ImageMergerCli
 from pipescaler.image.operators.mergers import PaletteMatchMerger
 
 __all__ = ["PaletteMatchMergerCli"]
+
+logger = getLogger(__name__)
 
 
 class PaletteMatchMergerCli(ImageMergerCli):
@@ -118,7 +120,7 @@ class PaletteMatchMergerCli(ImageMergerCli):
         ):
             output_img = merger(reference_img, fit_img)
             output_img.save(output_path)
-            info(f"{cls}: '{output_path}' saved")
+            logger.info(f"{cls}: '{output_path}' saved")
 
 
 if __name__ == "__main__":

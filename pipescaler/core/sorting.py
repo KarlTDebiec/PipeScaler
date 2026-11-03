@@ -4,9 +4,11 @@
 
 from __future__ import annotations
 
-from logging import error
+from logging import getLogger
 
 __all__ = ["basic_sort"]
+
+logger = getLogger(__name__)
 
 
 def basic_sort(file_path: str) -> str:
@@ -22,5 +24,5 @@ def basic_sort(file_path: str) -> str:
     try:
         return "".join([f"{ord(c):03d}" for c in file_path.lower()])
     except ValueError as e:
-        error(f"Error encountered while sorting {file_path}")
+        logger.error(f"Error encountered while sorting {file_path}")
         raise e

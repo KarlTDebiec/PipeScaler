@@ -4,13 +4,15 @@
 
 from __future__ import annotations
 
-from logging import warning
+from logging import getLogger
 
 from pipescaler.common.file import get_temp_file_path
 from pipescaler.core.typing import RunnerLike
 from pipescaler.image.core.pipelines import ImageSegment, PipeImage
 
 __all__ = ["ImageRunnerSegment"]
+
+logger = getLogger(__name__)
 
 
 class ImageRunnerSegment(ImageSegment):
@@ -59,7 +61,7 @@ class ImageRunnerSegment(ImageSegment):
             output = PipeImage(path=output_path, parents=input_objs[0])
             with output.image as image:
                 output.image = image.copy()
-            warning(
+            logger.warning(
                 f"{self}: Output file is temporary and only image content is retained; "
                 f"if the encoded output file is needed, use a "
                 f"PostCheckpointedImageRunnerSegment."

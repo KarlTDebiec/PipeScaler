@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from logging import debug, info
+from logging import getLogger
 from os import remove
 from pathlib import Path
 from re import compile
@@ -12,6 +12,8 @@ from re import compile
 from .file_scanner import FileScanner
 
 __all__ = ["CitraFileScanner"]
+
+logger = getLogger(__name__)
 
 
 class CitraFileScanner(FileScanner):
@@ -124,13 +126,13 @@ class CitraFileScanner(FileScanner):
             file_path: path to file
         """
         if not file_path.exists():
-            debug(f"'{file_path.stem}' missing")
+            logger.debug(f"'{file_path.stem}' missing")
             return
 
         mip_match = self._mip_regex.match(file_path.stem)
         if mip_match is not None and int(mip_match.group("level")) > 0:
             self.remove_reviewed_paths_for_mip(file_path)
-            debug(f"'{file_path.stem}' ignored")
+            logger.debug(f"'{file_path.stem}' ignored")
             return
 
         if self.get_operation(file_path.stem) == "remove_legacy":
@@ -156,7 +158,7 @@ class CitraFileScanner(FileScanner):
                     continue
                 if match.exists():
                     remove(match)
-                    info(f"'{match.stem}' removed")
+                    logger.info(f"'{match.stem}' removed")
 
     def remove_reviewed_paths_for_mip(self, file_path: Path):
         """Remove reviewed files corresponding to a nonzero mip file.
@@ -183,7 +185,7 @@ class CitraFileScanner(FileScanner):
         for reviewed_path in self.reviewed_file_paths_by_base_name.pop(base_name, []):
             if reviewed_path.exists():
                 remove(reviewed_path)
-                info(f"'{reviewed_path}' removed")
+                logger.info(f"'{reviewed_path}' removed")
         self.reviewed_names.discard(base_name)
 
     @classmethod

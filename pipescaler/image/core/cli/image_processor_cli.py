@@ -7,7 +7,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from argparse import ArgumentParser
 from inspect import cleandoc
-from logging import info
+from logging import getLogger
 from pathlib import Path
 
 from PIL import Image
@@ -21,6 +21,8 @@ from pipescaler.common.cli import CommandLineInterface
 from pipescaler.image.core.operators import ImageProcessor
 
 __all__ = ["ImageProcessorCli"]
+
+logger = getLogger(__name__)
 
 
 class ImageProcessorCli(CommandLineInterface, ABC):
@@ -87,7 +89,7 @@ class ImageProcessorCli(CommandLineInterface, ABC):
         with Image.open(input_path) as input_img:
             output_img = processor(input_img)
             output_img.save(output_path)
-            info(f"{cls}: '{output_path}' saved")
+            logger.info(f"{cls}: '{output_path}' saved")
 
     @classmethod
     @abstractmethod

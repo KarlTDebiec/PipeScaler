@@ -4,13 +4,15 @@
 
 from __future__ import annotations
 
-from logging import info
+from logging import getLogger
 
 from pipescaler.common.validation import val_int
 from pipescaler.core.pipelines import Sorter
 from pipescaler.image.core.pipelines import PipeImage
 
 __all__ = ["SizeSorter"]
+
+logger = getLogger(__name__)
 
 
 class SizeSorter(Sorter):
@@ -40,7 +42,7 @@ class SizeSorter(Sorter):
         else:
             outlet = "greater_than_or_equal_to"
 
-        info(f"{self}: '{obj.location_name}' matches '{outlet}'")
+        logger.info(f"{self}: '{obj.location_name}' matches '{outlet}'")
         return outlet
 
     def __repr__(self) -> str:

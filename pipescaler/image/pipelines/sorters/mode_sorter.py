@@ -4,12 +4,14 @@
 
 from __future__ import annotations
 
-from logging import info
+from logging import getLogger
 
 from pipescaler.image.core.pipelines import ImageSorter, PipeImage
 from pipescaler.image.core.validation import validate_image
 
 __all__ = ["ModeSorter"]
+
+logger = getLogger(__name__)
 
 
 class ModeSorter(ImageSorter):
@@ -34,7 +36,7 @@ class ModeSorter(ImageSorter):
         if outlet == "1":
             outlet = "M"
 
-        info(f"{self}: '{obj.location_name}' matches '{outlet}'")
+        logger.info(f"{self}: '{obj.location_name}' matches '{outlet}'")
         return outlet
 
     @property

@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
-from logging import debug
+from logging import getLogger
 from pathlib import Path
 from typing import Any, Self
 
@@ -16,6 +16,8 @@ from pipescaler.video.core.image_sequence_capture import ImageSequenceCapture
 from pipescaler.video.core.video_input import VideoInput
 
 __all__ = ["PipeVideo"]
+
+logger = getLogger(__name__)
 
 
 class PipeVideo(PipeObject):
@@ -128,7 +130,7 @@ class PipeVideo(PipeObject):
                     f"{self.__class__.__name__} requires either a video or the path to "
                     f"a video; neither has been provided."
                 )
-            debug(
+            logger.debug(
                 f"{self}: Opening video '{self.location_name}' from '{self.input_path}'"
             )
             self._video = video_input.open_capture()

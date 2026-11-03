@@ -4,11 +4,13 @@
 
 from __future__ import annotations
 
-from logging import info
+from logging import getLogger
 
 from pipescaler.core.pipelines import CheckpointedSegment, PipeObject
 
 __all__ = ["PreCheckpointedSegment"]
+
+logger = getLogger(__name__)
 
 
 class PreCheckpointedSegment(CheckpointedSegment):
@@ -54,7 +56,7 @@ class PreCheckpointedSegment(CheckpointedSegment):
                 input_obj.path = cpt_path
             else:
                 input_obj.save(cpt_path)
-                info(
+                logger.info(
                     f"{self}: '{input_obj.location_name}' checkpoint '{cpt_path}' saved"
                 )
             self.cp_manager.observe(input_obj.location_name, cpt)

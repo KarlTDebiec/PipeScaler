@@ -7,13 +7,15 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections.abc import Sequence
 from inspect import cleandoc
-from logging import debug
+from logging import getLogger
 from pathlib import Path
 
 from pipescaler.common.subprocess import run_command
 from pipescaler.common.validation import val_executable, val_int
 
 __all__ = ["Runner"]
+
+logger = getLogger(__name__)
 
 
 class Runner[InputPath = Path](ABC):
@@ -86,7 +88,7 @@ class Runner[InputPath = Path](ABC):
             output_path: output file path
         """
         command = self.get_command(input_path, output_path)
-        debug(f"{self}: {command!r}")
+        logger.debug(f"{self}: {command!r}")
         run_command(command, timeout=self.timeout)
 
     @classmethod

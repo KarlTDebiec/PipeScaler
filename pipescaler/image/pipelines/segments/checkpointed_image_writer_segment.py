@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from logging import info
+from logging import getLogger
 
 from PIL import Image
 
@@ -14,6 +14,8 @@ from pipescaler.image.core.pipelines import ImageSegment, PipeImage
 from pipescaler.image.core.typing import ImageWriterLike
 
 __all__ = ["CheckpointedImageWriterSegment"]
+
+logger = getLogger(__name__)
 
 
 class CheckpointedImageWriterSegment(ImageSegment):
@@ -60,7 +62,9 @@ class CheckpointedImageWriterSegment(ImageSegment):
         if cpt_path.exists() and self.cp_manager.checkpoints_current(
             input_objs, [cpt_path]
         ):
-            info(f"{self}: '{input_obj.location_name}' checkpoint '{cpt}' loaded")
+            logger.info(
+                f"{self}: '{input_obj.location_name}' checkpoint '{cpt}' loaded"
+            )
         else:
             cpt_path.parent.mkdir(parents=True, exist_ok=True)
             with get_temp_file_path(
@@ -70,7 +74,7 @@ class CheckpointedImageWriterSegment(ImageSegment):
                 with Image.open(temp_path) as image:
                     image.load()
                 temp_path.replace(cpt_path)
-            info(f"{self}: '{input_obj.location_name}' checkpoint '{cpt}' saved")
+            logger.info(f"{self}: '{input_obj.location_name}' checkpoint '{cpt}' saved")
         self.cp_manager.observe(input_obj.location_name, cpt)
         return (PipeImage(path=cpt_path, parents=input_obj),)
 

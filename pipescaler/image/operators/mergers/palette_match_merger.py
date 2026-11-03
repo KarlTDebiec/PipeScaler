@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from logging import warning
+from logging import getLogger
 from typing import Any
 
 from PIL import Image
@@ -22,6 +22,8 @@ from pipescaler.image.utilities import (
 from pipescaler.image.utilities.palette_shader_matcher import PaletteShaderError
 
 __all__ = ["PaletteMatchMerger"]
+
+logger = getLogger(__name__)
 
 
 class PaletteMatchMerger(ImageMerger):
@@ -84,7 +86,7 @@ class PaletteMatchMerger(ImageMerger):
                 palette_match_mode=self.palette_match_mode,
             )
         except PaletteShaderError as exc:
-            warning(
+            logger.warning(
                 f"{self.__class__.__name__}: Shader path unavailable ('{exc}'); "
                 "falling back to CPU palette matcher."
             )

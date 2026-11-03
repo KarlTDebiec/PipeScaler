@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 from importlib import import_module
-from logging import warning
+from logging import getLogger
 from pathlib import Path
 from typing import Any
 
@@ -22,6 +22,8 @@ __all__ = [
     "PaletteShaderError",
     "PaletteShaderMatcher",
 ]
+
+logger = getLogger(__name__)
 
 
 class PaletteShaderError(RuntimeError):
@@ -174,7 +176,7 @@ class PaletteShaderMatcher:
         if local_range_int < 1:
             raise ValueError("local_range must be >= 1")
         if local_range_int > cls._max_local_range:
-            warning(
+            logger.warning(
                 f"PaletteShaderMatcher: local_range {local_range_int} exceeds "
                 f"{cls._max_local_range}; clamping"
             )
