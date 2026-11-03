@@ -32,7 +32,7 @@ class TemporalFixSettings:
     backend: str = "cpu"
     """Upstream cpu, cuda, directml, or tensorrt execution backend."""
     tiles: int = 1
-    """Upstream spatial tile count, independent of temporal chunk length."""
+    """Upstream spatial tile count: 1, 2, 4, 6, or 8, separate from chunk length."""
     num_streams: int = 1
     """Upstream parallel inference stream count."""
     gpu_id: int = 0
@@ -54,15 +54,27 @@ class TemporalFixSettings:
         Raises:
             ValueError: if color, timing, ranges, or inference settings are invalid
         """
-        val_str(self.matrix, options=("709", "470bg", "170m", "2020ncl"))
-        val_str(self.color_range, options=("limited", "full"))
-        val_str(self.backend, options=("cpu", "cuda", "directml", "tensorrt"))
+        object.__setattr__(
+            self,
+            "matrix",
+            val_str(self.matrix, options=("709", "470bg", "170m", "2020ncl")),
+        )
+        object.__setattr__(
+            self, "color_range", val_str(self.color_range, options=("limited", "full"))
+        )
+        object.__setattr__(
+            self,
+            "backend",
+            val_str(self.backend, options=("cpu", "cuda", "directml", "tensorrt")),
+        )
         object.__setattr__(
             self,
             "strength",
             round(val_float(self.strength, min_value=0, max_value=3, finite=True), 2),
         )
-        object.__setattr__(self, "tiles", val_int(self.tiles, min_value=1))
+        object.__setattr__(
+            self, "tiles", val_int(self.tiles, acceptable_values=(1, 2, 4, 6, 8))
+        )
         object.__setattr__(self, "num_streams", val_int(self.num_streams, min_value=1))
         object.__setattr__(self, "gpu_id", val_int(self.gpu_id, min_value=0))
         if self.frame_rate is not None:

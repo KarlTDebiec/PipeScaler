@@ -158,7 +158,9 @@ class TemporalFixRunner(Runner[VideoInput | Path | str]):
             command = self.get_command(input_path, output_path) + ["--probe"]
             stdout = self._execute(command)
             try:
-                return json.loads(stdout.strip().splitlines()[-1])
+                return self._validate_metadata(
+                    json.loads(stdout.strip().splitlines()[-1])
+                )
             except (ValueError, IndexError) as exc:
                 raise PipeScalerError(
                     "TemporalFix worker returned invalid inspection metadata"
@@ -278,6 +280,8 @@ class TemporalFixRunner(Runner[VideoInput | Path | str]):
                 or stream["pix_fmt"] != "gbrp16le"
                 or stream["color_range"] != "pc"
                 or len(frames) != frame_count
+                or rate <= 0
+                or time_base <= 0
             ):
                 raise ValueError(
                     "Rendered video has incorrect dimensions, frame count, or timing"
@@ -290,7 +294,14 @@ class TemporalFixRunner(Runner[VideoInput | Path | str]):
                     raise ValueError(
                         "Rendered frame timestamps do not preserve rational timing"
                     )
-        except (OSError, ValueError, KeyError, IndexError) as exc:
+        except (
+            OSError,
+            ValueError,
+            KeyError,
+            IndexError,
+            TypeError,
+            ZeroDivisionError,
+        ) as exc:
             raise PipeScalerError(
                 f"TemporalFix output validation failed: {output_path}"
             ) from exc
@@ -341,3 +352,48 @@ class TemporalFixRunner(Runner[VideoInput | Path | str]):
             return run_command(command, timeout=self.timeout, env=env)[1]
         except (OSError, ValueError) as exc:
             raise PipeScalerError(f"TemporalFix worker failed: {exc}") from exc
+
+    @staticmethod
+    def _validate_metadata(value: object) -> dict[str, Any]:
+        """Validate the worker's JSON boundary before using source metadata.
+
+        Arguments:
+            value: decoded inspection response from the worker
+        Returns:
+            complete source geometry, rational timing, and runtime/model metadata
+        Raises:
+            ValueError: if required fields or their values are malformed
+        """
+        if not isinstance(value, dict):
+            raise ValueError("Worker inspection must return an object")
+        if any(
+            type(value.get(key)) is not int or value[key] <= 0
+            for key in ("width", "height", "frames")
+        ):
+            raise ValueError(
+                "Worker inspection must return positive integer geometry/count"
+            )
+        try:
+            if (
+                not isinstance(value["frame_rate"], str)
+                or Fraction(value["frame_rate"]) <= 0
+            ):
+                raise ValueError("Worker frame rate must be an exact positive rational")
+            for key in ("models", "versions"):
+                entries = value[key]
+                if (
+                    not isinstance(entries, dict)
+                    or not entries
+                    or any(
+                        not isinstance(name, str)
+                        or not isinstance(item, str)
+                        or not item
+                        for name, item in entries.items()
+                    )
+                ):
+                    raise ValueError("Worker model/version fingerprints are invalid")
+        except (KeyError, TypeError, ZeroDivisionError) as exc:
+            raise ValueError(
+                "Worker inspection metadata is incomplete or invalid"
+            ) from exc
+        return value

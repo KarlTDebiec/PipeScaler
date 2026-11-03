@@ -160,6 +160,7 @@ class CheckpointedVideoRunnerSegment(Segment[PipeVideo]):
             except BaseException:
                 self._check_source(source, source_identity, created)
                 raise
+        self._check_source(source, source_identity, [])
         self._observe(output_path)
         return (PipeVideo(path=output_path, parents=input_obj),)
 

@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from fractions import Fraction
-from hashlib import sha256
+from hashlib import file_digest, sha256
 from importlib import import_module
 from importlib.metadata import version
 from pathlib import Path
@@ -156,6 +156,19 @@ def inspect_temporal_input(
     versions["vapoursynth-core"] = str(vs.__version__)
     versions["python"] = python_version()
     versions["opencv"] = cv2.__version__
+    plugin_names = ["akarin", "vszip"]
+    if source.frame_paths is None:
+        plugin_names.append("bs")
+    if settings.backend in {"tensorrt", "directml"}:
+        plugin_names.append("trt" if settings.backend == "tensorrt" else "ort")
+    for name in plugin_names:
+        if hasattr(vs.core, name):
+            plugin = getattr(vs.core, name)
+            versions[f"plugin-{name}"] = str(plugin.version)
+            with Path(plugin.plugin_path).open("rb") as stream:
+                versions[f"plugin-{name}-sha256"] = file_digest(
+                    stream, "sha256"
+                ).hexdigest()
     return {
         "width": clip.width,
         "height": clip.height,

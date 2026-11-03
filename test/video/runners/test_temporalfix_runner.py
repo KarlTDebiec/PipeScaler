@@ -56,6 +56,7 @@ def test_temporal_context(
         {"strength": float("nan")},
         {"strength": 3.1},
         {"tiles": 0},
+        {"tiles": 3},
         {"gpu_id": -1},
         {"num_streams": 0},
         {"backend": "unknown"},
@@ -106,6 +107,123 @@ def test_effective_settings_and_repr(tmp_path: Path):
     command = runner.get_command(path, output)
     assert command[command.index("--input") + 1] == str(path.resolve())
     assert command[command.index("--output") + 1] == str(output)
+
+
+def test_case_insensitive_settings_are_canonical():
+    """Give case variants the same worker backend and checkpoint configuration."""
+    assert TemporalFixSettings(
+        matrix="2020NCL", color_range="FULL", backend="CPU"
+    ) == TemporalFixSettings(matrix="2020ncl", color_range="full", backend="cpu")
+
+
+@pytest.mark.parametrize(
+    "response", [[], None, {}, {"width": True, "height": 2, "frames": 8}]
+)
+def test_malformed_worker_metadata_is_a_domain_error(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, response: object
+):
+    """Reject invalid worker responses before pipeline code can use their fields.
+
+    Arguments:
+        tmp_path: temporary input path
+        monkeypatch: fixture for supplying an invalid worker response
+        response: malformed inspection response
+    """
+    path = tmp_path / "input.mkv"
+    path.touch()
+    runner = TemporalFixRunner(TemporalFixSettings(matrix="709", color_range="full"))
+    monkeypatch.setattr(
+        runner,
+        "_execute",
+        lambda command: "3.14" if "-c" in command else json.dumps(response),
+    )
+    with pytest.raises(PipeScalerError, match="metadata"):
+        runner.inspect(path)
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("frame_rate", "1/0"),
+        ("frame_rate", "0/1"),
+        ("models", []),
+        ("versions", {}),
+        ("frames", None),
+    ],
+)
+def test_invalid_worker_metadata_fields(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, field: str, value: object
+):
+    """Check field values rather than only accepting a top-level JSON object.
+
+    Arguments:
+        tmp_path: temporary input path
+        monkeypatch: fixture for replacing the worker response
+        field: metadata field to invalidate
+        value: invalid replacement value
+    """
+    path = tmp_path / "input.mkv"
+    path.touch()
+    response: dict[str, Any] = {
+        "width": 2,
+        "height": 2,
+        "frames": 8,
+        "frame_rate": "24000/1001",
+        "models": {"weights": "fingerprint"},
+        "versions": {"runtime": "version"},
+    }
+    response[field] = value
+    runner = TemporalFixRunner(TemporalFixSettings(matrix="709", color_range="full"))
+    monkeypatch.setattr(
+        runner,
+        "_execute",
+        lambda command: "3.14" if "-c" in command else json.dumps(response),
+    )
+    with pytest.raises(PipeScalerError, match="metadata"):
+        runner.inspect(path)
+
+
+@pytest.mark.parametrize("plugin_name", ["bs", "akarin", "vszip"])
+def test_native_plugin_changes_invalidate_runtime_identity(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, plugin_name: str
+):
+    """Include actual loaded decoder/filter binaries even if versions stay unchanged.
+
+    Arguments:
+        tmp_path: temporary fake native-plugin and model files
+        monkeypatch: fixture for replacing only optional native runtime boundaries
+        plugin_name: decoder or filter plugin whose binary changes
+    """
+    package_path = tmp_path / "vs_temporalfix"
+    model_path = package_path / "models"
+    model_path.mkdir(parents=True)
+    (model_path / "temporalfix_s2_v1.pth").write_bytes(b"fixed model")
+    source_path = tmp_path / "input.mkv"
+    source_path.touch()
+    plugin_path = tmp_path / "native-plugin.dll"
+    plugin_path.write_bytes(b"native plugin one")
+    plugin = SimpleNamespace(version="1", plugin_path=str(plugin_path))
+    vs = SimpleNamespace(
+        core=SimpleNamespace(**{plugin_name: plugin}), __version__="R82"
+    )
+    upstream = SimpleNamespace(__file__=str(package_path / "__init__.py"))
+    module = "pipescaler.video.core.temporalfix_runtime"
+    monkeypatch.setattr(
+        f"{module}.import_temporal_runtime", lambda _backend: (vs, upstream)
+    )
+    monkeypatch.setattr(
+        f"{module}._open_clip",
+        lambda *_args: SimpleNamespace(
+            num_frames=8, width=2, height=2, fps_num=24, fps_den=1
+        ),
+    )
+    monkeypatch.setattr(f"{module}.version", lambda _name: "test-version")
+    settings = TemporalFixSettings(matrix="709", color_range="full")
+    before = inspect_temporal_input(VideoInput(source_path), settings)
+    plugin_path.write_bytes(b"native plugin two")
+    after = inspect_temporal_input(VideoInput(source_path), settings)
+    assert before["models"] == after["models"]
+    assert before["versions"] != after["versions"]
 
 
 def test_output_metadata_validation(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):

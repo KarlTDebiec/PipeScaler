@@ -22,7 +22,10 @@ from pipescaler.video.core.pipelines import PipeVideo
 from pipescaler.video.core.temporalfix_settings import TemporalFixSettings
 from pipescaler.video.pipelines.segments import CheckpointedVideoRunnerSegment
 from pipescaler.video.runners import TemporalFixRunner
-from test.scripts.generate_temporalfix_sample import generate_temporalfix_sample
+from test.scripts.generate_temporalfix_sample import (
+    generate_temporalfix_sample,
+    generate_temporalfix_yuv_video,
+)
 
 
 @pytest.mark.serial
@@ -59,6 +62,11 @@ def test_real_temporalfix_worker(tmp_path: Path):
     whole = decode_rgb_float(whole_path, 32, 32)
     chunked = decode_rgb_float(output.path, 32, 32)
     assert whole.shape == chunked.shape == (12, 32, 32, 3)
+    original_first = cv2.imread(
+        str(template.parent / "frame_0000.png"), cv2.IMREAD_UNCHANGED
+    )
+    assert original_first is not None
+    assert np.max(np.abs(whole[0] - original_first[:, :, ::-1] / 65535)) > 0.001
     np.testing.assert_allclose(chunked, whole, atol=2 / 65535, rtol=0)
     for index in (4, 5, 10, 11):
         original = cv2.imread(
@@ -85,6 +93,18 @@ def test_real_temporalfix_worker(tmp_path: Path):
     ).run(whole_path, selected_path)
     selected = decode_rgb_float(selected_path, 32, 32)
     np.testing.assert_allclose(selected, whole[2:9], atol=2 / 65535, rtol=0)
+    yuv_path = tmp_path / "limited-yuv.mkv"
+    generate_temporalfix_yuv_video(template, yuv_path)
+    converted_path = tmp_path / "converted-rgb.mkv"
+    TemporalFixRunner(
+        TemporalFixSettings(matrix="709", color_range="limited", strength=0),
+        worker_python_path=python_path,
+    ).run(yuv_path, converted_path)
+    converted = decode_rgb_float(converted_path, 32, 32)
+    assert converted.shape == (12, 32, 32, 3)
+    np.testing.assert_allclose(
+        converted[0, 0, 0], [0.123456, 0.345678, 0.789012], atol=0.003
+    )
 
 
 def decode_rgb_float(path: Path, width: int, height: int) -> np.ndarray:

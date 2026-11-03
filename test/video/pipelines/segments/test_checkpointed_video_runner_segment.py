@@ -246,3 +246,40 @@ def test_failed_reprocessing_preserves_previous_valid_destination(
     with pytest.raises(RuntimeError):
         CheckpointedVideoRunnerSegment(replacement, manager, chunk_frames=3)(source)
     assert first.path.read_bytes() == original
+
+
+def test_source_change_during_cache_hit_is_rejected(
+    environment: tuple[PipeVideo, CheckpointManager], monkeypatch: pytest.MonkeyPatch
+):
+    """Recheck mutable sources after hashing a large cached output.
+
+    Arguments:
+        environment: source and checkpoint manager
+        monkeypatch: fixture for changing the source during cache-hit validation
+    """
+    source, manager = environment
+    runner = RecordingRunner()
+    segment = CheckpointedVideoRunnerSegment(runner, manager, chunk_frames=4)
+    output = segment(source)[0]
+    assert output.path is not None
+    original = output.path.read_bytes()
+    hash_file = runner.hash_file
+
+    def mutate_after_hash(path: Path) -> str:
+        """Change the source after final-output digest validation begins.
+
+        Arguments:
+            path: source or cached output being hashed
+        Returns:
+            original digest before the concurrent source mutation
+        """
+        digest = hash_file(path)
+        if path == output.path:
+            assert source.input_path is not None
+            source.input_path.write_bytes(b"changed while verifying the cached output")
+        return digest
+
+    monkeypatch.setattr(runner, "hash_file", mutate_after_hash)
+    with pytest.raises(PipeScalerError, match="source changed"):
+        segment(source)
+    assert output.path.read_bytes() == original

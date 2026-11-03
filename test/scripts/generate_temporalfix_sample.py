@@ -5,11 +5,14 @@
 from __future__ import annotations
 
 from pathlib import Path
+from subprocess import run
 
 import cv2
 import numpy as np
 
-__all__ = ["generate_temporalfix_sample"]
+from pipescaler.common.validation import val_executable
+
+__all__ = ["generate_temporalfix_sample", "generate_temporalfix_yuv_video"]
 
 
 def generate_temporalfix_sample(dir_path: Path, frame_count: int = 12) -> Path:
@@ -34,3 +37,41 @@ def generate_temporalfix_sample(dir_path: Path, frame_count: int = 12) -> Path:
         if not cv2.imwrite(str(dir_path / f"frame_{number:04d}.png"), bgr):
             raise OSError("Cannot write generated TemporalFix fixture")
     return dir_path / "frame_%04d.png"
+
+
+def generate_temporalfix_yuv_video(template: Path, output_path: Path):
+    """Encode a limited-range BT.709 sample to exercise real video color conversion.
+
+    Arguments:
+        template: generated numbered 16-bit PNG source
+        output_path: lossless YUV test video destination
+    """
+    run(
+        [
+            str(val_executable("ffmpeg")),
+            "-v",
+            "error",
+            "-y",
+            "-framerate",
+            "24000/1001",
+            "-i",
+            str(template),
+            "-vf",
+            "scale=out_color_matrix=bt709:out_range=tv",
+            "-c:v",
+            "ffv1",
+            "-pix_fmt",
+            "yuv420p10le",
+            "-color_range",
+            "tv",
+            "-colorspace",
+            "bt709",
+            "-color_primaries",
+            "bt709",
+            "-color_trc",
+            "bt709",
+            str(output_path),
+        ],
+        check=True,
+        capture_output=True,
+    )

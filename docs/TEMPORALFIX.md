@@ -88,7 +88,8 @@ also render a selected range without the checkpoint segment.
 
 Checkpoint identity includes ordered source paths/content hashes, effective
 settings and ranges, model fingerprints, dependency versions, adapter code, and
-FFmpeg/ffprobe versions. Hashing a large source adds sequential I/O on each run.
+FFmpeg/ffprobe versions. Loaded decoder/filter plugin versions and binary hashes
+also participate. Hashing a large source adds sequential I/O on each run.
 Completed chunks have independent content-digest manifests and survive later
 worker failure, cancellation, or timeout. Partial chunks have no completion
 manifest and are rerendered. Source changes invalidate newly completed manifests.
