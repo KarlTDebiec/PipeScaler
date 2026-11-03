@@ -1,0 +1,117 @@
+#  Copyright 2026 Karl T Debiec. All rights reserved. This software may be modified
+#  and distributed under the terms of the BSD license. See the LICENSE file for details.
+"""Opt-in real TemporalFix worker checks with generated 16-bit source frames.
+
+Set PIPESCALER_TEMPORALFIX_PYTHON to a provisioned worker interpreter. FFmpeg and
+ffprobe must be on PATH; normal tests never install native plugins or download models.
+"""
+
+from __future__ import annotations
+
+from os import getenv
+from pathlib import Path
+from subprocess import run
+
+import cv2
+import numpy as np
+import pytest
+
+from pipescaler.common.validation import val_executable
+from pipescaler.pipelines import CheckpointManager
+from pipescaler.video.core.pipelines import PipeVideo
+from pipescaler.video.core.temporalfix_settings import TemporalFixSettings
+from pipescaler.video.pipelines.segments import CheckpointedVideoRunnerSegment
+from pipescaler.video.runners import TemporalFixRunner
+from test.scripts.generate_temporalfix_sample import generate_temporalfix_sample
+
+
+@pytest.mark.serial
+def test_real_temporalfix_worker(tmp_path: Path):
+    """Preserve ordering, RGB, timing, exclusions, scene edges, and chunk equivalence.
+
+    Lossless 16-bit output may differ by at most two code values when comparing
+    whole and chunked CPU inference. Short scenes deliberately pass through.
+
+    Arguments:
+        tmp_path: temporary generated assets and worker output directory
+    """
+    python_path = getenv("PIPESCALER_TEMPORALFIX_PYTHON")
+    if python_path is None:
+        pytest.skip("Provision the optional TemporalFix worker interpreter")
+    template = generate_temporalfix_sample(tmp_path / "frames")
+    runner = TemporalFixRunner(
+        TemporalFixSettings(
+            matrix="709",
+            color_range="full",
+            frame_rate="24000/1001",
+            scene_boundaries=(7, 10),
+            exclude_ranges=((4, 6),),
+        ),
+        worker_python_path=python_path,
+    )
+    whole_path = tmp_path / "whole.mkv"
+    runner.run(template, whole_path)
+    manager = CheckpointManager(tmp_path / "checkpoints")
+    segment = CheckpointedVideoRunnerSegment(runner, manager, chunk_frames=3)
+    source = PipeVideo(path=template)
+    output = segment(source)[0]
+    assert output.path is not None
+    whole = decode_rgb_float(whole_path, 32, 32)
+    chunked = decode_rgb_float(output.path, 32, 32)
+    assert whole.shape == chunked.shape == (12, 32, 32, 3)
+    np.testing.assert_allclose(chunked, whole, atol=2 / 65535, rtol=0)
+    for index in (4, 5, 10, 11):
+        original = cv2.imread(
+            str(template.parent / f"frame_{index:04d}.png"), cv2.IMREAD_UNCHANGED
+        )
+        assert original is not None
+        np.testing.assert_allclose(
+            whole[index], original[:, :, ::-1] / 65535, atol=2 / 65535, rtol=0
+        )
+    assert whole[0, 0, 0, 2] > whole[0, 0, 0, 1] > whole[0, 0, 0, 0]
+    assert whole[-1, 0, 0, 0] > whole[-1, 0, 0, 1] > whole[-1, 0, 0, 2]
+    assert not np.allclose(whole * 255, np.rint(whole * 255), atol=1e-3)
+    previous_mtime = output.path.stat().st_mtime_ns
+    assert segment(source)[0].path == output.path
+    assert output.path.stat().st_mtime_ns == previous_mtime
+    assert output.parents == [source]
+    # File input retains native rational timing and selects the requested frame range
+    selected_path = tmp_path / "selected.mkv"
+    TemporalFixRunner(
+        TemporalFixSettings(
+            matrix="709", color_range="full", strength=0, frame_range=(2, 9)
+        ),
+        worker_python_path=python_path,
+    ).run(whole_path, selected_path)
+    selected = decode_rgb_float(selected_path, 32, 32)
+    np.testing.assert_allclose(selected, whole[2:9], atol=2 / 65535, rtol=0)
+
+
+def decode_rgb_float(path: Path, width: int, height: int) -> np.ndarray:
+    """Decode lossless RGB without reducing to OpenCV's default 8-bit capture.
+
+    Arguments:
+        path: completed rendered checkpoint
+        width: expected width
+        height: expected height
+    Returns:
+        float32 frames in playback order and RGB channel order
+    """
+    result = run(
+        [
+            str(val_executable("ffmpeg")),
+            "-v",
+            "error",
+            "-i",
+            str(path),
+            "-f",
+            "rawvideo",
+            "-pix_fmt",
+            "gbrp16le",
+            "pipe:1",
+        ],
+        capture_output=True,
+        check=True,
+    )
+    gbr = np.frombuffer(result.stdout, dtype="<u2").reshape((-1, 3, height, width))
+    return gbr[:, [2, 0, 1]].transpose(0, 2, 3, 1).astype(np.float32) / 65535
