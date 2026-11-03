@@ -199,23 +199,30 @@ def test_package_and_module_logging_controls(
         assert not caplog.records
 
 
+@pytest.mark.parametrize("root_level", [WARNING, DEBUG])
 def test_records_identify_emitting_modules(
-    tmp_path: Path, caplog: pytest.LogCaptureFixture
+    tmp_path: Path, caplog: pytest.LogCaptureFixture, root_level: int
 ):
-    """Capture real image and sorter diagnostics through the package namespace.
+    """Capture PipeScaler diagnostics independently of dependency logging.
 
     Arguments:
         tmp_path: temporary image directory
         caplog: captured log records
+        root_level: application logging threshold, including dependency debug output
     """
     input_path = tmp_path / "sample.png"
     Image.new("RGB", (1, 1)).save(input_path)
     image = PipeImage(path=input_path, detach_file=True)
-    with caplog.at_level(DEBUG, logger="pipescaler"):
+    with (
+        caplog.at_level(root_level),
+        caplog.at_level(DEBUG, logger="pipescaler"),
+    ):
         assert image.image.size == (1, 1)
         assert RegexSorter("sample")(image) == "matched"
 
-    assert caplog.record_tuples == [
+    assert [
+        record for record in caplog.record_tuples if record[0].startswith("pipescaler.")
+    ] == [
         (
             "pipescaler.image.core.pipelines.pipe_image",
             DEBUG,
