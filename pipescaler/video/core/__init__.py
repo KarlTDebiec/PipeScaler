@@ -5,8 +5,9 @@
 This module may import from: common, core, video
 
 Package hierarchy (modules may import from any above):
-* image_sequence_capture
+* image_sequence_capture / temporalfix_settings
 * video_input
+* temporalfix_runtime
 * pipelines
 """
 
