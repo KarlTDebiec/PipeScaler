@@ -13,7 +13,7 @@ from pipescaler.image.core.operators import ImageProcessor
 from pipescaler.image.core.typing import ImageMode
 from pipescaler.image.core.validation import validate_image
 
-__all__ = ["ModeProcessor"]
+__all__ = ["ModeProcessor", "ModeSetting"]
 
 type ModeSetting = Literal["1", "L", "LA", "RGB", "RGBA"]
 """Mode settings supported by ModeProcessor."""
