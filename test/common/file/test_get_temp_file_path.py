@@ -6,6 +6,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from pipescaler.common.file import get_temp_file_path
 
 
@@ -44,14 +46,12 @@ def test_get_temp_file_path_cleanup_on_exception(tmp_path: Path):
         ValueError: if a value is invalid
     """
     temp_file = None
-    try:
+    with pytest.raises(ValueError, match="Test exception"):
         with get_temp_file_path(parent_dir_path=tmp_path) as temp_file_path:
             temp_file = temp_file_path
             temp_file_path.write_text("test content")
             assert temp_file_path.exists()
             raise ValueError("Test exception")
-    except ValueError:
-        pass
 
     # File should still be cleaned up
     assert temp_file is not None
