@@ -12,11 +12,7 @@ from PIL import Image
 
 from pipescaler.image.core.enums import MaskFillMode
 from pipescaler.image.core.exceptions import UnsupportedImageModeError
-from pipescaler.image.utilities.mask_filler import MaskFiller
-from pipescaler.image.utilities.mask_shader_filler import (
-    MaskShaderError,
-    MaskShaderFiller,
-)
+from pipescaler.image.utilities.mask_filler import MaskFiller, MaskFillError
 from pipescaler.image.utilities.palette_matcher import PaletteMatcher
 
 
@@ -40,11 +36,11 @@ def test_shader_fallback(
     monkeypatch.setattr(MaskFiller, "_minimum_shader_pixels", 0)
 
     with patch.object(
-        MaskShaderFiller, "run", side_effect=MaskShaderError("forced failure")
+        MaskFiller, "_run_gpu", side_effect=MaskFillError("forced failure")
     ) as shader:
         actual = MaskFiller.run(image, mask, fill_mode)
 
-    shader.assert_called_once_with(image, mask)
+    shader.assert_called_once()
     np.testing.assert_array_equal(np.asarray(actual), np.asarray(expected))
 
 
@@ -67,12 +63,12 @@ def test_large_masks_use_shader(mode: str, fill_mode: MaskFillMode):
         expected = PaletteMatcher.run(image, filled)
 
     with (
-        patch.object(MaskShaderFiller, "run", return_value=filled) as shader,
+        patch.object(MaskFiller, "_run_gpu", return_value=filled) as shader,
         patch.object(MaskFiller, "run_iteration", side_effect=AssertionError),
     ):
         actual = MaskFiller.run(image, mask, fill_mode)
 
-    shader.assert_called_once_with(image, mask)
+    shader.assert_called_once()
     np.testing.assert_array_equal(np.asarray(actual), np.asarray(expected))
 
 
@@ -87,7 +83,7 @@ def test_small_masks_avoid_gpu_overhead(size: tuple[int, int]):
     mask = Image.new("1", size)
     mask.putpixel((1, 1), 1)
     image.putpixel((1, 1), 0)
-    with patch.object(MaskShaderFiller, "run", side_effect=AssertionError):
+    with patch.object(MaskFiller, "_run_gpu", side_effect=AssertionError):
         actual = MaskFiller.run(image, mask, MaskFillMode.BASIC)
 
     assert actual.getpixel((1, 1)) == 37
@@ -104,7 +100,7 @@ def test_trivial_masks_skip_processing(fill_mode: MaskFillMode, masked: bool):
     """
     image = Image.new("L", (40, 40), 73)
     with (
-        patch.object(MaskShaderFiller, "run", side_effect=AssertionError),
+        patch.object(MaskFiller, "_run_gpu", side_effect=AssertionError),
         patch.object(PaletteMatcher, "run", side_effect=AssertionError),
     ):
         actual = MaskFiller.run(

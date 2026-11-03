@@ -22,7 +22,6 @@ from wgpu.utils import get_default_device
 
 from pipescaler.image.core.enums import MaskFillMode
 from pipescaler.image.utilities.mask_filler import MaskFiller
-from pipescaler.image.utilities.mask_shader_filler import MaskShaderFiller
 
 
 def _main():
@@ -38,7 +37,11 @@ def _main():
     mask = Image.new("1", image.size)
     mask.putpixel((1, 1), 1)
     start = perf_counter()
-    MaskShaderFiller.run(image, mask)
+    with (
+        patch.object(MaskFiller, "_minimum_shader_pixels", 0),
+        patch.object(MaskFiller, "run_iteration", side_effect=AssertionError),
+    ):
+        MaskFiller.run(image, mask, MaskFillMode.BASIC)
     print(f"Shader cold startup: {(perf_counter() - start) * 1000:.2f} ms")
     print(f"Adapter: {dict(get_default_device().adapter.info)}")
     print("mode,size,mask,cpu_ms,wgsl_ms,speedup")
@@ -67,12 +70,20 @@ def _main():
                         lambda: MaskFiller.run(image, mask, MaskFillMode.BASIC),
                         args.repeats,
                     )
-                np.testing.assert_array_equal(
-                    np.asarray(MaskShaderFiller.run(image, mask)), np.asarray(expected)
-                )
-                shader_time = _measure(
-                    lambda: MaskShaderFiller.run(image, mask), args.repeats
-                )
+                with (
+                    patch.object(MaskFiller, "_minimum_shader_pixels", 0),
+                    patch.object(
+                        MaskFiller, "run_iteration", side_effect=AssertionError
+                    ),
+                ):
+                    np.testing.assert_array_equal(
+                        np.asarray(MaskFiller.run(image, mask, MaskFillMode.BASIC)),
+                        np.asarray(expected),
+                    )
+                    shader_time = _measure(
+                        lambda: MaskFiller.run(image, mask, MaskFillMode.BASIC),
+                        args.repeats,
+                    )
                 print(
                     f"{mode},{size},{name},{cpu_time * 1000:.3f},"
                     f"{shader_time * 1000:.3f},{cpu_time / shader_time:.2f}"

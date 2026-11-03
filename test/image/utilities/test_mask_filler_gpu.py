@@ -12,12 +12,7 @@ from PIL import Image
 from wgpu.utils import get_default_device
 
 from pipescaler.image.core.enums import MaskFillMode
-from pipescaler.image.core.exceptions import UnsupportedImageModeError
-from pipescaler.image.utilities.mask_filler import MaskFiller
-from pipescaler.image.utilities.mask_shader_filler import (
-    MaskShaderError,
-    MaskShaderFiller,
-)
+from pipescaler.image.utilities.mask_filler import MaskFiller, MaskFillError
 
 
 @pytest.fixture
@@ -49,7 +44,11 @@ def test_matches_cpu(mode: str, size: tuple[int, int], seed: int):
     before = image.tobytes(), mask.tobytes()
 
     expected = MaskFiller.run(image, mask, MaskFillMode.BASIC)
-    actual = MaskShaderFiller.run(image, mask)
+    with (
+        patch.object(MaskFiller, "_minimum_shader_pixels", 0),
+        patch.object(MaskFiller, "run_iteration", side_effect=AssertionError),
+    ):
+        actual = MaskFiller.run(image, mask, MaskFillMode.BASIC)
 
     assert actual.mode == mode
     assert actual.size == size
@@ -70,7 +69,7 @@ def test_deep_masks_across_batches(
         single_seed: fill outward from one seed instead of into an interior hole
         monkeypatch: fixture for controlling the progress-readback interval
     """
-    monkeypatch.setattr(MaskShaderFiller, "_rounds_per_batch", batch_size)
+    monkeypatch.setattr(MaskFiller, "_rounds_per_batch", batch_size)
     rng = np.random.default_rng(792)
     image = Image.fromarray(rng.integers(0, 256, (19, 23, 3), dtype=np.uint8))
     mask_arr = np.ones((19, 23), dtype=bool)
@@ -82,7 +81,11 @@ def test_deep_masks_across_batches(
     mask = Image.fromarray(mask_arr)
 
     expected = MaskFiller.run(image, mask, MaskFillMode.BASIC)
-    actual = MaskShaderFiller.run(image, mask)
+    with (
+        patch.object(MaskFiller, "_minimum_shader_pixels", 0),
+        patch.object(MaskFiller, "run_iteration", side_effect=AssertionError),
+    ):
+        actual = MaskFiller.run(image, mask, MaskFillMode.BASIC)
 
     np.testing.assert_array_equal(np.asarray(actual), np.asarray(expected))
 
@@ -101,7 +104,11 @@ def test_same_round_pixels_do_not_feed_each_other(mode: str):
         mode
     )
 
-    actual = MaskShaderFiller.run(image, mask)
+    with (
+        patch.object(MaskFiller, "_minimum_shader_pixels", 0),
+        patch.object(MaskFiller, "run_iteration", side_effect=AssertionError),
+    ):
+        actual = MaskFiller.run(image, mask, MaskFillMode.BASIC)
 
     np.testing.assert_array_equal(np.asarray(actual), np.asarray(expected))
 
@@ -147,8 +154,12 @@ def test_trivial_masks_do_not_load_runtime(
     """
     image = Image.new(mode, size, 73)
     mask = Image.new("1", size, int(masked))
-    with patch.object(MaskShaderFiller, "_get_runtime", side_effect=AssertionError):
-        actual = MaskShaderFiller.run(image, mask)
+    with (
+        patch.object(MaskFiller, "_get_runtime", side_effect=AssertionError),
+        patch.object(MaskFiller, "_minimum_shader_pixels", 0),
+        patch.object(MaskFiller, "run_iteration", side_effect=AssertionError),
+    ):
+        actual = MaskFiller.run(image, mask, MaskFillMode.BASIC)
 
     assert actual is not image
     assert actual.mode == mode
@@ -165,37 +176,15 @@ def test_runtime_load_failure(error: type[Exception]):
     Arguments:
         error: exception raised while importing the compute runtime
     """
-    MaskShaderFiller._get_runtime.cache_clear()
+    MaskFiller._get_runtime.cache_clear()
     failure = error("runtime unavailable")
-    mask = Image.new("1", (2, 1))
-    mask.putpixel((0, 0), 1)
     with (
         patch(
-            "pipescaler.image.utilities.mask_shader_filler.import_module",
+            "pipescaler.image.utilities.mask_filler.import_module",
             side_effect=failure,
         ),
-        pytest.raises(MaskShaderError) as raised,
+        pytest.raises(MaskFillError) as raised,
     ):
-        MaskShaderFiller.run(Image.new("L", mask.size), mask)
+        MaskFiller._get_runtime()
 
     assert raised.value.__cause__ is failure
-
-
-@pytest.mark.parametrize(("image_mode", "mask_mode"), [("RGBA", "1"), ("L", "L")])
-def test_rejects_unsupported_modes(image_mode: str, mask_mode: str):
-    """Reject invalid modes before constructing compute buffers.
-
-    Arguments:
-        image_mode: image mode to reject
-        mask_mode: mask mode to reject
-    """
-    with pytest.raises(UnsupportedImageModeError, match="Mask filling requires"):
-        MaskShaderFiller.run(
-            Image.new(image_mode, (2, 2)), Image.new(mask_mode, (2, 2))
-        )
-
-
-def test_rejects_mismatched_sizes():
-    """Reject mask dimensions that could cause out-of-bounds shader accesses."""
-    with pytest.raises(ValueError, match="matching image and mask sizes"):
-        MaskShaderFiller.run(Image.new("L", (2, 3)), Image.new("1", (3, 2)))
