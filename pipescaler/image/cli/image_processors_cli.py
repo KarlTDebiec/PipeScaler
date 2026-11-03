@@ -8,6 +8,7 @@ from argparse import ArgumentParser
 from typing import Any
 
 from pipescaler.common import CommandLineInterface
+from pipescaler.common.cli.entry_points import get_cli_commands
 from pipescaler.image.core.cli import ImageProcessorCli
 
 from . import processors
@@ -81,13 +82,18 @@ class ImageProcessorsCli(CommandLineInterface):
         Returns:
             mapping of processor names to their CLI classes
         """
-        return {
+        commands = {
             processor.name(): processor
             for processor in map(
                 processors.__dict__.get, getattr(processors, "__all__", ())
             )
             if isinstance(processor, type) and issubclass(processor, ImageProcessorCli)
         }
+        return get_cli_commands(
+            commands,
+            group="pipescaler.cli.image.processors",
+            base_class=ImageProcessorCli,
+        )
 
 
 if __name__ == "__main__":

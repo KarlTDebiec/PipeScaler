@@ -8,6 +8,7 @@ from argparse import ArgumentParser
 from typing import Any
 
 from pipescaler.common import CommandLineInterface
+from pipescaler.common.cli.entry_points import get_cli_commands
 from pipescaler.image.core.cli import ImageSplitterCli
 
 from . import splitters
@@ -81,13 +82,18 @@ class ImageSplittersCli(CommandLineInterface):
         Returns:
             mapping of splitter names to their CLI classes
         """
-        return {
+        commands = {
             splitter.name(): splitter
             for splitter in map(
                 splitters.__dict__.get, getattr(splitters, "__all__", ())
             )
             if isinstance(splitter, type) and issubclass(splitter, ImageSplitterCli)
         }
+        return get_cli_commands(
+            commands,
+            group="pipescaler.cli.image.splitters",
+            base_class=ImageSplitterCli,
+        )
 
 
 if __name__ == "__main__":

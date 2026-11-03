@@ -8,6 +8,7 @@ from argparse import ArgumentParser
 from typing import Any
 
 from pipescaler.common import CommandLineInterface
+from pipescaler.common.cli.entry_points import get_cli_commands
 from pipescaler.image.core.cli import ImageMergerCli
 
 from . import mergers
@@ -81,11 +82,16 @@ class ImageMergersCli(CommandLineInterface):
         Returns:
             mapping of merger names to their CLI classes
         """
-        return {
+        commands = {
             merger.name(): merger
             for merger in map(mergers.__dict__.get, getattr(mergers, "__all__", ()))
             if isinstance(merger, type) and issubclass(merger, ImageMergerCli)
         }
+        return get_cli_commands(
+            commands,
+            group="pipescaler.cli.image.mergers",
+            base_class=ImageMergerCli,
+        )
 
 
 if __name__ == "__main__":

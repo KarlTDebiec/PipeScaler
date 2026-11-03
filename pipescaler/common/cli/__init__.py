@@ -3,7 +3,7 @@
 """Reusable command-line interface helpers.
 
 Package hierarchy (modules may import from any above):
-* list_all_commands_action
+* entry_points / list_all_commands_action
 """
 
 from __future__ import annotations
