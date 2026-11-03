@@ -27,15 +27,25 @@ requiring judgment. A failed command is an incomplete audit, not a clean result.
 
 ## Interpret the result
 
-The report checks direct public declarations against a single literal `__all__`,
-direct function and recognizable method ordering, and common capitalized prose
-openings in argument, return, and yield descriptions.
+The report checks:
 
-Dynamic exports, constants and imported aliases, conditional definitions,
-overloads, property accessors, unknown decorators, and possible type names still
-need review. Decorator names provide syntactic evidence, not resolved runtime
-identities. These checks remain advisory; no findings does not establish complete
-compliance.
+- Two-line copyright syntax, module/future-import requirements, docstring presence
+  for modules, callables, classes, and public class attributes, and signature annotations.
+- Import locality and class-looking package facade exports.
+- `__all__` presence/formatting and direct public declaration membership in a
+  single unmodified literal export collection.
+- Direct function and recognizable method ordering, and common capitalized prose
+  openings in argument, return, and yield descriptions.
+- Literal `.format()`/`%` interpolation, `print` outside recognized CLI locations,
+  path naming inferred from annotations or suffixes, and double backticks.
 
-This audit does not replace Ruff, type checking, or tests. If the user also asks
-for fixes, make those edits separately and validate changed files under AGENTS.md.
+These AST/text checks are advisory. They do not resolve import/decorator identities,
+verify copyright history, or establish complete documentation and API intent.
+Dynamic exports, constants/imported aliases, conditional definitions, overloads,
+property accessors, unknown decorators, possible type names, path meanings, and
+intentional command output still need review. Header checks accept a four-digit
+single year or range; preserve established start years when editing source.
+
+No findings does not certify full compliance. This audit does not replace Ruff,
+type checking, or tests. If the user also asks for fixes, make those edits separately
+and validate changed files under AGENTS.md.
