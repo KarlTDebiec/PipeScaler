@@ -12,6 +12,7 @@ import numpy as np
 import pytest
 
 from pipescaler.image.pipelines.sources import ImageVideoFrameSource
+from test.scripts.generate_video_inputs import write_image_sequence, write_video
 
 
 @pytest.fixture
@@ -40,6 +41,69 @@ def input_path(tmp_path: Path) -> Path:
     path = tmp_path / "clip.mp4"
     path.touch()
     return path
+
+
+@pytest.mark.parametrize("kind", ["mp4", "flat", "nested"])
+def test_file_and_sequence_inputs(tmp_path: Path, kind: str):
+    """Read actual video and sequence inputs through the same source API.
+
+    Arguments:
+        tmp_path: temporary input directory
+        kind: file or sequence layout to generate
+    """
+    if kind == "mp4":
+        input_path = write_video(tmp_path / "clip.mp4")
+        expected_location = Path("videos/clip_mp4")
+    else:
+        pattern = "%06d.png" if kind == "flat" else "%06d/image.png"
+        input_path = write_image_sequence(tmp_path / "frames", pattern, (10, 9, 11))
+        expected_location = Path("videos/frames")
+
+    with ImageVideoFrameSource(input_path, Path("videos")) as source:
+        frames = list(source)
+    assert [frame.name for frame in frames] == ["000001", "000002", "000003"]
+    assert all(frame.location == expected_location for frame in frames)
+    assert all(frame.image.size == (16, 12) for frame in frames)
+    if kind != "mp4":
+        assert [frame.image.getpixel((0, 0)) for frame in frames] == [
+            (9, 20, 30),
+            (10, 20, 30),
+            (11, 20, 30),
+        ]
+    assert not source.cap.isOpened()
+
+
+def test_sequence_context_cleanup(tmp_path: Path):
+    """Close sequence captures on early context exit and preserve repr inputs.
+
+    Arguments:
+        tmp_path: temporary input directory
+    """
+    input_path = write_image_sequence(tmp_path)
+    with ImageVideoFrameSource(input_path) as source:
+        next(source)
+        with eval(repr(source)) as recreated:
+            assert recreated.input_path == input_path
+    assert not source.cap.isOpened()
+    with pytest.raises(StopIteration):
+        next(source)
+
+
+def test_sequence_decode_failure_cleanup(tmp_path: Path):
+    """Release the capture when a later sequence image cannot be decoded.
+
+    Arguments:
+        tmp_path: temporary input directory
+    """
+    input_path = write_image_sequence(tmp_path)
+    source = ImageVideoFrameSource(input_path)
+    (tmp_path / "000008.png").write_text("not an image", encoding="utf-8")
+    next(source)
+    with pytest.raises(OSError, match="000008.png"):
+        next(source)
+    assert not source.cap.isOpened()
+    with pytest.raises(StopIteration):
+        next(source)
 
 
 def test_repr_round_trip(input_path: Path, capture: MagicMock):

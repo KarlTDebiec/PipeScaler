@@ -25,7 +25,11 @@ class VideoDirectoryTerminus(VideoTerminus, DirectoryTerminus[PipeVideo]):
 
         Arguments:
             input_obj: Video to save to output directory
+        Raises:
+            NotImplementedError: if the input is an image sequence
         """
+        if input_obj.path is None and input_obj.input_path is not None:
+            raise NotImplementedError("Copying image-sequence videos is not supported")
 
         def save_video():
             """Save video to output directory.

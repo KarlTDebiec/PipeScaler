@@ -7,8 +7,26 @@ from __future__ import annotations
 from os import utime
 from pathlib import Path
 
+import pytest
+
 from pipescaler.video.core.pipelines import PipeVideo
 from pipescaler.video.pipelines.termini import VideoDirectoryTerminus
+from test.scripts.generate_video_inputs import write_image_sequence
+
+
+def test_rejects_sequence_before_writing(tmp_path: Path):
+    """Reject unsupported sequence output without writing files or marking outputs.
+
+    Arguments:
+        tmp_path: temporary input directory
+    """
+    input_path = write_image_sequence(tmp_path / "frames")
+    terminus = VideoDirectoryTerminus(tmp_path / "output")
+
+    with pytest.raises(NotImplementedError, match="image-sequence"):
+        terminus(PipeVideo(path=input_path))
+    assert list(terminus.dir_path.iterdir()) == []
+    assert not terminus.observed_files
 
 
 def _set_mtime(path: Path, timestamp: float) -> None:
