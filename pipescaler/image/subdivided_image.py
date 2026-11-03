@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable, Iterator
+
 import numpy as np
 from PIL import Image
 from scipy.special import erf
@@ -134,33 +136,9 @@ class SubdividedImage:
         Returns:
             Recomposed image
         """
-        width = boxes[:, 2].max()
-        height = boxes[:, 3].max()
-        n_dim = len(subs[0].getbands())
-
-        # Prepare arrays to hold image data and total weights
-        if n_dim == 1:
-            recomposed_arr = np.zeros((height, width), float)
-        else:
-            recomposed_arr = np.zeros((height, width, n_dim), float)
-        recomposed_weights = np.zeros((height, width), float)
-
-        # Sum image data and weights
-        weights = cls.get_sub_weights(boxes, size, overlap)
-        for sub, box, weight in zip(subs, boxes, weights):
-            sub_arr = np.array(sub).astype(float)
-            if n_dim == 1:
-                sub_arr *= weight
-            else:
-                sub_arr *= np.stack([weight] * n_dim, axis=2)
-            recomposed_arr[box[1] : box[3], box[0] : box[2]] += sub_arr
-            recomposed_weights[box[1] : box[3], box[0] : box[2]] += weight
-
-        # Normalize image data and convert to image
-        if n_dim == 1:
-            recomposed_arr /= recomposed_weights
-        else:
-            recomposed_arr /= np.stack([recomposed_weights] * n_dim, axis=2)
+        recomposed_arr = cls.recompose_float(
+            (np.asarray(sub, dtype=np.float32) for sub in subs), boxes, size, overlap
+        )
         recomposed_arr = np.clip(np.round(recomposed_arr), 0, 255).astype(np.uint8)
 
         return Image.fromarray(recomposed_arr)
@@ -168,23 +146,22 @@ class SubdividedImage:
     @classmethod
     def get_sub_weights(
         cls, boxes: np.ndarray, size: int, overlap: int
-    ) -> list[np.ndarray]:
+    ) -> Iterator[np.ndarray]:
         """Get weights for each subdivision to be used when recomposing full image.
 
         Arguments:
             boxes: Boxes for subdivisions in form of [[left, upper, right, lower], ...]
             size: Size of subdivisions
             overlap: Overlap of subdivisions
-        Returns:
-            Weights for each subdivision to be used when recomposing full image
+        Yields:
+            weights for one subdivision at a time, without retaining all weights
         """
         left, top, right, bottom = cls.get_sub_edge_tapers(size, overlap)
 
-        weights = []
         for box in boxes:
             height = box[3] - box[1]
             width = box[2] - box[0]
-            weight = np.ones((height, width), float)
+            weight = np.ones((height, width), np.float32)
             if overlap and box[0] != 0:
                 extent = min(overlap, width)
                 weight[:, :extent] = np.minimum(
@@ -205,9 +182,55 @@ class SubdividedImage:
                 weight[-extent:, :] = np.minimum(
                     weight[-extent:, :], bottom[-extent:, :width]
                 )
-            weights.append(weight)
+            yield weight
 
-        return weights
+    @classmethod
+    def recompose_float(
+        cls, subs: Iterable[np.ndarray], boxes: np.ndarray, size: int, overlap: int
+    ) -> np.ndarray:
+        """Blend a stream of floating-point tiles without image quantization.
+
+        Only the output, normalization weights, and current tile are retained.
+        Boxes, size, and overlap use output pixels, including any native scale.
+
+        Arguments:
+            subs: tiles in box order; arrays may be grayscale or HWC
+            boxes: nonempty integer crop boxes covering the output
+            size: maximum tile extent in output pixels
+            overlap: overlap in output pixels
+        Returns:
+            normalized float32 array retaining fractional channel values
+        Raises:
+            ValueError: if tile count, shape, values, or coverage is invalid
+            TypeError: if a tile is not floating-point
+        """
+        if boxes.ndim != 2 or boxes.shape[1] != 4 or len(boxes) == 0:
+            raise ValueError("Expected nonempty tile boxes with shape (count, 4)")
+        width, height = boxes[:, 2].max(), boxes[:, 3].max()
+        if np.any(boxes[:, :2] < 0) or np.any(boxes[:, 2:] <= boxes[:, :2]):
+            raise ValueError("Tile boxes must have positive dimensions and coordinates")
+        output = None
+        total_weights = np.zeros((height, width), np.float32)
+        for sub, box, weight in zip(
+            subs, boxes, cls.get_sub_weights(boxes, size, overlap), strict=True
+        ):
+            if not np.issubdtype(sub.dtype, np.floating):
+                raise TypeError("Reconstruction requires floating-point tiles")
+            if sub.ndim not in {2, 3} or sub.shape[:2] != weight.shape:
+                raise ValueError("Tile dimensions do not match their output box")
+            if not np.isfinite(sub).all():
+                raise ValueError("Tile values must be finite")
+            if output is None:
+                output = np.zeros((height, width, *sub.shape[2:]), np.float32)
+            elif sub.shape[2:] != output.shape[2:]:
+                raise ValueError("Tiles must have the same channel dimensions")
+            region = np.s_[box[1] : box[3], box[0] : box[2]]
+            output[region] += sub * (weight if sub.ndim == 2 else weight[:, :, None])
+            total_weights[region] += weight
+        if output is None or np.any(total_weights <= 0):
+            raise ValueError("Tile boxes must cover the output without holes")
+        output /= total_weights if output.ndim == 2 else total_weights[:, :, None]
+        return output
 
     @staticmethod
     def get_subs(image: Image.Image, boxes: np.ndarray) -> list[Image.Image]:
@@ -232,7 +255,9 @@ class SubdividedImage:
         Returns:
             Number of subdivisions
         """
-        count = 2 + int(np.ceil((full_size - (2 * size) + overlap) / (size - overlap)))
+        count = max(
+            1, 2 + int(np.ceil((full_size - (2 * size) + overlap) / (size - overlap)))
+        )
 
         return count
 

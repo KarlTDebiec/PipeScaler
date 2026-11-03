@@ -10,11 +10,12 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from scipy.ndimage import convolve
 
-from pipescaler.common.validation import val_float
+from pipescaler.common.validation import val_float, val_int, val_str
 
 from .exceptions import UnsupportedImageModeError
 
 __all__ = [
+    "RESAMPLE_METHODS",
     "convert_mode",
     "crop_image",
     "expand_image",
@@ -26,9 +27,19 @@ __all__ = [
     "is_monochrome",
     "label_image",
     "remove_palette",
+    "resize_float",
     "smooth_image",
     "vstack_images",
 ]
+
+
+RESAMPLE_METHODS = {
+    "bicubic": Image.Resampling.BICUBIC,
+    "bilinear": Image.Resampling.BILINEAR,
+    "lanczos": Image.Resampling.LANCZOS,
+    "nearest": Image.Resampling.NEAREST,
+}
+"""Supported image resampling filters by public option name."""
 
 
 def convert_mode(image: Image.Image, mode: str) -> tuple[Image.Image, str]:
@@ -359,6 +370,51 @@ def remove_palette(image: Image.Image) -> Image.Image:
     if len(non_grayscale_colors) == 0:
         return image.convert("L")
     return image.convert("RGB")
+
+
+def resize_float(
+    input_arr: np.ndarray, size: tuple[int, int], resample: str = "lanczos"
+) -> np.ndarray:
+    """Resize floating-point channels using Pillow's antialiased filters.
+
+    Floating-point Pillow planes avoid quantization and preserve filter
+    overshoot. Callers choose the final clipping and image conversion boundary.
+
+    Arguments:
+        input_arr: finite floating-point grayscale or HWC image
+        size: positive output width and height in pixels
+        resample: Pillow filter name; Lanczos is the default
+    Returns:
+        resized float32 array without clipping or integer conversion
+    Raises:
+        ValueError: if dimensions, filter, or input values are invalid
+        TypeError: if the array is not floating-point
+    """
+    if not np.issubdtype(input_arr.dtype, np.floating):
+        raise TypeError("Floating-point resizing requires floating-point input")
+    if input_arr.ndim not in {2, 3} or any(value < 1 for value in input_arr.shape):
+        raise ValueError("Expected a nonempty grayscale or HWC array")
+    if not np.isfinite(input_arr).all() or len(size) != 2:
+        raise ValueError("Expected finite input values and two output dimensions")
+    size = (val_int(size[0], min_value=1), val_int(size[1], min_value=1))
+    method = RESAMPLE_METHODS[val_str(resample, options=RESAMPLE_METHODS)]
+    if input_arr.ndim == 2:
+        return np.array(
+            Image.fromarray(input_arr.astype(np.float32)).resize(size, method),
+            dtype=np.float32,
+        )
+    return np.stack(
+        [
+            np.array(
+                Image.fromarray(input_arr[:, :, channel].astype(np.float32)).resize(
+                    size, method
+                ),
+                dtype=np.float32,
+            )
+            for channel in range(input_arr.shape[2])
+        ],
+        axis=2,
+    )
 
 
 def smooth_image(image: Image.Image, sigma: float) -> Image.Image:

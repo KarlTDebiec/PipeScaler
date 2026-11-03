@@ -47,6 +47,7 @@ def test_execution_controls_reach_model(
     monkeypatch.chdir(input_path.parent)
     descriptor = MagicMock(spec=ImageModelDescriptor)
     descriptor.input_channels = descriptor.output_channels = 3
+    descriptor.scale = 1
     descriptor.supports_bfloat16 = True
     descriptor.to.return_value = descriptor
     descriptor.eval.return_value = descriptor
@@ -65,6 +66,12 @@ def test_execution_controls_reach_model(
             "cpu",
             "--precision",
             "bfloat16",
+            "--tile-size",
+            "4",
+            "--tile-overlap",
+            "1",
+            "--target-scale",
+            "2",
             input_path.name,
             output_path.name,
         ]
@@ -77,7 +84,7 @@ def test_execution_controls_reach_model(
     assert descriptor.call_args.args[0].dtype == torch.bfloat16
     with Image.open(output_path) as output:
         np.testing.assert_array_equal(
-            np.asarray(output), np.full((3, 2, 3), [19, 83, 211])
+            np.asarray(output), np.full((6, 4, 3), [19, 83, 211])
         )
 
 
