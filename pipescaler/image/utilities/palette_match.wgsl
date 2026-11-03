@@ -33,14 +33,13 @@ fn weighted_distance(
     fit_b_u: u32,
     ref_r_u: u32,
     ref_g_u: u32,
-    ref_b_u: u32
+    ref_b_u: u32,
 ) -> u32 {
     let rsum = fit_r_u + ref_r_u;
     let dr = i32(fit_r_u) - i32(ref_r_u);
     let dg = i32(fit_g_u) - i32(ref_g_u);
     let db = i32(fit_b_u) - i32(ref_b_u);
-    return (1024u + rsum) * u32(dr * dr)
-        + 2048u * u32(dg * dg)
+    return (1024u + rsum) * u32(dr * dr) + 2048u * u32(dg * dg)
         + (1534u - rsum) * u32(db * db);
 }
 
@@ -55,7 +54,7 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
 
     let x = gid.x;
     let y = gid.y;
-    if (x >= fit_width || y >= fit_height) {
+    if x >= fit_width || y >= fit_height {
         return;
     }
 
@@ -64,7 +63,7 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
     let fit_r = fit_pixels[fit_idx];
     var fit_g = fit_r;
     var fit_b = fit_r;
-    if (channels == 3u) {
+    if channels == 3u {
         fit_g = fit_pixels[fit_idx + 1u];
         fit_b = fit_pixels[fit_idx + 2u];
     }
@@ -73,7 +72,7 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
     var x_end = i32(ref_width) - 1;
     var y_start = 0;
     var y_end = i32(ref_height) - 1;
-    if (local_range > 0) {
+    if local_range > 0 {
         // Validated local geometry has the same integer scale on both axes
         let scale = fit_width / ref_width;
         let center_x = i32(x / scale);
@@ -92,32 +91,32 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
 
     var ry = y_start;
     loop {
-        if (ry > y_end || best_dist == 0u) {
+        if ry > y_end || best_dist == 0u {
             break;
         }
         var rx = x_start;
         loop {
-            if (rx > x_end || best_dist == 0u) {
+            if rx > x_end || best_dist == 0u {
                 break;
             }
             let ref_idx = (u32(ry) * ref_width + u32(rx)) * channels;
             let ref_r = ref_pixels[ref_idx];
             var ref_g = ref_r;
             var ref_b = ref_r;
-            if (channels == 3u) {
+            if channels == 3u {
                 ref_g = ref_pixels[ref_idx + 1u];
                 ref_b = ref_pixels[ref_idx + 2u];
             }
 
             var dist = 0u;
-            if (channels == 3u) {
+            if channels == 3u {
                 dist = weighted_distance(fit_r, fit_g, fit_b, ref_r, ref_g, ref_b);
             } else {
                 let d = i32(fit_r) - i32(ref_r);
                 dist = u32(d * d);
             }
 
-            if (dist < best_dist) {
+            if dist < best_dist {
                 best_dist = dist;
                 best_r = ref_r;
                 best_g = ref_g;
@@ -131,7 +130,7 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
 
     // Emit best-matching reference color for this fit pixel.
     output_pixels[fit_idx] = best_r;
-    if (channels == 3u) {
+    if channels == 3u {
         output_pixels[fit_idx + 1u] = best_g;
         output_pixels[fit_idx + 2u] = best_b;
     }

@@ -1,5 +1,7 @@
 # Code Style
 
+WGSL source conventions are in the [WGSL style guide](Style/WGSL.md).
+
 ## Python and formatting
 
 - Target Python 3.14. Use `uv` and the repository's `pyproject.toml` and `uv.lock`.

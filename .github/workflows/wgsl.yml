@@ -1,0 +1,91 @@
+name: WGSL
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+permissions:
+  contents: read
+
+env:
+  RUST_VERSION: '1.99.1'
+  NAGA_VERSION: '27.0.0'
+  WGSLFMT_REV: '8a2e7eab99891ab9d7a405561cb1559127767897'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'push' && github.sha || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: WGSL
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Detect relevant changes
+        id: changes
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          relevant=true
+          if [[ "$EVENT_NAME" == "pull_request" ]]; then
+            git diff --name-only --no-renames -z "$BASE_SHA...$HEAD_SHA" -- '*.wgsl' > "$RUNNER_TEMP/wgsl-changes"
+            relevant=false
+            if [[ -s "$RUNNER_TEMP/wgsl-changes" ]]; then
+              relevant=true
+            fi
+          fi
+          echo "relevant=$relevant" >> "$GITHUB_OUTPUT"
+          if [[ "$relevant" == "true" ]]; then
+            echo "Running full WGSL validation." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No relevant changes; WGSL validation is not needed." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Restore pinned WGSL tools
+        id: tools
+        if: steps.changes.outputs.relevant == 'true'
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/wgsl-tools
+          key: wgsl-${{ runner.os }}-${{ runner.arch }}-${{ env.RUST_VERSION }}-${{ env.NAGA_VERSION }}-${{ env.WGSLFMT_REV }}
+
+      - name: Install pinned Cargo tools
+        if: steps.changes.outputs.relevant == 'true' && steps.tools.outputs.cache-hit != 'true'
+        run: |
+          rustup toolchain install "$RUST_VERSION" --profile minimal --no-self-update
+          cargo "+$RUST_VERSION" install --locked --root "$RUNNER_TEMP/wgsl-tools" naga-cli --version "=$NAGA_VERSION"
+          cargo "+$RUST_VERSION" install --locked --root "$RUNNER_TEMP/wgsl-tools" \
+            --git https://github.com/wgsl-analyzer/wgsl-analyzer --rev "$WGSLFMT_REV" wgslfmt
+
+      - name: Check WGSL formatting
+        if: steps.changes.outputs.relevant == 'true'
+        run: |
+          git ls-files -z -- '*.wgsl' > "$RUNNER_TEMP/wgsl-sources"
+          xargs -0 -r "$RUNNER_TEMP/wgsl-tools/bin/wgslfmt" \
+            --config indent_style=spaces --config indent_width=4 --config max_line_width=88 \
+            --check -- < "$RUNNER_TEMP/wgsl-sources"
+
+      - name: Validate expanded WGSL
+        if: steps.changes.outputs.relevant == 'true'
+        run: |
+          while IFS= read -r -d '' shader; do
+            for y in 1 8; do
+              expanded="$RUNNER_TEMP/shader-8x$y.wgsl"
+              sed -e 's/WGX/8/g' -e "s/WGY/$y/g" -- "$shader" > "$expanded"
+              echo "Validating $shader (8x$y)"
+              "$RUNNER_TEMP/wgsl-tools/bin/naga" "$expanded"
+            done
+          done < "$RUNNER_TEMP/wgsl-sources"
