@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+from logging import WARNING
 from unittest.mock import patch
 
 import numpy as np
@@ -19,7 +20,10 @@ from pipescaler.image.utilities.palette_matcher import PaletteMatcher
 @pytest.mark.parametrize("mode", ["L", "RGB"])
 @pytest.mark.parametrize("fill_mode", list(MaskFillMode))
 def test_shader_fallback(
-    mode: str, fill_mode: MaskFillMode, monkeypatch: pytest.MonkeyPatch
+    mode: str,
+    fill_mode: MaskFillMode,
+    monkeypatch: pytest.MonkeyPatch,
+    caplog: pytest.LogCaptureFixture,
 ):
     """Preserve complete CPU results when GPU execution fails.
 
@@ -27,6 +31,7 @@ def test_shader_fallback(
         mode: image mode to fill
         fill_mode: basic filling or subsequent palette matching
         monkeypatch: fixture for forcing shader selection
+        caplog: captured fallback diagnostics
     """
     rng = np.random.default_rng(792)
     shape = (9, 17) if mode == "L" else (9, 17, 3)
@@ -42,6 +47,10 @@ def test_shader_fallback(
 
     shader.assert_called_once()
     np.testing.assert_array_equal(np.asarray(actual), np.asarray(expected))
+    (warning_record,) = caplog.records
+    assert warning_record.name == MaskFiller.__module__
+    assert warning_record.levelno == WARNING
+    assert "forced failure" in warning_record.getMessage()
 
 
 @pytest.mark.parametrize("mode", ["L", "RGB"])
