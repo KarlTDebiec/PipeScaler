@@ -18,7 +18,6 @@ from pipescaler.image.cli import (
     ImageMergersCli,
     ImageProcessorsCli,
     ImageSplittersCli,
-    ImageUtilitiesCli,
 )
 
 
@@ -29,7 +28,6 @@ from pipescaler.image.cli import (
         (ImageCli, ImageMergersCli),
         (ImageCli, ImageProcessorsCli),
         (ImageCli, ImageSplittersCli),
-        (ImageCli, ImageUtilitiesCli),
     ],
 )
 def test_help(commands: tuple[type[CommandLineInterface], ...]):
@@ -61,7 +59,6 @@ def test_help(commands: tuple[type[CommandLineInterface], ...]):
         (ImageCli, ImageMergersCli),
         (ImageCli, ImageProcessorsCli),
         (ImageCli, ImageSplittersCli),
-        (ImageCli, ImageUtilitiesCli),
     ],
 )
 def test_usage(commands: tuple[type[CommandLineInterface], ...]):
@@ -84,3 +81,16 @@ def test_usage(commands: tuple[type[CommandLineInterface], ...]):
         assert stderr.getvalue().startswith(
             f"usage: {Path(getfile(commands[0])).name} {subcommands}"
         )
+
+
+def test_rejects_unimplemented_utility_category(capsys: pytest.CaptureFixture[str]):
+    """Reject the unimplemented image utility command.
+
+    Arguments:
+        capsys: captured command output
+    """
+    with pytest.raises(SystemExit) as exc:
+        ImageCli.main(["utility"])
+
+    assert exc.value.code == 2
+    assert "invalid choice: 'utility'" in capsys.readouterr().err

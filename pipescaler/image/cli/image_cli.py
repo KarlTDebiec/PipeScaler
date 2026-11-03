@@ -12,7 +12,6 @@ from pipescaler.common import CommandLineInterface
 from .image_mergers_cli import ImageMergersCli
 from .image_processors_cli import ImageProcessorsCli
 from .image_splitters_cli import ImageSplittersCli
-from .image_utilities_cli import ImageUtilitiesCli
 
 __all__ = ["ImageCli"]
 
@@ -29,6 +28,7 @@ class ImageCli(CommandLineInterface):
         """
         super().add_arguments_to_argparser(parser)
 
+        # Subcommands
         subparsers = parser.add_subparsers(
             dest="subcommand",
             help="subcommand",
@@ -80,10 +80,7 @@ class ImageCli(CommandLineInterface):
         cls,
     ) -> dict[
         str,
-        type[ImageMergersCli]
-        | type[ImageProcessorsCli]
-        | type[ImageSplittersCli]
-        | type[ImageUtilitiesCli],
+        type[ImageMergersCli] | type[ImageProcessorsCli] | type[ImageSplittersCli],
     ]:
         """Names and types of tools wrapped by command-line interface.
 
@@ -94,5 +91,4 @@ class ImageCli(CommandLineInterface):
             ImageMergersCli.name(): ImageMergersCli,
             ImageProcessorsCli.name(): ImageProcessorsCli,
             ImageSplittersCli.name(): ImageSplittersCli,
-            ImageUtilitiesCli.name(): ImageUtilitiesCli,
         }

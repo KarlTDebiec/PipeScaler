@@ -185,3 +185,14 @@ def test_local_match_rejects_invalid_geometry(
         LocalPaletteMatcher.run(ref_img, fit_img)
     with pytest.raises(ValueError, match="uniform integer upscale"):
         merger(ref_img, fit_img)
+
+
+@pytest.mark.parametrize("count", [0, 1, 3])
+def test_rejects_wrong_input_count(count: int):
+    """Reject missing or extra inputs before invoking either backend.
+
+    Arguments:
+        count: number of supplied images
+    """
+    with pytest.raises(ValueError, match="Expected 2 input images"):
+        LocalPaletteMatchMerger()(*[Image.new("L", (2, 2)) for _ in range(count)])

@@ -5,13 +5,14 @@
 This module may import from: common, core, image.core, image.core.operators
 
 Package hierarchy (modules may import from any above):
-* alpha_merger / histogram_match_merger / local_palette_match_merger
+* alpha_merger / diff_merger / histogram_match_merger / local_palette_match_merger
   / normal_merger / palette_match_merger
 """
 
 from __future__ import annotations
 
 from .alpha_merger import AlphaMerger
+from .diff_merger import DiffMerger
 from .histogram_match_merger import (
     HistogramMatchMerger,
 )
@@ -21,6 +22,7 @@ from .palette_match_merger import PaletteMatchMerger
 
 __all__ = [
     "AlphaMerger",
+    "DiffMerger",
     "HistogramMatchMerger",
     "LocalPaletteMatchMerger",
     "NormalMerger",

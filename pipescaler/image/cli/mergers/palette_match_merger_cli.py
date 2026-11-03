@@ -6,11 +6,15 @@ from __future__ import annotations
 
 from argparse import ArgumentParser
 from logging import info
-from typing import Any
+from pathlib import Path
 
 from PIL import Image
 
-from pipescaler.common.argument_parsing import input_file_arg, output_file_arg
+from pipescaler.common.argument_parsing import (
+    get_arg_groups_by_name,
+    input_file_arg,
+    output_file_arg,
+)
 from pipescaler.image.core.cli import ImageMergerCli
 from pipescaler.image.operators.mergers import PaletteMatchMerger
 
@@ -25,39 +29,57 @@ class PaletteMatchMergerCli(ImageMergerCli):
         """Add arguments to a nascent argument parser.
 
         Arguments:
-            parser: Nascent argument parser
+            parser: nascent argument parser
         """
         super().add_arguments_to_argparser(parser)
 
-        parser.add_argument(
-            "reference_input_file",
+        arg_groups = get_arg_groups_by_name(
+            parser, "input arguments", "output arguments"
+        )
+
+        # Input arguments
+        arg_groups["input arguments"].add_argument(
+            "reference_input_path",
+            metavar="reference_input_file",
             type=input_file_arg(),
             help="reference input file",
         )
-        parser.add_argument(
-            "fit_input_file",
+        arg_groups["input arguments"].add_argument(
+            "fit_input_path",
+            metavar="fit_input_file",
             type=input_file_arg(),
-            help="fit input file",
+            help="target input file",
         )
-        parser.add_argument(
-            "output_file",
+
+        # Output arguments
+        arg_groups["output arguments"].add_argument(
+            "output_path",
+            metavar="output_file",
             type=output_file_arg(),
             help="output file",
         )
 
     @classmethod
-    def _main(cls, **kwargs: Any):
-        """Execute with provided keyword arguments.
+    def merger(cls) -> type[PaletteMatchMerger]:
+        """Type of merger wrapped by command-line interface.
+
+        Returns:
+            merger implementation
+        """
+        return PaletteMatchMerger
+
+    @classmethod
+    def _main(
+        cls, *, reference_input_path: Path, fit_input_path: Path, output_path: Path
+    ):
+        """Match target colors to the reference palette.
 
         Arguments:
-            **kwargs: additional options forwarded to the selected implementation
+            reference_input_path: reference image path
+            fit_input_path: target image path
+            output_path: matched image path
         """
-        reference_input_path = kwargs.pop("reference_input_file")
-        fit_input_path = kwargs.pop("fit_input_file")
-        output_path = kwargs.pop("output_file")
-
-        merger_cls = cls.merger()
-        merger = merger_cls(**kwargs)
+        merger = cls.merger()()
         with (
             Image.open(reference_input_path) as reference_img,
             Image.open(fit_input_path) as fit_img,
@@ -65,15 +87,6 @@ class PaletteMatchMergerCli(ImageMergerCli):
             output_img = merger(reference_img, fit_img)
             output_img.save(output_path)
             info(f"{cls}: '{output_path}' saved")
-
-    @classmethod
-    def merger(cls) -> type[PaletteMatchMerger]:
-        """Type of merger wrapped by command-line interface.
-
-        Returns:
-            image merger class invoked by this command
-        """
-        return PaletteMatchMerger
 
 
 if __name__ == "__main__":

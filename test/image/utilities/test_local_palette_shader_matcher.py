@@ -80,7 +80,7 @@ def test_run_clamps_large_local_range_before_shader(monkeypatch: pytest.MonkeyPa
 
     params = captured["params"]
     assert isinstance(params, np.ndarray)
-    assert params[4] == LocalPaletteShaderMatcher._max_local_range
+    assert params[4] == max(ref_img.size)
     assert output_img.mode == "L"
     assert output_img.size == fit_img.size
 

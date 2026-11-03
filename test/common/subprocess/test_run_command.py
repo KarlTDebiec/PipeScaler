@@ -183,7 +183,8 @@ def test_timeout_cleans_up_inherited_pipes(
         f"heartbeat = Path({str(heartbeat_path)!r})\n"
         "heartbeat.write_text('0')\n"
         "for i in range(1, 61):\n"
-        " heartbeat.write_text(str(i))\n time.sleep(0.05)\n"
+        " with heartbeat.open('a') as stream:\n  stream.write(str(i) + '\\n')\n"
+        " time.sleep(0.05)\n"
     )
     parent_code = (
         "import subprocess, sys, time\nfrom pathlib import Path\n"

@@ -33,9 +33,9 @@ class LocalPaletteMatchMerger(ImageMerger):
         """Validate configuration and initialize.
 
         Arguments:
-            local_range: Range of adjacent pixels from which to draw best-fit color;
+            local_range: range of adjacent pixels from which to draw best-fit color;
               1 checks a 3x3 window, 2 checks a 5x5 window, etc.
-            **kwargs: Additional keyword arguments passed to ImageMerger
+            **kwargs: additional keyword arguments passed to ImageMerger
         """
         super().__init__(**kwargs)
         self.local_range = val_int(local_range, min_value=1)
@@ -49,8 +49,10 @@ class LocalPaletteMatchMerger(ImageMerger):
             merged output image
         Raises:
             UnsupportedImageModeError: if input modes differ or are unsupported
-            ValueError: if image sizes do not use a uniform integer upscale
+            ValueError: if input count or image sizes are unsupported
         """
+        if len(input_images) != 2:
+            raise ValueError(f"Expected 2 input images, received {len(input_images)}")
         ref_image = validate_image(input_images[0], self.inputs()["ref"])
         fit_image = validate_image(input_images[1], self.inputs()["fit"])
         if ref_image.mode != fit_image.mode:

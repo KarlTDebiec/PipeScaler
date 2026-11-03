@@ -18,7 +18,7 @@ changes during review.
 
 The [architecture tests](../test/test_module_hierarchy.py) enforce declarations,
 dependency direction, import style, and cycle detection. The
-[hierarchy audit](../skills/audit-module-hierarchy/SKILL.md) reports inferred
+[hierarchy audit](../.agents/skills/audit-module-hierarchy/SKILL.md) reports inferred
 minimum levels as review evidence, not automatic replacements for policy.
 
 ## Responsibilities

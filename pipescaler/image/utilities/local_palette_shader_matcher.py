@@ -54,9 +54,9 @@ class LocalPaletteShaderMatcher:
         """Match an image palette to nearby reference colors using a shader.
 
         Arguments:
-            ref_img: Image whose palette to use as reference
-            fit_img: Image whose palette to fit to reference
-            local_range: Range of adjacent pixels from which to draw best-fit color
+            ref_img: image whose palette to use as reference
+            fit_img: image whose palette to fit to reference
+            local_range: range of adjacent pixels from which to draw best-fit color
         Returns:
             image with locally palette-matched colors
         Raises:
@@ -75,6 +75,7 @@ class LocalPaletteShaderMatcher:
             )
         normalized_local_range = cls._normalize_local_range(local_range)
         LocalPaletteMatcher.validate_geometry(ref_img, fit_img)
+        normalized_local_range = min(normalized_local_range, max(ref_img.size))
 
         ref_arr, fit_arr = cls._prepare_arrays(ref_img, fit_img)
         channels = fit_arr.shape[2]
@@ -128,7 +129,7 @@ class LocalPaletteShaderMatcher:
         Arguments:
             local_range: range of adjacent pixels from which to draw best-fit color
         Returns:
-            non-negative local range clamped to signed 32-bit integer max
+            positive local range clamped to signed 32-bit integer max
         Raises:
             ValueError: if local_range is not an integer >= 1
         """
@@ -153,10 +154,10 @@ class LocalPaletteShaderMatcher:
         """Convert input images into channel-last arrays for shader execution.
 
         Arguments:
-            ref_img: Image whose palette to use as reference
-            fit_img: Image whose palette to fit to reference
+            ref_img: image whose palette to use as reference
+            fit_img: image whose palette to fit to reference
         Returns:
-            Reference and fit arrays with shape `(height, width, channels)`
+            reference and fit arrays with shape `(height, width, channels)`
         """
         ref_arr = np.array(ref_img, np.uint8)
         fit_arr = np.array(fit_img, np.uint8)
@@ -172,9 +173,9 @@ class LocalPaletteShaderMatcher:
         """Execute the compute shader and return matched pixels.
 
         Arguments:
-            ref_arr: Reference image array with shape `(height, width, channels)`
-            fit_arr: Fit image array with shape `(height, width, channels)`
-            local_range: Range of adjacent pixels from which to draw best-fit color
+            ref_arr: reference image array with shape `(height, width, channels)`
+            fit_arr: fit image array with shape `(height, width, channels)`
+            local_range: range of adjacent pixels from which to draw best-fit color
         Returns:
             matched image array with shape matching `fit_arr`
         Raises:

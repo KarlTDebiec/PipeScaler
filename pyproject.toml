@@ -79,3 +79,6 @@ packages = { find = { include = ["pipescaler*"] } }
 
 [tool.uv]
 package = true
+
+[tool.setuptools.package-data]
+"pipescaler.image.utilities" = ["*.wgsl"]

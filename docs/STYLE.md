@@ -72,6 +72,8 @@ functions, ordinary before decorated functions, then alphabetize.
   output to stdout. Preserve the local logging convention when editing a module.
 - Use `get_arg_groups_by_name(...)` for argument groups: positional, input,
   operation, output, additional arguments, then additional help. Omit empty groups.
+  Group argument declarations beneath matching block comments, such as
+  `# Input arguments`, `# Operation arguments`, and `# Output arguments`.
 - Use `type=` validators, including `enum_arg(...)`, so CLI implementations receive
   their expected types. Prefer explicit keyword-only `_main` parameters for leaf
   commands; dispatching commands may forward keyword arguments.
@@ -86,3 +88,8 @@ functions, ordinary before decorated functions, then alphabetize.
   formatting, and exemptions.
 - The [style tests](../test/style/) enforce docstring structure, string
   interpolation, and variadic annotation rules.
+
+The [style audit](../.agents/skills/audit-style/SKILL.md) provides advisory checks for
+export membership, definition ordering, and description capitalization. Its
+coverage and manual judgment boundaries are documented in the audit skill; a
+report without notes does not certify full compliance with these guides.
