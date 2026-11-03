@@ -13,8 +13,10 @@ from PIL import Image
 from pipescaler.common.argument_parsing import (
     get_arg_groups_by_name,
     input_file_arg,
+    int_arg,
     output_file_arg,
 )
+from pipescaler.image.core import PaletteMatchMode
 from pipescaler.image.core.cli import ImageMergerCli
 from pipescaler.image.operators.mergers import PaletteMatchMerger
 
@@ -34,7 +36,7 @@ class PaletteMatchMergerCli(ImageMergerCli):
         super().add_arguments_to_argparser(parser)
 
         arg_groups = get_arg_groups_by_name(
-            parser, "input arguments", "output arguments"
+            parser, "input arguments", "operation arguments", "output arguments"
         )
 
         # Input arguments
@@ -48,7 +50,7 @@ class PaletteMatchMergerCli(ImageMergerCli):
             "fit_input_path",
             metavar="fit_input_file",
             type=input_file_arg(),
-            help="target input file",
+            help="fit input file",
         )
 
         # Output arguments
@@ -59,27 +61,57 @@ class PaletteMatchMergerCli(ImageMergerCli):
             help="output file",
         )
 
+        # Operation arguments
+        arg_groups["operation arguments"].add_argument(
+            "--local",
+            action="store_const",
+            const=PaletteMatchMode.LOCAL,
+            default=PaletteMatchMode.BASIC,
+            dest="palette_match_mode",
+            help="Match only to local palette of surrounding pixels; target width and "
+            "height must be the same integer multiple of the reference, at least 2",
+        )
+        arg_groups["operation arguments"].add_argument(
+            "--local-range",
+            type=int_arg(min_value=1),
+            default=1,
+            help="Range of surrounding reference pixels from which to draw best-fit "
+            "color, if performing local matching (default: %(default)s)",
+        )
+
     @classmethod
     def merger(cls) -> type[PaletteMatchMerger]:
         """Type of merger wrapped by command-line interface.
 
         Returns:
-            merger implementation
+            image merger class invoked by this command
         """
         return PaletteMatchMerger
 
     @classmethod
     def _main(
-        cls, *, reference_input_path: Path, fit_input_path: Path, output_path: Path
+        cls,
+        *,
+        reference_input_path: Path,
+        fit_input_path: Path,
+        output_path: Path,
+        palette_match_mode: PaletteMatchMode,
+        local_range: int,
     ):
-        """Match target colors to the reference palette.
+        """Execute with parsed image paths and operation settings.
 
         Arguments:
-            reference_input_path: reference image path
-            fit_input_path: target image path
-            output_path: matched image path
+            reference_input_path: reference input path
+            fit_input_path: fit input path
+            output_path: output path
+            palette_match_mode: palette matching strategy
+            local_range: radius of local reference pixels
         """
-        merger = cls.merger()()
+        merger_cls = cls.merger()
+        merger = merger_cls(
+            palette_match_mode=palette_match_mode,
+            local_range=local_range,
+        )
         with (
             Image.open(reference_input_path) as reference_img,
             Image.open(fit_input_path) as fit_img,

@@ -16,7 +16,6 @@ from pipescaler.image.cli import ImageMergersCli, ImageProcessorsCli, ImageSplit
 from pipescaler.image.cli.mergers import (
     AlphaMergerCli,
     DiffMergerCli,
-    LocalPaletteMatchMergerCli,
     PaletteMatchMergerCli,
 )
 from pipescaler.image.cli.processors import (
@@ -49,8 +48,7 @@ from pipescaler.image.cli.splitters import AlphaSplitterCli
         (XbrzCli, True),
         (AlphaMergerCli, False),
         (DiffMergerCli, False),
-        (LocalPaletteMatchMergerCli, True),
-        (PaletteMatchMergerCli, False),
+        (PaletteMatchMergerCli, True),
         (AlphaSplitterCli, False),
     ],
 )
@@ -121,7 +119,7 @@ def test_mode_background_color_through_parent(tmp_path: Path):
     ("cli", "operation_args", "obsolete_option"),
     [
         (ModeCli, ["--mode", "RGB"], "--background_color"),
-        (LocalPaletteMatchMergerCli, [], "--local_range"),
+        (PaletteMatchMergerCli, [], "--local_range"),
     ],
 )
 def test_obsolete_option_spellings_are_rejected(
@@ -143,7 +141,7 @@ def test_obsolete_option_spellings_are_rejected(
     input_path = tmp_path / "input.png"
     Image.new("RGB", (1, 1)).save(input_path)
     paths = [str(input_path)]
-    if cli is LocalPaletteMatchMergerCli:
+    if cli is PaletteMatchMergerCli:
         paths.append(str(input_path))
     paths.append(str(tmp_path / "output.png"))
     with pytest.raises(SystemExit) as exc:

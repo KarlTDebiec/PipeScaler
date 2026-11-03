@@ -9,6 +9,7 @@ from enum import Enum, auto
 __all__ = [
     "AlphaMode",
     "MaskFillMode",
+    "PaletteMatchMode",
 ]
 
 
@@ -28,3 +29,12 @@ class MaskFillMode(Enum):
     """Fill mask using the basic fill strategy."""
     MATCH_PALETTE = auto()
     """Fill mask using palette matching."""
+
+
+class PaletteMatchMode(Enum):
+    """Mode of matching to perform."""
+
+    BASIC = auto()
+    """Match against the global palette."""
+    LOCAL = auto()
+    """Match against local palettes."""

@@ -20,7 +20,6 @@ from pipescaler.image.cli import ImageMergersCli
 from pipescaler.image.cli.mergers import (
     AlphaMergerCli,
     DiffMergerCli,
-    LocalPaletteMatchMergerCli,
     PaletteMatchMergerCli,
 )
 from pipescaler.testing.file import get_test_input_path
@@ -32,8 +31,8 @@ from pipescaler.testing.file import get_test_input_path
         (AlphaMergerCli, "", ("RGB", "L")),
         (DiffMergerCli, "", ("RGB", "alt/RGB")),
         (PaletteMatchMergerCli, "", ("RGB", "alt/RGB")),
-        (LocalPaletteMatchMergerCli, "", ("RGB", "alt/RGB")),
-        (LocalPaletteMatchMergerCli, "--local-range 2", ("RGB", "alt/RGB")),
+        (PaletteMatchMergerCli, "--local", ("RGB", "alt/RGB")),
+        (PaletteMatchMergerCli, "--local --local-range 2", ("RGB", "alt/RGB")),
     ],
 )
 def test(cli: type[CommandLineInterface], args: str, input_filenames: tuple[str]):
@@ -52,7 +51,7 @@ def test(cli: type[CommandLineInterface], args: str, input_filenames: tuple[str]
         get_temp_file_path(".png") as output_path,
         get_temp_file_path(".png") as fit_path,
     ):
-        if cli is LocalPaletteMatchMergerCli:
+        if "--local" in args:
             with Image.open(input_paths[1]) as fit_img:
                 fit_img.resize((fit_img.width * 2, fit_img.height * 2)).save(fit_path)
             input_paths[1] = str(fit_path)
@@ -64,12 +63,10 @@ def test(cli: type[CommandLineInterface], args: str, input_filenames: tuple[str]
     [
         (AlphaMergerCli,),
         (DiffMergerCli,),
-        (LocalPaletteMatchMergerCli,),
         (PaletteMatchMergerCli,),
         (ImageMergersCli,),
         (ImageMergersCli, AlphaMergerCli),
         (ImageMergersCli, DiffMergerCli),
-        (ImageMergersCli, LocalPaletteMatchMergerCli),
         (ImageMergersCli, PaletteMatchMergerCli),
     ],
 )
@@ -100,12 +97,10 @@ def test_help(commands: tuple[type[CommandLineInterface], ...]):
     [
         (AlphaMergerCli,),
         (DiffMergerCli,),
-        (LocalPaletteMatchMergerCli,),
         (PaletteMatchMergerCli,),
         (ImageMergersCli,),
         (ImageMergersCli, AlphaMergerCli),
         (ImageMergersCli, DiffMergerCli),
-        (ImageMergersCli, LocalPaletteMatchMergerCli),
         (ImageMergersCli, PaletteMatchMergerCli),
     ],
 )
@@ -172,7 +167,7 @@ def test_local_palette_range_rejected_during_parsing(local_range: str, tmp_path:
     """
     input_path = get_test_input_path("L")
     with pytest.raises(SystemExit) as exc:
-        LocalPaletteMatchMergerCli.argparser().parse_args(
+        PaletteMatchMergerCli.argparser().parse_args(
             [
                 "--local-range",
                 local_range,

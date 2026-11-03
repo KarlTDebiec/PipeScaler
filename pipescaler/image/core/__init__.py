@@ -14,7 +14,7 @@ Package hierarchy (modules may import from any above):
 
 from __future__ import annotations
 
-from .enums import AlphaMode, MaskFillMode
+from .enums import AlphaMode, MaskFillMode, PaletteMatchMode
 from .exceptions import UnsupportedImageModeError
 from .image_operator import ImageOperator
 
@@ -22,5 +22,6 @@ __all__ = [
     "AlphaMode",
     "ImageOperator",
     "MaskFillMode",
+    "PaletteMatchMode",
     "UnsupportedImageModeError",
 ]
