@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+from unittest.mock import patch
 
 import numpy as np
 import pytest
@@ -16,6 +17,7 @@ from pipescaler.image.utilities.local_palette_matcher import LocalPaletteMatcher
 from pipescaler.image.utilities.palette_matcher import PaletteMatcher
 from pipescaler.image.utilities.palette_shader_matcher import (
     PaletteShaderMatcher,
+    PaletteShaderUnavailableError,
 )
 
 
@@ -26,6 +28,28 @@ def shader_device():
         get_default_device()
     except RuntimeError as exc:
         pytest.skip(f"No compute device available: {exc}")
+
+
+@pytest.mark.parametrize(
+    "error", [ModuleNotFoundError, ImportError, OSError, RuntimeError]
+)
+def test_runtime_load_failure_allows_cpu_fallback(error: type[Exception]):
+    """Classify missing Python modules and native-library failures as unavailable.
+
+    Arguments:
+        error: runtime loading error exposed by the backend
+    """
+    failure = error("runtime unavailable")
+    with (
+        patch(
+            "pipescaler.image.utilities.palette_shader_matcher.import_module",
+            side_effect=failure,
+        ),
+        pytest.raises(PaletteShaderUnavailableError) as raised,
+    ):
+        PaletteShaderMatcher.run(Image.new("L", (1, 1)), Image.new("L", (2, 2)))
+
+    assert raised.value.__cause__ is failure
 
 
 @pytest.mark.usefixtures("shader_device")

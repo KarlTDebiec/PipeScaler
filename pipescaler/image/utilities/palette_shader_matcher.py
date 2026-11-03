@@ -40,7 +40,11 @@ class PaletteShaderExecutionError(PaletteShaderError):
 
 
 class PaletteShaderMatcher:
-    """Matches image palettes with exact integer GPU distance comparisons."""
+    """Matches image palettes with exact integer GPU distance comparisons.
+
+    wgpu selects the native backend automatically, including Metal on macOS.
+    Both matching modes attempt GPU execution regardless of image or palette size.
+    """
 
     _max_local_range = 2_147_483_647
     """Maximum local range representable as signed 32-bit integer."""
@@ -159,9 +163,9 @@ class PaletteShaderMatcher:
             compute_with_buffers = compute_module.compute_with_buffers
         except ModuleNotFoundError as exc:
             raise PaletteShaderUnavailableError("wgpu runtime not installed") from exc
-        except ImportError as exc:
+        except (ImportError, OSError, RuntimeError) as exc:
             raise PaletteShaderUnavailableError(
-                "wgpu runtime could not be imported"
+                "wgpu runtime could not be loaded"
             ) from exc
         return compute_with_buffers
 

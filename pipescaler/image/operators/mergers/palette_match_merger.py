@@ -30,6 +30,8 @@ class PaletteMatchMerger(ImageMerger):
     Local matching requires a target that is a uniform integer upscale of the
     reference, with a scale of at least 2 on both axes. Basic matching has no
     image-size restriction. Local neighborhood ranges use reference pixels.
+    Both modes prefer the GPU, including Metal on macOS, and fall back to the CPU
+    when the runtime is unavailable or shader execution fails.
     """
 
     def __init__(

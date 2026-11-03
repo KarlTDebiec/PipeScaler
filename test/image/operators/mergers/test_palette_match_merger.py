@@ -204,6 +204,31 @@ def test_shader_fallback(
     np.testing.assert_array_equal(np.asarray(actual), np.asarray(expected))
 
 
+@pytest.mark.parametrize("mode", ["L", "RGB"])
+@pytest.mark.parametrize("match_mode", list(PaletteMatchMode))
+def test_prefers_gpu_for_small_inputs(mode: str, match_mode: PaletteMatchMode):
+    """Prefer an available GPU even for tiny images and grayscale palettes.
+
+    Arguments:
+        mode: image mode to match
+        match_mode: global or local matching strategy
+    """
+    reference = Image.new(mode, (1, 1))
+    target = Image.new(mode, (2, 2))
+    expected = target.copy()
+    with (
+        patch.object(PaletteShaderMatcher, "run", return_value=expected) as gpu,
+        patch.object(PaletteMatcher, "run") as basic_cpu,
+        patch.object(LocalPaletteMatcher, "run") as local_cpu,
+    ):
+        actual = PaletteMatchMerger(palette_match_mode=match_mode)(reference, target)
+
+    assert actual is expected
+    gpu.assert_called_once_with(reference, target, 1, palette_match_mode=match_mode)
+    basic_cpu.assert_not_called()
+    local_cpu.assert_not_called()
+
+
 @pytest.mark.parametrize("count", [0, 1, 3])
 def test_rejects_wrong_input_count(count: int):
     """Reject missing or extra images before selecting a backend.
