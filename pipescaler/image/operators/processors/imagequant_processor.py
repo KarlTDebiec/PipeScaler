@@ -4,10 +4,22 @@
 
 from __future__ import annotations
 
+from io import BytesIO
+from pathlib import Path
+from shutil import copyfile
+from struct import pack
+
 import imagequant
 from PIL import Image
+from PIL.PngImagePlugin import PngInfo
 
-from pipescaler.common.validation import val_float, val_int
+from pipescaler.common.file import get_temp_file_path
+from pipescaler.common.validation import (
+    val_float,
+    val_input_path,
+    val_int,
+    val_output_path,
+)
 from pipescaler.image.core import UnsupportedImageModeError
 from pipescaler.image.core.operators import ImageProcessor
 from pipescaler.image.core.typing import ImageMode
@@ -18,11 +30,13 @@ __all__ = ["ImagequantProcessor"]
 class ImagequantProcessor(ImageProcessor):
     """Reduces an image to an RGBA palette using libimagequant.
 
-    Returns the original image when minimum quality cannot be met or a grayscale
-    ICC profile cannot describe an RGB palette. Successful quantization produces
-    mode `P`, including palette transparency and source color metadata. PNG metadata
-    encoding and file-size selection are handled by
-    `pipescaler.image.quantization.quantize_png`.
+    Returns the original image when minimum quality cannot be met, a grayscale
+    ICC profile cannot describe an RGB palette, or the encoded PNG is not smaller
+    and skip_if_larger is enabled. Successful quantization produces mode `P`,
+    including palette transparency and source color metadata.
+
+    Image calls compare optimized PNG encodings in memory. `process_file` compares
+    against the original file size and preserves original bytes on fallback.
     """
 
     def __init__(
@@ -31,6 +45,8 @@ class ImagequantProcessor(ImageProcessor):
         min_quality: int = 10,
         max_quality: int = 100,
         dithering_level: float = 0.0,
+        *,
+        skip_if_larger: bool = True,
     ):
         """Validate and store quantization settings.
 
@@ -39,6 +55,7 @@ class ImagequantProcessor(ImageProcessor):
             min_quality: minimum acceptable quality, from 0 to 100
             max_quality: target quality, from min_quality to 100
             dithering_level: dithering strength, from 0 to 1; 0 disables dithering
+            skip_if_larger: whether to retain the original unless its PNG is smaller
         Raises:
             ValueError: if settings are out of range, non-finite, or inconsistent
         """
@@ -53,17 +70,118 @@ class ImagequantProcessor(ImageProcessor):
             dithering_level, min_value=0, max_value=1, finite=True
         )
         """Dithering strength, with zero disabling dithering."""
+        self.skip_if_larger = skip_if_larger
+        """Whether to retain the original when its PNG encoding is no larger."""
         if self.min_quality > self.max_quality:
             raise ValueError("min_quality must not exceed max_quality")
 
     def __call__(self, input_image: Image.Image) -> Image.Image:
-        """Quantize pixels while retaining source color interpretation.
+        """Quantize an image and select it by encoded PNG size when configured.
 
         Arguments:
             input_image: image to quantize; its pixels and metadata are not modified
         Returns:
-            paletted image, or the original if quality or its grayscale ICC profile
-            prevents quantization
+            paletted image, or the original if quality, its grayscale ICC profile,
+            or encoded PNG size prevents quantization
+        Raises:
+            UnsupportedImageModeError: if the input mode is unsupported
+            ValueError: if either image dimension is zero
+            OSError: if PNG encoding fails during size comparison
+            RuntimeError: if libimagequant fails for a reason other than low quality
+        """
+        output_image = self._quantize(input_image)
+        if output_image is input_image:
+            return input_image
+        if self.skip_if_larger and len(self._encode_png(output_image)) >= len(
+            self._encode_png(input_image)
+        ):
+            return input_image
+        return output_image
+
+    def __repr__(self) -> str:
+        """Return a reconstructible representation.
+
+        Returns:
+            string representation of this processor
+        """
+        return (
+            f"{self.__class__.__name__}(max_colors={self.max_colors!r}, "
+            f"min_quality={self.min_quality!r}, max_quality={self.max_quality!r}, "
+            f"dithering_level={self.dithering_level!r}, "
+            f"skip_if_larger={self.skip_if_larger!r})"
+        )
+
+    def process_file(self, input_path: Path, output_path: Path):
+        """Quantize a static PNG and atomically publish the selected output.
+
+        Retains exact input bytes on quality or size fallback, for 16-bit grayscale
+        inputs, and for ICC-profiled grayscale inputs. Input and output may be the
+        same path. The output directory must already exist. This bound method can
+        be passed to `ImageCheckpointManager.post_runner`.
+
+        Arguments:
+            input_path: static PNG input file
+            output_path: destination with a .png suffix
+        Raises:
+            ValueError: if the input is not a static PNG or output suffix is not .png
+            OSError: if reading, encoding, or publishing the image fails
+            RuntimeError: if quantization fails for a reason other than low quality
+        """
+        input_path = val_input_path(input_path)
+        output_path = val_output_path(output_path, exist_ok=True, create=False)
+        if output_path.suffix.lower() != ".png":
+            raise ValueError("Output must have a .png suffix")
+
+        with get_temp_file_path(
+            ".png", parent_dir_path=output_path.parent
+        ) as temp_path:
+            with Image.open(input_path) as input_image:
+                if input_image.format != "PNG" or getattr(
+                    input_image, "is_animated", False
+                ):
+                    raise ValueError("Input must be a static PNG")
+                if input_image.mode == "I;16":
+                    output_image = input_image
+                else:
+                    output_image = self._quantize(input_image)
+                if output_image is input_image:
+                    copyfile(input_path, temp_path)
+                else:
+                    encoded = self._encode_png(output_image)
+                    if (
+                        self.skip_if_larger
+                        and len(encoded) >= input_path.stat().st_size
+                    ):
+                        copyfile(input_path, temp_path)
+                    else:
+                        temp_path.write_bytes(encoded)
+            temp_path.replace(output_path)
+
+    @classmethod
+    def inputs(cls) -> dict[str, tuple[ImageMode, ...]]:
+        """Describe supported input modes, including existing palettes.
+
+        Returns:
+            mapping of input names to supported image modes
+        """
+        return {"input": ("1", "L", "LA", "P", "RGB", "RGBA")}
+
+    @classmethod
+    def outputs(cls) -> dict[str, tuple[ImageMode, ...]]:
+        """Describe paletted output and modes retained on quality or size rejection.
+
+        Returns:
+            mapping of output names to possible image modes
+        """
+        return {"output": ("P", "1", "L", "LA", "RGB", "RGBA")}
+
+    def _quantize(self, input_image: Image.Image) -> Image.Image:
+        """Generate a palette independently of image or file size selection.
+
+        Arguments:
+            input_image: image whose pixels and color metadata are to be quantized
+        Returns:
+            paletted image, or the original on quality or grayscale-profile fallback
         Raises:
             UnsupportedImageModeError: if the input mode is unsupported
             ValueError: if either image dimension is zero
@@ -115,32 +233,30 @@ class ImagequantProcessor(ImageProcessor):
             output_image.info["transparency"] = alpha
         return output_image
 
-    def __repr__(self) -> str:
-        """Return a reconstructible representation.
+    @staticmethod
+    def _encode_png(image: Image.Image) -> bytes:
+        """Encode an optimized PNG with its color-space and transparency metadata.
 
+        Arguments:
+            image: image to encode without modifying its pixels or metadata
         Returns:
-            string representation of this processor
+            encoded PNG bytes
+        Raises:
+            OSError: if PNG encoding fails
         """
-        return (
-            f"{self.__class__.__name__}(max_colors={self.max_colors!r}, "
-            f"min_quality={self.min_quality!r}, max_quality={self.max_quality!r}, "
-            f"dithering_level={self.dithering_level!r})"
-        )
-
-    @classmethod
-    def inputs(cls) -> dict[str, tuple[ImageMode, ...]]:
-        """Describe supported input modes, including existing palettes.
-
-        Returns:
-            mapping of input names to supported image modes
-        """
-        return {"input": ("1", "L", "LA", "P", "RGB", "RGBA")}
-
-    @classmethod
-    def outputs(cls) -> dict[str, tuple[ImageMode, ...]]:
-        """Describe paletted output and modes retained on quality rejection.
-
-        Returns:
-            mapping of output names to possible image modes
-        """
-        return {"output": ("P", "1", "L", "LA", "RGB", "RGBA")}
+        png_info = PngInfo()
+        if "gamma" in image.info:
+            png_info.add(b"gAMA", pack(">I", round(image.info["gamma"] * 100000)))
+        if "chromaticity" in image.info:
+            png_info.add(
+                b"cHRM",
+                pack(
+                    ">8I",
+                    *(round(value * 100000) for value in image.info["chromaticity"]),
+                ),
+            )
+        if "srgb" in image.info:
+            png_info.add(b"sRGB", pack("B", image.info["srgb"]))
+        with BytesIO() as buffer:
+            image.save(buffer, format="PNG", optimize=True, pnginfo=png_info)
+            return buffer.getvalue()

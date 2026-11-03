@@ -14,7 +14,6 @@ from pipescaler.common.argument_parsing import (
 )
 from pipescaler.image.core.cli import ImageProcessorCli
 from pipescaler.image.operators.processors import ImagequantProcessor
-from pipescaler.image.quantization import quantize_png
 
 __all__ = ["ImagequantCli"]
 
@@ -113,17 +112,14 @@ class ImagequantCli(ImageProcessorCli):
             dithering_level: dithering strength
             skip_if_larger: whether to retain original bytes unless output is smaller
         """
-        quantize_png(
-            input_path,
-            output_path,
-            processor=cls.processor()(
-                max_colors=max_colors,
-                min_quality=min_quality,
-                max_quality=max_quality,
-                dithering_level=dithering_level,
-            ),
+        processor = cls.processor()(
+            max_colors=max_colors,
+            min_quality=min_quality,
+            max_quality=max_quality,
+            dithering_level=dithering_level,
             skip_if_larger=skip_if_larger,
         )
+        processor.process_file(input_path, output_path)
 
 
 if __name__ == "__main__":
