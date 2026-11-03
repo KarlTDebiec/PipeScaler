@@ -70,14 +70,12 @@ functions, ordinary before decorated functions, then alphabetize.
   for generic validation, low-level helpers, and programming errors. Shared
   exceptions live in `pipescaler.common.exceptions`.
 - Preserve exception context with `raise ... from exc`.
-- Each module that emits diagnostics imports `getLogger` from `logging`, defines
-  `logger = getLogger(__name__)` at module scope, and calls `logger.debug(...)`,
-  `logger.info(...)`, `logger.warning(...)`, or the corresponding severity method.
-  Preserve message content and severity. Do not use root-logger convenience calls.
-- Library loggers inherit application configuration through propagation. Keep
-  handlers, formatters, levels, and root configuration in CLI/application setup;
-  do not configure them in individual library modules. CLI tools may write
-  intentional command output to stdout.
+- For diagnostics, import `getLogger` from `logging`, define
+  `logger = getLogger(__name__)` at module scope, and use its logging methods.
+  Do not use root-logger convenience calls.
+- Library loggers inherit configuration through propagation. Configure handlers,
+  formatters, and levels in CLI/application setup. CLI tools may write intentional
+  command output to stdout.
 - Use `get_arg_groups_by_name(...)` for argument groups: positional, input,
   operation, output, additional arguments, then additional help. Omit empty groups.
   Group argument declarations beneath matching block comments, such as
