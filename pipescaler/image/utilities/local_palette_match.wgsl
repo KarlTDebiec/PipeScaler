@@ -23,7 +23,9 @@ var<storage, read> params: array<u32>;
 @group(0) @binding(3)
 var<storage, read_write> output_pixels: array<u32>;
 
-// Weighted RGB distance approximation for perceptual similarity.
+// Exact squared weighted RGB distance multiplied by 512
+// Byte channels bound this value below 332667901, safely within u32
+// Integer comparisons preserve near ties without float32 rounding
 fn weighted_distance(
     fit_r_u: u32,
     fit_g_u: u32,
@@ -31,20 +33,14 @@ fn weighted_distance(
     ref_r_u: u32,
     ref_g_u: u32,
     ref_b_u: u32
-) -> f32 {
-    let fit_r = f32(fit_r_u);
-    let fit_g = f32(fit_g_u);
-    let fit_b = f32(fit_b_u);
-    let ref_r = f32(ref_r_u);
-    let ref_g = f32(ref_g_u);
-    let ref_b = f32(ref_b_u);
-    let rmean = (fit_r + ref_r) * 0.5;
-    let dr = fit_r - ref_r;
-    let dg = fit_g - ref_g;
-    let db = fit_b - ref_b;
-    return ((2.0 + (rmean / 256.0)) * (dr * dr))
-        + (4.0 * (dg * dg))
-        + ((2.0 + ((255.0 - rmean) / 256.0)) * (db * db));
+) -> u32 {
+    let rsum = fit_r_u + ref_r_u;
+    let dr = i32(fit_r_u) - i32(ref_r_u);
+    let dg = i32(fit_g_u) - i32(ref_g_u);
+    let db = i32(fit_b_u) - i32(ref_b_u);
+    return (1024u + rsum) * u32(dr * dr)
+        + 2048u * u32(dg * dg)
+        + (1534u - rsum) * u32(db * db);
 }
 
 @compute @workgroup_size(WGX, WGY, 1)
@@ -84,7 +80,7 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
     let y_end = min(i32(ref_height) - 1, center_y + local_range);
 
     // Brute-force search within local window in reference image.
-    var best_dist = 1e30;
+    var best_dist = 0xffffffffu;
     var best_r: u32 = fit_r;
     var best_g: u32 = fit_g;
     var best_b: u32 = fit_b;
@@ -108,12 +104,12 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
                 ref_b = ref_pixels[ref_idx + 2u];
             }
 
-            var dist = 0.0;
+            var dist = 0u;
             if (channels == 3u) {
                 dist = weighted_distance(fit_r, fit_g, fit_b, ref_r, ref_g, ref_b);
             } else {
-                let d = f32(i32(fit_r) - i32(ref_r));
-                dist = d * d;
+                let d = i32(fit_r) - i32(ref_r);
+                dist = u32(d * d);
             }
 
             if (dist < best_dist) {

@@ -9,10 +9,90 @@ from collections.abc import Callable
 import numpy as np
 import pytest
 from PIL import Image
+from wgpu.utils import get_default_device
 
+from pipescaler.image.utilities.local_palette_matcher import LocalPaletteMatcher
 from pipescaler.image.utilities.local_palette_shader_matcher import (
     LocalPaletteShaderMatcher,
 )
+
+
+@pytest.fixture
+def shader_device():
+    """Require an available compute device for shader execution tests."""
+    try:
+        get_default_device()
+    except RuntimeError as exc:
+        pytest.skip(f"No compute device available: {exc}")
+
+
+@pytest.mark.usefixtures("shader_device")
+def test_run_selects_closer_color_in_near_tie():
+    """Preserve the closer RGB candidate when float32 distances round together."""
+    ref_arr = np.array([[(72, 159, 216), (70, 160, 212)]] * 2, dtype=np.uint8)
+    fit_arr = np.full((4, 4, 3), (49, 25, 174), dtype=np.uint8)
+    ref_img = Image.fromarray(ref_arr)
+    fit_img = Image.fromarray(fit_arr)
+    expected = np.full((4, 4, 3), (70, 160, 212), dtype=np.uint8)
+
+    # Exact squared weighted distances multiplied by 512 are 39872125 and 39872123
+    np.testing.assert_array_equal(
+        np.asarray(LocalPaletteMatcher.run(ref_img, fit_img)), expected
+    )
+    np.testing.assert_array_equal(
+        np.asarray(LocalPaletteShaderMatcher.run(ref_img, fit_img)), expected
+    )
+
+
+@pytest.mark.usefixtures("shader_device")
+@pytest.mark.parametrize("mode", ["L", "RGB"])
+@pytest.mark.parametrize("scale", [2, 3])
+@pytest.mark.parametrize("local_range", [1, 2])
+def test_run_matches_cpu(mode: str, scale: int, local_range: int):
+    """Match CPU output across channels, scales, neighborhoods, and image edges.
+
+    Arguments:
+        mode: image mode to match
+        scale: integer enlargement factor
+        local_range: radius of the reference neighborhood
+    """
+    rng = np.random.default_rng(792)
+    shape = (3, 5) if mode == "L" else (3, 5, 3)
+    fit_shape = (3 * scale, 5 * scale) if mode == "L" else (3 * scale, 5 * scale, 3)
+    ref_img = Image.fromarray(rng.integers(0, 256, shape, dtype=np.uint8))
+    fit_img = Image.fromarray(rng.integers(0, 256, fit_shape, dtype=np.uint8))
+
+    expected = LocalPaletteMatcher.run(ref_img, fit_img, local_range=local_range)
+    actual = LocalPaletteShaderMatcher.run(ref_img, fit_img, local_range=local_range)
+
+    np.testing.assert_array_equal(np.asarray(actual), np.asarray(expected))
+
+
+@pytest.mark.usefixtures("shader_device")
+@pytest.mark.parametrize("mode", ["L", "RGB"])
+@pytest.mark.parametrize(
+    ("reference_values", "target_value", "expected_value"),
+    [([0, 2], 1, 0), ([255, 255], 0, 255), ([0, 0], 255, 0)],
+)
+def test_run_preserves_ties_and_extreme_distances(
+    mode: str, reference_values: list[int], target_value: int, expected_value: int
+):
+    """Keep the first tied candidate and handle maximum byte-channel differences.
+
+    Arguments:
+        mode: image mode to match
+        reference_values: grayscale values of the reference candidates
+        target_value: grayscale value of the target image
+        expected_value: grayscale value of the expected selected candidate
+    """
+    ref_img = Image.fromarray(np.array([reference_values] * 2, dtype=np.uint8))
+    ref_img = ref_img.convert(mode)
+    fit_img = Image.new("L", (4, 4), target_value).convert(mode)
+    expected = Image.new("L", (4, 4), expected_value).convert(mode)
+
+    actual = LocalPaletteShaderMatcher.run(ref_img, fit_img)
+
+    np.testing.assert_array_equal(np.asarray(actual), np.asarray(expected))
 
 
 def _mock_compute_with_buffers_factory(
