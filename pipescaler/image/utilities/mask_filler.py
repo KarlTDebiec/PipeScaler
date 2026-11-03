@@ -14,6 +14,7 @@ import numpy as np
 from PIL import Image
 
 from pipescaler.core import Utility
+from pipescaler.core.exceptions import PipeScalerError
 from pipescaler.image.core.enums import MaskFillMode
 from pipescaler.image.core.exceptions import UnsupportedImageModeError
 
@@ -25,7 +26,7 @@ if TYPE_CHECKING:
 __all__ = ["MaskFillError", "MaskFiller"]
 
 
-class MaskFillError(RuntimeError):
+class MaskFillError(PipeScalerError, RuntimeError):
     """Raised when the mask-filling compute runtime is unavailable or fails."""
 
 

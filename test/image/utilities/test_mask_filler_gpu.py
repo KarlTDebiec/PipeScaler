@@ -11,6 +11,7 @@ import pytest
 from PIL import Image
 from wgpu.utils import get_default_device
 
+from pipescaler.core.exceptions import PipeScalerError
 from pipescaler.image.core.enums import MaskFillMode
 from pipescaler.image.utilities.mask_filler import MaskFiller, MaskFillError
 
@@ -183,8 +184,10 @@ def test_runtime_load_failure(error: type[Exception]):
             "pipescaler.image.utilities.mask_filler.import_module",
             side_effect=failure,
         ),
-        pytest.raises(MaskFillError) as raised,
+        pytest.raises(PipeScalerError) as raised,
     ):
         MaskFiller._get_runtime()
 
+    assert isinstance(raised.value, MaskFillError)
+    assert isinstance(raised.value, RuntimeError)
     assert raised.value.__cause__ is failure

@@ -66,9 +66,10 @@ functions, ordinary before decorated functions, then alphabetize.
 
 ## Errors, logging, and CLI
 
-- Use existing domain exceptions for user-facing failures and built-in exceptions
-  for generic validation, low-level helpers, and programming errors. Shared
-  exceptions live in `pipescaler.common.exceptions`.
+- Use `PipeScalerError` from `pipescaler.core.exceptions` or a domain subclass
+  for expected PipeScaler failures. Keep built-in exceptions for generic validation,
+  low-level helpers, and programming errors. General-purpose utility exceptions
+  live in `pipescaler.common.exceptions` and remain independent of the domain base.
 - Preserve exception context with `raise ... from exc`.
 - For diagnostics, import `getLogger` from `logging`, define
   `logger = getLogger(__name__)` at module scope, and use its logging methods.
