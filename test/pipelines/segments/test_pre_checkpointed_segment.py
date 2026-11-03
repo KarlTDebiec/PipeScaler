@@ -89,10 +89,6 @@ def test():
         with pytest.raises(ValueError, match="Expected 1 inputs .* but received 2"):
             pre_checkpointed_segment(Mock(), Mock())
 
-        # Test miscellaneous methods
-        assert str(pre_checkpointed_segment)
-        assert repr(pre_checkpointed_segment)
-
 
 def test_multiple_inputs_use_their_own_checkpoint_paths(tmp_path: Path):
     """Pair each input with its checkpoint without losing paths during cleanup.

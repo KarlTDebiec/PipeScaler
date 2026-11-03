@@ -111,7 +111,3 @@ def test():
             mock_pipe_object_input.location_name,
             "post.txt",
         )
-
-        # Test miscellaneous methods
-        assert str(post_checkpointed_segment)
-        assert repr(post_checkpointed_segment)

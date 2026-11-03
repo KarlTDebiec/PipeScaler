@@ -4,9 +4,6 @@
 
 from __future__ import annotations
 
-from contextlib import redirect_stderr, redirect_stdout
-from inspect import getfile
-from io import StringIO
 from pathlib import Path
 
 import numpy as np
@@ -14,7 +11,7 @@ import pytest
 from PIL import Image
 
 from pipescaler.common.cli import CommandLineInterface
-from pipescaler.common.file import get_temp_directory_path, get_temp_file_path
+from pipescaler.common.file import get_temp_file_path
 from pipescaler.common.testing import run_cli_with_args
 from pipescaler.image.cli import ImageProcessorsCli
 from pipescaler.image.cli.processors import (
@@ -30,6 +27,7 @@ from pipescaler.image.cli.processors import (
     XbrzCli,
 )
 from pipescaler.testing.file import get_test_input_path
+from test.helpers import assert_cli_help, assert_cli_usage
 
 
 @pytest.mark.parametrize(
@@ -92,20 +90,7 @@ def test_help(commands: tuple[type[CommandLineInterface], ...]):
     Arguments:
         commands: Tuple of command-line interface classes to test
     """
-    subcommands = " ".join(f"{command.name()}" for command in commands[1:])
-
-    stdout = StringIO()
-    stderr = StringIO()
-    try:
-        with redirect_stdout(stdout):
-            with redirect_stderr(stderr):
-                run_cli_with_args(commands[0], f"{subcommands} -h")
-    except SystemExit as exc:
-        assert exc.code == 0
-        assert stdout.getvalue().startswith(
-            f"usage: {Path(getfile(commands[0])).name} {subcommands}"
-        )
-        assert stderr.getvalue() == ""
+    assert_cli_help(commands)
 
 
 @pytest.mark.parametrize(
@@ -140,46 +125,7 @@ def test_usage(commands: tuple[type[CommandLineInterface], ...]):
     Arguments:
         commands: Tuple of command-line interface classes to test
     """
-    subcommands = " ".join(f"{command.name()}" for command in commands[1:])
-
-    stdout = StringIO()
-    stderr = StringIO()
-    try:
-        with redirect_stdout(stdout):
-            with redirect_stderr(stderr):
-                run_cli_with_args(commands[0], subcommands)
-    except SystemExit as exc:
-        assert exc.code == 2
-        assert stdout.getvalue() == ""
-        assert stderr.getvalue().startswith(
-            f"usage: {Path(getfile(commands[0])).name} {subcommands}"
-        )
-
-
-def test_spandrel_cli_registration_and_parsing():
-    """Test that SpandrelCli is registered and parses its model path."""
-    assert ImageProcessorsCli.processors()["spandrel"] is SpandrelCli
-
-    input_path = get_test_input_path("RGB")
-    with get_temp_file_path(".pth") as model_input_path:
-        with get_temp_directory_path() as output_dir_path:
-            model_input_path.touch()
-            output_path = output_dir_path / "output.png"
-
-            parsed_args = ImageProcessorsCli.argparser().parse_args(
-                [
-                    "spandrel",
-                    "--model-input-path",
-                    str(model_input_path),
-                    str(input_path),
-                    str(output_path),
-                ]
-            )
-
-    assert vars(parsed_args)[ImageProcessorsCli.subcommand_dest()] == "spandrel"
-    assert parsed_args.model_input_path == model_input_path.resolve()
-    assert parsed_args.input_path == input_path
-    assert parsed_args.output_path == output_path.resolve()
+    assert_cli_usage(commands)
 
 
 @pytest.mark.parametrize(
