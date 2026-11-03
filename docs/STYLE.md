@@ -85,8 +85,8 @@ Preserve comments and template identifiers such as `WGX` and `WGY`. Validate
 expanded shader variants with pinned Naga; the palette shader uses 8×1 workgroups
 for basic matching and 8×8 for local matching. Keep these sizes synchronized with
 `PaletteShaderMatcher`. Static checks require no GPU and do not establish runtime
-correctness or backend compatibility. Setup and commands are in
-[Contributing](CONTRIBUTING.md#wgsl-tooling).
+correctness or backend compatibility. Tool versions and CI commands are declared
+in the [WGSL workflow](../.github/workflows/wgsl.yml).
 
 ## Tests and documentation
 

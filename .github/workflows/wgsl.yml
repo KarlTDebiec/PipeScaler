@@ -9,6 +9,11 @@ on:
 permissions:
   contents: read
 
+env:
+  RUST_VERSION: '1.99.1'
+  NAGA_VERSION: '27.0.0'
+  WGSLFMT_REV: '8a2e7eab99891ab9d7a405561cb1559127767897'
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name == 'push' && github.sha || github.ref }}
   cancel-in-progress: true
@@ -18,6 +23,9 @@ jobs:
     name: WGSL
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    defaults:
+      run:
+        shell: bash
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -31,75 +39,57 @@ jobs:
           HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           EVENT_NAME: ${{ github.event_name }}
         run: |
-          python3 - <<'PY'
-          import fnmatch
-          import os
-          import subprocess
-          from pathlib import Path
-
-          patterns = (
-              "*.wgsl",
-              "scripts/wgsl_tools.toml",
-              ".github/workflows/wgsl.yml",
-              ".gitattributes",
-              "pyproject.toml",
-              "uv.lock",
-          )
-          relevant = True
-          if os.environ["EVENT_NAME"] == "pull_request":
-              base = os.environ["BASE_SHA"]
-              head = os.environ["HEAD_SHA"]
-              result = subprocess.run(
-                  ["git", "diff", "--name-only", "--no-renames", "-z",
-                   f"{base}...{head}"],
-                  check=True, capture_output=True,
-              )
-              paths = result.stdout.decode("utf-8", errors="surrogateescape").split("\0")
-              relevant = any(
-                  fnmatch.fnmatchcase(path, pattern)
-                  for path in paths if path
-                  for pattern in patterns
-              )
-          with Path(os.environ["GITHUB_OUTPUT"]).open("a", encoding="utf-8") as output:
-              output.write(f"relevant={str(relevant).lower()}\n")
-          with Path(os.environ["GITHUB_STEP_SUMMARY"]).open("a", encoding="utf-8") as summary:
-              summary.write("Running full WGSL validation.\n" if relevant else
-                            "No relevant changes; WGSL validation is not needed.\n")
-          PY
-
-      - name: Set up uv and Python
-        if: steps.changes.outputs.relevant == 'true'
-        uses: astral-sh/setup-uv@v10.3.2
-        with:
-          enable-cache: true
-          cache-dependency-glob: uv.lock
-          python-version: '3.14'
-
-      - name: Install development dependencies
-        if: steps.changes.outputs.relevant == 'true'
-        run: uv sync --frozen --only-group dev
+          relevant=true
+          if [[ "$EVENT_NAME" == "pull_request" ]]; then
+            git diff --name-only --no-renames -z "$BASE_SHA...$HEAD_SHA" > "$RUNNER_TEMP/wgsl-changes"
+            relevant=false
+            while IFS= read -r -d '' path; do
+              case "$path" in
+                *.wgsl|.github/workflows/wgsl.yml|.gitattributes|pyproject.toml|uv.lock)
+                  relevant=true
+                  break
+                  ;;
+              esac
+            done < "$RUNNER_TEMP/wgsl-changes"
+          fi
+          echo "relevant=$relevant" >> "$GITHUB_OUTPUT"
+          if [[ "$relevant" == "true" ]]; then
+            echo "Running full WGSL validation." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No relevant changes; WGSL validation is not needed." >> "$GITHUB_STEP_SUMMARY"
+          fi
 
       - name: Restore pinned WGSL tools
+        id: tools
         if: steps.changes.outputs.relevant == 'true'
         uses: actions/cache@v4
         with:
-          path: local/wgsl-tools
-          key: wgsl-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('scripts/wgsl_tools.toml') }}
+          path: ${{ runner.temp }}/wgsl-tools
+          key: wgsl-${{ runner.os }}-${{ runner.arch }}-${{ env.RUST_VERSION }}-${{ env.NAGA_VERSION }}-${{ env.WGSLFMT_REV }}
 
       - name: Install pinned Cargo tools
-        if: steps.changes.outputs.relevant == 'true'
-        run: uv run --no-sync python scripts/wgsl.py install
+        if: steps.changes.outputs.relevant == 'true' && steps.tools.outputs.cache-hit != 'true'
+        run: |
+          rustup toolchain install "$RUST_VERSION" --profile minimal --no-self-update
+          cargo "+$RUST_VERSION" install --locked --root "$RUNNER_TEMP/wgsl-tools" naga-cli --version "=$NAGA_VERSION"
+          cargo "+$RUST_VERSION" install --locked --root "$RUNNER_TEMP/wgsl-tools" \
+            --git https://github.com/wgsl-analyzer/wgsl-analyzer --rev "$WGSLFMT_REV" wgslfmt
 
       - name: Check WGSL formatting
         if: steps.changes.outputs.relevant == 'true'
-        run: uv run --no-sync python scripts/wgsl.py format --check
+        run: |
+          git ls-files -z -- '*.wgsl' > "$RUNNER_TEMP/wgsl-sources"
+          xargs -0 -r "$RUNNER_TEMP/wgsl-tools/bin/wgslfmt" \
+            --config indent_style=spaces --config indent_width=4 --check -- < "$RUNNER_TEMP/wgsl-sources"
 
       - name: Validate expanded WGSL
         if: steps.changes.outputs.relevant == 'true'
-        run: uv run --no-sync python scripts/wgsl.py lint
-
-      - name: Test WGSL tooling without a GPU
-        if: steps.changes.outputs.relevant == 'true'
-        env:
-          PIPESCALER_REQUIRE_WGSL_TOOLS: '1'
-        run: uv run --no-sync pytest test/scripts/test_wgsl.py
+        run: |
+          while IFS= read -r -d '' shader; do
+            for y in 1 8; do
+              expanded="$RUNNER_TEMP/shader-8x$y.wgsl"
+              sed -e 's/WGX/8/g' -e "s/WGY/$y/g" -- "$shader" > "$expanded"
+              echo "Validating $shader (8x$y)"
+              "$RUNNER_TEMP/wgsl-tools/bin/naga" "$expanded"
+            done
+          done < "$RUNNER_TEMP/wgsl-sources"
