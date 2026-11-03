@@ -4,21 +4,16 @@
 
 from __future__ import annotations
 
-from contextlib import redirect_stderr, redirect_stdout
-from inspect import getfile
-from io import StringIO
-from pathlib import Path
-
 import pytest
 
 from pipescaler.common.cli import CommandLineInterface
-from pipescaler.common.testing import run_cli_with_args
 from pipescaler.image.cli import (
     ImageCli,
     ImageMergersCli,
     ImageProcessorsCli,
     ImageSplittersCli,
 )
+from test.helpers import assert_cli_help, assert_cli_usage
 
 
 @pytest.mark.parametrize(
@@ -36,20 +31,7 @@ def test_help(commands: tuple[type[CommandLineInterface], ...]):
     Arguments:
         commands: Tuple of command-line interface classes to test
     """
-    subcommands = " ".join(f"{command.name()}" for command in commands[1:])
-
-    stdout = StringIO()
-    stderr = StringIO()
-    try:
-        with redirect_stdout(stdout):
-            with redirect_stderr(stderr):
-                run_cli_with_args(commands[0], f"{subcommands} -h")
-    except SystemExit as exc:
-        assert exc.code == 0
-        assert stdout.getvalue().startswith(
-            f"usage: {Path(getfile(commands[0])).name} {subcommands}"
-        )
-        assert stderr.getvalue() == ""
+    assert_cli_help(commands)
 
 
 @pytest.mark.parametrize(
@@ -67,20 +49,7 @@ def test_usage(commands: tuple[type[CommandLineInterface], ...]):
     Arguments:
         commands: Tuple of command-line interface classes to test
     """
-    subcommands = " ".join(f"{command.name()}" for command in commands[1:])
-
-    stdout = StringIO()
-    stderr = StringIO()
-    try:
-        with redirect_stdout(stdout):
-            with redirect_stderr(stderr):
-                run_cli_with_args(commands[0], subcommands)
-    except SystemExit as exc:
-        assert exc.code == 2
-        assert stdout.getvalue() == ""
-        assert stderr.getvalue().startswith(
-            f"usage: {Path(getfile(commands[0])).name} {subcommands}"
-        )
+    assert_cli_usage(commands)
 
 
 def test_rejects_unimplemented_utility_category(capsys: pytest.CaptureFixture[str]):

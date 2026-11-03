@@ -60,3 +60,25 @@ def test(input_filename: str, processor: SharpenProcessor):
 
     assert output_img.mode == get_expected_output_mode(input_img)
     assert output_img.size == input_img.size
+
+
+@pytest.mark.parametrize("mode", ["L", "RGB"])
+def test_sharpen_increases_edge_contrast(mode: str):
+    """Increase contrast on both sides of an edge without changing flat interiors.
+
+    Arguments:
+        mode: supported image mode
+    """
+    input_image = Image.new("L", (7, 5), 80)
+    input_image.paste(160, (3, 0, 7, 5))
+    input_image = input_image.convert(mode)
+
+    output_image = SharpenProcessor()(input_image)
+    output_values = output_image.convert("L")
+
+    assert output_values.getpixel((2, 2)) < 80
+    assert output_values.getpixel((3, 2)) > 160
+    assert output_values.getpixel((1, 2)) == 80
+    assert output_values.getpixel((5, 2)) == 160
+    assert input_image.convert("L").getpixel((2, 2)) == 80
+    assert input_image.convert("L").getpixel((3, 2)) == 160

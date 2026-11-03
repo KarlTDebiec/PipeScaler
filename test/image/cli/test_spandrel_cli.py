@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, Mock
 
 import numpy as np
 import pytest
@@ -37,13 +37,14 @@ def image_paths(tmp_path: Path) -> tuple[Path, Path, Path]:
 def test_execution_controls_reach_model(
     image_paths: tuple[Path, Path, Path], monkeypatch: pytest.MonkeyPatch
 ):
-    """Execute the registered CLI with explicit device and BF16 precision.
+    """Execute the registered CLI with relative paths and BF16 precision.
 
     Arguments:
         image_paths: temporary source, checkpoint, and output paths
         monkeypatch: fixture for replacing model loading
     """
     input_path, model_path, output_path = image_paths
+    monkeypatch.chdir(input_path.parent)
     descriptor = MagicMock(spec=ImageModelDescriptor)
     descriptor.input_channels = descriptor.output_channels = 3
     descriptor.scale = 1
@@ -51,15 +52,16 @@ def test_execution_controls_reach_model(
     descriptor.to.return_value = descriptor
     descriptor.eval.return_value = descriptor
     descriptor.side_effect = lambda tensor: tensor
+    loader = Mock(return_value=descriptor)
     monkeypatch.setattr(
         "pipescaler.image.operators.processors.spandrel_processor.ModelLoader.load_from_file",
-        lambda *_args, **_kwargs: descriptor,
+        loader,
     )
     ImageProcessorsCli.main(
         [
             "spandrel",
             "--model-input-path",
-            str(model_path),
+            model_path.name,
             "--device",
             "cpu",
             "--precision",
@@ -70,11 +72,12 @@ def test_execution_controls_reach_model(
             "1",
             "--target-scale",
             "2",
-            str(input_path),
-            str(output_path),
+            input_path.name,
+            output_path.name,
         ]
     )
 
+    loader.assert_called_once_with(model_path.resolve())
     descriptor.to.assert_called_once_with(
         device=torch.device("cpu"), dtype=torch.bfloat16
     )

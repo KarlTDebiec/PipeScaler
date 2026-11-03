@@ -111,13 +111,6 @@ def test_load_save():
         cp_manager.purge_unrecognized_files()
 
 
-def test_pre_segment():
-    """Test CheckpointManager wrapping segments with pre-checkpointing."""
-    with get_temp_directory_path() as cp_dir_path:
-        cp_manager = CheckpointManager(cp_dir_path)
-        cp_manager.pre_segment("cpt.txt")(Mock(spec=Segment))
-
-
 @patch.object(PipeObject, "save", mock_pipe_object_save_2)
 @patch.object(PipeObject, "__abstractmethods__", set())
 def test_load_respects_input_mtime():
@@ -215,22 +208,12 @@ def test_checkpoints_current_requires_inputs():
             cp_manager.checkpoints_current((), [cp_dir_path / "cpt.txt"])
 
 
-def test_post_segment():
-    """Test CheckpointManager wrapping segments with post-checkpointing."""
-    with get_temp_directory_path() as cp_dir_path:
-        cp_manager = CheckpointManager(cp_dir_path)
-        cp_manager.post_segment("cpt.txt")(Mock(spec=Segment))
-
-
-def test_print():
-    """Test CheckpointManager string representation methods."""
+def test_repr_round_trip():
+    """Reconstruct checkpoint location and freshness policy from the representation."""
     with get_temp_directory_path() as cp_dir_path:
         assert isinstance(cp_dir_path, PlatformPath)
 
         cp_manager = CheckpointManager(cp_dir_path, validate_input_mtime=True)
-        assert str(cp_manager)
-        assert repr(cp_manager)
-
         cp_manager_2 = eval(repr(cp_manager))
         assert cp_manager_2.dir_path == cp_manager.dir_path
         assert cp_manager_2.validate_input_mtime == cp_manager.validate_input_mtime

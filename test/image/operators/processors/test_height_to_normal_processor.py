@@ -83,16 +83,19 @@ def test_flat_height_map_generates_upward_normals(shape: tuple[int, int]):
 
 
 @pytest.mark.parametrize(("step", "expected_sign"), [(1, -1), (-1, 1)])
-def test_height_ramp_normal_uses_signed_gradient(step: int, expected_sign: int):
+def test_height_ramp_normal_uses_signed_gradient(
+    step: int, expected_sign: int, processor: HeightToNormalProcessor
+):
     """Test increasing and decreasing height ramps retain their gradient sign.
 
     Arguments:
         step: height change between adjacent columns
         expected_sign: expected sign of the encoded x normal
+        processor: processor with optional height smoothing
     """
     input_array = np.tile(128 + np.arange(5, dtype=np.int16) * step, (5, 1))
     input_image = Image.fromarray(input_array.astype(np.uint8))
 
-    output_array = np.asarray(generate_normal_map_from_height_map_image(input_image))
+    output_array = np.asarray(processor(input_image))
     assert (int(output_array[2, 2, 0]) - 128) * expected_sign > 0
     assert output_array[2, 2, 2] >= 128

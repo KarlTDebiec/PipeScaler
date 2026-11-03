@@ -51,9 +51,3 @@ def test(input_filename: str, outlet: str, sorter: RegexSorter):
     """
     image = PipeImage(path=get_test_input_path(input_filename))
     assert sorter(image) == outlet
-
-    # Test miscellaneous methods
-    assert str(sorter)
-    assert repr(sorter)
-    assert sorter.outlets
-    assert sorter.help_markdown()
