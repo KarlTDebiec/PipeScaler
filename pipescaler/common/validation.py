@@ -39,7 +39,6 @@ __all__ = [
     "val_literal",
     "val_output_dir_path",
     "val_output_path",
-    "val_path",
     "val_str",
 ]
 
@@ -313,7 +312,15 @@ def val_input_dir_path(
             NotADirectoryError: If path is not a directory
             TypeError: If value cannot be cast to Path
         """
-        validated_value = val_path(value_to_validate)
+        try:
+            validated_value = Path(
+                expandvars(expanduser(fspath(value_to_validate)))
+            ).resolve()
+        except ValueError as exc:
+            raise TypeError(
+                f"{value_to_validate} is of type "
+                f"{type(value_to_validate)}, cannot be cast to Path"
+            ) from exc
         if not validated_value.exists():
             raise DirectoryNotFoundError(
                 f"Input directory {validated_value} does not exist"
@@ -369,7 +376,15 @@ def val_input_file_or_dir_path(
             TypeError: If value cannot be cast to Path
             ValueError: If path is neither a file nor a directory
         """
-        validated_value = val_path(value_to_validate)
+        try:
+            validated_value = Path(
+                expandvars(expanduser(fspath(value_to_validate)))
+            ).resolve()
+        except ValueError as exc:
+            raise TypeError(
+                f"{value_to_validate} is of type "
+                f"{type(value_to_validate)}, cannot be cast to Path"
+            ) from exc
         if not validated_value.exists():
             raise FileNotFoundError(f"Input path {validated_value} does not exist")
         if not validated_value.is_file() and not validated_value.is_dir():
@@ -391,25 +406,35 @@ def val_input_file_or_dir_path(
 @overload
 def val_input_path(
     value: str | PathLike[str],
+    *,
+    must_exist: bool = True,
 ) -> Path: ...
 
 
 @overload
-def val_input_path(value: Iterable[str | PathLike[str]]) -> list[Path]: ...
+def val_input_path(
+    value: Iterable[str | PathLike[str]], *, must_exist: bool = True
+) -> list[Path]: ...
 
 
 def val_input_path(
     value: str | PathLike[str] | Iterable[str | PathLike[str]],
+    *,
+    must_exist: bool = True,
 ) -> Path | list[Path]:
     """Validate input file path(s) and make them absolute.
 
+    Missing paths are accepted with `must_exist=False` without creating files or
+    directories. Existing paths must still be files.
+
     Arguments:
         value: Path or paths to input files
+        must_exist: whether input files must already exist
     Returns:
         Validated path or paths
     Raises:
-        FileNotFoundError: If any file does not exist
-        NotAFileError: If any path is not a file
+        FileNotFoundError: if a file does not exist and must_exist is True
+        NotAFileError: if an existing path is not a file
         TypeError: If any value cannot be cast to Path
     """
 
@@ -421,14 +446,23 @@ def val_input_path(
         Returns:
             Validated path
         Raises:
-            FileNotFoundError: If path does not exist
-            NotAFileError: If path is not a file
+            FileNotFoundError: if the path does not exist and must_exist is True
+            NotAFileError: if an existing path is not a file
             TypeError: If value cannot be cast to Path
         """
-        validated_value = val_path(value_to_validate)
-        if not validated_value.exists():
+        try:
+            validated_value = Path(
+                expandvars(expanduser(fspath(value_to_validate)))
+            ).resolve()
+        except ValueError as exc:
+            raise TypeError(
+                f"{value_to_validate} is of type "
+                f"{type(value_to_validate)}, cannot be cast to Path"
+            ) from exc
+        exists = validated_value.exists()
+        if must_exist and not exists:
             raise FileNotFoundError(f"Input file {validated_value} does not exist")
-        if not validated_value.is_file():
+        if exists and not validated_value.is_file():
             raise NotAFileError(f"Input file {validated_value} is not a file")
         return validated_value
 
@@ -610,7 +644,15 @@ def val_output_dir_path(
             NotADirectoryError: if the path or an existing ancestor is a file
             TypeError: If value cannot be cast to Path
         """
-        validated_value = val_path(value_to_validate)
+        try:
+            validated_value = Path(
+                expandvars(expanduser(fspath(value_to_validate)))
+            ).resolve()
+        except ValueError as exc:
+            raise TypeError(
+                f"{value_to_validate} is of type "
+                f"{type(value_to_validate)}, cannot be cast to Path"
+            ) from exc
         if not validated_value.exists():
             nearest_existing_ancestor_dir_path = (
                 _get_nearest_existing_ancestor_dir_path(validated_value)
@@ -687,7 +729,15 @@ def val_output_path(
             NotAFileError: If path exists and is not a file
             TypeError: If value cannot be cast to a Path
         """
-        validated_value = val_path(value_to_validate)
+        try:
+            validated_value = Path(
+                expandvars(expanduser(fspath(value_to_validate)))
+            ).resolve()
+        except ValueError as exc:
+            raise TypeError(
+                f"{value_to_validate} is of type "
+                f"{type(value_to_validate)}, cannot be cast to Path"
+            ) from exc
         exists = validated_value.exists()
         if exists and not validated_value.is_file():
             raise NotAFileError(f"{validated_value} is not a file")
@@ -731,25 +781,6 @@ def val_literal[LiteralValue](value: LiteralValue, literal_type: Any) -> Literal
     if value not in options:
         raise ValueError(f"'{value}' is not one of options '{options}'") from None
     return value
-
-
-def val_path(value: str | PathLike[str]) -> Path:
-    """Expand and resolve a path without requiring it to exist or creating it.
-
-    Arguments:
-        value: path to normalize, including home or environment variables
-    Returns:
-        absolute path with variables expanded and symlinks resolved
-    Raises:
-        TypeError: if the value cannot be cast to a path
-        OSError: if the path cannot be resolved
-    """
-    try:
-        return Path(expandvars(expanduser(fspath(value)))).resolve()
-    except ValueError as exc:
-        raise TypeError(
-            f"{value} is of type {type(value)}, cannot be cast to Path"
-        ) from exc
 
 
 class StrValidatorKwargs(TypedDict, total=False):

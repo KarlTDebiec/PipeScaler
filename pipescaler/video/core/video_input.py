@@ -10,7 +10,7 @@ from pathlib import Path
 
 import cv2
 
-from pipescaler.common.validation import val_input_dir_path, val_input_path, val_path
+from pipescaler.common.validation import val_input_dir_path, val_input_path
 
 from .image_sequence_capture import ImageSequenceCapture
 
@@ -38,7 +38,7 @@ class VideoInput:
             TypeError: if the input cannot be cast to a path
             ValueError: if a template is malformed or frame numbering has gaps
         """
-        self.input_path = val_path(input_path)
+        self.input_path = val_input_path(input_path, must_exist=False)
         """Absolute concrete file path or sequence template."""
         self.frame_paths: tuple[Path, ...] | None = None
         """Numerically ordered frames, or None for a concrete video file."""
