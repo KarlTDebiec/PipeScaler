@@ -21,9 +21,8 @@ __all__ = ["ThresholdProcessor"]
 class ThresholdProcessor(ImageProcessor):
     """Threshold and optionally denoise black-and-white pixels.
 
-    Mode `1` inputs retain mode `1`; mode `L` inputs retain mode `L` with
-    pixel values restricted to 0 and 255. Palette inputs are expanded before
-    validating their mode.
+    Output always uses mode `1`, including after denoising. Palette inputs are
+    expanded before validating their mode.
     """
 
     def __init__(self, threshold: int = 128, denoise: bool = False):
@@ -45,14 +44,16 @@ class ThresholdProcessor(ImageProcessor):
         Arguments:
             input_image: input image
         Returns:
-            black-and-white image retaining the validated input mode
+            black-and-white image in mode `1`
         """
         input_image, input_mode = validate_image_and_convert_mode(
             input_image, self.inputs()["input"]
         )
 
         if input_mode == "L":
-            output_img = input_image.point(lambda p: p > self.threshold and 255)
+            output_img = input_image.point(
+                lambda p: p > self.threshold and 255, mode="1"
+            )
         else:
             output_img = input_image
         if self.denoise:
@@ -93,7 +94,7 @@ class ThresholdProcessor(ImageProcessor):
             mapping of output names to their supported image modes
         """
         return {
-            "output": ("1", "L"),
+            "output": ("1",),
         }
 
     @no_type_check

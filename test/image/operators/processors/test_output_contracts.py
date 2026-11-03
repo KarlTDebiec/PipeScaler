@@ -22,7 +22,7 @@ from pipescaler.image.operators.processors import PotraceProcessor, ThresholdPro
 @pytest.mark.parametrize("mode", ["1", "L", "P"])
 @pytest.mark.parametrize("denoise", [False, True])
 def test_threshold_output_contract(mode: str, denoise: bool):
-    """Declare both binary and grayscale output without changing threshold pixels.
+    """Return mode 1 for every accepted input while preserving threshold decisions.
 
     Arguments:
         mode: input image mode, including a grayscale palette
@@ -38,14 +38,38 @@ def test_threshold_output_contract(mode: str, denoise: bool):
 
     output = processor(image)
 
-    assert processor.outputs() == {"output": ("1", "L")}
+    assert processor.outputs() == {"output": ("1",)}
     assert output.mode in processor.outputs()["output"]
     if mode == "1":
         assert output.mode == "1"
         assert output.tobytes() == image.tobytes()
     else:
-        assert output.mode == "L"
-        assert np.asarray(output).flatten().tolist() == [0, 0, 255, 255]
+        assert output.mode == "1"
+        assert np.asarray(output.convert("L")).flatten().tolist() == [0, 0, 255, 255]
+
+
+@pytest.mark.parametrize("mode", ["1", "L", "P"])
+@pytest.mark.parametrize("background", [0, 255])
+@pytest.mark.parametrize("denoise", [False, True])
+def test_threshold_isolated_pixel(mode: str, background: int, denoise: bool):
+    """Preserve binary output and denoise isolated black or white pixels.
+
+    Arguments:
+        mode: input image mode
+        background: surrounding pixel value
+        denoise: whether the isolated pixel is removed
+    """
+    image = Image.new("L", (3, 3), background)
+    image.putpixel((1, 1), 255 - background)
+    image = image.convert(mode, dither=Image.Dither.NONE)
+
+    output = ThresholdProcessor(denoise=denoise)(image)
+
+    assert output.mode == "1"
+    expected = [background] * 9
+    if not denoise:
+        expected[4] = 255 - background
+    assert np.asarray(output.convert("L")).flatten().tolist() == expected
 
 
 @pytest.mark.parametrize("mode", ["1", "L", "P"])
