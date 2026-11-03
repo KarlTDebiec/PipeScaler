@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
-from logging import info
+from logging import info, warning
 from pathlib import Path
 
 from pipescaler.core.pipelines import PipeObject
@@ -20,19 +20,34 @@ class ListSorter(Sorter):
     exclusions = {".DS_Store", "Thumbs", "desktop"}
     """File stems to exclude"""
 
-    def __init__(self, **outlet_paths_by_name: Path | str | list[Path | str]):
+    def __init__(
+        self,
+        *,
+        allow_duplicates: bool = False,
+        **outlet_paths_by_name: Path | str | list[Path | str],
+    ):
         """Validate configuration and initialize.
 
         Arguments:
-            **outlet_paths_by_name: Outlets to which images may be sorted; keys are
+            allow_duplicates: whether to allow names assigned to multiple outlets;
+              defaults to False; when True, log a warning and use the last configured
+              outlet for each conflicting name; repetitions within one outlet are
+              always allowed
+            **outlet_paths_by_name: outlets to which images may be sorted; keys are
               outlet names and values are paths to directories or text files; if path is
               to a directory, images with names matching the files within that directory
               will be sorted to that outlet; if path is to a text file, images with
-              names matching a line in the file will be sorted to that outlet
+              names matching a line in the file will be sorted to that outlet;
+              blank lines and excluded file stems are ignored
+        Raises:
+            ValueError: if a name is assigned to multiple outlets and allow_duplicates
+              is False
         """
+        self._allow_duplicates = allow_duplicates
         self._outlets = tuple(sorted(outlet_paths_by_name.keys()))
         self._input_paths_by_outlet: dict[str, list[str]] = {}
-        self.outlets_by_filename = {}
+        self.outlets_by_filename: dict[str, str] = {}
+        conflicting_outlets_by_name: dict[str, set[str]] = {}
 
         for outlet, configured_paths in outlet_paths_by_name.items():
             path_values = configured_paths
@@ -58,9 +73,24 @@ class ListSorter(Sorter):
                     elif resolved_path.is_dir():
                         names = (f.stem for f in resolved_path.iterdir() if f.is_file())
                     for name in names:
-                        if name in self.exclusions:
+                        if not name or name in self.exclusions:
                             continue
+                        previous_outlet = self.outlets_by_filename.get(name)
+                        if previous_outlet is not None and previous_outlet != outlet:
+                            conflicting_outlets_by_name.setdefault(
+                                name, {previous_outlet}
+                            ).add(outlet)
                         self.outlets_by_filename[name] = outlet
+
+        if conflicting_outlets_by_name:
+            conflicts = "; ".join(
+                f"{name!r}: {', '.join(repr(outlet) for outlet in sorted(outlets))}"
+                for name, outlets in sorted(conflicting_outlets_by_name.items())
+            )
+            message = f"{self}: names assigned to multiple outlets: {conflicts}"
+            if not allow_duplicates:
+                raise ValueError(message)
+            warning(f"{message}; last configured outlet wins")
 
     def __call__(self, obj: PipeObject) -> str | None:
         """Get the outlet to which an object should be sorted.
@@ -84,7 +114,10 @@ class ListSorter(Sorter):
         Returns:
             string representation of this object
         """
-        return f"{self.__class__.__name__}(**{self._input_paths_by_outlet!r})"
+        return (
+            f"{self.__class__.__name__}(allow_duplicates={self._allow_duplicates!r}, "
+            f"**{self._input_paths_by_outlet!r})"
+        )
 
     @property
     def outlets(self) -> tuple[str, ...]:
