@@ -26,6 +26,45 @@ runs for that PR; each merged commit keeps its own workflow run. GitHub checks
 provide routine validation results. Mention validation gaps or platform limitations
 in PR Notes only when they materially affect review.
 
+## WGSL tooling
+
+Install [Rust/rustup](https://rustup.rs/) and the platform's native linker/build
+tools once (Visual Studio C++ Build Tools on Windows, Xcode command-line tools on
+macOS, or `build-essential` on Ubuntu). Then run from the repository root:
+
+```shell
+uv run python scripts/wgsl.py install
+uv run python scripts/wgsl.py format
+uv run python scripts/wgsl.py format --check
+uv run python scripts/wgsl.py lint
+```
+
+`install` uses the Rust version, Naga release, and full formatter commit in
+[`scripts/wgsl_tools.toml`](../scripts/wgsl_tools.toml), with locked Cargo
+dependencies. Binaries live in ignored `local/wgsl-tools/`; matching installations
+are reused. Keep the Naga pin aligned with the compiler used by the `wgpu-native`
+runtime when updating `wgpu`.
+
+`format` and `lint` accept optional repository-relative WGSL file paths. Without
+paths, they check every existing tracked `.wgsl` file. Formatting edits maintained
+sources; `format --check` never writes. Validation substitutes both palette
+workgroup configurations into temporary files and reports errors against the
+maintained source. These static checks need no GPU; shader execution tests still
+require a usable compute device.
+
+The separate [WGSL workflow](../.github/workflows/wgsl.yml) checks PRs and pushes
+to `master`. A lightweight gate skips tool setup and shader checks for unrelated
+changes while completing the check successfully. Shader, checker, template loader,
+dependency, and workflow changes run all shader checks and focused tooling tests.
+The workflow caches binaries by OS, architecture, and installation pins. For its
+GPU-free Python tests, only the development dependency group is installed.
+
+To run the tooling regression tests after installing the native tools:
+
+```shell
+uv run pytest test/scripts/test_wgsl.py
+```
+
 ## Pull requests
 
 Keep descriptions concise. Use these sections:

@@ -1,0 +1,4 @@
+# Keep naga-cli aligned with Naga in the wgpu-native runtime shipped by wgpu.
+rust_version = "1.99.1"
+naga_version = "27.0.0"
+wgslfmt_revision = "8a2e7eab99891ab9d7a405561cb1559127767897"

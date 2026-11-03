@@ -1,0 +1,71 @@
+name: WGSL
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'push' && github.sha || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: WGSL
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Detect relevant changes
+        id: changes
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: python3 scripts/wgsl.py changes
+
+      - name: Set up uv and Python
+        if: steps.changes.outputs.relevant == 'true'
+        uses: astral-sh/setup-uv@v10.3.2
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+          python-version: '3.14'
+
+      - name: Install development dependencies
+        if: steps.changes.outputs.relevant == 'true'
+        run: uv sync --frozen --only-group dev
+
+      - name: Restore pinned WGSL tools
+        if: steps.changes.outputs.relevant == 'true'
+        uses: actions/cache@v4
+        with:
+          path: local/wgsl-tools
+          key: wgsl-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('scripts/wgsl_tools.toml') }}
+
+      - name: Install pinned Cargo tools
+        id: tools
+        if: steps.changes.outputs.relevant == 'true'
+        run: uv run --no-sync python scripts/wgsl.py install
+
+      - name: Check WGSL formatting
+        if: steps.changes.outputs.relevant == 'true'
+        run: uv run --no-sync python scripts/wgsl.py format --check
+
+      - name: Validate expanded WGSL
+        if: ${{ !cancelled() && steps.tools.outcome == 'success' }}
+        run: uv run --no-sync python scripts/wgsl.py lint
+
+      - name: Test WGSL tooling without a GPU
+        if: ${{ !cancelled() && steps.tools.outcome == 'success' }}
+        env:
+          PIPESCALER_REQUIRE_WGSL_TOOLS: '1'
+        run: uv run --no-sync pytest test/scripts/test_wgsl.py
