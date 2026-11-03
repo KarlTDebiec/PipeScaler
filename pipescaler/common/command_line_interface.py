@@ -39,6 +39,7 @@ class CommandLineInterface(ABC):
         Arguments:
             parser: Nascent argument parser
         """
+        # Additional arguments
         verbosity = parser.add_mutually_exclusive_group()
         verbosity.add_argument(
             "-v",

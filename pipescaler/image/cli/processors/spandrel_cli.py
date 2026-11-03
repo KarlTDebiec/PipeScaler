@@ -33,6 +33,7 @@ class SpandrelCli(ImageProcessorCli):
             optional_arguments_name="additional arguments",
         )
 
+        # Input arguments
         arg_groups["input arguments"].add_argument(
             "--model-input-path",
             required=True,

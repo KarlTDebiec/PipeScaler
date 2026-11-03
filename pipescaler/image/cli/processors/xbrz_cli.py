@@ -34,6 +34,7 @@ class XbrzCli(ImageProcessorCli):
             optional_arguments_name="additional arguments",
         )
 
+        # Operation arguments
         arg_groups["operation arguments"].add_argument(
             "--scale",
             default=2,

@@ -39,12 +39,15 @@ class ImageProcessorCli(CommandLineInterface, ABC):
             parser, "input arguments", "output arguments"
         )
 
+        # Input arguments
         arg_groups["input arguments"].add_argument(
             "input_path",
             metavar="input_file",
             type=input_file_arg(),
             help="input file",
         )
+
+        # Output arguments
         arg_groups["output arguments"].add_argument(
             "output_path",
             metavar="output_file",

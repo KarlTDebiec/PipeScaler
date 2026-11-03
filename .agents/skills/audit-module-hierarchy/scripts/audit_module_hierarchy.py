@@ -316,6 +316,8 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
             "Outputs dependency-first levels and sibling cycles."
         )
     )
+
+    # Input arguments
     parser.add_argument(
         "--target",
         default=Path("pipescaler"),
@@ -325,6 +327,8 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
             "Default: pipescaler"
         ),
     )
+
+    # Operation arguments
     parser.add_argument(
         "--min-children",
         type=int,

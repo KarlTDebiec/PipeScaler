@@ -25,6 +25,7 @@ class PipeScalerCli(CommandLineInterface):
         """
         super().add_arguments_to_argparser(parser)
 
+        # Subcommands
         subparsers = parser.add_subparsers(
             dest="domain",
             help="subcommand",

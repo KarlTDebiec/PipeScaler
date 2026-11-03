@@ -38,6 +38,7 @@ class ResizeCli(ImageProcessorCli):
             optional_arguments_name="additional arguments",
         )
 
+        # Operation arguments
         arg_groups["operation arguments"].add_argument(
             "--scale",
             required=True,
@@ -45,7 +46,6 @@ class ResizeCli(ImageProcessorCli):
             help="finite positive scaling factor; output dimensions must round "
             "to at least 1 pixel",
         )
-
         arg_groups["operation arguments"].add_argument(
             "--resample",
             default="lanczos",

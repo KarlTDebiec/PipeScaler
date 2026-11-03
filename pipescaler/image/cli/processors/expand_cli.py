@@ -34,6 +34,7 @@ class ExpandCli(ImageProcessorCli):
             optional_arguments_name="additional arguments",
         )
 
+        # Operation arguments
         arg_groups["operation arguments"].add_argument(
             "--pixels",
             default=[0, 0, 0, 0],

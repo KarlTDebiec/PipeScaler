@@ -34,6 +34,7 @@ class AlphaSplitterCli(ImageSplitterCli):
             parser, "input arguments", "output arguments"
         )
 
+        # Output arguments
         arg_groups["output arguments"].add_argument(
             "color_output_path",
             metavar="color_output_file",

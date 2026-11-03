@@ -34,6 +34,7 @@ class HeightToNormalCli(ImageProcessorCli):
             optional_arguments_name="additional arguments",
         )
 
+        # Operation arguments
         arg_groups["operation arguments"].add_argument(
             "--sigma",
             default=None,

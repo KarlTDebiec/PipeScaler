@@ -100,12 +100,16 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Audit Python files against explicit docs/STYLE.md rules."
     )
+
+    # Input arguments
     parser.add_argument(
         "--target",
         default="pipescaler",
         type=Path,
         help="Python file or directory to audit. Default: pipescaler",
     )
+
+    # Output arguments
     parser.add_argument(
         "--output",
         default=Path("local/style_notes.md"),
