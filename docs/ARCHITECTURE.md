@@ -42,6 +42,23 @@ when the hierarchy permits it. Production modules do not import `test/`.
 Internal imports expose their concrete dependencies as described in
 [Code Style](STYLE.md).
 
+## Domain exceptions
+
+[`PipeScalerError`](../pipescaler/core/exceptions.py), also exported from
+`pipescaler.core`, is the shared base for expected PipeScaler domain failures.
+Applications can catch it across domain packages. Domain exceptions stay with their
+owning modules: `UnsupportedImageModeError` belongs to `image.core.exceptions`,
+`MaskFillError` to `image.utilities.mask_filler`, and `PaletteShaderError` to
+`image.utilities.palette_shader_matcher`. The latter two also inherit `RuntimeError`
+so callers can retain that built-in category or catch the specific failure.
+
+General-purpose exceptions in `common.exceptions` remain independent of this base.
+Built-in validation and programming errors retain their categories, and
+`TerminusReached` remains a pipeline control-flow signal. Expected lower-level
+failures wrapped in a domain exception preserve their cause with `raise ... from
+exc`. GPU fallback handlers catch their specific runtime failures so unrelated
+domain errors continue to propagate.
+
 ## Pipeline contracts
 
 - `PipeObject` tracks an input/output path, display name, parent objects, and

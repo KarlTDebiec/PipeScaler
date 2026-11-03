@@ -12,6 +12,7 @@ import pytest
 from PIL import Image
 from wgpu.utils import get_default_device
 
+from pipescaler.core.exceptions import PipeScalerError
 from pipescaler.image.core import PaletteMatchMode
 from pipescaler.image.utilities.local_palette_matcher import LocalPaletteMatcher
 from pipescaler.image.utilities.palette_matcher import PaletteMatcher
@@ -45,10 +46,12 @@ def test_runtime_load_failure_allows_cpu_fallback(error: type[Exception]):
             "pipescaler.image.utilities.palette_shader_matcher.import_module",
             side_effect=failure,
         ),
-        pytest.raises(PaletteShaderError) as raised,
+        pytest.raises(PipeScalerError) as raised,
     ):
         PaletteShaderMatcher.run(Image.new("L", (1, 1)), Image.new("L", (2, 2)))
 
+    assert isinstance(raised.value, PaletteShaderError)
+    assert isinstance(raised.value, RuntimeError)
     assert raised.value.__cause__ is failure
 
 
