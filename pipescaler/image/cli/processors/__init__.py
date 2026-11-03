@@ -3,7 +3,7 @@
 """PipeScaler image processor command-line interfaces package.
 
 This module may import from: common, core, image.core, image.core.cli,
-image.operators.processors, image.writers
+image.operators.processors, image.quantization
 
 Package hierarchy (modules may import from any above):
 * crop_cli / expand_cli / height_to_normal_cli / imagequant_cli / mode_cli / resize_cli

@@ -22,7 +22,7 @@ class ImagequantProcessor(ImageProcessor):
     grayscale inputs, or for grayscale inputs with an ICC profile that cannot
     describe an RGB palette. Successful quantization produces mode `P`, including
     palette transparency and source color metadata. PNG metadata encoding and
-    file-size selection belong to `pipescaler.image.writers.ImagequantWriter`.
+    file-size selection are handled by `pipescaler.image.quantization.quantize_png`.
     """
 
     def __init__(

@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+from functools import partial
 from pathlib import Path
 from struct import pack
 from typing import Any
@@ -16,7 +17,7 @@ from PIL.PngImagePlugin import PngInfo
 from pipescaler.image.core.pipelines import PipeImage
 from pipescaler.image.operators.processors import ImagequantProcessor
 from pipescaler.image.pipelines import ImageCheckpointManager
-from pipescaler.image.writers import ImagequantWriter
+from pipescaler.image.quantization import quantize_png
 
 
 @pytest.mark.parametrize("in_place", [False, True])
@@ -37,7 +38,7 @@ def test_smaller_output_preserves_transparency(tmp_path: Path, in_place: bool):
     Image.fromarray(pixels).save(input_path, compress_level=0)
     original_bytes = input_path.read_bytes()
 
-    ImagequantWriter()(input_path, output_path)
+    quantize_png(input_path, output_path)
 
     assert output_path.stat().st_size < len(original_bytes)
     with Image.open(output_path) as output:
@@ -64,7 +65,7 @@ def test_larger_output_selection(tmp_path: Path, skip_if_larger: bool, in_place:
     Image.new("RGB", (1, 1), (32, 64, 96)).save(input_path, optimize=True)
     original_bytes = input_path.read_bytes()
 
-    ImagequantWriter(skip_if_larger=skip_if_larger)(input_path, output_path)
+    quantize_png(input_path, output_path, skip_if_larger=skip_if_larger)
 
     if skip_if_larger:
         assert output_path.read_bytes() == original_bytes
@@ -88,10 +89,12 @@ def test_quality_rejection_copies_original(tmp_path: Path, skip_if_larger: bool)
     output_path = tmp_path / "output.png"
     Image.fromarray(pixels).save(input_path)
 
-    ImagequantWriter(
-        ImagequantProcessor(max_colors=2, min_quality=100),
+    quantize_png(
+        input_path,
+        output_path,
+        processor=ImagequantProcessor(max_colors=2, min_quality=100),
         skip_if_larger=skip_if_larger,
-    )(input_path, output_path)
+    )
 
     assert output_path.read_bytes() == input_path.read_bytes()
 
@@ -127,7 +130,7 @@ def test_encoding_failure_preserves_existing_output(
     monkeypatch.setattr(Image.Image, "save", fail)
 
     with pytest.raises(OSError, match="encoding failed"):
-        ImagequantWriter()(input_path, output_path)
+        quantize_png(input_path, output_path)
 
     assert output_path.read_bytes() == original_bytes
     assert set(tmp_path.iterdir()) == {input_path, output_path}
@@ -157,27 +160,40 @@ def test_invalid_formats(tmp_path: Path, invalid: str):
         image.save(input_path)
 
     with pytest.raises(ValueError):
-        ImagequantWriter()(input_path, output_path)
+        quantize_png(input_path, output_path)
 
     assert not output_path.exists()
     assert list(tmp_path.iterdir()) == [input_path]
 
 
-def test_checkpointed_writer_resumes_without_quantization(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+@pytest.mark.parametrize("custom_settings", [False, True])
+def test_checkpointed_quantization_resumes_without_processing(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, custom_settings: bool
 ):
     """Write and reuse an image checkpoint through the existing file-callable API.
 
     Arguments:
         tmp_path: temporary test directory
         monkeypatch: pytest patch fixture
+        custom_settings: whether to bind non-default settings with functools.partial
     """
     manager = ImageCheckpointManager(tmp_path / "checkpoints")
-    segment = manager.post_runner("quantized.png")(ImagequantWriter())
+    if custom_settings:
+        process_file = partial(
+            quantize_png,
+            processor=ImagequantProcessor(max_colors=16, min_quality=0),
+            skip_if_larger=False,
+        )
+    else:
+        process_file = quantize_png
+    segment = manager.post_runner("quantized.png")(process_file)
     image = PipeImage(image=Image.new("RGB", (8, 8), "red"), name="source")
     output = segment(image)[0]
     assert output.path is not None
     original_bytes = output.path.read_bytes()
+    if custom_settings:
+        with Image.open(output.path) as saved_image:
+            assert saved_image.mode == "P"
 
     def fail(processor: ImagequantProcessor, image: Image.Image) -> Image.Image:
         """Reject unexpected processing of a cached checkpoint.
@@ -197,15 +213,6 @@ def test_checkpointed_writer_resumes_without_quantization(
     assert resumed.path.read_bytes() == original_bytes
     assert resumed.name == image.name
     assert resumed.parents == [image]
-
-
-def test_repr_round_trip():
-    """Reconstruct a writer together with its quantization and size settings."""
-    writer = ImagequantWriter(
-        ImagequantProcessor(max_colors=16, min_quality=0), skip_if_larger=False
-    )
-
-    assert repr(eval(repr(writer))) == repr(writer)
 
 
 @pytest.mark.parametrize("color_tag", ["gamma", "chromaticity", "srgb", "icc_profile"])
@@ -236,7 +243,7 @@ def test_color_metadata_survives_png_encoding(tmp_path: Path, color_tag: str):
     with Image.open(input_path) as source:
         expected_metadata = source.info[color_tag]
 
-    ImagequantWriter()(input_path, output_path)
+    quantize_png(input_path, output_path)
 
     assert output_path.stat().st_size < input_path.stat().st_size
     with Image.open(output_path) as output:
@@ -263,7 +270,7 @@ def test_sixteen_bit_png_keeps_original_bytes(
     Image.fromarray(pixels).save(input_path)
     original_bytes = input_path.read_bytes()
 
-    ImagequantWriter(skip_if_larger=skip_if_larger)(input_path, output_path)
+    quantize_png(input_path, output_path, skip_if_larger=skip_if_larger)
 
     assert output_path.read_bytes() == original_bytes
     with Image.open(output_path) as output:
