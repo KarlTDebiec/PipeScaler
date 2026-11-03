@@ -18,11 +18,11 @@ __all__ = ["ImagequantProcessor"]
 class ImagequantProcessor(ImageProcessor):
     """Reduces an image to an RGBA palette using libimagequant.
 
-    Returns the original image when the minimum quality cannot be met, for 16-bit
-    grayscale inputs, or for grayscale inputs with an ICC profile that cannot
-    describe an RGB palette. Successful quantization produces mode `P`, including
-    palette transparency and source color metadata. PNG metadata encoding and
-    file-size selection are handled by `pipescaler.image.quantization.quantize_png`.
+    Returns the original image when minimum quality cannot be met or a grayscale
+    ICC profile cannot describe an RGB palette. Successful quantization produces
+    mode `P`, including palette transparency and source color metadata. PNG metadata
+    encoding and file-size selection are handled by
+    `pipescaler.image.quantization.quantize_png`.
     """
 
     def __init__(
@@ -57,13 +57,13 @@ class ImagequantProcessor(ImageProcessor):
             raise ValueError("min_quality must not exceed max_quality")
 
     def __call__(self, input_image: Image.Image) -> Image.Image:
-        """Quantize pixels while retaining source precision and color interpretation.
+        """Quantize pixels while retaining source color interpretation.
 
         Arguments:
             input_image: image to quantize; its pixels and metadata are not modified
         Returns:
-            paletted image, or the original if quality, precision, or its grayscale
-            ICC profile prevents quantization
+            paletted image, or the original if quality or its grayscale ICC profile
+            prevents quantization
         Raises:
             UnsupportedImageModeError: if the input mode is unsupported
             ValueError: if either image dimension is zero
@@ -75,9 +75,7 @@ class ImagequantProcessor(ImageProcessor):
             )
         if input_image.width == 0 or input_image.height == 0:
             raise ValueError("Image dimensions must be nonzero")
-        if input_image.mode == "I;16" or (
-            input_image.mode in ("1", "L", "LA") and input_image.info.get("icc_profile")
-        ):
+        if input_image.mode in ("1", "L", "LA") and input_image.info.get("icc_profile"):
             return input_image
         rgba_image = input_image.convert("RGBA")
         try:
@@ -136,7 +134,7 @@ class ImagequantProcessor(ImageProcessor):
         Returns:
             mapping of input names to supported image modes
         """
-        return {"input": ("1", "L", "LA", "P", "RGB", "RGBA", "I;16")}
+        return {"input": ("1", "L", "LA", "P", "RGB", "RGBA")}
 
     @classmethod
     def outputs(cls) -> dict[str, tuple[ImageMode, ...]]:
@@ -145,4 +143,4 @@ class ImagequantProcessor(ImageProcessor):
         Returns:
             mapping of output names to possible image modes
         """
-        return {"output": ("P", "1", "L", "LA", "RGB", "RGBA", "I;16")}
+        return {"output": ("P", "1", "L", "LA", "RGB", "RGBA")}

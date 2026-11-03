@@ -28,8 +28,8 @@ def quantize_png(
 ):
     """Quantize a static PNG and atomically publish the selected output.
 
-    Retains original bytes when minimum quality cannot be met, the processor
-    preserves input precision or its grayscale ICC profile, or the encoded result
+    Retains original bytes for 16-bit grayscale inputs, when the processor preserves
+    a grayscale ICC profile or cannot meet minimum quality, or when the encoded result
     is not smaller and skip_if_larger is enabled. Successful quantization preserves
     ICC, gamma, chromaticity, and sRGB metadata. Input and output may be the same
     path. Failures leave existing output intact; its directory must already exist.
@@ -60,7 +60,10 @@ def quantize_png(
                 input_image, "is_animated", False
             ):
                 raise ValueError("quantize_png input must be a static PNG")
-            output_image = processor(input_image)
+            if input_image.mode == "I;16":
+                output_image = input_image
+            else:
+                output_image = processor(input_image)
             if output_image is input_image:
                 copyfile(input_path, temp_path)
             else:

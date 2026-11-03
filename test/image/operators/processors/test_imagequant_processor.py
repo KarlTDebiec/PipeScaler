@@ -176,18 +176,17 @@ def test_color_metadata_is_retained():
     assert output.convert("RGBA").getpixel((0, 0))[3] == 0
 
 
-def test_sixteen_bit_grayscale_is_retained():
-    """Retain 16-bit grayscale precision instead of clipping samples to 8 bits."""
+def test_sixteen_bit_grayscale_is_unsupported():
+    """Reject 16-bit grayscale images outside the processor's supported modes."""
     pixels = np.array([[0, 32768, 65535]], dtype=np.uint16)
     image = Image.fromarray(pixels)
     image.info["gamma"] = 1.0
 
-    output = ImagequantProcessor()(image)
+    with pytest.raises(UnsupportedImageModeError):
+        ImagequantProcessor()(image)
 
-    assert output is image
-    assert output.mode == "I;16"
-    assert np.array_equal(np.array(output), pixels)
-    assert output.info["gamma"] == 1.0
+    assert np.array_equal(np.array(image), pixels)
+    assert image.info["gamma"] == 1.0
 
 
 @pytest.mark.parametrize("mode", ["1", "L", "LA"])
