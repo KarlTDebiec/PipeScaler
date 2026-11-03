@@ -11,10 +11,12 @@ import torch
 from PIL import Image
 from spandrel import ImageModelDescriptor, ModelLoader
 
-from pipescaler.common.validation import val_input_path, val_str
+from pipescaler.common.validation import val_float, val_input_path, val_int, val_str
+from pipescaler.image.core.functions import RESAMPLE_METHODS, resize_float
 from pipescaler.image.core.operators import ImageProcessor
 from pipescaler.image.core.typing import ImageMode
 from pipescaler.image.core.validation import validate_image_and_convert_mode
+from pipescaler.image.subdivided_image import SubdividedImage
 
 __all__ = ["SpandrelProcessor"]
 
@@ -24,6 +26,11 @@ class SpandrelProcessor(ImageProcessor):
 
     Pillow calls and `upscale` accept 8-bit images. `upscale_float` accepts and
     returns normalized floating-point RGB arrays without 8-bit quantization.
+
+    Tiling retains one tile on the device and accumulates the native-scale image
+    on CPU. The model is loaded once and reused across calls. Transformer context
+    can differ between tiled and full-frame inference; overlap reduces seams but
+    does not guarantee identical results. Final resizing occurs after blending.
     """
 
     precision_dtypes = {
@@ -33,12 +40,17 @@ class SpandrelProcessor(ImageProcessor):
     }
     """Supported precision names and their corresponding tensor dtypes."""
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         model_input_path: Path | str,
         *,
         device: str = "auto",
         precision: str = "float32",
+        tile_size: int | None = None,
+        tile_overlap: int = 0,
+        target_scale: float | None = None,
+        target_size: tuple[int, int] | None = None,
+        resample: str = "lanczos",
     ):
         """Load an RGB model and select its execution device and precision.
 
@@ -48,6 +60,13 @@ class SpandrelProcessor(ImageProcessor):
                 selection prefers MPS, then CUDA, then CPU
             precision: `float32`, `float16`, or `bfloat16`; the model must support
                 the requested precision, with no implicit fallback
+            tile_size: maximum input tile width/height, at least 4 pixels, or
+                `None` for full-frame inference; Spandrel may pad tiles internally
+            tile_overlap: input pixels shared by tiles; nonnegative and smaller
+                than tile_size, or zero when tiling is disabled
+            target_scale: positive final scale relative to the input, or `None`
+            target_size: final `(width, height)` in pixels; excludes target_scale
+            resample: final resize filter; defaults to antialiased Lanczos
         Raises:
             ValueError: if the model is not an RGB image model, the device is
                 unsupported or unavailable, or the precision is unsupported
@@ -58,6 +77,37 @@ class SpandrelProcessor(ImageProcessor):
 
         self.model_input_path = val_input_path(model_input_path)
         """Path to model file."""
+        self.tile_size = None if tile_size is None else val_int(tile_size, min_value=4)
+        """Maximum input tile dimension, before model-required padding."""
+        self.tile_overlap = val_int(tile_overlap, min_value=0)
+        """Overlap between tiles in input pixels."""
+        if (self.tile_size is None and self.tile_overlap) or (
+            self.tile_size is not None and self.tile_overlap >= self.tile_size
+        ):
+            raise ValueError(
+                "Tile overlap requires tiling and must be smaller than tile size"
+            )
+        if target_size is not None and target_scale is not None:
+            raise ValueError("Choose either target_size or target_scale")
+        self.target_scale = (
+            None
+            if target_scale is None
+            else val_float(target_scale, min_value=0, min_exclusive=True, finite=True)
+        )
+        """Final scale relative to the original input, if selected."""
+        if target_size is not None and len(target_size) != 2:
+            raise ValueError("Target size must contain width and height")
+        self.target_size = (
+            None
+            if target_size is None
+            else (
+                val_int(target_size[0], min_value=1),
+                val_int(target_size[1], min_value=1),
+            )
+        )
+        """Explicit final output dimensions in pixels, if selected."""
+        self.resample = val_str(resample, options=RESAMPLE_METHODS)
+        """Floating-point final resize filter."""
         self.device = self._validate_device(device)
         """Selected execution device; explicitly requested devices never fall back."""
         self.precision = val_str(precision, options=self.precision_dtypes.keys())
@@ -114,7 +164,10 @@ class SpandrelProcessor(ImageProcessor):
         model_input_path = f"Path({str(self.model_input_path)!r})"
         return (
             f"{self.__class__.__name__}(model_input_path={model_input_path}, "
-            f"device={str(self.device)!r}, precision={self.precision!r})"
+            f"device={str(self.device)!r}, precision={self.precision!r}, "
+            f"tile_size={self.tile_size!r}, tile_overlap={self.tile_overlap!r}, "
+            f"target_scale={self.target_scale!r}, target_size={self.target_size!r}, "
+            f"resample={self.resample!r})"
         )
 
     def upscale(self, input_arr: np.ndarray) -> np.ndarray:
@@ -164,14 +217,29 @@ class SpandrelProcessor(ImageProcessor):
             raise ValueError(
                 "Floating-point input must contain finite values in [0, 1]"
             )
-        input_tensor = (
-            torch.from_numpy(np.array(input_arr, dtype=np.float32, copy=True))
-            .permute(2, 0, 1)
-            .unsqueeze(0)
-            .to(device=self.device, dtype=self.dtype)
-        )
-        output_tensor = self._run_model(self.model, input_tensor)
-        return output_tensor.clamp(0, 1).permute(1, 2, 0).contiguous().numpy()
+        height, width = input_arr.shape[:2]
+        if self.tile_size is None:
+            output = self._infer_float(input_arr)
+        else:
+            boxes = SubdividedImage.get_boxes(
+                width, height, self.tile_size, self.tile_overlap
+            )
+            scale = self.model.scale
+            output = SubdividedImage.recompose_float(
+                (
+                    self._infer_float(input_arr[top:bottom, left:right], scale)
+                    for left, top, right, bottom in boxes
+                ),
+                boxes * scale,
+                self.tile_size * scale,
+                self.tile_overlap * scale,
+            )
+        size = self.target_size
+        if self.target_scale is not None:
+            size = (round(width * self.target_scale), round(height * self.target_scale))
+        if size is not None and size != (output.shape[1], output.shape[0]):
+            output = resize_float(output, size, self.resample)
+        return np.ascontiguousarray(np.clip(output, 0, 1), dtype=np.float32)
 
     @classmethod
     def help_markdown(cls) -> str:
@@ -206,6 +274,33 @@ class SpandrelProcessor(ImageProcessor):
         return {
             "output": ("1", "L", "RGB"),
         }
+
+    def _infer_float(
+        self, input_arr: np.ndarray, scale: int | None = None
+    ) -> np.ndarray:
+        """Infer one tile and return CPU floats without intermediate clipping.
+
+        Arguments:
+            input_arr: normalized floating-point RGB tile
+            scale: native output scale to validate when reconstructing tiles
+        Returns:
+            unclipped HWC float32 model output on CPU
+        Raises:
+            ValueError: if a tile output does not match its native-scale geometry
+        """
+        input_tensor = (
+            torch.from_numpy(np.array(input_arr, dtype=np.float32, copy=True))
+            .permute(2, 0, 1)
+            .unsqueeze(0)
+            .to(device=self.device, dtype=self.dtype)
+        )
+        output = self._run_model(self.model, input_tensor)
+        if scale is not None and output.shape[1:] != (
+            input_arr.shape[0] * scale,
+            input_arr.shape[1] * scale,
+        ):
+            raise ValueError("Model tile output does not match its native scale")
+        return output.permute(1, 2, 0).contiguous().numpy()
 
     @staticmethod
     def _run_model(

@@ -130,6 +130,7 @@ def test_spandrel_preserves_singleton_spatial_dimensions(size: tuple[int, int]):
         size: image dimensions
     """
     processor = SpandrelProcessor.__new__(SpandrelProcessor)
+    processor.tile_size = processor.target_scale = processor.target_size = None
     processor.device = torch.device("cpu")
     processor.dtype = torch.float32
     processor.model = cast(Any, _IdentityModel())
@@ -162,6 +163,7 @@ def test_spandrel_rejects_invalid_model_output(
         array_input: whether to call the array interface directly
     """
     processor = SpandrelProcessor.__new__(SpandrelProcessor)
+    processor.tile_size = processor.target_scale = processor.target_size = None
     processor.device = torch.device("cpu")
     processor.dtype = torch.float32
     processor.model = cast(Any, _OutputModel(output_shape))
@@ -177,6 +179,7 @@ def test_spandrel_rejects_invalid_model_output(
 def test_spandrel_rejects_invalid_input_channels():
     """Test direct upscale rejects non-RGB arrays."""
     processor = SpandrelProcessor.__new__(SpandrelProcessor)
+    processor.tile_size = processor.target_scale = processor.target_size = None
     processor.device = torch.device("cpu")
     processor.dtype = torch.float32
     processor.model = cast(Any, _IdentityModel())
@@ -243,6 +246,7 @@ def test_spandrel_restores_input_mode(mode: str):
         mode: supported input image mode
     """
     processor = SpandrelProcessor.__new__(SpandrelProcessor)
+    processor.tile_size = processor.target_scale = processor.target_size = None
     processor.device = torch.device("cpu")
     processor.dtype = torch.float32
     processor.model = cast(Any, _IdentityModel())

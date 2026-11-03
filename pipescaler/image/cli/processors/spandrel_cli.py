@@ -8,11 +8,14 @@ from argparse import ArgumentParser
 from pathlib import Path
 
 from pipescaler.common.argument_parsing import (
+    float_arg,
     get_arg_groups_by_name,
     input_file_arg,
+    int_arg,
     str_arg,
 )
 from pipescaler.image.core.cli import ImageProcessorCli
+from pipescaler.image.core.functions import RESAMPLE_METHODS
 from pipescaler.image.operators.processors import SpandrelProcessor
 
 __all__ = ["SpandrelCli"]
@@ -58,6 +61,37 @@ class SpandrelCli(ImageProcessorCli):
             default="float32",
             help="model precision: float32, float16, or bfloat16 (model-dependent)",
         )
+        operation = arg_groups["operation arguments"]
+        operation.add_argument(
+            "--tile-size",
+            type=int_arg(min_value=4),
+            help="maximum input tile dimension in pixels; default: full frame",
+        )
+        operation.add_argument(
+            "--tile-overlap",
+            type=int_arg(min_value=0),
+            default=0,
+            help="overlap in input pixels; smaller than tile size (default: 0)",
+        )
+        target = operation.add_mutually_exclusive_group()
+        target.add_argument(
+            "--target-scale",
+            type=float_arg(min_value=0, min_exclusive=True, finite=True),
+            help="final scale relative to input, after native-scale inference",
+        )
+        target.add_argument(
+            "--target-size",
+            nargs=2,
+            type=int_arg(min_value=1),
+            metavar=("WIDTH", "HEIGHT"),
+            help="final dimensions in pixels, after native-scale inference",
+        )
+        operation.add_argument(
+            "--resample",
+            type=str_arg(options=RESAMPLE_METHODS),
+            default="lanczos",
+            help="final floating-point resize filter (default: lanczos)",
+        )
 
     @classmethod
     def processor(cls) -> type[SpandrelProcessor]:
@@ -69,7 +103,7 @@ class SpandrelCli(ImageProcessorCli):
         return SpandrelProcessor
 
     @classmethod
-    def _main(
+    def _main(  # noqa: PLR0913
         cls,
         *,
         input_path: Path,
@@ -77,6 +111,11 @@ class SpandrelCli(ImageProcessorCli):
         model_input_path: Path,
         device: str,
         precision: str,
+        tile_size: int | None,
+        tile_overlap: int,
+        target_scale: float | None,
+        target_size: list[int] | None,
+        resample: str,
     ):
         """Execute with parsed image paths and operation settings.
 
@@ -86,13 +125,27 @@ class SpandrelCli(ImageProcessorCli):
             model_input_path: input model file
             device: requested execution device
             precision: requested model precision
+            tile_size: maximum input tile dimension in pixels
+            tile_overlap: overlap in input pixels
+            target_scale: final scale relative to input
+            target_size: explicit final width and height
+            resample: final resize filter name
         """
         processor_cls = cls.processor()
         cls.process_image(
             input_path=input_path,
             output_path=output_path,
             processor=processor_cls(
-                model_input_path=model_input_path, device=device, precision=precision
+                model_input_path=model_input_path,
+                device=device,
+                precision=precision,
+                tile_size=tile_size,
+                tile_overlap=tile_overlap,
+                target_scale=target_scale,
+                target_size=None
+                if target_size is None
+                else (target_size[0], target_size[1]),
+                resample=resample,
             ),
         )
 

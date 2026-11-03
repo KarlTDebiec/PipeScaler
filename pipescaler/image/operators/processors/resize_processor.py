@@ -8,6 +8,7 @@ import numpy as np
 from PIL import Image
 
 from pipescaler.common.validation import val_float, val_str
+from pipescaler.image.core.functions import RESAMPLE_METHODS
 from pipescaler.image.core.operators import ImageProcessor
 from pipescaler.image.core.typing import ImageMode
 
@@ -17,12 +18,7 @@ __all__ = ["ResizeProcessor"]
 class ResizeProcessor(ImageProcessor):
     """Resizes image canvas."""
 
-    resample_methods = {
-        "bicubic": Image.Resampling.BICUBIC,
-        "bilinear": Image.Resampling.BILINEAR,
-        "lanczos": Image.Resampling.LANCZOS,
-        "nearest": Image.Resampling.NEAREST,
-    }
+    resample_methods = RESAMPLE_METHODS
     """Pillow resampling methods by command-line name."""
 
     def __init__(self, scale: float, resample: str = "lanczos"):
