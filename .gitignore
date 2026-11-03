@@ -13,3 +13,6 @@ pipescaler.egg-info
 test/coverage.coverage
 test/coverage.xml
 test/data/models
+
+# Locally compiled native libraries
+.native/

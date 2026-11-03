@@ -4,9 +4,6 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-from unittest.mock import Mock
-
 import numpy as np
 import pytest
 from PIL import Image
@@ -74,52 +71,29 @@ def test_threshold_isolated_pixel(mode: str, background: int, denoise: bool):
 
 @pytest.mark.parametrize("mode", ["1", "L", "P"])
 @pytest.mark.parametrize("invert", [False, True])
-def test_potrace_output_contract(
-    monkeypatch: pytest.MonkeyPatch, mode: str, invert: bool
-):
-    """Keep grayscale raster values and advertise mode L for every accepted input.
+def test_potrace_output_contract(mode: str, invert: bool):
+    """Keep grayscale output for every accepted input mode and inversion setting.
 
     Arguments:
-        monkeypatch: fixture for replacing external tracing and rasterization
         mode: input image mode, including a grayscale palette
-        invert: whether tracing and output inversion are enabled
+        invert: whether input and output inversion are enabled
     """
+    image = Image.new("L", (16, 16), 255)
+    for y in range(4, 12):
+        for x in range(4, 12):
+            image.putpixel((x, y), 0)
+    image = image.convert(mode, dither=Image.Dither.NONE)
     processor = PotraceProcessor(invert=invert, scale=2)
-    monkeypatch.setattr(processor.potrace_runner, "run", Mock())
-    monkeypatch.setattr(
-        "pipescaler.image.operators.processors.potrace_processor.svg2rlg",
-        Mock(return_value=Mock(width=2, height=1)),
-    )
-
-    def rasterize(drawing: object, output_path: Path, fmt: str):
-        """Stand in for the renderer with black, gray, and white RGB pixels.
-
-        Arguments:
-            drawing: scaled drawing supplied by the processor
-            output_path: temporary raster destination
-            fmt: renderer output format
-        """
-        assert fmt == "png"
-        raster = Image.new("L", (4, 2))
-        raster.putdata([0, 64, 192, 255] * 2)
-        raster.convert("RGB").save(output_path)
-
-    monkeypatch.setattr(
-        "pipescaler.image.operators.processors.potrace_processor.drawToFile", rasterize
-    )
-    image = Image.new(mode, (2, 1))
-    if mode == "P":
-        image.putpalette([value for value in range(256) for _ in range(3)])
 
     output = processor(image)
 
     assert processor.outputs() == {"output": ("L",)}
-    assert output.mode in processor.outputs()["output"]
-    assert output.size == (4, 2)
-    expected = [0, 64, 192, 255] * 2
-    if invert:
-        expected = [255 - value for value in expected]
-    assert np.asarray(output).flatten().tolist() == expected
+    assert output.mode == "L"
+    assert output.size == (32, 32)
+    pixels = np.asarray(output)
+    assert pixels[16, 16] == 0
+    assert pixels[0, 16] == 255
+    assert np.any((pixels > 0) & (pixels < 255))
 
 
 def test_unsupported_mode_diagnostic():
