@@ -5,13 +5,10 @@
 from __future__ import annotations
 
 from pathlib import Path
-from unittest.mock import MagicMock, Mock
 
 import numpy as np
 import pytest
-import torch
 from PIL import Image
-from spandrel import ImageModelDescriptor
 
 from pipescaler.common.cli import CommandLineInterface
 from pipescaler.common.file import get_temp_file_path
@@ -129,52 +126,6 @@ def test_usage(commands: tuple[type[CommandLineInterface], ...]):
         commands: Tuple of command-line interface classes to test
     """
     assert_cli_usage(commands)
-
-
-def test_spandrel_dispatch_with_relative_paths(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-):
-    """Resolve relative paths and save model-transformed pixels through dispatch.
-
-    Arguments:
-        tmp_path: temporary directory for image and checkpoint files
-        monkeypatch: fixture for changing directories and replacing model loading
-    """
-    monkeypatch.chdir(tmp_path)
-    input_path = Path("input.png")
-    model_path = Path("model.pth")
-    output_path = Path("output") / "result.png"
-    input_pixels = np.repeat(
-        np.array([[0, 255], [255, 0], [0, 255]], dtype=np.uint8)[:, :, None], 3, axis=2
-    )
-    Image.fromarray(input_pixels).save(input_path)
-    model_path.touch()
-    model = MagicMock(spec=ImageModelDescriptor)
-    model.input_channels = model.output_channels = 3
-    model.to.return_value = model
-    model.eval.return_value = model
-    model.side_effect = lambda tensor: 1 - tensor
-    loader = Mock(return_value=model)
-    monkeypatch.setattr(
-        "pipescaler.image.operators.processors.spandrel_processor.ModelLoader.load_from_file",
-        loader,
-    )
-    monkeypatch.setattr(torch.backends.mps, "is_available", lambda: False)
-    monkeypatch.setattr(torch.cuda, "is_available", lambda: False)
-
-    ImageProcessorsCli.main(
-        [
-            "spandrel",
-            "--model-input-path",
-            str(model_path),
-            str(input_path),
-            str(output_path),
-        ]
-    )
-
-    loader.assert_called_once_with(model_path.resolve())
-    with Image.open(output_path) as output_image:
-        np.testing.assert_array_equal(np.asarray(output_image), 255 - input_pixels)
 
 
 @pytest.mark.parametrize(

@@ -4,86 +4,93 @@
 
 from __future__ import annotations
 
-from logging import getLogger
 from pathlib import Path
-from typing import Any, cast
 
 import numpy as np
 import torch
 from PIL import Image
-from spandrel import ModelLoader
+from spandrel import ImageModelDescriptor, ModelLoader
 
-from pipescaler.common.validation import val_input_path
+from pipescaler.common.validation import val_input_path, val_str
 from pipescaler.image.core.operators import ImageProcessor
 from pipescaler.image.core.typing import ImageMode
 from pipescaler.image.core.validation import validate_image_and_convert_mode
 
 __all__ = ["SpandrelProcessor"]
 
-logger = getLogger(__name__)
-
 
 class SpandrelProcessor(ImageProcessor):
-    """Processes image using Pytorch models loaded through Spandrel."""
+    """Run RGB Spandrel models with explicit device and precision settings.
 
-    def __init__(self, model_input_path: Path | str, **kwargs: Any):
-        """Initialize.
+    Pillow calls and `upscale` accept 8-bit images. `upscale_float` accepts and
+    returns normalized floating-point RGB arrays without 8-bit quantization.
+    """
+
+    precision_dtypes = {
+        "float32": torch.float32,
+        "float16": torch.float16,
+        "bfloat16": torch.bfloat16,
+    }
+    """Supported precision names and their corresponding tensor dtypes."""
+
+    def __init__(
+        self,
+        model_input_path: Path | str,
+        *,
+        device: str = "auto",
+        precision: str = "float32",
+    ):
+        """Load an RGB model and select its execution device and precision.
 
         Arguments:
-            model_input_path: Path to model file
-            **kwargs: Additional keyword arguments (reserved for future use)
+            model_input_path: path to a Spandrel-supported model checkpoint
+            device: `auto`, `cpu`, `cuda`, `cuda:N`, `mps`, or `mps:0`; automatic
+                selection prefers MPS, then CUDA, then CPU
+            precision: `float32`, `float16`, or `bfloat16`; the model must support
+                the requested precision, with no implicit fallback
         Raises:
-            ValueError: if the model descriptor does not support RGB input and output
+            ValueError: if the model is not an RGB image model, the device is
+                unsupported or unavailable, or the precision is unsupported
+            RuntimeError: if PyTorch cannot place the model on the requested
+                device or execute the selected precision
         """
         super().__init__()
 
-        self.device = "cpu"
-        """Name of device on which to run neural network model."""
-        if torch.backends.mps.is_available():
-            self.device = "mps"
-        elif torch.cuda.is_available():
-            self.device = "cuda"
-
         self.model_input_path = val_input_path(model_input_path)
         """Path to model file."""
-        self.model = ModelLoader().load_from_file(self.model_input_path)
-        """Neural network model."""
-        if self.model.input_channels != 3 or self.model.output_channels != 3:
+        self.device = self._validate_device(device)
+        """Selected execution device; explicitly requested devices never fall back."""
+        self.precision = val_str(precision, options=self.precision_dtypes.keys())
+        """Validated precision name."""
+        self.dtype = self.precision_dtypes[self.precision]
+        """Tensor dtype shared by model weights and inference input."""
+        model = ModelLoader().load_from_file(self.model_input_path)
+        if not isinstance(model, ImageModelDescriptor):
+            raise ValueError("Spandrel processor requires an image-to-image model")
+        if model.input_channels != 3 or model.output_channels != 3:
             raise ValueError(
                 "Spandrel models must have 3 input and 3 output channels for RGB "
                 "processing; descriptor reports "
-                f"input_channels={self.model.input_channels}, "
-                f"output_channels={self.model.output_channels}"
+                f"input_channels={model.input_channels}, "
+                f"output_channels={model.output_channels}"
             )
-
-        self.model.eval()
-        try:
-            self.model = self.model.to(self.device)
-        except AssertionError as exc:
-            # Fallback to CPU (seen occasionally with MPS for some layers)
-            self.device = "cpu"
-            self.model = self.model.to(self.device)
-            logger.warning(
-                f"{self.__class__.__name__}: Torch raised '{exc}' on device placement; "
-                "falling back to CPU."
+        if (self.dtype == torch.float16 and not model.supports_half) or (
+            self.dtype == torch.bfloat16 and not model.supports_bfloat16
+        ):
+            raise ValueError(
+                f"Model architecture '{model.architecture.id}' does not support "
+                f"precision '{self.precision}'"
             )
-
-    def __repr__(self) -> str:
-        """Representation.
-
-        Returns:
-            string representation of this object
-        """
-        model_input_path = f"Path({str(self.model_input_path)!r})"
-        return f"{self.__class__.__name__}(model_input_path={model_input_path})"
+        self.model = model.to(device=self.device, dtype=self.dtype).eval()
+        """RGB image model with weights matching the selected device and dtype."""
 
     def __call__(self, input_image: Image.Image) -> Image.Image:
         """Process an image.
 
         Arguments:
-            input_image: Input image
+            input_image: input image
         Returns:
-            Processed output image
+            processed output image
         Raises:
             ValueError: if the model output is not a single-image RGB tensor
         """
@@ -98,36 +105,80 @@ class SpandrelProcessor(ImageProcessor):
 
         return output_img
 
+    def __repr__(self) -> str:
+        """Representation.
+
+        Returns:
+            string representation of this object
+        """
+        model_input_path = f"Path({str(self.model_input_path)!r})"
+        return (
+            f"{self.__class__.__name__}(model_input_path={model_input_path}, "
+            f"device={str(self.device)!r}, precision={self.precision!r})"
+        )
+
     def upscale(self, input_arr: np.ndarray) -> np.ndarray:
-        """Upscale an image array.
+        """Upscale an 8-bit HWC RGB array, rounding only the final output.
 
         Arguments:
-            input_arr: Array to upscale
+            input_arr: non-empty uint8 RGB array with shape `(height, width, 3)`
         Returns:
-            Upscaled array
+            uint8 RGB array with the model's output dimensions
         Raises:
-            ValueError: if the input array or model output has an invalid shape
+            ValueError: if the input has an invalid shape or model output is invalid
+            TypeError: if the input dtype is not uint8
         """
         self._validate_rgb_array(input_arr, "input")
-        input_arr = input_arr * 1.0 / 255
-        input_arr = np.transpose(input_arr[:, :, [2, 1, 0]], (2, 0, 1))
-        input_tensor = torch.from_numpy(input_arr)
-        input_tensor = input_tensor.float().unsqueeze(0).to(self.device)
+        if input_arr.dtype != np.uint8:
+            raise TypeError(
+                "upscale requires uint8 input; use upscale_float for floats"
+            )
+        output_arr = self.upscale_float(input_arr.astype(np.float32) / 255)
+        return np.rint(output_arr * 255).astype(np.uint8)
 
-        model = cast(Any, self.model)
-        output_tensor = self._run_model(model, input_tensor)
-        output_arr: np.ndarray = output_tensor.clamp_(0, 1).numpy()
-        output_arr = np.transpose(output_arr[[2, 1, 0], :, :], (1, 2, 0))
-        output_arr = np.array(output_arr * 255, np.uint8)
+    def upscale_float(self, input_arr: np.ndarray) -> np.ndarray:
+        """Upscale normalized floating-point HWC RGB without quantizing to 8-bit.
 
-        return output_arr
+        The input is copied before inference, so read-only and strided arrays are
+        accepted without exposing caller-owned memory to model operations.
+
+        Arguments:
+            input_arr: non-empty floating-point RGB array with shape
+                `(height, width, 3)` and finite values in `[0, 1]`
+        Returns:
+            contiguous float32 RGB array in `[0, 1]`, with the model's output
+            dimensions and fractional values preserved
+        Raises:
+            TypeError: if the input dtype is not floating-point
+            ValueError: if the input shape or values are invalid, or the model
+                returns an invalid output
+        """
+        self._validate_rgb_array(input_arr, "input")
+        if not np.issubdtype(input_arr.dtype, np.floating):
+            raise TypeError("upscale_float requires floating-point input")
+        if (
+            not np.isfinite(input_arr).all()
+            or input_arr.min() < 0
+            or input_arr.max() > 1
+        ):
+            raise ValueError(
+                "Floating-point input must contain finite values in [0, 1]"
+            )
+        input_tensor = (
+            torch.from_numpy(np.array(input_arr, dtype=np.float32, copy=True))
+            .permute(2, 0, 1)
+            .unsqueeze(0)
+            .to(device=self.device, dtype=self.dtype)
+        )
+        output_tensor = self._run_model(self.model, input_tensor)
+        return output_tensor.clamp(0, 1).permute(1, 2, 0).contiguous().numpy()
 
     @classmethod
     def help_markdown(cls) -> str:
         """Short description of this tool in markdown, with links.
 
         Returns:
-            Markdown help describing this component
+            markdown help describing this component
         """
         return (
             "Processes image using Pytorch models loaded through "
@@ -157,7 +208,9 @@ class SpandrelProcessor(ImageProcessor):
         }
 
     @staticmethod
-    def _run_model(model: Any, input_tensor: torch.Tensor) -> torch.Tensor:
+    def _run_model(
+        model: ImageModelDescriptor, input_tensor: torch.Tensor
+    ) -> torch.Tensor:
         """Run a model and validate its single-image RGB tensor output.
 
         Arguments:
@@ -178,7 +231,50 @@ class SpandrelProcessor(ImageProcessor):
             )
         if output.shape[2] < 1 or output.shape[3] < 1:
             raise ValueError("Model output must have non-empty spatial dimensions")
-        return output[0].detach().float().cpu()
+        output = output[0].detach().float().cpu()
+        if not torch.isfinite(output).all():
+            raise ValueError("Model output must contain only finite values")
+        return output
+
+    @staticmethod
+    def _validate_device(device: str) -> torch.device:
+        """Resolve automatic selection and reject unavailable execution devices.
+
+        Arguments:
+            device: requested execution device or `auto`
+        Returns:
+            supported, available PyTorch device
+        Raises:
+            ValueError: if the device is unsupported, unavailable, or out of range
+        """
+        if device == "auto":
+            if torch.backends.mps.is_available():
+                device = "mps"
+            elif torch.cuda.is_available():
+                device = "cuda"
+            else:
+                device = "cpu"
+        try:
+            selected = torch.device(device)
+        except (RuntimeError, ValueError) as exc:
+            raise ValueError(f"Invalid execution device: {device!r}") from exc
+        if selected.type not in {"cpu", "cuda", "mps"}:
+            raise ValueError(f"Unsupported execution device: {device!r}")
+        if selected.type == "cpu" and selected.index is not None:
+            raise ValueError("CPU execution does not accept a device index")
+        if selected.type == "cuda":
+            if not torch.cuda.is_available():
+                raise ValueError("CUDA execution was requested but CUDA is unavailable")
+            if (
+                selected.index is not None
+                and selected.index >= torch.cuda.device_count()
+            ):
+                raise ValueError(f"CUDA device index is unavailable: {selected.index}")
+        if selected.type == "mps" and not torch.backends.mps.is_available():
+            raise ValueError("MPS execution was requested but MPS is unavailable")
+        if selected.type == "mps" and selected.index not in {None, 0}:
+            raise ValueError(f"MPS device index is unavailable: {selected.index}")
+        return selected
 
     @staticmethod
     def _validate_rgb_array(image_arr: np.ndarray, label: str):
