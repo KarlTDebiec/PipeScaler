@@ -1,5 +1,7 @@
 # Code Style
 
+WGSL source conventions are in the [WGSL style guide](Style/WGSL.md).
+
 ## Python and formatting
 
 - Target Python 3.14. Use `uv` and the repository's `pyproject.toml` and `uv.lock`.
@@ -77,16 +79,6 @@ functions, ordinary before decorated functions, then alphabetize.
 - Use `type=` validators, including `enum_arg(...)`, so CLI implementations receive
   their expected types. Prefer explicit keyword-only `_main` parameters for leaf
   commands; dispatching commands may forward keyword arguments.
-
-## WGSL
-
-Format maintained `.wgsl` sources with pinned `wgslfmt`, using four spaces.
-Preserve comments and template identifiers such as `WGX` and `WGY`. Validate
-expanded shader variants with pinned Naga; the palette shader uses 8×1 workgroups
-for basic matching and 8×8 for local matching. Keep these sizes synchronized with
-`PaletteShaderMatcher`. Static checks require no GPU and do not establish runtime
-correctness or backend compatibility. Tool versions and CI commands are declared
-in the [WGSL workflow](../.github/workflows/wgsl.yml).
 
 ## Tests and documentation
 

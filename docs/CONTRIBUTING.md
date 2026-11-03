@@ -26,18 +26,6 @@ runs for that PR; each merged commit keeps its own workflow run. GitHub checks
 provide routine validation results. Mention validation gaps or platform limitations
 in PR Notes only when they materially affect review.
 
-## WGSL checks
-
-The separate [WGSL workflow](../.github/workflows/wgsl.yml) installs pinned
-`wgslfmt` and Naga binaries through Cargo and caches them. Installation, formatting
-checks, and validation run directly in the workflow with a five minute timeout.
-Validation fills the palette shader's workgroup placeholders in temporary copies;
-the maintained shader is preserved and no GPU is required.
-
-PRs run shader checks when WGSL files, workflow or line-ending settings, or
-dependency version files change. Failed diffs fail the job. Pushes to `master`
-always run the checks. Formatting failures skip subsequent validation.
-
 ## Pull requests
 
 Keep descriptions concise. Use these sections:
