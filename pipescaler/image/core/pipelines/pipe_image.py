@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from contextlib import closing
-from logging import debug
+from logging import getLogger
 from pathlib import Path
 from typing import Any, Self
 
@@ -18,6 +18,8 @@ from pipescaler.core.pipelines import PipeObject
 from pipescaler.image.core.functions import remove_palette
 
 __all__ = ["PipeImage"]
+
+logger = getLogger(__name__)
 
 
 class PipeImage(PipeObject):
@@ -88,7 +90,9 @@ class PipeImage(PipeObject):
                     f"{self.__class__.__name__} requires either an image or the path "
                     f"to an image; neither has been provided."
                 )
-            debug(f"{self}: Opening image '{self.location_name}' from '{self.path}'")
+            logger.debug(
+                f"{self}: Opening image '{self.location_name}' from '{self.path}'"
+            )
             if self._detach_file:
                 with closing(Image.open(self.path)) as file_image:
                     image = file_image.copy()

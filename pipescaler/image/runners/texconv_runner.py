@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
-from logging import debug
+from logging import getLogger
 from pathlib import Path
 from typing import Any
 
@@ -13,6 +13,8 @@ from pipescaler.common.subprocess import run_command
 from pipescaler.core import Runner
 
 __all__ = ["TexconvRunner"]
+
+logger = getLogger(__name__)
 
 
 class TexconvRunner(Runner):
@@ -59,7 +61,7 @@ class TexconvRunner(Runner):
             output_path: output file path
         """
         command = self.get_command(input_path, output_path)
-        debug(f"{self}: {command!r}")
+        logger.debug(f"{self}: {command!r}")
         run_command(command, timeout=self.timeout)
         output_path.with_stem(input_path.stem).rename(output_path)
 

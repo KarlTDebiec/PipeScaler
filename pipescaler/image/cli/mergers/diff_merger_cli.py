@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
-from logging import info
+from logging import getLogger
 from pathlib import Path
 
 from PIL import Image
@@ -19,6 +19,8 @@ from pipescaler.image.core.cli import ImageMergerCli
 from pipescaler.image.operators.mergers import DiffMerger
 
 __all__ = ["DiffMergerCli"]
+
+logger = getLogger(__name__)
 
 
 class DiffMergerCli(ImageMergerCli):
@@ -86,7 +88,7 @@ class DiffMergerCli(ImageMergerCli):
         ):
             output_img = merger(first_img, second_img)
             output_img.save(output_path)
-            info(f"{cls}: '{output_path}' saved")
+            logger.info(f"{cls}: '{output_path}' saved")
 
 
 if __name__ == "__main__":

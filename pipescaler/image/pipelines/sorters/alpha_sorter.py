@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from logging import info
+from logging import getLogger
 
 import numpy as np
 
@@ -13,6 +13,8 @@ from pipescaler.image.core.pipelines import ImageSorter, PipeImage
 from pipescaler.image.core.validation import validate_image_and_convert_mode
 
 __all__ = ["AlphaSorter"]
+
+logger = getLogger(__name__)
 
 
 class AlphaSorter(ImageSorter):
@@ -47,7 +49,7 @@ class AlphaSorter(ImageSorter):
         else:
             outlet = "no_alpha"
 
-        info(f"{self}: '{obj.location_name}' matches '{outlet}'")
+        logger.info(f"{self}: '{obj.location_name}' matches '{outlet}'")
         return outlet
 
     def __repr__(self) -> str:

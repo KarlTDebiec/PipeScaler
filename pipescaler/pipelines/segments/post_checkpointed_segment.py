@@ -4,11 +4,13 @@
 
 from __future__ import annotations
 
-from logging import info
+from logging import getLogger
 
 from pipescaler.core.pipelines import CheckpointedSegment, PipeObject
 
 __all__ = ["PostCheckpointedSegment"]
+
+logger = getLogger(__name__)
 
 
 class PostCheckpointedSegment(CheckpointedSegment):
@@ -35,7 +37,7 @@ class PostCheckpointedSegment(CheckpointedSegment):
             input_objs, cpt_paths
         ):
             outputs = tuple(cls(path=p, parents=input_objs) for p in cpt_paths)
-            info(f"{self}: '{location_name}' checkpoints '{self.cpts}' loaded")
+            logger.info(f"{self}: '{location_name}' checkpoints '{self.cpts}' loaded")
             for i in input_objs:
                 for c in self.internal_cpts:
                     self.cp_manager.observe(i.location_name, c)
@@ -55,7 +57,7 @@ class PostCheckpointedSegment(CheckpointedSegment):
                 cpt_paths[0].parent.mkdir(parents=True)
             for o, c, p in zip(outputs, self.cpts, cpt_paths):
                 o.save(p)
-                info(f"{self}: '{o.location_name}' checkpoint '{c}' saved")
+                logger.info(f"{self}: '{o.location_name}' checkpoint '{c}' saved")
         for c in self.cpts:
             self.cp_manager.observe(location_name, c)
 

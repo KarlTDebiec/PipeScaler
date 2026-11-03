@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Collection, Sequence
 from itertools import cycle
-from logging import info
+from logging import getLogger
 from os import remove, rmdir
 from pathlib import Path
 
@@ -18,6 +18,8 @@ from .segments import (
 )
 
 __all__ = ["CheckpointManager"]
+
+logger = getLogger(__name__)
 
 
 class CheckpointManager(CheckpointManagerBase):
@@ -66,7 +68,7 @@ class CheckpointManager(CheckpointManagerBase):
                 location_names[0] if len(location_names) == 1 else location_names
             )
             cpts_str = cpts[0] if len(cpts) == 1 else cpts
-            info(f"{self}: '{location_str}' checkpoints '{cpts_str}' loaded")
+            logger.info(f"{self}: '{location_str}' checkpoints '{cpts_str}' loaded")
 
             internal_cpts = self.get_cpts_of_segments(*calls) if calls else []
             for ln in location_names:
@@ -153,12 +155,14 @@ class CheckpointManager(CheckpointManagerBase):
                 checkpoint = (str(relative_path.parent), path.name)
                 if checkpoint not in self.observed_checkpoints:
                     remove(path)
-                    info(f"{self}: file '{relative_path}' removed")
+                    logger.info(f"{self}: file '{relative_path}' removed")
             else:
                 raise ValueError(f"Unsupported path type: {path}")
         if not any(dir_path.iterdir()) and dir_path != self.dir_path:
             rmdir(dir_path)
-            info(f"{self}: directory '{dir_path.relative_to(self.dir_path)}' removed")
+            logger.info(
+                f"{self}: directory '{dir_path.relative_to(self.dir_path)}' removed"
+            )
 
     def save(
         self,
@@ -189,10 +193,10 @@ class CheckpointManager(CheckpointManagerBase):
         for i, c, p in zip(inputs, cpts, cpt_paths):
             if not p.parent.exists():
                 p.parent.mkdir(parents=True)
-                info(f"{self}: directory '{p.parent}' created")
+                logger.info(f"{self}: directory '{p.parent}' created")
             if not p.exists() or overwrite:
                 i.save(p)
-                info(f"{self}: '{i.location_name}' checkpoint '{c}' saved")
+                logger.info(f"{self}: '{i.location_name}' checkpoint '{c}' saved")
             else:
                 i.path = p
             self.observe(i.location_name, c)

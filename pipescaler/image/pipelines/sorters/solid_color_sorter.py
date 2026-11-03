@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from logging import info
+from logging import getLogger
 
 import numpy as np
 
@@ -13,6 +13,8 @@ from pipescaler.image.core.pipelines import ImageSorter, PipeImage
 from pipescaler.image.core.validation import validate_image
 
 __all__ = ["SolidColorSorter"]
+
+logger = getLogger(__name__)
 
 
 class SolidColorSorter(ImageSorter):
@@ -55,7 +57,7 @@ class SolidColorSorter(ImageSorter):
         else:
             outlet = "not_solid"
 
-        info(f"{self}: '{obj.location_name}' matches '{outlet}'")
+        logger.info(f"{self}: '{obj.location_name}' matches '{outlet}'")
         return outlet
 
     def __repr__(self) -> str:

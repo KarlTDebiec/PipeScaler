@@ -4,12 +4,14 @@
 
 from __future__ import annotations
 
-from logging import info
+from logging import getLogger
 
 from pipescaler.image.core.operators import ImageSplitter
 from pipescaler.image.core.pipelines import ImageOperatorSegment, PipeImage
 
 __all__ = ["ImageSplitterSegment"]
+
+logger = getLogger(__name__)
 
 
 class ImageSplitterSegment(ImageOperatorSegment[ImageSplitter]):
@@ -36,6 +38,6 @@ class ImageSplitterSegment(ImageOperatorSegment[ImageSplitter]):
         outputs = tuple(
             PipeImage(image=o, parents=input_objs[0]) for o in output_images
         )
-        info(f"{self.operator}: '{input_objs[0].location_name}' split")
+        logger.info(f"{self.operator}: '{input_objs[0].location_name}' split")
 
         return outputs

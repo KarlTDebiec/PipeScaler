@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 import re
-from logging import error
+from logging import getLogger
 from os.path import basename, splitext
 
 __all__ = [
@@ -13,6 +13,8 @@ __all__ = [
     "dolphin_sort",
     "texmod_sort",
 ]
+
+logger = getLogger(__name__)
 
 # tex1_8x8_0EAEA8971E8954F4_13_mip0.png
 # tex1_32x32_0A4B083BF0B35A78_12.png
@@ -40,7 +42,7 @@ def citra_sort(file_path: str) -> int:
     stem = splitext(basename(file_path))[0]
     m = _CITRA_STEM_RE.match(stem)
     if not m:
-        error(f"Error encountered while sorting {file_path}")
+        logger.error(f"Error encountered while sorting {file_path}")
         raise ValueError(f"Unrecognized Citra filename pattern: {file_path}")
 
     width = int(m["w"])
@@ -80,7 +82,7 @@ def dolphin_sort(file_path: str) -> int:
 
         return int(f"1{int(width):04d}{int(height):04d}{int(code, 16):022d}")
     except ValueError as e:
-        error(f"Error encountered while sorting {file_path}")
+        logger.error(f"Error encountered while sorting {file_path}")
         raise e
 
 
@@ -99,5 +101,5 @@ def texmod_sort(file_path: str) -> int:
     try:
         return int(f"1{int(splitext(basename(file_path))[0][2:10], 16):022d}")
     except ValueError as e:
-        error(f"Error encountered while sorting {file_path}")
+        logger.error(f"Error encountered while sorting {file_path}")
         raise e

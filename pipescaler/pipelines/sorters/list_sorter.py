@@ -5,13 +5,15 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
-from logging import info, warning
+from logging import getLogger
 from pathlib import Path
 
 from pipescaler.core.pipelines import PipeObject
 from pipescaler.core.pipelines.sorter import Sorter
 
 __all__ = ["ListSorter"]
+
+logger = getLogger(__name__)
 
 
 class ListSorter(Sorter):
@@ -90,7 +92,7 @@ class ListSorter(Sorter):
             message = f"{self}: names assigned to multiple outlets: {conflicts}"
             if not self.allow_duplicates:
                 raise ValueError(message)
-            warning(f"{message}; last configured outlet wins")
+            logger.warning(f"{message}; last configured outlet wins")
 
     def __call__(self, obj: PipeObject) -> str | None:
         """Get the outlet to which an object should be sorted.
@@ -103,9 +105,9 @@ class ListSorter(Sorter):
         outlet = self.outlets_by_filename.get(obj.name, None)
 
         if outlet:
-            info(f"{self}: '{obj.location_name}' matches '{outlet}'")
+            logger.info(f"{self}: '{obj.location_name}' matches '{outlet}'")
         else:
-            info(f"{self}: '{obj.location_name}' does not match any outlet")
+            logger.info(f"{self}: '{obj.location_name}' does not match any outlet")
         return outlet
 
     def __repr__(self) -> str:

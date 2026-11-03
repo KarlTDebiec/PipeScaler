@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
-from logging import info
+from logging import getLogger
 from pathlib import Path
 
 from PIL import Image
@@ -16,6 +16,8 @@ from pipescaler.image.core.operators import ImageSplitter
 from pipescaler.image.operators.splitters import AlphaSplitter
 
 __all__ = ["AlphaSplitterCli"]
+
+logger = getLogger(__name__)
 
 
 class AlphaSplitterCli(ImageSplitterCli):
@@ -73,9 +75,9 @@ class AlphaSplitterCli(ImageSplitterCli):
         with Image.open(input_path) as input_img:
             color_img, alpha_img = splitter(input_img)
             color_img.save(color_output_path)
-            info(f"{cls}: '{color_output_path}' saved")
+            logger.info(f"{cls}: '{color_output_path}' saved")
             alpha_img.save(alpha_output_path)
-            info(f"{cls}: '{alpha_output_path}' saved")
+            logger.info(f"{cls}: '{alpha_output_path}' saved")
 
 
 if __name__ == "__main__":
