@@ -39,10 +39,7 @@ jobs:
 
           patterns = (
               "*.wgsl",
-              "scripts/wgsl.py",
               "scripts/wgsl_tools.toml",
-              "test/scripts/test_wgsl.py",
-              "pipescaler/image/utilities/palette_shader_matcher.py",
               ".github/workflows/wgsl.yml",
               ".gitattributes",
               "pyproject.toml",
