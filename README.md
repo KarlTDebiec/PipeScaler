@@ -23,6 +23,7 @@ PipeScaler includes the following components for image processing:
 **Sources** yield images for downstream modification:
 * [ImageDirectorySource](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/pipelines/sources/image_directory_source.py) - Yields images from a directory.
 * [ImageVideoFrameSource](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/pipelines/sources/image_video_frame_source.py) - Yields images from a video file.
+* [ImageZipSource](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/pipelines/sources/image_zip_source.py) - Yields images from a ZIP archive.
 
 **Processors** perform operations on an image, yielding a modified image:
 * [CropProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/operators/processors/crop_processor.py) - Crops image canvas.
@@ -56,6 +57,7 @@ PipeScaler includes the following components for image processing:
 
 **Termini** collect processed images:
 * [ImageDirectoryTerminus](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/pipelines/termini/image_directory_terminus.py) - Copies images to an output directory.
+* [ImageZipTerminus](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/pipelines/termini/image_zip_terminus.py) - Collects images into a ZIP archive.
 
 # Video Processing
 

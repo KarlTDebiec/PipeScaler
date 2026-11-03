@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
+from contextlib import closing
 from logging import debug
 from pathlib import Path
 from typing import Any, Self
@@ -29,6 +30,7 @@ class PipeImage(PipeObject):
         path: Path | None = None,
         name: str | None = None,
         parents: Self | Sequence[Self] | None = None,
+        detach_file: bool = False,
         **kwargs: Any,
     ):
         """Initialize.
@@ -43,6 +45,8 @@ class PipeImage(PipeObject):
               that is not available will use filename of path excluding extension; one
               of these must be available
             parents: Parent image(s) from which this image is descended
+            detach_file: whether to copy the first frame into memory and release all
+              file resources on first image access; the original path is retained
             **kwargs: Additional keyword arguments
         Raises:
             ValueError: if input values or configuration are invalid
@@ -65,10 +69,15 @@ class PipeImage(PipeObject):
         super().__init__(path=path, name=name, parents=parents, **kwargs)
 
         self._image = image
+        self._detach_file = detach_file
 
     @property
     def image(self) -> Image.Image:
         """Image; loaded from path if not already available.
+
+        When `detach_file` is enabled, the first frame is copied into memory and
+        its file resources are released before the image is returned. Otherwise,
+        Pillow's lazy loading and multi-frame behavior are retained.
 
         Raises:
             ValueError: if input values or configuration are invalid
@@ -80,7 +89,11 @@ class PipeImage(PipeObject):
                     f"to an image; neither has been provided."
                 )
             debug(f"{self}: Opening image '{self.location_name}' from '{self.path}'")
-            image = Image.open(self.path)
+            if self._detach_file:
+                with closing(Image.open(self.path)) as file_image:
+                    image = file_image.copy()
+            else:
+                image = Image.open(self.path)
             if image.mode == "P":
                 image = remove_palette(image)
             self._image = image
