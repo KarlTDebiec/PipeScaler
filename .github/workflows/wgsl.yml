@@ -5,7 +5,6 @@ on:
     branches: [master]
   pull_request:
     branches: [master]
-  workflow_dispatch:
 
 permissions:
   contents: read
@@ -91,7 +90,6 @@ jobs:
           key: wgsl-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('scripts/wgsl_tools.toml') }}
 
       - name: Install pinned Cargo tools
-        id: tools
         if: steps.changes.outputs.relevant == 'true'
         run: uv run --no-sync python scripts/wgsl.py install
 
@@ -100,11 +98,11 @@ jobs:
         run: uv run --no-sync python scripts/wgsl.py format --check
 
       - name: Validate expanded WGSL
-        if: ${{ !cancelled() && steps.tools.outcome == 'success' }}
+        if: steps.changes.outputs.relevant == 'true'
         run: uv run --no-sync python scripts/wgsl.py lint
 
       - name: Test WGSL tooling without a GPU
-        if: ${{ !cancelled() && steps.tools.outcome == 'success' }}
+        if: steps.changes.outputs.relevant == 'true'
         env:
           PIPESCALER_REQUIRE_WGSL_TOOLS: '1'
         run: uv run --no-sync pytest test/scripts/test_wgsl.py
