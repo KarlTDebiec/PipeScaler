@@ -39,7 +39,8 @@ fn weighted_distance(
     let dr = i32(fit_r_u) - i32(ref_r_u);
     let dg = i32(fit_g_u) - i32(ref_g_u);
     let db = i32(fit_b_u) - i32(ref_b_u);
-    return (1024u + rsum) * u32(dr * dr) + 2048u * u32(dg * dg) + (1534u - rsum) * u32(db * db);
+    return (1024u + rsum) * u32(dr * dr) + 2048u * u32(dg * dg)
+        + (1534u - rsum) * u32(db * db);
 }
 
 @compute @workgroup_size(WGX, WGY, 1)

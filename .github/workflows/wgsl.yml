@@ -41,16 +41,11 @@ jobs:
         run: |
           relevant=true
           if [[ "$EVENT_NAME" == "pull_request" ]]; then
-            git diff --name-only --no-renames -z "$BASE_SHA...$HEAD_SHA" > "$RUNNER_TEMP/wgsl-changes"
+            git diff --name-only --no-renames -z "$BASE_SHA...$HEAD_SHA" -- '*.wgsl' > "$RUNNER_TEMP/wgsl-changes"
             relevant=false
-            while IFS= read -r -d '' path; do
-              case "$path" in
-                *.wgsl|.github/workflows/wgsl.yml|.gitattributes|pyproject.toml|uv.lock)
-                  relevant=true
-                  break
-                  ;;
-              esac
-            done < "$RUNNER_TEMP/wgsl-changes"
+            if [[ -s "$RUNNER_TEMP/wgsl-changes" ]]; then
+              relevant=true
+            fi
           fi
           echo "relevant=$relevant" >> "$GITHUB_OUTPUT"
           if [[ "$relevant" == "true" ]]; then
@@ -80,7 +75,8 @@ jobs:
         run: |
           git ls-files -z -- '*.wgsl' > "$RUNNER_TEMP/wgsl-sources"
           xargs -0 -r "$RUNNER_TEMP/wgsl-tools/bin/wgslfmt" \
-            --config indent_style=spaces --config indent_width=4 --check -- < "$RUNNER_TEMP/wgsl-sources"
+            --config indent_style=spaces --config indent_width=4 --config max_line_width=88 \
+            --check -- < "$RUNNER_TEMP/wgsl-sources"
 
       - name: Validate expanded WGSL
         if: steps.changes.outputs.relevant == 'true'
