@@ -35,13 +35,13 @@ class ModeCli(ImageProcessorCli):
             optional_arguments_name="additional arguments",
         )
 
+        # Operation arguments
         arg_groups["operation arguments"].add_argument(
             "--mode",
             required=True,
             type=str_arg(options=ModeProcessor.inputs()["input"]),
             help=f"image mode ({ModeProcessor.inputs()['input']})",
         )
-
         arg_groups["operation arguments"].add_argument(
             "--background-color",
             default="#000000",

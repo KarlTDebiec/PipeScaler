@@ -29,6 +29,7 @@ class ImageSplitterCli(CommandLineInterface, ABC):
 
         arg_groups = get_arg_groups_by_name(parser, "input arguments")
 
+        # Input arguments
         arg_groups["input arguments"].add_argument(
             "input_path",
             metavar="input_file",

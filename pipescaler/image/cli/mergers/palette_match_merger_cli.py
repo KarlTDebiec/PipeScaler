@@ -38,6 +38,7 @@ class PaletteMatchMergerCli(ImageMergerCli):
             parser, "input arguments", "operation arguments", "output arguments"
         )
 
+        # Input arguments
         arg_groups["input arguments"].add_argument(
             "reference_input_path",
             metavar="reference_input_file",
@@ -50,12 +51,16 @@ class PaletteMatchMergerCli(ImageMergerCli):
             type=input_file_arg(),
             help="fit input file",
         )
+
+        # Output arguments
         arg_groups["output arguments"].add_argument(
             "output_path",
             metavar="output_file",
             type=output_file_arg(),
             help="output file",
         )
+
+        # Operation arguments
         arg_groups["operation arguments"].add_argument(
             "--local",
             action="store_const",

@@ -34,6 +34,7 @@ class ThresholdCli(ImageProcessorCli):
             optional_arguments_name="additional arguments",
         )
 
+        # Operation arguments
         arg_groups["operation arguments"].add_argument(
             "--threshold",
             default=128,

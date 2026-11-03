@@ -34,6 +34,7 @@ class CropCli(ImageProcessorCli):
             optional_arguments_name="additional arguments",
         )
 
+        # Operation arguments
         arg_groups["operation arguments"].add_argument(
             "--pixels",
             metavar=("LEFT", "TOP", "RIGHT", "BOTTOM"),
