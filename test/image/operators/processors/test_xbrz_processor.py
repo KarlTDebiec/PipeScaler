@@ -10,24 +10,12 @@ from PIL import Image
 from pipescaler.image.operators.processors import XbrzProcessor
 from pipescaler.image.testing import get_expected_output_mode
 from pipescaler.testing.file import get_test_input_path
-from pipescaler.testing.fixture import parametrized_fixture
 
 
-@parametrized_fixture(
-    cls=XbrzProcessor,
-    params=[
-        {"scale": 2},
-    ],
-)
-def processor(request: pytest.FixtureRequest) -> XbrzProcessor:
-    """Pytest fixture that provides an XbrzProcessor instance.
-
-    Arguments:
-        request: Pytest request fixture containing parameters
-    Returns:
-        Configured XbrzProcessor instance
-    """
-    return XbrzProcessor(**request.param)
+@pytest.fixture
+def processor() -> XbrzProcessor:
+    """Provide a fresh XbrzProcessor instance for each test."""
+    return XbrzProcessor(scale=2)
 
 
 @pytest.mark.parametrize(

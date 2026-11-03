@@ -10,24 +10,12 @@ from PIL import Image
 from pipescaler.image.core.pipelines import PipeImage
 from pipescaler.image.pipelines.sorters import GrayscaleSorter
 from pipescaler.testing.file import get_test_input_path
-from pipescaler.testing.fixture import parametrized_fixture
 
 
-@parametrized_fixture(
-    cls=GrayscaleSorter,
-    params=[
-        {"mean_threshold": 1, "max_threshold": 10},
-    ],
-)
-def sorter(request: pytest.FixtureRequest) -> GrayscaleSorter:
-    """Pytest fixture that provides a GrayscaleSorter instance.
-
-    Arguments:
-        request: Pytest request fixture containing parameters
-    Returns:
-        Configured GrayscaleSorter instance
-    """
-    return GrayscaleSorter(**request.param)
+@pytest.fixture
+def sorter() -> GrayscaleSorter:
+    """Provide a fresh GrayscaleSorter instance for each test."""
+    return GrayscaleSorter(mean_threshold=1, max_threshold=10)
 
 
 @pytest.mark.parametrize(

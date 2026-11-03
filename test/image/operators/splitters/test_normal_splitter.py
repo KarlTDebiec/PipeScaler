@@ -10,24 +10,12 @@ from PIL import Image
 from pipescaler.image.operators.splitters import NormalSplitter
 from pipescaler.image.testing import xfail_unsupported_image_mode
 from pipescaler.testing.file import get_test_input_path
-from pipescaler.testing.fixture import parametrized_fixture
 
 
-@parametrized_fixture(
-    cls=NormalSplitter,
-    params=[
-        {},
-    ],
-)
-def splitter(request: pytest.FixtureRequest) -> NormalSplitter:
-    """Pytest fixture that provides a NormalSplitter instance.
-
-    Arguments:
-        request: Pytest request fixture containing parameters
-    Returns:
-        Configured NormalSplitter instance
-    """
-    return NormalSplitter(**request.param)
+@pytest.fixture
+def splitter() -> NormalSplitter:
+    """Provide a fresh NormalSplitter instance for each test."""
+    return NormalSplitter()
 
 
 @pytest.mark.parametrize(

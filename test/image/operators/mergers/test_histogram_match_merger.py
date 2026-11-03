@@ -10,24 +10,12 @@ from PIL import Image
 from pipescaler.image.operators.mergers import HistogramMatchMerger
 from pipescaler.image.testing import get_expected_output_mode
 from pipescaler.testing.file import get_test_input_path
-from pipescaler.testing.fixture import parametrized_fixture
 
 
-@parametrized_fixture(
-    cls=HistogramMatchMerger,
-    params=[
-        {},
-    ],
-)
-def merger(request: pytest.FixtureRequest) -> HistogramMatchMerger:
-    """Pytest fixture that provides a HistogramMatchMerger instance.
-
-    Arguments:
-        request: Pytest request fixture containing parameters
-    Returns:
-        Configured HistogramMatchMerger instance
-    """
-    return HistogramMatchMerger(**request.param)
+@pytest.fixture
+def merger() -> HistogramMatchMerger:
+    """Provide a fresh HistogramMatchMerger instance for each test."""
+    return HistogramMatchMerger()
 
 
 @pytest.mark.parametrize(

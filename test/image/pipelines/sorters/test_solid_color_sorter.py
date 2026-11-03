@@ -9,24 +9,12 @@ import pytest
 from pipescaler.image.core.pipelines import PipeImage
 from pipescaler.image.pipelines.sorters import SolidColorSorter
 from pipescaler.testing.file import get_test_input_path
-from pipescaler.testing.fixture import parametrized_fixture
 
 
-@parametrized_fixture(
-    cls=SolidColorSorter,
-    params=[
-        {"mean_threshold": 1, "max_threshold": 10},
-    ],
-)
-def sorter(request: pytest.FixtureRequest) -> SolidColorSorter:
-    """Pytest fixture that provides a SolidColorSorter instance.
-
-    Arguments:
-        request: Pytest request fixture containing parameters
-    Returns:
-        Configured SolidColorSorter instance
-    """
-    return SolidColorSorter(**request.param)
+@pytest.fixture
+def sorter() -> SolidColorSorter:
+    """Provide a fresh SolidColorSorter instance for each test."""
+    return SolidColorSorter(mean_threshold=1, max_threshold=10)
 
 
 @pytest.mark.parametrize(

@@ -13,24 +13,12 @@ from pipescaler.image.testing import (
     xfail_unsupported_image_mode,
 )
 from pipescaler.testing.file import get_test_input_path
-from pipescaler.testing.fixture import parametrized_fixture
 
 
-@parametrized_fixture(
-    cls=AlphaMerger,
-    params=[
-        {},
-    ],
-)
-def merger(request: pytest.FixtureRequest) -> AlphaMerger:
-    """Pytest fixture that provides an AlphaMerger instance.
-
-    Arguments:
-        request: Pytest request fixture containing parameters
-    Returns:
-        Configured AlphaMerger instance
-    """
-    return AlphaMerger(**request.param)
+@pytest.fixture
+def merger() -> AlphaMerger:
+    """Provide a fresh AlphaMerger instance for each test."""
+    return AlphaMerger()
 
 
 @pytest.mark.parametrize(

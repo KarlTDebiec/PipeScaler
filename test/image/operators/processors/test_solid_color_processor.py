@@ -10,24 +10,12 @@ from PIL import Image
 from pipescaler.image.operators.processors import SolidColorProcessor
 from pipescaler.image.testing import get_expected_output_mode
 from pipescaler.testing.file import get_test_input_path
-from pipescaler.testing.fixture import parametrized_fixture
 
 
-@parametrized_fixture(
-    cls=SolidColorProcessor,
-    params=[
-        {},
-    ],
-)
-def processor(request: pytest.FixtureRequest) -> SolidColorProcessor:
-    """Pytest fixture that provides a SolidColorProcessor instance.
-
-    Arguments:
-        request: Pytest request fixture containing parameters
-    Returns:
-        Configured SolidColorProcessor instance
-    """
-    return SolidColorProcessor(**request.param)
+@pytest.fixture
+def processor() -> SolidColorProcessor:
+    """Provide a fresh SolidColorProcessor instance for each test."""
+    return SolidColorProcessor()
 
 
 @pytest.mark.parametrize(
