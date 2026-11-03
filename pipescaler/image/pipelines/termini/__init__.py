@@ -5,7 +5,7 @@
 This module may import from: common, core.pipelines, image.core.pipelines
 
 Package hierarchy (modules may import from any above):
-* image_directory_terminus
+* image_directory_terminus / image_zip_terminus
 """
 
 from __future__ import annotations
@@ -13,5 +13,6 @@ from __future__ import annotations
 from .image_directory_terminus import (
     ImageDirectoryTerminus,
 )
+from .image_zip_terminus import ImageZipTerminus
 
-__all__ = ["ImageDirectoryTerminus"]
+__all__ = ["ImageDirectoryTerminus", "ImageZipTerminus"]

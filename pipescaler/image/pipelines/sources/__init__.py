@@ -5,7 +5,7 @@
 This module may import from: common, core.pipelines, image.core.pipelines
 
 Package hierarchy (modules may import from any above):
-* image_directory_source / image_video_frame_source
+* image_directory_source / image_video_frame_source / image_zip_source
 """
 
 from __future__ import annotations
@@ -16,8 +16,10 @@ from .image_directory_source import (
 from .image_video_frame_source import (
     ImageVideoFrameSource,
 )
+from .image_zip_source import ImageZipSource
 
 __all__ = [
     "ImageDirectorySource",
     "ImageVideoFrameSource",
+    "ImageZipSource",
 ]
