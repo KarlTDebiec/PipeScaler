@@ -12,11 +12,16 @@ from pathlib import Path
 import pytest
 from PIL import Image
 
+from pipescaler.cli import PipeScalerCli
 from pipescaler.common import CommandLineInterface
 from pipescaler.common.file import get_temp_file_path
 from pipescaler.common.testing import run_cli_with_args
 from pipescaler.image.cli import ImageMergersCli
-from pipescaler.image.cli.mergers import AlphaMergerCli, PaletteMatchMergerCli
+from pipescaler.image.cli.mergers import (
+    AlphaMergerCli,
+    DiffMergerCli,
+    PaletteMatchMergerCli,
+)
 from pipescaler.testing.file import get_test_input_path
 
 
@@ -24,6 +29,7 @@ from pipescaler.testing.file import get_test_input_path
     ("cli", "args", "input_filenames"),
     [
         (AlphaMergerCli, "", ("RGB", "L")),
+        (DiffMergerCli, "", ("RGB", "alt/RGB")),
         (PaletteMatchMergerCli, "", ("RGB", "alt/RGB")),
         (PaletteMatchMergerCli, "--local", ("RGB", "alt/RGB")),
         (PaletteMatchMergerCli, "--local --local-range 2", ("RGB", "alt/RGB")),
@@ -56,9 +62,11 @@ def test(cli: type[CommandLineInterface], args: str, input_filenames: tuple[str]
     "commands",
     [
         (AlphaMergerCli,),
+        (DiffMergerCli,),
         (PaletteMatchMergerCli,),
         (ImageMergersCli,),
         (ImageMergersCli, AlphaMergerCli),
+        (ImageMergersCli, DiffMergerCli),
         (ImageMergersCli, PaletteMatchMergerCli),
     ],
 )
@@ -88,9 +96,11 @@ def test_help(commands: tuple[type[CommandLineInterface], ...]):
     "commands",
     [
         (AlphaMergerCli,),
+        (DiffMergerCli,),
         (PaletteMatchMergerCli,),
         (ImageMergersCli,),
         (ImageMergersCli, AlphaMergerCli),
+        (ImageMergersCli, DiffMergerCli),
         (ImageMergersCli, PaletteMatchMergerCli),
     ],
 )
@@ -114,3 +124,34 @@ def test_usage(commands: tuple[type[CommandLineInterface], ...]):
         assert stderr.getvalue().startswith(
             f"usage: {Path(getfile(commands[0])).name} {subcommands}"
         )
+
+
+def test_diff_through_root_cli(tmp_path: Path):
+    """Preserve signed pixels through root dispatch and saved RGB output.
+
+    Arguments:
+        tmp_path: temporary directory for input and output images
+    """
+    first_path = tmp_path / "first.png"
+    second_path = tmp_path / "second.png"
+    output_path = tmp_path / "diff.png"
+    Image.new("L", (3, 1), 128).save(first_path)
+    second = Image.new("L", (3, 1))
+    second.putdata([0, 128, 255])
+    second.save(second_path)
+    PipeScalerCli.main(
+        [
+            "image",
+            "merge",
+            "diffmerger",
+            str(first_path),
+            str(second_path),
+            str(output_path),
+        ]
+    )
+    with Image.open(output_path) as output:
+        assert output.mode == "RGB"
+        red, same, blue = (output.getpixel((x, 0)) for x in (2, 1, 0))
+        assert red[0] > 0 and red[2] == 0
+        assert same == (0, 0, 0)
+        assert blue[0] == 0 and blue[2] > 0

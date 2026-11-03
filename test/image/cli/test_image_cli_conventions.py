@@ -13,7 +13,11 @@ from PIL import Image
 
 from pipescaler.common import CommandLineInterface
 from pipescaler.image.cli import ImageMergersCli, ImageProcessorsCli, ImageSplittersCli
-from pipescaler.image.cli.mergers import AlphaMergerCli, PaletteMatchMergerCli
+from pipescaler.image.cli.mergers import (
+    AlphaMergerCli,
+    DiffMergerCli,
+    PaletteMatchMergerCli,
+)
 from pipescaler.image.cli.processors import (
     CropCli,
     ExpandCli,
@@ -43,6 +47,7 @@ from pipescaler.image.cli.splitters import AlphaSplitterCli
         (ThresholdCli, True),
         (XbrzCli, True),
         (AlphaMergerCli, False),
+        (DiffMergerCli, False),
         (PaletteMatchMergerCli, True),
         (AlphaSplitterCli, False),
     ],
