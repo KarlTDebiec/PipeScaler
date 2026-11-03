@@ -23,7 +23,7 @@ PipeScaler includes the following components for image processing:
 **Sources** yield images for downstream modification:
 * [ImageDirectorySource](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/pipelines/sources/image_directory_source.py) - Yields images from a directory.
 * [ImageVideoFrameSource](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/pipelines/sources/image_video_frame_source.py) - Yields images from a video file.
-* [ImageZipSource](pipescaler/image/pipelines/sources/image_zip_source.py) - Yields images from a ZIP archive.
+* [ImageZipSource](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/pipelines/sources/image_zip_source.py) - Yields images from a ZIP archive.
 
 **Processors** perform operations on an image, yielding a modified image:
 * [CropProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/operators/processors/crop_processor.py) - Crops image canvas.
@@ -57,26 +57,7 @@ PipeScaler includes the following components for image processing:
 
 **Termini** collect processed images:
 * [ImageDirectoryTerminus](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/pipelines/termini/image_directory_terminus.py) - Copies images to an output directory.
-* [ImageZipTerminus](pipescaler/image/pipelines/termini/image_zip_terminus.py) - Collects images into a ZIP archive.
-
-ZIP sources and termini manage temporary files through context managers:
-
-```python
-from pipescaler.image.pipelines.sources import ImageZipSource
-from pipescaler.image.pipelines.termini import ImageZipTerminus
-
-with (
-    ImageZipSource("input.zip", inclusions={r".*\.png$"}) as source,
-    ImageZipTerminus("output.zip") as terminus,
-):
-    for image in source:
-        terminus(image)
-```
-
-Extracted source files remain available until the source closes. On first image
-access, the first frame is copied into memory and its file handles are released;
-loaded pixels remain usable after the source closes. The terminus replaces the
-complete output archive only when its context exits successfully.
+* [ImageZipTerminus](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/pipelines/termini/image_zip_terminus.py) - Collects images into a ZIP archive.
 
 # Video Processing
 
