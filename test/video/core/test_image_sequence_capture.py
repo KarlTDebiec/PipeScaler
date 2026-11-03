@@ -9,6 +9,7 @@ from pathlib import Path
 import cv2
 import pytest
 
+from pipescaler.common.exceptions import NotAFileError
 from pipescaler.video.core.image_sequence_capture import ImageSequenceCapture
 from pipescaler.video.core.video_input import VideoInput
 from test.scripts.generate_video_inputs import write_image_sequence
@@ -54,7 +55,29 @@ def test_metadata_reading_and_release(tmp_path: Path):
     assert capture.read() == (False, None)
 
 
-@pytest.mark.parametrize("failure", ["corrupt", "missing", "dimensions"])
+def test_validates_concrete_frame_paths(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+):
+    """Normalize direct capture inputs and reject missing files or directories.
+
+    Arguments:
+        tmp_path: temporary input directory
+        monkeypatch: working directory replacement
+    """
+    write_image_sequence(tmp_path)
+    monkeypatch.chdir(tmp_path)
+    capture = ImageSequenceCapture((Path("000007.png"),))
+    try:
+        assert capture.read()[0]
+    finally:
+        capture.release()
+    with pytest.raises(FileNotFoundError, match="missing.png"):
+        ImageSequenceCapture((tmp_path / "missing.png",))
+    with pytest.raises(NotAFileError, match="not a file"):
+        ImageSequenceCapture((tmp_path,))
+
+
+@pytest.mark.parametrize("failure", ["corrupt", "missing", "directory", "dimensions"])
 def test_later_frame_failure(tmp_path: Path, failure: str):
     """Identify failed frames and release instead of silently ending playback.
 
@@ -69,6 +92,9 @@ def test_later_frame_failure(tmp_path: Path, failure: str):
         frame_path.write_text("not an image", encoding="utf-8")
     elif failure == "missing":
         frame_path.unlink()
+    elif failure == "directory":
+        frame_path.unlink()
+        frame_path.mkdir()
     else:
         write_image_sequence(tmp_path, indices=(8,), size=(2, 2))
     assert capture.read()[0]

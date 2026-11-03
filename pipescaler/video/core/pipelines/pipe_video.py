@@ -49,7 +49,10 @@ class PipeVideo(PipeObject):
             parents: Parent video(s) from which this video is descended
             **kwargs: Additional keyword arguments
         Raises:
+            DirectoryNotFoundError: if the sequence root directory does not exist
             FileNotFoundError: if the input file or matching frames do not exist
+            NotADirectoryError: if the sequence root is not a directory
+            TypeError: if the input cannot be cast to a path
             ValueError: if input values or configuration are invalid
         """
         if video is None and path is None:

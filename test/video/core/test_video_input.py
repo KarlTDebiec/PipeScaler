@@ -10,7 +10,7 @@ from unittest.mock import MagicMock
 import cv2
 import pytest
 
-from pipescaler.common.exceptions import NotAFileError
+from pipescaler.common.exceptions import DirectoryNotFoundError, NotAFileError
 from pipescaler.common.validation import val_input_path
 from pipescaler.video.core.video_input import VideoInput
 from test.scripts.generate_video_inputs import write_image_sequence
@@ -70,9 +70,48 @@ def test_pattern_literals_and_padding(tmp_path: Path):
     )
 
 
-@pytest.mark.parametrize("pattern", ["%06d.png", "%06d/image.png", "missing/%d.png"])
+def test_sequence_path_expansion(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    """Keep one input identity for absolute, relative, home, and environment paths.
+
+    Arguments:
+        tmp_path: temporary home and input directory
+        monkeypatch: environment and working directory replacements
+    """
+    input_path = write_image_sequence(tmp_path / "frames")
+    expected = VideoInput(input_path)
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("HOME", str(tmp_path))
+    monkeypatch.setenv("USERPROFILE", str(tmp_path))
+    monkeypatch.setenv("VIDEO_ROOT", str(tmp_path))
+
+    for value in (
+        "frames/%06d.png",
+        "~/frames/%06d.png",
+        "$VIDEO_ROOT/frames/%06d.png",
+    ):
+        actual = VideoInput(value)
+        assert actual.input_path == input_path
+        assert actual.frame_paths == expected.frame_paths
+        assert actual.name == expected.name
+
+
+def test_sequence_root_validation(tmp_path: Path):
+    """Use the common directory errors for missing and non-directory roots.
+
+    Arguments:
+        tmp_path: temporary input directory
+    """
+    root_path = tmp_path / "missing"
+    with pytest.raises(DirectoryNotFoundError, match="does not exist"):
+        VideoInput(root_path / "%06d.png")
+    root_path.touch()
+    with pytest.raises(NotADirectoryError, match="not a directory"):
+        VideoInput(root_path / "%06d.png")
+
+
+@pytest.mark.parametrize("pattern", ["%06d.png", "%06d/image.png"])
 def test_empty_sequence(tmp_path: Path, pattern: str):
-    """Report no matching frames, including when the parent does not exist.
+    """Report no matching frames within an existing sequence root.
 
     Arguments:
         tmp_path: temporary input directory

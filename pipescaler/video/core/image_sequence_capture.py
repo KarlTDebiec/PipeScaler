@@ -9,6 +9,8 @@ from pathlib import Path
 import cv2
 from cv2.typing import MatLike
 
+from pipescaler.common.validation import val_input_path
+
 __all__ = ["ImageSequenceCapture"]
 
 
@@ -26,17 +28,21 @@ class ImageSequenceCapture:
         Arguments:
             frame_paths: nonempty sequence of concrete image paths
         Raises:
+            FileNotFoundError: if a frame path does not exist
+            NotAFileError: if a frame path is not a file
             ValueError: if no frame paths are provided
             OSError: if the first frame cannot be decoded
         """
         if not frame_paths:
             raise ValueError("An image sequence must contain at least one frame.")
-        self._frame_paths = frame_paths
+        self._frame_paths = tuple(val_input_path(frame_paths))
         self._first_frame: MatLike | None = cv2.imread(
-            str(frame_paths[0]), cv2.IMREAD_COLOR
+            str(self._frame_paths[0]), cv2.IMREAD_COLOR
         )
         if self._first_frame is None:
-            raise OSError(f"Cannot decode image-sequence frame '{frame_paths[0]}'.")
+            raise OSError(
+                f"Cannot decode image-sequence frame '{self._frame_paths[0]}'."
+            )
         self._height, self._width = self._first_frame.shape[:2]
         self._index = 0
         self._closed = False
@@ -74,24 +80,26 @@ class ImageSequenceCapture:
         Returns:
             success and BGR image, or false and None at EOF or after release
         Raises:
-            OSError: if a frame cannot be decoded or its dimensions change
+            OSError: if a frame disappears, cannot be decoded, or changes dimensions
         """
         if self._closed or self._index == len(self._frame_paths):
             return False, None
-        frame_path = self._frame_paths[self._index]
-        if self._index == 0:
-            frame = self._first_frame
-            self._first_frame = None
-        else:
-            frame = cv2.imread(str(frame_path), cv2.IMREAD_COLOR)
-        if frame is None:
+        try:
+            frame_path = val_input_path(self._frame_paths[self._index])
+            if self._index == 0:
+                frame = self._first_frame
+                self._first_frame = None
+            else:
+                frame = cv2.imread(str(frame_path), cv2.IMREAD_COLOR)
+            if frame is None:
+                raise OSError(f"Cannot decode image-sequence frame '{frame_path}'.")
+            if frame.shape[:2] != (self._height, self._width):
+                raise OSError(
+                    f"Image-sequence frame '{frame_path}' has different dimensions."
+                )
+        except BaseException:
             self.release()
-            raise OSError(f"Cannot decode image-sequence frame '{frame_path}'.")
-        if frame.shape[:2] != (self._height, self._width):
-            self.release()
-            raise OSError(
-                f"Image-sequence frame '{frame_path}' has different dimensions."
-            )
+            raise
         self._index += 1
         return True, frame
 

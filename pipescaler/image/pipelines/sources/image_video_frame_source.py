@@ -45,7 +45,10 @@ class ImageVideoFrameSource(ImageSource):
             location_path: path relative to parent directory
             **kwargs: additional keyword arguments
         Raises:
+            DirectoryNotFoundError: if the sequence root directory does not exist
             FileNotFoundError: if the file or matching sequence frames do not exist
+            NotADirectoryError: if the sequence root is not a directory
+            TypeError: if the input cannot be cast to a path
             ValueError: if a sequence template or its numbering is invalid
             OSError: if the video or first sequence frame cannot be opened
         """

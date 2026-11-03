@@ -6,12 +6,11 @@ from __future__ import annotations
 
 import re
 from hashlib import sha256
-from os.path import expanduser, expandvars
 from pathlib import Path
 
 import cv2
 
-from pipescaler.common.validation import val_input_path
+from pipescaler.common.validation import val_input_dir_path, val_input_path, val_path
 
 from .image_sequence_capture import ImageSequenceCapture
 
@@ -33,10 +32,13 @@ class VideoInput:
         Arguments:
             input_path: video file or numbered image-sequence template
         Raises:
+            DirectoryNotFoundError: if the sequence root directory does not exist
             FileNotFoundError: if the input file or matching frames do not exist
+            NotADirectoryError: if the sequence root is not a directory
+            TypeError: if the input cannot be cast to a path
             ValueError: if a template is malformed or frame numbering has gaps
         """
-        self.input_path = Path(expandvars(expanduser(str(input_path)))).resolve()
+        self.input_path = val_path(input_path)
         """Absolute concrete file path or sequence template."""
         self.frame_paths: tuple[Path, ...] | None = None
         """Numerically ordered frames, or None for a concrete video file."""
@@ -53,26 +55,25 @@ class VideoInput:
         component_index = next(
             index for index, part in enumerate(self.input_path.parts) if "%" in part
         )
-        root_path = Path(*self.input_path.parts[:component_index])
+        root_path = val_input_dir_path(Path(*self.input_path.parts[:component_index]))
         component = self.input_path.parts[component_index]
         placeholder = placeholders[0].group()
         prefix, suffix = component.split(placeholder)
         pattern = re.compile(f"{re.escape(prefix)}([0-9]+){re.escape(suffix)}")
         width = int(placeholder[2:-1]) if placeholder != "%d" else 0
         matches: list[tuple[int, Path]] = []
-        if root_path.is_dir():
-            for candidate_path in root_path.iterdir():
-                match = pattern.fullmatch(candidate_path.name)
-                if match is None:
-                    continue
-                number = int(match[1])
-                if candidate_path.name != f"{prefix}{number:0{width}d}{suffix}":
-                    continue
-                frame_path = candidate_path.joinpath(
-                    *self.input_path.parts[component_index + 1 :]
-                )
-                if frame_path.is_file():
-                    matches.append((number, frame_path))
+        for candidate_path in root_path.iterdir():
+            match = pattern.fullmatch(candidate_path.name)
+            if match is None:
+                continue
+            number = int(match[1])
+            if candidate_path.name != f"{prefix}{number:0{width}d}{suffix}":
+                continue
+            frame_path = candidate_path.joinpath(
+                *self.input_path.parts[component_index + 1 :]
+            )
+            if frame_path.is_file():
+                matches.append((number, frame_path))
         if not matches:
             raise FileNotFoundError(
                 f"No image-sequence frames match '{self.input_path}'."

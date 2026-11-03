@@ -10,6 +10,8 @@ import cv2
 import numpy as np
 from PIL import Image
 
+from pipescaler.common.validation import val_output_dir_path, val_output_path
+
 __all__ = ["write_image_sequence", "write_video"]
 
 
@@ -29,11 +31,11 @@ def write_image_sequence(
     Returns:
         absolute sequence template
     """
+    dir_path = val_output_dir_path(dir_path)
     for index in indices:
-        frame_path = dir_path / (pattern % index)
-        frame_path.parent.mkdir(parents=True, exist_ok=True)
+        frame_path = val_output_path(dir_path / (pattern % index), exist_ok=True)
         Image.new("RGB", size, (index % 256, 20, 30)).save(frame_path)
-    return (dir_path / pattern).resolve()
+    return dir_path / pattern
 
 
 def write_video(file_path: Path) -> Path:
@@ -46,7 +48,7 @@ def write_video(file_path: Path) -> Path:
     Raises:
         OSError: if the video encoder cannot be opened
     """
-    file_path.parent.mkdir(parents=True, exist_ok=True)
+    file_path = val_output_path(file_path, exist_ok=True)
     writer = cv2.VideoWriter(
         str(file_path), cv2.VideoWriter.fourcc(*"mp4v"), 24, (16, 12)
     )
@@ -57,4 +59,4 @@ def write_video(file_path: Path) -> Path:
             writer.write(np.full((12, 16, 3), index * 60, dtype=np.uint8))
     finally:
         writer.release()
-    return file_path.resolve()
+    return file_path

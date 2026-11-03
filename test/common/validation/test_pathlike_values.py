@@ -14,6 +14,7 @@ from pipescaler.common.validation import (
     val_input_path,
     val_output_dir_path,
     val_output_path,
+    val_path,
 )
 
 
@@ -58,4 +59,6 @@ def test_path_validators_accept_custom_string_pathlike(tmp_path: Path):
     assert (
         val_output_dir_path(_CustomPath(output_dir_path)) == output_dir_path.resolve()
     )
+    assert val_path(_CustomPath(output_path)) == output_path.resolve()
+    assert not output_path.parent.exists()
     assert val_output_path(_CustomPath(output_path)) == output_path.resolve()
