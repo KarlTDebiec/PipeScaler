@@ -13,6 +13,7 @@ from typing import Any
 import numpy as np
 from PIL import Image
 
+from pipescaler.core.exceptions import PipeScalerError
 from pipescaler.image.core.enums import PaletteMatchMode
 from pipescaler.image.core.exceptions import UnsupportedImageModeError
 from pipescaler.image.core.functions import get_palette
@@ -26,7 +27,7 @@ __all__ = [
 logger = getLogger(__name__)
 
 
-class PaletteShaderError(RuntimeError):
+class PaletteShaderError(PipeScalerError, RuntimeError):
     """Raised when the shader runtime cannot load or shader execution fails."""
 
 

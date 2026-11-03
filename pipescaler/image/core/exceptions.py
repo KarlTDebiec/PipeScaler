@@ -4,8 +4,10 @@
 
 from __future__ import annotations
 
+from pipescaler.core.exceptions import PipeScalerError
+
 __all__ = ["UnsupportedImageModeError"]
 
 
-class UnsupportedImageModeError(Exception):
+class UnsupportedImageModeError(PipeScalerError):
     """Mode of image is not supported."""
