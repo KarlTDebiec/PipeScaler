@@ -53,11 +53,13 @@ maintained source. These static checks need no GPU; shader execution tests still
 require a usable compute device.
 
 The separate [WGSL workflow](../.github/workflows/wgsl.yml) checks PRs and pushes
-to `master`. A lightweight gate skips tool setup and shader checks for unrelated
-changes while completing the check successfully. Shader, checker, template loader,
-dependency, and workflow changes run all shader checks and focused tooling tests.
-The workflow caches binaries by OS, architecture, and installation pins. For its
-GPU-free Python tests, only the development dependency group is installed.
+to `master`. Inline change detection skips tool setup and shader checks for
+unrelated PR changes while completing the check successfully. Shader, checker,
+template loader, dependency, and workflow changes run all shader checks and focused
+tooling tests. Failed PR diffs fail the job. Pushes to `master` and manual runs
+always run the checks. The workflow caches binaries by OS, architecture, and
+installation pins. For its GPU-free Python tests, only the development dependency
+group is installed.
 
 To run the tooling regression tests after installing the native tools:
 

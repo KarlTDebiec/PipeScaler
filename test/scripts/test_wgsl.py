@@ -1,6 +1,6 @@
 #  Copyright 2026 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
-"""Regress GPU-free WGSL formatting, validation, installation, and CI gating."""
+"""Regress GPU-free WGSL formatting, validation, and installation."""
 
 from __future__ import annotations
 
@@ -12,11 +12,9 @@ from shutil import copy2, copyfile
 import pytest
 
 from scripts.wgsl import (
-    changes_require_checks,
     format_sources,
     install_tools,
     lint_sources,
-    record_changes,
     source_paths,
 )
 
@@ -61,34 +59,6 @@ def tool_checkout(checkout: Path) -> Path:
         dest_file_path.parent.mkdir(parents=True, exist_ok=True)
         copy2(source_dir_path / name, dest_file_path)
     return checkout
-
-
-@pytest.mark.parametrize(
-    "file_path, expected",
-    [
-        ("pipescaler/image/utilities/palette_match.wgsl", True),
-        ("shader with spaces.wgsl", True),
-        ("scripts/wgsl.py", True),
-        ("scripts/wgsl_tools.toml", True),
-        ("test/scripts/test_wgsl.py", True),
-        ("pipescaler/image/utilities/palette_shader_matcher.py", True),
-        (".github/workflows/wgsl.yml", True),
-        (".gitattributes", True),
-        ("pyproject.toml", True),
-        ("uv.lock", True),
-        ("README.md", False),
-        ("pipescaler/image/utilities/palette_matcher.py", False),
-    ],
-)
-def test_change_gate(file_path: str, expected: bool):
-    """Run shader checks for sources and their tooling, skipping unrelated edits.
-
-    Arguments:
-        file_path: changed repository-relative path
-        expected: whether the path affects shader checks
-    """
-    assert changes_require_checks([file_path]) is expected
-    assert not changes_require_checks([])
 
 
 @pytest.mark.parametrize("check", [False, True])
@@ -232,74 +202,6 @@ def test_plain_and_template_shaders_validate(
     )
     assert lint_sources(tool_checkout, [plain_file_path, template_file_path])
     assert "3 variants, passed=True" in capsys.readouterr().out
-
-
-def test_record_changes_uses_diff_and_runs_on_missing_history(
-    checkout: Path, monkeypatch: pytest.MonkeyPatch
-):
-    """Skip irrelevant diffs, retain deleted shader paths, and handle missing bases.
-
-    Arguments:
-        checkout: temporary tracked-source checkout
-        monkeypatch: fixture for setting Actions environment values
-    """
-    shader_file_path = checkout / "shader.wgsl"
-    shader_file_path.write_text("fn main() {}", encoding="utf-8")
-    subprocess.run(["git", "add", "."], cwd=checkout, check=True)
-    subprocess.run(
-        [
-            "git",
-            "-c",
-            "user.name=Fixture",
-            "-c",
-            "user.email=fixture@example.com",
-            "commit",
-            "--no-gpg-sign",
-            "--quiet",
-            "-m",
-            "fixture",
-        ],
-        cwd=checkout,
-        check=True,
-    )
-    base = (
-        subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=checkout)
-        .decode()
-        .strip()
-    )
-    output_file_path = checkout / "output.txt"
-    monkeypatch.setenv("GITHUB_OUTPUT", str(output_file_path))
-    monkeypatch.setenv("GITHUB_EVENT_NAME", "pull_request")
-    monkeypatch.setenv("BASE_SHA", base)
-    monkeypatch.setenv("HEAD_SHA", "HEAD")
-    record_changes(checkout)
-    assert output_file_path.read_text(encoding="utf-8") == "relevant=false\n"
-    shader_file_path.rename(checkout / "renamed.txt")
-    subprocess.run(["git", "add", "--all"], cwd=checkout, check=True)
-    subprocess.run(
-        [
-            "git",
-            "-c",
-            "user.name=Fixture",
-            "-c",
-            "user.email=fixture@example.com",
-            "commit",
-            "--no-gpg-sign",
-            "--quiet",
-            "-m",
-            "rename",
-        ],
-        cwd=checkout,
-        check=True,
-    )
-    record_changes(checkout)
-    assert output_file_path.read_text(encoding="utf-8").endswith("relevant=true\n")
-    monkeypatch.setenv("BASE_SHA", "0" * 40)
-    record_changes(checkout)
-    assert output_file_path.read_text(encoding="utf-8").endswith("relevant=true\n")
-    monkeypatch.setenv("BASE_SHA", "missing-revision")
-    record_changes(checkout)
-    assert output_file_path.read_text(encoding="utf-8").endswith("relevant=true\n")
 
 
 def test_source_selection(checkout: Path):

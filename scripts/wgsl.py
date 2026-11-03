@@ -5,7 +5,6 @@
 from __future__ import annotations
 
 import argparse
-import fnmatch
 import json
 import os
 import platform
@@ -20,12 +19,10 @@ from shutil import which
 
 __all__ = [
     "ToolSettings",
-    "changes_require_checks",
     "format_sources",
     "install_tools",
     "lint_sources",
     "main",
-    "record_changes",
     "source_paths",
 ]
 
@@ -40,32 +37,6 @@ class ToolSettings:
     """Published naga-cli version matching the runtime compiler."""
     wgslfmt_revision: str
     """Full upstream commit containing wgslfmt and its dependency lockfile."""
-
-
-def changes_require_checks(file_paths: Sequence[str]) -> bool:
-    """Decide whether changed repository paths affect static shader checks.
-
-    Arguments:
-        file_paths: repository-relative paths, including deleted and renamed sources
-    Returns:
-        whether shaders or their checking and template machinery changed
-    """
-    patterns = (
-        "*.wgsl",
-        "scripts/wgsl.py",
-        "scripts/wgsl_tools.toml",
-        "test/scripts/test_wgsl.py",
-        "pipescaler/image/utilities/palette_shader_matcher.py",
-        ".github/workflows/wgsl.yml",
-        ".gitattributes",
-        "pyproject.toml",
-        "uv.lock",
-    )
-    return any(
-        fnmatch.fnmatchcase(file_path, pattern)
-        for file_path in file_paths
-        for pattern in patterns
-    )
 
 
 def format_sources(
@@ -228,7 +199,6 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
     subparsers.add_parser("install", help="install pinned tools using Rust/rustup")
-    subparsers.add_parser("changes", help="record whether CI requires shader checks")
     for command in ("format", "lint"):
         child = subparsers.add_parser(command)
         child.add_argument("files", nargs="*", type=Path)
@@ -239,8 +209,6 @@ def main() -> int:
     try:
         if args.command == "install":
             install_tools(root_dir_path)
-        elif args.command == "changes":
-            record_changes(root_dir_path)
         elif args.command == "format":
             return int(not format_sources(root_dir_path, args.files, check=args.check))
         else:
@@ -249,45 +217,6 @@ def main() -> int:
         print(f"WGSL: {exc}", file=sys.stderr)
         return 1
     return 0
-
-
-def record_changes(root_dir_path: Path):
-    """Record a GitHub Actions gate from the PR diff or pushed commit range.
-
-    Missing base history conservatively runs all shader checks. Disabling rename
-    detection preserves shader paths when files are renamed to another suffix.
-
-    Arguments:
-        root_dir_path: checkout with base and head history available
-    """
-    base = os.environ.get("BASE_SHA", "")
-    head = os.environ.get("HEAD_SHA", "HEAD")
-    relevant = True
-    if base and set(base) != {"0"}:
-        separator = ".."
-        if os.environ.get("GITHUB_EVENT_NAME") == "pull_request":
-            separator = "..."
-        result = subprocess.run(
-            [
-                "git",
-                "diff",
-                "--name-only",
-                "--no-renames",
-                "-z",
-                f"{base}{separator}{head}",
-            ],
-            cwd=root_dir_path,
-            capture_output=True,
-            check=False,
-        )
-        if result.returncode == 0:
-            paths = result.stdout.decode("utf-8", errors="surrogateescape").split("\0")
-            relevant = changes_require_checks(paths)
-    output = f"relevant={str(relevant).lower()}\n"
-    print(output, end="")
-    if output_file_path := os.environ.get("GITHUB_OUTPUT"):
-        with Path(output_file_path).open("a", encoding="utf-8") as output_file:
-            output_file.write(output)
 
 
 def source_paths(root_dir_path: Path, file_paths: Sequence[Path] = ()) -> list[Path]:
