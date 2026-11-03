@@ -65,6 +65,10 @@ jobs:
       - name: Run ruff
         run: uv run ruff check --output-format=github
 
+      - name: Check Ruff formatting
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: uv run --frozen ruff format --check
+
       - name: Run ty
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: uv run ty check --output-format=github .

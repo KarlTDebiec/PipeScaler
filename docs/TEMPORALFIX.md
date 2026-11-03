@@ -56,7 +56,7 @@ runner = TemporalFixRunner(
 )
 manager = CheckpointManager("local/video-checkpoints")
 segment = CheckpointedVideoRunnerSegment(runner, manager, chunk_frames=48)
-output, = segment(PipeVideo(path="frames/frame_%06d.png"))
+(output,) = segment(PipeVideo(path="frames/frame_%06d.png"))
 ```
 
 Projects choose source paths, scratch locations, cut/exclusion ranges, settings,
