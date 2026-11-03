@@ -2,6 +2,14 @@
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 """Bind the stable libpotrace C ABI and copy traced curves into memory.
 
+Requires an installed libpotrace shared library, such as `libpotrace0` on
+Debian/Ubuntu. System library discovery is used by default. To override discovery,
+set `PIPESCALER_POTRACE_LIBRARY` to an absolute `.so`, `.dylib`, or Windows DLL path.
+The platform CI jobs in `.github/workflows/build.yml` contain the pinned-source
+download, checksum verification, and shared-library compiler commands. For manual
+builds, adapt their paths to local directories and use `cc` on Linux/macOS or an
+x64 MSVC developer shell on Windows.
+
 The structures mirror upstream `potracelib.h` from Potrace 1.16. In particular,
 `potrace_word` is C unsigned long (32 bits on Windows, 64 on Unix), and pixels
 are packed most-significant-bit first in bottom-up row order. No Python extension
