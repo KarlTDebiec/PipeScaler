@@ -189,6 +189,19 @@ def test_input_modes_and_source_preservation(input_name: str):
         assert image.info == info
 
 
+@pytest.mark.parametrize("srgb", [False, True])
+def test_premultiplied_mip_preserves_color_at_opaque_edges(srgb: bool):
+    """Preserve constant straight RGB when Lanczos overshoots alpha at an edge.
+
+    Arguments:
+        srgb: whether RGB uses the sRGB transfer function
+    """
+    image = Image.new("RGBA", (8, 8), (64, 128, 192, 0))
+    image.paste((64, 128, 192, 255), (4, 4, 8, 8))
+    output = DdsWriter(srgb=srgb, separate_alpha=False)._resize(image)
+    assert output.getpixel((3, 3)) == (64, 128, 192, 255)
+
+
 @pytest.mark.parametrize("quality", ["ultrafast", "veryfast", "fast", "basic", "slow"])
 def test_quality_presets(quality: DdsQuality):
     """Use every quality preset with an alpha-bearing image.

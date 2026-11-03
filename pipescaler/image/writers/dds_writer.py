@@ -206,10 +206,11 @@ class DdsWriter:
             ],
             axis=2,
         )
-        alpha = resized[:, :, 3:4].clip(0, 1)
+        alpha = resized[:, :, 3:4]
         rgb = resized[:, :, :3]
         if not self.separate_alpha:
             rgb = np.divide(rgb, alpha, out=np.zeros_like(rgb), where=alpha > 0)
+        alpha = alpha.clip(0, 1)
         rgb = rgb.clip(0, 1)
         if self.srgb:
             rgb = np.where(
