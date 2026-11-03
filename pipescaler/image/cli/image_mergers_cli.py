@@ -30,7 +30,7 @@ class ImageMergersCli(CommandLineInterface):
 
         # Subcommands
         subparsers = parser.add_subparsers(
-            dest="merger",
+            dest=cls.subcommand_dest(),
             help="merger",
             required=True,
         )
@@ -62,7 +62,7 @@ class ImageMergersCli(CommandLineInterface):
         Arguments:
             **kwargs: additional options forwarded to the selected implementation
         """
-        merger_name = kwargs.pop("merger")
+        merger_name = kwargs.pop(cls.subcommand_dest())
         merger_cli_cls = cls.mergers()[merger_name]
         merger_cli_cls._main(**kwargs)
 

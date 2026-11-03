@@ -30,7 +30,7 @@ class ImageProcessorsCli(CommandLineInterface):
 
         # Subcommands
         subparsers = parser.add_subparsers(
-            dest="processor",
+            dest=cls.subcommand_dest(),
             help="processor",
             required=True,
         )
@@ -62,7 +62,7 @@ class ImageProcessorsCli(CommandLineInterface):
         Arguments:
             **kwargs: additional options forwarded to the selected implementation
         """
-        processor_name = kwargs.pop("processor")
+        processor_name = kwargs.pop(cls.subcommand_dest())
         processor_cli_cls = cls.processors()[processor_name]
         processor_cli_cls._main(**kwargs)
 

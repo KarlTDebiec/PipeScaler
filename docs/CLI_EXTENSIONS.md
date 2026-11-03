@@ -127,6 +127,27 @@ different command spelling is needed, and use that spelling in the entry point.
 Duplicate names within a group are errors, including collisions with built-in
 commands. Extensions cannot replace existing commands.
 
+Command routing uses internal destinations qualified by the container's module
+and class. Ordinary extension parameters can therefore use names such as
+`domain`, `subcommand`, `processor`, `merger`, and `splitter`.
+
+When an extension defines its own command subtree, use
+`cls.subcommand_dest()` consistently to register and read the selected command:
+
+```python
+# Parser construction
+subparsers = parser.add_subparsers(dest=cls.subcommand_dest(), required=True)
+for command in commands.values():
+    command.argparser(subparsers=subparsers)
+
+# Dispatch inside the container's _main method
+command_name = kwargs.pop(cls.subcommand_dest())
+commands[command_name]._main(**kwargs)
+```
+
+The dotted destinations returned by this helper are reserved for routing metadata;
+extensions do not use them as argument destinations for their own data.
+
 PipeScaler loads extension classes while constructing the command parser. Keep
 expensive or optional imports inside execution methods when they are unnecessary
 for help or argument definitions. Loaded registrations are cached per group and

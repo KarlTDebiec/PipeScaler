@@ -28,7 +28,7 @@ class PipeScalerCli(CommandLineInterface):
 
         # Subcommands
         subparsers = parser.add_subparsers(
-            dest="domain",
+            dest=cls.subcommand_dest(),
             help="subcommand",
             required=True,
         )
@@ -42,7 +42,7 @@ class PipeScalerCli(CommandLineInterface):
         Arguments:
             **kwargs: additional options forwarded to the selected implementation
         """
-        subcommand_name = kwargs.pop("domain")
+        subcommand_name = kwargs.pop(cls.subcommand_dest())
         subcommand_cli_class = cls.subcommands()[subcommand_name]
         subcommand_cli_class._main(**kwargs)
 

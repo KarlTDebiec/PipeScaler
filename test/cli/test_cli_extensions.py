@@ -38,6 +38,18 @@ def test_broken_extension_identifies_distribution(extension_site: Path):
     assert "pipescaler.cli.commands" in result.stderr
 
 
+def test_extension_subtree_preserves_domain_argument(extension_site: Path):
+    """Keep custom container routing separate from both ancestors and leaf data.
+
+    Arguments:
+        extension_site: isolated installed extension distribution
+    """
+    result = _run_extension_cli(extension_site, "tools", "echo", "example.com")
+
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.strip() == "example.com"
+
+
 def test_nested_extensions_execute(extension_site: Path, tmp_path: Path):
     """Run processor, merger, and splitter extensions through the root CLI.
 
@@ -94,8 +106,8 @@ def test_nested_extensions_execute(extension_site: Path, tmp_path: Path):
         assert image.getpixel((0, 0)) == 123
 
 
-def test_root_extension_executes(extension_site: Path):
-    """Parse extension arguments and dispatch the externally registered command.
+def test_root_extension_preserves_domain_argument(extension_site: Path):
+    """Keep an extension's domain argument separate from root routing metadata.
 
     Arguments:
         extension_site: isolated installed extension distribution
@@ -129,11 +141,26 @@ class EchoCli(CommandLineInterface):
     @classmethod
     def add_arguments_to_argparser(cls, parser):
         super().add_arguments_to_argparser(parser)
-        parser.add_argument("value")
+        parser.add_argument("domain")
 
     @classmethod
-    def _main(cls, *, value):
-        print(value)
+    def _main(cls, *, domain):
+        print(domain)
+
+class ToolsCli(CommandLineInterface):
+    """Group extension commands under a custom subtree."""
+
+    @classmethod
+    def add_arguments_to_argparser(cls, parser):
+        super().add_arguments_to_argparser(parser)
+        subparsers = parser.add_subparsers(dest=cls.subcommand_dest(), required=True)
+        EchoCli.argparser(subparsers=subparsers)
+
+    @classmethod
+    def _main(cls, **kwargs):
+        command = kwargs.pop(cls.subcommand_dest())
+        assert command == EchoCli.name()
+        EchoCli._main(**kwargs)
 
 class ExternalModeCli(ModeCli):
     """Convert image mode through an extension command."""
@@ -154,6 +181,7 @@ class ExternalAlphaCli(AlphaSplitterCli):
     )
     (metadata_dir_path / "entry_points.txt").write_text(
         "[pipescaler.cli.commands]\necho = sample_extension:EchoCli\n"
+        "tools = sample_extension:ToolsCli\n"
         "[pipescaler.cli.image.processors]\n"
         "externalmode = sample_extension:ExternalModeCli\n"
         "[pipescaler.cli.image.mergers]\n"
@@ -190,6 +218,74 @@ def test_extensions_appear_in_help(
     assert result.returncode == 0, result.stderr
     assert command_name in result.stdout
     assert builtin_name in result.stdout
+
+
+@pytest.mark.parametrize(
+    ("group", "base", "operation", "input_count"),
+    [
+        ("processors", "ModeCli", "process", 1),
+        ("mergers", "DiffMergerCli", "merge", 2),
+        ("splitters", "AlphaSplitterCli", "split", 1),
+    ],
+)
+def test_nested_extension_preserves_selector_arguments(
+    extension_site: Path,
+    group: str,
+    base: str,
+    operation: str,
+    input_count: int,
+):
+    """Pass ordinary selector-like argument names unchanged through every container.
+
+    Arguments:
+        extension_site: isolated installed extension distribution
+        group: image extension group receiving the command
+        base: concrete image CLI base used by the test extension
+        operation: parent image command to invoke
+        input_count: required input file count for the image CLI base
+    """
+    module_path = extension_site / "sample_extension.py"
+    with module_path.open("a", encoding="utf-8") as module:
+        module.write(f'''
+class CollisionCli({base}):
+    """Echo argument names that also describe command routing."""
+
+    @classmethod
+    def add_arguments_to_argparser(cls, parser):
+        super().add_arguments_to_argparser(parser)
+        for name in ("domain", "subcommand", "processor", "merger", "splitter"):
+            parser.add_argument("--" + name, required=True)
+
+    @classmethod
+    def _main(cls, **kwargs):
+        print("|".join(kwargs[name] for name in
+              ("domain", "subcommand", "processor", "merger", "splitter")))
+''')
+    metadata_path = (
+        extension_site / "sample_extension-1.0.dist-info" / "entry_points.txt"
+    )
+    metadata_path.write_text(
+        f"[pipescaler.cli.image.{group}]\ncollision = sample_extension:CollisionCli\n",
+        encoding="utf-8",
+    )
+    input_path = extension_site.parent / "input.png"
+    Image.new("RGBA", (2, 3), (18, 52, 86, 123)).save(input_path)
+    arguments = ["image", operation, "collision"]
+    if group == "processors":
+        arguments.extend(["--mode", "RGB"])
+    arguments.extend([str(input_path)] * input_count)
+    arguments.append(str(extension_site.parent / "output.png"))
+    if group == "splitters":
+        arguments.append(str(extension_site.parent / "alpha.png"))
+    for name in ("domain", "subcommand", "processor", "merger", "splitter"):
+        arguments.extend(["--" + name, name + " value"])
+
+    result = _run_extension_cli(extension_site, *arguments)
+
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.strip() == (
+        "domain value|subcommand value|processor value|merger value|splitter value"
+    )
 
 
 def _run_extension_cli(

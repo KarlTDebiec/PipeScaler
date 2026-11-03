@@ -30,7 +30,7 @@ class ImageSplittersCli(CommandLineInterface):
 
         # Subcommands
         subparsers = parser.add_subparsers(
-            dest="splitter",
+            dest=cls.subcommand_dest(),
             help="splitter",
             required=True,
         )
@@ -62,7 +62,7 @@ class ImageSplittersCli(CommandLineInterface):
         Arguments:
             **kwargs: additional options forwarded to the selected implementation
         """
-        splitter_name = kwargs.pop("splitter")
+        splitter_name = kwargs.pop(cls.subcommand_dest())
         splitter_cli_cls = cls.splitters()[splitter_name]
         splitter_cli_cls._main(**kwargs)
 
