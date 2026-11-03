@@ -6,108 +6,110 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import Any, cast
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 import pytest
+from PIL import Image
 
-from pipescaler.common.file import get_temp_directory_path
-from pipescaler.common.validation import val_output_path
 from pipescaler.core.pipelines import PipeObject, Segment
+from pipescaler.image.core.pipelines import PipeImage
 from pipescaler.pipelines import CheckpointManager
 from pipescaler.pipelines.segments import PostCheckpointedSegment
 
 
-def mock_pipe_object_save(path: Path | str):
-    """Save object to file and set path.
+def test_cached_outputs_preserve_internal_checkpoints(tmp_path: Path):
+    """Reuse persisted outputs and retain nested checkpoints during resume cleanup.
 
     Arguments:
-        path: Path to which to save object
+        tmp_path: temporary checkpoint directory
     """
-    path = val_output_path(path)
-    path.touch()
+    cp_manager = CheckpointManager(tmp_path)
+    input_image = PipeImage(image=Image.new("RGB", (2, 2), "red"), name="source")
+
+    def recolor(input_obj: PipeObject) -> tuple[PipeObject, ...]:
+        """Produce blue pixels while retaining the input image as a parent.
+
+        Arguments:
+            input_obj: input image whose lineage is retained
+        Returns:
+            recolored output image within a tuple
+        """
+        assert isinstance(input_obj, PipeImage)
+        return (PipeImage(image=Image.new("RGB", (2, 2), "blue"), parents=input_obj),)
+
+    segment = Mock(wraps=recolor)
+    inner = cp_manager.pre_segment("internal.png")(segment)
+    wrapper = cp_manager.post_segment("post.png")(inner)
+    initial_output = wrapper(input_image)[0]
+
+    resumed_manager = CheckpointManager(tmp_path)
+    resumed_segment = Mock(
+        spec=Segment, side_effect=AssertionError("Cached segment runs again")
+    )
+    resumed_inner = resumed_manager.pre_segment("internal.png")(resumed_segment)
+    resumed_wrapper = resumed_manager.post_segment("post.png")(resumed_inner)
+    resumed_input = PipeImage(image=Image.new("RGB", (2, 2), "green"), name="source")
+    cached_output = resumed_wrapper(resumed_input)[0]
+
+    assert segment.call_count == 1
+    assert cp_manager.observed_checkpoints == resumed_manager.observed_checkpoints
+    assert resumed_manager.observed_checkpoints == {
+        ("source", "internal.png"),
+        ("source", "post.png"),
+    }
+    resumed_manager.purge_unrecognized_files()
+    for output, parent in (
+        (initial_output, input_image),
+        (cached_output, resumed_input),
+    ):
+        assert isinstance(output, PipeImage)
+        assert output.path == tmp_path / "source" / "post.png"
+        assert output.parents == [parent]
+        assert output.image.getpixel((0, 0)) == (0, 0, 255)
+    with Image.open(tmp_path / "source" / "internal.png") as image:
+        assert image.getpixel((0, 0)) == (255, 0, 0)
 
 
-def mock_pipe_object_save_2(self, path: Path | str):
-    """Save object to file and set path.
+def test_non_callable_segment_validation(tmp_path: Path):
+    """Reject a non-callable segment using a real checkpoint manager.
 
     Arguments:
-        self: not used; present for compatibility with PipeObject.save
-        path: Path to which to save object
+        tmp_path: temporary checkpoint directory
     """
-    path = val_output_path(path)
-    path.touch()
+    cp_manager = CheckpointManager(tmp_path)
+    with pytest.raises(
+        ValueError, match="requires a callable Segment; int is not callable"
+    ):
+        PostCheckpointedSegment(cast(Any, 42), cp_manager, ["post.png"])
 
 
-def test_non_callable_segment_validation():
-    """Test that non-callable segment raises appropriate ValueError."""
-    with get_temp_directory_path() as cp_directory_path:
-        # Mocks
-        non_callable_segment = 42  # Integer is not callable
-        mock_cp_manager = Mock(spec=CheckpointManager)
-        mock_cp_manager.directory = cp_directory_path
+@pytest.mark.parametrize("output_count", [0, 2])
+def test_rejects_wrong_output_count(tmp_path: Path, output_count: int):
+    """Reject missing or extra outputs before publishing any checkpoint.
 
-        # Attempt to initialize with non-callable segment
-        with pytest.raises(ValueError) as exc_info:
-            PostCheckpointedSegment(
-                cast(Any, non_callable_segment), mock_cp_manager, ["test.txt"]
-            )
+    Arguments:
+        tmp_path: temporary checkpoint directory
+        output_count: incorrect number of outputs for one checkpoint
+    """
+    cp_manager = CheckpointManager(tmp_path)
+    input_image = PipeImage(image=Image.new("RGB", (1, 1)), name="source")
 
-        # Verify the error message contains expected content
-        error_message = str(exc_info.value)
-        assert "requires a callable Segment" in error_message
-        assert "int" in error_message  # The class name of the non-callable
-        assert "is not callable" in error_message
+    def wrong_output_count(input_obj: PipeObject) -> tuple[PipeObject, ...]:
+        """Return an incorrect number of outputs.
 
+        Arguments:
+            input_obj: image to repeat in the output tuple
+        Returns:
+            output objects with the requested incorrect count
+        """
+        return (input_obj,) * output_count
 
-@patch.object(PipeObject, "save", mock_pipe_object_save_2)
-@patch.object(PipeObject, "__abstractmethods__", set())
-def test():
-    """Test PostCheckpointedSegment managing checkpoints after segment execution."""
-    with get_temp_directory_path() as cp_dir_path:
-        # Mocks
-        mock_segment = Mock(spec=Segment)
-        mock_cp_manager = Mock(spec=CheckpointManager)
-        mock_cp_manager.dir_path = cp_dir_path
-        mock_pipe_object_input = Mock(spec=PipeObject)
-        mock_pipe_object_input.location_name = "test"
-        mock_pipe_object_output = Mock(spec=PipeObject)
-        mock_pipe_object_output.location_name = "test"
-        mock_pipe_object_output.save.side_effect = mock_pipe_object_save
+    wrapper = PostCheckpointedSegment(wrong_output_count, cp_manager, ["post.png"])
+    with pytest.raises(
+        ValueError, match=f"Expected 1 outputs .* but received {output_count}"
+    ):
+        wrapper(input_image)
 
-        # Initialize
-        post_checkpointed_segment = PostCheckpointedSegment(
-            mock_segment, mock_cp_manager, ["post.txt"], internal_cpts=["internal.txt"]
-        )
-
-        # Too many outputs
-        mock_segment.return_value = (Mock(), Mock())
-        with pytest.raises(ValueError, match="Expected 1 outputs .* but received 2"):
-            post_checkpointed_segment(mock_pipe_object_input)
-
-        # New checkpoint
-        mock_segment.return_value = (mock_pipe_object_output,)
-        post_checkpointed_segment(mock_pipe_object_input)
-        assert mock_pipe_object_input.save.call_count == 0
-        assert mock_pipe_object_output.save.call_count == 1
-        assert mock_pipe_object_output.save.call_args_list[0][0] == (
-            cp_dir_path / mock_pipe_object_input.location_name / "post.txt",
-        )
-        assert mock_cp_manager.observe.call_count == 1
-        assert mock_cp_manager.observe.call_args_list[0][0] == (
-            mock_pipe_object_input.location_name,
-            "post.txt",
-        )
-
-        # Existing checkpoint
-        post_checkpointed_segment(mock_pipe_object_input)
-        assert mock_pipe_object_input.save.call_count == 0
-        assert mock_pipe_object_output.save.call_count == 1
-        assert mock_cp_manager.observe.call_count == 3
-        assert mock_cp_manager.observe.call_args_list[1][0] == (
-            mock_pipe_object_input.location_name,
-            "internal.txt",
-        )
-        assert mock_cp_manager.observe.call_args_list[2][0] == (
-            mock_pipe_object_input.location_name,
-            "post.txt",
-        )
+    assert input_image.path is None
+    assert not cp_manager.observed_checkpoints
+    assert not any(tmp_path.iterdir())
