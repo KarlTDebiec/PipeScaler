@@ -57,13 +57,8 @@ def test(input_filename: str, processor: ThresholdProcessor):
     input_img = Image.open(input_path)
     output_img = processor(input_img)
 
-    output_arr = np.array(output_img)
     assert output_img.size == input_img.size
-    if input_img.mode == "1":
-        assert output_img.mode == "1"
-    else:
-        assert output_img.mode == "L"
-        assert np.logical_or(output_arr == 0, output_arr == 255).all()
+    assert output_img.mode == "1"
 
 
 @pytest.mark.parametrize(
@@ -79,7 +74,7 @@ def test_threshold_processor_boundaries(threshold: int, expected: list[int]):
     """
     image = Image.fromarray(np.array([[0, 1, 2, 244, 245, 255]], dtype=np.uint8))
     output_image = ThresholdProcessor(threshold)(image)
-    assert np.array(output_image).flatten().tolist() == expected
+    assert np.array(output_image.convert("L")).flatten().tolist() == expected
 
 
 @pytest.mark.parametrize("threshold", [-1, 0, 245, 255, 256])
@@ -110,8 +105,10 @@ def test_denoise_preserves_uniform_binary_images(mode: str, value: int):
 
     output_image = ThresholdProcessor(denoise=True)(input_image)
 
-    assert output_image.mode == mode
-    assert np.array_equal(np.array(output_image), np.array(input_image))
+    assert output_image.mode == "1"
+    assert np.array_equal(
+        np.array(output_image.convert("L")), np.array(input_image.convert("L"))
+    )
 
 
 @pytest.mark.parametrize("mode", ["1", "L"])
@@ -131,5 +128,5 @@ def test_denoise_removes_isolated_white_pixel(mode: str):
 
     output_image = ThresholdProcessor(denoise=True)(input_image)
 
-    assert output_image.mode == mode
+    assert output_image.mode == "1"
     assert np.array_equal(np.array(output_image), np.zeros((5, 5), dtype=dtype))

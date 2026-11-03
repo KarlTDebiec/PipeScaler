@@ -245,7 +245,8 @@ def test_threshold_cli_accepts_processor_boundaries(
     )
 
     with Image.open(output_path) as output_image:
-        assert np.array(output_image).flatten().tolist() == expected
+        assert output_image.mode == "1"
+        assert np.array(output_image.convert("L")).flatten().tolist() == expected
 
 
 @pytest.mark.parametrize("threshold", [-1, 0, 245, 255, 256])

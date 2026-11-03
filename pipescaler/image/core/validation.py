@@ -23,10 +23,10 @@ def validate_image(
     """Remove image palette, if necessary, and validate that mode is among valid modes.
 
     Arguments:
-        image: Image to validate
-        valid_modes: Valid modes
+        image: image to validate
+        valid_modes: allowed modes after palette removal; empty or None accepts any mode
     Returns:
-        Validated image
+        image after palette removal and mode validation
     Raises:
         UnsupportedImageModeError: if an image mode is unsupported
     """
@@ -38,7 +38,7 @@ def validate_image(
         valid_modes = sorted(valid_modes)
         if image.mode not in valid_modes:
             raise UnsupportedImageModeError(
-                f"Mode '{image.mode}' is among supported modes: {valid_modes}"
+                f"Mode '{image.mode}' is not among supported modes: {valid_modes}"
             )
     return image
 
@@ -51,11 +51,13 @@ def validate_image_and_convert_mode(
     """Validate image mode and convert to specified mode.
 
     Arguments:
-        img: Image to validate
-        valid_modes: Valid modes
-        convert_mode: Mode to convert to
+        img: image to validate
+        valid_modes: allowed modes after palette removal; empty or None accepts any mode
+        convert_mode: optional mode to convert to after validation
     Returns:
-        Validated image and original mode
+        validated image and its mode after palette removal, before conversion
+    Raises:
+        UnsupportedImageModeError: if the mode after palette removal is unsupported
     """
     img = validate_image(img, valid_modes)
     if convert_mode and img.mode != convert_mode:
