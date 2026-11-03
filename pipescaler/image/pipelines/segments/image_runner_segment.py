@@ -61,8 +61,7 @@ class ImageRunnerSegment(ImageSegment):
                 output.image = image.copy()
             warning(
                 f"{self}: Output file is temporary and only image content is retained; "
-                f"if output file is needed (e.g. if the purpose of this processor is "
-                f"to convert an image to a specific format such as DDS), use a "
+                f"if the encoded output file is needed, use a "
                 f"PostCheckpointedImageRunnerSegment."
             )
         output.path = None

@@ -16,6 +16,30 @@ Developer guidance: [Architecture](docs/ARCHITECTURE.md),
 
 Other packages can add commands through [CLI extensions](docs/CLI_EXTENSIONS.md).
 
+BC7 DDS output runs in process on Windows, Linux, and macOS through the installed
+`ispc-texcomp` dependency. No separate texture conversion executable is required.
+Use [DdsWriter](pipescaler/image/writers/dds_writer.py) directly with a Pillow image,
+or wrap it in an image checkpoint to retain the compressed file and mipmaps:
+
+```python
+from pipescaler.image.pipelines import ImageCheckpointManager
+from pipescaler.image.writers import DdsWriter
+
+writer = DdsWriter(mipmaps=0, quality="basic", srgb=False, separate_alpha=True)
+writer(image, "texture.dds")  # image is a Pillow Image
+
+manager = ImageCheckpointManager("checkpoints")
+save_dds = manager.post_writer("99_dds.dds")(writer)
+output = save_dds(pipe_image)[0]  # pipe_image is a PipeImage
+```
+
+`mipmaps=0` writes a full chain through 1x1; `mipmaps=1` writes only the base image.
+The default format is BC7_UNORM. Set `srgb=True` for BC7_UNORM_SRGB with linear-light
+mipmap filtering. Alpha is stored straight; `separate_alpha` controls whether RGB
+is filtered independently of alpha. Writers publish files atomically, and ordinary
+image termini preserve file-backed DDS bytes. Other DDS compression formats,
+cubemaps, arrays, and existing compressed mip chains are not supported by this writer.
+
 # Image Processing
 
 PipeScaler includes the following components for image processing:

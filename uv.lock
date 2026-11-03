@@ -292,6 +292,26 @@ wheels = [
 ]
 
 [[package]]
+name = "ispc-texcomp"
+version = "1.0.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/f5/95/7bcdf50c697780093e6fe08e32fb43c48ab9a96fd6065f2ea33efcb13f9c/ispc_texcomp-1.0.1.tar.gz", hash = "sha256:d94b794374bde088060143976dcd9d158d66e316301d72a9f1445b6c6d6f2101", size = 71439, upload-time = "2025-04-02T10:55:16.035Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/23/b2/3e9988ab1170f8bb3007e2c7fed89ee62d4be8141ad5006699a000d7d5bc/ispc_texcomp-1.0.1-cp311-abi3-macosx_10_9_x86_64.whl", hash = "sha256:129f1359ca40dfa4a781e78788033dc6b0b4fc824f12f80f9e26f38b14aa2a0c", size = 708948, upload-time = "2025-04-02T10:54:56.248Z" },
+    { url = "https://files.pythonhosted.org/packages/79/4f/e3e50fe4f2d33afaa6a9fd6310fc946606f6eb9941c9e351ee8ab88b3029/ispc_texcomp-1.0.1-cp311-abi3-macosx_11_0_arm64.whl", hash = "sha256:ab35d1c4b602000d15b4daacd4c7aecd71f31dd550c60500bfcb4fe5bafce9a8", size = 186208, upload-time = "2025-04-02T10:54:58.069Z" },
+    { url = "https://files.pythonhosted.org/packages/14/7c/a4668a7f6001df26253550c97cc1bb9c1de8925b00d15ad4c3a5e82a826e/ispc_texcomp-1.0.1-cp311-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:cc293b7d83c17ddba275fd3355fa1b5ba2838e02da5fae654c8c31e0d07c8182", size = 404110, upload-time = "2025-04-02T10:54:59.614Z" },
+    { url = "https://files.pythonhosted.org/packages/d3/0a/1703b933984192c4dbbe93a0065b379e8606e045ccf5e4e3cda69140ced4/ispc_texcomp-1.0.1-cp311-abi3-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:467ac7262235db6bb97e99639ea178f0757107e77f46e62780c49f126553936a", size = 586450, upload-time = "2025-04-02T10:55:01.449Z" },
+    { url = "https://files.pythonhosted.org/packages/2d/94/56e38e19b622f9de1ece8c32f4584902cc56fe1a3e20a85bbb844cea16bc/ispc_texcomp-1.0.1-cp311-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:48cc5f46351b0a6e15d48b68fa9feba57d59a1396c5ed90d93df18c3d84eeca7", size = 939926, upload-time = "2025-04-02T10:55:03.317Z" },
+    { url = "https://files.pythonhosted.org/packages/32/3d/0456e24071d1f299cf5e1067aab40455d068f29a7be1969e61dfd686eed3/ispc_texcomp-1.0.1-cp311-abi3-musllinux_1_2_aarch64.whl", hash = "sha256:29868f117de04eaeceb9b5fae1d3e6aa4896e2be75288950bb40c6b00919dc1c", size = 1359058, upload-time = "2025-04-02T10:55:05.304Z" },
+    { url = "https://files.pythonhosted.org/packages/99/2e/588fdd594b34e6b549d664174e0910c75377650326b3c2540f3dab0c2989/ispc_texcomp-1.0.1-cp311-abi3-musllinux_1_2_armv7l.whl", hash = "sha256:b9281e86de4c3c861a71764d4c6f3956f5b3d188d0e23cbb6e1e43abf56b7391", size = 1284557, upload-time = "2025-04-02T10:55:06.658Z" },
+    { url = "https://files.pythonhosted.org/packages/6c/e7/24f3b484cc4a3cf90fc79861ac0d5aa3934623ceb4851600638f10ff8085/ispc_texcomp-1.0.1-cp311-abi3-musllinux_1_2_i686.whl", hash = "sha256:e04108a292094e991ab126836ee8307d92b7d4f196e126910a8e1fb9c9823646", size = 1678666, upload-time = "2025-04-02T10:55:08.406Z" },
+    { url = "https://files.pythonhosted.org/packages/5b/51/8e41a25500b684032d17ba1b9f4cf13e3e7d05fdfc34937d811f3dcdf5a1/ispc_texcomp-1.0.1-cp311-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:27b228e4db214f53a7739f8206142dc828ecd76e7504f91645896f13e64a077f", size = 1942697, upload-time = "2025-04-02T10:55:09.842Z" },
+    { url = "https://files.pythonhosted.org/packages/7b/90/7c5e3aa2a5bce225d9cb12c848f4ca3bb84a94f45b83983a23ccc37ce73d/ispc_texcomp-1.0.1-cp311-abi3-win32.whl", hash = "sha256:1f1acb004aeda5308487e6720ef1c0513e6a65eec1fbfcf2e7bcaf80b78345cb", size = 360030, upload-time = "2025-04-02T10:55:11.157Z" },
+    { url = "https://files.pythonhosted.org/packages/34/35/c787a609de7218eb6d1973e018d07cff650c5318bdee176a6c97547cf353/ispc_texcomp-1.0.1-cp311-abi3-win_amd64.whl", hash = "sha256:08ef519036b6229e7e207106cdc9a19101deb46cbf105ca8ec9e10d59cc69ac8", size = 739252, upload-time = "2025-04-02T10:55:12.695Z" },
+    { url = "https://files.pythonhosted.org/packages/f8/17/0520e1088ffd2c3ce90bacaddc0cb956253220f9cd938e2421bd98723f89/ispc_texcomp-1.0.1-cp311-abi3-win_arm64.whl", hash = "sha256:4d8510c6439bcc858c0dea013fb97528f465ccbebf76d71ccb3276a4176535ae", size = 182868, upload-time = "2025-04-02T10:55:14.521Z" },
+]
+
+[[package]]
 name = "jinja2"
 version = "3.1.6"
 source = { registry = "https://pypi.org/simple" }
@@ -720,6 +740,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "imagequant" },
+    { name = "ispc-texcomp" },
     { name = "numba" },
     { name = "numpy" },
     { name = "opencv-python" },
@@ -749,6 +770,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "imagequant", specifier = ">=1.1.5" },
+    { name = "ispc-texcomp", specifier = ">=1.0.1" },
     { name = "numba", specifier = ">=0.65.1" },
     { name = "numpy", specifier = ">=2.4.6" },
     { name = "opencv-python", specifier = ">=4.11.0.86" },

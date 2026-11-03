@@ -5,15 +5,13 @@
 This module may import from: common, core, image.core
 
 Package hierarchy (modules may import from any above):
-* potrace_runner / texconv_runner
+* potrace_runner
 """
 
 from __future__ import annotations
 
 from .potrace_runner import PotraceRunner
-from .texconv_runner import TexconvRunner
 
 __all__ = [
     "PotraceRunner",
-    "TexconvRunner",
 ]

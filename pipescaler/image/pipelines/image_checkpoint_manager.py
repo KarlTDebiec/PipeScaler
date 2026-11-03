@@ -8,9 +8,11 @@ from collections.abc import Callable
 from pathlib import Path
 
 from pipescaler.core import RunnerLike
+from pipescaler.image.core.typing import ImageWriterLike
 from pipescaler.pipelines.checkpoint_manager import CheckpointManager
 
 from .segments import (
+    CheckpointedImageWriterSegment,
     ImageRunnerSegment,
     PostCheckpointedImageRunnerSegment,
 )
@@ -45,5 +47,28 @@ class ImageCheckpointManager(CheckpointManager):
             )
 
             return PostCheckpointedImageRunnerSegment(runner_segment, self, [cpt])
+
+        return decorator
+
+    def post_writer(
+        self, cpt: str
+    ) -> Callable[[ImageWriterLike], CheckpointedImageWriterSegment]:
+        """Wrap an in-process image writer in a resumable checkpoint segment.
+
+        Arguments:
+            cpt: checkpoint filename, including the writer's output extension
+        Returns:
+            decorator accepting a writer of Pillow pixels and an output path
+        """
+
+        def decorator(writer: ImageWriterLike) -> CheckpointedImageWriterSegment:
+            """Bind a writer to the configured checkpoint.
+
+            Arguments:
+                writer: callable accepting Pillow pixels and an output path
+            Returns:
+                checkpointed image writer segment
+            """
+            return CheckpointedImageWriterSegment(writer, self, cpt)
 
         return decorator
