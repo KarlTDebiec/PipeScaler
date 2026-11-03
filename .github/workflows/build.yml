@@ -31,7 +31,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libcairo2-dev pngquant potrace
+          sudo apt-get install -y libcairo2-dev potrace
 
       - name: Install package dependencies
         id: install
@@ -64,7 +64,7 @@ jobs:
 
       - name: Install system dependencies
         run: |
-          brew install cairo pngquant potrace
+          brew install cairo potrace
 
       - name: Set up uv with cache
         uses: astral-sh/setup-uv@v10.3.2
