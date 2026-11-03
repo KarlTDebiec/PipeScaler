@@ -6,15 +6,13 @@ This module may import from: common, core.pipelines, image.core.pipelines,
 image.core.operators
 
 Package hierarchy (modules may import from any above):
-* checkpointed_image_writer_segment / image_merger_segment
-/ image_processor_segment / image_runner_segment
+* image_merger_segment / image_processor_segment / image_runner_segment
 / image_splitter_segment
 * post_checkpointed_image_runner_segment
 """
 
 from __future__ import annotations
 
-from .checkpointed_image_writer_segment import CheckpointedImageWriterSegment
 from .image_merger_segment import ImageMergerSegment
 from .image_processor_segment import (
     ImageProcessorSegment,
@@ -28,7 +26,6 @@ from .post_checkpointed_image_runner_segment import (
 )
 
 __all__ = [
-    "CheckpointedImageWriterSegment",
     "ImageMergerSegment",
     "ImageProcessorSegment",
     "ImageRunnerSegment",

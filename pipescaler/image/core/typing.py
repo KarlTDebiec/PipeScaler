@@ -4,13 +4,9 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
-from pathlib import Path
 from typing import Literal
 
-from PIL import Image
-
-__all__ = ["ImageMode", "ImageWriterLike"]
+__all__ = ["ImageMode"]
 
 # Image modes supported by PipeScaler
 # 1-bit, grayscale, grayscale+alpha, palette, RGB, RGBA, HSV
@@ -18,6 +14,3 @@ __all__ = ["ImageMode", "ImageWriterLike"]
 
 type ImageMode = Literal["1", "L", "LA", "P", "RGB", "RGBA", "HSV"]
 """Type alias for supported PIL image mode strings."""
-
-type ImageWriterLike = Callable[[Image.Image, Path], None]
-"""Callable that writes in-memory Pillow pixels to an image file."""
