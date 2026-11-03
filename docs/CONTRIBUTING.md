@@ -1,5 +1,17 @@
 # Contributing
 
+## Developer setup
+
+With `uv` installed, create or update the environment from the repository root:
+
+```console
+uv sync --frozen --python 3.14
+```
+
+Dependencies and development tools are defined in [`pyproject.toml`](../pyproject.toml).
+Run tools with `uv run`; environment activation is not required. See
+[Code Style](STYLE.md#python-and-formatting) for interpreter and tool conventions.
+
 ## Branches
 
 Name branches `feature/brief-description`. Continue the existing branch when
