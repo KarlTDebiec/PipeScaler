@@ -152,9 +152,9 @@ def test_local_match_rejects_invalid_geometry(
     fit_img = Image.new(mode, fit_size)
     merger = PaletteMatchMerger(palette_match_mode=PaletteMatchMode.LOCAL)
 
-    with pytest.raises(ValueError, match="uniform integer upscale"):
+    with pytest.raises(ValueError, match="uniform integer scale"):
         LocalPaletteMatcher.run(ref_img, fit_img)
-    with pytest.raises(ValueError, match="uniform integer upscale"):
+    with pytest.raises(ValueError, match="uniform integer scale"):
         merger(ref_img, fit_img)
 
 

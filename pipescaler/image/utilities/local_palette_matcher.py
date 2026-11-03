@@ -13,6 +13,7 @@ from PIL import Image
 from pipescaler.core import Utility
 from pipescaler.image.core.exceptions import UnsupportedImageModeError
 from pipescaler.image.core.numba import get_perceptually_weighted_distance
+from pipescaler.image.core.validation import validate_image_scale
 
 __all__ = ["LocalPaletteMatcher"]
 
@@ -44,7 +45,7 @@ class LocalPaletteMatcher(Utility):
                 f"Image mode '{ref_img.mode}' of reference image does not match mode "
                 f"'{fit_img.mode}' of fit image"
             )
-        cls.validate_geometry(ref_img, fit_img)
+        validate_image_scale(ref_img, fit_img, min_scale=2)
         ref_arr = np.array(ref_img)
         fit_arr = np.array(fit_img)
 
@@ -152,29 +153,3 @@ class LocalPaletteMatcher(Utility):
                             best_color = ref_arr[ref_x, ref_y]
                 matched_arr[fit_x, fit_y, :] = best_color
         return matched_arr
-
-    @staticmethod
-    def validate_geometry(ref_img: Image.Image, fit_img: Image.Image):
-        """Require a uniform integer upscale of at least 2 for local matching.
-
-        Arguments:
-            ref_img: smaller reference image
-            fit_img: larger target image
-        Raises:
-            ValueError: if image sizes do not use the required scale
-        """
-        ref_width, ref_height = ref_img.size
-        fit_width, fit_height = fit_img.size
-        if (
-            ref_width <= 0
-            or ref_height <= 0
-            or fit_width % ref_width != 0
-            or fit_height % ref_height != 0
-            or fit_width // ref_width < 2
-            or fit_width // ref_width != fit_height // ref_height
-        ):
-            raise ValueError(
-                "Local palette matching requires a target that is a uniform integer "
-                "upscale of the reference with scale at least 2; "
-                f"received reference {ref_img.size} and target {fit_img.size}"
-            )

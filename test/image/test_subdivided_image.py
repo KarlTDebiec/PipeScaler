@@ -126,10 +126,29 @@ def test_subdivision_setter_rejects_non_uniform_scale_without_mutating():
         for sub in subdivided_image.subs
     ]
 
-    with pytest.raises(ValueError, match="uniform scale"):
+    with pytest.raises(ValueError, match="uniform integer scale"):
         subdivided_image.subs = non_uniform_subs
 
     assert subdivided_image.image == original_image
+    np.testing.assert_array_equal(subdivided_image.boxes, original_boxes)
+
+
+def test_subdivision_setter_rejects_different_scales_without_mutating():
+    """Reject individually valid scales that differ between subdivisions."""
+    subdivided_image = SubdividedImage(Image.new("L", (150, 50)), 100, 10)
+    original_image = subdivided_image.image
+    original_boxes = subdivided_image.boxes.copy()
+    original_subs = subdivided_image.subs
+    replacements = [
+        sub.resize((sub.width * 2, sub.height * 2)) for sub in original_subs
+    ]
+    replacements[0] = original_subs[0].copy()
+
+    with pytest.raises(ValueError, match="All subdivisions must use the same"):
+        subdivided_image.subs = replacements
+
+    assert subdivided_image.image is original_image
+    assert subdivided_image.subs is original_subs
     np.testing.assert_array_equal(subdivided_image.boxes, original_boxes)
 
 

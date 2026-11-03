@@ -16,8 +16,7 @@ from PIL import Image
 from pipescaler.image.core.enums import PaletteMatchMode
 from pipescaler.image.core.exceptions import UnsupportedImageModeError
 from pipescaler.image.core.functions import get_palette
-
-from .local_palette_matcher import LocalPaletteMatcher
+from pipescaler.image.core.validation import validate_image_scale
 
 __all__ = [
     "PaletteShaderError",
@@ -91,7 +90,7 @@ class PaletteShaderMatcher:
         palette_match_mode = PaletteMatchMode(palette_match_mode)
         if palette_match_mode == PaletteMatchMode.LOCAL:
             normalized_local_range = cls._normalize_local_range(local_range)
-            LocalPaletteMatcher.validate_geometry(ref_img, fit_img)
+            validate_image_scale(ref_img, fit_img, min_scale=2)
             normalized_local_range = min(normalized_local_range, max(ref_img.size))
         else:
             if min(*ref_img.size, *fit_img.size) == 0:
