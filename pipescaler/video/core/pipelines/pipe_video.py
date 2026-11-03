@@ -11,7 +11,6 @@ from typing import Any, Self
 
 import cv2
 
-from pipescaler.common.validation import val_output_path
 from pipescaler.core.pipelines.pipe_object import PipeObject
 
 __all__ = ["PipeVideo"]
@@ -91,14 +90,11 @@ class PipeVideo(PipeObject):
         self._video = video
 
     def save(self, path: Path | str):
-        """Save image to file and set path.
+        """Reject unsupported video encoding without changing state or files.
 
         Arguments:
-            path: Path to which to save image
+            path: requested output path
         Raises:
-            NotImplementedError: if the subclass does not implement this operation
+            NotImplementedError: always, because video encoding is unsupported
         """
-        path = val_output_path(path)
-        # TODO: save
-        self.path = path
-        raise NotImplementedError()
+        raise NotImplementedError("PipeVideo.save does not support video encoding")

@@ -152,21 +152,27 @@ def test_spandrel_preserves_singleton_spatial_dimensions(size: tuple[int, int]):
     ("output_shape", "error"),
     [((1, 1, 2, 2), r"shape \(1, 3, height, width\)"), ((1, 3, 0, 2), "non-empty")],
 )
+@pytest.mark.parametrize("array_input", [False, True])
 def test_spandrel_rejects_invalid_model_output(
-    output_shape: tuple[int, int, int, int], error: str
+    output_shape: tuple[int, int, int, int], error: str, array_input: bool
 ):
     """Test model output channel and spatial shape validation.
 
     Arguments:
         output_shape: model output dimensions
         error: expected error message
+        array_input: whether to call the array interface directly
     """
     processor = SpandrelProcessor.__new__(SpandrelProcessor)
     processor.device = "cpu"
     processor.model = cast(Any, _OutputModel(output_shape))
 
+    input_arr = np.zeros((2, 2, 3), dtype=np.uint8)
     with pytest.raises(ValueError, match=error):
-        processor.upscale(np.zeros((2, 2, 3), dtype=np.uint8))
+        if array_input:
+            processor.upscale(input_arr)
+        else:
+            processor(Image.fromarray(input_arr))
 
 
 def test_spandrel_rejects_invalid_input_channels():
@@ -223,3 +229,22 @@ def test_repr_round_trip(monkeypatch: pytest.MonkeyPatch):
             },
         )
         assert recreated.model_input_path == processor.model_input_path
+
+
+@pytest.mark.parametrize("mode", ["1", "L", "RGB"])
+def test_spandrel_restores_input_mode(mode: str):
+    """Preserve supported input modes through the shared array conversion.
+
+    Arguments:
+        mode: supported input image mode
+    """
+    processor = SpandrelProcessor.__new__(SpandrelProcessor)
+    processor.device = "cpu"
+    processor.model = cast(Any, _IdentityModel())
+    input_image = Image.new(mode, (2, 3), 0)
+
+    output_image = processor(input_image)
+
+    assert output_image.mode == mode
+    assert output_image.size == input_image.size
+    assert output_image.tobytes() == input_image.tobytes()
