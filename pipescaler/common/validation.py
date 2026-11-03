@@ -406,25 +406,35 @@ def val_input_file_or_dir_path(
 @overload
 def val_input_path(
     value: str | PathLike[str],
+    *,
+    must_exist: bool = True,
 ) -> Path: ...
 
 
 @overload
-def val_input_path(value: Iterable[str | PathLike[str]]) -> list[Path]: ...
+def val_input_path(
+    value: Iterable[str | PathLike[str]], *, must_exist: bool = True
+) -> list[Path]: ...
 
 
 def val_input_path(
     value: str | PathLike[str] | Iterable[str | PathLike[str]],
+    *,
+    must_exist: bool = True,
 ) -> Path | list[Path]:
     """Validate input file path(s) and make them absolute.
 
+    Missing paths are accepted with `must_exist=False` without creating files or
+    directories. Existing paths must still be files.
+
     Arguments:
         value: Path or paths to input files
+        must_exist: whether input files must already exist
     Returns:
         Validated path or paths
     Raises:
-        FileNotFoundError: If any file does not exist
-        NotAFileError: If any path is not a file
+        FileNotFoundError: if a file does not exist and must_exist is True
+        NotAFileError: if an existing path is not a file
         TypeError: If any value cannot be cast to Path
     """
 
@@ -436,8 +446,8 @@ def val_input_path(
         Returns:
             Validated path
         Raises:
-            FileNotFoundError: If path does not exist
-            NotAFileError: If path is not a file
+            FileNotFoundError: if the path does not exist and must_exist is True
+            NotAFileError: if an existing path is not a file
             TypeError: If value cannot be cast to Path
         """
         try:
@@ -449,9 +459,10 @@ def val_input_path(
                 f"{value_to_validate} is of type "
                 f"{type(value_to_validate)}, cannot be cast to Path"
             ) from exc
-        if not validated_value.exists():
+        exists = validated_value.exists()
+        if must_exist and not exists:
             raise FileNotFoundError(f"Input file {validated_value} does not exist")
-        if not validated_value.is_file():
+        if exists and not validated_value.is_file():
             raise NotAFileError(f"Input file {validated_value} is not a file")
         return validated_value
 

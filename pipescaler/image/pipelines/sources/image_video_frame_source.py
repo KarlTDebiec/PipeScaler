@@ -1,6 +1,6 @@
 #  Copyright 2020-2026 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
-"""Yields images from a video file."""
+"""Yields images from a video file or numbered image sequence."""
 
 from __future__ import annotations
 
@@ -12,8 +12,8 @@ from typing import Any, Self
 import cv2
 from PIL import Image
 
-from pipescaler.common.validation import val_input_path
 from pipescaler.image.core.pipelines import ImageSource, PipeImage
+from pipescaler.video.core.video_input import VideoInput
 
 __all__ = ["ImageVideoFrameSource"]
 
@@ -25,6 +25,11 @@ class ImageVideoFrameSource(ImageSource):
     `with` block when iteration may stop early. A positive integral frame count
     detects premature decoding failure, but never limits sequential reading.
     With no usable count, OpenCV cannot distinguish EOF from decoding failure.
+    Numbered sequences accept one `%d` or `%0Nd` placeholder in a filename or
+    directory, with contiguous indices starting at any nonnegative value.
+    Frames are RGB and receive six-digit names starting at `000001`, regardless
+    of input numbering. Sequence output locations include the directory name
+    and a stable identifier derived from the complete relative template.
     """
 
     def __init__(
@@ -36,26 +41,35 @@ class ImageVideoFrameSource(ImageSource):
         """Initialize and open the video.
 
         Arguments:
-            input_path: video file from which to yield images
+            input_path: video file or numbered image-sequence template
             location_path: path relative to parent directory
             **kwargs: additional keyword arguments
         Raises:
-            OSError: if the video cannot be opened
+            DirectoryNotFoundError: if the sequence root directory does not exist
+            FileNotFoundError: if the file or matching sequence frames do not exist
+            NotADirectoryError: if the sequence root is not a directory
+            TypeError: if the input cannot be cast to a path
+            ValueError: if a sequence template or its numbering is invalid
+            OSError: if the video or first sequence frame cannot be opened
         """
         super().__init__(**kwargs)
 
-        self.input_path = val_input_path(input_path)
-        """Path to video file."""
+        video_input = VideoInput(input_path)
+        self.input_path = video_input.input_path
+        """Absolute video file path or image-sequence template."""
         self.location_path = location_path
         """Path relative to parent directory."""
-        self.cap = cv2.VideoCapture(str(self.input_path))
+        self.cap = video_input.open_capture()
         """Capture owned by this source; released by `close()`."""
+        self._frame_location = video_input.name
+        if video_input.frame_paths is None:
+            self._frame_location = (
+                f"{self.input_path.stem}_{self.input_path.suffix.lstrip('.')}"
+            )
         self._closed = False
         self.index = 0
         """Number of successfully yielded frames."""
         try:
-            if not self.cap.isOpened():
-                raise OSError(f"Cannot open video '{self.input_path}'.")
             count = self.cap.get(cv2.CAP_PROP_FRAME_COUNT)
             if math.isfinite(count) and count > 0 and count.is_integer():
                 self.length = int(count)
@@ -119,9 +133,7 @@ class ImageVideoFrameSource(ImageSource):
                     f"in video '{self.input_path}'."
                 )
             img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-            location_path = Path(
-                f"{self.input_path.stem}_{self.input_path.suffix.lstrip('.')}"
-            )
+            location_path = Path(self._frame_location)
             if self.location_path:
                 location_path = self.location_path / location_path
             obj = PipeImage(
