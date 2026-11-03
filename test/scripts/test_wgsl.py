@@ -7,7 +7,7 @@ from __future__ import annotations
 import os
 import subprocess
 from pathlib import Path
-from shutil import copyfile
+from shutil import copy2, copyfile
 
 import pytest
 
@@ -59,7 +59,7 @@ def tool_checkout(checkout: Path) -> Path:
     for name in names:
         dest_file_path = checkout / "local/wgsl-tools" / name
         dest_file_path.parent.mkdir(parents=True, exist_ok=True)
-        copyfile(source_dir_path / name, dest_file_path)
+        copy2(source_dir_path / name, dest_file_path)
     return checkout
 
 
