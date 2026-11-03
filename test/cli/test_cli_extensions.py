@@ -130,7 +130,7 @@ def extension_site(tmp_path: Path) -> Path:
     site_dir_path = tmp_path / "site-packages"
     site_dir_path.mkdir()
     (site_dir_path / "sample_extension.py").write_text(
-        '''from pipescaler.common import CommandLineInterface
+        '''from pipescaler.common.cli import CommandLineInterface
 from pipescaler.image.cli.processors import ModeCli
 from pipescaler.image.cli.mergers import DiffMergerCli
 from pipescaler.image.cli.splitters import AlphaSplitterCli

@@ -11,7 +11,7 @@ from pathlib import Path
 
 import pytest
 
-from pipescaler.common import CommandLineInterface
+from pipescaler.common.cli import CommandLineInterface
 from pipescaler.common.testing import run_cli_with_args
 from pipescaler.image.cli import (
     ImageCli,

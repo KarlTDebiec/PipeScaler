@@ -12,7 +12,7 @@ from unittest.mock import patch
 import pytest
 
 import pipescaler.common.cli.entry_points as command_entries
-from pipescaler.common.command_line_interface import CommandLineInterface
+from pipescaler.common.cli.command_line_interface import CommandLineInterface
 
 
 class ExtraCli(CommandLineInterface):

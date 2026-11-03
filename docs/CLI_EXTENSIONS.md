@@ -1,9 +1,9 @@
 # CLI extensions
 
-Separately installed packages can add commands to the `pipescaler` executable
-through Python package entry points. PipeScaler discovers their CLI classes in
-the same Python environment and includes them in help and execution alongside
-its built-in commands.
+An installed package can add commands to `pipescaler` by declaring Python entry
+points. Each entry point names a command and identifies the class that implements
+it. Install the package in the same Python environment as PipeScaler; its commands
+then appear alongside the built-in commands.
 
 ## Supported locations
 
@@ -14,16 +14,15 @@ its built-in commands.
 | `pipescaler.cli.image.mergers` | `pipescaler image merge <command>` | `ImageMergerCli` |
 | `pipescaler.cli.image.splitters` | `pipescaler image split <command>` | `ImageSplitterCli` |
 
-Import `CommandLineInterface` from `pipescaler.common.command_line_interface`.
-The image CLI bases are available from `pipescaler.image.core.cli`. A root command
-can define its own command subtree using the existing CLI parser conventions.
-Nested commands implement the appropriate image CLI contract, including its
-`processor()`, `merger()`, or `splitter()` method.
+Import `CommandLineInterface` from `pipescaler.common.cli` and the image CLI bases
+from `pipescaler.image.core.cli`. Image commands implement the corresponding
+`processor()`, `merger()`, or `splitter()` method. Root commands can also contain
+subcommands; see [Command groups](#command-groups).
 
-## Minimal extension package
+## Example package
 
-This example registers a `textures` command that reports an image's dimensions.
-Create this package layout:
+This package adds `pipescaler textures`, which prints an image's dimensions.
+Create these files:
 
 ```text
 texture-tools/
@@ -65,7 +64,7 @@ from pipescaler.common.argument_parsing import (
     get_arg_groups_by_name,
     input_file_arg,
 )
-from pipescaler.common.command_line_interface import CommandLineInterface
+from pipescaler.common.cli import CommandLineInterface
 
 __all__ = ["TexturesCli"]
 
@@ -110,29 +109,26 @@ pipescaler textures --help
 pipescaler textures /path/to/image.png
 ```
 
-Installation creates the distribution metadata used for discovery. Merely
-placing an extension's source directory next to PipeScaler does not register it.
-Reinstall the extension after changing entry points in `pyproject.toml`, including
-for editable installations.
+Reinstall the package whenever you change its entry points in `pyproject.toml`,
+even with an editable installation. PipeScaler reads installed package metadata;
+a source directory alone does not register a command.
 
-## Naming and loading
+## Command names
 
-The entry-point value identifies a CLI **class**, not a class instance or its
-`main()` method. The class must be concrete and inherit the base for its group.
+An entry point refers to a concrete CLI class, rather than an instance or its
+`main()` method. Its name must match the class's `name()` result. The default
+removes a trailing `Cli` and lowercases the rest: `TexturesCli` becomes `textures`.
+Override `name()` to choose another spelling, and use that spelling in the entry
+point too.
 
-The entry-point name must match the class's `name()` result. By default,
-`CommandLineInterface.name()` removes a trailing `Cli` and lowercases the remaining
-class name, so `TexturesCli` registers as `textures`. Override `name()` when a
-different command spelling is needed, and use that spelling in the entry point.
-Duplicate names within a group are errors, including collisions with built-in
-commands. Extensions cannot replace existing commands.
+Names must be unique within each entry-point group. An extension cannot replace
+a built-in command or another extension's command.
 
-Command routing uses internal destinations qualified by the container's module
-and class. Ordinary extension parameters can therefore use names such as
-`domain`, `subcommand`, `processor`, `merger`, and `splitter`.
+## Command groups
 
-When an extension defines its own command subtree, use
-`cls.subcommand_dest()` consistently to register and read the selected command:
+An extension can group commands under a parent, such as `pipescaler textures info`.
+Use `cls.subcommand_dest()` in both the parent's parser setup and its `_main`
+method:
 
 ```python
 # Parser construction
@@ -140,22 +136,26 @@ subparsers = parser.add_subparsers(dest=cls.subcommand_dest(), required=True)
 for command in commands.values():
     command.argparser(subparsers=subparsers)
 
-# Dispatch inside the container's _main method
+# Dispatch inside the parent's _main method
 command_name = kwargs.pop(cls.subcommand_dest())
 commands[command_name]._main(**kwargs)
 ```
 
-The dotted destinations returned by this helper are reserved for routing metadata;
-extensions do not use them as argument destinations for their own data.
+Here, `commands` maps subcommand names to CLI classes. The helper gives each parent
+its own internal routing key. This leaves ordinary argument names such as `domain`
+and `processor` available to child commands. Do not use the helper's returned key
+for application data.
 
-PipeScaler loads extension classes while constructing the command parser. Keep
-expensive or optional imports inside execution methods when they are unnecessary
-for help or argument definitions. Loaded registrations are cached per group and
-base class for the lifetime of the Python process; parsing and dispatch reuse the
-same classes. Restart a long-running process after installing or removing an
-extension.
+## Loading and errors
 
-An invalid registration or failed import stops construction of the affected
-command tree with an error naming the command, distribution, and entry-point
-group. Original exceptions remain chained to that error. Extensions are not
-silently skipped, and discovery does not install packages or modify built-ins.
+PipeScaler imports extension CLI classes when it builds the parser, including for
+help. Keep expensive imports and optional dependencies inside execution methods
+when argument definitions do not need them.
+
+Command classes are loaded once per group and required base class in each Python
+process. Help and execution reuse those classes. Restart a long-running process
+after installing or removing an extension.
+
+An invalid registration or failed import stops parser construction. The error
+identifies the command, package, and entry-point group and preserves the original
+exception as its cause. PipeScaler does not silently skip broken extensions.

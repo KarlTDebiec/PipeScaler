@@ -13,7 +13,7 @@ import numpy as np
 import pytest
 from PIL import Image
 
-from pipescaler.common import CommandLineInterface
+from pipescaler.common.cli import CommandLineInterface
 from pipescaler.common.file import get_temp_directory_path, get_temp_file_path
 from pipescaler.common.testing import run_cli_with_args
 from pipescaler.image.cli import ImageProcessorsCli

@@ -62,11 +62,6 @@ CLI classes own their `argparse` command trees and help, validate inputs, and
 delegate processing to lower-level components. Keep library code independent of
 CLI adapters and process arguments.
 
-Installed packages can extend the root CLI and image processor, merger, and
-splitter registries through the [CLI extension contract](CLI_EXTENSIONS.md).
-Extensions expose existing CLI subclasses through package entry points;
-discovery and loading stay at the CLI boundary.
-
 `test/` mirrors the package layout. Shared assertions belong in `test/helpers.py`;
 portable subprocess cases belong in `test/common/subprocess_cases.py`. Pytest's
 configured root import path supports execution from the root or `test/` without

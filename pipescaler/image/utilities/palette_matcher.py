@@ -31,6 +31,7 @@ class PaletteMatcher(Utility):
         Small searches scan the reference directly. Larger searches use a tree
         only to exclude colors that cannot win under the existing weighted metric.
         Dense candidate batches fall back to a scan to bound temporary memory.
+
         Arguments:
             fit_palette: 8-bit RGB colors to match
             ref_palette: reference 8-bit RGB colors in tie-breaking order

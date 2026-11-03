@@ -22,7 +22,7 @@ from pathlib import Path
 from sys import argv
 from typing import Any
 
-from .logs import DEFAULT_LOG_FORMAT, configure_logging
+from pipescaler.common.logs import DEFAULT_LOG_FORMAT, configure_logging
 
 __all__ = ["CommandLineInterface"]
 
@@ -184,6 +184,7 @@ class CommandLineInterface(ABC):
 
         The qualified class name keeps routing metadata distinct between containers.
         Dots separate it from ordinary keyword arguments passed to leaf commands.
+
         Returns:
             namespaced destination used by both parser construction and dispatch
         """

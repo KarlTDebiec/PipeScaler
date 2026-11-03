@@ -74,6 +74,7 @@ def validate_image_scale(
     Both images must have nonzero dimensions. Matching dimensions are allowed
     when `min_scale` is 1; downscaling and different axis scales are unsupported.
     Image modes and pixel values do not affect dimension validation.
+
     Arguments:
         reference: image whose dimensions define scale 1
         target: image whose dimensions must be an integer multiple of reference

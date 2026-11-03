@@ -11,7 +11,7 @@ from typing import get_type_hints
 import pytest
 from PIL import Image
 
-from pipescaler.common import CommandLineInterface
+from pipescaler.common.cli import CommandLineInterface
 from pipescaler.image.cli import ImageMergersCli, ImageProcessorsCli, ImageSplittersCli
 from pipescaler.image.cli.mergers import (
     AlphaMergerCli,

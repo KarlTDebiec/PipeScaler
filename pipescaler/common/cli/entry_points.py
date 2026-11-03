@@ -9,7 +9,7 @@ from functools import cache
 from importlib.metadata import entry_points
 from inspect import isabstract
 
-from pipescaler.common.command_line_interface import CommandLineInterface
+from .command_line_interface import CommandLineInterface
 
 __all__ = ["get_cli_commands"]
 
@@ -21,6 +21,7 @@ def get_cli_commands[T: CommandLineInterface](
 
     Extension classes are loaded once per group and required base class per
     process. Each call returns a fresh registry so callers cannot mutate the cache.
+
     Arguments:
         builtins: built-in commands whose names extensions cannot replace
         group: package entry-point group to discover

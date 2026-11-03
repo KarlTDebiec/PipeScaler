@@ -1,6 +1,6 @@
 #  Copyright 2017-2026 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
-"""Tests of common.command_line_interface."""
+"""Tests for the shared command-line interface base class."""
 
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ from unittest.mock import patch
 
 from pytest import MonkeyPatch, raises
 
-from pipescaler.common.command_line_interface import CommandLineInterface
+from pipescaler.common.cli.command_line_interface import CommandLineInterface
 from pipescaler.common.testing import run_cli_with_args
 from test import helpers
 from test.helpers import parametrize
@@ -206,9 +206,12 @@ def test_argparser_with_subparsers():
 def test_log_command_line():
     """Test log_command_line() logs the command line."""
     with patch(
-        "pipescaler.common.command_line_interface.argv", ["script.py", "arg1", "arg2"]
+        "pipescaler.common.cli.command_line_interface.argv",
+        ["script.py", "arg1", "arg2"],
     ):
-        with patch("pipescaler.common.command_line_interface.logger.info") as mock_info:
+        with patch(
+            "pipescaler.common.cli.command_line_interface.logger.info"
+        ) as mock_info:
             TestCli.log_command_line()
             mock_info.assert_called_once()
             call_args = mock_info.call_args[0][0]
@@ -233,7 +236,7 @@ def test_main_explicit_arguments(arguments: Sequence[str]):
     with patch("sys.argv", ["test_script.py", "--invalid-process-option"]):
         with patch.object(TestCli, "_main") as mock_main:
             with patch(
-                "pipescaler.common.command_line_interface.configure_logging"
+                "pipescaler.common.cli.command_line_interface.configure_logging"
             ) as mock_logging:
                 TestCli.main(arguments)
 
@@ -335,7 +338,7 @@ def test_common_options_do_not_leak_between_parses():
 
     with patch.object(TestCli, "_main"):
         with patch(
-            "pipescaler.common.command_line_interface.configure_logging"
+            "pipescaler.common.cli.command_line_interface.configure_logging"
         ) as mock_logging:
             TestCli.main(["-vv"])
             TestCli.main([])

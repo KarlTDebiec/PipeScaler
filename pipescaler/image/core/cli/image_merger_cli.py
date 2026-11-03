@@ -7,7 +7,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from inspect import cleandoc
 
-from pipescaler.common import CommandLineInterface
+from pipescaler.common.cli import CommandLineInterface
 from pipescaler.image.core.operators import ImageMerger
 
 __all__ = ["ImageMergerCli"]
