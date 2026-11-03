@@ -7,11 +7,9 @@ from __future__ import annotations
 import pytest
 from PIL import Image
 
+from pipescaler.image.core.exceptions import UnsupportedImageModeError
 from pipescaler.image.operators.mergers import AlphaMerger
-from pipescaler.image.testing import (
-    get_expected_output_mode,
-    xfail_unsupported_image_mode,
-)
+from pipescaler.image.testing import get_expected_output_mode
 from pipescaler.testing.file import get_test_input_path
 from pipescaler.testing.fixture import parametrized_fixture
 
@@ -34,31 +32,38 @@ def merger(request: pytest.FixtureRequest) -> AlphaMerger:
 
 
 @pytest.mark.parametrize(
-    ("color", "alpha"),
+    ("color", "alpha", "supported"),
     [
-        ("split/LA_color_L", "split/LA_alpha_L"),
-        ("split/RGBA_color_RGB", "split/RGBA_alpha_L"),
-        ("split/RGBA_color_PRGB", "split/RGBA_alpha_PL"),
-        xfail_unsupported_image_mode()("RGB", "RGB"),
-        xfail_unsupported_image_mode()("RGB", "RGBA"),
-        xfail_unsupported_image_mode()("RGBA", "L"),
-        ("split/LA_color_PL", "split/LA_alpha_PL"),
-        ("split/RGBA_monochrome_color_RGB", "split/RGBA_monochrome_alpha_1"),
+        ("split/LA_color_L", "split/LA_alpha_L", True),
+        ("split/RGBA_color_RGB", "split/RGBA_alpha_L", True),
+        ("split/RGBA_color_PRGB", "split/RGBA_alpha_PL", True),
+        ("RGB", "RGB", False),
+        ("RGB", "RGBA", False),
+        ("RGBA", "L", False),
+        ("split/LA_color_PL", "split/LA_alpha_PL", True),
+        ("split/RGBA_monochrome_color_RGB", "split/RGBA_monochrome_alpha_1", True),
     ],
 )
-def test(color: str, alpha: str, merger: AlphaMerger):
+def test(color: str, alpha: str, merger: AlphaMerger, supported: bool):
     """Test AlphaMerger with various color and alpha channel combinations.
 
     Arguments:
         color: Color image filename
         alpha: Alpha channel image filename
         merger: AlphaMerger fixture instance
+        supported: whether the input modes are accepted
     """
     color_input_path = get_test_input_path(color)
     color_img = Image.open(color_input_path)
     alpha_input_file = get_test_input_path(alpha)
     alpha_img = Image.open(alpha_input_file)
 
+    if not supported:
+        with pytest.raises(
+            UnsupportedImageModeError, match="is not among supported modes"
+        ):
+            merger(color_img, alpha_img)
+        return
     output_img = merger(color_img, alpha_img)
 
     if get_expected_output_mode(color_img) == "L":

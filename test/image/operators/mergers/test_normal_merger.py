@@ -7,8 +7,8 @@ from __future__ import annotations
 import pytest
 from PIL import Image
 
+from pipescaler.image.core.exceptions import UnsupportedImageModeError
 from pipescaler.image.operators.mergers import NormalMerger
-from pipescaler.image.testing import xfail_unsupported_image_mode
 from pipescaler.testing.file import get_test_input_path
 from pipescaler.testing.fixture import parametrized_fixture
 
@@ -31,16 +31,21 @@ def merger(request: pytest.FixtureRequest) -> NormalMerger:
 
 
 @pytest.mark.parametrize(
-    ("x", "y", "z"),
+    ("x", "y", "z", "supported"),
     [
-        ("split/RGB_normal_x_L", "split/RGB_normal_y_L", "split/RGB_normal_z_L"),
-        xfail_unsupported_image_mode()("RGB", "L", "L"),
-        xfail_unsupported_image_mode()("L", "RGB", "L"),
-        xfail_unsupported_image_mode()("L", "L", "RGB"),
-        ("split/RGB_normal_x_PL", "split/RGB_normal_y_PL", "split/RGB_normal_z_PL"),
+        ("split/RGB_normal_x_L", "split/RGB_normal_y_L", "split/RGB_normal_z_L", True),
+        ("RGB", "L", "L", False),
+        ("L", "RGB", "L", False),
+        ("L", "L", "RGB", False),
+        (
+            "split/RGB_normal_x_PL",
+            "split/RGB_normal_y_PL",
+            "split/RGB_normal_z_PL",
+            True,
+        ),
     ],
 )
-def test(x: str, y: str, z: str, merger: NormalMerger):
+def test(x: str, y: str, z: str, merger: NormalMerger, supported: bool):
     """Test NormalMerger with X, Y, and Z normal map channels.
 
     Arguments:
@@ -48,6 +53,7 @@ def test(x: str, y: str, z: str, merger: NormalMerger):
         y: Y channel normal map filename
         z: Z channel normal map filename
         merger: NormalMerger fixture instance
+        supported: whether the input modes are accepted
     """
     x_input_path = get_test_input_path(x)
     x_img = Image.open(x_input_path)
@@ -56,6 +62,12 @@ def test(x: str, y: str, z: str, merger: NormalMerger):
     z_input_path = get_test_input_path(z)
     z_img = Image.open(z_input_path)
 
+    if not supported:
+        with pytest.raises(
+            UnsupportedImageModeError, match="is not among supported modes"
+        ):
+            merger(x_img, y_img, z_img)
+        return
     output_img = merger(x_img, y_img, z_img)
 
     assert output_img.mode == "RGB"

@@ -11,12 +11,10 @@ import pytest
 from PIL import Image
 
 from pipescaler.image.core import PaletteMatchMode
+from pipescaler.image.core.exceptions import UnsupportedImageModeError
 from pipescaler.image.core.functions import get_palette, remove_palette
 from pipescaler.image.operators.mergers import PaletteMatchMerger
-from pipescaler.image.testing import (
-    get_expected_output_mode,
-    xfail_unsupported_image_mode,
-)
+from pipescaler.image.testing import get_expected_output_mode
 from pipescaler.image.utilities import (
     LocalPaletteMatcher,
     PaletteMatcher,
@@ -48,21 +46,22 @@ def merger(request: pytest.FixtureRequest) -> PaletteMatchMerger:
 
 
 @pytest.mark.parametrize(
-    ("ref", "fit"),
+    ("ref", "fit", "supported"),
     [
-        ("PL", "L"),
-        xfail_unsupported_image_mode()("PLA", "LA"),
-        ("PRGB", "RGB"),
-        xfail_unsupported_image_mode()("PRGBA", "RGBA"),
+        ("PL", "L", True),
+        ("PLA", "LA", False),
+        ("PRGB", "RGB", True),
+        ("PRGBA", "RGBA", False),
     ],
 )
-def test(ref: str, fit: str, merger: PaletteMatchMerger):
+def test(ref: str, fit: str, merger: PaletteMatchMerger, supported: bool):
     """Test PaletteMatchMerger with reference and fit images.
 
     Arguments:
         ref: Reference image filename with palette
         fit: Image to fit to reference palette filename
         merger: PaletteMatchMerger fixture instance
+        supported: whether the input modes are accepted
     """
     ref_input_path = get_test_input_path(ref)
     ref_img = Image.open(ref_input_path)
@@ -71,6 +70,12 @@ def test(ref: str, fit: str, merger: PaletteMatchMerger):
 
     if merger.palette_match_mode == PaletteMatchMode.LOCAL:
         fit_img = fit_img.resize((ref_img.width * 2, ref_img.height * 2))
+    if not supported:
+        with pytest.raises(
+            UnsupportedImageModeError, match="is not among supported modes"
+        ):
+            merger(ref_img, fit_img)
+        return
     output_img = merger(ref_img, fit_img)
 
     if get_expected_output_mode(fit_img) == "L":

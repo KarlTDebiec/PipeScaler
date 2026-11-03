@@ -9,11 +9,9 @@ import pytest
 from PIL import Image
 
 from pipescaler.image.core import AlphaMode, MaskFillMode
+from pipescaler.image.core.exceptions import UnsupportedImageModeError
 from pipescaler.image.operators.splitters import AlphaSplitter
-from pipescaler.image.testing import (
-    get_expected_output_mode,
-    xfail_unsupported_image_mode,
-)
+from pipescaler.image.testing import get_expected_output_mode
 from pipescaler.image.utilities import MaskFiller
 from pipescaler.testing.file import get_test_input_path
 from pipescaler.testing.fixture import parametrized_fixture
@@ -52,27 +50,34 @@ def splitter(request: pytest.FixtureRequest) -> AlphaSplitter:
 
 
 @pytest.mark.parametrize(
-    "input_filename",
+    ("input_filename", "supported"),
     [
-        xfail_unsupported_image_mode()("1"),
-        xfail_unsupported_image_mode()("L"),
-        "LA",
-        xfail_unsupported_image_mode()("RGB"),
-        "RGBA",
-        "PLA",
-        "PRGBA",
-        "novel/RGBA_monochrome",
+        ("1", False),
+        ("L", False),
+        ("LA", True),
+        ("RGB", False),
+        ("RGBA", True),
+        ("PLA", True),
+        ("PRGBA", True),
+        ("novel/RGBA_monochrome", True),
     ],
 )
-def test(input_filename: str, splitter: AlphaSplitter):
+def test(input_filename: str, splitter: AlphaSplitter, supported: bool):
     """Test AlphaSplitter with various image modes containing alpha channels.
 
     Arguments:
         input_filename: Input image filename
         splitter: AlphaSplitter fixture instance
+        supported: whether the input modes are accepted
     """
     input_path = get_test_input_path(input_filename)
     input_img = Image.open(input_path)
+    if not supported:
+        with pytest.raises(
+            UnsupportedImageModeError, match="is not among supported modes"
+        ):
+            splitter(input_img)
+        return
     color_img, alpha_img = splitter(input_img)
 
     assert color_img.mode in splitter.outputs()["color"]

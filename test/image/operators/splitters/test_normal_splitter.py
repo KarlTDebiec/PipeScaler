@@ -7,8 +7,8 @@ from __future__ import annotations
 import pytest
 from PIL import Image
 
+from pipescaler.image.core.exceptions import UnsupportedImageModeError
 from pipescaler.image.operators.splitters import NormalSplitter
-from pipescaler.image.testing import xfail_unsupported_image_mode
 from pipescaler.testing.file import get_test_input_path
 from pipescaler.testing.fixture import parametrized_fixture
 
@@ -31,26 +31,33 @@ def splitter(request: pytest.FixtureRequest) -> NormalSplitter:
 
 
 @pytest.mark.parametrize(
-    "input_filename",
+    ("input_filename", "supported"),
     [
-        xfail_unsupported_image_mode()("1"),
-        xfail_unsupported_image_mode()("L"),
-        xfail_unsupported_image_mode()("LA"),
-        "RGB",
-        xfail_unsupported_image_mode()("RGBA"),
-        "PRGB",
-        "novel/RGB_normal",
+        ("1", False),
+        ("L", False),
+        ("LA", False),
+        ("RGB", True),
+        ("RGBA", False),
+        ("PRGB", True),
+        ("novel/RGB_normal", True),
     ],
 )
-def test(input_filename: str, splitter: NormalSplitter):
+def test(input_filename: str, splitter: NormalSplitter, supported: bool):
     """Test NormalSplitter with various normal map images.
 
     Arguments:
         input_filename: Input image filename
         splitter: NormalSplitter fixture instance
+        supported: whether the input modes are accepted
     """
     input_path = get_test_input_path(input_filename)
     input_img = Image.open(input_path)
+    if not supported:
+        with pytest.raises(
+            UnsupportedImageModeError, match="is not among supported modes"
+        ):
+            splitter(input_img)
+        return
     x_img, y_img, z_img = splitter(input_img)
 
     assert x_img.mode == "L"
