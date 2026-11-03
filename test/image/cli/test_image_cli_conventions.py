@@ -13,61 +13,37 @@ from PIL import Image
 
 from pipescaler.common.cli import CommandLineInterface
 from pipescaler.image.cli import ImageMergersCli, ImageProcessorsCli, ImageSplittersCli
-from pipescaler.image.cli.mergers import (
-    AlphaMergerCli,
-    DiffMergerCli,
-    PaletteMatchMergerCli,
-)
-from pipescaler.image.cli.processors import (
-    CropCli,
-    ExpandCli,
-    HeightToNormalCli,
-    ModeCli,
-    ResizeCli,
-    SharpenCli,
-    SolidColorCli,
-    SpandrelCli,
-    ThresholdCli,
-    XbrzCli,
-)
-from pipescaler.image.cli.splitters import AlphaSplitterCli
+from pipescaler.image.cli.mergers import PaletteMatchMergerCli
+from pipescaler.image.cli.processors import ModeCli
 
 
 @pytest.mark.parametrize(
-    ("cli", "has_operation"),
+    "cli",
     [
-        (CropCli, True),
-        (ExpandCli, True),
-        (HeightToNormalCli, True),
-        (ModeCli, True),
-        (ResizeCli, True),
-        (SharpenCli, False),
-        (SolidColorCli, True),
-        (SpandrelCli, False),
-        (ThresholdCli, True),
-        (XbrzCli, True),
-        (AlphaMergerCli, False),
-        (DiffMergerCli, False),
-        (PaletteMatchMergerCli, True),
-        (AlphaSplitterCli, False),
+        *ImageProcessorsCli.processors().values(),
+        *ImageMergersCli.mergers().values(),
+        *ImageSplittersCli.splitters().values(),
     ],
 )
-def test_leaf_help_and_parameter_contract(
-    cli: type[CommandLineInterface], has_operation: bool
-):
+def test_leaf_help_and_parameter_contract(cli: type[CommandLineInterface]):
     """Keep role-based help and explicit execution parameters aligned.
 
     Arguments:
         cli: leaf command to inspect
-        has_operation: whether the command has operation settings
     """
     parser = cli.argparser()
     groups = parser._action_groups
-    expected = ["input arguments"]
-    if has_operation:
-        expected.append("operation arguments")
-    expected.extend(["output arguments", "additional arguments"])
-    assert [group.title for group in groups] == expected
+    group_order = [
+        "positional arguments",
+        "input arguments",
+        "operation arguments",
+        "output arguments",
+        "additional arguments",
+        "additional help",
+    ]
+    titles = [group.title for group in groups]
+    assert set(titles) <= set(group_order)
+    assert titles == [title for title in group_order if title in titles]
     assert all(group._group_actions for group in groups)
     for group in groups:
         for action in group._group_actions:

@@ -58,3 +58,27 @@ def test(input_filename: str, processor: SolidColorProcessor):
     assert output_img.mode == get_expected_output_mode(input_img)
     assert output_img.size == input_img.size
     assert len(output_img.getcolors()) == 1
+
+
+@pytest.mark.parametrize("mode", ["L", "RGBA"])
+def test_solid_color_averages_channels_and_scales(mode: str):
+    """Fill the scaled output with each channel's mean, including alpha.
+
+    Arguments:
+        mode: grayscale or multichannel image mode
+    """
+    image = Image.new("RGBA", (2, 1))
+    image.putpixel((0, 0), (20, 40, 60, 80))
+    image.putpixel((1, 0), (100, 120, 140, 160))
+    if mode == "L":
+        image = Image.new("L", (2, 1))
+        image.putdata([20, 100])
+        expected_color = 60
+    else:
+        expected_color = (60, 80, 100, 120)
+
+    output_image = SolidColorProcessor(scale=2)(image)
+
+    assert output_image.mode == mode
+    assert output_image.size == (4, 2)
+    assert output_image.getcolors() == [(8, expected_color)]
