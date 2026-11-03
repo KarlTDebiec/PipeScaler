@@ -5,7 +5,7 @@
 This module may import from: common, core, image.core
 
 Package hierarchy (modules may import from any above):
-* local_palette_matcher / palette_matcher
+* local_palette_matcher / palette_matcher / potrace
 * palette_shader_matcher / mask_filler
 """
 
