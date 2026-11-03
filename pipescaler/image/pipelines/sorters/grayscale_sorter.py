@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from logging import info
+from logging import getLogger
 
 import numpy as np
 from PIL import Image
@@ -14,6 +14,8 @@ from pipescaler.image.core.pipelines import ImageSorter, PipeImage
 from pipescaler.image.core.validation import validate_image
 
 __all__ = ["GrayscaleSorter"]
+
+logger = getLogger(__name__)
 
 
 class GrayscaleSorter(ImageSorter):
@@ -52,7 +54,7 @@ class GrayscaleSorter(ImageSorter):
         else:
             outlet = "no_rgb"
 
-        info(f"{self}: '{obj.location_name}' matches '{outlet}'")
+        logger.info(f"{self}: '{obj.location_name}' matches '{outlet}'")
         return outlet
 
     def __repr__(self) -> str:

@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from logging import info
+from logging import getLogger
 
 import cv2
 import numpy as np
@@ -12,6 +12,8 @@ import numpy as np
 from pipescaler.video.core.pipelines import PipeVideo, VideoSorter
 
 __all__ = ["VideoAspectRatioSorter"]
+
+logger = getLogger(__name__)
 
 
 class VideoAspectRatioSorter(VideoSorter):
@@ -42,9 +44,9 @@ class VideoAspectRatioSorter(VideoSorter):
             if str(np.round(width / height, precision)) == aspect_ratio:
                 outlet = outlet_name
         if outlet:
-            info(f"{self}: '{obj.location_name}' matches '{outlet}'")
+            logger.info(f"{self}: '{obj.location_name}' matches '{outlet}'")
         else:
-            info(f"{self}: '{obj.location_name}' does not match any outlet")
+            logger.info(f"{self}: '{obj.location_name}' does not match any outlet")
         return outlet
 
     def __repr__(self) -> str:

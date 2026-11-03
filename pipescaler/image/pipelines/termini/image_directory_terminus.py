@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from logging import info
+from logging import getLogger
 from os import utime
 from shutil import copyfile
 
@@ -16,6 +16,8 @@ from pipescaler.core.pipelines import DirectoryTerminus
 from pipescaler.image.core.pipelines import ImageTerminus, PipeImage
 
 __all__ = ["ImageDirectoryTerminus"]
+
+logger = getLogger(__name__)
 
 
 class ImageDirectoryTerminus(ImageTerminus, DirectoryTerminus[PipeImage]):
@@ -36,10 +38,10 @@ class ImageDirectoryTerminus(ImageTerminus, DirectoryTerminus[PipeImage]):
             """Save image, by copying file if possible."""
             if not self.dir_path.exists():
                 self.dir_path.mkdir(parents=True)
-                info(f"{self}: '{self.dir_path}' created")
+                logger.info(f"{self}: '{self.dir_path}' created")
             if not output_path.parent.exists():
                 output_path.parent.mkdir(parents=True)
-                info(
+                logger.info(
                     f"{self}: '{output_path.parent.relative_to(self.dir_path)}' created"
                 )
             if input_obj.path:
@@ -55,18 +57,18 @@ class ImageDirectoryTerminus(ImageTerminus, DirectoryTerminus[PipeImage]):
                 input_obj.path
                 and output_path.stat().st_mtime > input_obj.path.stat().st_mtime
             ):
-                info(f"{self}: '{output_path}' is newer; not overwritten")
+                logger.info(f"{self}: '{output_path}' is newer; not overwritten")
                 return
             if np.array_equal(
                 np.array(input_obj.image), np.array(Image.open(output_path))
             ):
-                info(f"{self}: '{output_path}' unchanged; not overwritten")
+                logger.info(f"{self}: '{output_path}' unchanged; not overwritten")
                 epoch = datetime.now().timestamp()
                 utime(output_path, (epoch, epoch))
-                info(f"{self}: '{output_path}' timestamp updated")
+                logger.info(f"{self}: '{output_path}' timestamp updated")
                 return
             save_image()
-            info(f"{self}: '{output_path}' changed; overwritten")
+            logger.info(f"{self}: '{output_path}' changed; overwritten")
             return
         save_image()
-        info(f"{self}: '{output_path}' saved")
+        logger.info(f"{self}: '{output_path}' saved")

@@ -181,7 +181,7 @@ def test_conflicting_outlets(
         assert sorter(image) == expected_outlet
         assert caplog.record_tuples == [
             (
-                "root",
+                "pipescaler.pipelines.sorters.list_sorter",
                 WARNING,
                 f"{message}; last configured outlet wins",
             )

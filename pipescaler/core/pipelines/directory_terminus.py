@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from abc import ABC
-from logging import info
+from logging import getLogger
 from os import remove, rmdir
 from pathlib import Path
 
@@ -15,6 +15,8 @@ from .pipe_object import PipeObject
 from .terminus import Terminus
 
 __all__ = ["DirectoryTerminus"]
+
+logger = getLogger(__name__)
 
 
 class DirectoryTerminus[T: PipeObject](Terminus[T], ABC):
@@ -54,9 +56,11 @@ class DirectoryTerminus[T: PipeObject](Terminus[T], ABC):
                 relative_path = path.relative_to(self.dir_path)
                 if str(relative_path) not in self.observed_files:
                     remove(path)
-                    info(f"{self}: '{relative_path}' removed")
+                    logger.info(f"{self}: '{relative_path}' removed")
             else:
                 raise ValueError(f"Unsupported path type: {path}")
         if not any(dir_path.iterdir()) and dir_path != self.dir_path:
             rmdir(dir_path)
-            info(f"{self}: directory '{dir_path.relative_to(self.dir_path)}' removed")
+            logger.info(
+                f"{self}: directory '{dir_path.relative_to(self.dir_path)}' removed"
+            )

@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
-from logging import info
+from logging import getLogger
 
 from PIL import Image
 
@@ -16,6 +16,8 @@ from pipescaler.image.core.pipelines import PipeImage
 from .image_runner_segment import ImageRunnerSegment
 
 __all__ = ["PostCheckpointedImageRunnerSegment"]
+
+logger = getLogger(__name__)
 
 
 class PostCheckpointedImageRunnerSegment(CheckpointedSegment):
@@ -67,7 +69,7 @@ class PostCheckpointedImageRunnerSegment(CheckpointedSegment):
             input_objs, [cpt_path]
         ):
             output = PipeImage(path=cpt_path, parents=input_objs)
-            info(
+            logger.info(
                 f"{self}: '{input_objs[0].location_name}' checkpoints "
                 f"'{self.cpts}' loaded"
             )
@@ -87,7 +89,9 @@ class PostCheckpointedImageRunnerSegment(CheckpointedSegment):
                     image.load()
                 temp_cpt_path.replace(cpt_path)
             output = PipeImage(path=cpt_path, parents=input_objs[0])
-            info(f"{self}: '{output.location_name}' checkpoint '{self.cpts[0]}' saved")
+            logger.info(
+                f"{self}: '{output.location_name}' checkpoint '{self.cpts[0]}' saved"
+            )
         self.cp_manager.observe(input_objs[0].location_name, self.cpts[0])
 
         return (output,)

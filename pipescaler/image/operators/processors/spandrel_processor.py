@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from logging import warning
+from logging import getLogger
 from pathlib import Path
 from typing import Any, cast
 
@@ -19,6 +19,8 @@ from pipescaler.image.core.typing import ImageMode
 from pipescaler.image.core.validation import validate_image_and_convert_mode
 
 __all__ = ["SpandrelProcessor"]
+
+logger = getLogger(__name__)
 
 
 class SpandrelProcessor(ImageProcessor):
@@ -61,7 +63,7 @@ class SpandrelProcessor(ImageProcessor):
             # Fallback to CPU (seen occasionally with MPS for some layers)
             self.device = "cpu"
             self.model = self.model.to(self.device)
-            warning(
+            logger.warning(
                 f"{self.__class__.__name__}: Torch raised '{exc}' on device placement; "
                 "falling back to CPU."
             )

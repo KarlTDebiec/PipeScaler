@@ -5,12 +5,14 @@
 from __future__ import annotations
 
 import re
-from logging import info
+from logging import getLogger
 
 from pipescaler.core.pipelines import PipeObject
 from pipescaler.core.pipelines.sorter import Sorter
 
 __all__ = ["RegexSorter"]
+
+logger = getLogger(__name__)
 
 
 class RegexSorter(Sorter[PipeObject]):
@@ -36,7 +38,7 @@ class RegexSorter(Sorter[PipeObject]):
             outlet = "matched"
         else:
             outlet = "unmatched"
-        info(f"{self}: '{obj.location_name}' matches '{outlet}'")
+        logger.info(f"{self}: '{obj.location_name}' matches '{outlet}'")
         return outlet
 
     def __repr__(self) -> str:

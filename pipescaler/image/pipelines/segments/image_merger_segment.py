@@ -4,12 +4,14 @@
 
 from __future__ import annotations
 
-from logging import info
+from logging import getLogger
 
 from pipescaler.image.core.operators import ImageMerger
 from pipescaler.image.core.pipelines import ImageOperatorSegment, PipeImage
 
 __all__ = ["ImageMergerSegment"]
+
+logger = getLogger(__name__)
 
 
 class ImageMergerSegment(ImageOperatorSegment[ImageMerger]):
@@ -34,6 +36,6 @@ class ImageMergerSegment(ImageOperatorSegment[ImageMerger]):
         input_images = tuple(i.image for i in input_objs)
         output_image = self.operator(*input_images)
         output = PipeImage(image=output_image, parents=input_objs)
-        info(f"{self.operator}: '{output.location_name}' merged")
+        logger.info(f"{self.operator}: '{output.location_name}' merged")
 
         return (output,)

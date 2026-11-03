@@ -7,7 +7,7 @@ from __future__ import annotations
 import re
 from collections.abc import Iterable, Sequence
 from itertools import chain
-from logging import debug, info
+from logging import getLogger
 from os import remove, rmdir
 from pathlib import Path
 from shutil import copy, move
@@ -20,6 +20,8 @@ from pipescaler.common.validation import val_input_dir_path
 from pipescaler.core import Utility
 
 __all__ = ["FileScanner"]
+
+logger = getLogger(__name__)
 
 
 class FileScanner(Utility):
@@ -110,9 +112,9 @@ class FileScanner(Utility):
         if self.copy_dir_path.exists():
             for file_path in self.copy_dir_path.iterdir():
                 remove(file_path)
-                info(f"'{file_path}' removed")
+                logger.info(f"'{file_path}' removed")
             rmdir(self.copy_dir_path)
-            info(f"'{self.copy_dir_path}' removed")
+            logger.info(f"'{self.copy_dir_path}' removed")
 
         # Remove remove directory, if it exists
         if self.remove_dir_path.exists():
@@ -125,7 +127,7 @@ class FileScanner(Utility):
                         self.remove(match)
                 self.remove(file_path)
             rmdir(self.remove_dir_path)
-            info(f"'{self.remove_dir_path}' removed")
+            logger.info(f"'{self.remove_dir_path}' removed")
 
     def copy(self, file_path: Path):
         """Copy file to copy directory.
@@ -135,7 +137,7 @@ class FileScanner(Utility):
         """
         if not self.copy_dir_path.exists():
             self.copy_dir_path.mkdir(parents=True)
-            info(f"'{self.copy_dir_path}' created")
+            logger.info(f"'{self.copy_dir_path}' created")
 
         output_name = self.get_output_name(file_path)
 
@@ -203,7 +205,7 @@ class FileScanner(Utility):
         """
         if not self.move_dir_path.exists():
             self.move_dir_path.mkdir(parents=True)
-            info(f"'{self.move_dir_path}' created")
+            logger.info(f"'{self.move_dir_path}' created")
 
         output_name = self.get_output_name(file_path)
 
@@ -227,24 +229,24 @@ class FileScanner(Utility):
             ValueError: if input values or configuration are invalid
         """
         if not file_path.exists():
-            debug(f"'{file_path.stem}' missing")
+            logger.debug(f"'{file_path.stem}' missing")
             return
 
         operation = self.get_operation(file_path.stem)
 
         match operation:
             case "known":
-                debug(f"'{file_path.stem}' known")
+                logger.debug(f"'{file_path.stem}' known")
             case "ignore":
-                debug(f"'{file_path.stem}' ignored")
+                logger.debug(f"'{file_path.stem}' ignored")
             case "remove":
                 self.remove(file_path)
             case "copy":
                 self.copy(file_path)
-                info(f"'{file_path.stem}' copied")
+                logger.info(f"'{file_path.stem}' copied")
             case "move":
                 self.move(file_path)
-                info(f"'{file_path.stem}' moved")
+                logger.info(f"'{file_path.stem}' moved")
             case _:
                 raise ValueError(f"Unknown operation '{operation}'")
 
@@ -256,7 +258,7 @@ class FileScanner(Utility):
         """
         if file_path.exists():
             remove(file_path)
-            info(f"'{file_path.stem}' removed")
+            logger.info(f"'{file_path.stem}' removed")
 
     @classmethod
     def run(cls, **kwargs: Any):
