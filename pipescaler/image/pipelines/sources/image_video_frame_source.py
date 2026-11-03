@@ -28,8 +28,8 @@ class ImageVideoFrameSource(ImageSource):
     Numbered sequences accept one `%d` or `%0Nd` placeholder in a filename or
     directory, with contiguous indices starting at any nonnegative value.
     Frames are RGB and receive six-digit names starting at `000001`, regardless
-    of input numbering. Sequence frames share the name of the directory before
-    the numbered component as their output location.
+    of input numbering. Sequence output locations include the directory name
+    and a stable identifier derived from the complete relative template.
     """
 
     def __init__(

@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import re
+from hashlib import sha256
 from os.path import expanduser, expandvars
 from pathlib import Path
 
@@ -40,7 +41,7 @@ class VideoInput:
         self.frame_paths: tuple[Path, ...] | None = None
         """Numerically ordered frames, or None for a concrete video file."""
         self.name = self.input_path.stem
-        """File stem or containing sequence directory name."""
+        """File stem or sequence directory name with a stable template identifier."""
         if self.input_path.is_file() or "%" not in str(self.input_path):
             self.input_path = val_input_path(self.input_path)
             return
@@ -84,7 +85,9 @@ class VideoInput:
                     f"in '{self.input_path}'."
                 )
         self.frame_paths = tuple(path for _, path in matches)
-        self.name = root_path.name or "frames"
+        relative_template = self.input_path.relative_to(root_path).as_posix()
+        template_id = sha256(relative_template.encode("utf-8")).hexdigest()[:16]
+        self.name = f"{root_path.name or 'frames'}_{template_id}"
 
     def __repr__(self) -> str:
         """Return a reconstructible input specification.

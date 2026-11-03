@@ -129,7 +129,8 @@ def test_sequence_resolution(tmp_path: Path, pattern: str, start: int):
     assert video_input.frame_paths == tuple(
         tmp_path / "frames" / (pattern % index) for index in range(start, start + 3)
     )
-    assert video_input.name == "frames"
+    assert video_input.name.startswith("frames_")
+    assert eval(repr(video_input)).name == video_input.name
     assert eval(repr(video_input)).frame_paths == video_input.frame_paths
     with pytest.raises(FileNotFoundError):
         val_input_path(input_path)

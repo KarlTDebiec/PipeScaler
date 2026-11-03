@@ -10,6 +10,7 @@ import cv2
 import pytest
 
 from pipescaler.video.core.pipelines import PipeVideo
+from pipescaler.video.core.video_input import VideoInput
 from test.scripts.generate_video_inputs import write_image_sequence, write_video
 
 
@@ -25,8 +26,8 @@ def test_image_sequence_input(tmp_path: Path, pattern: str):
     video = PipeVideo(path=input_path, location_path=Path("videos"))
     assert video.path is None
     assert video.input_path == input_path
-    assert video.name == "frames"
-    assert video.location_name == str(Path("videos/frames"))
+    assert video.name == VideoInput(input_path).name
+    assert video.location_name == str(Path("videos") / video.name)
     assert video._video is None
     recreated = eval(repr(video))
     assert recreated.input_path == input_path

@@ -10,8 +10,11 @@ from unittest.mock import MagicMock
 import cv2
 import numpy as np
 import pytest
+from PIL import Image
 
 from pipescaler.image.pipelines.sources import ImageVideoFrameSource
+from pipescaler.image.pipelines.termini import ImageDirectoryTerminus
+from pipescaler.video.core.video_input import VideoInput
 from test.scripts.generate_video_inputs import write_image_sequence, write_video
 
 
@@ -57,7 +60,7 @@ def test_file_and_sequence_inputs(tmp_path: Path, kind: str):
     else:
         pattern = "%06d.png" if kind == "flat" else "%06d/image.png"
         input_path = write_image_sequence(tmp_path / "frames", pattern, (10, 9, 11))
-        expected_location = Path("videos/frames")
+        expected_location = Path("videos") / VideoInput(input_path).name
 
     with ImageVideoFrameSource(input_path, Path("videos")) as source:
         frames = list(source)
@@ -104,6 +107,49 @@ def test_sequence_decode_failure_cleanup(tmp_path: Path):
     assert not source.cap.isOpened()
     with pytest.raises(StopIteration):
         next(source)
+
+
+@pytest.mark.parametrize(
+    ("left_pattern", "right_pattern"),
+    [
+        ("left_%06d.png", "right_%06d.png"),
+        ("%06d_left.png", "%06d_right.png"),
+        ("%06d/left.png", "%06d/right.png"),
+        ("left_%06d/image.png", "right_%06d/image.png"),
+        ("frame_%d.png", "frame_%06d.png"),
+        ("left_%06d_image.png", "left_%06d/image.png"),
+        ("%06d.png", "%06d.bmp"),
+    ],
+)
+def test_sequences_sharing_directory_preserve_outputs(
+    tmp_path: Path, left_pattern: str, right_pattern: str
+):
+    """Keep all frames when distinct templates share one input and output directory.
+
+    Arguments:
+        tmp_path: temporary input and output directories
+        left_pattern: first sequence template
+        right_pattern: distinct template rooted in the same directory
+    """
+    left_path = write_image_sequence(tmp_path / "frames", left_pattern, (7, 8, 9))
+    right_path = write_image_sequence(
+        tmp_path / "frames", right_pattern, (107, 108, 109)
+    )
+    terminus = ImageDirectoryTerminus(tmp_path / "output")
+
+    for input_path in (left_path, right_path):
+        with ImageVideoFrameSource(input_path) as source:
+            for frame in source:
+                terminus(frame)
+
+    output_paths = sorted(terminus.dir_path.rglob("*.png"))
+    assert len(output_paths) == 6
+    assert len({path.parent for path in output_paths}) == 2
+    red_values: list[int] = []
+    for output_path in output_paths:
+        with Image.open(output_path) as image:
+            red_values.append(int(np.asarray(image)[0, 0, 0]))
+    assert sorted(red_values) == [7, 8, 9, 107, 108, 109]
 
 
 def test_repr_round_trip(input_path: Path, capture: MagicMock):
