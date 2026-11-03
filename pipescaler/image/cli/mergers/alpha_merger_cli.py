@@ -37,6 +37,7 @@ class AlphaMergerCli(ImageMergerCli):
             parser, "input arguments", "output arguments"
         )
 
+        # Input arguments
         arg_groups["input arguments"].add_argument(
             "color_input_path",
             metavar="color_input_file",
@@ -49,6 +50,8 @@ class AlphaMergerCli(ImageMergerCli):
             type=input_file_arg(),
             help="alpha input file",
         )
+
+        # Output arguments
         arg_groups["output arguments"].add_argument(
             "output_path",
             metavar="output_file",

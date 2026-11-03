@@ -16,6 +16,8 @@ from pipescaler.image.operators.mergers import DiffMerger
 def main():
     """Write source textures, the merger output, and a labeled comparison sheet."""
     parser = ArgumentParser(description=__doc__)
+
+    # Output arguments
     parser.add_argument(
         "--output-dir", type=Path, default=Path("local/diff_merger_example")
     )

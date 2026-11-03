@@ -37,6 +37,7 @@ class DiffMergerCli(ImageMergerCli):
             parser, "input arguments", "output arguments"
         )
 
+        # Input arguments
         arg_groups["input arguments"].add_argument(
             "first_input_path",
             metavar="first_input_file",
@@ -49,6 +50,8 @@ class DiffMergerCli(ImageMergerCli):
             type=input_file_arg(),
             help="second input file",
         )
+
+        # Output arguments
         arg_groups["output arguments"].add_argument(
             "output_path",
             metavar="output_file",
