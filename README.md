@@ -28,7 +28,7 @@ PipeScaler includes the following components for image processing:
 * [CropProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/operators/processors/crop_processor.py) - Crops image canvas.
 * [ExpandProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/operators/processors/expand_processor.py) - Expands image canvas by mirroring image around edges.
 * [HeightToNormalProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/operators/processors/height_to_normal_processor.py) - Converts height map image to a normal map image.
-* [ImagequantProcessor](pipescaler/image/operators/processors/imagequant_processor.py) - Reduces image palettes using libimagequant without an external executable.
+* [ImagequantProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/operators/processors/imagequant_processor.py) - Reduces image palettes using libimagequant.
 * [ModeProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/operators/processors/mode_processor.py) - Converts mode of image.
 * [PotraceProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/operators/processors/potrace_processor.py) - Traces image using [Potrace](http://potrace.sourceforge.net/) and re-rasterizes, optionally resizing.
 * [ResizeProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/operators/processors/resize_processor.py) - Resizes image canvas.
@@ -36,16 +36,6 @@ PipeScaler includes the following components for image processing:
 * [SolidColorProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/operators/processors/solid_color_processor.py) - Sets entire image color to its average color, optionally resizing.
 * [ThresholdProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/operators/processors/threshold_processor.py) - Converts image to black and white using threshold, optionally denoising.
 * [XbrzProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/operators/processors/xbrz_processor.py) - Upscales image using [xbrz](https://github.com/ioistired/xbrz.py).
-
-PNG quantization is available as `pipescaler image process imagequant input.png
-output.png`. [ImagequantWriter](pipescaler/image/writers.py) also accepts input and
-output paths and can be passed to `ImageCheckpointManager.post_runner`. It retains
-the original PNG bytes if minimum quality cannot be met or the encoded result is
-not smaller. It preserves PNG color metadata and retains 16-bit or ICC-profiled
-grayscale inputs unchanged. Use `ImagequantProcessor` directly for in-memory
-processing without file-size selection. The Python binding is BSD licensed; the
-underlying [libimagequant library](https://pngquant.org/lib/) uses GPLv3/commercial
-licensing.
 
 **Splitters** separate one image into two or more images:
 * [AlphaSplitter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/operators/splitters/alpha_splitter.py) - Splits image with transparency into separate color and alpha images.
