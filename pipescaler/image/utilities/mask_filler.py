@@ -4,19 +4,31 @@
 
 from __future__ import annotations
 
+from logging import warning
+
 import numpy as np
 from PIL import Image
 
 from pipescaler.core import Utility
 from pipescaler.image.core.enums import MaskFillMode
+from pipescaler.image.core.exceptions import UnsupportedImageModeError
 
+from .mask_shader_filler import MaskShaderError, MaskShaderFiller
 from .palette_matcher import PaletteMatcher
 
 __all__ = ["MaskFiller"]
 
 
 class MaskFiller(Utility):
-    """Erases masked pixels within an image."""
+    """Erase masked pixels, preferring WGSL for substantial masked regions.
+
+    Masks below 1,024 masked pixels use the CPU to avoid dispatch overhead.
+    Larger masks use cached compute pipelines and fall back to the CPU if the
+    graphics runtime fails. The first GPU fill also initializes the runtime.
+    """
+
+    _minimum_shader_pixels = 1024
+    """Minimum masked-pixel count before attempting GPU execution."""
 
     @classmethod
     def run(  # ty: ignore[invalid-method-override]
@@ -24,41 +36,65 @@ class MaskFiller(Utility):
     ) -> Image.Image:
         """Erases masked pixels within an image.
 
-        Each erased pixel is replaced with the average color of adjacent unmasked
-        pixels, iteratively.
+        Each round fills only pixels with the highest unmasked-neighbor count,
+        using integer averages from the previous round's 3x3 neighborhoods.
+        Fully masked images remain unchanged because no color can propagate.
 
         Arguments:
-            img: Image; mode must be L or RGB
-            mask: Mask; mode must be 1; white (True) pixels are masked
-            mask_fill_mode: Mask fill mode
+            img: image whose mode must be L or RGB
+            mask: same-sized mode 1 mask; white pixels are masked
+            mask_fill_mode: whether to match filled colors to the original palette
         Returns:
-            Image with masked pixels replaced
+            image with masked pixels replaced
+        Raises:
+            UnsupportedImageModeError: if the image or mask mode is unsupported
+            ValueError: if image and mask sizes differ
         """
-        image_arr = np.array(img)
-        mask_arr = np.array(mask)
-
-        # Get all pixels to be filled
-        pixels_to_fill = set()
-        for x in range(mask_arr.shape[0]):
-            for y in range(mask_arr.shape[1]):
-                if mask_arr[x, y]:
-                    pixels_to_fill.add((x, y))
-
-        # Iterate until no pixels remain to be filled
-        opaque_neighbor_counts: dict[tuple[int, int], int] = {}
-        pixels_to_recount = pixels_to_fill.copy()
-        while len(pixels_to_fill) > 0:
-            (
-                image_arr,
-                pixels_to_fill,
-                opaque_neighbor_counts,
-                pixels_to_recount,
-            ) = cls.run_iteration(
-                image_arr, pixels_to_fill, opaque_neighbor_counts, pixels_to_recount
+        if img.mode not in {"L", "RGB"} or mask.mode != "1":
+            raise UnsupportedImageModeError(
+                "Mask filling requires an L or RGB image and a mode 1 mask; "
+                f"received '{img.mode}' and '{mask.mode}'"
             )
+        if img.size != mask.size:
+            raise ValueError("Mask filling requires matching image and mask sizes")
+        mask_arr = np.asarray(mask)
+        masked_count = int(np.count_nonzero(mask_arr))
+        if masked_count in {0, mask_arr.size}:
+            return img.copy()
 
-        # Return image
-        filled_img = Image.fromarray(image_arr)
+        filled_img = None
+        if masked_count >= cls._minimum_shader_pixels:
+            try:
+                filled_img = MaskShaderFiller.run(img, mask)
+            except MaskShaderError as exc:
+                warning(
+                    f"{cls.__name__}: Shader path unavailable ('{exc}'); "
+                    "falling back to CPU mask filling."
+                )
+
+        if filled_img is None:
+            image_arr = np.array(img)
+            # Get all pixels to be filled
+            pixels_to_fill = set()
+            for x in range(mask_arr.shape[0]):
+                for y in range(mask_arr.shape[1]):
+                    if mask_arr[x, y]:
+                        pixels_to_fill.add((x, y))
+
+            # Iterate until no pixels remain to be filled
+            opaque_neighbor_counts: dict[tuple[int, int], int] = {}
+            pixels_to_recount = pixels_to_fill.copy()
+            while len(pixels_to_fill) > 0:
+                (
+                    image_arr,
+                    pixels_to_fill,
+                    opaque_neighbor_counts,
+                    pixels_to_recount,
+                ) = cls.run_iteration(
+                    image_arr, pixels_to_fill, opaque_neighbor_counts, pixels_to_recount
+                )
+            filled_img = Image.fromarray(image_arr)
+
         if mask_fill_mode == MaskFillMode.MATCH_PALETTE:
             filled_img = PaletteMatcher.run(img, filled_img)
         return filled_img
