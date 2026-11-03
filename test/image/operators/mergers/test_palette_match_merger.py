@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from unittest.mock import patch
+
 import numpy as np
 import pytest
 from PIL import Image
@@ -15,7 +17,14 @@ from pipescaler.image.testing import (
     get_expected_output_mode,
     xfail_unsupported_image_mode,
 )
-from pipescaler.image.utilities import LocalPaletteMatcher
+from pipescaler.image.utilities import (
+    LocalPaletteMatcher,
+    PaletteMatcher,
+    PaletteShaderMatcher,
+)
+from pipescaler.image.utilities.palette_shader_matcher import (
+    PaletteShaderError,
+)
 from pipescaler.testing.file import get_test_input_path
 from pipescaler.testing.fixture import parametrized_fixture
 
@@ -142,9 +151,9 @@ def test_local_match_rejects_invalid_geometry(
     fit_img = Image.new(mode, fit_size)
     merger = PaletteMatchMerger(palette_match_mode=PaletteMatchMode.LOCAL)
 
-    with pytest.raises(ValueError, match="uniform integer upscale"):
+    with pytest.raises(ValueError, match="uniform integer scale"):
         LocalPaletteMatcher.run(ref_img, fit_img)
-    with pytest.raises(ValueError, match="uniform integer upscale"):
+    with pytest.raises(ValueError, match="uniform integer scale"):
         merger(ref_img, fit_img)
 
 
@@ -158,3 +167,69 @@ def test_basic_match_allows_unrelated_sizes(mode: str):
     matched = PaletteMatchMerger()(Image.new(mode, (3, 5)), Image.new(mode, (2, 4)))
 
     assert matched.size == (2, 4)
+
+
+@pytest.mark.parametrize("mode", ["L", "RGB"])
+@pytest.mark.parametrize("match_mode", list(PaletteMatchMode))
+def test_shader_fallback(mode: str, match_mode: PaletteMatchMode):
+    """Preserve CPU results when either GPU strategy is unavailable or fails.
+
+    Arguments:
+        mode: image mode to match
+        match_mode: global or local matching strategy
+    """
+    rng = np.random.default_rng(792)
+    shape = (3, 4) if mode == "L" else (3, 4, 3)
+    ref_img = Image.fromarray(rng.integers(0, 256, shape, dtype=np.uint8))
+    fit_shape = (6, 8) if mode == "L" else (6, 8, 3)
+    fit_img = Image.fromarray(rng.integers(0, 256, fit_shape, dtype=np.uint8))
+    expected = (
+        PaletteMatcher.run(ref_img, fit_img)
+        if match_mode == PaletteMatchMode.BASIC
+        else LocalPaletteMatcher.run(ref_img, fit_img, 2)
+    )
+
+    with patch.object(
+        PaletteShaderMatcher, "run", side_effect=PaletteShaderError("forced failure")
+    ):
+        actual = PaletteMatchMerger(palette_match_mode=match_mode, local_range=2)(
+            ref_img, fit_img
+        )
+
+    np.testing.assert_array_equal(np.asarray(actual), np.asarray(expected))
+
+
+@pytest.mark.parametrize("mode", ["L", "RGB"])
+@pytest.mark.parametrize("match_mode", list(PaletteMatchMode))
+def test_prefers_gpu_for_small_inputs(mode: str, match_mode: PaletteMatchMode):
+    """Prefer an available GPU even for tiny images and grayscale palettes.
+
+    Arguments:
+        mode: image mode to match
+        match_mode: global or local matching strategy
+    """
+    reference = Image.new(mode, (1, 1))
+    target = Image.new(mode, (2, 2))
+    expected = target.copy()
+    with (
+        patch.object(PaletteShaderMatcher, "run", return_value=expected) as gpu,
+        patch.object(PaletteMatcher, "run") as basic_cpu,
+        patch.object(LocalPaletteMatcher, "run") as local_cpu,
+    ):
+        actual = PaletteMatchMerger(palette_match_mode=match_mode)(reference, target)
+
+    assert actual is expected
+    gpu.assert_called_once_with(reference, target, 1, palette_match_mode=match_mode)
+    basic_cpu.assert_not_called()
+    local_cpu.assert_not_called()
+
+
+@pytest.mark.parametrize("count", [0, 1, 3])
+def test_rejects_wrong_input_count(count: int):
+    """Reject missing or extra images before selecting a backend.
+
+    Arguments:
+        count: number of supplied input images
+    """
+    with pytest.raises(ValueError, match="Expected 2 input images"):
+        PaletteMatchMerger()(*[Image.new("L", (2, 2)) for _ in range(count)])

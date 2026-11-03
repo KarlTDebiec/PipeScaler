@@ -13,6 +13,7 @@ from PIL import Image
 from pipescaler.core import Utility
 from pipescaler.image.core.exceptions import UnsupportedImageModeError
 from pipescaler.image.core.numba import get_perceptually_weighted_distance
+from pipescaler.image.core.validation import validate_image_scale
 
 __all__ = ["LocalPaletteMatcher"]
 
@@ -44,21 +45,7 @@ class LocalPaletteMatcher(Utility):
                 f"Image mode '{ref_img.mode}' of reference image does not match mode "
                 f"'{fit_img.mode}' of fit image"
             )
-        ref_width, ref_height = ref_img.size
-        fit_width, fit_height = fit_img.size
-        if (
-            ref_width <= 0
-            or ref_height <= 0
-            or fit_width % ref_width != 0
-            or fit_height % ref_height != 0
-            or fit_width // ref_width < 2
-            or fit_width // ref_width != fit_height // ref_height
-        ):
-            raise ValueError(
-                "Local palette matching requires a target that is a uniform integer "
-                "upscale of the reference with scale at least 2; "
-                f"received reference {ref_img.size} and target {fit_img.size}"
-            )
+        validate_image_scale(ref_img, fit_img, min_scale=2)
         ref_arr = np.array(ref_img)
         fit_arr = np.array(fit_img)
 

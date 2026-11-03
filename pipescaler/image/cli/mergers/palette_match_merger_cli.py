@@ -13,6 +13,7 @@ from PIL import Image
 from pipescaler.common.argument_parsing import (
     get_arg_groups_by_name,
     input_file_arg,
+    int_arg,
     output_file_arg,
 )
 from pipescaler.image.core import PaletteMatchMode
@@ -30,7 +31,7 @@ class PaletteMatchMergerCli(ImageMergerCli):
         """Add arguments to a nascent argument parser.
 
         Arguments:
-            parser: Nascent argument parser
+            parser: nascent argument parser
         """
         super().add_arguments_to_argparser(parser)
 
@@ -72,7 +73,7 @@ class PaletteMatchMergerCli(ImageMergerCli):
         )
         arg_groups["operation arguments"].add_argument(
             "--local-range",
-            type=int,
+            type=int_arg(min_value=1),
             default=1,
             help="Range of surrounding reference pixels from which to draw best-fit "
             "color, if performing local matching (default: %(default)s)",

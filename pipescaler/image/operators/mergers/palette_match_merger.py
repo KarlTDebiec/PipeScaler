@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+from logging import warning
 from typing import Any
 
 from PIL import Image
@@ -13,7 +14,12 @@ from pipescaler.image.core import PaletteMatchMode, UnsupportedImageModeError
 from pipescaler.image.core.operators import ImageMerger
 from pipescaler.image.core.typing import ImageMode
 from pipescaler.image.core.validation import validate_image
-from pipescaler.image.utilities import LocalPaletteMatcher, PaletteMatcher
+from pipescaler.image.utilities import (
+    LocalPaletteMatcher,
+    PaletteMatcher,
+    PaletteShaderMatcher,
+)
+from pipescaler.image.utilities.palette_shader_matcher import PaletteShaderError
 
 __all__ = ["PaletteMatchMerger"]
 
@@ -24,6 +30,8 @@ class PaletteMatchMerger(ImageMerger):
     Local matching requires a target that is a uniform integer upscale of the
     reference, with a scale of at least 2 on both axes. Basic matching has no
     image-size restriction. Local neighborhood ranges use reference pixels.
+    Both modes prefer the GPU, including Metal on macOS, and fall back to the CPU
+    when the runtime is unavailable or shader execution fails.
     """
 
     def __init__(
@@ -35,27 +43,31 @@ class PaletteMatchMerger(ImageMerger):
         """Validate configuration and initialize.
 
         Arguments:
-            palette_match_mode: Mode of palette matching to perform
-            local_range: Range of adjacent pixels from which to draw best-fit color;
+            palette_match_mode: mode of palette matching to perform
+            local_range: range of adjacent pixels from which to draw best-fit color;
               1 checks a 3x3 window, 2 checks a 5x5 window, etc.
-            **kwargs: Additional keyword arguments passed to ImageMerger
+            **kwargs: additional keyword arguments passed to ImageMerger
+        Raises:
+            ValueError: if the mode is invalid or the local range is not positive
         """
         super().__init__(**kwargs)
 
-        self.palette_match_mode = palette_match_mode
+        self.palette_match_mode = PaletteMatchMode(palette_match_mode)
         self.local_range = val_int(local_range, min_value=1)
 
     def __call__(self, *input_images: Image.Image) -> Image.Image:
         """Merge images.
 
         Arguments:
-            *input_images: Input images
+            *input_images: input images
         Returns:
-            Merged output image
+            merged output image
         Raises:
             UnsupportedImageModeError: if an image mode is unsupported
-            ValueError: if local matching receives incompatible image sizes
+            ValueError: if the input count, sizes, or local geometry is unsupported
         """
+        if len(input_images) != 2:
+            raise ValueError(f"Expected 2 input images, received {len(input_images)}")
         ref_image = validate_image(input_images[0], self.inputs()["ref"])
         fit_image = validate_image(input_images[1], self.inputs()["fit"])
         if ref_image.mode != fit_image.mode:
@@ -64,13 +76,21 @@ class PaletteMatchMerger(ImageMerger):
                 f"'{fit_image.mode}' of fit image"
             )
 
-        if self.palette_match_mode == PaletteMatchMode.BASIC:
-            output_image = PaletteMatcher.run(ref_image, fit_image)
-        else:
-            output_image = LocalPaletteMatcher.run(
-                ref_image, fit_image, self.local_range
+        try:
+            return PaletteShaderMatcher.run(
+                ref_image,
+                fit_image,
+                self.local_range,
+                palette_match_mode=self.palette_match_mode,
             )
-        return output_image
+        except PaletteShaderError as exc:
+            warning(
+                f"{self.__class__.__name__}: Shader path unavailable ('{exc}'); "
+                "falling back to CPU palette matcher."
+            )
+        if self.palette_match_mode == PaletteMatchMode.BASIC:
+            return PaletteMatcher.run(ref_image, fit_image)
+        return LocalPaletteMatcher.run(ref_image, fit_image, self.local_range)
 
     def __repr__(self) -> str:
         """Representation.
@@ -78,12 +98,9 @@ class PaletteMatchMerger(ImageMerger):
         Returns:
             string representation of this object
         """
-        palette_match_mode = repr(self.palette_match_mode)
-        if isinstance(self.palette_match_mode, PaletteMatchMode):
-            palette_match_mode = f"PaletteMatchMode.{self.palette_match_mode.name}"
         return (
             f"{self.__class__.__name__}("
-            f"palette_match_mode={palette_match_mode}, "
+            f"palette_match_mode=PaletteMatchMode.{self.palette_match_mode.name}, "
             f"local_range={self.local_range!r})"
         )
 

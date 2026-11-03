@@ -119,7 +119,7 @@ def test_mode_background_color_through_parent(tmp_path: Path):
     ("cli", "operation_args", "obsolete_option"),
     [
         (ModeCli, ["--mode", "RGB"], "--background_color"),
-        (PaletteMatchMergerCli, ["--local"], "--local_range"),
+        (PaletteMatchMergerCli, [], "--local_range"),
     ],
 )
 def test_obsolete_option_spellings_are_rejected(

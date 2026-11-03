@@ -155,3 +155,25 @@ def test_diff_through_root_cli(tmp_path: Path):
         assert red[0] > 0 and red[2] == 0
         assert same == (0, 0, 0)
         assert blue[0] == 0 and blue[2] > 0
+
+
+@pytest.mark.parametrize("local_range", ["0", "-1"])
+def test_local_palette_range_rejected_during_parsing(local_range: str, tmp_path: Path):
+    """Reject unsupported local ranges before attempting to run either backend.
+
+    Arguments:
+        local_range: invalid neighborhood radius
+        tmp_path: temporary directory for input and output paths
+    """
+    input_path = get_test_input_path("L")
+    with pytest.raises(SystemExit) as exc:
+        PaletteMatchMergerCli.argparser().parse_args(
+            [
+                "--local-range",
+                local_range,
+                str(input_path),
+                str(input_path),
+                str(tmp_path / "out.png"),
+            ]
+        )
+    assert exc.value.code == 2

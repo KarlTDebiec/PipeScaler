@@ -5,8 +5,8 @@
 This module may import from: common, core, pipelines
 
 Package hierarchy (modules may import from any above):
-* core / runners / subdivided_image
-* pipelines / testing / utilities
+* core / runners
+* pipelines / subdivided_image / testing / utilities
 * operators
 * cli
 """

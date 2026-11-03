@@ -10,6 +10,8 @@ from scipy.special import erf
 
 from pipescaler.common.validation import val_int
 
+from .core.validation import validate_image_scale
+
 __all__ = ["SubdividedImage"]
 
 
@@ -75,17 +77,8 @@ class SubdividedImage:
             )
         scales = set()
         for new_sub, old_sub in zip(value, self._subs):
-            if (
-                new_sub.width % old_sub.width != 0
-                or new_sub.height % old_sub.height != 0
-            ):
-                raise ValueError("Subdivision dimensions must use an integer scale")
-            width_scale = new_sub.width // old_sub.width
-            height_scale = new_sub.height // old_sub.height
-            if width_scale != height_scale:
-                raise ValueError("Subdivision dimensions must use a uniform scale")
-            scales.add(width_scale)
-        if len(scales) != 1 or next(iter(scales)) < 1:
+            scales.add(validate_image_scale(old_sub, new_sub))
+        if len(scales) != 1:
             raise ValueError(
                 "All subdivisions must use the same positive integer scale"
             )
