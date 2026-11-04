@@ -7,8 +7,9 @@ requiring native video plugins for ordinary PipeScaler image processing.
 
 ## Worker runtime
 
-The worker interpreter must run Python 3.14 or newer. A separate environment keeps
-VapourSynth and backend dependencies outside the main application environment.
+The worker interpreter supports Python 3.13 and 3.14. It defaults to the calling
+interpreter; a separate environment can keep VapourSynth and backend dependencies
+outside the main application environment.
 The verified Windows CPU combination is Python 3.14.1, VapourSynth R82,
 vs_temporalfix 2.4.1, BestSource 23, and PyTorch 2.14.1. CUDA, DirectML, and TensorRT
 options are forwarded and probed, but hardware inference for those backends is
