@@ -9,7 +9,6 @@ uv sync --frozen --python 3.14
 ```
 
 Dependencies and development tools are defined in [`pyproject.toml`](../pyproject.toml).
-Python 3.13 is also supported; use `--python 3.13` to select it.
 Run tools with `uv run`; environment activation is not required. See
 [Code Style](STYLE.md#python-and-formatting) for interpreter and tool conventions.
 
