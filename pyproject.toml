@@ -7,7 +7,7 @@ authors = [
 ]
 license = "BSD-3-Clause"
 readme = "README.md"
-requires-python = ">=3.14"
+requires-python = ">=3.13"
 dependencies = [
     "imagequant>=1.1.5",
     "ispc-texcomp>=1.0.1",
@@ -67,6 +67,9 @@ log_cli_level="WARNING"
 markers=[
     'serial: test must be run serially',
     'gui: test covers GUI application']
+
+[tool.ruff]
+target-version = "py313"
 
 [tool.ruff.lint]
 select = [

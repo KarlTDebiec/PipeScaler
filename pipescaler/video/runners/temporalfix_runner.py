@@ -26,7 +26,7 @@ __all__ = ["TemporalFixRunner"]
 class TemporalFixRunner(Runner[VideoInput | Path | str]):
     """Render lossless 16-bit RGB checkpoints through upstream vs_temporalfix.
 
-    The worker may be a separate Python 3.14 environment containing VapourSynth,
+    The worker defaults to the calling Python 3.13+ interpreter containing VapourSynth,
     vs_temporalfix, the selected backend, OpenCV, and BestSource for video files.
     FFmpeg and ffprobe are required. Encoding contains video only; delivery codecs,
     audio, and subtitles remain project concerns. Inputs must have constant timing.
@@ -145,9 +145,9 @@ class TemporalFixRunner(Runner[VideoInput | Path | str]):
                 "import sys; print('.'.join(map(str, sys.version_info[:2])))",
             ]
         ).strip()
-        if tuple(map(int, interpreter_version.split("."))) < (3, 14):
+        if tuple(map(int, interpreter_version.split("."))) < (3, 13):
             raise PipeScalerError(
-                "The selected TemporalFix worker requires Python 3.14 or newer"
+                "The selected TemporalFix worker requires Python 3.13 or newer"
             )
         with TemporaryDirectory(prefix="pipescaler-temporal-probe-") as temporary:
             output_path = Path(temporary) / "probe.mkv"

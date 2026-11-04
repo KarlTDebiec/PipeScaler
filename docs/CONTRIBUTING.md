@@ -5,7 +5,7 @@
 With `uv` installed, create or update the environment from the repository root:
 
 ```console
-uv sync --frozen --python 3.14
+uv sync --frozen --python 3.13
 ```
 
 Dependencies and development tools are defined in [`pyproject.toml`](../pyproject.toml).

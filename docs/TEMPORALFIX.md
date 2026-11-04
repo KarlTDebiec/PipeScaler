@@ -7,8 +7,9 @@ requiring native video plugins for ordinary PipeScaler image processing.
 
 ## Worker runtime
 
-The worker interpreter must run Python 3.14 or newer. A separate environment keeps
-VapourSynth and backend dependencies outside the main application environment.
+The worker interpreter must run Python 3.13 or newer. It defaults to the calling
+interpreter, so projects can install optional native dependencies in their shared
+environment. A separate worker interpreter can be selected explicitly when needed.
 The verified Windows CPU combination is Python 3.14.1, VapourSynth R82,
 vs_temporalfix 2.4.1, BestSource 23, and PyTorch 2.14.1. CUDA, DirectML, and TensorRT
 options are forwarded and probed, but hardware inference for those backends is
@@ -18,9 +19,8 @@ runtime; follow the upstream installation instructions.
 For example, from the repository on Windows:
 
 ```powershell
-uv venv --python 3.14 local/temporalfix-runtime
-uv pip install --python local/temporalfix-runtime/Scripts/python.exe `
-    vs_temporalfix==2.4.1 vapoursynth-bestsource==23 torch numpy opencv-python
+uv pip install --python .venv/Scripts/python.exe `
+    vs_temporalfix==2.4.1 vapoursynth-bestsource==23
 ```
 
 FFmpeg and ffprobe must be on `PATH`. TensorRT also needs the upstream TensorRT
@@ -51,7 +51,6 @@ settings = TemporalFixSettings(
 )
 runner = TemporalFixRunner(
     settings,
-    worker_python_path=Path("local/temporalfix-runtime/Scripts/python.exe"),
     timeout=3600,
 )
 manager = CheckpointManager("local/video-checkpoints")

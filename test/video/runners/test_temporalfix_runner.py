@@ -135,7 +135,7 @@ def test_malformed_worker_metadata_is_a_domain_error(
     monkeypatch.setattr(
         runner,
         "_execute",
-        lambda command: "3.14" if "-c" in command else json.dumps(response),
+        lambda command: "3.13" if "-c" in command else json.dumps(response),
     )
     with pytest.raises(PipeScalerError, match="metadata"):
         runner.inspect(path)
@@ -177,7 +177,7 @@ def test_invalid_worker_metadata_fields(
     monkeypatch.setattr(
         runner,
         "_execute",
-        lambda command: "3.14" if "-c" in command else json.dumps(response),
+        lambda command: "3.13" if "-c" in command else json.dumps(response),
     )
     with pytest.raises(PipeScalerError, match="metadata"):
         runner.inspect(path)
