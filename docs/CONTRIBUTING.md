@@ -15,10 +15,8 @@ Run tools with `uv run`; environment activation is not required. See
 ## Branches
 
 Name branches `feature/brief-description`. Continue the existing branch when
-requested. The remote is `origin`; target pull requests at `master`. Keep unrelated
-working-tree changes out of commits and pull requests.
-
-Interact with GitHub through the GitHub MCP; do not use `gh`.
+requested. Target pull requests at `master`. Keep unrelated working-tree changes
+out of commits and pull requests.
 
 ## CI usage
 

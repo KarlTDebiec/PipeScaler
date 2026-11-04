@@ -6,6 +6,9 @@ Apply the relevant conventions to changed files without unrelated refactoring.
 Never add or retain compatibility shims. Update callers and remove obsolete APIs
 and import paths when changing interfaces.
 
+Read [Contributing](docs/CONTRIBUTING.md) before creating or editing issues and
+pull requests.
+
 ## Tools
 
 Use `uv run` for repository tools. On Unix, set a writable cache with
