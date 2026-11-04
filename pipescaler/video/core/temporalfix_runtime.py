@@ -8,6 +8,7 @@ from fractions import Fraction
 from hashlib import file_digest, sha256
 from importlib import import_module
 from importlib.metadata import version
+from os import getenv
 from pathlib import Path
 from platform import python_version
 from typing import Any
@@ -15,6 +16,7 @@ from typing import Any
 import cv2
 import numpy as np
 
+from .temporalfix_mps import build_mps_temporal_clip, import_mps_torch
 from .temporalfix_settings import TemporalFixSettings
 from .video_input import VideoInput
 
@@ -57,7 +59,14 @@ def build_temporal_clip(
             )
             or None
         )
-        if window.num_frames >= 4:
+        if window.num_frames >= 4 and settings.backend == "mps":
+            window = build_mps_temporal_clip(
+                window,
+                strength=settings.strength,
+                exclude=exclusions,
+                tiles=settings.tiles,
+            )
+        elif window.num_frames >= 4:
             window = temporalfix.model(
                 window,
                 strength=settings.strength,
@@ -83,7 +92,7 @@ def import_temporal_runtime(backend: str) -> tuple[Any, Any]:
         RuntimeError: if dependencies, native plugins, or the backend are unavailable
     """
     try:
-        vs = import_module("vapoursynth")
+        vs: Any = import_module("vapoursynth")
         temporalfix = import_module("vs_temporalfix")
         if version("vs_temporalfix") != "2.4.1":
             raise RuntimeError(
@@ -91,7 +100,9 @@ def import_temporal_runtime(backend: str) -> tuple[Any, Any]:
             )
         if vs.__version__.release_major < 74:
             raise RuntimeError("VapourSynth R74 or newer is required")
-        if backend in {"cpu", "cuda"}:
+        if backend == "mps":
+            import_mps_torch()
+        elif backend in {"cpu", "cuda"}:
             torch = import_module("torch")
             if backend == "cuda" and not torch.cuda.is_available():
                 raise RuntimeError("CUDA is unavailable in the selected worker")
@@ -141,7 +152,7 @@ def inspect_temporal_input(
         raise ValueError("TemporalFix model checkpoints are missing")
     packages = ("vs_temporalfix", "vapoursynth", "numpy", "onnx")
     versions = {name: version(name) for name in packages}
-    if settings.backend in {"cpu", "cuda"}:
+    if settings.backend in {"cpu", "cuda", "mps"}:
         versions["torch"] = version("torch")
     else:
         versions[
@@ -156,6 +167,10 @@ def inspect_temporal_input(
     versions["vapoursynth-core"] = str(vs.__version__)
     versions["python"] = python_version()
     versions["opencv"] = cv2.__version__
+    if settings.backend == "mps":
+        versions["mps-precision"] = "float32"
+        for name in ("PYTORCH_MPS_FAST_MATH", "PYTORCH_MPS_PREFER_METAL"):
+            versions[name] = getenv(name, "0")
     plugin_names = ["akarin", "vszip"]
     if source.frame_paths is None:
         plugin_names.append("bs")

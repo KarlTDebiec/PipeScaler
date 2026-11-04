@@ -49,7 +49,12 @@ class TemporalFixRunner(Runner[VideoInput | Path | str]):
         super().__init__(timeout)
         self.settings = settings
         """Validated upstream processing and input-interpretation settings."""
-        self.worker_python_path = val_input_path(worker_python_path)
+        worker_path = (
+            Path(os.path.expandvars(str(worker_python_path))).expanduser().absolute()
+        )
+        val_input_path(worker_path)
+        # Resolving a virtual environment's Python symlink selects the base interpreter
+        self.worker_python_path = worker_path
         """Interpreter used for native video processing, independent of image tools."""
 
     def __repr__(self) -> str:
@@ -111,6 +116,7 @@ class TemporalFixRunner(Runner[VideoInput | Path | str]):
             Path(__file__).with_name("temporalfix_worker.py"),
             package_root / "video/core/temporalfix_runtime.py",
             package_root / "video/core/temporalfix_settings.py",
+            package_root / "video/core/temporalfix_mps.py",
         )
         payload = {
             "source": self.source_identity(source)

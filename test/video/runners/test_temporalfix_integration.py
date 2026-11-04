@@ -15,6 +15,7 @@ from subprocess import run
 import cv2
 import numpy as np
 import pytest
+import torch
 
 from pipescaler.common.validation import val_executable
 from pipescaler.pipelines import CheckpointManager
@@ -29,7 +30,8 @@ from test.scripts.generate_temporalfix_sample import (
 
 
 @pytest.mark.serial
-def test_real_temporalfix_worker(tmp_path: Path):
+@pytest.mark.parametrize("backend", ["cpu", "mps"])
+def test_real_temporalfix_worker(tmp_path: Path, backend: str):
     """Preserve ordering, RGB, timing, exclusions, scene edges, and chunk equivalence.
 
     Lossless 16-bit output may differ by at most two code values when comparing
@@ -37,10 +39,13 @@ def test_real_temporalfix_worker(tmp_path: Path):
 
     Arguments:
         tmp_path: temporary generated assets and worker output directory
+        backend: explicitly selected CPU or Apple MPS execution backend
     """
     python_path = getenv("PIPESCALER_TEMPORALFIX_PYTHON")
     if python_path is None:
         pytest.skip("Provision the optional TemporalFix worker interpreter")
+    if backend == "mps" and not torch.backends.mps.is_available():
+        pytest.skip("MPS hardware is unavailable")
     template = generate_temporalfix_sample(tmp_path / "frames")
     runner = TemporalFixRunner(
         TemporalFixSettings(
@@ -49,6 +54,7 @@ def test_real_temporalfix_worker(tmp_path: Path):
             frame_rate="24000/1001",
             scene_boundaries=(7, 10),
             exclude_ranges=((4, 6),),
+            backend=backend,
         ),
         worker_python_path=python_path,
     )
