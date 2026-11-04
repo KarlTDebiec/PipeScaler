@@ -56,17 +56,6 @@ class ImageProcessorsCli(CommandLineInterface):
         return "process image"
 
     @classmethod
-    def _main(cls, **kwargs: Any):
-        """Execute with provided keyword arguments.
-
-        Arguments:
-            **kwargs: additional options forwarded to the selected implementation
-        """
-        processor_name = kwargs.pop(cls.subcommand_dest())
-        processor_cli_cls = cls.processors()[processor_name]
-        processor_cli_cls._main(**kwargs)
-
-    @classmethod
     def name(cls) -> str:
         """Name of this tool used to define it when it is a subparser.
 
@@ -94,6 +83,17 @@ class ImageProcessorsCli(CommandLineInterface):
             group="pipescaler.cli.image.processors",
             base_class=ImageProcessorCli,
         )
+
+    @classmethod
+    def _main(cls, **kwargs: Any):
+        """Execute with provided keyword arguments.
+
+        Arguments:
+            **kwargs: additional options forwarded to the selected implementation
+        """
+        processor_name = kwargs.pop(cls.subcommand_dest())
+        processor_cli_cls = cls.processors()[processor_name]
+        processor_cli_cls._main(**kwargs)
 
 
 if __name__ == "__main__":

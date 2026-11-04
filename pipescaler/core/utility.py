@@ -15,6 +15,17 @@ class Utility(ABC):
     """Abstract base class for utilities."""
 
     @classmethod
+    def help_markdown(cls) -> str:
+        """Short description of this utility in markdown, with links.
+
+        Returns:
+            Markdown help describing this component
+        """
+        if cls.__doc__:
+            return cleandoc(cls.__doc__).split(". ", maxsplit=1)[0]
+        return ""
+
+    @classmethod
     @abstractmethod
     def run(cls, **kwargs: Any) -> Any:
         """Execute utility behavior.
@@ -25,14 +36,3 @@ class Utility(ABC):
             output produced by utility implementation
         """
         raise NotImplementedError()
-
-    @classmethod
-    def help_markdown(cls) -> str:
-        """Short description of this utility in markdown, with links.
-
-        Returns:
-            Markdown help describing this component
-        """
-        if cls.__doc__:
-            return cleandoc(cls.__doc__).split(". ", maxsplit=1)[0]
-        return ""

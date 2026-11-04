@@ -56,26 +56,6 @@ class ImageMergersCli(CommandLineInterface):
         return "merge image"
 
     @classmethod
-    def _main(cls, **kwargs: Any):
-        """Execute with provided keyword arguments.
-
-        Arguments:
-            **kwargs: additional options forwarded to the selected implementation
-        """
-        merger_name = kwargs.pop(cls.subcommand_dest())
-        merger_cli_cls = cls.mergers()[merger_name]
-        merger_cli_cls._main(**kwargs)
-
-    @classmethod
-    def name(cls) -> str:
-        """Name of this tool used to define it when it is a subparser.
-
-        Returns:
-            command name used by the argument parser
-        """
-        return "merge"
-
-    @classmethod
     def mergers(cls) -> dict[str, type[ImageMergerCli]]:
         """Names and types of mergers wrapped by command-line interface.
 
@@ -92,6 +72,26 @@ class ImageMergersCli(CommandLineInterface):
             group="pipescaler.cli.image.mergers",
             base_class=ImageMergerCli,
         )
+
+    @classmethod
+    def name(cls) -> str:
+        """Name of this tool used to define it when it is a subparser.
+
+        Returns:
+            command name used by the argument parser
+        """
+        return "merge"
+
+    @classmethod
+    def _main(cls, **kwargs: Any):
+        """Execute with provided keyword arguments.
+
+        Arguments:
+            **kwargs: additional options forwarded to the selected implementation
+        """
+        merger_name = kwargs.pop(cls.subcommand_dest())
+        merger_cli_cls = cls.mergers()[merger_name]
+        merger_cli_cls._main(**kwargs)
 
 
 if __name__ == "__main__":

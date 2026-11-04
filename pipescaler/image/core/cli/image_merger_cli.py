@@ -26,15 +26,6 @@ class ImageMergerCli(CommandLineInterface, ABC):
         return cleandoc(str(cls.merger().__doc__)) if cls.merger().__doc__ else ""
 
     @classmethod
-    def name(cls) -> str:
-        """Name of this tool used to define it when it is a subparser.
-
-        Returns:
-            command name used by the argument parser
-        """
-        return cls.__name__.removesuffix("Cli").lower()
-
-    @classmethod
     @abstractmethod
     def merger(cls) -> type[ImageMerger]:
         """Type of merger wrapped by command-line interface.
@@ -43,3 +34,12 @@ class ImageMergerCli(CommandLineInterface, ABC):
             image merger class invoked by this command
         """
         raise NotImplementedError()
+
+    @classmethod
+    def name(cls) -> str:
+        """Name of this tool used to define it when it is a subparser.
+
+        Returns:
+            command name used by the argument parser
+        """
+        return cls.__name__.removesuffix("Cli").lower()

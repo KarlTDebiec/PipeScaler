@@ -518,7 +518,7 @@ def val_int(
 
     Arguments:
         value: Single value or iterable of values to validate
-        n_values: Number of values expected, if applicable
+        n_values: number of values expected, if applicable
         min_value: Minimum value of int, if applicable
         max_value: Maximum value of int, if applicable
         acceptable_values: Acceptable int values, if applicable
@@ -536,9 +536,9 @@ def val_int(
         """Validate a single value as an int.
 
         Arguments:
-            value_to_validate: Value to validate
+            value_to_validate: value to validate
         Returns:
-            Value as an int
+            value as an int
         Raises:
             TypeError: if a value has an invalid type
             ValueError: if a value is invalid
@@ -574,6 +574,33 @@ def val_int(
             f"not '{n_values}'"
         )
     return validated_values
+
+
+def val_literal[LiteralValue](value: LiteralValue, literal_type: Any) -> LiteralValue:
+    """Validate a value against a Literal type or type alias.
+
+    Arguments:
+        value: input value to validate
+        literal_type: Literal type or type alias with Literal value options
+    Returns:
+        value if it is one of the Literal options
+    Raises:
+        ArgumentConflictError: If literal_type does not resolve to Literal options
+        ValueError: If value is not one of the provided Literal options
+    """
+    literal_value = (
+        literal_type.__value__
+        if isinstance(literal_type, TypeAliasType)
+        else literal_type
+    )
+    options = get_args(literal_value)
+    if not options:
+        raise ArgumentConflictError(
+            f"'{literal_type}' does not contain Literal options"
+        ) from None
+    if value not in options:
+        raise ValueError(f"'{value}' is not one of options '{options}'") from None
+    return value
 
 
 class OutputDirValidatorKwargs(TypedDict, total=False):
@@ -753,33 +780,6 @@ def val_output_path(
     return [_val_output_path(value_to_validate) for value_to_validate in value]
 
 
-def val_literal[LiteralValue](value: LiteralValue, literal_type: Any) -> LiteralValue:
-    """Validate a value against a Literal type or type alias.
-
-    Arguments:
-        value: input value to validate
-        literal_type: Literal type or type alias with Literal value options
-    Returns:
-        value if it is one of the Literal options
-    Raises:
-        ArgumentConflictError: If literal_type does not resolve to Literal options
-        ValueError: If value is not one of the provided Literal options
-    """
-    literal_value = (
-        literal_type.__value__
-        if isinstance(literal_type, TypeAliasType)
-        else literal_type
-    )
-    options = get_args(literal_value)
-    if not options:
-        raise ArgumentConflictError(
-            f"'{literal_type}' does not contain Literal options"
-        ) from None
-    if value not in options:
-        raise ValueError(f"'{value}' is not one of options '{options}'") from None
-    return value
-
-
 class StrValidatorKwargs(TypedDict, total=False):
     """Keyword arguments for val_str."""
 
@@ -794,7 +794,7 @@ def val_str(value: Any, options: Iterable[Any]) -> str:
         value: Input value to validate
         options: Acceptable string values, if applicable
     Returns:
-        Value as a str
+        value as a str
     Raises:
         ArgumentConflictError: If an option cannot be cast to a string
         TypeError: If value may not be cast to a str

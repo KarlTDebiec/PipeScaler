@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 
-from os import utime
 from pathlib import Path
 
 import pytest
@@ -12,6 +11,7 @@ import pytest
 from pipescaler.video.core.pipelines import PipeVideo
 from pipescaler.video.pipelines.termini import VideoDirectoryTerminus
 from test.scripts.generate_video_inputs import write_image_sequence
+from test.source_files import set_mtime
 
 
 def test_rejects_sequence_before_writing(tmp_path: Path):
@@ -27,16 +27,6 @@ def test_rejects_sequence_before_writing(tmp_path: Path):
         terminus(PipeVideo(path=input_path))
     assert list(terminus.dir_path.iterdir()) == []
     assert not terminus.observed_files
-
-
-def _set_mtime(path: Path, timestamp: float) -> None:
-    """Set both file timestamps to a deterministic value.
-
-    Arguments:
-        path: file to update
-        timestamp: timestamp to set
-    """
-    utime(path, (timestamp, timestamp))
 
 
 def test_writes_new_video(tmp_path: Path):
@@ -67,8 +57,8 @@ def test_replaces_older_video(tmp_path: Path):
     output_path.parent.mkdir()
     input_path.write_bytes(b"new input")
     output_path.write_bytes(b"old output")
-    _set_mtime(input_path, 200)
-    _set_mtime(output_path, 100)
+    set_mtime(input_path, 200)
+    set_mtime(output_path, 100)
     terminus = VideoDirectoryTerminus(output_path.parent)
 
     terminus(PipeVideo(path=input_path))
@@ -87,8 +77,8 @@ def test_preserves_equal_timestamp_video(tmp_path: Path):
     output_path.parent.mkdir()
     input_path.write_bytes(b"different input")
     output_path.write_bytes(b"existing output")
-    _set_mtime(input_path, 200)
-    _set_mtime(output_path, 200)
+    set_mtime(input_path, 200)
+    set_mtime(output_path, 200)
     terminus = VideoDirectoryTerminus(output_path.parent)
 
     terminus(PipeVideo(path=input_path))
@@ -108,8 +98,8 @@ def test_preserves_newer_timestamp_video(tmp_path: Path):
     output_path.parent.mkdir()
     input_path.write_bytes(b"input")
     output_path.write_bytes(b"newer output")
-    _set_mtime(input_path, 100)
-    _set_mtime(output_path, 200)
+    set_mtime(input_path, 100)
+    set_mtime(output_path, 200)
     terminus = VideoDirectoryTerminus(output_path.parent)
 
     terminus(PipeVideo(path=input_path))
@@ -126,7 +116,7 @@ def test_handles_input_and_output_as_same_path(tmp_path: Path):
     """
     input_path = tmp_path / "input.mp4"
     input_path.write_bytes(b"input bytes")
-    _set_mtime(input_path, 200)
+    set_mtime(input_path, 200)
     terminus = VideoDirectoryTerminus(tmp_path)
 
     terminus(PipeVideo(path=input_path))

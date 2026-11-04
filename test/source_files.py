@@ -39,20 +39,7 @@ def get_python_files(target_dir_path: Path) -> list[Path]:
     )
 
 
-def _is_excluded_path(file_path: Path, target_dir_path: Path) -> bool:
-    """Check whether a discovered file falls under an excluded directory.
-
-    Arguments:
-        file_path: discovered file path
-        target_dir_path: recursive scan root
-    Returns:
-        whether the file should be omitted from the scan
-    """
-    relative_file_path = file_path.relative_to(target_dir_path)
-    return any(part in _EXCLUDED_DIR_NAMES for part in relative_file_path.parts)
-
-
-def set_mtime(path: Path, timestamp: float) -> None:
+def set_mtime(path: Path, timestamp: float):
     """Set a path modification and access time.
 
     Arguments:
@@ -74,3 +61,16 @@ def write_cache_file(path: Path, text: str = "{}") -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(text, encoding="utf-8")
     return path
+
+
+def _is_excluded_path(file_path: Path, target_dir_path: Path) -> bool:
+    """Check whether a discovered file falls under an excluded directory.
+
+    Arguments:
+        file_path: discovered file path
+        target_dir_path: recursive scan root
+    Returns:
+        whether the file should be omitted from the scan
+    """
+    relative_file_path = file_path.relative_to(target_dir_path)
+    return any(part in _EXCLUDED_DIR_NAMES for part in relative_file_path.parts)

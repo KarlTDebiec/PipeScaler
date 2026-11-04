@@ -27,7 +27,7 @@ class ImageCheckpointManager(CheckpointManager):
         """Get decorator to wrap Runner to Segment with post-execution checkpoint.
 
         Arguments:
-            cpt: Name of checkpoint
+            cpt: name of checkpoint
         Returns:
             Decorator to wrap Runner to Segment with post-execution checkpoint
         """

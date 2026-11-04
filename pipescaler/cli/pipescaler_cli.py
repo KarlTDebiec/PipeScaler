@@ -36,17 +36,6 @@ class PipeScalerCli(CommandLineInterface):
             cls.subcommands()[name].argparser(subparsers=subparsers)
 
     @classmethod
-    def _main(cls, **kwargs: Any):
-        """Execute with provided keyword arguments.
-
-        Arguments:
-            **kwargs: additional options forwarded to the selected implementation
-        """
-        subcommand_name = kwargs.pop(cls.subcommand_dest())
-        subcommand_cli_class = cls.subcommands()[subcommand_name]
-        subcommand_cli_class._main(**kwargs)
-
-    @classmethod
     def subcommands(cls) -> dict[str, type[CommandLineInterface]]:
         """Names and types of tools wrapped by command-line interface.
 
@@ -58,6 +47,17 @@ class PipeScalerCli(CommandLineInterface):
             group="pipescaler.cli.commands",
             base_class=CommandLineInterface,
         )
+
+    @classmethod
+    def _main(cls, **kwargs: Any):
+        """Execute with provided keyword arguments.
+
+        Arguments:
+            **kwargs: additional options forwarded to the selected implementation
+        """
+        subcommand_name = kwargs.pop(cls.subcommand_dest())
+        subcommand_cli_class = cls.subcommands()[subcommand_name]
+        subcommand_cli_class._main(**kwargs)
 
 
 if __name__ == "__main__":

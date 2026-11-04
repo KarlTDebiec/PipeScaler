@@ -23,6 +23,24 @@ __all__ = [
 logger = getLogger(__name__)
 
 
+def rename_preexisting_output_path(output_path: Path):
+    """Check if a proposed output file exists, and if so rename the existing file.
+
+    Arguments:
+        output_path: Path to proposed output file
+    """
+    output_path = output_path.resolve()
+    if output_path.exists():
+        backup_i = 0
+        while True:
+            backup_path = output_path.with_stem(f"{output_path.stem}_{backup_i:03d}")
+            if not backup_path.exists():
+                logger.info(f"Moving pre-existing file {output_path} to {backup_path}")
+                move(output_path, backup_path)
+                break
+            backup_i += 1
+
+
 @contextmanager
 def get_temp_directory_path(
     *, parent_dir_path: Path | None = None, prefix: str | None = None
@@ -113,21 +131,3 @@ def open_atomic_text_file(
     except BaseException:
         temp_path.unlink(missing_ok=True)
         raise
-
-
-def rename_preexisting_output_path(output_path: Path):
-    """Check if a proposed output file exists, and if so rename the existing file.
-
-    Arguments:
-        output_path: Path to proposed output file
-    """
-    output_path = output_path.resolve()
-    if output_path.exists():
-        backup_i = 0
-        while True:
-            backup_path = output_path.with_stem(f"{output_path.stem}_{backup_i:03d}")
-            if not backup_path.exists():
-                logger.info(f"Moving pre-existing file {output_path} to {backup_path}")
-                move(output_path, backup_path)
-                break
-            backup_i += 1

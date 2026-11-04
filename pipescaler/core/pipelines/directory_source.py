@@ -41,7 +41,7 @@ class DirectorySource(Source, ABC):
             exclusions: File path regular expressions to exclude
             inclusions: File path regular expressions to include
             sort: Function with which to sort file paths
-            reverse: Whether to reverse file path sort order
+            reverse: whether to reverse file path sort order
             **kwargs: Additional keyword arguments
         """
         super().__init__(**kwargs)

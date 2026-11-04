@@ -29,6 +29,14 @@ class DescribedEnum(Enum):
         member._description = description
         return member
 
+    def __str__(self) -> str:
+        """Get the string representation used in CLI and help contexts.
+
+        Returns:
+            enum code
+        """
+        return self.value
+
     @property
     def code(self) -> str:
         """Enum code."""
@@ -38,11 +46,3 @@ class DescribedEnum(Enum):
     def description(self) -> str:
         """Human-readable description of this enum member."""
         return self._description
-
-    def __str__(self) -> str:
-        """Get the string representation used in CLI and help contexts.
-
-        Returns:
-            enum code
-        """
-        return self.value

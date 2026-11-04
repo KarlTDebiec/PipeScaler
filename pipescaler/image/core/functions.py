@@ -186,17 +186,6 @@ def generate_normal_map_from_height_map_image(image: Image.Image) -> Image.Image
     return output_img
 
 
-def get_palette(image: Image.Image) -> np.ndarray:
-    """Get array of all colors present in an image.
-
-    Arguments:
-        image: Input image
-    Returns:
-        Array of all colors present in an image
-    """
-    return np.array([a[1] for a in image.getcolors(16581375)])
-
-
 def get_font_size(
     text: str,
     width: int,
@@ -217,6 +206,17 @@ def get_font_size(
     """
     _, observed_height = get_text_size(text, width, height, font, 100)
     return round(100 / (observed_height / height) * proportional_height)
+
+
+def get_palette(image: Image.Image) -> np.ndarray:
+    """Get array of all colors present in an image.
+
+    Arguments:
+        image: Input image
+    Returns:
+        Array of all colors present in an image
+    """
+    return np.array([a[1] for a in image.getcolors(16581375)])
 
 
 def get_text_size(
@@ -273,7 +273,7 @@ def is_monochrome(
         proportion_threshold: Threshold which percent of different pixels between image
           and true monochrome must be below
     Returns:
-        Whether image contains only pure black and white
+        whether image contains only pure black and white
     Raises:
         UnsupportedImageModeError: if an image mode is unsupported
     """
