@@ -12,82 +12,41 @@ from unittest.mock import Mock
 import pytest
 from PIL import Image
 
-from pipescaler.common.file import get_temp_directory_path
-from pipescaler.common.validation import val_output_path
 from pipescaler.core.pipelines import PipeObject, Segment
 from pipescaler.image.core.pipelines import PipeImage
 from pipescaler.pipelines import CheckpointManager
 from pipescaler.pipelines.segments import PreCheckpointedSegment
 
 
-def mock_pipe_object_save(path: Path | str):
-    """Save object to file and set path.
+def test_inputs_are_saved_before_segment_execution(tmp_path: Path):
+    """Persist input pixels before the wrapped segment runs and retain lineage.
 
     Arguments:
-        path: Path to which to save object
+        tmp_path: temporary checkpoint directory
     """
-    path = val_output_path(path)
-    path.touch()
+    parent = PipeImage(image=Image.new("RGB", (2, 2), "red"), name="source")
+    input_image = PipeImage(image=parent.image.copy(), parents=parent)
+    cp_manager = CheckpointManager(tmp_path)
+    checkpoint_path = tmp_path / "source" / "pre.png"
 
+    def read_checkpoint(input_obj: PipeObject) -> tuple[PipeObject, ...]:
+        """Read the persisted input while the wrapped segment is executing.
 
-def test_non_callable_segment_validation():
-    """Test that non-callable segment raises appropriate ValueError."""
-    with get_temp_directory_path() as cp_directory_path:
-        # Mocks
-        non_callable_segment = "not_a_callable"  # String is not callable
-        mock_cp_manager = Mock(spec=CheckpointManager)
-        mock_cp_manager.directory = cp_directory_path
+        Arguments:
+            input_obj: checkpointed input image
+        Returns:
+            unchanged input image within a tuple
+        """
+        assert input_obj.path == checkpoint_path
+        with Image.open(checkpoint_path) as image:
+            assert image.getpixel((0, 0)) == (255, 0, 0)
+        return (input_obj,)
 
-        # Attempt to initialize with non-callable segment
-        with pytest.raises(ValueError) as exc_info:
-            PreCheckpointedSegment(
-                cast(Any, non_callable_segment), mock_cp_manager, ["test.txt"]
-            )
+    wrapper = PreCheckpointedSegment(read_checkpoint, cp_manager, ["pre.png"])
 
-        # Verify the error message contains expected content
-        error_message = str(exc_info.value)
-        assert "requires a callable Segment" in error_message
-        assert "str" in error_message  # The class name of the non-callable
-        assert "is not callable" in error_message
-
-
-def test():
-    """Test PreCheckpointedSegment managing checkpoints before segment execution."""
-    with get_temp_directory_path() as cp_dir_path:
-        # Mocks
-        mock_segment = Mock(spec=Segment)
-        mock_cp_manager = Mock(spec=CheckpointManager)
-        mock_cp_manager.dir_path = cp_dir_path
-        mock_pipe_object = Mock(spec=PipeObject)
-        mock_pipe_object.location_name = "test"
-        mock_pipe_object.save.side_effect = mock_pipe_object_save
-
-        # Initialize
-        pre_checkpointed_segment = PreCheckpointedSegment(
-            mock_segment, mock_cp_manager, ["pre.txt"]
-        )
-
-        # New checkpoint
-        pre_checkpointed_segment(mock_pipe_object)
-        assert mock_pipe_object.save.call_count == 1
-        assert mock_pipe_object.save.call_args_list[0][0] == (
-            cp_dir_path / mock_pipe_object.location_name / "pre.txt",
-        )
-
-        assert mock_cp_manager.observe.call_count == 1
-        assert mock_cp_manager.observe.call_args_list[0][0] == (
-            mock_pipe_object.location_name,
-            "pre.txt",
-        )
-
-        # Existing checkpoint
-        pre_checkpointed_segment(mock_pipe_object)
-        assert mock_pipe_object.save.call_count == 1
-        assert mock_cp_manager.observe.call_count == 2
-
-        # Incorrect number of inputs
-        with pytest.raises(ValueError, match="Expected 1 inputs .* but received 2"):
-            pre_checkpointed_segment(Mock(), Mock())
+    assert wrapper(input_image) == (input_image,)
+    assert input_image.parents == [parent]
+    assert cp_manager.observed_checkpoints == {("source", "pre.png")}
 
 
 def test_multiple_inputs_use_their_own_checkpoint_paths(tmp_path: Path):
@@ -118,6 +77,70 @@ def test_multiple_inputs_use_their_own_checkpoint_paths(tmp_path: Path):
     wrapper(*inputs)
     assert tuple(image.path for image in inputs) == checkpoint_paths
     assert segment.call_count == 2
+
+
+def test_non_callable_segment_validation(tmp_path: Path):
+    """Reject a non-callable segment using a real checkpoint manager.
+
+    Arguments:
+        tmp_path: temporary checkpoint directory
+    """
+    cp_manager = CheckpointManager(tmp_path)
+    with pytest.raises(
+        ValueError, match="requires a callable Segment; str is not callable"
+    ):
+        PreCheckpointedSegment(cast(Any, "not_a_callable"), cp_manager, ["pre.png"])
+
+
+def test_stale_multiple_inputs_keep_positional_checkpoint_mapping(tmp_path: Path):
+    """Refresh stale checkpoints using each input's matching checkpoint name.
+
+    Arguments:
+        tmp_path: temporary directory for input and checkpoint files
+    """
+    source_paths = (tmp_path / "first.png", tmp_path / "second.png")
+    for source_path, color in zip(source_paths, ("red", "green")):
+        Image.new("RGB", (2, 2), color).save(source_path)
+    cp_manager = CheckpointManager(tmp_path / "checkpoints", validate_input_mtime=True)
+
+    def identity(*input_objs: PipeObject) -> tuple[PipeObject, ...]:
+        """Return input objects unchanged.
+
+        Arguments:
+            *input_objs: images being checkpointed
+        Returns:
+            input objects within a tuple
+        """
+        return input_objs
+
+    segment = Mock(wraps=identity)
+    wrapper = cp_manager.pre_segment("first.png", "second.png")(segment)
+    wrapper(
+        PipeImage(path=source_paths[0], name="first"),
+        PipeImage(path=source_paths[1], name="second"),
+    )
+    checkpoint_paths = (
+        cp_manager.dir_path / "first" / "first.png",
+        cp_manager.dir_path / "second" / "second.png",
+    )
+    for source_path, checkpoint_path, color in zip(
+        source_paths, checkpoint_paths, ("blue", "yellow")
+    ):
+        Image.new("RGB", (2, 2), color).save(source_path)
+        source_mtime_ns = checkpoint_path.stat().st_mtime_ns + 1_000_000_000
+        utime(source_path, ns=(source_mtime_ns, source_mtime_ns))
+
+    outputs = wrapper(
+        PipeImage(path=source_paths[0], name="first"),
+        PipeImage(path=source_paths[1], name="second"),
+    )
+
+    assert tuple(output.path for output in outputs) == checkpoint_paths
+    for checkpoint_path, color in zip(checkpoint_paths, ("blue", "yellow")):
+        with Image.open(checkpoint_path) as image:
+            assert image.getpixel((0, 0)) == Image.new("RGB", (1, 1), color).getpixel(
+                (0, 0)
+            )
 
 
 @pytest.mark.parametrize(
@@ -178,52 +201,28 @@ def test_checkpoint_freshness(
         assert image.getpixel((0, 0)) == expected_color
 
 
-def test_stale_multiple_inputs_keep_positional_checkpoint_mapping(tmp_path: Path):
-    """Refresh stale checkpoints using each input's matching checkpoint name.
+@pytest.mark.parametrize("input_count", [0, 2])
+def test_rejects_wrong_input_count(tmp_path: Path, input_count: int):
+    """Reject missing or extra inputs before saving files or running the segment.
 
     Arguments:
-        tmp_path: temporary directory for input and checkpoint files
+        tmp_path: temporary checkpoint directory
+        input_count: incorrect number of inputs for one checkpoint
     """
-    source_paths = (tmp_path / "first.png", tmp_path / "second.png")
-    for source_path, color in zip(source_paths, ("red", "green")):
-        Image.new("RGB", (2, 2), color).save(source_path)
-    cp_manager = CheckpointManager(tmp_path / "checkpoints", validate_input_mtime=True)
-
-    def identity(*input_objs: PipeObject) -> tuple[PipeObject, ...]:
-        """Return input objects unchanged.
-
-        Arguments:
-            *input_objs: images being checkpointed
-        Returns:
-            input objects within a tuple
-        """
-        return input_objs
-
-    segment = Mock(wraps=identity)
-    wrapper = cp_manager.pre_segment("first.png", "second.png")(segment)
-    wrapper(
-        PipeImage(path=source_paths[0], name="first"),
-        PipeImage(path=source_paths[1], name="second"),
+    cp_manager = CheckpointManager(tmp_path)
+    segment = Mock(
+        spec=Segment, side_effect=AssertionError("Invalid inputs reached segment")
     )
-    checkpoint_paths = (
-        cp_manager.dir_path / "first" / "first.png",
-        cp_manager.dir_path / "second" / "second.png",
+    wrapper = PreCheckpointedSegment(segment, cp_manager, ["pre.png"])
+    inputs = tuple(
+        PipeImage(image=Image.new("RGB", (1, 1)), name=f"image{index}")
+        for index in range(input_count)
     )
-    for source_path, checkpoint_path, color in zip(
-        source_paths, checkpoint_paths, ("blue", "yellow")
+
+    with pytest.raises(
+        ValueError, match=f"Expected 1 inputs .* but received {input_count}"
     ):
-        Image.new("RGB", (2, 2), color).save(source_path)
-        source_mtime_ns = checkpoint_path.stat().st_mtime_ns + 1_000_000_000
-        utime(source_path, ns=(source_mtime_ns, source_mtime_ns))
+        wrapper(*inputs)
 
-    outputs = wrapper(
-        PipeImage(path=source_paths[0], name="first"),
-        PipeImage(path=source_paths[1], name="second"),
-    )
-
-    assert tuple(output.path for output in outputs) == checkpoint_paths
-    for checkpoint_path, color in zip(checkpoint_paths, ("blue", "yellow")):
-        with Image.open(checkpoint_path) as image:
-            assert image.getpixel((0, 0)) == Image.new("RGB", (1, 1), color).getpixel(
-                (0, 0)
-            )
+    assert not cp_manager.observed_checkpoints
+    assert not any(tmp_path.iterdir())
