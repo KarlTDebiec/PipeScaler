@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 from importlib import import_module
-from logging import warning
+from logging import getLogger
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -24,6 +24,8 @@ if TYPE_CHECKING:
     from wgpu import GPUBindGroupLayout, GPUComputePipeline, GPUDevice
 
 __all__ = ["MaskFillError", "MaskFiller"]
+
+logger = getLogger(__name__)
 
 
 class MaskFillError(PipeScalerError, RuntimeError):
@@ -82,7 +84,7 @@ class MaskFiller(Utility):
             try:
                 filled_img = cls._run_gpu(img, mask_arr, masked_count)
             except MaskFillError as exc:
-                warning(
+                logger.warning(
                     f"{cls.__name__}: Shader path unavailable ('{exc}'); "
                     "falling back to CPU mask filling."
                 )
