@@ -13,26 +13,14 @@ from PIL import Image
 from pipescaler.common import ExecutableNotFoundError
 from pipescaler.common.file import get_temp_file_path
 from pipescaler.testing.file import get_test_input_path
-from pipescaler.testing.fixture import parametrized_fixture
 from pipescaler.testing.mark import skip_if_ci, skip_if_codex, xfail_if_platform
 from pipescaler.video.runners import ApngasmRunner
 
 
-@parametrized_fixture(
-    cls=ApngasmRunner,
-    params=[
-        {},
-    ],
-)
-def runner(request: pytest.FixtureRequest) -> ApngasmRunner:
-    """Pytest fixture that provides an ApngasmRunner instance.
-
-    Arguments:
-        request: Pytest request fixture containing parameters
-    Returns:
-        Configured ApngasmRunner instance
-    """
-    return ApngasmRunner(**request.param)
+@pytest.fixture
+def runner() -> ApngasmRunner:
+    """Provide a fresh ApngasmRunner instance for each test."""
+    return ApngasmRunner()
 
 
 @pytest.mark.parametrize(

@@ -11,24 +11,12 @@ from pipescaler.image.core.exceptions import UnsupportedImageModeError
 from pipescaler.image.operators.processors import SharpenProcessor
 from pipescaler.image.testing import get_expected_output_mode
 from pipescaler.testing.file import get_test_input_path
-from pipescaler.testing.fixture import parametrized_fixture
 
 
-@parametrized_fixture(
-    cls=SharpenProcessor,
-    params=[
-        {},
-    ],
-)
-def processor(request: pytest.FixtureRequest) -> SharpenProcessor:
-    """Pytest fixture that provides a SharpenProcessor instance.
-
-    Arguments:
-        request: Pytest request fixture containing parameters
-    Returns:
-        Configured SharpenProcessor instance
-    """
-    return SharpenProcessor(**request.param)
+@pytest.fixture
+def processor() -> SharpenProcessor:
+    """Provide a fresh SharpenProcessor instance for each test."""
+    return SharpenProcessor()
 
 
 @pytest.mark.parametrize(

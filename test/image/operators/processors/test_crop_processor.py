@@ -10,24 +10,12 @@ from PIL import Image
 from pipescaler.image.operators.processors import CropProcessor
 from pipescaler.image.testing import get_expected_output_mode
 from pipescaler.testing.file import get_test_input_path
-from pipescaler.testing.fixture import parametrized_fixture
 
 
-@parametrized_fixture(
-    cls=CropProcessor,
-    params=[
-        {"pixels": (4, 4, 4, 4)},
-    ],
-)
-def processor(request: pytest.FixtureRequest) -> CropProcessor:
-    """Pytest fixture that provides a CropProcessor instance.
-
-    Arguments:
-        request: Pytest request fixture containing parameters
-    Returns:
-        Configured CropProcessor instance
-    """
-    return CropProcessor(**request.param)
+@pytest.fixture
+def processor() -> CropProcessor:
+    """Provide a fresh CropProcessor instance for each test."""
+    return CropProcessor(pixels=(4, 4, 4, 4))
 
 
 @pytest.mark.parametrize(

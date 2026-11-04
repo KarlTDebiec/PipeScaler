@@ -9,24 +9,12 @@ import pytest
 from pipescaler.image.core.pipelines import PipeImage
 from pipescaler.image.pipelines.sorters import AlphaSorter
 from pipescaler.testing.file import get_test_input_path
-from pipescaler.testing.fixture import parametrized_fixture
 
 
-@parametrized_fixture(
-    cls=AlphaSorter,
-    params=[
-        {"threshold": 255},
-    ],
-)
-def sorter(request: pytest.FixtureRequest) -> AlphaSorter:
-    """Pytest fixture that provides an AlphaSorter instance.
-
-    Arguments:
-        request: Pytest request fixture containing parameters
-    Returns:
-        Configured AlphaSorter instance
-    """
-    return AlphaSorter(**request.param)
+@pytest.fixture
+def sorter() -> AlphaSorter:
+    """Provide a fresh AlphaSorter instance for each test."""
+    return AlphaSorter(threshold=255)
 
 
 @pytest.mark.parametrize(

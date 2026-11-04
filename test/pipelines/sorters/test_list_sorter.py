@@ -13,28 +13,16 @@ from pipescaler.common.file import get_temp_directory_path, get_temp_file_path
 from pipescaler.image.core.pipelines import PipeImage
 from pipescaler.pipelines.sorters import ListSorter
 from pipescaler.testing.file import get_test_input_dir_path, get_test_input_path
-from pipescaler.testing.fixture import parametrized_fixture
 
 
-@parametrized_fixture(
-    cls=ListSorter,
-    params=[
-        dict(
-            basic=get_test_input_dir_path("basic"),
-            extra=get_test_input_dir_path("extra"),
-            novel=get_test_input_dir_path("novel"),
-        ),
-    ],
-)
-def sorter(request: pytest.FixtureRequest) -> ListSorter:
-    """Pytest fixture that provides a ListSorter instance.
-
-    Arguments:
-        request: Pytest request fixture containing parameters
-    Returns:
-        Configured ListSorter instance
-    """
-    return ListSorter(**request.param)
+@pytest.fixture
+def sorter() -> ListSorter:
+    """Provide a fresh ListSorter instance for each test."""
+    return ListSorter(
+        basic=get_test_input_dir_path("basic"),
+        extra=get_test_input_dir_path("extra"),
+        novel=get_test_input_dir_path("novel"),
+    )
 
 
 @pytest.mark.parametrize(

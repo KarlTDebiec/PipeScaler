@@ -10,24 +10,12 @@ from PIL import Image
 from pipescaler.image.operators.processors import ExpandProcessor
 from pipescaler.image.testing import get_expected_output_mode
 from pipescaler.testing.file import get_test_input_path
-from pipescaler.testing.fixture import parametrized_fixture
 
 
-@parametrized_fixture(
-    cls=ExpandProcessor,
-    params=[
-        {"pixels": (4, 4, 4, 4)},
-    ],
-)
-def processor(request: pytest.FixtureRequest) -> ExpandProcessor:
-    """Pytest fixture that provides an ExpandProcessor instance.
-
-    Arguments:
-        request: Pytest request fixture containing parameters
-    Returns:
-        Configured ExpandProcessor instance
-    """
-    return ExpandProcessor(**request.param)
+@pytest.fixture
+def processor() -> ExpandProcessor:
+    """Provide a fresh ExpandProcessor instance for each test."""
+    return ExpandProcessor(pixels=(4, 4, 4, 4))
 
 
 @pytest.mark.parametrize(

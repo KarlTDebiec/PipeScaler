@@ -10,24 +10,12 @@ from PIL import Image
 from pipescaler.image.core.pipelines import PipeImage
 from pipescaler.image.pipelines.sorters import MonochromeSorter
 from pipescaler.testing.file import get_test_input_path
-from pipescaler.testing.fixture import parametrized_fixture
 
 
-@parametrized_fixture(
-    cls=MonochromeSorter,
-    params=[
-        {"mean_threshold": 1, "proportion_threshold": 0.1},
-    ],
-)
-def sorter(request: pytest.FixtureRequest) -> MonochromeSorter:
-    """Pytest fixture that provides a MonochromeSorter instance.
-
-    Arguments:
-        request: Pytest request fixture containing parameters
-    Returns:
-        Configured MonochromeSorter instance
-    """
-    return MonochromeSorter(**request.param)
+@pytest.fixture
+def sorter() -> MonochromeSorter:
+    """Provide a fresh MonochromeSorter instance for each test."""
+    return MonochromeSorter(mean_threshold=1, proportion_threshold=0.1)
 
 
 @pytest.mark.parametrize(

@@ -10,24 +10,12 @@ from PIL import Image
 from pipescaler.image.core.exceptions import UnsupportedImageModeError
 from pipescaler.image.operators.mergers import NormalMerger
 from pipescaler.testing.file import get_test_input_path
-from pipescaler.testing.fixture import parametrized_fixture
 
 
-@parametrized_fixture(
-    cls=NormalMerger,
-    params=[
-        {},
-    ],
-)
-def merger(request: pytest.FixtureRequest) -> NormalMerger:
-    """Pytest fixture that provides a NormalMerger instance.
-
-    Arguments:
-        request: Pytest request fixture containing parameters
-    Returns:
-        Configured NormalMerger instance
-    """
-    return NormalMerger(**request.param)
+@pytest.fixture
+def merger() -> NormalMerger:
+    """Provide a fresh NormalMerger instance for each test."""
+    return NormalMerger()
 
 
 @pytest.mark.parametrize(

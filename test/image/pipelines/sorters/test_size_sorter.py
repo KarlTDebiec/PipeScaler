@@ -9,24 +9,12 @@ import pytest
 from pipescaler.image.core.pipelines import PipeImage
 from pipescaler.image.pipelines.sorters import SizeSorter
 from pipescaler.testing.file import get_test_input_path
-from pipescaler.testing.fixture import parametrized_fixture
 
 
-@parametrized_fixture(
-    cls=SizeSorter,
-    params=[
-        {"cutoff": 128},
-    ],
-)
-def sorter(request: pytest.FixtureRequest) -> SizeSorter:
-    """Pytest fixture that provides a SizeSorter instance.
-
-    Arguments:
-        request: Pytest request fixture containing parameters
-    Returns:
-        Configured SizeSorter instance
-    """
-    return SizeSorter(**request.param)
+@pytest.fixture
+def sorter() -> SizeSorter:
+    """Provide a fresh SizeSorter instance for each test."""
+    return SizeSorter(cutoff=128)
 
 
 @pytest.mark.parametrize(

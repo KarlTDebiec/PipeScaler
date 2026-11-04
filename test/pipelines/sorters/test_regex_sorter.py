@@ -9,26 +9,12 @@ import pytest
 from pipescaler.image.core.pipelines import PipeImage
 from pipescaler.pipelines.sorters import RegexSorter
 from pipescaler.testing.file import get_test_input_path
-from pipescaler.testing.fixture import parametrized_fixture
 
 
-@parametrized_fixture(
-    cls=RegexSorter,
-    params=[
-        dict(
-            regex=".*L.*",
-        ),
-    ],
-)
-def sorter(request: pytest.FixtureRequest) -> RegexSorter:
-    """Pytest fixture that provides a RegexSorter instance.
-
-    Arguments:
-        request: Pytest request fixture containing parameters
-    Returns:
-        Configured RegexSorter instance
-    """
-    return RegexSorter(**request.param)
+@pytest.fixture
+def sorter() -> RegexSorter:
+    """Provide a fresh RegexSorter instance for each test."""
+    return RegexSorter(regex=".*L.*")
 
 
 @pytest.mark.parametrize(

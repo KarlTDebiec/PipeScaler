@@ -9,24 +9,12 @@ import pytest
 from pipescaler.image.core.pipelines import PipeImage
 from pipescaler.image.pipelines.sorters import ModeSorter
 from pipescaler.testing.file import get_test_input_path
-from pipescaler.testing.fixture import parametrized_fixture
 
 
-@parametrized_fixture(
-    cls=ModeSorter,
-    params=[
-        {},
-    ],
-)
-def sorter(request: pytest.FixtureRequest) -> ModeSorter:
-    """Pytest fixture that provides a ModeSorter instance.
-
-    Arguments:
-        request: Pytest request fixture containing parameters
-    Returns:
-        Configured ModeSorter instance
-    """
-    return ModeSorter(**request.param)
+@pytest.fixture
+def sorter() -> ModeSorter:
+    """Provide a fresh ModeSorter instance for each test."""
+    return ModeSorter()
 
 
 @pytest.mark.parametrize(

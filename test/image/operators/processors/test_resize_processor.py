@@ -9,24 +9,12 @@ from PIL import Image
 
 from pipescaler.image.operators.processors import ResizeProcessor
 from pipescaler.testing.file import get_test_input_path
-from pipescaler.testing.fixture import parametrized_fixture
 
 
-@parametrized_fixture(
-    cls=ResizeProcessor,
-    params=[
-        {"scale": 2},
-    ],
-)
-def processor(request: pytest.FixtureRequest) -> ResizeProcessor:
-    """Pytest fixture that provides a ResizeProcessor instance.
-
-    Arguments:
-        request: Pytest request fixture containing parameters
-    Returns:
-        Configured ResizeProcessor instance
-    """
-    return ResizeProcessor(**request.param)
+@pytest.fixture
+def processor() -> ResizeProcessor:
+    """Provide a fresh ResizeProcessor instance for each test."""
+    return ResizeProcessor(scale=2)
 
 
 @pytest.mark.parametrize(
