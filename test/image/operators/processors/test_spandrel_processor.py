@@ -1,9 +1,15 @@
 #  Copyright 2020-2026 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
-"""Tests for SpandrelProcessor."""
+"""Tests for SpandrelProcessor, including optional real-checkpoint inference.
+
+Set `PIPESCALER_SPANDREL_MODEL_PATH` to a Spandrel-compatible RGB checkpoint to
+enable the serial smoke test. `PIPESCALER_SPANDREL_DEVICE` selects its device and
+defaults to CPU. These tests do not download checkpoints.
+"""
 
 from __future__ import annotations
 
+from os import getenv
 from pathlib import Path
 from typing import Any, cast
 from unittest.mock import MagicMock
@@ -16,53 +22,24 @@ from spandrel import Architecture, ImageModelDescriptor
 
 from pipescaler.common.file import get_temp_file_path
 from pipescaler.image.operators.processors import SpandrelProcessor
-from pipescaler.image.testing import (
-    get_expected_output_mode,
-)
-from pipescaler.testing.file import get_test_input_path, get_test_model_path
-from pipescaler.testing.mark import skip_if_ci, skip_if_codex
 
 
 @pytest.mark.serial
-@pytest.mark.parametrize(
-    ("input_filename", "model"),
-    [
-        # skip_if_codex(skip_if_ci())("1", "ESRGAN/1x_BC1-smooth2"),
-        # skip_if_codex(skip_if_ci())("L", "ESRGAN/1x_BC1-smooth2"),
-        # skip_if_codex(skip_if_ci(xfail_unsupported_image_mode()))(
-        #     "LA", "ESRGAN/1x_BC1-smooth2"
-        # ),
-        # skip_if_codex(skip_if_ci(xfail_unsupported_image_mode()))(
-        #     "RGBA", "ESRGAN/1x_BC1-smooth2"
-        # ),
-        # skip_if_codex(skip_if_ci())("RGB", "ESRGAN/1x_BC1-smooth2"),
-        # skip_if_codex(skip_if_ci())("RGB", "ESRGAN/RRDB_ESRGAN_x4"),
-        # skip_if_codex(skip_if_ci())("RGB", "ESRGAN/RRDB_ESRGAN_x4_old_arch"),
-        skip_if_codex(skip_if_ci())("RGB", "DAT2/4x-PBRify_UpscalerV4"),
-        # skip_if_codex(skip_if_ci())("PL", "ESRGAN/1x_BC1-smooth2"),
-        # skip_if_codex(skip_if_ci(xfail_unsupported_image_mode()))(
-        #     "PLA", "ESRGAN/1x_BC1-smooth2"
-        # ),
-        # skip_if_codex(skip_if_ci())("PRGB", "ESRGAN/1x_BC1-smooth2"),
-        # skip_if_codex(skip_if_ci(xfail_unsupported_image_mode()))(
-        #     "PRGBA", "ESRGAN/1x_BC1-smooth2"
-        # ),
-    ],
-)
-def test(input_filename: str, model: str):
-    """Test SpandrelProcessor with various image modes and models.
-
-    Arguments:
-        input_filename: Input image filename
-        model: Model path identifier
-    """
-    processor = SpandrelProcessor(model_input_path=get_test_model_path(model))
-
-    input_path = get_test_input_path(input_filename)
-    input_img = Image.open(input_path)
-    output_img = processor(input_img)
-
-    assert output_img.mode == get_expected_output_mode(input_img)
+def test_provisioned_rgb_checkpoint():
+    """Load external weights and infer an RGB image at the model's native scale."""
+    model_path = getenv("PIPESCALER_SPANDREL_MODEL_PATH")
+    if model_path is None:
+        pytest.skip("Set PIPESCALER_SPANDREL_MODEL_PATH to provision an RGB checkpoint")
+    processor = SpandrelProcessor(
+        Path(model_path), device=getenv("PIPESCALER_SPANDREL_DEVICE", "cpu")
+    )
+    with Image.new("RGB", (16, 16), (19, 83, 211)) as input_image:
+        with processor(input_image) as output_image:
+            assert output_image.mode == "RGB"
+            assert output_image.size == (
+                input_image.width * processor.model.scale,
+                input_image.height * processor.model.scale,
+            )
 
 
 def _mock_descriptor(input_channels: int = 3, output_channels: int = 3) -> MagicMock:
