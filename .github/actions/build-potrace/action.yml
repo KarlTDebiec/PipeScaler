@@ -1,0 +1,69 @@
+name: Build libpotrace
+description: Restore or build the pinned Potrace shared library
+
+inputs:
+  library-path:
+    description: Destination path for the platform's shared library
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Restore libpotrace
+      id: potrace
+      uses: actions/cache@v4
+      with:
+        path: ${{ inputs.library-path }}
+        key: libpotrace-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.github/actions/build-potrace/action.yml') }}
+
+    - name: Build libpotrace on Unix
+      if: runner.os != 'Windows' && steps.potrace.outputs.cache-hit != 'true'
+      shell: bash
+      env:
+        PIPESCALER_POTRACE_LIBRARY: ${{ inputs.library-path }}
+      run: |
+        version=1.16
+        checksum=be8248a17dedd6ccbaab2fcc45835bb0502d062e40fbded3bc56028ce5eb7acc
+        build_dir="$RUNNER_TEMP/potrace"
+        mkdir -p "$build_dir" "$(dirname "$PIPESCALER_POTRACE_LIBRARY")"
+        curl --fail --location --retry 3 --max-time 60 \
+          "https://potrace.sourceforge.net/download/$version/potrace-$version.tar.gz" \
+          --output "$build_dir/potrace.tar.gz"
+        if [[ "$RUNNER_OS" == "macOS" ]]; then
+          echo "$checksum  $build_dir/potrace.tar.gz" | shasum -a 256 --check
+          library_flag=-dynamiclib
+        else
+          echo "$checksum  $build_dir/potrace.tar.gz" | sha256sum --check
+          library_flag=-shared
+        fi
+        tar -xzf "$build_dir/potrace.tar.gz" -C "$build_dir"
+        cd "$build_dir/potrace-$version/src"
+        cc -O2 -fPIC -DHAVE_INTTYPES_H "-DVERSION=\"$version\"" "$library_flag" \
+          curve.c trace.c decompose.c potracelib.c -lm \
+          -o "$PIPESCALER_POTRACE_LIBRARY"
+
+    - name: Set up MSVC
+      if: runner.os == 'Windows' && steps.potrace.outputs.cache-hit != 'true'
+      uses: ilammy/msvc-dev-cmd@v1
+
+    - name: Build libpotrace on Windows
+      if: runner.os == 'Windows' && steps.potrace.outputs.cache-hit != 'true'
+      shell: pwsh
+      env:
+        PIPESCALER_POTRACE_LIBRARY: ${{ inputs.library-path }}
+      run: |
+        $version = "1.16"
+        $checksum = "be8248a17dedd6ccbaab2fcc45835bb0502d062e40fbded3bc56028ce5eb7acc"
+        $buildDir = Join-Path $env:RUNNER_TEMP "potrace"
+        $libraryPath = $env:PIPESCALER_POTRACE_LIBRARY
+        New-Item -ItemType Directory -Force -Path $buildDir, (Split-Path -Parent $libraryPath) | Out-Null
+        Invoke-WebRequest -Uri "https://potrace.sourceforge.net/download/$version/potrace-$version.tar.gz" -OutFile "$buildDir/potrace.tar.gz"
+        if ((Get-FileHash -LiteralPath "$buildDir/potrace.tar.gz" -Algorithm SHA256).Hash -ne $checksum) {
+          throw "Potrace source archive checksum mismatch"
+        }
+        tar -xzf "$buildDir/potrace.tar.gz" -C $buildDir
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        Push-Location "$buildDir/potrace-$version/src"
+        cl /nologo /O2 /LD /std:c11 /DHAVE_INTTYPES_H ('/DVERSION="{0}"' -f $version) curve.c trace.c decompose.c potracelib.c /link "/OUT:$libraryPath" /EXPORT:potrace_trace /EXPORT:potrace_state_free
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        Pop-Location
