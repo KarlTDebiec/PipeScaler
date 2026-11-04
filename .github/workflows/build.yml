@@ -60,20 +60,23 @@ jobs:
 
       - name: Install package dependencies
         id: install
-        run: uv sync --all-extras --dev --frozen
+        run: uv sync --no-default-groups --group cpu --group dev --frozen
+
+      - name: Verify CPU-only dependencies
+        run: uv run --frozen --no-default-groups --group cpu --group dev python test/scripts/check_cpu_dependencies.py
 
       - name: Run ruff
-        run: uv run ruff check --output-format=github
+        run: uv run --frozen --no-default-groups --group cpu --group dev ruff check --output-format=github
 
       - name: Run ty
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
-        run: uv run ty check --output-format=github .
+        run: uv run --frozen --no-default-groups --group cpu --group dev ty check --output-format=github .
 
       - name: Run pytest
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: |
           export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
-          uv run pytest -v --cov=pipescaler --cov-report term test
+          uv run --frozen --no-default-groups --group cpu --group dev pytest -v --cov=pipescaler --cov-report term test
 
   macOS:
     runs-on: macos-latest
@@ -123,12 +126,15 @@ jobs:
             -o "$PIPESCALER_POTRACE_LIBRARY"
 
       - name: Install package dependencies
-        run: uv sync --all-extras --dev --frozen
+        run: uv sync --no-default-groups --group cpu --group dev --frozen
+
+      - name: Verify CPU-only dependencies
+        run: uv run --frozen --no-default-groups --group cpu --group dev python test/scripts/check_cpu_dependencies.py
 
       - name: Run tests
         run: |
           export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
-          uv run pytest -v --cov=pipescaler --cov-report term test
+          uv run --frozen --no-default-groups --group cpu --group dev pytest -v --cov=pipescaler --cov-report term test
 
   Windows:
     runs-on: windows-latest
@@ -180,10 +186,13 @@ jobs:
           Pop-Location
 
       - name: Install dependencies
-        run: uv sync --all-extras --dev --frozen
+        run: uv sync --no-default-groups --group cpu --group dev --frozen
+
+      - name: Verify CPU-only dependencies
+        run: uv run --frozen --no-default-groups --group cpu --group dev python test/scripts/check_cpu_dependencies.py
 
       - name: Run tests
         shell: bash
         run: |
           export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
-          uv run pytest -v --cov=pipescaler --cov-report term test
+          uv run --frozen --no-default-groups --group cpu --group dev pytest -v --cov=pipescaler --cov-report term test

@@ -16,6 +16,22 @@ Developer guidance: [Architecture](docs/ARCHITECTURE.md),
 
 Other packages can add commands through [CLI extensions](docs/CLI_EXTENSIONS.md).
 
+# Installation
+
+Use Python 3.14 and `uv sync --frozen` for the repository environment. The default
+`cpu` and `dev` groups provide CPU-only PyTorch and the development tools. The
+`dev` group combines separate `lint` and `test` groups; CI selects `cpu` and `dev`
+explicitly and runs the full suite.
+
+For local CUDA inference on Linux or Windows, use
+`uv sync --frozen --no-group cpu --extra cuda`. Apply the same
+`--no-group cpu --extra cuda` selection to subsequent `uv run` commands. The CPU
+group and CUDA extra are mutually exclusive. macOS uses native PyTorch wheels,
+which also support available MPS devices.
+
+Backend selection relies on uv's sources in [pyproject.toml](pyproject.toml).
+`pip` does not read those source mappings or select a PyTorch index from an extra.
+
 # Image Processing
 
 PipeScaler includes the following components for image processing:
