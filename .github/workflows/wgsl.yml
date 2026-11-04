@@ -41,7 +41,8 @@ jobs:
         run: |
           relevant=true
           if [[ "$EVENT_NAME" == "pull_request" ]]; then
-            git diff --name-only --no-renames -z "$BASE_SHA...$HEAD_SHA" -- '*.wgsl' > "$RUNNER_TEMP/wgsl-changes"
+            git diff --name-only --no-renames -z "$BASE_SHA...$HEAD_SHA" -- \
+              '*.wgsl' '.github/workflows/wgsl.yml' > "$RUNNER_TEMP/wgsl-changes"
             relevant=false
             if [[ -s "$RUNNER_TEMP/wgsl-changes" ]]; then
               relevant=true
