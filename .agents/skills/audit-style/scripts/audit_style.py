@@ -9,9 +9,11 @@ import ast
 import re
 from collections import Counter, defaultdict
 from collections.abc import Sequence
-from logging import INFO, basicConfig, info
+from logging import INFO, basicConfig, getLogger
 from pathlib import Path
 from typing import NamedTuple
+
+logger = getLogger(__name__)
 
 __all__ = [
     "StyleNote",
@@ -24,7 +26,7 @@ __all__ = [
 ]
 
 COPYRIGHT_LINE_ONE_RE = re.compile(
-    r"^#  Copyright (2017|2020)-2026 Karl T Debiec\. All rights reserved\. "
+    r"^#  Copyright [0-9]{4}(?:-[0-9]{4})? Karl T Debiec\. All rights reserved\. "
     r"This software may be modified$"
 )
 """Regex matching the first line of the repository copyright header."""
@@ -135,7 +137,7 @@ def main(argv: Sequence[str] | None = None):
     except (OSError, ValueError) as exc:
         raise SystemExit(str(exc)) from exc
     note_count = sum(len(file_notes) for file_notes in notes.values())
-    info(f"wrote {args.output} with {len(file_paths)} files, {note_count} notes")
+    logger.info(f"wrote {args.output} with {len(file_paths)} files, {note_count} notes")
 
 
 def write_report(
