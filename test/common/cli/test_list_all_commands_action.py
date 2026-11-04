@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 import pytest
 
 from pipescaler.common.cli import CommandLineInterface, ListAllCommandsAction
@@ -13,7 +15,7 @@ class EmptyCli(CommandLineInterface):
     """Empty CLI for testing command listing."""
 
     @classmethod
-    def _main(cls, **kwargs):
+    def _main(cls, **kwargs: Any):
         """Execute with provided keyword arguments.
 
         Arguments:
@@ -28,7 +30,7 @@ class NoncallableSubcommandsCli(CommandLineInterface):
     """Noncallable subcommands attribute."""
 
     @classmethod
-    def _main(cls, **kwargs):
+    def _main(cls, **kwargs: Any):
         """Execute with provided keyword arguments.
 
         Arguments:
@@ -49,7 +51,7 @@ class NonmappingSubcommandsCli(CommandLineInterface):
         return []
 
     @classmethod
-    def _main(cls, **kwargs):
+    def _main(cls, **kwargs: Any):
         """Execute with provided keyword arguments.
 
         Arguments:
@@ -70,7 +72,7 @@ class InvalidSubcommandCli(CommandLineInterface):
         return {"invalid": object()}
 
     @classmethod
-    def _main(cls, **kwargs):
+    def _main(cls, **kwargs: Any):
         """Execute with provided keyword arguments.
 
         Arguments:
