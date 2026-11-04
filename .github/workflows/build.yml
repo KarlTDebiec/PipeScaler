@@ -50,6 +50,10 @@ jobs:
       - name: Run ruff
         run: uv run --frozen --no-default-groups --group cpu --group dev ruff check --output-format=github
 
+      - name: Check Ruff formatting
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: uv run --frozen ruff format --check
+
       - name: Run ty
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: uv run --frozen --no-default-groups --group cpu --group dev ty check --output-format=github .
