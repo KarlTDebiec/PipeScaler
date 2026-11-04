@@ -4,7 +4,9 @@
 
 from __future__ import annotations
 
+from contextlib import redirect_stderr, suppress
 from inspect import cleandoc
+from io import StringIO
 from logging import DEBUG, INFO, NOTSET, WARNING, getLogger
 from pathlib import Path
 from subprocess import run
@@ -13,8 +15,12 @@ from sys import executable
 import pytest
 from PIL import Image
 
+from pipescaler.cli.pipescaler_cli import PipeScalerCli
 from pipescaler.common import package_root
+from pipescaler.common.testing import run_cli_with_args
 from pipescaler.image.core.pipelines.pipe_image import PipeImage
+from pipescaler.image.core.sorting import citra_sort
+from pipescaler.pipelines.sorters.list_sorter import ListSorter
 from pipescaler.pipelines.sorters.regex_sorter import RegexSorter
 
 
@@ -38,51 +44,32 @@ def test_cli_console_and_file_logging(
     list_path = tmp_path / "names.txt"
     Image.new("RGB", (1, 1)).save(input_path)
     list_path.write_text("sample\n", encoding="utf-8")
-    result = run(
-        [
-            executable,
-            "-c",
-            cleandoc(
-                """
-                import sys
-                from contextlib import suppress
-                from pathlib import Path
+    stderr = StringIO()
+    root_logger = getLogger()
+    handlers, level = root_logger.handlers[:], root_logger.level
+    with redirect_stderr(stderr):
+        try:
+            for _ in range(2):
+                run_cli_with_args(
+                    PipeScalerCli,
+                    f'{" ".join(options)} -l "{log_file_path}" '
+                    f'image process resize "{input_path}" "{output_path}" '
+                    "--scale 1 --resample nearest",
+                )
+                output_path.unlink()
+                image = PipeImage(path=input_path, detach_file=True)
+                assert image.image.size == (1, 1)
+                ListSorter(allow_duplicates=True, first=list_path, second=list_path)
+                with suppress(ValueError):
+                    citra_sort("invalid.png")
+        finally:
+            for handler in root_logger.handlers:
+                if handler not in handlers:
+                    handler.close()
+            root_logger.handlers[:] = handlers
+            root_logger.setLevel(level)
 
-                from pipescaler.cli import PipeScalerCli
-                from pipescaler.image.core.pipelines.pipe_image import PipeImage
-                from pipescaler.image.core.sorting import citra_sort
-                from pipescaler.pipelines.sorters.list_sorter import ListSorter
-
-                input_path, output_path, log_file_path, list_path = sys.argv[1:5]
-                for _ in range(2):
-                    PipeScalerCli.main([
-                        *sys.argv[5:], "-l", log_file_path,
-                        "image", "process", "resize", input_path, output_path,
-                        "--scale", "1", "--resample", "nearest",
-                    ])
-                    Path(output_path).unlink()
-                    image = PipeImage(path=Path(input_path), detach_file=True)
-                    assert image.image.size == (1, 1)
-                    ListSorter(allow_duplicates=True, first=list_path, second=list_path)
-                    with suppress(ValueError):
-                        citra_sort("invalid.png")
-                """
-            ),
-            str(input_path),
-            str(output_path),
-            str(log_file_path),
-            str(list_path),
-            *options,
-        ],
-        check=False,
-        cwd=package_root.parent,
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        timeout=60,
-    )
-    assert result.returncode == 0, result.stderr
-    assert result.stderr == log_file_path.read_text(encoding="utf-8")
+    assert stderr.getvalue() == log_file_path.read_text(encoding="utf-8")
     for level, module_name, minimum_verbosity in [
         ("ERROR", "pipescaler.image.core.sorting", 0),
         ("WARNING", "pipescaler.pipelines.sorters.list_sorter", 1),
@@ -90,7 +77,7 @@ def test_cli_console_and_file_logging(
         ("DEBUG", "pipescaler.image.core.pipelines.pipe_image", 3),
     ]:
         expected_count = 2 if verbosity >= minimum_verbosity else 0
-        assert result.stderr.count(f"{level}: {module_name}:") == expected_count
+        assert stderr.getvalue().count(f"{level}: {module_name}:") == expected_count
 
 
 @pytest.mark.parametrize("configured", [False, True])
