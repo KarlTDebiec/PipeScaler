@@ -7,11 +7,9 @@ from __future__ import annotations
 import pytest
 from PIL import Image
 
+from pipescaler.image.core.exceptions import UnsupportedImageModeError
 from pipescaler.image.operators.processors import SharpenProcessor
-from pipescaler.image.testing import (
-    get_expected_output_mode,
-    xfail_unsupported_image_mode,
-)
+from pipescaler.image.testing import get_expected_output_mode
 from pipescaler.testing.file import get_test_input_path
 from pipescaler.testing.fixture import parametrized_fixture
 
@@ -34,28 +32,35 @@ def processor(request: pytest.FixtureRequest) -> SharpenProcessor:
 
 
 @pytest.mark.parametrize(
-    "input_filename",
+    ("input_filename", "supported"),
     [
-        xfail_unsupported_image_mode()("1"),
-        "L",
-        xfail_unsupported_image_mode()("LA"),
-        "RGB",
-        xfail_unsupported_image_mode()("RGBA"),
-        "PL",
-        xfail_unsupported_image_mode()("PLA"),
-        "PRGB",
-        xfail_unsupported_image_mode()("PRGBA"),
+        ("1", False),
+        ("L", True),
+        ("LA", False),
+        ("RGB", True),
+        ("RGBA", False),
+        ("PL", True),
+        ("PLA", False),
+        ("PRGB", True),
+        ("PRGBA", False),
     ],
 )
-def test(input_filename: str, processor: SharpenProcessor):
+def test(input_filename: str, processor: SharpenProcessor, supported: bool):
     """Test SharpenProcessor with various image modes.
 
     Arguments:
         input_filename: Input image filename
         processor: SharpenProcessor fixture instance
+        supported: whether the input modes are accepted
     """
     input_path = get_test_input_path(input_filename)
     input_img = Image.open(input_path)
+    if not supported:
+        with pytest.raises(
+            UnsupportedImageModeError, match="is not among supported modes"
+        ):
+            processor(input_img)
+        return
     output_img = processor(input_img)
 
     assert output_img.mode == get_expected_output_mode(input_img)

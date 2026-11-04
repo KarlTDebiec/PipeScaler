@@ -8,8 +8,8 @@ import numpy as np
 import pytest
 from PIL import Image
 
+from pipescaler.image.core.exceptions import UnsupportedImageModeError
 from pipescaler.image.operators.processors import ThresholdProcessor
-from pipescaler.image.testing import xfail_unsupported_image_mode
 from pipescaler.testing.file import get_test_input_path
 from pipescaler.testing.fixture import parametrized_fixture
 
@@ -33,28 +33,35 @@ def processor(request: pytest.FixtureRequest) -> ThresholdProcessor:
 
 
 @pytest.mark.parametrize(
-    "input_filename",
+    ("input_filename", "supported"),
     [
-        "1",
-        "L",
-        xfail_unsupported_image_mode()("LA"),
-        xfail_unsupported_image_mode()("RGB"),
-        xfail_unsupported_image_mode()("RGBA"),
-        "PL",
-        xfail_unsupported_image_mode()("PLA"),
-        xfail_unsupported_image_mode()("PRGB"),
-        xfail_unsupported_image_mode()("PRGBA"),
+        ("1", True),
+        ("L", True),
+        ("LA", False),
+        ("RGB", False),
+        ("RGBA", False),
+        ("PL", True),
+        ("PLA", False),
+        ("PRGB", False),
+        ("PRGBA", False),
     ],
 )
-def test(input_filename: str, processor: ThresholdProcessor):
+def test(input_filename: str, processor: ThresholdProcessor, supported: bool):
     """Test ThresholdProcessor with various image modes.
 
     Arguments:
         input_filename: Input image filename
         processor: ThresholdProcessor fixture instance
+        supported: whether the input modes are accepted
     """
     input_path = get_test_input_path(input_filename)
     input_img = Image.open(input_path)
+    if not supported:
+        with pytest.raises(
+            UnsupportedImageModeError, match="is not among supported modes"
+        ):
+            processor(input_img)
+        return
     output_img = processor(input_img)
 
     assert output_img.size == input_img.size
