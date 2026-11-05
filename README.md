@@ -80,6 +80,32 @@ PipeScaler includes the following components for image processing:
 
 PipeScaler includes the following components for video processing:
 
+`ApngasmRunner` assembles animated PNGs using the bundled `apngasm-python`
+library. It accepts an ordered sequence of static image paths, Pillow images,
+or `uint8` NumPy arrays in RGB/RGBA order; frames must share nonzero dimensions.
+No separate `apngasm` executable is required. Timing uses integer numerator and
+denominator values in seconds, with optional per-frame overrides:
+
+```python
+from pathlib import Path
+
+from pipescaler.video.runners import ApngasmRunner
+
+runner = ApngasmRunner(delay_num=1, delay_den=10, loops=0)
+runner.run(
+    [Path("first.png"), Path("second.png")],
+    Path("animation.png"),
+    delays=[(1, 10), (1, 5)],
+)
+```
+
+The output directory must exist. `loops=0` repeats forever; `skip_first=True`
+uses the first input as a static fallback outside animation playback. One input
+without `skip_first` produces a static PNG. Native optimization can combine
+consecutive identical frames while preserving their total duration. See the
+[runner contract](pipescaler/video/runners/apngasm_runner.py) for validation and
+failure behavior.
+
 **Sources** yield videos for downstream modification:
 * [VideoDirectorySource](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/video/pipelines/sources/video_directory_source.py) - Yields videos from a directory.
 

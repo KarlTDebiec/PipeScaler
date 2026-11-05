@@ -9,6 +9,7 @@ license = "BSD-3-Clause"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "apngasm-python>=1.3.2",
     "imagequant>=1.1.5",
     "ispc-texcomp>=1.0.1",
     "numba>=0.65.1",
