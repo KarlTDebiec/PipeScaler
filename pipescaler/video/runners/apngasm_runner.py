@@ -5,7 +5,12 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
+from contextlib import ExitStack
+from fractions import Fraction
+from os import name as os_name
 from pathlib import Path
+from shutil import copyfile
+from tempfile import gettempdir
 
 import numpy as np
 from apngasm_python.apngasm import APNGAsmBinder
@@ -26,8 +31,10 @@ class ApngasmRunner:
 
     Each input contributes one frame. Pillow images and static image files are
     converted to RGBA; arrays must have shape (height, width, 3 or 4). All frames
-    must have the same nonzero dimensions. Inputs are not modified. libapngasm may
-    combine consecutive identical frames and discard RGB values under zero alpha.
+    must have the same nonzero dimensions. Inputs are not modified. Consecutive
+    visually identical animation frames are combined using exact rational timing;
+    their reduced total delay must fit APNG's 16-bit numerator and denominator.
+    RGB values under zero alpha are discarded.
     """
 
     def __init__(
@@ -106,6 +113,10 @@ class ApngasmRunner:
         The output directory must already exist. An existing output is preserved
         if validation or encoding fails.
 
+        Native encoding uses the system temporary directory. On Windows, a
+        non-ASCII temporary directory instead requires a writable current working
+        directory, where encoding uses an ASCII filename without changing cwd.
+
         Arguments:
             frames: ordered image paths, Pillow images, or uint8 RGB/RGBA arrays
             output_path: output path with a .png or .apng suffix
@@ -113,7 +124,8 @@ class ApngasmRunner:
                 both integers must be from 1 to 65535
         Raises:
             TypeError: if frame types, array dtype, or delay types are unsupported
-            ValueError: if frames, dimensions, delays, or output suffix are invalid
+            ValueError: if frames, dimensions, delays, or output suffix are invalid,
+                including a combined duplicate-frame delay outside APNG's limits
             OSError: if reading frames or writing the output fails
             PipeScalerError: if native assembly fails or produces invalid output
         """
@@ -131,33 +143,12 @@ class ApngasmRunner:
         with APNGAsmBinder() as assembler:
             assembler.set_loops(self.loops)
             assembler.set_skip_first(self.skip_first)
-            size: tuple[int, int] | None = None
-            for index, (frame, (numerator, denominator)) in enumerate(
-                zip(frames, frame_delays, strict=True)
-            ):
-                pixels = self._get_pixels(frame)
-                frame_size = (pixels.shape[1], pixels.shape[0])
-                if size is None:
-                    size = frame_size
-                elif frame_size != size:
-                    raise ValueError(
-                        f"Frame {index} has size {frame_size}; expected {size}"
-                    )
-                assembler.add_frame_from_numpy(
-                    pixels, delay_num=numerator, delay_den=denominator
-                )
+            self._add_frames(assembler, frames, frame_delays)
 
             with get_temp_file_path(
                 ".png", parent_dir_path=output_path.parent
             ) as temp_path:
-                try:
-                    assembled = assembler.assemble(str(temp_path))
-                except RuntimeError as exc:
-                    raise PipeScalerError("libapngasm assembly failed") from exc
-                if not assembled or not temp_path.is_file():
-                    raise PipeScalerError(
-                        f"libapngasm could not assemble {output_path}"
-                    )
+                self._assemble(assembler, temp_path)
                 try:
                     with Image.open(temp_path) as image:
                         for index in range(image.n_frames):
@@ -178,6 +169,41 @@ class ApngasmRunner:
             "Creates animated PNGs using "
             "[apngasm-python](https://apngasm-python.readthedocs.io/en/latest/)."
         )
+
+    def _add_frames(
+        self,
+        assembler: APNGAsmBinder,
+        frames: Sequence[ApngasmFrame],
+        delays: Sequence[tuple[int, int]],
+    ):
+        """Combine duplicate runs exactly before native timing arithmetic.
+
+        Arguments:
+            assembler: native assembler receiving distinct animation frames
+            frames: ordered static inputs, including any fallback frame
+            delays: validated numerator/denominator pairs for the inputs
+        Raises:
+            TypeError: if a frame type or array dtype is unsupported
+            ValueError: if geometry is invalid or a combined delay cannot be encoded
+            OSError: if an input file cannot be read
+        """
+        previous_pixels: NDArray[np.uint8] | None = None
+        duration = Fraction(0)
+        for index, (frame, delay) in enumerate(zip(frames, delays, strict=True)):
+            pixels = self._get_pixels(frame)
+            if previous_pixels is not None:
+                if pixels.shape != previous_pixels.shape:
+                    raise ValueError(f"Frame {index} has a different size")
+                if (not self.skip_first or index != 1) and np.array_equal(
+                    pixels, previous_pixels
+                ):
+                    duration += Fraction(*delay)
+                    continue
+                self._add_frame(assembler, previous_pixels, duration)
+            previous_pixels = pixels
+            duration = Fraction(*delay)
+        if previous_pixels is not None:
+            self._add_frame(assembler, previous_pixels, duration)
 
     def _get_delays(
         self, frame_count: int, delays: Sequence[tuple[int, int]] | None
@@ -206,13 +232,75 @@ class ApngasmRunner:
         ]
 
     @staticmethod
+    def _add_frame(
+        assembler: APNGAsmBinder, pixels: NDArray[np.uint8], duration: Fraction
+    ):
+        """Add one distinct frame with an exactly representable delay.
+
+        Arguments:
+            assembler: native assembler receiving the frame
+            pixels: canonical RGBA pixels
+            duration: exact combined delay for the duplicate run
+        Raises:
+            ValueError: if the reduced delay exceeds APNG's 16-bit timing fields
+        """
+        if duration.numerator > 65535 or duration.denominator > 65535:
+            raise ValueError(
+                "Combined duplicate-frame delay must fit APNG's 16-bit timing fields"
+            )
+        assembler.add_frame_from_numpy(
+            pixels, delay_num=duration.numerator, delay_den=duration.denominator
+        )
+
+    @staticmethod
+    def _assemble(assembler: APNGAsmBinder, output_path: Path):
+        """Encode through a native-compatible temporary path and copy the result.
+
+        Arguments:
+            assembler: configured native assembler with validated frames
+            output_path: adjacent temporary destination used for atomic publication
+        Raises:
+            OSError: if temporary encoding or copying the result fails
+            PipeScalerError: if native assembly fails, produces no file, or the
+                Windows fallback cannot create a temporary file in the current cwd
+        """
+        native_dir_path = Path(gettempdir())
+        use_relative_path = os_name == "nt" and not str(native_dir_path).isascii()
+        if use_relative_path:
+            native_dir_path = Path.cwd()
+        with ExitStack() as temporary_files:
+            try:
+                native_path = temporary_files.enter_context(
+                    get_temp_file_path(".png", parent_dir_path=native_dir_path)
+                )
+            except PermissionError as exc:
+                if use_relative_path:
+                    raise PipeScalerError(
+                        "Windows APNG encoding with a non-ASCII temporary directory "
+                        "requires a writable current working directory"
+                    ) from exc
+                raise
+            # A relative ASCII filename also works when the Windows cwd is Unicode
+            if use_relative_path:
+                assembly_path = native_path.name
+            else:
+                assembly_path = str(native_path)
+            try:
+                assembled = assembler.assemble(assembly_path)
+            except RuntimeError as exc:
+                raise PipeScalerError("libapngasm assembly failed") from exc
+            if not assembled or not native_path.is_file():
+                raise PipeScalerError("libapngasm could not assemble the output")
+            copyfile(native_path, output_path)
+
+    @staticmethod
     def _get_pixels(frame: ApngasmFrame) -> NDArray[np.uint8]:
         """Read and validate one frame before passing its memory to native code.
 
         Arguments:
             frame: static image path, Pillow image, or uint8 RGB/RGBA array
         Returns:
-            writable contiguous RGB/RGBA pixels with nonzero dimensions
+            owned writable contiguous RGBA pixels, with zero RGB under zero alpha
         Raises:
             TypeError: if the frame type or array dtype is unsupported
             ValueError: if the image is animated or its dimensions are invalid
@@ -242,8 +330,15 @@ class ApngasmRunner:
             raise ValueError(
                 "Frame arrays must have nonzero shape (height, width, 3 or 4)"
             )
-        # The binding requires writable memory and ignores NumPy strides
-        return np.require(pixels, requirements=["C", "W"])
+        if pixels.shape[2] == 3:
+            alpha = np.full((*pixels.shape[:2], 1), 255, dtype=np.uint8)
+            pixels = np.concatenate((pixels, alpha), axis=2)
+        else:
+            # Own writable contiguous pixels before canonicalizing hidden colors
+            pixels = np.array(pixels, copy=True, order="C")
+        pixels[pixels[:, :, 3] == 0, :3] = 0
+        # Native pixel reads ignore strides, including those retained by concatenation
+        return np.ascontiguousarray(pixels)
 
     @staticmethod
     def _validate_integer(name: str, value: int, minimum: int, maximum: int) -> int:

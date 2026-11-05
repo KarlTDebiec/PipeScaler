@@ -101,8 +101,9 @@ runner.run(
 
 The output directory must exist. `loops=0` repeats forever; `skip_first=True`
 uses the first input as a static fallback outside animation playback. One input
-without `skip_first` produces a static PNG. Native optimization can combine
-consecutive identical frames while preserving their total duration. See the
+without `skip_first` produces a static PNG. Consecutive visually identical frames
+are combined using exact timing; their reduced total delay must fit APNG's 16-bit
+numerator and denominator or assembly raises `ValueError`. See the
 [runner contract](pipescaler/video/runners/apngasm_runner.py) for validation and
 failure behavior.
 
