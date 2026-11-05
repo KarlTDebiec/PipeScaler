@@ -1,6 +1,6 @@
 #  Copyright 2026 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
-"""Optional upstream TemporalFix runtime, isolated from ordinary image processing."""
+"""TemporalFix graph construction, input inspection, and runtime validation."""
 
 from __future__ import annotations
 
@@ -41,6 +41,10 @@ def build_temporal_clip(
 ) -> Any:
     """Build upstream graphs with three-frame context restricted to each scene.
 
+    Scene boundaries are supplied explicitly. Context outputs are trimmed, and
+    exclusions use source frame indices. Scenes shorter than four frames pass
+    through unchanged.
+
     Arguments:
         source: video file or ordered image sequence
         settings: validated color, timing, and upstream inference settings
@@ -48,7 +52,7 @@ def build_temporal_clip(
     Returns:
         floating-point RGB VapourSynth node containing only requested frames
     Raises:
-        DependencyError: if optional runtime dependencies are unavailable
+        DependencyError: if runtime dependencies are unavailable
         RuntimeError: if runtime validation or model execution fails
         ValueError: if the requested source interval or input interpretation is invalid
     """
@@ -87,14 +91,14 @@ def build_temporal_clip(
 
 
 def import_temporal_runtime(backend: str) -> tuple[ModuleType, ModuleType]:
-    """Import and validate optional native libraries only inside worker operations.
+    """Load TemporalFix dependencies and check backend availability.
 
     Arguments:
         backend: requested upstream execution backend
     Returns:
         VapourSynth and vs_temporalfix modules
     Raises:
-        DependencyError: if optional runtime dependencies are unavailable
+        DependencyError: if runtime dependencies are unavailable
         RuntimeError: if dependencies, native plugins, or the backend are unavailable
     """
     try:
@@ -108,18 +112,18 @@ def import_temporal_runtime(backend: str) -> tuple[ModuleType, ModuleType]:
             raise RuntimeError("VapourSynth R74 or newer is required")
         if backend == "cuda":
             if not torch.cuda.is_available():
-                raise RuntimeError("CUDA is unavailable in the selected worker")
+                raise RuntimeError("CUDA is unavailable")
         elif backend == "mps":
             if not torch.backends.mps.is_available():
-                raise RuntimeError("MPS is unavailable in the selected worker")
+                raise RuntimeError("MPS is unavailable")
         elif backend == "tensorrt":
             vs.core.trt.Version()
         elif backend == "directml":
             vs.core.ort.Version()
     except (ImportError, AttributeError, OSError) as exc:
         raise RuntimeError(
-            "TemporalFix runtime is unavailable; provision VapourSynth R74+, "
-            "vs_temporalfix 2.4.1, and the selected backend in the worker environment"
+            "TemporalFix requires VapourSynth R74+, "
+            "vs_temporalfix 2.4.1, and the selected backend"
         ) from exc
     return vs, temporalfix
 
@@ -129,13 +133,16 @@ def inspect_temporal_input(
 ) -> dict[str, Any]:
     """Inspect native metadata, model fingerprints, and installed runtime versions.
 
+    Inputs require at least four frames and even dimensions. Selected ranges,
+    exclusions, and scene boundaries must lie within the source.
+
     Arguments:
         source: validated video or sequence input
         settings: input interpretation and selected backend
     Returns:
         JSON-compatible source metadata and runtime identity
     Raises:
-        DependencyError: if optional runtime dependencies are unavailable
+        DependencyError: if runtime dependencies are unavailable
         ValueError: if the source cannot satisfy TemporalFix geometry or frame ranges
         RuntimeError: if native dependencies or the requested backend are missing
     """
@@ -338,8 +345,13 @@ def _build_mps_clip(
 def _open_clip(vs: Any, source: VideoInput, settings: TemporalFixSettings) -> Any:
     """Decode without 8-bit intermediate conversion and apply explicit color rules.
 
+    Sequences require three-channel 8-bit or 16-bit RGB images, an explicit frame
+    rate, and full sample range. Video uses BestSource's native rational rate
+    unless overridden. YUV conversion requires an explicit matrix and range;
+    transfer curves are preserved without tone mapping.
+
     Arguments:
-        vs: imported optional VapourSynth module
+        vs: imported VapourSynth module
         source: video or image-sequence input
         settings: color and rational frame-rate interpretation
     Returns:
