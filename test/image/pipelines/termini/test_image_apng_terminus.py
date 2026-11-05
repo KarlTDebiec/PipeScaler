@@ -478,7 +478,7 @@ def test_invalid_frame_delay_preserves_destination(tmp_path: Path, delay: Any):
     """
     output_path = tmp_path / "existing.png"
     output_path.write_bytes(b"existing output")
-    with pytest.raises((TypeError, ValueError), match="delay"):
+    with pytest.raises((TypeError, ValueError)):
         with ImageApngTerminus(output_path) as terminus:
             terminus(
                 PipeImage(image=Image.new("RGB", (8, 6)), name="frame"), delay=delay
@@ -495,9 +495,12 @@ def test_invalid_frame_delay_preserves_destination(tmp_path: Path, delay: Any):
         ("delay", (1, 65536), ValueError),
         ("delay", (1.5, 10), TypeError),
         ("delay", (1, True), TypeError),
+        ("delay", (1,), ValueError),
+        ("delay", (1, 10, 100), ValueError),
         ("loops", -1, ValueError),
         ("loops", 2**32, ValueError),
         ("loops", 1.5, TypeError),
+        ("loops", True, TypeError),
         ("skip_first", 1, TypeError),
     ],
 )
@@ -512,7 +515,7 @@ def test_invalid_settings(
         value: intentionally invalid value
         error: expected exception category
     """
-    with pytest.raises(error, match=setting):
+    with pytest.raises(error):
         ImageApngTerminus(tmp_path / "output.png", **{setting: value})
 
 

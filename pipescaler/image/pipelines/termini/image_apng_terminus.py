@@ -19,7 +19,7 @@ from numpy.typing import NDArray
 from PIL import Image
 
 from pipescaler.common.file import get_temp_file_path
-from pipescaler.common.validation import val_output_path
+from pipescaler.common.validation import val_int, val_output_path
 from pipescaler.core.exceptions import PipeScalerError
 from pipescaler.image.core.pipelines import ImageTerminus, PipeImage
 
@@ -75,10 +75,12 @@ class ImageApngTerminus(ImageTerminus):
         """Path to the completed PNG or APNG file."""
         if self.output_path.suffix.lower() not in {".png", ".apng"}:
             raise ValueError("Output must have a .png or .apng suffix")
-        duration = _get_delay(delay)
+        duration = self._get_delay(delay)
         self.delay = (duration.numerator, duration.denominator)
         """Default frame delay numerator and denominator, in seconds."""
-        self.loops = _validate_integer("loops", loops, 0, 4294967295)
+        if not isinstance(loops, int) or isinstance(loops, bool):
+            raise TypeError("loops must be an integer")
+        self.loops = val_int(loops, min_value=0, max_value=4294967295)
         """Playback count, with zero denoting infinite looping."""
         if not isinstance(skip_first, bool):
             raise TypeError("skip_first must be a boolean")
@@ -109,31 +111,26 @@ class ImageApngTerminus(ImageTerminus):
         if self._failed:
             raise ValueError("Cannot append to a failed APNG terminus")
         try:
-            duration = _get_delay(self.delay if delay is None else delay)
-            # PipeImage palette conversion can discard animation metadata
-            if input_obj.path is not None:
-                with Image.open(input_obj.path) as file_image:
-                    if getattr(file_image, "is_animated", False):
-                        raise ValueError("APNG input frames must be static images")
-            image = input_obj.image
-            if getattr(image, "is_animated", False):
-                raise ValueError("APNG input frames must be static images")
-            if image.width == 0 or image.height == 0:
-                raise ValueError("Frame dimensions must be nonzero")
-            pixels = np.array(image.convert("RGBA"), dtype=np.uint8, order="C")
-            pixels[pixels[:, :, 3] == 0, :3] = 0
-            if self._previous_pixels is not None:
-                if pixels.shape != self._previous_pixels.shape:
-                    raise ValueError("APNG frame dimensions must have the same size")
-                if (not self.skip_first or self._frame_count != 1) and np.array_equal(
-                    pixels, self._previous_pixels
-                ):
-                    self._duration += duration
-                    self._frame_count += 1
-                    return
-                _add_frame(self._assembler, self._previous_pixels, self._duration)
-            self._previous_pixels = pixels
-            self._duration = duration
+            duration = self._get_delay(self.delay if delay is None else delay)
+            pixels = self._get_pixels(input_obj)
+            if (
+                self._previous_pixels is not None
+                and pixels.shape != self._previous_pixels.shape
+            ):
+                raise ValueError("APNG frame dimensions must have the same size")
+            if (
+                self._previous_pixels is not None
+                and (not self.skip_first or self._frame_count != 1)
+                and np.array_equal(pixels, self._previous_pixels)
+            ):
+                self._duration += duration
+            else:
+                if self._previous_pixels is not None:
+                    self._add_frame(
+                        self._assembler, self._previous_pixels, self._duration
+                    )
+                self._previous_pixels = pixels
+                self._duration = duration
             self._frame_count += 1
         except BaseException:
             self._failed = True
@@ -194,20 +191,13 @@ class ImageApngTerminus(ImageTerminus):
                         "At least one animation frame is required after skip_first"
                     )
                 if self._previous_pixels is not None:
-                    _add_frame(self._assembler, self._previous_pixels, self._duration)
+                    self._add_frame(
+                        self._assembler, self._previous_pixels, self._duration
+                    )
                 with get_temp_file_path(
                     ".png", parent_dir_path=self.output_path.parent
                 ) as temp_path:
-                    _encode(self._assembler, temp_path)
-                    try:
-                        with Image.open(temp_path) as image:
-                            for index in range(image.n_frames):
-                                image.seek(index)
-                                image.load()
-                    except OSError as exc:
-                        raise PipeScalerError(
-                            "libapngasm produced an invalid PNG"
-                        ) from exc
+                    self._encode(self._assembler, temp_path)
                     self._stack.close()
                     temp_path.replace(self.output_path)
         finally:
@@ -226,100 +216,116 @@ class ImageApngTerminus(ImageTerminus):
             f"skip_first={self.skip_first!r})"
         )
 
+    @staticmethod
+    def _add_frame(
+        assembler: APNGAsmBinder, pixels: NDArray[np.uint8], duration: Fraction
+    ):
+        """Add one distinct frame with an exactly representable delay.
 
-def _add_frame(assembler: APNGAsmBinder, pixels: NDArray[np.uint8], duration: Fraction):
-    """Add one distinct frame with an exactly representable delay.
-
-    Arguments:
-        assembler: native assembler receiving the frame
-        pixels: canonical RGBA pixels
-        duration: exact combined delay for the duplicate run
-    Raises:
-        ValueError: if the reduced delay exceeds APNG's 16-bit timing fields
-    """
-    if duration.numerator > 65535 or duration.denominator > 65535:
-        raise ValueError(
-            "Combined duplicate-frame delay must fit APNG's 16-bit timing fields"
-        )
-    assembler.add_frame_from_numpy(
-        pixels, delay_num=duration.numerator, delay_den=duration.denominator
-    )
-
-
-def _encode(assembler: APNGAsmBinder, output_path: Path):
-    """Encode through a native-compatible temporary path and copy the result.
-
-    Arguments:
-        assembler: configured native assembler with validated frames
-        output_path: adjacent temporary destination used for atomic publication
-    Raises:
-        OSError: if temporary encoding or copying the result fails
-        PipeScalerError: if native assembly fails, produces no file, or the
-            Windows fallback cannot create a temporary file in the current cwd
-    """
-    native_dir_path = Path(gettempdir())
-    use_relative_path = os_name == "nt" and not str(native_dir_path).isascii()
-    if use_relative_path:
-        native_dir_path = Path.cwd()
-    with ExitStack() as temporary_files:
-        try:
-            native_path = temporary_files.enter_context(
-                get_temp_file_path(".png", parent_dir_path=native_dir_path)
+        Arguments:
+            assembler: native assembler receiving the frame
+            pixels: canonical RGBA pixels
+            duration: exact combined delay for the duplicate run
+        Raises:
+            ValueError: if the reduced delay exceeds APNG's 16-bit timing fields
+        """
+        if duration.numerator > 65535 or duration.denominator > 65535:
+            raise ValueError(
+                "Combined duplicate-frame delay must fit APNG's 16-bit timing fields"
             )
-        except PermissionError as exc:
-            if use_relative_path:
-                raise PipeScalerError(
-                    "Windows APNG encoding with a non-ASCII temporary directory "
-                    "requires a writable current working directory"
-                ) from exc
-            raise
+        assembler.add_frame_from_numpy(
+            pixels, delay_num=duration.numerator, delay_den=duration.denominator
+        )
+
+    @staticmethod
+    def _encode(assembler: APNGAsmBinder, output_path: Path):
+        """Encode to a temporary path and verify the decoded frames.
+
+        Arguments:
+            assembler: configured native assembler with validated frames
+            output_path: adjacent temporary destination used for atomic publication
+        Raises:
+            OSError: if temporary encoding or copying the result fails
+            PipeScalerError: if native assembly, decoding, or Windows staging fails
+        """
+        native_dir_path = Path(gettempdir())
+        use_relative_path = os_name == "nt" and not str(native_dir_path).isascii()
         if use_relative_path:
-            assembly_path = native_path.name
-        else:
-            assembly_path = str(native_path)
+            native_dir_path = Path.cwd()
+        with ExitStack() as temporary_files:
+            try:
+                native_path = temporary_files.enter_context(
+                    get_temp_file_path(".png", parent_dir_path=native_dir_path)
+                )
+            except PermissionError as exc:
+                if use_relative_path:
+                    raise PipeScalerError(
+                        "Windows APNG encoding with a non-ASCII temporary directory "
+                        "requires a writable current working directory"
+                    ) from exc
+                raise
+            if use_relative_path:
+                assembly_path = native_path.name
+            else:
+                assembly_path = str(native_path)
+            try:
+                assembled = assembler.assemble(assembly_path)
+            except RuntimeError as exc:
+                raise PipeScalerError("libapngasm assembly failed") from exc
+            if not assembled or not native_path.is_file():
+                raise PipeScalerError("libapngasm could not assemble the output")
+            copyfile(native_path, output_path)
         try:
-            assembled = assembler.assemble(assembly_path)
-        except RuntimeError as exc:
-            raise PipeScalerError("libapngasm assembly failed") from exc
-        if not assembled or not native_path.is_file():
-            raise PipeScalerError("libapngasm could not assemble the output")
-        copyfile(native_path, output_path)
+            with Image.open(output_path) as image:
+                for index in range(image.n_frames):
+                    image.seek(index)
+                    image.load()
+        except OSError as exc:
+            raise PipeScalerError("libapngasm produced an invalid PNG") from exc
 
+    @staticmethod
+    def _get_delay(delay: tuple[int, int]) -> Fraction:
+        """Validate an exact frame delay before unsigned native conversion.
 
-def _get_delay(delay: tuple[int, int]) -> Fraction:
-    """Validate an exact frame delay before unsigned native conversion.
+        Arguments:
+            delay: frame delay numerator and denominator
+        Returns:
+            reduced positive duration in seconds
+        Raises:
+            TypeError: if delay components are not integers
+            ValueError: if the pair or its 16-bit component ranges are invalid
+        """
+        if any(
+            not isinstance(value, int) or isinstance(value, bool) for value in delay
+        ):
+            raise TypeError("delay components must be integers")
+        numerator, denominator = val_int(
+            delay, n_values=2, min_value=1, max_value=65535
+        )
+        return Fraction(numerator, denominator)
 
-    Arguments:
-        delay: frame delay numerator and denominator
-    Returns:
-        reduced positive duration in seconds
-    Raises:
-        TypeError: if delay components are not integers
-        ValueError: if the pair or its 16-bit component ranges are invalid
-    """
-    numerator, denominator = delay
-    return Fraction(
-        _validate_integer("delay numerator", numerator, 1, 65535),
-        _validate_integer("delay denominator", denominator, 1, 65535),
-    )
+    @staticmethod
+    def _get_pixels(input_obj: PipeImage) -> NDArray[np.uint8]:
+        """Snapshot a static image into canonical, owned RGBA pixels.
 
-
-def _validate_integer(name: str, value: int, minimum: int, maximum: int) -> int:
-    """Validate an integer without truncation or unsigned native overflow.
-
-    Arguments:
-        name: setting name used in diagnostics
-        value: integer to validate
-        minimum: inclusive lower bound
-        maximum: inclusive upper bound
-    Returns:
-        validated integer
-    Raises:
-        TypeError: if the value is not an integer or is a boolean
-        ValueError: if the value is outside the inclusive bounds
-    """
-    if not isinstance(value, int) or isinstance(value, bool):
-        raise TypeError(f"{name} must be an integer")
-    if not minimum <= value <= maximum:
-        raise ValueError(f"{name} must be from {minimum} to {maximum}")
-    return value
+        Arguments:
+            input_obj: file-backed or in-memory image to snapshot
+        Returns:
+            writable contiguous pixels with zero RGB under zero alpha
+        Raises:
+            ValueError: if the input is animated or its dimensions are zero
+            OSError: if the source cannot be read
+        """
+        # PipeImage palette conversion can discard animation metadata
+        if input_obj.path is not None:
+            with Image.open(input_obj.path) as file_image:
+                if getattr(file_image, "is_animated", False):
+                    raise ValueError("APNG input frames must be static images")
+        image = input_obj.image
+        if getattr(image, "is_animated", False):
+            raise ValueError("APNG input frames must be static images")
+        if image.width == 0 or image.height == 0:
+            raise ValueError("Frame dimensions must be nonzero")
+        pixels = np.array(image.convert("RGBA"), dtype=np.uint8, order="C")
+        pixels[pixels[:, :, 3] == 0, :3] = 0
+        return pixels
