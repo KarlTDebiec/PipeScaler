@@ -6,14 +6,24 @@ from __future__ import annotations
 
 from fractions import Fraction
 from hashlib import file_digest, sha256
-from importlib import import_module
 from importlib.metadata import version
+from os import getenv
 from pathlib import Path
 from platform import python_version
+from threading import Lock
+from types import ModuleType
 from typing import Any
 
 import cv2
 import numpy as np
+import torch
+
+from pipescaler.core.dependencies.temporalfix import (
+    import_vapoursynth,
+    import_vs_temporalfix,
+    import_vs_temporalfix_arch,
+    import_vs_temporalfix_utils,
+)
 
 from .temporalfix_settings import TemporalFixSettings
 from .video_input import VideoInput
@@ -38,7 +48,8 @@ def build_temporal_clip(
     Returns:
         floating-point RGB VapourSynth node containing only requested frames
     Raises:
-        RuntimeError: if optional runtime dependencies or model execution fail
+        DependencyError: if optional runtime dependencies are unavailable
+        RuntimeError: if runtime validation or model execution fails
         ValueError: if the requested source interval or input interpretation is invalid
     """
     vs, temporalfix = import_temporal_runtime(settings.backend)
@@ -58,21 +69,24 @@ def build_temporal_clip(
             or None
         )
         if window.num_frames >= 4:
-            window = temporalfix.model(
-                window,
-                strength=settings.strength,
-                exclude=exclusions,
-                backend=settings.backend,
-                tiles=settings.tiles,
-                num_streams=settings.num_streams,
-                gpu_id=settings.gpu_id,
-                engine_folder=settings.engine_folder,
-            )
+            if settings.backend == "mps":
+                window = _build_mps_clip(window, settings, exclusions)
+            else:
+                window = temporalfix.model(
+                    window,
+                    strength=settings.strength,
+                    exclude=exclusions,
+                    backend=settings.backend,
+                    tiles=settings.tiles,
+                    num_streams=settings.num_streams,
+                    gpu_id=settings.gpu_id,
+                    engine_folder=settings.engine_folder,
+                )
         pieces.append(window[start - context_start : stop - context_start])
     return vs.core.std.Splice(pieces, mismatch=False)
 
 
-def import_temporal_runtime(backend: str) -> tuple[Any, Any]:
+def import_temporal_runtime(backend: str) -> tuple[ModuleType, ModuleType]:
     """Import and validate optional native libraries only inside worker operations.
 
     Arguments:
@@ -80,24 +94,27 @@ def import_temporal_runtime(backend: str) -> tuple[Any, Any]:
     Returns:
         VapourSynth and vs_temporalfix modules
     Raises:
+        DependencyError: if optional runtime dependencies are unavailable
         RuntimeError: if dependencies, native plugins, or the backend are unavailable
     """
     try:
-        vs = import_module("vapoursynth")
-        temporalfix = import_module("vs_temporalfix")
+        vs = import_vapoursynth()
+        temporalfix = import_vs_temporalfix()
         if version("vs_temporalfix") != "2.4.1":
             raise RuntimeError(
                 "This adapter requires vs_temporalfix 2.4.1's seven-frame model API"
             )
         if vs.__version__.release_major < 74:
             raise RuntimeError("VapourSynth R74 or newer is required")
-        if backend in {"cpu", "cuda"}:
-            torch = import_module("torch")
-            if backend == "cuda" and not torch.cuda.is_available():
+        if backend == "cuda":
+            if not torch.cuda.is_available():
                 raise RuntimeError("CUDA is unavailable in the selected worker")
+        elif backend == "mps":
+            if not torch.backends.mps.is_available():
+                raise RuntimeError("MPS is unavailable in the selected worker")
         elif backend == "tensorrt":
             vs.core.trt.Version()
-        else:
+        elif backend == "directml":
             vs.core.ort.Version()
     except (ImportError, AttributeError, OSError) as exc:
         raise RuntimeError(
@@ -118,6 +135,7 @@ def inspect_temporal_input(
     Returns:
         JSON-compatible source metadata and runtime identity
     Raises:
+        DependencyError: if optional runtime dependencies are unavailable
         ValueError: if the source cannot satisfy TemporalFix geometry or frame ranges
         RuntimeError: if native dependencies or the requested backend are missing
     """
@@ -131,6 +149,7 @@ def inspect_temporal_input(
     temporal_windows(clip.num_frames, frame_range, settings.scene_boundaries)
     if any(stop > clip.num_frames for _, stop in settings.exclude_ranges):
         raise ValueError("Excluded ranges must lie inside the source")
+    assert temporalfix.__file__ is not None
     model_dir_path = Path(temporalfix.__file__).parent / "models"
     models = {
         path.name: sha256(path.read_bytes()).hexdigest()
@@ -141,7 +160,7 @@ def inspect_temporal_input(
         raise ValueError("TemporalFix model checkpoints are missing")
     packages = ("vs_temporalfix", "vapoursynth", "numpy", "onnx")
     versions = {name: version(name) for name in packages}
-    if settings.backend in {"cpu", "cuda"}:
+    if settings.backend in {"cpu", "cuda", "mps"}:
         versions["torch"] = version("torch")
     else:
         versions[
@@ -156,6 +175,13 @@ def inspect_temporal_input(
     versions["vapoursynth-core"] = str(vs.__version__)
     versions["python"] = python_version()
     versions["opencv"] = cv2.__version__
+    if settings.backend == "mps":
+        for name in (
+            "PYTORCH_ENABLE_MPS_FALLBACK",
+            "PYTORCH_MPS_FAST_MATH",
+            "PYTORCH_MPS_PREFER_METAL",
+        ):
+            versions[name] = getenv(name, "0")
     plugin_names = ["akarin", "vszip"]
     if source.frame_paths is None:
         plugin_names.append("bs")
@@ -213,6 +239,100 @@ def temporal_windows(
         for left, right in zip(edges, edges[1:])
         if start < right and stop > left
     ]
+
+
+def _build_mps_clip(
+    clip: Any, settings: TemporalFixSettings, exclude: str | None
+) -> Any:
+    """Run the upstream model and tiling with FP32 MPS tensors.
+
+    Arguments:
+        clip: floating-point RGB clip
+        settings: validated strength and tiling settings
+        exclude: upstream frame-exclusion expression
+    Returns:
+        filtered clip with original timing and exclusions
+    Raises:
+        ValueError: if frame dimensions are odd
+        RuntimeError: if inference produces nonfinite samples
+    """
+    if clip.width % 2 or clip.height % 2:
+        raise ValueError("TemporalFix requires even frame dimensions")
+    if settings.strength == 0:
+        return clip
+    utils = import_vs_temporalfix_utils()
+    architecture = import_vs_temporalfix_arch()
+    model_files = (
+        "temporalfix_s0_v1.pth",
+        "temporalfix_s1_v1.1.pth",
+        "temporalfix_s2_v1.pth",
+        "temporalfix_s3_v1.pth",
+    )
+    assert architecture.__file__ is not None
+    model_dir_path = Path(architecture.__file__).parent
+    lower = int(settings.strength)
+    state = torch.load(
+        model_dir_path / model_files[lower], map_location="cpu", weights_only=True
+    )
+    if settings.strength != lower:
+        upper = torch.load(
+            model_dir_path / model_files[lower + 1],
+            map_location="cpu",
+            weights_only=True,
+        )
+        for key, value in state.items():
+            if torch.is_floating_point(value):
+                state[key] = torch.lerp(value, upper[key], settings.strength - lower)
+    overlap = min(64, int(64 * ((clip.width * clip.height) / (1920 * 1080)) ** 0.5))
+    tile_width, tile_height, columns, rows = utils.get_tiles(
+        clip.width, clip.height, settings.tiles, overlap
+    )
+    spans = [
+        (x0, x1, y0, y1, dx0, dx1, dy0, dy1)
+        for y0, y1, dy0, dy1 in utils.get_spans(clip.height, tile_height, rows)
+        for x0, x1, dx0, dx1 in utils.get_spans(clip.width, tile_width, columns)
+    ]
+    model = architecture.temporalfix_arch(fixed_hw=(tile_height, tile_width))
+    model.load_state_dict(state, strict=True)
+    model.eval().to(device="mps", dtype=torch.float32)
+    lock = Lock()
+
+    def infer(n: int, f: list[Any]) -> Any:
+        """Filter the center frame while limiting GPU work to one callback.
+
+        Arguments:
+            n: frame index supplied by VapourSynth
+            f: seven reflected neighboring frames
+        Returns:
+            center frame with filtered samples
+        Raises:
+            RuntimeError: if inference produces nonfinite samples
+        """
+        with lock, torch.inference_mode():
+            output = f[3].copy()
+            for x0, x1, y0, y1, dx0, dx1, dy0, dy1 in spans:
+                array = np.array(
+                    [
+                        [np.asarray(frame[p])[y0:y1, x0:x1] for p in range(3)]
+                        for frame in f
+                    ]
+                )
+                tensor = torch.from_numpy(array).unsqueeze(0).to("mps")
+                samples = model(tensor).detach().cpu().numpy()[0]
+                if not np.isfinite(samples).all():
+                    raise RuntimeError("MPS TemporalFix produced nonfinite samples")
+                for plane in range(3):
+                    np.copyto(
+                        np.asarray(output[plane])[dy0:dy1, dx0:dx1],
+                        samples[plane, dy0 - y0 : dy1 - y0, dx0 - x0 : dx1 - x0],
+                    )
+            return output
+
+    clamped = utils.basic_expr(clip, expr=["x 0 max 1 min"])
+    filtered = clamped.std.ModifyFrame(
+        clips=utils.gen_shifts(clamped, radius=3), selector=infer
+    )
+    return utils.exclude_regions(filtered, clip, exclude=exclude)
 
 
 def _open_clip(vs: Any, source: VideoInput, settings: TemporalFixSettings) -> Any:

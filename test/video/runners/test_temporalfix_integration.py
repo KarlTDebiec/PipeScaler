@@ -11,15 +11,20 @@ from __future__ import annotations
 from os import getenv
 from pathlib import Path
 from subprocess import run
+from typing import Any
 
 import cv2
 import numpy as np
 import pytest
+import torch
 
 from pipescaler.common.validation import val_executable
+from pipescaler.core.dependencies.temporalfix import import_vs_temporalfix_arch
 from pipescaler.pipelines import CheckpointManager
 from pipescaler.video.core.pipelines import PipeVideo
+from pipescaler.video.core.temporalfix_runtime import build_temporal_clip
 from pipescaler.video.core.temporalfix_settings import TemporalFixSettings
+from pipescaler.video.core.video_input import VideoInput
 from pipescaler.video.pipelines.segments import CheckpointedVideoRunnerSegment
 from pipescaler.video.runners import TemporalFixRunner
 from test.scripts.generate_temporalfix_sample import (
@@ -29,7 +34,8 @@ from test.scripts.generate_temporalfix_sample import (
 
 
 @pytest.mark.serial
-def test_real_temporalfix_worker(tmp_path: Path):
+@pytest.mark.parametrize("backend", ["cpu", "mps"])
+def test_real_temporalfix_worker(tmp_path: Path, backend: str):
     """Preserve ordering, RGB, timing, exclusions, scene edges, and chunk equivalence.
 
     Lossless 16-bit output may differ by at most two code values when comparing
@@ -37,10 +43,17 @@ def test_real_temporalfix_worker(tmp_path: Path):
 
     Arguments:
         tmp_path: temporary generated assets and worker output directory
+        backend: explicitly selected CPU or Apple MPS execution backend
     """
     python_path = getenv("PIPESCALER_TEMPORALFIX_PYTHON")
     if python_path is None:
         pytest.skip("Provision the optional TemporalFix worker interpreter")
+    if backend == "mps" and not torch.backends.mps.is_available():
+        pytest.skip("MPS hardware is unavailable")
+    if backend == "mps":
+        assert getenv("PYTORCH_ENABLE_MPS_FALLBACK") != "1", (
+            "Start native MPS tests with PYTORCH_ENABLE_MPS_FALLBACK=0"
+        )
     template = generate_temporalfix_sample(tmp_path / "frames")
     runner = TemporalFixRunner(
         TemporalFixSettings(
@@ -49,6 +62,7 @@ def test_real_temporalfix_worker(tmp_path: Path):
             frame_rate="24000/1001",
             scene_boundaries=(7, 10),
             exclude_ranges=((4, 6),),
+            backend=backend,
         ),
         worker_python_path=python_path,
     )
@@ -87,7 +101,11 @@ def test_real_temporalfix_worker(tmp_path: Path):
     selected_path = tmp_path / "selected.mkv"
     TemporalFixRunner(
         TemporalFixSettings(
-            matrix="709", color_range="full", strength=0, frame_range=(2, 9)
+            matrix="709",
+            color_range="full",
+            backend=backend,
+            strength=0,
+            frame_range=(2, 9),
         ),
         worker_python_path=python_path,
     ).run(whole_path, selected_path)
@@ -97,7 +115,9 @@ def test_real_temporalfix_worker(tmp_path: Path):
     generate_temporalfix_yuv_video(template, yuv_path)
     converted_path = tmp_path / "converted-rgb.mkv"
     TemporalFixRunner(
-        TemporalFixSettings(matrix="709", color_range="limited", strength=0),
+        TemporalFixSettings(
+            matrix="709", color_range="limited", backend=backend, strength=0
+        ),
         worker_python_path=python_path,
     ).run(yuv_path, converted_path)
     converted = decode_rgb_float(converted_path, 32, 32)
@@ -135,3 +155,63 @@ def decode_rgb_float(path: Path, width: int, height: int) -> np.ndarray:
     )
     gbr = np.frombuffer(result.stdout, dtype="<u2").reshape((-1, 3, height, width))
     return gbr[:, [2, 0, 1]].transpose(0, 2, 3, 1).astype(np.float32) / 65535
+
+
+@pytest.mark.serial
+@pytest.mark.parametrize(("strength", "tiles"), [(2.0, 1), (1.5, 2)])
+def test_native_mps_matches_cpu(tmp_path: Path, strength: float, tiles: int):
+    """Verify real MPS dispatch and agreement with CPU inference.
+
+    Arguments:
+        tmp_path: generated source directory
+        strength: integer or interpolated model strength
+        tiles: spatial tile count
+    """
+    if getenv("PIPESCALER_TEMPORALFIX_PYTHON") is None:
+        pytest.skip("Provision the optional TemporalFix worker interpreter")
+    if not torch.backends.mps.is_available():
+        pytest.skip("MPS hardware is unavailable")
+    assert getenv("PYTORCH_ENABLE_MPS_FALLBACK") != "1", (
+        "Start native MPS tests with PYTORCH_ENABLE_MPS_FALLBACK=0"
+    )
+    pytest.importorskip("vapoursynth")
+    architecture = import_vs_temporalfix_arch()
+    template = generate_temporalfix_sample(tmp_path / "source")
+    outputs = {}
+    devices = []
+
+    def record_devices(model: Any, arguments: tuple[Any, ...]):
+        """Record the architecture's weight and input devices.
+
+        Arguments:
+            model: module about to run
+            arguments: its positional inputs
+        """
+        if isinstance(model, architecture.temporalfix_arch):
+            devices.append(
+                (next(model.parameters()).device.type, arguments[0].device.type)
+            )
+
+    with torch.nn.modules.module.register_module_forward_pre_hook(record_devices):
+        for backend in ("cpu", "mps"):
+            settings = TemporalFixSettings(
+                matrix="709",
+                color_range="full",
+                backend=backend,
+                strength=strength,
+                tiles=tiles,
+                frame_rate="24000/1001",
+                scene_boundaries=(7, 10),
+                exclude_ranges=((4, 6),),
+            )
+            clip = build_temporal_clip(VideoInput(template), settings, (0, 12))
+            outputs[backend] = np.stack(
+                [
+                    np.stack([np.asarray(frame[p]) for p in range(3)], axis=2)
+                    for frame in clip.frames()
+                ]
+            )
+    assert set(devices) == {("cpu", "cpu"), ("mps", "mps")}
+    assert outputs["mps"].shape == (12, 32, 32, 3)
+    assert np.isfinite(outputs["mps"]).all()
+    np.testing.assert_allclose(outputs["mps"], outputs["cpu"], atol=4 / 65535, rtol=0)

@@ -30,7 +30,7 @@ class TemporalFixSettings:
     strength: float = 2.0
     """Upstream suppression strength from zero to three, rounded to two decimals."""
     backend: str = "cpu"
-    """Upstream cpu, cuda, directml, or tensorrt execution backend."""
+    """Execution backend: cpu, cuda, mps, directml, or tensorrt."""
     tiles: int = 1
     """Upstream spatial tile count: 1, 2, 4, 6, or 8, separate from chunk length."""
     num_streams: int = 1
@@ -65,7 +65,9 @@ class TemporalFixSettings:
         object.__setattr__(
             self,
             "backend",
-            val_str(self.backend, options=("cpu", "cuda", "directml", "tensorrt")),
+            val_str(
+                self.backend, options=("cpu", "cuda", "mps", "directml", "tensorrt")
+            ),
         )
         object.__setattr__(
             self,
@@ -77,6 +79,8 @@ class TemporalFixSettings:
         )
         object.__setattr__(self, "num_streams", val_int(self.num_streams, min_value=1))
         object.__setattr__(self, "gpu_id", val_int(self.gpu_id, min_value=0))
+        if self.backend == "mps" and self.gpu_id != 0:
+            raise ValueError("MPS supports only GPU index zero")
         if self.frame_rate is not None:
             try:
                 rate = Fraction(self.frame_rate)
