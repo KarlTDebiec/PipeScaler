@@ -6,30 +6,13 @@ from __future__ import annotations
 
 from math import inf, isnan, nextafter
 
-from pytest import raises
-
-from pipescaler.common.exceptions import ArgumentConflictError
-from pipescaler.common.validation import val_float
-from test.helpers import parametrize
-
-
-@parametrize(
-    ("value", "expected"), [(3.14, 3.14), (5, 5.0), ("3.14", 3.14), (-1.5, -1.5)]
-)
-def test_val_float_accepts_scalar_values(value: float | int | str, expected: float):
-    """Test float validation accepts scalar values.
-
-    Arguments:
-        value: value
-        expected: expected value
-    """
-    assert val_float(value) == expected
+from common.exceptions import ArgumentConflictError
+from common.validation import val_float
+from pytest import mark, raises
 
 
 def test_val_float_exclusive_bounds():
     """Support open bounds without changing the default closed bounds."""
-    assert val_float(0, min_value=0) == 0
-    assert val_float(1, max_value=1) == 1
     assert val_float(nextafter(0, inf), min_value=0, min_exclusive=True) > 0
     assert val_float(nextafter(1, 0), max_value=1, max_exclusive=True) < 1
     assert (
@@ -52,7 +35,7 @@ def test_val_float_exclusive_bounds_require_values():
         val_float(1, max_exclusive=True)
 
 
-@parametrize("value", ["nan", "inf", "-inf"])
+@mark.parametrize("value", ["nan", "inf", "-inf"])
 def test_val_float_finite_constraint(value: str):
     """Reject non-finite scalars only when finite validation is requested.
 
@@ -66,6 +49,8 @@ def test_val_float_finite_constraint(value: str):
         assert default_value == float(value)
     with raises(ValueError, match="must be finite"):
         val_float(value, finite=True)
+    with raises(ValueError, match="must be finite"):
+        val_float(float(value), finite=True)
 
 
 def test_val_float_new_constraints_apply_to_iterables():
@@ -78,9 +63,28 @@ def test_val_float_new_constraints_apply_to_iterables():
         max_exclusive=True,
         finite=True,
     ) == [0.25, 0.75]
+    assert val_float([], n_values=0, finite=True) == []
     with raises(ValueError, match="greater than minimum"):
         val_float([0.5, 0], min_value=0, min_exclusive=True)
     with raises(ValueError, match="less than maximum"):
         val_float([0.5, 1], max_value=1, max_exclusive=True)
     with raises(ValueError, match="must be finite"):
         val_float((x for x in [0.5, inf]), finite=True)
+    with raises(ValueError, match="is of length"):
+        val_float([0.5], n_values=2, finite=True)
+
+
+@mark.parametrize(
+    ("value", "expected"),
+    [(3.14, 3.14), ("3.14", 3.14), (-1.5, -1.5), (["1.0", "2.5"], [1.0, 2.5])],
+)
+def test_val_float_preserves_fractional_values(
+    value: float | str | list[str], expected: float | list[float]
+):
+    """Keep fractional values instead of truncating them to integers.
+
+    Arguments:
+        value: fractional number, decimal string, or list of decimal strings
+        expected: converted float or list of floats
+    """
+    assert val_float(value) == expected

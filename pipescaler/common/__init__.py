@@ -6,8 +6,9 @@ Utilities in this package depend only on the standard library and one another.
 
 Package hierarchy (modules may import from any above):
 * archive / csv / described_enum / duration / exceptions / file / logs / subprocess
-* cli / validation
-* argument_parsing / testing
+* validation
+* cli
+* testing
 """
 
 from __future__ import annotations

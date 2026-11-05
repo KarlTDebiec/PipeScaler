@@ -84,8 +84,8 @@ CLI classes own their `argparse` command trees and help, validate inputs, and
 delegate processing to lower-level components. Keep library code independent of
 CLI adapters and process arguments.
 
-`test/` mirrors the package layout. Shared assertions belong in `test/helpers.py`;
-portable subprocess cases belong in `test/common/subprocess_cases.py`. Pytest's
+`test/` mirrors the package layout. Shared assertions belong in `test/helpers.py`.
+The portable common suite keeps its support code in `test/common/`. Pytest's
 configured root import path supports execution from the root or `test/` without
 adding per-test `sys.path` changes. Preserve serial, platform, external-tool, and
 large-resource markers when modifying tests.

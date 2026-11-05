@@ -7,7 +7,7 @@ from __future__ import annotations
 from argparse import ArgumentParser
 from pathlib import Path
 
-from pipescaler.common.argument_parsing import get_arg_groups_by_name, int_arg
+from pipescaler.common.cli.argument_parsing import get_arg_groups_by_name, int_arg
 from pipescaler.image.core.cli import ImageProcessorCli
 from pipescaler.image.operators.processors import ExpandProcessor
 

@@ -7,7 +7,7 @@ from __future__ import annotations
 from argparse import ArgumentParser
 from pathlib import Path
 
-from pipescaler.common.argument_parsing import (
+from pipescaler.common.cli.argument_parsing import (
     float_arg,
     get_arg_groups_by_name,
     str_arg,

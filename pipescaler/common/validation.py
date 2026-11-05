@@ -45,6 +45,59 @@ __all__ = [
 logger = getLogger(__name__)
 
 
+class FloatValidatorKwargs(TypedDict, total=False):
+    """Keyword arguments for val_float."""
+
+    n_values: int | None
+    """Required number of values."""
+    min_value: float | None
+    """Minimum allowed value."""
+    max_value: float | None
+    """Maximum allowed value."""
+    min_exclusive: bool
+    """Whether to exclude the minimum. Requires min_value."""
+    max_exclusive: bool
+    """Whether to exclude the maximum. Requires max_value."""
+    finite: bool
+    """Whether to reject NaN and infinities."""
+
+
+class IntValidatorKwargs(TypedDict, total=False):
+    """Keyword arguments for val_int."""
+
+    n_values: int | None
+    """Required number of values."""
+    min_value: int | None
+    """Minimum allowed value."""
+    max_value: int | None
+    """Maximum allowed value."""
+    acceptable_values: Collection[int] | None
+    """Explicit set of acceptable values."""
+
+
+class OutputDirValidatorKwargs(TypedDict, total=False):
+    """Keyword arguments for val_output_dir_path."""
+
+    create: bool
+    """Whether missing output directories should be created."""
+
+
+class OutputPathValidatorKwargs(TypedDict, total=False):
+    """Keyword arguments for val_output_path."""
+
+    exist_ok: bool
+    """Whether existing output files are accepted."""
+    create: bool
+    """Whether missing parent directories should be created."""
+
+
+class StrValidatorKwargs(TypedDict, total=False):
+    """Keyword arguments for val_str."""
+
+    options: Collection[str]
+    """Allowed string options."""
+
+
 def val_child_path(parent_dir_path: str | PathLike[str], child_name: str) -> Path:
     """Validate that a child name resolves within a parent directory.
 
@@ -116,23 +169,6 @@ def val_executable(
     return executable_path
 
 
-class FloatValidatorKwargs(TypedDict, total=False):
-    """Keyword arguments for val_float."""
-
-    n_values: int | None
-    """required number of values."""
-    min_value: float | None
-    """minimum allowed value."""
-    max_value: float | None
-    """maximum allowed value."""
-    min_exclusive: bool
-    """whether to exclude the minimum; requires min_value."""
-    max_exclusive: bool
-    """whether to exclude the maximum; requires max_value."""
-    finite: bool
-    """whether to reject NaN and infinities."""
-
-
 @overload
 def val_float(
     value: float | int | str,
@@ -159,7 +195,7 @@ def val_float(
 ) -> list[float]: ...
 
 
-def val_float(  # noqa: PLR0913
+def val_float(
     value: float | int | str | Iterable[Any],
     *,
     n_values: int | None = None,
@@ -275,10 +311,7 @@ def val_index_range(
 
 
 @overload
-# Strings are iterable, but the scalar overload intentionally takes precedence.
-def val_input_dir_path(
-    value: str | PathLike[str],
-) -> Path: ...
+def val_input_dir_path(value: str | PathLike[str]) -> Path: ...
 
 
 @overload
@@ -340,9 +373,7 @@ def val_input_dir_path(
 
 
 @overload
-def val_input_file_or_dir_path(
-    value: str | PathLike[str],
-) -> Path: ...
+def val_input_file_or_dir_path(value: str | PathLike[str]) -> Path: ...
 
 
 @overload
@@ -404,11 +435,7 @@ def val_input_file_or_dir_path(
 
 
 @overload
-def val_input_path(
-    value: str | PathLike[str],
-    *,
-    must_exist: bool = True,
-) -> Path: ...
+def val_input_path(value: str | PathLike[str], *, must_exist: bool = True) -> Path: ...
 
 
 @overload
@@ -425,27 +452,27 @@ def val_input_path(
     """Validate input file path(s) and make them absolute.
 
     Arguments:
-        value: Path or paths to input files
+        value: path or paths to input files
         must_exist: whether input files must already exist
     Returns:
-        Validated path or paths
+        validated path or paths
     Raises:
         FileNotFoundError: if a file does not exist and must_exist is True
         NotAFileError: if an existing path is not a file
-        TypeError: If any value cannot be cast to Path
+        TypeError: if any value cannot be cast to Path
     """
 
     def _val_input_path(value_to_validate: str | PathLike[str]) -> Path:
         """Validate a path.
 
         Arguments:
-            value_to_validate: Path to validate
+            value_to_validate: path to validate
         Returns:
-            Validated path
+            validated path
         Raises:
-            FileNotFoundError: if the path does not exist and must_exist is True
+            FileNotFoundError: if the file does not exist and must_exist is True
             NotAFileError: if an existing path is not a file
-            TypeError: If value cannot be cast to Path
+            TypeError: if the value cannot be cast to Path
         """
         try:
             validated_value = Path(
@@ -456,10 +483,10 @@ def val_input_path(
                 f"{value_to_validate} is of type "
                 f"{type(value_to_validate)}, cannot be cast to Path"
             ) from exc
-        exists = validated_value.exists()
-        if must_exist and not exists:
-            raise FileNotFoundError(f"Input file {validated_value} does not exist")
-        if exists and not validated_value.is_file():
+        if not validated_value.exists():
+            if must_exist:
+                raise FileNotFoundError(f"Input file {validated_value} does not exist")
+        elif not validated_value.is_file():
             raise NotAFileError(f"Input file {validated_value} is not a file")
         return validated_value
 
@@ -469,19 +496,6 @@ def val_input_path(
 
     # Handle iterables
     return [_val_input_path(value_to_validate) for value_to_validate in value]
-
-
-class IntValidatorKwargs(TypedDict, total=False):
-    """Keyword arguments for val_int."""
-
-    n_values: int | None
-    """required number of values."""
-    min_value: int | None
-    """minimum allowed value."""
-    max_value: int | None
-    """maximum allowed value."""
-    acceptable_values: Collection[int] | None
-    """explicit set of acceptable values."""
 
 
 @overload
@@ -518,14 +532,14 @@ def val_int(
 
     Arguments:
         value: Single value or iterable of values to validate
-        n_values: number of values expected, if applicable
+        n_values: Number of values expected, if applicable
         min_value: Minimum value of int, if applicable
         max_value: Maximum value of int, if applicable
         acceptable_values: Acceptable int values, if applicable
     Returns:
         Single int or list of ints depending on input
     Raises:
-        ArgumentConflictError: if min_value is greater than or equal to max_value
+        ArgumentConflictError: If min_value is greater than max_value
         TypeError: If a value may not be cast to an int
         ValueError: If a value is invalid or the list is the wrong length
     """
@@ -536,9 +550,9 @@ def val_int(
         """Validate a single value as an int.
 
         Arguments:
-            value_to_validate: value to validate
+            value_to_validate: Value to validate
         Returns:
-            value as an int
+            Value as an int
         Raises:
             TypeError: if a value has an invalid type
             ValueError: if a value is invalid
@@ -576,40 +590,6 @@ def val_int(
     return validated_values
 
 
-def val_literal[LiteralValue](value: LiteralValue, literal_type: Any) -> LiteralValue:
-    """Validate a value against a Literal type or type alias.
-
-    Arguments:
-        value: input value to validate
-        literal_type: Literal type or type alias with Literal value options
-    Returns:
-        value if it is one of the Literal options
-    Raises:
-        ArgumentConflictError: If literal_type does not resolve to Literal options
-        ValueError: If value is not one of the provided Literal options
-    """
-    literal_value = (
-        literal_type.__value__
-        if isinstance(literal_type, TypeAliasType)
-        else literal_type
-    )
-    options = get_args(literal_value)
-    if not options:
-        raise ArgumentConflictError(
-            f"'{literal_type}' does not contain Literal options"
-        ) from None
-    if value not in options:
-        raise ValueError(f"'{value}' is not one of options '{options}'") from None
-    return value
-
-
-class OutputDirValidatorKwargs(TypedDict, total=False):
-    """Keyword arguments for val_output_dir_path."""
-
-    create: bool
-    """whether missing output directories should be created."""
-
-
 @overload
 def val_output_dir_path(value: str | PathLike[str], create: bool = True) -> Path: ...
 
@@ -624,9 +604,6 @@ def val_output_dir_path(
     value: str | PathLike[str] | Iterable[str | PathLike[str]], create: bool = True
 ) -> Path | list[Path]:
     """Validate output directory path(s), make them absolute, and create them if needed.
-
-    Existing directories are accepted. With create=False, missing directories are
-    validated without being created; an existing file at any ancestor is rejected.
 
     Arguments:
         value: Path or paths to output directories
@@ -665,7 +642,8 @@ def val_output_dir_path(
         Returns:
             Validated path
         Raises:
-            NotADirectoryError: if the path or an existing ancestor is a file
+            FileExistsError: If path already exists
+            NotADirectoryError: If path is not a directory
             TypeError: If value cannot be cast to Path
         """
         try:
@@ -699,15 +677,6 @@ def val_output_dir_path(
 
     # Handle iterables
     return [_val_output_dir_path(v) for v in value]
-
-
-class OutputPathValidatorKwargs(TypedDict, total=False):
-    """Keyword arguments for val_output_path."""
-
-    exist_ok: bool
-    """whether existing output files are accepted."""
-    create: bool
-    """whether missing parent directories should be created."""
 
 
 @overload
@@ -780,11 +749,31 @@ def val_output_path(
     return [_val_output_path(value_to_validate) for value_to_validate in value]
 
 
-class StrValidatorKwargs(TypedDict, total=False):
-    """Keyword arguments for val_str."""
+def val_literal[LiteralValue](value: LiteralValue, literal_type: Any) -> LiteralValue:
+    """Validate a value against a Literal type or type alias.
 
-    options: Collection[str]
-    """allowed string options."""
+    Arguments:
+        value: input value to validate
+        literal_type: Literal type or type alias with Literal value options
+    Returns:
+        value if it is one of the Literal options
+    Raises:
+        ArgumentConflictError: If literal_type does not resolve to Literal options
+        ValueError: If value is not one of the provided Literal options
+    """
+    literal_value = (
+        literal_type.__value__
+        if isinstance(literal_type, TypeAliasType)
+        else literal_type
+    )
+    options = get_args(literal_value)
+    if not options:
+        raise ArgumentConflictError(
+            f"'{literal_type}' does not contain Literal options"
+        ) from None
+    if value not in options:
+        raise ValueError(f"'{value}' is not one of options '{options}'") from None
+    return value
 
 
 def val_str(value: Any, options: Iterable[Any]) -> str:
@@ -794,7 +783,7 @@ def val_str(value: Any, options: Iterable[Any]) -> str:
         value: Input value to validate
         options: Acceptable string values, if applicable
     Returns:
-        value as a str
+        Value as a str
     Raises:
         ArgumentConflictError: If an option cannot be cast to a string
         TypeError: If value may not be cast to a str

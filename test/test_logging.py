@@ -18,6 +18,7 @@ from PIL import Image
 from pipescaler.cli.pipescaler_cli import PipeScalerCli
 from pipescaler.common import package_root
 from pipescaler.common.testing import run_cli_with_args
+from pipescaler.image.cli.processors.mode_cli import ModeCli
 from pipescaler.image.core.pipelines.pipe_image import PipeImage
 from pipescaler.image.core.sorting import citra_sort
 from pipescaler.pipelines.sorters.list_sorter import ListSorter
@@ -78,6 +79,76 @@ def test_cli_console_and_file_logging(
     ]:
         expected_count = 2 if verbosity >= minimum_verbosity else 0
         assert stderr.getvalue().count(f"{level}: {module_name}:") == expected_count
+
+
+@pytest.mark.parametrize(
+    ("root_options", "image_options", "leaf_options", "expected"),
+    [
+        (["-v"], ["-vv"], ["-v"], (2, None)),
+        (["-vv"], [], [], (3, None)),
+        (["-q"], [], [], (0, None)),
+        (["-vv"], ["-v"], [], (2, None)),
+        (["-v"], [], ["-q"], (0, None)),
+        (["-l", "root.log"], [], [], (1, "root.log")),
+        (["-l", "root.log"], ["-l", "image.log"], [], (1, "image.log")),
+        (["-l", "root.log"], ["-l", "image.log"], ["-l", "leaf.log"], (1, "leaf.log")),
+        (["-q"], ["-v"], ["-v"], (2, None)),
+    ],
+)
+def test_cli_nested_logging_options(
+    tmp_path: Path,
+    root_options: list[str],
+    image_options: list[str],
+    leaf_options: list[str],
+    expected: tuple[int, str | None],
+):
+    """Preserve inherited logging options and honor explicit child overrides.
+
+    Arguments:
+        tmp_path: directory for a placeholder input image
+        root_options: logging arguments at the root
+        image_options: logging arguments on the image command
+        leaf_options: logging arguments on the image processor
+        expected: selected verbosity and log file
+    """
+    input_path = tmp_path / "input.png"
+    input_path.touch()
+    output_path = tmp_path / "output.png"
+    arguments = [str(input_path), str(output_path), "--mode", "RGB"]
+    parser = PipeScalerCli.argparser()
+    parsed = parser.parse_args(
+        [
+            *root_options,
+            "image",
+            *image_options,
+            "process",
+            "mode",
+            *leaf_options,
+            *arguments,
+        ]
+    )
+    defaults = parser.parse_args(["image", "process", "mode", *arguments])
+
+    assert (parsed.verbosity, parsed.log_file) == expected
+    assert (defaults.verbosity, defaults.log_file) == (1, None)
+
+
+def test_cli_standalone_logging_options(tmp_path: Path):
+    """Count standalone verbosity flags and keep options local to each parse.
+
+    Arguments:
+        tmp_path: directory for a placeholder input image
+    """
+    input_path = tmp_path / "input.png"
+    input_path.touch()
+    output_path = tmp_path / "output.png"
+    arguments = [str(input_path), str(output_path), "--mode", "RGB"]
+    parser = ModeCli.argparser()
+    configured = parser.parse_args(["-v", "-v", "-l", "leaf.log", *arguments])
+    defaults = parser.parse_args(arguments)
+
+    assert (configured.verbosity, configured.log_file) == (3, "leaf.log")
+    assert (defaults.verbosity, defaults.log_file) == (1, None)
 
 
 @pytest.mark.parametrize("configured", [False, True])

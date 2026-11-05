@@ -6,9 +6,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from common.file import get_temp_directory_path
 from pytest import raises
-
-from pipescaler.common.file import get_temp_directory_path
 
 
 def test_get_temp_directory_path():
@@ -39,7 +38,6 @@ def test_get_temp_directory_path_custom_parent_cleanup_on_error(tmp_path: Path):
     """
     unrelated_path = tmp_path / "notes.txt"
     unrelated_path.write_text("keep", encoding="utf-8")
-    temp_dir_path = None
 
     with raises(RuntimeError, match="failed"):
         with get_temp_directory_path(
@@ -50,6 +48,5 @@ def test_get_temp_directory_path_custom_parent_cleanup_on_error(tmp_path: Path):
             (temp_dir_path / "partial.wav").write_bytes(b"partial")
             raise RuntimeError("failed")
 
-    assert temp_dir_path is not None
     assert not temp_dir_path.exists()
     assert unrelated_path.read_text(encoding="utf-8") == "keep"

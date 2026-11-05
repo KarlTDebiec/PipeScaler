@@ -16,8 +16,11 @@ WGSL source conventions are in the [WGSL style guide](Style/WGSL.md).
 - Use single-dot relative imports for modules and child packages within the
   containing package, such as `from .foo import Bar` or
   `from .child.foo import Bar`.
-- Use absolute imports rooted at the concrete owning module when reaching outside
-  the containing package. Do not use multi-dot relative imports.
+- Keep `common` portable between projects. Use relative imports between its
+  modules, including parent-relative imports that stay within `common`.
+- Outside `common`, use absolute imports rooted at the concrete owning module when
+  reaching outside the containing package. Do not use multi-dot relative imports
+  there.
 - Public names may be imported from another package's `__init__.py` facade when
   listed in its `__all__`. Within a package subtree, import a name from its owning
   module rather than an ancestor facade that re-exports it.
@@ -90,8 +93,8 @@ functions, ordinary before decorated functions, then alphabetize.
 
 - Test modules do not need package markers for discovery. Keep markers needed for
   intentional shared imports, such as `test/__init__.py`.
-- Use the configured pytest import path and shared test helpers; do not add new
-  `sys.path` mutations in tests.
+- Outside the portable `common` suite, use the configured pytest import path and
+  shared test helpers. Keep import setup for the portable suite in its conftest.
 - Follow [Documentation](DOCUMENTATION.md) for coverage, docstring sections,
   formatting, and exemptions.
 - The [style tests](../test/style/) enforce docstring structure, string

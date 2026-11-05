@@ -20,7 +20,7 @@ def get_cli_commands[T: CommandLineInterface](
     """Combine built-in commands with installed CLI extensions.
 
     Extension classes are loaded once per group and required base class per
-    process. Each call returns a fresh registry so callers cannot mutate the cache.
+    process. Each call returns a fresh registry.
 
     Arguments:
         builtins: built-in commands whose names extensions cannot replace
@@ -59,7 +59,9 @@ def _load_cli_commands[T: CommandLineInterface](
     for entry in sorted(
         entry_points(group=group), key=lambda item: (item.name, item.value)
     ):
-        distribution = entry.dist.name if entry.dist else "unknown distribution"
+        distribution = "unknown distribution"
+        if entry.dist is not None:
+            distribution = entry.dist.name
         source = f"{entry.name!r} from {distribution!r} in {group!r}"
         try:
             command = entry.load()

@@ -18,7 +18,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-from pipescaler.common.argument_parsing import get_arg_groups_by_name
+from pipescaler.common.cli.argument_parsing import get_arg_groups_by_name
 
 __all__ = ["main"]
 

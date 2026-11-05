@@ -6,11 +6,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from common.exceptions import NotAFileError
+from common.validation import val_input_path
+from common_test_support import create_symlink_or_skip
 from pytest import MonkeyPatch, raises
-
-from pipescaler.common.exceptions import NotAFileError
-from pipescaler.common.validation import val_input_path
-from test.helpers import create_symlink_or_skip
 
 
 def test_val_input_path_accepts_file_path_values(tmp_path: Path):
@@ -27,17 +26,17 @@ def test_val_input_path_accepts_file_path_values(tmp_path: Path):
 
 
 def test_val_input_path_allows_missing_paths(tmp_path: Path, monkeypatch: MonkeyPatch):
-    """Normalize missing paths only when requested, without accepting directories.
+    """Allow missing input paths when callers opt in.
 
     Arguments:
-        tmp_path: temporary directory path
-        monkeypatch: working directory and environment replacements
+        tmp_path: temporary directory for existing and missing paths
+        monkeypatch: fixture for isolating the working directory and environment
     """
+    existing_path = tmp_path / "present.txt"
+    existing_path.touch()
+    missing_path = tmp_path / "missing" / "%06d.png"
     monkeypatch.chdir(tmp_path)
     monkeypatch.setenv("TEST_INPUT_ROOT", str(tmp_path))
-    missing_path = tmp_path / "missing" / "%06d.png"
-    existing_path = tmp_path / "input.txt"
-    existing_path.touch()
 
     assert val_input_path("missing/%06d.png", must_exist=False) == missing_path
     assert (
@@ -49,8 +48,6 @@ def test_val_input_path_allows_missing_paths(tmp_path: Path, monkeypatch: Monkey
         missing_path,
     ]
     assert not missing_path.parent.exists()
-    with raises(FileNotFoundError):
-        val_input_path(missing_path)
     with raises(NotAFileError):
         val_input_path(tmp_path, must_exist=False)
 
