@@ -94,13 +94,10 @@ ignore = [
     "D410", # Missing blank line after section
     "D411", # Missing blank line before section
     "N818", # Suffix "Error" should be used on exception names
+    "PLR0913", # Too many arguments in function definition
+    "PLR0917", # Too many positional arguments
     "PLR2004" # Magic value used in comparison
 ]
-
-[tool.ruff.lint.per-file-ignores]
-# Keep the shared validator signature and its parametrized contract in sync.
-"pipescaler/common/validation.py" = ["PLR0913"]
-"test/common/validation/test_val_number.py" = ["PLR0913", "PLR0917"]
 
 [tool.ruff.lint.pydocstyle]
 convention = 'google'
