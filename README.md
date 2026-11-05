@@ -37,6 +37,7 @@ Backend selection relies on uv's sources in [pyproject.toml](pyproject.toml).
 PipeScaler includes the following components for image processing:
 
 **Sources** yield images for downstream modification:
+* [ImageApngSource](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/pipelines/sources/image_apng_source.py) - Yields displayed frames from an animated PNG.
 * [ImageDirectorySource](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/pipelines/sources/image_directory_source.py) - Yields images from a directory.
 * [ImageVideoFrameSource](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/pipelines/sources/image_video_frame_source.py) - Yields images from a video file.
 * [ImageZipSource](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/pipelines/sources/image_zip_source.py) - Yields images from a ZIP archive.
