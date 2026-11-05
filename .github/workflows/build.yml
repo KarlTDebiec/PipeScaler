@@ -13,7 +13,11 @@ concurrency:
 jobs:
   Linux:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.13', '3.14']
     env:
+      UV_PYTHON: ${{ matrix.python-version }}
       PIPESCALER_POTRACE_LIBRARY: ${{ github.workspace }}/.native/libpotrace.so
     steps:
       - name: Checkout
@@ -28,7 +32,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v7
         with:
-          python-version: '3.14'
+          python-version: ${{ matrix.python-version }}
 
       - name: Install system dependencies
         run: |
@@ -67,7 +71,11 @@ jobs:
   macOS:
     runs-on: macos-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    strategy:
+      matrix:
+        python-version: ['3.13', '3.14']
     env:
+      UV_PYTHON: ${{ matrix.python-version }}
       PIPESCALER_POTRACE_LIBRARY: ${{ github.workspace }}/.native/libpotrace.dylib
     steps:
       - name: Checkout
@@ -76,7 +84,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v7
         with:
-          python-version: '3.14'
+          python-version: ${{ matrix.python-version }}
 
       - name: Install system dependencies
         run: |
@@ -107,7 +115,11 @@ jobs:
   Windows:
     runs-on: windows-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    strategy:
+      matrix:
+        python-version: ['3.13', '3.14']
     env:
+      UV_PYTHON: ${{ matrix.python-version }}
       PIPESCALER_POTRACE_LIBRARY: ${{ github.workspace }}/.native/potrace.dll
     steps:
       - name: Checkout
@@ -116,7 +128,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v7
         with:
-          python-version: '3.14'
+          python-version: ${{ matrix.python-version }}
 
       - name: Set up uv with cache
         uses: astral-sh/setup-uv@v10.3.3
