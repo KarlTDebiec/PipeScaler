@@ -19,7 +19,7 @@ logger = getLogger(__name__)
 class VideoAspectRatioSorter(VideoSorter):
     """Sorts video based on aspect ratio."""
 
-    def __init__(self, **outlets: dict[str, float]):
+    def __init__(self, **outlets: float):
         """Initialize.
 
         Arguments:
