@@ -107,8 +107,8 @@ class TemporalFixProcessor:
             RuntimeError: if native dependencies or the backend are unavailable
             ValueError: if source interpretation or settings are invalid
         """
-        source = (
-            input_path if isinstance(input_path, VideoInput) else VideoInput(input_path)
+        source = VideoInput(
+            input_path.input_path if isinstance(input_path, VideoInput) else input_path
         )
         return inspect_temporal_input(source, self.settings)
 
@@ -124,8 +124,8 @@ class TemporalFixProcessor:
             ValueError: if source interpretation or settings are invalid
             PipeScalerError: if sources change or output validation fails
         """
-        source = (
-            input_path if isinstance(input_path, VideoInput) else VideoInput(input_path)
+        source = VideoInput(
+            input_path.input_path if isinstance(input_path, VideoInput) else input_path
         )
         metadata = self.inspect(source)
         source_identity = self.source_identity(source)
@@ -165,6 +165,7 @@ class TemporalFixProcessor:
             ValueError: if source interpretation or settings are invalid
             PipeScalerError: if metadata changes, encoding fails, or validation fails
         """
+        source = VideoInput(source.input_path)
         if self.inspect(source) != metadata:
             raise PipeScalerError("Source metadata or runtime changed after inspection")
         output_path = output_path.resolve()

@@ -278,7 +278,11 @@ def test_render_publishes_after_validation(
     monkeypatch.setattr(processor, "_encode_clip", encode)
     monkeypatch.setattr(processor, "validate_output", validate)
     processor.render_range(source, destination_path, metadata, (1, 6))
-    build.assert_called_once_with(source, settings, (1, 6))
+    build.assert_called_once()
+    actual_source, actual_settings, actual_range = build.call_args.args
+    assert actual_source.input_path == source.input_path
+    assert actual_settings is settings
+    assert actual_range == (1, 6)
     assert destination_path.read_bytes() == b"complete"
     assert not list(output_dir_path.glob(".temporalfix-*"))
 
@@ -603,6 +607,111 @@ def test_render_failure_preserves_destination(
     assert error.value is failure
     assert destination_path.read_bytes() == b"previous valid destination"
     assert not list(tmp_path.glob(".temporalfix-*"))
+
+
+@pytest.mark.parametrize("operation", ["inspect", "process", "render_range"])
+@pytest.mark.parametrize("change", ["add", "remove"])
+def test_sequence_changes_before_processing(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, operation: str, change: str
+):
+    """Refresh preconstructed sequences before inspecting or rendering them.
+
+    Arguments:
+        tmp_path: temporary sequence and output directory
+        monkeypatch: fixture for replacing native inspection and rendering
+        operation: processor entry point to exercise
+        change: sequence modification made after constructing its input
+    """
+    initial_count = 4 if change == "add" else 5
+    for number in range(initial_count):
+        (tmp_path / f"frame_{number:04d}.png").touch()
+    source = VideoInput(tmp_path / "frame_%04d.png")
+    if change == "add":
+        (tmp_path / "frame_0004.png").touch()
+        frame_count = 5
+    else:
+        (tmp_path / "frame_0004.png").unlink()
+        frame_count = 4
+    expected_paths = tuple(
+        tmp_path / f"frame_{number:04d}.png" for number in range(frame_count)
+    )
+    metadata = {
+        "width": 2,
+        "height": 2,
+        "frames": frame_count,
+        "frame_rate": "24/1",
+    }
+    processor = TemporalFixProcessor(
+        TemporalFixSettings(matrix="709", color_range="full", frame_rate="24/1")
+    )
+
+    def inspect(
+        actual_source: VideoInput, _settings: TemporalFixSettings
+    ) -> dict[str, Any]:
+        """Inspect the current sequence frame list.
+
+        Arguments:
+            actual_source: source used for inspection
+            _settings: processor settings
+        Returns:
+            current sequence geometry and timing
+        """
+        assert actual_source.frame_paths == expected_paths
+        return metadata
+
+    def build(
+        actual_source: VideoInput,
+        _settings: TemporalFixSettings,
+        frame_range: tuple[int, int],
+    ) -> Any:
+        """Build a stand-in graph from the same sequence used for inspection.
+
+        Arguments:
+            actual_source: source used for graph construction
+            _settings: processor settings
+            frame_range: requested output interval
+        Returns:
+            graph stand-in containing the requested frames
+        """
+        assert actual_source.frame_paths == expected_paths
+        assert frame_range == (0, frame_count)
+        return SimpleNamespace(width=2, height=2, num_frames=frame_count)
+
+    def encode(clip: Any, command: list[str]):
+        """Write the graph's frame count as a rendered output stand-in.
+
+        Arguments:
+            clip: graph built from the current sequence
+            command: encoder invocation containing the scratch output path
+        """
+        Path(command[-1]).write_text(str(clip.num_frames), encoding="utf-8")
+
+    def validate(path: Path, actual_metadata: dict[str, Any], count: int):
+        """Validate consistent inspection, graph, and output frame counts.
+
+        Arguments:
+            path: rendered output stand-in
+            actual_metadata: inspected source metadata
+            count: expected output frame count
+        """
+        assert count == frame_count == actual_metadata["frames"]
+        assert path.read_text(encoding="utf-8") == str(frame_count)
+
+    module = "pipescaler.video.processors.temporalfix_processor"
+    monkeypatch.setattr(f"{module}.inspect_temporal_input", inspect)
+    monkeypatch.setattr(f"{module}.build_temporal_clip", build)
+    monkeypatch.setattr(f"{module}.val_executable", Path)
+    monkeypatch.setattr(processor, "_encode_clip", encode)
+    monkeypatch.setattr(processor, "validate_output", validate)
+    output_path = tmp_path / "output.mkv"
+    if operation == "inspect":
+        assert processor.inspect(source) is metadata
+    elif operation == "process":
+        processor.process(source, output_path)
+        assert output_path.read_text(encoding="utf-8") == str(frame_count)
+    else:
+        processor.render_range(source, output_path, metadata, (0, frame_count))
+        assert output_path.read_text(encoding="utf-8") == str(frame_count)
 
 
 @pytest.mark.parametrize(
