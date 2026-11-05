@@ -38,25 +38,25 @@ def write_image_sequence(
     return dir_path / pattern
 
 
-def write_video(file_path: Path) -> Path:
+def write_video(file_path: Path, size: tuple[int, int] = (16, 12)) -> Path:
     """Write a three-frame MP4 using the OpenCV MPEG-4 encoder.
 
     Arguments:
         file_path: destination for the generated MP4
+        size: frame width and height
     Returns:
         absolute video path
     Raises:
         OSError: if the video encoder cannot be opened
     """
     file_path = val_output_path(file_path, exist_ok=True)
-    writer = cv2.VideoWriter(
-        str(file_path), cv2.VideoWriter.fourcc(*"mp4v"), 24, (16, 12)
-    )
+    width, height = size
+    writer = cv2.VideoWriter(str(file_path), cv2.VideoWriter.fourcc(*"mp4v"), 24, size)
     try:
         if not writer.isOpened():
             raise OSError("Cannot open the MP4 test encoder.")
         for index in range(3):
-            writer.write(np.full((12, 16, 3), index * 60, dtype=np.uint8))
+            writer.write(np.full((height, width, 3), index * 60, dtype=np.uint8))
     finally:
         writer.release()
     return file_path
