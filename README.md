@@ -1,4 +1,4 @@
-[![Python: =3.14](https://img.shields.io/badge/python-3.14-green.svg)](https://docs.python.org/3/whatsnew/3.14.html)
+[![Python: 3.13, 3.14](https://img.shields.io/badge/python-3.13%20%7C%203.14-green.svg)](https://docs.python.org/3.13/)
 [![Build](https://github.com/KarlTDebiec/PipeScaler/actions/workflows/build.yml/badge.svg)](https://github.com/KarlTDebiec/PipeScaler/actions/workflows/build.yml)
 [![Coverage](https://img.shields.io/badge/coverage-83-green)](https://github.com/KarlTDebiec/PipeScaler)
 [![Code Style: Ruff](https://img.shields.io/badge/code%20style-Ruff-D7FF64.svg)](https://docs.astral.sh/ruff/)
@@ -18,7 +18,7 @@ Other packages can add commands through [CLI extensions](docs/CLI_EXTENSIONS.md)
 
 # Installation
 
-Use Python 3.14 and `uv sync --frozen` for the repository environment. The default
+Use Python 3.13 or 3.14 and `uv sync --frozen` for the repository environment. The default
 `cpu` and `dev` groups provide CPU-only PyTorch and the development tools. The
 `dev` group combines separate `lint` and `test` groups; CI selects `cpu` and `dev`
 explicitly and runs the full suite.

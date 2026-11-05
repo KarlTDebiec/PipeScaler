@@ -414,3 +414,41 @@ def test_short_or_odd_input_is_rejected(
             VideoInput(source_path),
             TemporalFixSettings(matrix="709", color_range="full"),
         )
+
+
+@pytest.mark.parametrize(
+    ("interpreter_version", "supported"),
+    [("3.12", False), ("3.13", True), ("3.14", True)],
+)
+def test_worker_python_compatibility(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    interpreter_version: str,
+    supported: bool,
+):
+    """Inspect workers on both supported Python versions and reject older ones.
+
+    Arguments:
+        tmp_path: temporary source path
+        monkeypatch: fixture for replacing worker execution
+        interpreter_version: Python version reported by the selected worker
+        supported: whether worker inspection should accept that interpreter
+    """
+    source_path = tmp_path / "input.mkv"
+    source_path.touch()
+    metadata = {
+        "width": 32,
+        "height": 32,
+        "frames": 8,
+        "frame_rate": "24000/1001",
+        "models": {"weights": "fingerprint"},
+        "versions": {"runtime": "version"},
+    }
+    runner = TemporalFixRunner(TemporalFixSettings(matrix="709", color_range="full"))
+    responses = iter((interpreter_version, json.dumps(metadata)))
+    monkeypatch.setattr(runner, "_execute", lambda _command: next(responses))
+    if supported:
+        assert runner.inspect(source_path) == metadata
+    else:
+        with pytest.raises(PipeScalerError, match="Python 3.13 or newer"):
+            runner.inspect(source_path)

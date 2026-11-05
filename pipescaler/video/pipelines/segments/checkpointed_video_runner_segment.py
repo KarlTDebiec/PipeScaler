@@ -179,7 +179,7 @@ class CheckpointedVideoRunnerSegment(Segment[PipeVideo]):
         try:
             if self.runner.source_identity(source) == expected:
                 return
-        except OSError, ValueError:
+        except (OSError, ValueError):
             pass
         for path in created:
             path.with_suffix(".mkv.json").unlink(missing_ok=True)
@@ -201,7 +201,7 @@ class CheckpointedVideoRunnerSegment(Segment[PipeVideo]):
             return manifest["identity"] == identity and manifest[
                 "sha256"
             ] == self.runner.hash_file(path)
-        except OSError, ValueError, KeyError, TypeError:
+        except (OSError, ValueError, KeyError, TypeError):
             return False
 
     def _observe(self, path: Path):
