@@ -1,6 +1,6 @@
 [![Python: 3.13, 3.14](https://img.shields.io/badge/python-3.13%20%7C%203.14-green.svg)](https://docs.python.org/3.13/)
 [![Build](https://github.com/KarlTDebiec/PipeScaler/actions/workflows/build.yml/badge.svg)](https://github.com/KarlTDebiec/PipeScaler/actions/workflows/build.yml)
-[![Coverage](https://img.shields.io/badge/coverage-83-green)](https://github.com/KarlTDebiec/PipeScaler)
+[![Coverage: 88%](https://img.shields.io/badge/coverage-88%25-green)](https://github.com/KarlTDebiec/PipeScaler/actions/runs/42070827596/job/127397948560)
 [![Code Style: Ruff](https://img.shields.io/badge/code%20style-Ruff-D7FF64.svg)](https://docs.astral.sh/ruff/)
 [![License: BSD 3-Clause](https://img.shields.io/badge/license-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 
@@ -44,6 +44,7 @@ PipeScaler includes the following components for image processing:
 
 **Processors** perform operations on an image, yielding a modified image:
 * [CropProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/operators/processors/crop_processor.py) - Crops image canvas.
+* [DdsProcessor](pipescaler/image/operators/processors/dds_processor.py) - Compresses images as BC7 DDS textures with optional mipmaps.
 * [ExpandProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/operators/processors/expand_processor.py) - Expands image canvas by mirroring image around edges.
 * [HeightToNormalProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/operators/processors/height_to_normal_processor.py) - Converts height map image to a normal map image.
 * [ImagequantProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/operators/processors/imagequant_processor.py) - Reduces image palettes using libimagequant.
@@ -52,6 +53,7 @@ PipeScaler includes the following components for image processing:
 * [ResizeProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/operators/processors/resize_processor.py) - Resizes image canvas.
 * [SharpenProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/operators/processors/sharpen_processor.py) - Sharpens an image.
 * [SolidColorProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/operators/processors/solid_color_processor.py) - Sets entire image color to its average color, optionally resizing.
+* [SpandrelProcessor](pipescaler/image/operators/processors/spandrel_processor.py) - Upscales RGB images with Spandrel models.
 * [ThresholdProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/operators/processors/threshold_processor.py) - Converts image to black and white using threshold, optionally denoising.
 * [XbrzProcessor](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/operators/processors/xbrz_processor.py) - Upscales image using [xbrz](https://github.com/ioistired/xbrz.py).
 
@@ -84,6 +86,9 @@ PipeScaler includes the following components for video processing:
 
 **Sources** yield videos for downstream modification:
 * [VideoDirectorySource](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/video/pipelines/sources/video_directory_source.py) - Yields videos from a directory.
+
+**Processors** transform videos and image sequences:
+* [TemporalFixProcessor](pipescaler/video/processors/temporalfix_processor.py) - Renders lossless 16-bit RGB video using TemporalFix. Requires the optional `temporalfix` dependencies, VapourSynth, and FFmpeg/ffprobe.
 
 **Sorters** classify videos, allowing them to be routed through different operations:
 * [VideoAspectRatioSorter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/video/pipelines/sorters/video_aspect_ratio_sorter.py) - Sorts video based on aspect ratio.
