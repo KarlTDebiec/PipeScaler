@@ -125,36 +125,31 @@ def test_case_insensitive_settings_are_canonical(backend: str):
     ) == TemporalFixSettings(matrix="2020ncl", color_range="full", backend=backend)
 
 
-@pytest.mark.parametrize(
-    ("available", "fallback", "message"),
-    [(False, "0", "MPS is unavailable"), (True, "1", "fallback must be disabled")],
-)
+@pytest.mark.parametrize("available", [False, True])
+@pytest.mark.parametrize("fallback", ["0", "1"])
 def test_mps_runtime_requirements(
-    monkeypatch: pytest.MonkeyPatch, available: bool, fallback: str, message: str
+    monkeypatch: pytest.MonkeyPatch, available: bool, fallback: str
 ):
-    """Reject unavailable MPS and CPU operator fallback.
+    """Require MPS availability while honoring the user's CPU fallback setting.
 
     Arguments:
         monkeypatch: fixture for replacing optional runtime discovery
         available: whether the worker exposes MPS
         fallback: requested CPU fallback setting
-        message: expected error
     """
     module = "pipescaler.video.core.temporalfix_runtime"
-    modules = {
-        "vapoursynth": SimpleNamespace(__version__=SimpleNamespace(release_major=82)),
-        "vs_temporalfix": SimpleNamespace(),
-        "torch": SimpleNamespace(
-            backends=SimpleNamespace(
-                mps=SimpleNamespace(is_available=lambda: available)
-            )
-        ),
-    }
-    monkeypatch.setattr(f"{module}.import_module", modules.__getitem__)
+    vs = SimpleNamespace(__version__=SimpleNamespace(release_major=82))
+    temporalfix = SimpleNamespace()
+    monkeypatch.setattr(f"{module}.import_vapoursynth", lambda: vs)
+    monkeypatch.setattr(f"{module}.import_vs_temporalfix", lambda: temporalfix)
+    monkeypatch.setattr(f"{module}.torch.backends.mps.is_available", lambda: available)
     monkeypatch.setattr(f"{module}.version", lambda _name: "2.4.1")
     monkeypatch.setenv("PYTORCH_ENABLE_MPS_FALLBACK", fallback)
-    with pytest.raises(RuntimeError, match=message):
-        import_temporal_runtime("mps")
+    if available:
+        assert import_temporal_runtime("mps") == (vs, temporalfix)
+    else:
+        with pytest.raises(RuntimeError, match="MPS is unavailable"):
+            import_temporal_runtime("mps")
 
 
 def test_worker_preserves_virtual_environment(tmp_path: Path):

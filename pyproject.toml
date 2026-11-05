@@ -91,6 +91,9 @@ ignore = [
 [tool.ruff.lint.pydocstyle]
 convention = 'google'
 
+[tool.ty.analysis]
+allowed-unresolved-imports = ["vapoursynth", "vs_temporalfix", "vs_temporalfix.**"]
+
 [tool.setuptools]
 packages = { find = { include = ["pipescaler*"] } }
 

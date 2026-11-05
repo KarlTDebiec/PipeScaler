@@ -8,7 +8,6 @@ ffprobe must be on PATH; normal tests never install native plugins or download m
 
 from __future__ import annotations
 
-from importlib import import_module
 from os import getenv
 from pathlib import Path
 from subprocess import run
@@ -20,6 +19,7 @@ import pytest
 import torch
 
 from pipescaler.common.validation import val_executable
+from pipescaler.core.dependencies.temporalfix import import_vs_temporalfix_arch
 from pipescaler.pipelines import CheckpointManager
 from pipescaler.video.core.pipelines import PipeVideo
 from pipescaler.video.core.temporalfix_runtime import build_temporal_clip
@@ -50,6 +50,10 @@ def test_real_temporalfix_worker(tmp_path: Path, backend: str):
         pytest.skip("Provision the optional TemporalFix worker interpreter")
     if backend == "mps" and not torch.backends.mps.is_available():
         pytest.skip("MPS hardware is unavailable")
+    if backend == "mps":
+        assert getenv("PYTORCH_ENABLE_MPS_FALLBACK") != "1", (
+            "Start native MPS tests with PYTORCH_ENABLE_MPS_FALLBACK=0"
+        )
     template = generate_temporalfix_sample(tmp_path / "frames")
     runner = TemporalFixRunner(
         TemporalFixSettings(
@@ -167,8 +171,11 @@ def test_native_mps_matches_cpu(tmp_path: Path, strength: float, tiles: int):
         pytest.skip("Provision the optional TemporalFix worker interpreter")
     if not torch.backends.mps.is_available():
         pytest.skip("MPS hardware is unavailable")
+    assert getenv("PYTORCH_ENABLE_MPS_FALLBACK") != "1", (
+        "Start native MPS tests with PYTORCH_ENABLE_MPS_FALLBACK=0"
+    )
     pytest.importorskip("vapoursynth")
-    architecture = import_module("vs_temporalfix.models.temporalfix_arch")
+    architecture = import_vs_temporalfix_arch()
     template = generate_temporalfix_sample(tmp_path / "source")
     outputs = {}
     devices = []

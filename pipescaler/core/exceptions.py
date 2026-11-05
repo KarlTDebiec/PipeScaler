@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-__all__ = ["PipeScalerError"]
+__all__ = ["DependencyError", "PipeScalerError"]
 
 
 class PipeScalerError(Exception):
@@ -14,3 +14,7 @@ class PipeScalerError(Exception):
     General-purpose utility errors, built-in validation and programming errors,
     and pipeline control-flow signals remain outside this hierarchy.
     """
+
+
+class DependencyError(PipeScalerError):
+    """An optional dependency required by the requested operation is unavailable."""

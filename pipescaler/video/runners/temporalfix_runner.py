@@ -114,6 +114,7 @@ class TemporalFixRunner(Runner[VideoInput | Path | str]):
         adapter_paths = (
             Path(__file__),
             Path(__file__).with_name("temporalfix_worker.py"),
+            package_root / "core/dependencies/temporalfix.py",
             package_root / "video/core/temporalfix_runtime.py",
             package_root / "video/core/temporalfix_settings.py",
         )

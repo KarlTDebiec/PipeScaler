@@ -6,18 +6,19 @@ This module may import from: common
 
 Package hierarchy (modules may import from any above):
 * exceptions / runner / sorting / utility
-* typing
+* dependencies / typing
 * pipelines
 """
 
 from __future__ import annotations
 
-from .exceptions import PipeScalerError
+from .exceptions import DependencyError, PipeScalerError
 from .runner import Runner
 from .typing import RunnerLike
 from .utility import Utility
 
 __all__ = [
+    "DependencyError",
     "PipeScalerError",
     "Runner",
     "RunnerLike",
