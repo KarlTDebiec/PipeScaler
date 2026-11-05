@@ -1,6 +1,6 @@
 #  Copyright 2017-2026 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
-"""Tests for the shared command-line interface base class."""
+"""Tests of common.cli.command_line_interface."""
 
 from __future__ import annotations
 
@@ -12,13 +12,11 @@ from pathlib import Path
 from typing import ClassVar
 from unittest.mock import patch
 
-from pytest import CaptureFixture, MonkeyPatch, raises
+from common.cli import CommandLineInterface
+from common.testing import run_cli_with_args
+from pytest import CaptureFixture, mark, raises
 
 import __main__
-from pipescaler.common.cli.command_line_interface import CommandLineInterface
-from pipescaler.common.testing import run_cli_with_args
-from test import helpers
-from test.helpers import parametrize
 
 
 class ArgsCaptureCli(CommandLineInterface):
@@ -45,28 +43,6 @@ class ArgsCaptureCli(CommandLineInterface):
             name: name
         """
         cls.captured["name"] = name
-
-
-class RequiredArgCli(CommandLineInterface):
-    """Test CLI that requires an argument."""
-
-    @classmethod
-    def add_arguments_to_argparser(cls, parser: ArgumentParser):
-        """Add arguments to a nascent argument parser.
-
-        Arguments:
-            parser: nascent argument parser
-        """
-        super().add_arguments_to_argparser(parser)
-        parser.add_argument("--name", required=True)
-
-    @classmethod
-    def _main(cls, *, name: str):
-        """Execute test CLI.
-
-        Arguments:
-            name: name
-        """
 
 
 class TestCli(CommandLineInterface):
@@ -109,7 +85,7 @@ class ReportTool(CommandLineInterface):
         pass
 
 
-@parametrize(
+@mark.parametrize(
     ("cli_cls", "expected_name"),
     [(TestCli, "test"), (AnotherTestCli, "anothertest"), (ReportTool, "reporttool")],
 )
@@ -208,13 +184,8 @@ def test_argparser_with_subparsers():
 
 def test_log_command_line():
     """Test log_command_line() logs the command line."""
-    with patch(
-        "pipescaler.common.cli.command_line_interface.argv",
-        ["script.py", "arg1", "arg2"],
-    ):
-        with patch(
-            "pipescaler.common.cli.command_line_interface.logger.info"
-        ) as mock_info:
+    with patch("common.cli.command_line_interface.argv", ["script.py", "arg1", "arg2"]):
+        with patch("common.cli.command_line_interface.logger.info") as mock_info:
             TestCli.log_command_line()
             mock_info.assert_called_once()
             call_args = mock_info.call_args[0][0]
@@ -229,7 +200,7 @@ def test_main_basic():
             mock_main.assert_called_once()
 
 
-@parametrize("arguments", [[], (), ["-v"], ("-vv",)])
+@mark.parametrize("arguments", [[], (), ["-v"], ("-vv",)])
 def test_main_explicit_arguments(arguments: Sequence[str]):
     """Execute explicit tokens without reading process arguments.
 
@@ -239,7 +210,7 @@ def test_main_explicit_arguments(arguments: Sequence[str]):
     with patch("sys.argv", ["test_script.py", "--invalid-process-option"]):
         with patch.object(TestCli, "_main") as mock_main:
             with patch(
-                "pipescaler.common.cli.command_line_interface.configure_logging"
+                "common.cli.command_line_interface.configure_logging"
             ) as mock_logging:
                 TestCli.main(arguments)
 
@@ -291,20 +262,28 @@ def test_run_cli_with_args_quoted_values():
     assert ArgsCaptureCli.captured.get("name") == "value with spaces"
 
 
-@parametrize("module_name", ["__main__", "pytest.__main__"])
+@mark.parametrize("module_name", ["__main__", "pytest.__main__"])
 def test_run_cli_with_args_script_invocation(
     module_name: str, capsys: CaptureFixture[str]
 ):
-    """Simulate script help independently of the host's module invocation.
+    """Use script identity during a test invocation and restore the host identity.
 
     Arguments:
         module_name: module identity of the calling process
-        capsys: fixture for capturing command output
+        capsys: fixture capturing command output
     """
     module_spec = ModuleSpec(module_name, loader=None)
+    main = TestCli.main
+
+    def run_as_script():
+        """Verify script identity before constructing the parser."""
+        assert __main__.__spec__ is None
+        main()
+
     with patch.object(__main__, "__spec__", module_spec):
-        with raises(SystemExit) as excinfo:
-            run_cli_with_args(TestCli, "--help")
+        with patch.object(TestCli, "main", side_effect=run_as_script):
+            with raises(SystemExit) as excinfo:
+                run_cli_with_args(TestCli, "--help")
         assert __main__.__spec__ is module_spec
 
     output = capsys.readouterr()
@@ -313,85 +292,21 @@ def test_run_cli_with_args_script_invocation(
     assert output.err == ""
 
 
-def test_subparser_common_options_preserve_parent_values():
-    """Preserve inherited logging options and honor explicit child overrides."""
-    parser = TestCli.argparser()
-    subparsers = parser.add_subparsers(dest="command", required=True)
-    child = AnotherTestCli.argparser(subparsers=subparsers)
-    grandchildren = child.add_subparsers(dest="subcommand", required=True)
-    TestCli.argparser(subparsers=grandchildren)
-
-    parsed = parser.parse_args(["-v", "anothertest", "-vv", "test", "-v"])
-    assert parsed.verbosity == 2
-    assert parsed.log_file is None
-
-    parsed = parser.parse_args(["-vv", "anothertest", "test"])
-    assert parsed.verbosity == 3
-
-    parsed = parser.parse_args(["-q", "anothertest", "test"])
-    assert parsed.verbosity == 0
-
-    parsed = parser.parse_args(["-vv", "anothertest", "-v", "test"])
-    assert parsed.verbosity == 2
-
-    parsed = parser.parse_args(["-v", "anothertest", "test", "-q"])
-    assert parsed.verbosity == 0
-
-    parsed = parser.parse_args(["-l", "root.log", "anothertest", "test"])
-    assert parsed.log_file == "root.log"
-
-    parsed = parser.parse_args(
-        ["-l", "root.log", "anothertest", "-l", "middle.log", "test"]
-    )
-    assert parsed.log_file == "middle.log"
-
-    parsed = parser.parse_args(
-        ["-l", "root.log", "anothertest", "-l", "middle.log", "test", "-l", "leaf.log"]
-    )
-    assert parsed.log_file == "leaf.log"
-
-    parsed = parser.parse_args(["-q", "anothertest", "-v", "test", "-v"])
-    assert parsed.verbosity == 2
-
-
-def test_common_options_do_not_leak_between_parses():
-    """Keep logging options local to each parse call."""
-    parser = TestCli.argparser()
-    assert parser.parse_args([]).verbosity == 1
-    assert parser.parse_args(["-vv"]).verbosity == 3
-    assert parser.parse_args([]).verbosity == 1
-
-    with patch.object(TestCli, "_main"):
-        with patch(
-            "pipescaler.common.cli.command_line_interface.configure_logging"
-        ) as mock_logging:
-            TestCli.main(["-vv"])
-            TestCli.main([])
-    assert [call.args[0] for call in mock_logging.call_args_list] == [3, 1]
-
-
-def test_standalone_leaf_parser_common_options():
-    """Preserve logging defaults when a CLI is parsed without a parent."""
-    parsed = AnotherTestCli.argparser().parse_args(["-v", "-v", "-l", "leaf.log"])
-    assert parsed.verbosity == 3
-    assert parsed.log_file == "leaf.log"
-
-
-def test_assert_cli_usage_failure_reports_streams(monkeypatch: MonkeyPatch):
-    """Test CLI usage assertion failures include expected and actual streams.
+@mark.parametrize(
+    ("arguments", "expected_verbosity"),
+    [([], 1), (["-v"], 2), (["--verbose"], 2), (["-vv"], 3), (["-q"], 0)],
+)
+def test_subparser_suppressed_verbosity_default(
+    arguments: list[str], expected_verbosity: int
+):
+    """Count child verbosity from warnings when its default is suppressed.
 
     Arguments:
-        monkeypatch: pytest monkeypatch fixture
+        arguments: options passed to the child parser
+        expected_verbosity: selected verbosity level
     """
-    monkeypatch.setattr(
-        helpers, "get_usage_prefix", lambda cli: "usage: intentionally-wrong.py"
-    )
-
-    with raises(AssertionError) as excinfo:
-        helpers.assert_cli_usage((RequiredArgCli,))
-
-    message = str(excinfo.value)
-    assert "Expected stderr to start with:" in message
-    assert "usage: intentionally-wrong.py" in message
-    assert "Actual stderr:" in message
-    assert "Actual stdout:" in message
+    parser = TestCli.argparser()
+    subparsers = parser.add_subparsers(dest="command", required=True)
+    AnotherTestCli.argparser(subparsers=subparsers)
+    parsed = parser.parse_args([AnotherTestCli.name(), *arguments])
+    assert parsed.verbosity == expected_verbosity

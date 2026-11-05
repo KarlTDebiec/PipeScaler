@@ -97,8 +97,16 @@ ignore = [
     "PLR2004" # Magic value used in comparison
 ]
 
+[tool.ruff.lint.per-file-ignores]
+# Keep the shared validator signature and its parametrized contract in sync.
+"pipescaler/common/validation.py" = ["PLR0913"]
+"test/common/validation/test_val_number.py" = ["PLR0913", "PLR0917"]
+
 [tool.ruff.lint.pydocstyle]
 convention = 'google'
+
+[tool.ty.environment]
+extra-paths = ["pipescaler", "test/common"]
 
 [tool.ty.analysis]
 allowed-unresolved-imports = ["vapoursynth", "vs_temporalfix", "vs_temporalfix.**"]

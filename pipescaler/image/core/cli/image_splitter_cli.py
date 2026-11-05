@@ -8,8 +8,11 @@ from abc import ABC, abstractmethod
 from argparse import ArgumentParser
 from inspect import cleandoc
 
-from pipescaler.common.argument_parsing import get_arg_groups_by_name, input_file_arg
 from pipescaler.common.cli import CommandLineInterface
+from pipescaler.common.cli.argument_parsing import (
+    get_arg_groups_by_name,
+    input_file_arg,
+)
 from pipescaler.image.core.operators import ImageSplitter
 
 __all__ = ["ImageSplitterCli"]

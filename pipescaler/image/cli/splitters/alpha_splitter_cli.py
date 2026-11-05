@@ -10,7 +10,10 @@ from pathlib import Path
 
 from PIL import Image
 
-from pipescaler.common.argument_parsing import get_arg_groups_by_name, output_file_arg
+from pipescaler.common.cli.argument_parsing import (
+    get_arg_groups_by_name,
+    output_file_arg,
+)
 from pipescaler.image.core.cli import ImageSplitterCli
 from pipescaler.image.core.operators import ImageSplitter
 from pipescaler.image.operators.splitters import AlphaSplitter

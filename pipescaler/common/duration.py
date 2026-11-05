@@ -17,11 +17,7 @@ _DURATION_PATTERN = re.compile(
 
 
 def parse_duration(value: str) -> timedelta:
-    """Parse a nonnegative integer followed by one time unit.
-
-    Units are seconds, minutes, hours, days, or weeks, with case-insensitive short
-    forms such as s, min, h, d, and w. Whitespace is allowed around the value and
-    unit. Fractional values, negative values, and combined units are not accepted.
+    """Parse a human-friendly duration string.
 
     Arguments:
         value: duration such as 12h, 7d, or 30 days

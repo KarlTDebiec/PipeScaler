@@ -22,11 +22,32 @@ from pathlib import Path
 from sys import argv
 from typing import Any
 
-from pipescaler.common.logs import DEFAULT_LOG_FORMAT, configure_logging
+from ..logs import DEFAULT_LOG_FORMAT, configure_logging
 
 __all__ = ["CommandLineInterface"]
 
 logger = getLogger(__name__)
+
+
+class _VerbosityAction(Action):
+    """Count verbosity from warnings even when a child suppresses its default."""
+
+    def __call__(
+        self,
+        parser: ArgumentParser,
+        namespace: Namespace,
+        values: object,
+        option_string: str | None = None,
+    ):
+        """Increase verbosity for one occurrence of the option.
+
+        Arguments:
+            parser: active parser
+            namespace: parsed arguments
+            values: unused value for this zero-argument option
+            option_string: option used to invoke the action
+        """
+        setattr(namespace, self.dest, getattr(namespace, self.dest, 1) + 1)
 
 
 class CommandLineInterface(ABC):
@@ -39,7 +60,6 @@ class CommandLineInterface(ABC):
         Arguments:
             parser: Nascent argument parser
         """
-        # Additional arguments
         verbosity = parser.add_mutually_exclusive_group()
         verbosity.add_argument(
             "-v",
@@ -180,13 +200,13 @@ class CommandLineInterface(ABC):
 
     @classmethod
     def subcommand_dest(cls) -> str:
-        """Get the internal argparse destination for this CLI's command selection.
+        """Get the argparse destination for this CLI's command selection.
 
-        The qualified class name keeps routing metadata distinct between containers.
-        Dots separate it from ordinary keyword arguments passed to leaf commands.
+        The qualified class name distinguishes containers. Dots distinguish
+        routing metadata from ordinary keyword arguments passed to leaf commands.
 
         Returns:
-            namespaced destination used by both parser construction and dispatch
+            namespaced destination used by parser construction and dispatch
         """
         return f"{cls.__module__}.{cls.__qualname__}.subcommand"
 
@@ -207,24 +227,3 @@ class CommandLineInterface(ABC):
             **kwargs: parsed command-line arguments
         """
         raise NotImplementedError()
-
-
-class _VerbosityAction(Action):
-    """Count verbosity from warnings even when a child suppresses its default."""
-
-    def __call__(
-        self,
-        parser: ArgumentParser,
-        namespace: Namespace,
-        values: object,
-        option_string: str | None = None,
-    ):
-        """Increase verbosity for one occurrence of the option.
-
-        Arguments:
-            parser: active parser
-            namespace: parsed arguments
-            values: unused value for this zero-argument option
-            option_string: option used to invoke the action
-        """
-        setattr(namespace, self.dest, getattr(namespace, self.dest, 1) + 1)

@@ -6,11 +6,11 @@ from __future__ import annotations
 
 from logging import DEBUG, ERROR, INFO, WARNING, getLogger
 
-from pipescaler.common.logs import configure_logging
-from test.helpers import parametrize
+from common.logs import configure_logging
+from pytest import mark
 
 
-@parametrize(
+@mark.parametrize(
     ("verbosity", "expected_level"),
     [(0, ERROR), (1, WARNING), (2, INFO), (3, DEBUG), (10, DEBUG)],
 )
@@ -21,5 +21,14 @@ def test_configure_logging(verbosity: int, expected_level: int):
         verbosity: verbosity value
         expected_level: expected logging level
     """
-    configure_logging(verbosity)
-    assert getLogger().level == expected_level
+    root_logger = getLogger()
+    handlers, level = root_logger.handlers[:], root_logger.level
+    try:
+        configure_logging(verbosity)
+        assert root_logger.level == expected_level
+    finally:
+        for handler in root_logger.handlers:
+            if handler not in handlers:
+                handler.close()
+        root_logger.handlers[:] = handlers
+        root_logger.setLevel(level)

@@ -6,9 +6,8 @@ from __future__ import annotations
 
 from typing import Any
 
-import pytest
-
-from pipescaler.common.cli import CommandLineInterface, ListAllCommandsAction
+from common.cli import CommandLineInterface, ListAllCommandsAction
+from pytest import MonkeyPatch, mark
 
 
 class EmptyCli(CommandLineInterface):
@@ -108,9 +107,9 @@ def test_iter_command_rows_ignores_invalid_subcommand_values():
     assert rows == []
 
 
-@pytest.mark.parametrize(("help_position", "width"), [(24, 80), (12, 50)])
+@mark.parametrize(("help_position", "width"), [(24, 80), (12, 50)])
 def test_format_command_row_wraps_long_command_description_readably(
-    help_position: int, width: int, monkeypatch: pytest.MonkeyPatch
+    help_position: int, width: int, monkeypatch: MonkeyPatch
 ):
     """Test long command names do not break description wrapping.
 

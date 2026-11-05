@@ -10,7 +10,7 @@ from pathlib import Path
 
 from PIL import Image
 
-from pipescaler.common.argument_parsing import (
+from pipescaler.common.cli.argument_parsing import (
     get_arg_groups_by_name,
     input_file_arg,
     output_file_arg,

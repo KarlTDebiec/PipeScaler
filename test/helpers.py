@@ -1,6 +1,6 @@
 #  Copyright 2017-2026 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
-"""Portable helpers shared by common-module tests."""
+"""Shared CLI assertions and test markers."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ from inspect import getfile
 from io import StringIO
 from pathlib import Path
 
-from pytest import mark, raises, skip
+from pytest import mark, raises
 
 from pipescaler.common.cli import CommandLineInterface
 from pipescaler.common.testing import run_cli_with_args
@@ -72,26 +72,6 @@ def build_subcommands(cli: tuple[type[CommandLineInterface], ...]) -> str:
         subcommand string to append to the base CLI
     """
     return " ".join(f"{command.name()}" for command in cli[1:])
-
-
-def create_symlink_or_skip(
-    symlink_path: Path, target_path: Path, *, target_is_directory: bool = False
-):
-    """Create a symlink, skipping when Windows privileges do not allow it.
-
-    Arguments:
-        symlink_path: path at which to create the symlink
-        target_path: symlink target path
-        target_is_directory: whether the target is a directory
-    Raises:
-        OSError: if a filesystem operation fails
-    """
-    try:
-        symlink_path.symlink_to(target_path, target_is_directory=target_is_directory)
-    except OSError as exc:
-        if getattr(exc, "winerror", None) == 1314:
-            skip("Windows symlink privilege is not available")
-        raise
 
 
 def get_usage_prefix(cli: tuple[type[CommandLineInterface], ...]) -> str:
