@@ -72,7 +72,7 @@ domain errors continue to propagate.
 - Runners own subprocess invocation, platform assumptions, output validation, and
   model execution. Use existing image and video libraries where practical.
 
-Video runners and processors depend on input/settings primitives in `video.core`;
+Video processors depend on input/settings primitives in `video.core`;
 video pipeline segments depend on the processors. Rendered-video checkpoints own
 validation and atomic publication rather than invoking unsupported `PipeVideo.save`
 encoding.

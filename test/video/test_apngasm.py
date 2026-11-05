@@ -18,35 +18,34 @@ from PIL import Image
 
 from pipescaler.common.file import get_temp_file_path
 from pipescaler.core.exceptions import PipeScalerError
-from pipescaler.video.runners import ApngasmRunner, apngasm_runner
-from pipescaler.video.runners.apngasm_runner import ApngasmFrame
-from test.scripts.generate_apng_frames import write_apng_frames
+from pipescaler.video import apngasm
+from pipescaler.video.apngasm import ApngFrame, assemble_apng
 
 
-def test_animated_inputs_rejected(tmp_path: Path):
+def test_animated_inputs_rejected(frame_paths: list[Path], tmp_path: Path):
     """Reject animated file and Pillow inputs instead of silently expanding frames.
 
     Arguments:
+        frame_paths: generated static frame paths in playback order
         tmp_path: temporary directory fixture
     """
-    runner = ApngasmRunner()
     animated_path = tmp_path / "animated.png"
-    runner.run(write_apng_frames(tmp_path / "frames"), animated_path)
+    assemble_apng(frame_paths, animated_path)
     with pytest.raises(ValueError, match="static"):
-        runner.run([animated_path], tmp_path / "output.png")
+        assemble_apng([animated_path], tmp_path / "output.png")
     with Image.open(animated_path) as animation:
         with pytest.raises(ValueError, match="static"):
-            runner.run([animation], tmp_path / "output.png")
+            assemble_apng([animation], tmp_path / "output.png")
 
 
-def test_input_can_be_output(tmp_path: Path):
+def test_input_can_be_output(frame_paths: list[Path]):
     """Load frame inputs before replacing an existing destination.
 
     Arguments:
-        tmp_path: temporary directory fixture
+        frame_paths: generated static frame paths in playback order
     """
-    paths = write_apng_frames(tmp_path / "frames")
-    ApngasmRunner().run(paths, paths[0])
+    paths = frame_paths
+    assemble_apng(paths, paths[0])
     with Image.open(paths[0]) as result:
         assert result.n_frames == 3
 
@@ -57,23 +56,22 @@ def test_invalid_files_and_outputs(tmp_path: Path):
     Arguments:
         tmp_path: temporary directory fixture
     """
-    runner = ApngasmRunner()
     frame = Image.new("RGB", (8, 6))
     output_path = tmp_path / "output.png"
     with pytest.raises(FileNotFoundError):
-        runner.run([tmp_path / "missing.png"], output_path)
+        assemble_apng([tmp_path / "missing.png"], output_path)
     corrupt_path = tmp_path / "corrupt.png"
     corrupt_path.write_bytes(b"not a PNG")
     with pytest.raises(OSError):
-        runner.run([corrupt_path], output_path)
+        assemble_apng([corrupt_path], output_path)
     with pytest.raises(ValueError, match="suffix"):
-        runner.run([frame], tmp_path / "output.jpg")
+        assemble_apng([frame], tmp_path / "output.jpg")
     directory_path = tmp_path / "directory.png"
     directory_path.mkdir()
     with pytest.raises(IsADirectoryError):
-        runner.run([frame], directory_path)
+        assemble_apng([frame], directory_path)
     with pytest.raises(FileNotFoundError):
-        runner.run([frame], tmp_path / "missing" / "output.png")
+        assemble_apng([frame], tmp_path / "missing" / "output.png")
     assert not output_path.exists()
 
 
@@ -84,8 +82,8 @@ def test_skip_first_requires_animation_frame(tmp_path: Path):
         tmp_path: temporary directory fixture
     """
     with pytest.raises(ValueError, match="after skip_first"):
-        ApngasmRunner(skip_first=True).run(
-            [Image.new("RGB", (8, 6))], tmp_path / "output.png"
+        assemble_apng(
+            [Image.new("RGB", (8, 6))], tmp_path / "output.png", skip_first=True
         )
 
 
@@ -101,8 +99,8 @@ def test_unicode_temp_with_unwritable_cwd(
     cwd_path = tmp_path / "作業"
     cwd_path.mkdir()
     monkeypatch.chdir(cwd_path)
-    monkeypatch.setattr(apngasm_runner, "os_name", "nt")
-    monkeypatch.setattr(apngasm_runner, "gettempdir", lambda: str(cwd_path))
+    monkeypatch.setattr(apngasm, "os_name", "nt")
+    monkeypatch.setattr(apngasm, "gettempdir", lambda: str(cwd_path))
 
     @contextmanager
     def temporary_path(
@@ -123,30 +121,59 @@ def test_unicode_temp_with_unwritable_cwd(
         with get_temp_file_path(suffix, parent_dir_path=parent_dir_path) as path:
             yield path
 
-    monkeypatch.setattr(apngasm_runner, "get_temp_file_path", temporary_path)
+    monkeypatch.setattr(apngasm, "get_temp_file_path", temporary_path)
     output_path = tmp_path / "existing.png"
     output_path.write_bytes(b"existing output")
     with pytest.raises(PipeScalerError, match="writable current working directory"):
-        ApngasmRunner().run([Image.new("RGB", (8, 6))], output_path)
+        assemble_apng([Image.new("RGB", (8, 6))], output_path)
     assert output_path.read_bytes() == b"existing output"
+
+
+@pytest.fixture
+def frame_paths(tmp_path: Path) -> list[Path]:
+    """Generate ordered frames with changing colors, positions, and transparency.
+
+    Arguments:
+        tmp_path: temporary directory fixture
+    Returns:
+        generated static frame paths in playback order
+    """
+    dir_path = tmp_path / "入力 O'Brien {frames}"
+    dir_path.mkdir()
+    paths = []
+    for index, (name, color) in enumerate(
+        zip(
+            ("z first", "a second", "m third"),
+            ((255, 0, 0, 255), (0, 255, 0, 128), (0, 0, 255, 255)),
+            strict=True,
+        )
+    ):
+        image = Image.new("RGBA", (8, 6), (0, 0, 0, 0))
+        image.paste(color, (index + 1, 1, index + 5, 4))
+        image.putpixel((6, 4), (255, 255, 255, 255))
+        path = dir_path / f"{name}.png"
+        image.save(path)
+        paths.append(path)
+    return paths
 
 
 @pytest.mark.parametrize("input_kind", ["file", "pillow", "numpy", "mixed", "strided"])
 @pytest.mark.parametrize("loops", [0, 3])
-def test_assembly(tmp_path: Path, input_kind: str, loops: int):
+def test_assembly(frame_paths: list[Path], tmp_path: Path, input_kind: str, loops: int):
     """Decode real output to verify order, alpha, exact pixels, timing, and loops.
 
     Arguments:
+        frame_paths: generated static frame paths in playback order
         tmp_path: temporary directory fixture
         input_kind: frame input representation
         loops: requested playback count
     """
-    paths = write_apng_frames(tmp_path / "O'Brien {frames}")
+    paths = frame_paths
     images = []
     for path in paths:
         with Image.open(path) as image:
             images.append(image.copy())
-    frames: list[ApngasmFrame]
+    frames: list[ApngFrame]
     if input_kind == "file":
         frames = list(paths)
     elif input_kind == "pillow":
@@ -160,8 +187,7 @@ def test_assembly(tmp_path: Path, input_kind: str, loops: int):
         images = [image.transpose(Image.Transpose.FLIP_LEFT_RIGHT) for image in images]
     original_pixels = [np.array(image) for image in images]
     output_path = tmp_path / "O'Brien {animation}.apng"
-    runner = ApngasmRunner(loops=loops)
-    runner(frames, output_path, delays=[(1, 10), (1, 5), (3, 10)])
+    assemble_apng(frames, output_path, loops=loops, delays=[(1, 10), (1, 5), (3, 10)])
     with Image.open(output_path) as animation:
         assert animation.is_animated
         assert animation.n_frames == 3
@@ -178,18 +204,20 @@ def test_assembly(tmp_path: Path, input_kind: str, loops: int):
 
 
 @pytest.mark.parametrize("skip_first", [False, True])
-def test_default_timing_and_reuse(tmp_path: Path, skip_first: bool):
+def test_default_timing_and_reuse(
+    frame_paths: list[Path], tmp_path: Path, skip_first: bool
+):
     """Keep fallback frames out of playback and isolate repeated assembly calls.
 
     Arguments:
+        frame_paths: generated static frame paths in playback order
         tmp_path: temporary directory fixture
         skip_first: whether the first input is a static fallback
     """
-    frames = write_apng_frames(tmp_path / "frames")
-    runner = ApngasmRunner(delay_num=7, delay_den=25, loops=2, skip_first=skip_first)
+    frames = frame_paths
     for run in range(2):
         output_path = tmp_path / f"animation{run}.png"
-        runner.run(frames, output_path)
+        assemble_apng(frames, output_path, loops=2, skip_first=skip_first)
         with Image.open(output_path) as animation:
             assert animation.n_frames == 3
             assert animation.info.get("default_image", False) == skip_first
@@ -197,7 +225,7 @@ def test_default_timing_and_reuse(tmp_path: Path, skip_first: bool):
             for index in range(3):
                 animation.seek(index)
                 if index > 0 or not skip_first:
-                    assert animation.info["duration"] == pytest.approx(280)
+                    assert animation.info["duration"] == pytest.approx(100)
                 with Image.open(frames[index]) as expected:
                     np.testing.assert_array_equal(
                         np.array(animation.convert("RGBA")), np.array(expected)
@@ -214,6 +242,7 @@ def test_default_timing_and_reuse(tmp_path: Path, skip_first: bool):
     ],
 )
 def test_duplicate_frames_preserve_total_duration(
+    frame_paths: list[Path],
     tmp_path: Path,
     duplicate_delays: tuple[tuple[int, int], tuple[int, int]],
     duration_ms: float,
@@ -221,13 +250,14 @@ def test_duplicate_frames_preserve_total_duration(
     """Preserve playback time when native optimization combines identical frames.
 
     Arguments:
+        frame_paths: generated static frame paths in playback order
         tmp_path: temporary directory fixture
         duplicate_delays: delays for the first two identical input frames
         duration_ms: exact expected duration of their combined output frame
     """
-    frames = write_apng_frames(tmp_path / "frames")
+    frames = frame_paths
     output_path = tmp_path / "duplicates.png"
-    ApngasmRunner().run(
+    assemble_apng(
         [frames[0], frames[0], frames[1]],
         output_path,
         delays=[*duplicate_delays, (3, 10)],
@@ -261,7 +291,7 @@ def test_duplicate_normalization(tmp_path: Path, skip_first: bool):
     before = hidden_color.copy()
     frames = [rgb, rgba, transparent, hidden_color]
     output_path = tmp_path / "duplicates.png"
-    ApngasmRunner(skip_first=skip_first).run(frames, output_path)
+    assemble_apng(frames, output_path, skip_first=skip_first)
     np.testing.assert_array_equal(hidden_color, before)
     with Image.open(output_path) as animation:
         assert animation.n_frames == 2 + int(skip_first)
@@ -311,7 +341,7 @@ def test_invalid_frames_and_delays(
     output_path = tmp_path / "existing.png"
     output_path.write_bytes(b"existing output")
     with pytest.raises(error, match=message):
-        ApngasmRunner().run(frames, output_path, delays=delays)
+        assemble_apng(frames, output_path, delays=delays)
     assert output_path.read_bytes() == b"existing output"
     assert list(tmp_path.iterdir()) == [output_path]
 
@@ -319,28 +349,27 @@ def test_invalid_frames_and_delays(
 @pytest.mark.parametrize(
     ("setting", "value", "error"),
     [
-        ("delay_num", 0, ValueError),
-        ("delay_num", 65536, ValueError),
-        ("delay_den", 0, ValueError),
-        ("delay_den", 65536, ValueError),
-        ("delay_num", 1.5, TypeError),
-        ("delay_den", True, TypeError),
         ("loops", -1, ValueError),
         ("loops", 2**32, ValueError),
         ("loops", 1.5, TypeError),
         ("skip_first", 1, TypeError),
     ],
 )
-def test_invalid_settings(setting: str, value: Any, error: type[Exception]):
-    """Reject settings before integer truncation or unsigned overflow in native code.
+def test_invalid_settings(
+    tmp_path: Path, setting: str, value: Any, error: type[Exception]
+):
+    """Reject invalid loop and fallback settings before native calls.
 
     Arguments:
-        setting: constructor keyword to test
+        tmp_path: temporary directory fixture
+        setting: keyword to test
         value: intentionally invalid value
         error: expected exception category
     """
     with pytest.raises(error, match=setting):
-        ApngasmRunner(**{setting: value})
+        assemble_apng(
+            [Image.new("RGB", (8, 6))], tmp_path / "output.png", **{setting: value}
+        )
 
 
 @pytest.mark.parametrize("failure", ["false", "exception", "missing", "corrupt"])
@@ -366,23 +395,11 @@ def test_native_failure_preserves_output(
     output_path = tmp_path / "existing.png"
     output_path.write_bytes(b"existing output")
     with pytest.raises(PipeScalerError) as caught:
-        ApngasmRunner().run([Image.new("RGB", (8, 6))], output_path)
+        assemble_apng([Image.new("RGB", (8, 6))], output_path)
     if failure == "exception":
         assert caught.value.__cause__ is cause
     assert output_path.read_bytes() == b"existing output"
     assert list(tmp_path.iterdir()) == [output_path]
-
-
-@pytest.mark.parametrize("skip_first", [False, True])
-def test_repr_round_trip(skip_first: bool):
-    """Recreate every assembly setting from repr.
-
-    Arguments:
-        skip_first: whether to configure a static fallback
-    """
-    runner = ApngasmRunner(delay_num=7, delay_den=25, loops=3, skip_first=skip_first)
-    recreated = eval(repr(runner))
-    assert vars(recreated) == vars(runner)
 
 
 @pytest.mark.parametrize("fortran_order", [False, True])
@@ -397,7 +414,7 @@ def test_rgb_arrays(tmp_path: Path, fortran_order: bool):
     if fortran_order:
         frame = np.asfortranarray(frame)
     output_path = tmp_path / "rgb.png"
-    ApngasmRunner().run([frame], output_path)
+    assemble_apng([frame], output_path)
     with Image.open(output_path) as result:
         np.testing.assert_array_equal(np.array(result.convert("RGB")), frame)
 
@@ -414,7 +431,7 @@ def test_single_frame_modes(tmp_path: Path, mode: str):
     if mode == "P":
         frame.info["transparency"] = 0
     output_path = tmp_path / "static.png"
-    ApngasmRunner().run([frame], output_path)
+    assemble_apng([frame], output_path)
     with Image.open(output_path) as result:
         assert result.n_frames == 1
         actual = np.array(result.convert("RGBA"))
@@ -426,16 +443,20 @@ def test_single_frame_modes(tmp_path: Path, mode: str):
 
 @pytest.mark.parametrize("unicode_temp", [False, True])
 def test_unicode_paths(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, unicode_temp: bool
+    frame_paths: list[Path],
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    unicode_temp: bool,
 ):
     """Decode output written through Unicode input, destination, and TEMP paths.
 
     Arguments:
+        frame_paths: generated static frame paths in playback order
         tmp_path: temporary directory fixture
         monkeypatch: pytest monkeypatch fixture
         unicode_temp: whether to also use a Unicode system temporary directory
     """
-    frames = write_apng_frames(tmp_path / "入力")
+    frames = frame_paths
     output_dir_path = tmp_path / "出力"
     output_dir_path.mkdir()
     if unicode_temp:
@@ -445,7 +466,7 @@ def test_unicode_paths(
         monkeypatch.chdir(output_dir_path)
     cwd_path = Path.cwd()
     output_path = output_dir_path / "動画.png"
-    ApngasmRunner().run(frames, output_path)
+    assemble_apng(frames, output_path)
     assert Path.cwd() == cwd_path
     assert list(output_dir_path.iterdir()) == [output_path]
     with Image.open(output_path) as animation:
@@ -462,19 +483,22 @@ def test_unicode_paths(
     "duplicate_delays", [((1, 1000), (1, 1001)), ((40000, 1), (40000, 1))]
 )
 def test_unrepresentable_duplicate_delay_rejected(
-    tmp_path: Path, duplicate_delays: tuple[tuple[int, int], tuple[int, int]]
+    frame_paths: list[Path],
+    tmp_path: Path,
+    duplicate_delays: tuple[tuple[int, int], tuple[int, int]],
 ):
     """Reject combined delays that cannot fit APNG timing without approximation.
 
     Arguments:
+        frame_paths: generated static frame paths in playback order
         tmp_path: temporary directory fixture
         duplicate_delays: individually valid delays with an unrepresentable sum
     """
-    frames = write_apng_frames(tmp_path / "frames")
+    frames = frame_paths
     output_path = tmp_path / "existing.png"
     output_path.write_bytes(b"existing output")
     with pytest.raises(ValueError, match="Combined duplicate-frame delay"):
-        ApngasmRunner().run(
+        assemble_apng(
             [frames[0], frames[0], frames[1]],
             output_path,
             delays=[*duplicate_delays, (1, 10)],

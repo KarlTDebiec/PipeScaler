@@ -68,34 +68,6 @@ jobs:
           export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
           uv run --frozen --no-default-groups --group cpu --group dev pytest -v --durations=20 --cov=pipescaler --cov-report term test
 
-  APNG:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ['3.13', '3.14']
-    env:
-      UV_PYTHON: ${{ matrix.python-version }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-
-      - name: Set up uv with cache
-        uses: astral-sh/setup-uv@v10.3.3
-        with:
-          enable-cache: true
-          cache-dependency-glob: "uv.lock"
-
-      - name: Install locked APNG test dependencies from wheels
-        shell: bash
-        run: |
-          uv export --frozen --no-default-groups --group test --no-emit-project --no-hashes --output-file "$RUNNER_TEMP/apng-constraints.txt"
-          uv venv
-          uv pip install --constraint "$RUNNER_TEMP/apng-constraints.txt" --only-binary apngasm-python apngasm-python numpy Pillow opencv-python pytest
-
-      - name: Verify APNG encoding and decoding
-        run: uv run --no-project python -m pytest -q test/video/runners/test_apngasm_runner.py
-
   macOS:
     runs-on: macos-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'

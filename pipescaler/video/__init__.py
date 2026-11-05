@@ -6,7 +6,7 @@ This module may import from: common, core, pipelines
 
 Package hierarchy (modules may import from any above):
 * core
-* processors / runners
+* apngasm / processors
 * pipelines
 """
 
