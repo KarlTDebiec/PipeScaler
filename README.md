@@ -73,6 +73,7 @@ PipeScaler includes the following components for image processing:
 * [SolidColorSorter](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/pipelines/sorters/solid_color_sorter.py) - Sorts images based on whether their entire canvas is a solid color.
 
 **Termini** collect processed images:
+* [ImageApngTerminus](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/pipelines/termini/image_apng_terminus.py) - Collects ordered image frames into an animated PNG.
 * [ImageDirectoryTerminus](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/pipelines/termini/image_directory_terminus.py) - Copies images to an output directory.
 * [ImageZipTerminus](https://github.com/KarlTDebiec/PipeScaler/tree/master/pipescaler/image/pipelines/termini/image_zip_terminus.py) - Collects images into a ZIP archive.
 
