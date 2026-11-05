@@ -8,6 +8,7 @@ from pathlib import Path
 from types import TracebackType
 from typing import Self
 
+import numpy as np
 from PIL import Image
 from PIL.PngImagePlugin import Blend, Disposal, PngImageFile
 
@@ -25,6 +26,9 @@ class ImageApngSource(ImageSource):
     a static PNG yields one frame. Frames receive six-digit names starting at
     `000001`. Timing and loop settings belong to the output terminus and are
     not propagated through the pipeline.
+
+    16-bit RGB PNGs with a transparency key are unsupported because Pillow
+    reduces their samples to 8 bits before the key can be matched.
 
     Exhaustion and decoding errors close the decoder. Call `close()` or use a
     `with` block when iteration may stop early. Yielded frames remain usable
@@ -49,7 +53,8 @@ class ImageApngSource(ImageSource):
         Raises:
             FileNotFoundError: if the input file does not exist
             TypeError: if include_default is not a bool or the path is invalid
-            ValueError: if the input is not a PNG or contains no playback frames
+            ValueError: if the input is not a PNG, contains no playback frames,
+                or uses a transparency key with 16-bit RGB
             OSError: if the file cannot be opened or its header cannot be decoded
         """
         self.input_path = val_input_path(input_path)
@@ -67,6 +72,15 @@ class ImageApngSource(ImageSource):
         try:
             if not isinstance(image, PngImageFile):
                 raise ValueError(f"Input '{self.input_path}' is not a PNG.")
+            if (
+                image.tile
+                and image.tile[0].args == "RGB;16B"
+                and "transparency" in image.info
+            ):
+                raise ValueError(
+                    f"16-bit RGB PNG '{self.input_path}' has an unsupported "
+                    "transparency key. Use RGBA or 8-bit RGB instead."
+                )
             self._start_frame = 0
             if image.info.get("default_image") and not include_default:
                 self._start_frame = 1
@@ -118,8 +132,14 @@ class ImageApngSource(ImageSource):
         if self._image is None:
             raise StopIteration
         try:
-            self._image.seek(self._start_frame + self.index)
-            image, self._canvas = self._decode_frame(self._image, self._canvas)
+            try:
+                self._image.seek(self._start_frame + self.index)
+                image, self._canvas = self._decode_frame(self._image, self._canvas)
+            except (EOFError, OSError, SyntaxError, ValueError) as exc:
+                raise OSError(
+                    f"Cannot decode APNG frame {self.index + 1} of "
+                    f"{self.length} in '{self.input_path}'."
+                ) from exc
             location_path = Path(
                 f"{self.input_path.stem}_{self.input_path.suffix.lstrip('.')}"
             )
@@ -130,12 +150,6 @@ class ImageApngSource(ImageSource):
                 name=f"{self.index + 1:06d}",
                 location_path=location_path,
             )
-        except (EOFError, OSError, SyntaxError) as exc:
-            self.close()
-            raise OSError(
-                f"Cannot decode APNG frame {self.index + 1} of "
-                f"{self.length} in '{self.input_path}'."
-            ) from exc
         except BaseException:
             self.close()
             raise
@@ -193,7 +207,25 @@ class ImageApngSource(ImageSource):
 
         # Keep Pillow's decoder from compositing before the raw rectangle is copied
         setattr(decoder, "blend_op", Blend.OP_SOURCE)
-        patch = decoder.convert("RGBA").crop(bbox)
+        raw_mode = None
+        if decoder.tile:
+            raw_mode = decoder.tile[0].args
+        patch = decoder.crop(bbox)
+        transparent = patch.info.get("transparency")
+        if patch.mode == "I;16":
+            # Rescale grayscale without clamping or losing the exact transparency key
+            samples = np.asarray(patch, dtype=np.uint32)
+            gray = ((samples + 128) // 257).astype(np.uint8)
+            patch = Image.fromarray(gray).convert("RGBA")
+            if transparent is not None:
+                alpha = np.where(samples == transparent, 0, 255).astype(np.uint8)
+                patch.putalpha(Image.fromarray(alpha))
+        else:
+            # Low-bit grayscale pixels are already expanded to 8 bits by Pillow
+            if transparent is not None and raw_mode in ("L;2", "L;4"):
+                bit_depth = int(raw_mode[-1])
+                patch.info["transparency"] = transparent * (255 // (2**bit_depth - 1))
+            patch = patch.convert("RGBA")
         if blend == Blend.OP_OVER:
             canvas.alpha_composite(patch, dest=bbox[:2])
         else:

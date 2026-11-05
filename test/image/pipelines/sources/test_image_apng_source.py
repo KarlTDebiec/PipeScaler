@@ -5,6 +5,8 @@
 from __future__ import annotations
 
 from pathlib import Path
+from struct import pack
+from zlib import compress, crc32
 
 import pytest
 from PIL import Image
@@ -15,6 +17,38 @@ from pipescaler.image.operators.processors import ResizeProcessor
 from pipescaler.image.pipelines.segments import ImageProcessorSegment
 from pipescaler.image.pipelines.sources import ImageApngSource
 from pipescaler.image.pipelines.termini import ImageApngTerminus
+
+
+def test_decode_failure(
+    animation_path: Path, frames: list[Image.Image], monkeypatch: pytest.MonkeyPatch
+):
+    """Report a malformed frame and close without invalidating yielded images.
+
+    Arguments:
+        animation_path: generated APNG input
+        frames: original frames
+        monkeypatch: decoder factory override
+    """
+    data = animation_path.read_bytes()
+    offset = data.index(b"fcTL", data.index(b"fcTL") + 4)
+    payload = data[offset + 4 : offset + 29]
+    animation_path.write_bytes(
+        data[: offset - 4] + _png_chunk(b"fcTL", payload) + data[offset + 34 :]
+    )
+    decoder = Image.open(animation_path)
+    assert isinstance(decoder, PngImageFile)
+    file = decoder.fp
+    assert file is not None
+    monkeypatch.setattr(Image, "open", lambda path: decoder)
+    source = ImageApngSource(animation_path)
+    output = next(source)
+    with pytest.raises(OSError, match="frame 2 of 3") as caught:
+        next(source)
+    assert isinstance(caught.value.__cause__, ValueError)
+    assert file.closed
+    assert output.image.tobytes() == frames[0].tobytes()
+    with pytest.raises(StopIteration):
+        next(source)
 
 
 def test_frames(animation_path: Path, frames: list[Image.Image]):
@@ -94,6 +128,20 @@ def test_repr(animation_path: Path):
             assert recreated.include_default is True
 
 
+def test_sixteen_bit_rgb_transparency(tmp_path: Path):
+    """Reject a 16-bit transparency key rather than matching quantized RGB.
+
+    Arguments:
+        tmp_path: temporary input directory
+    """
+    input_path = tmp_path / "rgb16.png"
+    key = pack(">HHH", 0x0100, 0x0200, 0x0300)
+    pixels = key + pack(">HHH", 0x01FF, 0x02FF, 0x03FF)
+    _write_keyed_png(input_path, (2, 16, 2), key, pixels)
+    with pytest.raises(ValueError, match="unsupported transparency key"):
+        ImageApngSource(input_path)
+
+
 def test_unicode_path(animation_path: Path):
     """Decode PNG paths containing non-ASCII characters.
 
@@ -171,49 +219,6 @@ def test_blending_and_disposal(
     assert outputs[0].image.tobytes() == first.tobytes()
     assert outputs[1].image.tobytes() == expected_second.tobytes()
     assert outputs[2].image.tobytes() == third.tobytes()
-
-
-@pytest.mark.parametrize("error", [EOFError, OSError, SyntaxError])
-def test_decode_failure(
-    animation_path: Path,
-    frames: list[Image.Image],
-    monkeypatch: pytest.MonkeyPatch,
-    error: type[Exception],
-):
-    """Report failed playback decoding and close without invalidating yielded images.
-
-    Arguments:
-        animation_path: generated APNG input
-        frames: original frames
-        monkeypatch: decoder method override
-        error: decoder error to simulate
-    """
-    decoder = Image.open(animation_path)
-    assert isinstance(decoder, PngImageFile)
-    file = decoder.fp
-    assert file is not None
-    monkeypatch.setattr(Image, "open", lambda path: decoder)
-    source = ImageApngSource(animation_path)
-    output = next(source)
-
-    def fail_seek(frame: int):
-        """Simulate failure to decode a later frame.
-
-        Arguments:
-            frame: requested frame number
-        Raises:
-            Exception: selected decoder failure
-        """
-        raise error("broken frame")
-
-    monkeypatch.setattr(decoder, "seek", fail_seek)
-    with pytest.raises(OSError, match="frame 2 of 3") as caught:
-        next(source)
-    assert isinstance(caught.value.__cause__, error)
-    assert file.closed
-    assert output.image.tobytes() == frames[0].tobytes()
-    with pytest.raises(StopIteration):
-        next(source)
 
 
 @pytest.mark.parametrize("finish", ["exhaust", "close", "context", "exception"])
@@ -306,6 +311,26 @@ def test_default_image(
     ]
 
 
+@pytest.mark.parametrize(
+    ("bit_depth", "pixels", "gray"), [(2, b"\x1b", 85), (4, b"\x01\x8f", 17)]
+)
+def test_low_bit_grayscale(tmp_path: Path, bit_depth: int, pixels: bytes, gray: int):
+    """Match grayscale transparency after Pillow expands the packed samples.
+
+    Arguments:
+        tmp_path: temporary input directory
+        bit_depth: bits per grayscale sample
+        pixels: packed scanline with sample 1 in the second pixel
+        gray: expanded 8-bit value of sample 1
+    """
+    input_path = tmp_path / "grayscale.png"
+    _write_keyed_png(input_path, (4, bit_depth, 0), pack(">H", 1), pixels)
+    (output,) = ImageApngSource(input_path)
+    assert output.image.getpixel((0, 0)) == (0, 0, 0, 255)
+    assert output.image.getpixel((1, 0)) == (gray, gray, gray, 0)
+    assert output.image.getpixel((3, 0)) == (255, 255, 255, 255)
+
+
 @pytest.mark.parametrize("scale", [1, 2])
 def test_pipeline_round_trip(
     animation_path: Path, frames: list[Image.Image], tmp_path: Path, scale: int
@@ -340,6 +365,30 @@ def test_pipeline_round_trip(
             assert animation.convert("RGBA").tobytes() == resized.tobytes()
 
 
+@pytest.mark.parametrize(("key", "alpha"), [(None, 255), (16384, 0)])
+def test_sixteen_bit_grayscale(tmp_path: Path, key: int | None, alpha: int):
+    """Rescale 16-bit grayscale and match transparency before reducing precision.
+
+    Arguments:
+        tmp_path: temporary input directory
+        key: optional transparent grayscale sample
+        alpha: expected alpha of the pixel with sample 16384
+    """
+    input_path = tmp_path / "grayscale.png"
+    image = Image.new("I;16", (6, 1))
+    image.putdata([0, 1024, 16384, 16400, 32768, 65535])
+    image.save(input_path, transparency=key)
+    (output,) = ImageApngSource(input_path)
+    assert [output.image.getpixel((x, 0)) for x in range(6)] == [
+        (0, 0, 0, 255),
+        (4, 4, 4, 255),
+        (64, 64, 64, alpha),
+        (64, 64, 64, 255),
+        (128, 128, 128, 255),
+        (255, 255, 255, 255),
+    ]
+
+
 @pytest.mark.parametrize("mode", ["1", "L", "LA", "P", "RGB", "RGBA"])
 def test_static_png(tmp_path: Path, mode: str):
     """Accept static PNGs in common modes and round-trip single-frame output.
@@ -361,3 +410,39 @@ def test_static_png(tmp_path: Path, mode: str):
         terminus(output)
     (reloaded,) = ImageApngSource(output_path)
     assert reloaded.image.tobytes() == output.image.tobytes()
+
+
+def _png_chunk(kind: bytes, payload: bytes) -> bytes:
+    """Encode a PNG chunk with its length and checksum.
+
+    Arguments:
+        kind: four-byte chunk type
+        payload: chunk data
+    Returns:
+        encoded PNG chunk
+    """
+    chunk = kind + payload
+    return pack(">I", len(payload)) + chunk + pack(">I", crc32(chunk))
+
+
+def _write_keyed_png(
+    input_path: Path, header: tuple[int, int, int], key: bytes, pixels: bytes
+):
+    """Write one scanline in a PNG mode Pillow's encoder cannot create.
+
+    Arguments:
+        input_path: path to the generated PNG
+        header: image width, bit depth, and PNG color type
+        key: packed transparency key
+        pixels: packed scanline samples without the filter byte
+    """
+    width, bit_depth, color_type = header
+    input_path.write_bytes(
+        b"\x89PNG\r\n\x1a\n"
+        + _png_chunk(
+            b"IHDR", pack(">IIBBBBB", width, 1, bit_depth, color_type, 0, 0, 0)
+        )
+        + _png_chunk(b"tRNS", key)
+        + _png_chunk(b"IDAT", compress(b"\0" + pixels))
+        + _png_chunk(b"IEND", b"")
+    )
