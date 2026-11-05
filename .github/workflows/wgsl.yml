@@ -58,7 +58,7 @@ jobs:
       - name: Restore pinned WGSL tools
         id: tools
         if: steps.changes.outputs.relevant == 'true'
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ${{ runner.temp }}/wgsl-tools
           key: wgsl-${{ runner.os }}-${{ runner.arch }}-${{ env.RUST_VERSION }}-${{ env.NAGA_VERSION }}-${{ env.WGSLFMT_REV }}
