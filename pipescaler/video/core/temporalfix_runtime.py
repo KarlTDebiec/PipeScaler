@@ -87,7 +87,7 @@ def build_temporal_clip(
 
 
 def import_temporal_runtime(backend: str) -> tuple[ModuleType, ModuleType]:
-    """Import and validate optional native libraries only inside worker operations.
+    """Import and validate optional libraries during native processing.
 
     Arguments:
         backend: requested upstream execution backend
@@ -108,10 +108,10 @@ def import_temporal_runtime(backend: str) -> tuple[ModuleType, ModuleType]:
             raise RuntimeError("VapourSynth R74 or newer is required")
         if backend == "cuda":
             if not torch.cuda.is_available():
-                raise RuntimeError("CUDA is unavailable in the selected worker")
+                raise RuntimeError("CUDA is unavailable in the calling interpreter")
         elif backend == "mps":
             if not torch.backends.mps.is_available():
-                raise RuntimeError("MPS is unavailable in the selected worker")
+                raise RuntimeError("MPS is unavailable in the calling interpreter")
         elif backend == "tensorrt":
             vs.core.trt.Version()
         elif backend == "directml":
@@ -119,7 +119,7 @@ def import_temporal_runtime(backend: str) -> tuple[ModuleType, ModuleType]:
     except (ImportError, AttributeError, OSError) as exc:
         raise RuntimeError(
             "TemporalFix runtime is unavailable; provision VapourSynth R74+, "
-            "vs_temporalfix 2.4.1, and the selected backend in the worker environment"
+            "vs_temporalfix 2.4.1, and the selected backend in the calling interpreter"
         ) from exc
     return vs, temporalfix
 

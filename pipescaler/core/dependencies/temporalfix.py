@@ -18,7 +18,7 @@ __all__ = [
 
 _TEMPORALFIX_SETUP_MESSAGE = (
     "TemporalFix requires optional video dependencies. Install "
-    "pipescaler[temporalfix] in the selected worker environment with a native "
+    "pipescaler[temporalfix] in the calling Python environment with a native "
     "VapourSynth runtime."
 )
 

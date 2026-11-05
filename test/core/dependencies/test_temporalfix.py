@@ -33,7 +33,7 @@ from pipescaler.core.exceptions import DependencyError, PipeScalerError
 def test_missing_dependency(
     monkeypatch: pytest.MonkeyPatch, importer: Callable[[], ModuleType]
 ):
-    """Preserve the import failure and explain which worker dependencies are needed.
+    """Preserve the import failure and explain which optional dependencies are needed.
 
     Arguments:
         monkeypatch: fixture for simulating an unavailable dependency
@@ -49,8 +49,8 @@ def test_missing_dependency(
     assert error.value.__cause__ is failure
 
 
-def test_runner_imports_without_native_dependencies():
-    """Keep constructing a video runner independent of optional native packages."""
+def test_processor_imports_without_native_dependencies():
+    """Keep constructing a video processor independent of optional native packages."""
     run(
         [
             sys.executable,
@@ -58,10 +58,11 @@ def test_runner_imports_without_native_dependencies():
             "import sys; "
             "sys.modules['vapoursynth'] = None; "
             "sys.modules['vs_temporalfix'] = None; "
-            "from pipescaler.video.runners import TemporalFixRunner; "
+            "from pipescaler.video.processors import TemporalFixProcessor; "
             "from pipescaler.video.core.temporalfix_settings "
             "import TemporalFixSettings; "
-            "TemporalFixRunner(TemporalFixSettings(matrix='709', color_range='full'))",
+            "TemporalFixProcessor("
+            "TemporalFixSettings(matrix='709', color_range='full'))",
         ],
         check=True,
         capture_output=True,

@@ -1,6 +1,6 @@
 #  Copyright 2026 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
-"""Validated settings shared with the optional TemporalFix worker."""
+"""Validated settings for optional in-process TemporalFix processing."""
 
 from __future__ import annotations
 
@@ -114,10 +114,10 @@ class TemporalFixSettings:
         object.__setattr__(self, "scene_boundaries", boundaries)
 
     def to_dict(self) -> dict[str, Any]:
-        """Return JSON-compatible settings with effective upstream strength.
+        """Return effective settings for checkpoint identity.
 
         Returns:
-            settings suitable for worker requests and checkpoint identity
+            settings including normalized intervals, timing, and upstream strength
         """
         return asdict(self)
 

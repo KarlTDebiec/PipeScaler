@@ -1,15 +1,16 @@
 # TemporalFix video checkpoints
 
-`TemporalFixRunner` wraps the upstream
+`TemporalFixProcessor` wraps the upstream
 [vs_temporalfix 2.4.1 model](https://github.com/pifroggi/vs_temporalfix).
 It processes constant-rate video files or numbered RGB image sequences without
 requiring native video plugins for ordinary PipeScaler image processing.
 
-## Worker runtime
+## Optional runtime
 
-The worker interpreter supports Python 3.13 and 3.14. It defaults to the calling
-interpreter; a separate environment can keep VapourSynth and backend dependencies
-outside the main application environment.
+Inspection, graph construction, and frame evaluation run directly in the calling
+Python process. Install VapourSynth and backend dependencies in the same Python
+3.13 or 3.14 environment as PipeScaler. They load lazily during inspection and
+processing, so ordinary image tools do not require them.
 The verified Windows CPU combination is Python 3.14.1, VapourSynth R82,
 vs_temporalfix 2.4.1, BestSource 23, and PyTorch 2.14.1. CUDA, DirectML, and TensorRT
 options are forwarded and probed, but hardware inference for those backends is
@@ -19,26 +20,22 @@ runtime; follow the upstream installation instructions.
 For example, from the repository on Windows:
 
 ```powershell
-uv venv --python 3.14 local/temporalfix-runtime
-uv pip install --python local/temporalfix-runtime/Scripts/python.exe `
-    vs_temporalfix==2.4.1 vapoursynth-bestsource==23 torch numpy opencv-python
+uv sync --extra temporalfix
 ```
 
 FFmpeg and ffprobe must be on `PATH`. TensorRT also needs the upstream TensorRT
-dependencies and a compatible GPU/runtime. The adapter checks the selected worker
+dependencies and a compatible GPU/runtime. The processor checks the current runtime
 and backend before rendering and rejects unsupported TemporalFix versions because
 the chunk context depends on its seven-frame model contract.
 
 ## Pipeline composition
 
 ```python
-from pathlib import Path
-
 from pipescaler.pipelines import CheckpointManager
 from pipescaler.video.core.pipelines import PipeVideo
 from pipescaler.video.core.temporalfix_settings import TemporalFixSettings
-from pipescaler.video.pipelines.segments import CheckpointedVideoRunnerSegment
-from pipescaler.video.runners import TemporalFixRunner
+from pipescaler.video.pipelines.segments import CheckpointedVideoProcessorSegment
+from pipescaler.video.processors import TemporalFixProcessor
 
 settings = TemporalFixSettings(
     matrix="709",
@@ -50,19 +47,16 @@ settings = TemporalFixSettings(
     scene_boundaries=(120,),
     exclude_ranges=((80, 96),),
 )
-runner = TemporalFixRunner(
-    settings,
-    worker_python_path=Path("local/temporalfix-runtime/Scripts/python.exe"),
-    timeout=3600,
-)
+processor = TemporalFixProcessor(settings)
 manager = CheckpointManager("local/video-checkpoints")
-segment = CheckpointedVideoRunnerSegment(runner, manager, chunk_frames=48)
+segment = CheckpointedVideoProcessorSegment(processor, manager, chunk_frames=48)
 (output,) = segment(PipeVideo(path="frames/frame_%06d.png"))
 ```
 
 Projects choose source paths, scratch locations, cut/exclusion ranges, settings,
-audio/subtitles, and delivery encoding. `runner.run(input_path, output_path)` can
-also render a selected range without the checkpoint segment.
+audio/subtitles, and delivery encoding.
+`processor.process(input_path, output_path)` can also render a selected range
+without the checkpoint segment.
 
 ## Timing, color, and context
 
@@ -92,17 +86,32 @@ settings and ranges, model fingerprints, dependency versions, adapter code, and
 FFmpeg/ffprobe versions. Loaded decoder/filter plugin versions and binary hashes
 also participate. Hashing a large source adds sequential I/O on each run.
 Completed chunks have independent content-digest manifests and survive later
-worker failure, cancellation, or timeout. Partial chunks have no completion
+processing failures or Python interruption. Partial chunks have no completion
 manifest and are rerendered. Source changes invalidate newly completed manifests.
 
-The worker writes beside its destination, validates the complete video, and
+Native Python exceptions propagate directly to the caller. There is no processing
+timeout or separate process to terminate: `KeyboardInterrupt` takes effect when
+native code returns control to Python. A native crash terminates the application;
+unresponsive native work requires stopping the application externally. Streamed
+encoding has no deadline; FFmpeg concatenation and ffprobe validation use the
+subprocess utility's default timeout. On Python exceptions and interruption, the
+processor terminates and reaps its FFmpeg encoder and removes temporary output.
+
+The processor writes beside its destination, validates the complete video, and
 publishes it by atomic replacement. The checkpoint segment publishes the final
 video only after all chunks and the concatenation validate. A crash between video
 and manifest publication causes conservative revalidation/rerendering. Previous
 valid final videos survive processing failures. Concurrent writers to the same
 checkpoint location are unsupported.
 
-Optional real-runtime tests use `PIPESCALER_TEMPORALFIX_PYTHON` to select the worker.
+Optional real-runtime tests use `PIPESCALER_TEST_TEMPORALFIX=1` to opt into native
+dependencies in the current interpreter. From the repository on Windows:
+
+```powershell
+$env:PIPESCALER_TEST_TEMPORALFIX = "1"
+uv run --extra temporalfix pytest test/video/processors/test_temporalfix_integration.py
+```
+
 Their 16-bit fixtures are generated by
 [`generate_temporalfix_sample.py`](../test/scripts/generate_temporalfix_sample.py).
 Whole/chunked CPU results are compared within two 16-bit code values, including
