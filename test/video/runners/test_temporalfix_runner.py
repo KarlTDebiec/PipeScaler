@@ -5,15 +5,18 @@
 from __future__ import annotations
 
 import json
+from os import name as os_name
 from pathlib import Path
 from subprocess import TimeoutExpired
 from types import SimpleNamespace
 from typing import Any, Never
+from venv import EnvBuilder
 
 import pytest
 
 from pipescaler.core import PipeScalerError
 from pipescaler.video.core.temporalfix_runtime import (
+    import_temporal_runtime,
     inspect_temporal_input,
     temporal_windows,
 )
@@ -58,6 +61,7 @@ def test_temporal_context(
         {"tiles": 0},
         {"tiles": 3},
         {"gpu_id": -1},
+        {"backend": "mps", "gpu_id": 1},
         {"num_streams": 0},
         {"backend": "unknown"},
         {"matrix": "guess"},
@@ -109,11 +113,69 @@ def test_effective_settings_and_repr(tmp_path: Path):
     assert command[command.index("--output") + 1] == str(output)
 
 
-def test_case_insensitive_settings_are_canonical():
-    """Give case variants the same worker backend and checkpoint configuration."""
+@pytest.mark.parametrize("backend", ["cpu", "mps"])
+def test_case_insensitive_settings_are_canonical(backend: str):
+    """Give case variants the same worker backend and checkpoint configuration.
+
+    Arguments:
+        backend: execution backend to normalize
+    """
     assert TemporalFixSettings(
-        matrix="2020NCL", color_range="FULL", backend="CPU"
-    ) == TemporalFixSettings(matrix="2020ncl", color_range="full", backend="cpu")
+        matrix="2020NCL", color_range="FULL", backend=backend.upper()
+    ) == TemporalFixSettings(matrix="2020ncl", color_range="full", backend=backend)
+
+
+@pytest.mark.parametrize(
+    ("available", "fallback", "message"),
+    [(False, "0", "MPS is unavailable"), (True, "1", "fallback must be disabled")],
+)
+def test_mps_runtime_requirements(
+    monkeypatch: pytest.MonkeyPatch, available: bool, fallback: str, message: str
+):
+    """Reject unavailable MPS and CPU operator fallback.
+
+    Arguments:
+        monkeypatch: fixture for replacing optional runtime discovery
+        available: whether the worker exposes MPS
+        fallback: requested CPU fallback setting
+        message: expected error
+    """
+    module = "pipescaler.video.core.temporalfix_runtime"
+    modules = {
+        "vapoursynth": SimpleNamespace(__version__=SimpleNamespace(release_major=82)),
+        "vs_temporalfix": SimpleNamespace(),
+        "torch": SimpleNamespace(
+            backends=SimpleNamespace(
+                mps=SimpleNamespace(is_available=lambda: available)
+            )
+        ),
+    }
+    monkeypatch.setattr(f"{module}.import_module", modules.__getitem__)
+    monkeypatch.setattr(f"{module}.version", lambda _name: "2.4.1")
+    monkeypatch.setenv("PYTORCH_ENABLE_MPS_FALLBACK", fallback)
+    with pytest.raises(RuntimeError, match=message):
+        import_temporal_runtime("mps")
+
+
+def test_worker_preserves_virtual_environment(tmp_path: Path):
+    """Use the selected virtual environment rather than its base interpreter.
+
+    Arguments:
+        tmp_path: temporary worker directory
+    """
+    worker_dir_path = tmp_path / "worker"
+    EnvBuilder(with_pip=False, symlinks=os_name != "nt").create(worker_dir_path)
+    worker_python_path = worker_dir_path / "bin/python"
+    if os_name == "nt":
+        worker_python_path = worker_dir_path / "Scripts/python.exe"
+    runner = TemporalFixRunner(
+        TemporalFixSettings(matrix="709", color_range="full"),
+        worker_python_path=worker_python_path,
+    )
+    prefix = runner._execute(
+        [str(runner.worker_python_path), "-c", "import sys; print(sys.prefix)"]
+    ).strip()
+    assert Path(prefix).resolve() == worker_dir_path.resolve()
 
 
 @pytest.mark.parametrize(

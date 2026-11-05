@@ -116,7 +116,6 @@ class TemporalFixRunner(Runner[VideoInput | Path | str]):
             Path(__file__).with_name("temporalfix_worker.py"),
             package_root / "video/core/temporalfix_runtime.py",
             package_root / "video/core/temporalfix_settings.py",
-            package_root / "video/core/temporalfix_mps.py",
         )
         payload = {
             "source": self.source_identity(source)
