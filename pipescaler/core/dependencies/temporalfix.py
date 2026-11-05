@@ -1,7 +1,7 @@
 #  Copyright 2026 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
 # ruff: noqa: PLC0415
-"""Lazy access to optional TemporalFix dependencies."""
+"""Lazy access to TemporalFix dependencies."""
 
 from __future__ import annotations
 
@@ -17,9 +17,8 @@ __all__ = [
 ]
 
 _TEMPORALFIX_SETUP_MESSAGE = (
-    "TemporalFix requires optional video dependencies. Install "
-    "pipescaler[temporalfix] in the calling Python environment with a native "
-    "VapourSynth runtime."
+    "Install pipescaler[temporalfix] and a native VapourSynth runtime "
+    "to use TemporalFix."
 )
 
 

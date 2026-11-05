@@ -72,12 +72,10 @@ domain errors continue to propagate.
 - Runners own subprocess invocation, platform assumptions, output validation, and
   model execution. Use existing image and video libraries where practical.
 
-Video runners and library processors depend on input/settings primitives in
-`video.core`; video pipeline segments depend on the processors. Optional native
-TemporalFix dependencies load only during inspection and processing in the calling
-Python environment. Rendered-video checkpoints own validation and
-atomic publication rather than invoking unsupported `PipeVideo.save` encoding.
-See [TemporalFix video checkpoints](TEMPORALFIX.md) for runtime setup and composition.
+Video runners and processors depend on input/settings primitives in `video.core`;
+video pipeline segments depend on the processors. Rendered-video checkpoints own
+validation and atomic publication rather than invoking unsupported `PipeVideo.save`
+encoding.
 
 ## CLI and test boundaries
 

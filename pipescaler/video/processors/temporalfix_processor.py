@@ -1,6 +1,6 @@
 #  Copyright 2026 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
-"""Process TemporalFix graphs directly and atomically publish lossless RGB video."""
+"""TemporalFix video processing and lossless RGB publication."""
 
 from __future__ import annotations
 
@@ -9,6 +9,7 @@ from contextlib import suppress
 from fractions import Fraction
 from hashlib import file_digest, sha256
 from pathlib import Path
+from shlex import split
 from subprocess import DEVNULL, PIPE, Popen
 from tempfile import TemporaryDirectory, TemporaryFile
 from typing import Any
@@ -32,21 +33,21 @@ __all__ = ["TemporalFixProcessor"]
 class TemporalFixProcessor:
     """Render lossless 16-bit RGB checkpoints through upstream vs_temporalfix.
 
-    Optional VapourSynth, TemporalFix, and backend dependencies must be installed
-    in the calling interpreter. FFmpeg and ffprobe are required. Encoding contains
-    video only; delivery codecs, audio, and subtitles remain project concerns.
-    Inputs must have constant timing. Native errors propagate to the caller;
-    graph evaluation has no timeout or forced cancellation boundary.
+    Install dependencies with `uv sync --extra temporalfix`. A native VapourSynth
+    runtime and FFmpeg/ffprobe on PATH are required; video files need BestSource.
+    Inputs must have constant timing. Output rounds floating-point RGB once to
+    16-bit planar samples and encodes losslessly as FFV1 in MKV, omitting audio
+    and subtitles.
     """
 
     def __init__(self, settings: TemporalFixSettings):
-        """Store settings without importing optional native video dependencies.
+        """Store processing settings.
 
         Arguments:
             settings: explicit color/timing and upstream processing configuration
         """
         self.settings = settings
-        """Validated upstream processing and input-interpretation settings."""
+        """TemporalFix processing and input settings."""
 
     def __repr__(self) -> str:
         """Return a reconstructible processor configuration.
@@ -68,7 +69,7 @@ class TemporalFixProcessor:
         Arguments:
             source: video file or numerically ordered image sequence
             metadata: probed metadata and native runtime/model fingerprints
-            source_fingerprint: optional previously captured source snapshot
+            source_fingerprint: previously captured source snapshot, if available
         Returns:
             SHA256 identity used for checkpoint invalidation
         """
@@ -95,14 +96,14 @@ class TemporalFixProcessor:
         return sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()
 
     def inspect(self, input_path: VideoInput | Path | str) -> dict[str, Any]:
-        """Inspect source metadata and runtime fingerprints in the calling process.
+        """Inspect source metadata and runtime fingerprints.
 
         Arguments:
             input_path: video or numbered image sequence to inspect
         Returns:
             source geometry/count/rate and dependency/model identity
         Raises:
-            DependencyError: if optional runtime dependencies are unavailable
+            DependencyError: if runtime dependencies are unavailable
             RuntimeError: if native dependencies or the backend are unavailable
             ValueError: if source interpretation or settings are invalid
         """
@@ -112,13 +113,13 @@ class TemporalFixProcessor:
         return inspect_temporal_input(source, self.settings)
 
     def process(self, input_path: VideoInput | Path | str, output_path: Path):
-        """Render the selected source range in the calling Python process.
+        """Render the selected source range to a lossless RGB MKV.
 
         Arguments:
             input_path: video or ordered sequence input
             output_path: completed lossless RGB MKV destination
         Raises:
-            DependencyError: if optional runtime dependencies are unavailable
+            DependencyError: if runtime dependencies are unavailable
             RuntimeError: if native processing fails
             ValueError: if source interpretation or settings are invalid
             PipeScalerError: if sources change or output validation fails
@@ -159,7 +160,7 @@ class TemporalFixProcessor:
             metadata: expected full-source geometry and exact rational rate
             frame_range: half-open source range with scene-aware context and trimming
         Raises:
-            DependencyError: if optional runtime dependencies are unavailable
+            DependencyError: if runtime dependencies are unavailable
             RuntimeError: if native graph construction or frame evaluation fails
             ValueError: if source interpretation or settings are invalid
             PipeScalerError: if metadata changes, encoding fails, or validation fails
@@ -175,33 +176,18 @@ class TemporalFixProcessor:
             clip = build_temporal_clip(source, self.settings, frame_range)
             command = [
                 str(val_executable("ffmpeg")),
-                "-v",
-                "error",
-                "-y",
-                "-f",
-                "rawvideo",
-                "-pixel_format",
-                "gbrp16le",
-                "-video_size",
-                f"{clip.width}x{clip.height}",
-                "-framerate",
-                metadata["frame_rate"],
-                "-i",
-                "pipe:0",
-                "-an",
-                "-sn",
-                "-c:v",
-                "ffv1",
-                "-level",
-                "3",
-                "-pix_fmt",
-                "gbrp16le",
-                "-color_range",
-                "pc",
-                "-colorspace",
-                "rgb",
-                "-f",
-                "matroska",
+                *split(
+                    f"""
+                    -v error -y
+                    -f rawvideo -pixel_format gbrp16le
+                    -video_size {clip.width}x{clip.height}
+                    -framerate {metadata["frame_rate"]}
+                    -i pipe:0 -an -sn
+                    -c:v ffv1 -level 3
+                    -pix_fmt gbrp16le -color_range pc -colorspace rgb
+                    -f matroska
+                    """
+                ),
                 str(scratch_path),
             ]
             self._encode_clip(clip, command)
@@ -311,6 +297,8 @@ class TemporalFixProcessor:
     @staticmethod
     def _encode_clip(clip: Any, command: list[str]):
         """Stream final 16-bit samples while avoiding encoder stderr pipe deadlocks.
+
+        Frame failures and interruption terminate and reap the encoder.
 
         Arguments:
             clip: floating-point RGB VapourSynth output

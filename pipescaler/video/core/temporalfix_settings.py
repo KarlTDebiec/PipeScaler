@@ -1,6 +1,6 @@
 #  Copyright 2026 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
-"""Validated settings for optional in-process TemporalFix processing."""
+"""TemporalFix processing settings."""
 
 from __future__ import annotations
 
@@ -38,7 +38,7 @@ class TemporalFixSettings:
     gpu_id: int = 0
     """Zero-based GPU index, unused by the CPU backend."""
     engine_folder: str | None = None
-    """Optional TensorRT engine-cache directory."""
+    """TensorRT engine-cache directory."""
     frame_rate: str | None = None
     """Exact rational frame rate, required for sequences; video defaults to native."""
     frame_range: tuple[int, int] | None = None
@@ -49,7 +49,7 @@ class TemporalFixSettings:
     """Explicit scene cuts across which temporal context must not flow."""
 
     def __post_init__(self):
-        """Validate settings before starting an optional runtime.
+        """Validate color, timing, ranges, and inference settings.
 
         Raises:
             ValueError: if color, timing, ranges, or inference settings are invalid

@@ -1,6 +1,6 @@
 #  Copyright 2026 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
-"""Portable TemporalFix configuration, direct invocation, and validation checks."""
+"""TemporalFix configuration, rendering, and validation checks."""
 
 from __future__ import annotations
 
@@ -214,10 +214,10 @@ def test_process_rejects_source_mutation(
     assert not list(tmp_path.glob(".temporalfix-*"))
 
 
-def test_render_builds_graph_directly_and_publishes_after_validation(
+def test_render_publishes_after_validation(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ):
-    """Pass scene/range settings directly and preserve the destination until valid.
+    """Preserve scene/range settings and replace the destination after validation.
 
     Arguments:
         tmp_path: temporary source and destination directory
@@ -239,23 +239,28 @@ def test_render_builds_graph_directly_and_publishes_after_validation(
     build = Mock(return_value=clip)
     module = "pipescaler.video.processors.temporalfix_processor"
     monkeypatch.setattr(f"{module}.build_temporal_clip", build)
-    monkeypatch.setattr(f"{module}.val_executable", Path)
-    destination_path = tmp_path / "output 'with spaces'.mkv"
+    executable_path = tmp_path / "FFmpeg tools" / "ffmpeg"
+    monkeypatch.setattr(f"{module}.val_executable", lambda _tool: executable_path)
+    output_dir_path = tmp_path / "with spaces 'and quotes'"
+    output_dir_path.mkdir()
+    destination_path = output_dir_path / "output.mkv"
     destination_path.write_bytes(b"previous")
 
     def encode(actual_clip: Any, command: list[str]):
         """Write an encoded stand-in through the generated FFmpeg command.
 
         Arguments:
-            actual_clip: graph built in the calling process
+            actual_clip: graph built during rendering
             command: lossless RGB encoder invocation
         """
         assert actual_clip is clip
-        assert command[0] == "ffmpeg"
+        assert command[0] == str(executable_path)
         assert command[command.index("-framerate") + 1] == "24000/1001"
         assert command[command.index("-pixel_format") + 1] == "gbrp16le"
         assert "-an" in command and "-sn" in command
-        Path(command[-1]).write_bytes(b"complete")
+        scratch_path = Path(command[-1])
+        assert scratch_path.parent.parent == output_dir_path
+        scratch_path.write_bytes(b"complete")
 
     def validate(path: Path, actual_metadata: dict[str, Any], frames: int):
         """Observe validation before atomic destination replacement.
@@ -275,7 +280,7 @@ def test_render_builds_graph_directly_and_publishes_after_validation(
     processor.render_range(source, destination_path, metadata, (1, 6))
     build.assert_called_once_with(source, settings, (1, 6))
     assert destination_path.read_bytes() == b"complete"
-    assert not list(tmp_path.glob(".temporalfix-*"))
+    assert not list(output_dir_path.glob(".temporalfix-*"))
 
 
 @pytest.mark.parametrize("backend", ["cpu", "mps"])
@@ -362,10 +367,10 @@ def test_frame_failure_reaps_encoder(
 
 
 @pytest.mark.parametrize("input_kind", ["path", "str", "source"])
-def test_inspect_uses_calling_process(
+def test_inspect_passes_source_and_settings(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, input_kind: str
 ):
-    """Inspect directly with the original settings in the caller's process/thread.
+    """Pass source and settings to runtime inspection and return its metadata.
 
     Arguments:
         tmp_path: temporary source directory
@@ -378,7 +383,7 @@ def test_inspect_uses_calling_process(
     settings = TemporalFixSettings(matrix="709", color_range="full")
     processor = TemporalFixProcessor(settings)
     metadata = {"frames": 8}
-    caller = (getpid(), get_ident())
+    execution_context = (getpid(), get_ident())
 
     def inspect(
         actual_source: VideoInput, actual_settings: TemporalFixSettings
@@ -387,13 +392,13 @@ def test_inspect_uses_calling_process(
 
         Arguments:
             actual_source: normalized source specification
-            actual_settings: processor settings passed directly to the runtime
+            actual_settings: processor settings
         Returns:
-            source metadata without serialization
+            source metadata
         """
         assert actual_source.input_path == source.input_path
         assert actual_settings is settings
-        assert (getpid(), get_ident()) == caller
+        assert (getpid(), get_ident()) == execution_context
         return metadata
 
     module = "pipescaler.video.processors.temporalfix_processor"
@@ -479,8 +484,8 @@ def test_mps_runtime_requirements(
     """Require MPS availability while honoring the user's CPU fallback setting.
 
     Arguments:
-        monkeypatch: fixture for replacing optional runtime discovery
-        available: whether the interpreter exposes MPS
+        monkeypatch: fixture for replacing runtime discovery
+        available: whether MPS is available
         fallback: requested CPU fallback setting
     """
     module = "pipescaler.video.core.temporalfix_runtime"
@@ -506,7 +511,7 @@ def test_native_plugin_changes_invalidate_runtime_identity(
 
     Arguments:
         tmp_path: temporary fake native-plugin and model files
-        monkeypatch: fixture for replacing only optional native runtime boundaries
+        monkeypatch: fixture for replacing native runtime boundaries
         plugin_name: decoder or filter plugin whose binary changes
     """
     package_path = tmp_path / "vs_temporalfix"
@@ -573,7 +578,7 @@ def test_render_failure_preserves_destination(
     )
 
     def encode(_clip: Any, command: list[str]):
-        """Write partial data and optionally propagate an inference failure.
+        """Write partial data and simulate a configured inference failure.
 
         Arguments:
             _clip: mocked native graph

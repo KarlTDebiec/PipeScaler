@@ -1,10 +1,9 @@
 #  Copyright 2026 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
-"""Opt-in in-process TemporalFix checks with generated 16-bit source frames.
+"""TemporalFix integration checks with generated 16-bit source frames.
 
-Set PIPESCALER_TEST_TEMPORALFIX=1 with native dependencies in this interpreter.
-FFmpeg and ffprobe must be on PATH; normal tests never install native plugins or
-download models.
+Set PIPESCALER_TEST_TEMPORALFIX=1 after installing TemporalFix dependencies.
+FFmpeg and ffprobe must be on PATH.
 """
 
 from __future__ import annotations

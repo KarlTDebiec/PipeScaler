@@ -28,6 +28,8 @@ class CheckpointedVideoProcessorSegment(Segment[PipeVideo]):
     Cached chunks survive later failures. Every chunk supplies three context frames
     on either side where available, restricted to explicit scene boundaries. Cache
     manifests bind complete file digests to source/model/settings/runtime identities.
+    Only completed chunks have manifests; source changes invalidate new manifests.
+    The final MKV replaces any previous destination after concatenation validates.
     Concurrent writers to the same checkpoint location are unsupported.
     """
 
@@ -64,12 +66,15 @@ class CheckpointedVideoProcessorSegment(Segment[PipeVideo]):
     def __call__(self, *input_objs: PipeVideo) -> tuple[PipeVideo, ...]:
         """Resume complete chunks, validate the final render, and preserve lineage.
 
+        Concatenation resets timestamps at the exact rational source frame rate;
+        MKV timestamps retain the container's millisecond precision.
+
         Arguments:
             *input_objs: exactly one file-backed video or numbered image sequence
         Returns:
             final video checkpoint with the original input as its parent
         Raises:
-            DependencyError: if optional native dependencies are unavailable
+            DependencyError: if native dependencies are unavailable
             RuntimeError: if native graph construction or frame evaluation fails
             ValueError: if input count or source representation is unsupported
             PipeScalerError: if inputs change during rendering or output fails

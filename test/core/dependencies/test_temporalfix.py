@@ -1,6 +1,6 @@
 #  Copyright 2026 Karl T Debiec. All rights reserved. This software may be modified
 #  and distributed under the terms of the BSD license. See the LICENSE file for details.
-"""Optional TemporalFix dependencies stay lazy and explain missing runtimes."""
+"""TemporalFix dependency loading and missing-runtime errors."""
 
 from __future__ import annotations
 
@@ -33,13 +33,13 @@ from pipescaler.core.exceptions import DependencyError, PipeScalerError
 def test_missing_dependency(
     monkeypatch: pytest.MonkeyPatch, importer: Callable[[], ModuleType]
 ):
-    """Preserve the import failure and explain which optional dependencies are needed.
+    """Preserve import failures and report the required dependencies.
 
     Arguments:
         monkeypatch: fixture for simulating an unavailable dependency
-        importer: optional dependency loader
+        importer: dependency loader
     """
-    failure = ModuleNotFoundError("Optional dependency is unavailable")
+    failure = ModuleNotFoundError("Dependency is unavailable")
     with monkeypatch.context() as patch:
         patch.setattr("builtins.__import__", Mock(side_effect=failure))
         with pytest.raises(DependencyError) as error:
@@ -50,7 +50,7 @@ def test_missing_dependency(
 
 
 def test_processor_imports_without_native_dependencies():
-    """Keep constructing a video processor independent of optional native packages."""
+    """Construct a processor without loading VapourSynth or TemporalFix."""
     run(
         [
             sys.executable,

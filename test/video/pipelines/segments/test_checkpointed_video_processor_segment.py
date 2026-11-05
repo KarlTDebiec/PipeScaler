@@ -24,7 +24,7 @@ class RecordingProcessor(TemporalFixProcessor):
     """Render tiny JSON stand-ins while preserving real checkpoint orchestration."""
 
     def __init__(self, *, strength: float = 2):
-        """Initialize a deterministic processor without optional native dependencies.
+        """Initialize a processor with a configurable strength.
 
         Arguments:
             strength: effective setting used to verify cache invalidation
@@ -35,7 +35,7 @@ class RecordingProcessor(TemporalFixProcessor):
         self.calls: list[tuple[int, int]] = []
         """Source ranges rendered during this attempt."""
         self.failure: BaseException | None = None
-        """Optional exception raised while rendering the second chunk."""
+        """Exception raised on the second chunk, or None."""
         self.change_source = False
         """Whether to mutate source contents during the second chunk."""
         self.model_version = "model-one"
@@ -65,7 +65,7 @@ class RecordingProcessor(TemporalFixProcessor):
         metadata: dict[str, Any],
         frame_range: tuple[int, int],
     ):
-        """Record the range and optionally fail after a partial chunk write.
+        """Record the range and simulate configured failures or source changes.
 
         Arguments:
             source: source whose content may change during processing
