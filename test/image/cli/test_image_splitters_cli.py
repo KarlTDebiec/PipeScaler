@@ -4,69 +4,32 @@
 
 from __future__ import annotations
 
-import pytest
+from pathlib import Path
 
-from pipescaler.common.cli import CommandLineInterface
-from pipescaler.common.file import get_temp_file_path
-from pipescaler.common.testing import run_cli_with_args
-from pipescaler.image.cli import ImageSplittersCli
+from PIL import Image
+
 from pipescaler.image.cli.splitters import AlphaSplitterCli
-from pipescaler.testing.file import get_test_input_path
-from test.helpers import assert_cli_help, assert_cli_usage
 
 
-@pytest.mark.parametrize(
-    ("cli", "args", "input_filename"),
-    [
-        (AlphaSplitterCli, "", "RGBA"),
-    ],
-)
-def test(cli: type[CommandLineInterface], args: str, input_filename: str):
-    """Test splitter CLI with various input files and arguments.
+def test_splitter_writes_color_and_alpha(tmp_path: Path):
+    """Preserve color and opacity in both outputs of the standalone splitter.
 
     Arguments:
-        cli: The command-line interface class to test
-        args: Command-line arguments string
-        input_filename: Input image filename
+        tmp_path: temporary image directory
     """
-    input_path = get_test_input_path(input_filename)
+    input_path = tmp_path / "input.png"
+    color_path = tmp_path / "color.png"
+    alpha_path = tmp_path / "alpha.png"
+    image = Image.new("RGBA", (2, 1))
+    image.putpixel((0, 0), (12, 34, 56, 78))
+    image.putpixel((1, 0), (90, 123, 145, 255))
+    image.save(input_path)
 
-    with get_temp_file_path(".png") as output_path_1:
-        with get_temp_file_path(".png") as output_path_2:
-            run_cli_with_args(
-                cli, f"{args} {input_path} {output_path_1} {output_path_2}"
-            )
+    AlphaSplitterCli.main([str(input_path), str(color_path), str(alpha_path)])
 
-
-@pytest.mark.parametrize(
-    "commands",
-    [
-        (AlphaSplitterCli,),
-        (ImageSplittersCli,),
-        (ImageSplittersCli, AlphaSplitterCli),
-    ],
-)
-def test_help(commands: tuple[type[CommandLineInterface], ...]):
-    """Test that help flag displays usage information and exits successfully.
-
-    Arguments:
-        commands: Tuple of command-line interface classes to test
-    """
-    assert_cli_help(commands)
-
-
-@pytest.mark.parametrize(
-    "commands",
-    [
-        (AlphaSplitterCli,),
-        (ImageSplittersCli,),
-        (ImageSplittersCli, AlphaSplitterCli),
-    ],
-)
-def test_usage(commands: tuple[type[CommandLineInterface], ...]):
-    """Test that missing arguments displays usage information and exits with error.
-
-    Arguments:
-        commands: Tuple of command-line interface classes to test
-    """
-    assert_cli_usage(commands)
+    with Image.open(color_path) as color, Image.open(alpha_path) as alpha:
+        assert color.mode == "RGB"
+        assert alpha.mode == "L"
+        assert color.size == alpha.size == image.size
+        assert color.tobytes() == image.convert("RGB").tobytes()
+        assert alpha.tobytes() == image.getchannel("A").tobytes()

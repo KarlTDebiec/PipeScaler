@@ -14,6 +14,7 @@ from pipescaler.image.core.validation import (
     validate_image_and_convert_mode,
 )
 from pipescaler.image.operators.processors import PotraceProcessor, ThresholdProcessor
+from pipescaler.testing.file import get_test_input_path
 
 
 @pytest.mark.parametrize("mode", ["1", "L", "P"])
@@ -37,6 +38,7 @@ def test_threshold_output_contract(mode: str, denoise: bool):
 
     assert processor.outputs() == {"output": ("1",)}
     assert output.mode in processor.outputs()["output"]
+    assert output.size == image.size
     if mode == "1":
         assert output.mode == "1"
         assert output.tobytes() == image.tobytes()
@@ -115,3 +117,24 @@ def test_validation_reports_mode_after_palette_removal():
     assert original_mode == "L"
     assert output.mode == "RGB"
     assert output.getpixel((0, 0)) == (128, 128, 128)
+
+
+@pytest.mark.parametrize("processor_type", [PotraceProcessor, ThresholdProcessor])
+@pytest.mark.parametrize(
+    "input_filename", ["LA", "RGB", "RGBA", "PLA", "PRGB", "PRGBA"]
+)
+def test_grayscale_processors_reject_color_or_alpha(
+    processor_type: type[PotraceProcessor] | type[ThresholdProcessor],
+    input_filename: str,
+):
+    """Reject unsupported modes after expanding palettes.
+
+    Arguments:
+        processor_type: grayscale-only processor
+        input_filename: unsupported color or alpha fixture
+    """
+    with Image.open(get_test_input_path(input_filename)) as image:
+        with pytest.raises(
+            UnsupportedImageModeError, match="is not among supported modes"
+        ):
+            processor_type()(image)

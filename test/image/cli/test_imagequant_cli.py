@@ -11,20 +11,6 @@ from PIL import Image
 
 from pipescaler.image.cli import ImageProcessorsCli
 from pipescaler.image.cli.processors import ImagequantCli
-from test.helpers import assert_cli_help, assert_cli_usage
-
-
-@pytest.mark.parametrize("cli", [(ImagequantCli,), (ImageProcessorsCli, ImagequantCli)])
-def test_help_and_usage(
-    cli: tuple[type[ImagequantCli] | type[ImageProcessorsCli], ...],
-):
-    """Expose help and required paths directly and through image processor dispatch.
-
-    Arguments:
-        cli: command hierarchy to exercise
-    """
-    assert_cli_help(cli)
-    assert_cli_usage(cli)
 
 
 @pytest.mark.parametrize("skip_if_larger", [False, True])

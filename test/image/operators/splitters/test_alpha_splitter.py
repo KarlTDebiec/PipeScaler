@@ -71,7 +71,8 @@ def test(input_filename: str, splitter: AlphaSplitter, supported: bool):
         supported: whether the input modes are accepted
     """
     input_path = get_test_input_path(input_filename)
-    input_img = Image.open(input_path)
+    with Image.open(input_path) as source:
+        input_img = source.resize((8, 8), Image.Resampling.NEAREST)
     if not supported:
         with pytest.raises(
             UnsupportedImageModeError, match="is not among supported modes"

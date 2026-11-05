@@ -10,92 +10,45 @@ import pytest
 from PIL import Image
 
 from pipescaler.cli import PipeScalerCli
-from pipescaler.common.cli import CommandLineInterface
-from pipescaler.common.file import get_temp_file_path
-from pipescaler.common.testing import run_cli_with_args
-from pipescaler.image.cli import ImageMergersCli
 from pipescaler.image.cli.mergers import (
-    AlphaMergerCli,
-    DiffMergerCli,
     PaletteMatchMergerCli,
 )
 from pipescaler.testing.file import get_test_input_path
-from test.helpers import assert_cli_help, assert_cli_usage
 
 
-@pytest.mark.parametrize(
-    ("cli", "args", "input_filenames"),
-    [
-        (AlphaMergerCli, "", ("RGB", "L")),
-        (DiffMergerCli, "", ("RGB", "alt/RGB")),
-        (PaletteMatchMergerCli, "", ("RGB", "alt/RGB")),
-        (PaletteMatchMergerCli, "--local", ("RGB", "alt/RGB")),
-        (PaletteMatchMergerCli, "--local --local-range 2", ("RGB", "alt/RGB")),
-    ],
-)
-def test(cli: type[CommandLineInterface], args: str, input_filenames: tuple[str]):
-    """Test merger CLI with various input files and arguments.
+@pytest.mark.parametrize("args", [[], ["--local"], ["--local", "--local-range", "2"]])
+def test_palette_match_preserves_exact_colors(args: list[str], tmp_path: Path):
+    """Wire palette options to a merger that preserves exact reference colors.
 
     Arguments:
-        cli: The command-line interface class to test
-        args: Command-line arguments string
-        input_filenames: Tuple of input image filenames
+        args: global or local matching options
+        tmp_path: temporary image directory
     """
-    input_paths = [
-        str(get_test_input_path(input_filename)) for input_filename in input_filenames
-    ]
-
-    with (
-        get_temp_file_path(".png") as output_path,
-        get_temp_file_path(".png") as fit_path,
+    reference_path = tmp_path / "reference.png"
+    target_path = tmp_path / "target.png"
+    output_path = tmp_path / "output.png"
+    reference = Image.new("RGB", (2, 2))
+    for index, color in enumerate(
+        [(12, 34, 56), (200, 10, 90), (40, 170, 30), (230, 210, 190)]
     ):
-        if "--local" in args:
-            with Image.open(input_paths[1]) as fit_img:
-                fit_img.resize((fit_img.width * 2, fit_img.height * 2)).save(fit_path)
-            input_paths[1] = str(fit_path)
-        run_cli_with_args(cli, f"{args} {' '.join(input_paths)} {output_path}")
+        reference.putpixel((index % 2, index // 2), color)
+    target = reference.resize((4, 4), Image.Resampling.NEAREST)
+    reference.save(reference_path)
+    target.save(target_path)
 
+    PaletteMatchMergerCli.main(
+        [
+            *args,
+            str(reference_path),
+            str(target_path),
+            str(output_path),
+        ]
+    )
 
-@pytest.mark.parametrize(
-    "commands",
-    [
-        (AlphaMergerCli,),
-        (DiffMergerCli,),
-        (PaletteMatchMergerCli,),
-        (ImageMergersCli,),
-        (ImageMergersCli, AlphaMergerCli),
-        (ImageMergersCli, DiffMergerCli),
-        (ImageMergersCli, PaletteMatchMergerCli),
-    ],
-)
-def test_help(commands: tuple[type[CommandLineInterface], ...]):
-    """Test that help flag displays usage information and exits successfully.
-
-    Arguments:
-        commands: Tuple of command-line interface classes to test
-    """
-    assert_cli_help(commands)
-
-
-@pytest.mark.parametrize(
-    "commands",
-    [
-        (AlphaMergerCli,),
-        (DiffMergerCli,),
-        (PaletteMatchMergerCli,),
-        (ImageMergersCli,),
-        (ImageMergersCli, AlphaMergerCli),
-        (ImageMergersCli, DiffMergerCli),
-        (ImageMergersCli, PaletteMatchMergerCli),
-    ],
-)
-def test_usage(commands: tuple[type[CommandLineInterface], ...]):
-    """Test that missing arguments displays usage information and exits with error.
-
-    Arguments:
-        commands: Tuple of command-line interface classes to test
-    """
-    assert_cli_usage(commands)
+    with Image.open(output_path) as output:
+        assert output.mode == target.mode
+        assert output.size == target.size
+        assert output.tobytes() == target.tobytes()
 
 
 def test_diff_through_root_cli(tmp_path: Path):

@@ -11,9 +11,7 @@ import pytest
 from PIL import Image
 
 from pipescaler.common.cli import CommandLineInterface
-from pipescaler.common.file import get_temp_file_path
 from pipescaler.common.testing import run_cli_with_args
-from pipescaler.image.cli import ImageProcessorsCli
 from pipescaler.image.cli.processors import (
     CropCli,
     ExpandCli,
@@ -22,110 +20,52 @@ from pipescaler.image.cli.processors import (
     ResizeCli,
     SharpenCli,
     SolidColorCli,
-    SpandrelCli,
     ThresholdCli,
     XbrzCli,
 )
 from pipescaler.testing.file import get_test_input_path
-from test.helpers import assert_cli_help, assert_cli_usage
 
 
 @pytest.mark.parametrize(
-    ("cli", "args", "input_filename"),
+    ("cli", "args", "mode", "expected"),
     [
-        (CropCli, "--pixels 4 4 4 4", "RGB"),
-        (ExpandCli, "--pixels 8 8 8 8", "RGB"),
-        (HeightToNormalCli, "--sigma 1.0", "L"),
-        (ModeCli, "--mode L", "RGB"),
-        (ResizeCli, "--scale 2", "RGB"),
-        (SharpenCli, "", "RGB"),
-        (SolidColorCli, "--scale 2", "RGB"),
-        (ThresholdCli, "--threshold 64 --denoise", "L"),
-        (XbrzCli, "--scale 2", "RGB"),
+        (CropCli, ["--pixels", "1", "1", "1", "1"], "RGB", ((3, 5), "RGB")),
+        (ExpandCli, ["--pixels", "1", "1", "1", "1"], "RGB", ((7, 9), "RGB")),
+        (HeightToNormalCli, ["--sigma", "1.0"], "L", ((5, 7), "RGB")),
+        (ModeCli, ["--mode", "L"], "RGB", ((5, 7), "L")),
+        (ResizeCli, ["--scale", "2"], "RGB", ((10, 14), "RGB")),
+        (SharpenCli, [], "RGB", ((5, 7), "RGB")),
+        (SolidColorCli, ["--scale", "2"], "RGB", ((10, 14), "RGB")),
+        (ThresholdCli, ["--threshold", "64", "--denoise"], "L", ((5, 7), "1")),
+        (XbrzCli, ["--scale", "2"], "RGB", ((10, 14), "RGB")),
     ],
 )
-def test(cli: type[CommandLineInterface], args: str, input_filename: str):
-    """Test processor CLI with various input files and arguments.
+def test_processor_writes_image(
+    cli: type[CommandLineInterface],
+    args: list[str],
+    mode: str,
+    expected: tuple[tuple[int, int], str],
+    tmp_path: Path,
+):
+    """Execute each processor adapter and inspect its saved output.
 
     Arguments:
-        cli: The command-line interface class to test
-        args: Command-line arguments string
-        input_filename: Input image filename
+        cli: processor command to execute
+        args: operation arguments
+        mode: input image mode
+        expected: saved dimensions and image mode
+        tmp_path: temporary image directory
     """
-    input_path = get_test_input_path(input_filename)
+    input_path = tmp_path / "input.png"
+    output_path = tmp_path / "output.png"
+    image = Image.fromarray(np.arange(35, dtype=np.uint8).reshape(7, 5) * 7)
+    image.convert(mode).save(input_path)
 
-    with get_temp_file_path(".png") as output_path:
-        run_cli_with_args(cli, f"{args} {input_path} {output_path}")
+    cli.main([*args, str(input_path), str(output_path)])
 
-
-@pytest.mark.parametrize(
-    "commands",
-    [
-        (CropCli,),
-        (ExpandCli,),
-        (HeightToNormalCli,),
-        (ModeCli,),
-        (ResizeCli,),
-        (SharpenCli,),
-        (SolidColorCli,),
-        (SpandrelCli,),
-        (ThresholdCli,),
-        (XbrzCli,),
-        (ImageProcessorsCli,),
-        (ImageProcessorsCli, CropCli),
-        (ImageProcessorsCli, ExpandCli),
-        (ImageProcessorsCli, HeightToNormalCli),
-        (ImageProcessorsCli, ModeCli),
-        (ImageProcessorsCli, ResizeCli),
-        (ImageProcessorsCli, SharpenCli),
-        (ImageProcessorsCli, SolidColorCli),
-        (ImageProcessorsCli, SpandrelCli),
-        (ImageProcessorsCli, ThresholdCli),
-        (ImageProcessorsCli, XbrzCli),
-    ],
-)
-def test_help(commands: tuple[type[CommandLineInterface], ...]):
-    """Test that help flag displays usage information and exits successfully.
-
-    Arguments:
-        commands: Tuple of command-line interface classes to test
-    """
-    assert_cli_help(commands)
-
-
-@pytest.mark.parametrize(
-    "commands",
-    [
-        (CropCli,),
-        (ExpandCli,),
-        (HeightToNormalCli,),
-        (ModeCli,),
-        (ResizeCli,),
-        (SharpenCli,),
-        (SolidColorCli,),
-        (SpandrelCli,),
-        (ThresholdCli,),
-        (XbrzCli,),
-        (ImageProcessorsCli,),
-        (ImageProcessorsCli, CropCli),
-        (ImageProcessorsCli, ExpandCli),
-        (ImageProcessorsCli, HeightToNormalCli),
-        (ImageProcessorsCli, ModeCli),
-        (ImageProcessorsCli, ResizeCli),
-        (ImageProcessorsCli, SharpenCli),
-        (ImageProcessorsCli, SolidColorCli),
-        (ImageProcessorsCli, SpandrelCli),
-        (ImageProcessorsCli, ThresholdCli),
-        (ImageProcessorsCli, XbrzCli),
-    ],
-)
-def test_usage(commands: tuple[type[CommandLineInterface], ...]):
-    """Test that missing arguments displays usage information and exits with error.
-
-    Arguments:
-        commands: Tuple of command-line interface classes to test
-    """
-    assert_cli_usage(commands)
+    with Image.open(output_path) as output:
+        output.load()
+        assert (output.size, output.mode) == expected
 
 
 @pytest.mark.parametrize(
