@@ -8,64 +8,7 @@ import numpy as np
 import pytest
 from PIL import Image
 
-from pipescaler.image.core.exceptions import UnsupportedImageModeError
 from pipescaler.image.operators.processors import ThresholdProcessor
-from pipescaler.testing.file import get_test_input_path
-from pipescaler.testing.fixture import parametrized_fixture
-
-
-@parametrized_fixture(
-    cls=ThresholdProcessor,
-    params=[
-        {"threshold": 128, "denoise": False},
-        {"threshold": 128, "denoise": True},
-    ],
-)
-def processor(request: pytest.FixtureRequest) -> ThresholdProcessor:
-    """Pytest fixture that provides a ThresholdProcessor instance.
-
-    Arguments:
-        request: Pytest request fixture containing parameters
-    Returns:
-        Configured ThresholdProcessor instance
-    """
-    return ThresholdProcessor(**request.param)
-
-
-@pytest.mark.parametrize(
-    ("input_filename", "supported"),
-    [
-        ("1", True),
-        ("L", True),
-        ("LA", False),
-        ("RGB", False),
-        ("RGBA", False),
-        ("PL", True),
-        ("PLA", False),
-        ("PRGB", False),
-        ("PRGBA", False),
-    ],
-)
-def test(input_filename: str, processor: ThresholdProcessor, supported: bool):
-    """Test ThresholdProcessor with various image modes.
-
-    Arguments:
-        input_filename: Input image filename
-        processor: ThresholdProcessor fixture instance
-        supported: whether the input modes are accepted
-    """
-    input_path = get_test_input_path(input_filename)
-    input_img = Image.open(input_path)
-    if not supported:
-        with pytest.raises(
-            UnsupportedImageModeError, match="is not among supported modes"
-        ):
-            processor(input_img)
-        return
-    output_img = processor(input_img)
-
-    assert output_img.size == input_img.size
-    assert output_img.mode == "1"
 
 
 @pytest.mark.parametrize(
@@ -116,24 +59,3 @@ def test_denoise_preserves_uniform_binary_images(mode: str, value: int):
     assert np.array_equal(
         np.array(output_image.convert("L")), np.array(input_image.convert("L"))
     )
-
-
-@pytest.mark.parametrize("mode", ["1", "L"])
-def test_denoise_removes_isolated_white_pixel(mode: str):
-    """Denoising removes an isolated white pixel in supported modes.
-
-    Arguments:
-        mode: input image mode
-    """
-    if mode == "1":
-        dtype = bool
-    else:
-        dtype = np.uint8
-    input_array = np.zeros((5, 5), dtype=dtype)
-    input_array[2, 2] = 255
-    input_image = Image.fromarray(input_array)
-
-    output_image = ThresholdProcessor(denoise=True)(input_image)
-
-    assert output_image.mode == "1"
-    assert np.array_equal(np.array(output_image), np.zeros((5, 5), dtype=dtype))

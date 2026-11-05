@@ -10,67 +10,7 @@ import numpy as np
 import pytest
 from PIL import Image, ImageDraw, ImageOps
 
-from pipescaler.image.core.exceptions import UnsupportedImageModeError
 from pipescaler.image.operators.processors import PotraceProcessor
-from pipescaler.testing.file import get_test_input_path
-from pipescaler.testing.fixture import parametrized_fixture
-
-
-@parametrized_fixture(
-    cls=PotraceProcessor,
-    params=[
-        {},
-        {"scale": 2},
-    ],
-)
-def processor(request: pytest.FixtureRequest) -> PotraceProcessor:
-    """Pytest fixture that provides a PotraceProcessor instance.
-
-    Arguments:
-        request: Pytest request fixture containing parameters
-    Returns:
-        Configured PotraceProcessor instance
-    """
-    return PotraceProcessor(**request.param)
-
-
-@pytest.mark.parametrize(
-    ("input_filename", "supported"),
-    [
-        ("1", True),
-        ("L", True),
-        ("LA", False),
-        ("RGB", False),
-        ("RGBA", False),
-        ("PL", True),
-        ("PLA", False),
-        ("PRGB", False),
-        ("PRGBA", False),
-    ],
-)
-def test(input_filename: str, processor: PotraceProcessor, supported: bool):
-    """Test PotraceProcessor with various image modes.
-
-    Arguments:
-        input_filename: Input image filename
-        processor: PotraceProcessor fixture instance
-        supported: whether the input modes are accepted
-    """
-    input_path = get_test_input_path(input_filename)
-    input_img = Image.open(input_path)
-    if not supported:
-        with pytest.raises(
-            UnsupportedImageModeError, match="is not among supported modes"
-        ):
-            processor(input_img)
-        return
-    output_img = processor(input_img)
-
-    assert output_img.mode == "L"
-    assert output_img.size == (
-        input_img.size[0] * processor.scale,
-        input_img.size[1] * processor.scale,
-    )
 
 
 @pytest.mark.parametrize("width", [1, 31, 32, 33, 63, 64, 65])

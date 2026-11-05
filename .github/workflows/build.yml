@@ -66,7 +66,7 @@ jobs:
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: |
           export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
-          uv run --frozen --no-default-groups --group cpu --group dev pytest -v --cov=pipescaler --cov-report term test
+          uv run --frozen --no-default-groups --group cpu --group dev pytest -v --durations=20 --cov=pipescaler --cov-report term test
 
   macOS:
     runs-on: macos-latest
@@ -110,7 +110,7 @@ jobs:
       - name: Run tests
         run: |
           export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
-          uv run --frozen --no-default-groups --group cpu --group dev pytest -v --cov=pipescaler --cov-report term test
+          uv run --frozen --no-default-groups --group cpu --group dev pytest -v --durations=20 --cov=pipescaler --cov-report term test
 
   Windows:
     runs-on: windows-latest
@@ -151,4 +151,4 @@ jobs:
         shell: bash
         run: |
           export PACKAGE_ROOT=${GITHUB_WORKSPACE}/pipescaler
-          uv run --frozen --no-default-groups --group cpu --group dev pytest -v --cov=pipescaler --cov-report term test
+          uv run --frozen --no-default-groups --group cpu --group dev pytest -v --durations=20 --cov=pipescaler --cov-report term test
