@@ -30,6 +30,11 @@ cuda = [
     "torch>=2.12.0; sys_platform != 'darwin'",
     "torchvision>=0.27.0; sys_platform != 'darwin'",
 ]
+temporalfix = [
+    "vapoursynth>=82",
+    "vapoursynth-bestsource>=23",
+    "vs-temporalfix==2.4.1",
+]
 
 [project.scripts]
 pipescaler = "pipescaler.cli.pipescaler_cli:PipeScalerCli.main"

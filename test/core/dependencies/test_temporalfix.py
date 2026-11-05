@@ -45,7 +45,7 @@ def test_missing_dependency(
         with pytest.raises(DependencyError) as error:
             importer()
     assert isinstance(error.value, PipeScalerError)
-    assert "VapourSynth R74+ and vs_temporalfix==2.4.1" in str(error.value)
+    assert "pipescaler[temporalfix]" in str(error.value)
     assert error.value.__cause__ is failure
 
 
