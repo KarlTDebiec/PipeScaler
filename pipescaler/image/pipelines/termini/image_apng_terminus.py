@@ -149,9 +149,11 @@ class ImageApngTerminus(ImageTerminus):
             raise ValueError("Cannot reenter an active or closed APNG terminus")
         try:
             self.output_path.parent.mkdir(parents=True, exist_ok=True)
-            self._assembler = self._stack.enter_context(APNGAsmBinder())
-            self._assembler.set_loops(self.loops)
-            self._assembler.set_skip_first(self.skip_first)
+            assembler = APNGAsmBinder()
+            self._stack.enter_context(assembler)
+            assembler.set_loops(self.loops)
+            assembler.set_skip_first(self.skip_first)
+            self._assembler = assembler
         except BaseException:
             self._closed = True
             self._assembler = None

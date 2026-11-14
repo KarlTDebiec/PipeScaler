@@ -34,7 +34,7 @@ class PointwiseUpscaler(torch.nn.Module):
             assert self.layer.bias is not None
             self.layer.bias.fill_(0.012345)
 
-    def forward(self, tensor: torch.Tensor) -> torch.Tensor:  # ty: ignore[invalid-mutable-override]
+    def forward(self, tensor: torch.Tensor) -> torch.Tensor:
         """Record padded geometry and upscale transformed input.
 
         Arguments:
